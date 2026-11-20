@@ -80,3 +80,23 @@ need reversible names. Streaming tool arguments may interleave across indices.
 No tool is executable until a complete valid call is received. A truncated stream
 must never be reported as completed, and partial tool calls must not execute.
 
+## Build, testing, licensing and implementation order
+
+Read `docs/install.md`, `docs/contributing.md`, `LICENSE`, `NOTICE` and the pinned
+toolchain. Upstream builds with `cargo build` in `codex-rs`, uses `just fmt`,
+`just fix -p CRATE`, `just test -p CRATE` / nextest; routine runs avoid all-features.
+The current contributing guide accepts issues, not external PRs. This local fork
+does not push anything. Preserve Apache-2.0 and NOTICE in all distributions.
+
+1. Baseline build/test before edits: attempted; unavailable workspace member
+   `aws-auth/Cargo.toml` prevents even manifest loading. Clone failed resolving
+   github.com. Record as environment/source-availability failures, not test failures.
+2. Implement and test request/history/tool and SSE translation independently.
+3. Wire provider, authenticated HTTP, catalog and stream integration into upstream.
+4. Validate real authenticated chat and tool execution with proxy/key; neither
+   is currently available. Do not treat mocks as real inference.
+5. Implemented provider login/model commands before product branding; their
+   compilation and OS integration are still blocked by the incomplete source.
+6. Only after coding workflow validation: CLI/TUI branding, npm package changes
+   and native release artifacts.
+
