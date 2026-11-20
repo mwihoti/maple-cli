@@ -1,0 +1,14 @@
+# Apply with -c options or add these non-secret settings to your Codex config.
+model_provider = "maple"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[features]
+api_key_model_discovery = true
+
+[analytics]
+enabled = false
+
+# Optional; authentication always uses MAPLE_API_KEY or the OS credential store.
+# [model_providers.maple]
+# base_url = "http://127.0.0.1:8080/v1"
