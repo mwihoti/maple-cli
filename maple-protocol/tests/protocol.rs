@@ -312,3 +312,38 @@ fn malformed_frames_invalid_utf8_and_inconsistent_response_ids_fail_closed() {
             .is_err()
     );
 }
+
+#[test]
+fn reasoning_and_usage_metadata_are_preserved_without_inventing_totals() {
+    let mut d = Decoder::new(BTreeMap::new());
+    let mut events = d
+        .feed(&frame(
+            json!({"reasoning":"Consider tests", "content":"Done"}),
+            json!("stop"),
+        ))
+        .unwrap();
+    events.extend(d.feed(format!("data: {}\n\n",json!({"id":"chat-fixture","choices":[],"usage":{
+        "prompt_tokens":20,"completion_tokens":12,"total_tokens":32,
+        "prompt_tokens_details":{"cached_tokens":8},"completion_tokens_details":{"reasoning_tokens":9}}})).as_bytes()).unwrap());
+    events.extend(d.feed(b"data: [DONE]\n\n").unwrap());
+    assert_eq!(done(&events)[0]["type"], "reasoning");
+    let usage = &events.last().unwrap()["response"]["usage"];
+    assert_eq!(usage["input_tokens"], 20);
+    assert_eq!(usage["output_tokens_details"]["reasoning_tokens"], 9);
+    let d = Decoder::new(BTreeMap::new());
+    let events = d
+        .completion(&json!({"id":"plain","choices":[{
+        "message":{"role":"assistant","content":"ok"},"finish_reason":"stop"}]}))
+        .unwrap();
+    assert!(events.last().unwrap()["response"]["usage"].is_null());
+}
+
+#[test]
+fn non_streaming_completion_supports_real_tool_calls() {
+    let c = request::translate(&request()).unwrap();
+    let name = c.body["tools"][0]["function"]["name"].clone();
+    let events=Decoder::new(c.tools).completion(&json!({"id":"single","choices":[{
+        "message":{"role":"assistant","content":null,"tool_calls":[{"id":"a","type":"function",
+            "function":{"name":name,"arguments":"{\"cmd\":\"cargo test\"}"}}]},"finish_reason":"tool_calls"}]})).unwrap();
+    assert_eq!(done(&events)[0]["call_id"], "a");
+}
