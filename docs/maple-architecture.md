@@ -100,3 +100,17 @@ does not push anything. Preserve Apache-2.0 and NOTICE in all distributions.
 6. Only after coding workflow validation: CLI/TUI branding, npm package changes
    and native release artifacts.
 
+## Distribution investigation
+
+The upstream CLI manifest names `codex-cli` and its main bin `codex` at
+`cli/src/main.rs`. `codex-cli/bin/codex.js` maps Linux x64 to
+`x86_64-unknown-linux-musl` / `@openai/codex-linux-x64`, first resolving an
+optional platform package's `vendor`, then a bundled vendor directory. It
+launches `vendor/<target>/bin/codex`, forwards argv/environment and process
+signals, and annotates the installing package manager. A future Maple package
+must adapt these platform package names and vendor paths together with the
+native binary name and release scripts; renaming only the Node bin key is
+insufficient. No package name has been reserved, no npm artifacts produced,
+and no distribution or branding changes are applied before agent validation.
+
+No architectural rewrites, replacement tool runner or sandbox changes are needed.
