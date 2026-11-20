@@ -1,0 +1,31 @@
+{
+  "skipped": false,
+  "results": [
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--locked"
+      ],
+      "exit_code": 101,
+      "log": "../maple-code-full-baseline-build.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "codex-api",
+        "-p",
+        "codex-model-provider-info",
+        "-p",
+        "codex-protocol",
+        "-p",
+        "codex-cli"
+      ],
+      "exit_code": 101,
+      "log": "../maple-code-full-baseline-tests.log"
+    }
+  ]
+}
