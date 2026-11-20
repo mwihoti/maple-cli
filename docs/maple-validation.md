@@ -176,3 +176,37 @@ compiled daemon test executable, select that compact fixture through upstream's
 existing CARGO_BIN_EXE_codex hook, and execute tests serially. Preparation was
 verified here; the daemon suite still requires a host-terminal rerun because this
 agent environment restricts local socket access. No tests are skipped by the helper.
+
+## Live Maple validation and fixes
+
+Date: 2026-11-20. Maple Proxy 0.3.2 (`ghcr.io/opensecretcloud/maple-proxy`),
+debug CLI built from this branch.
+
+- `codex maple models` returned nine tool-capable models through the proxy.
+- `codex exec` with `deepseek-v4-1-flash` and `glm-5-3-flash` completed turns,
+  including a real `ls` tool call whose result the model summarized.
+
+Three defects were found against the live service and fixed:
+
+- Every turn failed with "hosted or deferred tools are unsupported" because the
+  default cached web search adds a hosted `web_search` tool. The Maple provider
+  now reports no hosted web search or image generation.
+- The proxy opens each stream with `{"role":"assistant","content":""}`. The
+  adapter emitted that empty delta before `response.output_item.added`, which
+  the debug CLI treats as a protocol violation. Empty text deltas are skipped.
+- The catalog request had a 5 second deadline, but the proxy's first request
+  after start or idle includes an attestation handshake measured at 7-14
+  seconds. The Maple catalog deadline is now 45 seconds.
+
+Measured single-request latency for a one-sentence prompt, low versus high
+`reasoning_effort`: gpt-oss-120b 2.1 s / 5.1 s, kimi-k3-1-pro 2.9 s / 5.8 s,
+glm-5-3 2.4 s / 4.9 s, deepseek-v4-1-flash 1.9 s / 2.5 s. These are single
+samples, not benchmarks.
+
+For roughly ten minutes during testing every request returned 502 with
+"PCR0 is not approved by the configured trust policy" from both the container
+and the extracted proxy binary; it cleared without local changes.
+
+Still unverified: OS keyring login, interactive approval prompts, session
+resume, MCP tools exposed through deferred tool search, and the release build.
+
