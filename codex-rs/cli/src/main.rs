@@ -65,6 +65,7 @@ mod exec_args_tests;
 #[cfg(test)]
 #[path = "exec_server_args_tests.rs"]
 mod exec_server_args_tests;
+mod maple_cmd;
 mod marketplace_cmd;
 mod mcp_cmd;
 mod mcp_login;
