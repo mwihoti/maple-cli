@@ -113,3 +113,66 @@ History roundtrip tests do not prove the complete TUI session-resume flow.
   existing restricted-variable mechanism. This does not create a new OS-level
   secret isolation boundary against deliberately reading same-user process memory.
 
+## Full-checkout follow-up
+
+The host helper completed cloning and applied the overlay to
+a sibling `maple-code-full` directory. Its baseline build and tests both exited 101:
+the release lockfile still used internal package version 0.0.0 while the tagged
+workspace used 0.170.0, and crates.io DNS resolution failed. Helper completion
+did not mean a successful baseline build.
+
+The current lockfile normalizes the 174 internal versions and adds the local
+Maple protocol package. External dependency versions and checksums retain
+their pinned values. `cargo fetch --locked --offline` now succeeds with the
+populated cache. The current tests use installed Rust 1.99.1.
+
+All 22 standalone protocol tests and seven Python probe tests passed. The
+seven native `maple_tests` passed with an in-memory transport, as did both
+credential-store tests and both shell-environment tests. The smoke harness
+passed with a test executable that made a deterministic fixture edit and
+confirmed that the baseline source was staged.
+
+The workspace test build produced `codex-rs/target/debug/codex`. The executable
+reported version 0.170.0, displayed the Maple subcommands, and recognized a
+fixture environment key in `maple auth status`. The provider-info suite passed
+46 tests, and the protocol suite passed 381. The API suite passed 196 tests,
+including the Maple tests. Its remaining 17 tests hit the sandbox's socket
+restriction when starting mock servers.
+
+The model-provider and CLI unit suites showed the same socket restriction.
+The model-provider suite passed 101 tests and had 37 socket failures. The two
+CLI targets passed 299 tests, had 12 socket failures, and ignored one test.
+
+The user's terminal successfully retrieved Maple's authenticated model catalog.
+That confirms catalog access from the host; model inference and the coding
+workflow remain unverified.
+
+## Native build and temporary-storage follow-up
+
+The host has now compiled the integrated native CLI. The existing binary reports
+`codex-cli 0.170.0`, and `codex maple --help` exposes the provider commands.
+The earlier uncompiled-state notes above describe the initial environment and
+are superseded by this update for the full checkout.
+
+Executed directly from the host-built test executables, without a Cargo rebuild:
+
+- codex-api `maple_tests`: **7 passed** (real upstream parser/transport interfaces,
+  with deterministic memory responses).
+- model-provider-info `maple_credentials::tests`: **2 passed**.
+- protocol `maple_key_tests`: **2 passed**.
+
+These 11 native tests do not establish live Maple inference or OS keyring access.
+
+The CLI daemon suite's 14 reported failures occurred while constructing test
+fixtures: each concurrent test tried to copy a 1269 MiB debug CLI onto the
+quota-enabled /tmp filesystem. Fixture setup hardcodes /tmp, so TMPDIR does not
+redirect it. The source filesystem has free space; no files or caches were deleted.
+
+A separate stripped CLI fixture was prepared at
+`codex-rs/target/maple-test-bin/codex` (427 MiB), and its version was verified.
+The original debug executable remains unchanged. Run
+`python scripts/test-daemon-low-disk.py` from the full checkout to reuse the
+compiled daemon test executable, select that compact fixture through upstream's
+existing CARGO_BIN_EXE_codex hook, and execute tests serially. Preparation was
+verified here; the daemon suite still requires a host-terminal rerun because this
+agent environment restricts local socket access. No tests are skipped by the helper.
