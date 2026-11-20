@@ -83,6 +83,8 @@ const MAX_STREAM_MAX_RETRIES: u64 = 100;
 const MAX_REQUEST_MAX_RETRIES: u64 = 100;
 
 pub const OPENAI_PROVIDER_NAME: &str = "OpenAI";
+pub const MAPLE_PROVIDER_NAME: &str = "Maple";
+pub const MAPLE_PROVIDER_ID: &str = "maple";
 const OPENAI_ACTOR_AUTHORIZATION_HEADER: &str = "x-openai-actor-authorization";
 pub const OPENAI_PROVIDER_ID: &str = "openai";
 pub const CHATGPT_CODEX_BASE_URL: &str = "https://chatgpt.com/backend-api/codex";
@@ -944,6 +946,27 @@ pub fn create_oss_provider_with_base_url(base_url: &str, wire_api: WireApi) -> M
         location: None,
         credential_file: None,
         include_internal_metadata: false,
+    }
+}
+
+/// Maple uses Responses internally, with a Chat Completions adapter at the HTTP boundary.
+pub fn create_maple_provider() -> ModelProviderInfo {
+    ModelProviderInfo {
+        name: MAPLE_PROVIDER_NAME.into(),
+        base_url: Some(
+            std::env::var("MAPLE_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:8080/v1".into()),
+        ),
+        env_key: Some("MAPLE_API_KEY".into()),
+        env_key_instructions: Some(
+            "Set MAPLE_API_KEY to your Maple API key and start Maple Proxy.".into(),
+        ),
+        wire_api: WireApi::Responses,
+        capabilities: Some(ModelProviderCapabilities {
+            cyber_access_programs: Some(false),
+            external_web_access: Some(false),
+            remote_compaction: Some(RemoteCompactionSupport::Unsupported),
+        }),
+        ..Default::default()
     }
 }
 
