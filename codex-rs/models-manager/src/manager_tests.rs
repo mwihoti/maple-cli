@@ -46,6 +46,65 @@ mod catalog_origin_tests;
 const DEFAULT_HTTP_CLIENT_FACTORY: HttpClientFactory =
     HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault);
 
+#[tokio::test]
+async fn explicit_catalog_read_propagates_access_and_rate_limit_errors() {
+    for status in [401, 403, 429] {
+        let endpoint = TestModelsEndpoint::with_command_auth(vec![Err(catalog_http_error(status))]);
+        let manager =
+            OpenAiModelsManager::new_without_cache(endpoint.clone(), None).with_provider_catalog();
+        let error = manager
+            .try_raw_model_catalog(RefreshStrategy::Online, DEFAULT_HTTP_CLIENT_FACTORY)
+            .await
+            .expect_err("explicit discovery must report the HTTP failure");
+        assert_eq!(error.http_status_code_value(), Some(status));
+        assert_eq!(endpoint.fetch_count(), 1);
+    }
+}
+
+#[tokio::test]
+async fn explicit_catalog_read_reports_parse_errors_without_claiming_no_models() {
+    let endpoint = TestModelsEndpoint::with_command_auth(vec![Err(CodexErr::InvalidRequest(
+        "fixture malformed catalog".into(),
+    ))]);
+    let manager = OpenAiModelsManager::new_without_cache(endpoint, None).with_provider_catalog();
+    let error = manager
+        .try_raw_model_catalog(RefreshStrategy::Online, DEFAULT_HTTP_CLIENT_FACTORY)
+        .await
+        .expect_err("invalid data must not become an empty success");
+    assert!(error.to_string().contains("fixture malformed catalog"));
+}
+
+#[tokio::test]
+async fn explicit_catalog_read_does_not_return_stale_success_after_refresh_failure() {
+    let models = vec![remote_model("fixture-model", "Fixture Model", 0)];
+    let endpoint = TestModelsEndpoint::with_command_auth(vec![
+        Ok(models.clone()),
+        Err(CodexErr::RequestTimeout),
+        Err(CodexErr::InvalidRequest("fixture malformed catalog".into())),
+    ]);
+    let manager =
+        OpenAiModelsManager::new_without_cache(endpoint.clone(), None).with_provider_catalog();
+    let first = manager
+        .try_raw_model_catalog(RefreshStrategy::Online, DEFAULT_HTTP_CLIENT_FACTORY)
+        .await
+        .expect("initial fetch succeeds");
+    assert_eq!(first.models, models);
+    let error = manager
+        .try_raw_model_catalog(RefreshStrategy::Online, DEFAULT_HTTP_CLIENT_FACTORY)
+        .await
+        .expect_err("explicit command must report timeout instead of stale data");
+    assert!(matches!(error.details(), CodexErrorDetails::RequestTimeout));
+    // Existing best-effort conversation reads keep the last successful snapshot.
+    assert_eq!(
+        manager
+            .raw_model_catalog(RefreshStrategy::Online, DEFAULT_HTTP_CLIENT_FACTORY,)
+            .await
+            .models,
+        models
+    );
+    assert_eq!(endpoint.fetch_count(), 3);
+}
+
 fn remote_model(slug: &str, display: &str, priority: i32) -> ModelInfo {
     remote_model_with_visibility(slug, display, priority, "list")
 }
