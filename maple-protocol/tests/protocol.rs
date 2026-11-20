@@ -406,3 +406,52 @@ fn malformed_catalog_and_invalid_context_are_errors() {
     c["data"].as_array_mut().unwrap().push(entry);
     assert!(catalog::translate(&c).is_err());
 }
+
+#[test]
+fn provider_errors_never_echo_credentials_or_raw_payloads() {
+    assert!(http_error(401).to_string().contains("MAPLE_API_KEY"));
+    assert!(http_error(403).to_string().contains("entitlement"));
+    assert!(http_error(429).to_string().contains("rate limit"));
+    for status in [400, 401, 403, 404, 408, 413, 429, 500, 502, 504] {
+        let text = format!("{:?}: {}", http_error(status), http_error(status));
+        assert!(!text.contains("Bearer"));
+        assert!(!text.contains("sensitive-token"));
+    }
+    let mut r = request();
+    r["input"] = json!([{"type":"unknown-sensitive-token"}]);
+    assert!(!format!("{:?}", request::translate(&r).err()).contains("unknown-sensitive-token"));
+}
+
+#[test]
+fn context_quota_and_capability_failures_use_safe_actionable_diagnostics() {
+    for (code, expected) in [
+        ("context_length_exceeded", "context limit"),
+        ("model_not_found", "entitlement"),
+        ("insufficient_quota", "remaining credits"),
+        ("unsupported_parameter", "capability"),
+    ] {
+        let body = json!({"error":{"code":code,"message":"Bearer sensitive-token"}}).to_string();
+        let message = maple_protocol::provider_error(400, Some(&body)).to_string();
+        assert!(message.contains(expected));
+        assert!(!message.contains("sensitive-token"));
+    }
+    assert_eq!(
+        maple_protocol::provider_error(401, Some("plain text secret")),
+        http_error(401)
+    );
+}
+
+#[test]
+fn a_fresh_decoder_does_not_inherit_cancelled_partial_output() {
+    let mut cancelled = Decoder::new(BTreeMap::new());
+    cancelled
+        .feed(&frame(json!({"content":"old partial"}), Value::Null))
+        .unwrap();
+    drop(cancelled);
+    let mut fresh = Decoder::new(BTreeMap::new());
+    fresh
+        .feed(&frame(json!({"content":"new response"}), json!("stop")))
+        .unwrap();
+    let events = fresh.feed(b"data: [DONE]\n\n").unwrap();
+    assert_eq!(done(&events)[0]["content"][0]["text"], "new response");
+}
