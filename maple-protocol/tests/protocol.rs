@@ -347,3 +347,62 @@ fn non_streaming_completion_supports_real_tool_calls() {
             "function":{"name":name,"arguments":"{\"cmd\":\"cargo test\"}"}}]},"finish_reason":"tool_calls"}]})).unwrap();
     assert_eq!(done(&events)[0]["call_id"], "a");
 }
+
+fn catalog() -> Value {
+    json!({"object":"list","data":[
+        {"id":"fixture-agent","display_name":"Fixture Agent","tasks":["generate"],
+        "capabilities":{"chat":true,"tool_use":true,"vision":false},"context_window":4096,
+        "reasoning":{"supported_efforts":["low","high"],"default_effort":"low"}},
+        {"id":"fixture-embed","tasks":["embed"],"capabilities":{"tool_use":false}},
+        {"id":"fixture-no-tools","tasks":["generate"],"capabilities":{"tool_use":false}},
+        {"id":"fixture-unknown","tasks":["generate"]}
+    ]})
+}
+
+#[test]
+fn catalog_filters_by_explicit_capabilities_without_assuming_entitlements() {
+    let catalog = catalog::translate(&catalog()).unwrap();
+    let entries = catalog["models"].as_array().unwrap();
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0]["slug"], "fixture-agent");
+    assert_eq!(entries[0]["context_window"], 4096);
+    assert_eq!(
+        entries[0]["supported_reasoning_levels"][1]["effort"],
+        "high"
+    );
+    assert_eq!(entries[0]["tool_mode"], "direct");
+}
+
+#[test]
+fn new_catalog_models_need_no_code_release_and_unknown_context_stays_unknown() {
+    let mut c = catalog();
+    c["data"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({"id":"new-fixture","tasks":["generate"],
+        "capabilities":{"tool_use":true,"vision":true}}));
+    let result = catalog::translate(&c).unwrap();
+    let new = &result["models"][1];
+    assert_eq!(new["slug"], "new-fixture");
+    assert!(new["context_window"].is_null());
+    assert_eq!(new["input_modalities"], json!(["text", "image"]));
+    assert!(new["default_reasoning_level"].is_null());
+}
+
+#[test]
+fn malformed_catalog_and_invalid_context_are_errors() {
+    for c in [
+        json!({}),
+        json!({"data":[]}),
+        json!({"data":[{"id":"unknown"}]}),
+    ] {
+        assert!(catalog::translate(&c).is_err());
+    }
+    let mut c = catalog();
+    c["data"][0]["context_window"] = json!(-1);
+    assert!(catalog::translate(&c).is_err());
+    let mut c = catalog();
+    let entry = c["data"][0].clone();
+    c["data"].as_array_mut().unwrap().push(entry);
+    assert!(catalog::translate(&c).is_err());
+}
