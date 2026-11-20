@@ -47,6 +47,9 @@ use crate::provider::resolve_api_provider;
 use crate::request_setup::resolve_request_auth;
 
 const MODELS_REFRESH_TIMEOUT: Duration = Duration::from_secs(5);
+// Maple Proxy re-attests the enclave before the first request after start or
+// idle; that handshake alone has been measured at 7-14 seconds.
+const MAPLE_MODELS_REFRESH_TIMEOUT: Duration = Duration::from_secs(45);
 const MODELS_ENDPOINT: &str = "/models";
 const FEDRAMP_CODEX_BASE_URL: &str = "https://gov.chatgpt.com/backend-api/codex";
 
@@ -145,8 +148,14 @@ impl OpenAiModelsEndpoint {
         client_version: &str,
         http_client_factory: HttpClientFactory,
     ) -> CoreResult<ModelsEndpointResponse> {
+        let deadline = if self.provider_info.name == codex_model_provider_info::MAPLE_PROVIDER_NAME
+        {
+            MAPLE_MODELS_REFRESH_TIMEOUT
+        } else {
+            MODELS_REFRESH_TIMEOUT
+        };
         timeout(
-            MODELS_REFRESH_TIMEOUT,
+            deadline,
             self.fetch_models(client_version, http_client_factory),
         )
         .await
