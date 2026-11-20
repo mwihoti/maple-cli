@@ -1,0 +1,17 @@
+# Copy to ~/.maple-code/config.toml for the scripts/maple-code launcher.
+model_provider = "maple"
+# Any ID from `maple-code maple models`.
+model = "deepseek-v4-1-flash"
+# Forwarded to Maple as reasoning_effort; lower is faster.
+model_reasoning_effort = "low"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[features]
+api_key_model_discovery = true
+# A source build has no installed package, so the background app-server
+# daemon cannot start.
+daemon_auto_start = false
+
+[analytics]
+enabled = false
