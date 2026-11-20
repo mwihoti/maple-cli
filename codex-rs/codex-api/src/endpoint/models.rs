@@ -76,8 +76,18 @@ impl<T: HttpTransport> ModelsClient<T> {
         let (body, header_etag) = self
             .list_models_raw(request_url, extra_headers, response_body_limit_bytes)
             .await?;
-        let ModelsResponse { models } =
-            serde_json::from_slice::<ModelsResponse>(&body).map_err(|e| {
+        let catalog_body = if self.session.provider().name == "Maple" {
+            let value: serde_json::Value = serde_json::from_slice(&body)
+                .map_err(|_| ApiError::Stream("Maple returned a malformed model catalog".into()))?;
+            let catalog =
+                maple_protocol::catalog::translate(&value).map_err(crate::maple::invalid)?;
+            serde_json::to_vec(&catalog)
+                .map_err(|_| ApiError::Stream("failed to encode Maple model catalog".into()))?
+        } else {
+            body.to_vec()
+        };
+        let ModelsResponse { models } = serde_json::from_slice::<ModelsResponse>(&catalog_body)
+            .map_err(|e| {
                 ApiError::Stream(format!(
                     "failed to decode models response: {:?} at line {} column {} (body: {} bytes)",
                     e.classify(),
