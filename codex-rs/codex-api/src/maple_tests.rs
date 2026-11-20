@@ -136,3 +136,48 @@ async fn provider_errors_are_redacted_before_request_telemetry() {
     assert!(!messages[0].contains("fixture-key"));
     assert!(!messages[0].contains("localhost"));
 }
+
+#[tokio::test]
+async fn idle_timeout_fails_and_releases_the_http_body() {
+    let mut transport = MemoryTransport::new(vec![]);
+    transport.hold_open = true;
+    let dropped = Arc::clone(&transport.dropped);
+    let client = ResponsesClient::new(transport, provider(), Arc::new(KeyAuth(true)));
+    let events = tokio::time::timeout(Duration::from_secs(2), async {
+        client
+            .stream(request(), HeaderMap::new(), Compression::None, None)
+            .await
+            .unwrap()
+            .collect::<Vec<_>>()
+            .await
+    })
+    .await
+    .unwrap();
+    assert!(events.iter().any(Result::is_err));
+    assert!(dropped.load(Ordering::SeqCst));
+    assert!(
+        !events
+            .iter()
+            .any(|e| matches!(e, Ok(ResponseEvent::Completed { .. })))
+    );
+}
+
+#[tokio::test]
+async fn cancellation_drops_pending_provider_stream_without_executing_tools() {
+    let mut transport = MemoryTransport::new(vec![]);
+    transport.hold_open = true;
+    let dropped = Arc::clone(&transport.dropped);
+    let client = ResponsesClient::new(transport, provider(), Arc::new(KeyAuth(true)));
+    let stream = client
+        .stream(request(), HeaderMap::new(), Compression::None, None)
+        .await
+        .unwrap();
+    drop(stream);
+    tokio::time::timeout(Duration::from_secs(2), async {
+        while !dropped.load(Ordering::SeqCst) {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await
+    .unwrap();
+}
