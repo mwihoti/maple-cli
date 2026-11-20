@@ -5,6 +5,7 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
+maple-protocol = { path = "../../maple-protocol" }
 async-channel = { workspace = true }
 base64 = { workspace = true }
 bytes = { workspace = true }

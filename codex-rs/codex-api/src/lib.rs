@@ -6,6 +6,9 @@ pub(crate) mod error;
 pub(crate) mod files;
 mod guardian_assessment;
 pub(crate) mod images;
+mod maple;
+#[cfg(test)]
+mod maple_tests;
 pub(crate) mod provider;
 pub(crate) mod rate_limits;
 pub(crate) mod requests;
