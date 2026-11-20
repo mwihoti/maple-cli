@@ -91,7 +91,8 @@ impl OpenAiModelsEndpoint {
         {
             *manager = manager.without_interactive_login();
         }
-        let redirect_policy = if provider_info.model_catalog_url.is_some()
+        let redirect_policy = if provider_info.name == "Maple"
+            || provider_info.model_catalog_url.is_some()
             || provider_info
                 .gateway_oauth
                 .as_ref()
@@ -235,7 +236,7 @@ impl OpenAiModelsEndpoint {
             agent_identity_telemetry,
             auth_env: self.auth_env(),
         });
-        let (models, etag) = {
+        let (mut models, etag) = {
             let transport = self
                 .transport_builder
                 .build(http_client_factory, request_url.clone())
@@ -266,6 +267,17 @@ impl OpenAiModelsEndpoint {
                     map_api_error(error)
                 })
         }?;
+        if self.provider_info.name == "Maple" {
+            // Preserve the upstream generic coding-agent instructions. Maple's
+            // catalog describes capabilities, not a replacement agent prompt.
+            for model in &mut models {
+                model
+                    .model_messages
+                    .get_or_insert_default()
+                    .instructions_template =
+                    Some(codex_models_manager::model_info::BASE_INSTRUCTIONS.to_owned());
+            }
+        }
         if self.provider_info.model_catalog_url.is_some() {
             let mut slugs = HashSet::new();
             if models
@@ -315,7 +327,8 @@ impl ModelsEndpointClient for OpenAiModelsEndpoint {
     }
 
     fn supports_api_key_models(&self) -> bool {
-        self.provider_info.model_catalog_url.is_some()
+        self.provider_info.name == "Maple"
+            || self.provider_info.model_catalog_url.is_some()
             || (self.provider_info.is_openai() && self.provider_info.base_url.is_none())
     }
 
