@@ -145,6 +145,8 @@ struct MultitoolCli {
 
 #[derive(Debug, clap::Subcommand)]
 enum Subcommand {
+    /// Configure the Maple provider and inspect its dynamic model catalog.
+    Maple(maple_cmd::MapleCommand),
     /// Open the agent command center to browse and switch sessions.
     Agents(AgentsCommand),
 
@@ -1120,6 +1122,14 @@ async fn dispatch_cli(
     };
     let open_agents_overview = matches!(&subcommand, Some(Subcommand::Agents(_)));
     match subcommand {
+        Some(Subcommand::Maple(command)) => {
+            reject_remote_mode_for_subcommand(
+                root_remote.as_deref(),
+                root_remote_auth_token_env.as_deref(),
+                "maple",
+            )?;
+            maple_cmd::run(command, root_config_overrides).await?;
+        }
         None | Some(Subcommand::Agents(_)) => {
             prepend_config_flags(
                 &mut interactive.config_overrides,
@@ -2429,6 +2439,7 @@ fn unsupported_subcommand_name_for_strict_config(
         }
         Some(Subcommand::RemoteControl(remote_control)) => Some(remote_control.subcommand_name()),
         Some(Subcommand::Mcp(_)) => Some("mcp"),
+        Some(Subcommand::Maple(_)) => Some("maple"),
         Some(Subcommand::Plugin(_)) => Some("plugin"),
         Some(Subcommand::MigrateRollouts(_)) => Some("migrate-rollouts"),
         Some(Subcommand::MigrateNfsDb(_)) => Some("migrate-nfs-db"),
