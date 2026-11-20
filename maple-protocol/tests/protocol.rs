@@ -455,3 +455,31 @@ fn a_fresh_decoder_does_not_inherit_cancelled_partial_output() {
     let events = fresh.feed(b"data: [DONE]\n\n").unwrap();
     assert_eq!(done(&events)[0]["content"][0]["text"], "new response");
 }
+
+#[test]
+fn empty_opening_content_delta_does_not_precede_item_added() {
+    let mut d = Decoder::new(BTreeMap::new());
+    let mut events = d
+        .feed(&frame(json!({"role":"assistant","content":""}), Value::Null))
+        .unwrap();
+    events.extend(d.feed(&frame(json!({"reasoning":"think"}), Value::Null)).unwrap());
+    events.extend(d.feed(&frame(json!({"content":"hello"}), json!("stop"))).unwrap());
+    events.extend(d.feed(b"data: [DONE]\n\n").unwrap());
+    let mut open = std::collections::HashSet::new();
+    for e in &events {
+        match e["type"].as_str().unwrap() {
+            "response.output_item.added" => {
+                open.insert(e["item"]["type"].as_str().unwrap().to_owned());
+            }
+            "response.output_text.delta" => {
+                assert_ne!(e["delta"], "");
+                assert!(open.contains("message"), "text delta before message item");
+            }
+            "response.reasoning_text.delta" => {
+                assert!(open.contains("reasoning"), "reasoning delta before item");
+            }
+            _ => {}
+        }
+    }
+    assert_eq!(done(&events).len(), 2);
+}

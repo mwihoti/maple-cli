@@ -173,6 +173,12 @@ impl Decoder {
         ] {
             if let Some(value) = delta.get(field).filter(|v| !v.is_null()) {
                 let text = value.as_str().ok_or(Error("invalid streamed text"))?;
+                // Chat Completions servers commonly open with `"content": ""`
+                // alongside the role. Emitting that as a delta would precede the
+                // output_item.added event, which Codex treats as a protocol error.
+                if text.is_empty() {
+                    continue;
+                }
                 self.output_bytes = self.output_bytes.saturating_add(text.len());
                 if self.output_bytes > MAX_OUTPUT {
                     return Err(Error("response exceeds adapter memory limit"));
