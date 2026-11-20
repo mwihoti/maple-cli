@@ -924,6 +924,14 @@ pub fn validate_reserved_model_provider_ids(
     let mut conflicts = model_providers
         .keys()
         .filter(|key| {
+            if key.as_str() == MAPLE_PROVIDER_ID {
+                let provider = &model_providers[*key];
+                return provider
+                    != &ModelProviderInfo {
+                        base_url: provider.base_url.clone(),
+                        ..Default::default()
+                    };
+            }
             if key.as_str() == "openai" {
                 let provider = &model_providers[*key];
                 return provider
@@ -973,6 +981,7 @@ pub fn validate_model_providers(
             key.as_str(),
             AMAZON_BEDROCK_PROVIDER_ID | AMAZON_BEDROCK_RUNTIME_PROVIDER_ID | GCP_PROVIDER_ID
         ) && key != "openai"
+            && key != MAPLE_PROVIDER_ID
             && provider.name.trim().is_empty()
         {
             return Err(format!(
