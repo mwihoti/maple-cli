@@ -217,3 +217,98 @@ fn incremental_interleaved_tool_arguments_preserve_ids_and_raw_custom_input() {
     assert_eq!(items[1]["input"], "*** Begin Patch\n*** End Patch");
     assert_eq!(events.last().unwrap()["response"]["end_turn"], false);
 }
+
+#[test]
+fn disconnect_never_releases_a_tool_call_even_after_finish_reason() {
+    let c = request::translate(&request()).unwrap();
+    let name = c.body["tools"][0]["function"]["name"].clone();
+    let mut d = Decoder::new(c.tools);
+    let events = d
+        .feed(&frame(
+            json!({"tool_calls":[{"index":0,"id":"a","function":{"name":name,"arguments":"{}"}}]}),
+            json!("tool_calls"),
+        ))
+        .unwrap();
+    assert!(done(&events).is_empty());
+    assert!(d.eof().is_err());
+}
+
+#[test]
+fn malformed_or_unknown_tool_in_multi_call_response_releases_none() {
+    for bad_arguments in ["{", "[]", "null"] {
+        let c = request::translate(&request()).unwrap();
+        let name = c.body["tools"][0]["function"]["name"].clone();
+        let mut d = Decoder::new(c.tools);
+        d.feed(&frame(
+            json!({"tool_calls":[
+            {"index":0,"id":"a","function":{"name":name,"arguments":"{}"}},
+            {"index":1,"id":"b","function":{"name":name,"arguments":bad_arguments}}]}),
+            json!("tool_calls"),
+        ))
+        .unwrap();
+        assert!(d.feed(b"data: [DONE]\n\n").is_err());
+        assert!(!d.is_done());
+    }
+    let mut d = Decoder::new(BTreeMap::new());
+    d.feed(&frame(json!({"tool_calls":[{"index":0,"id":"a","function":{"name":"unauthorized","arguments":"{}"}}]}),json!("tool_calls"))).unwrap();
+    assert!(d.feed(b"data: [DONE]\n\n").is_err());
+}
+
+#[test]
+fn duplicate_tool_ids_and_missing_ids_are_rejected() {
+    for id in ["same", ""] {
+        let c = request::translate(&request()).unwrap();
+        let name = c.body["tools"][0]["function"]["name"].clone();
+        let mut d = Decoder::new(c.tools);
+        d.feed(&frame(
+            json!({"tool_calls":[
+            {"index":0,"id":id,"function":{"name":name,"arguments":"{}"}},
+            {"index":1,"id":id,"function":{"name":name,"arguments":"{}"}}]}),
+            json!("tool_calls"),
+        ))
+        .unwrap();
+        assert!(d.feed(b"data: [DONE]\n\n").is_err());
+    }
+}
+
+#[test]
+fn truncation_refusal_filter_and_unknown_finish_are_not_success() {
+    for finish in ["length", "content_filter", "function_call", "unknown"] {
+        let mut d = Decoder::new(BTreeMap::new());
+        let events = d
+            .feed(&frame(json!({"content":"partial"}), json!(finish)))
+            .unwrap();
+        assert!(done(&events).is_empty());
+        assert!(d.feed(b"data: [DONE]\n\n").is_err());
+    }
+    let mut d = Decoder::new(BTreeMap::new());
+    assert!(
+        d.feed(&frame(json!({"refusal":"blocked"}), json!("stop")))
+            .is_err()
+    );
+}
+
+#[test]
+fn malformed_frames_invalid_utf8_and_inconsistent_response_ids_fail_closed() {
+    for data in [
+        b"data: {invalid\n\n".as_slice(),
+        b"data: \xff\n\n",
+        b"data: [DONE]\n\n",
+        b"data: {\"error\":{\"message\":\"sensitive-token\"}}\n\n",
+    ] {
+        let mut d = Decoder::new(BTreeMap::new());
+        let error = d.feed(data).unwrap_err();
+        assert!(!error.to_string().contains("sensitive-token"));
+        assert!(
+            d.feed(&frame(json!({"content":"recovery"}), json!("stop")))
+                .is_err()
+        );
+    }
+    let mut d = Decoder::new(BTreeMap::new());
+    d.feed(&frame(json!({"content":"first"}), Value::Null))
+        .unwrap();
+    assert!(
+        d.feed(b"data: {\"id\":\"different\",\"choices\":[]}\n\n")
+            .is_err()
+    );
+}
