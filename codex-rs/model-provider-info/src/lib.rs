@@ -494,6 +494,16 @@ other non-default provider fields are not supported"
             .clone()
             .unwrap_or_else(|| default_base_url.to_string());
 
+        if self.name == MAPLE_PROVIDER_NAME {
+            let endpoint = codex_http_client::validate_endpoint_url(&base_url, "Maple base_url")
+                .map_err(CodexErr::InvalidRequest)?;
+            if endpoint.query().is_some() {
+                return Err(CodexErr::InvalidRequest(
+                    "Maple base_url must not contain query parameters".into(),
+                ));
+            }
+        }
+
         let mut headers = self.build_header_map()?;
         if let Some(requirement) = read_managed_residency_requirement() {
             let value = match requirement {
