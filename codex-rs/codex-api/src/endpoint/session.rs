@@ -102,9 +102,20 @@ impl<T: HttpTransport> EndpointSession<T> {
             |req| {
                 let auth = self.auth.clone();
                 let transport = &self.transport;
+                let is_maple = self.provider.name == "Maple";
                 async move {
-                    let req = auth.apply_auth(req).await.map_err(TransportError::from)?;
-                    transport.execute(req).await
+                    let result = async {
+                        let req = auth.apply_auth(req).await.map_err(TransportError::from)?;
+                        transport.execute(req).await
+                    }
+                    .await;
+                    result.map_err(|error| {
+                        if is_maple {
+                            crate::maple::sanitize_transport(error)
+                        } else {
+                            error
+                        }
+                    })
                 }
             },
         )
@@ -143,9 +154,20 @@ impl<T: HttpTransport> EndpointSession<T> {
             |req| {
                 let auth = self.auth.clone();
                 let transport = &self.transport;
+                let is_maple = self.provider.name == "Maple";
                 async move {
-                    let req = auth.apply_auth(req).await.map_err(TransportError::from)?;
-                    transport.stream(req).await
+                    let result = async {
+                        let req = auth.apply_auth(req).await.map_err(TransportError::from)?;
+                        transport.stream(req).await
+                    }
+                    .await;
+                    result.map_err(|error| {
+                        if is_maple {
+                            crate::maple::sanitize_transport(error)
+                        } else {
+                            error
+                        }
+                    })
                 }
             },
         )
