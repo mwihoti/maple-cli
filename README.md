@@ -136,6 +136,30 @@ the original tests and manifest, and the passing test result. It retains the
 repository for review. Headless execution denies operations that require
 approval. Use the interactive CLI to exercise approval prompts.
 
-There is currently no `maple-code` executable or npm package. The requested
-`maple-code login`, `maple-code models` and scoped npm install become release
-work only after these validation gates pass. No package name is presumed available.
+## Run it as `maple-code`
+
+[scripts/maple-code](scripts/maple-code) is a launcher for a source build. Link
+it onto your `PATH` and copy the example settings:
+
+```bash
+ln -s "$PWD/scripts/maple-code" ~/.local/bin/maple-code
+mkdir -p ~/.maple-code
+cp examples/maple-code.config.toml ~/.maple-code/config.toml
+maple-code maple models
+maple-code
+```
+
+The launcher reads `.env.maple` unless `MAPLE_API_KEY` is already set, starts a
+localhost-only Maple Proxy when none is answering at `MAPLE_BASE_URL` (place the
+`maple-proxy` binary in `~/.maple-code/bin/` or on `PATH`), and prefers the
+release build over the debug build. It keeps its settings in `~/.maple-code`,
+so an ordinary `~/.codex` is untouched. `daemon_auto_start` stays off because a
+source build has no installed package for the background app server.
+
+The first catalog request after the proxy starts or idles waits for the proxy's
+enclave attestation handshake, measured at 7-14 seconds; later requests take
+well under a second. An attestation failure surfaces as a proxy 502; see
+`~/.maple-code/proxy.log`.
+
+There is no npm package yet. A scoped npm install remains release work, and no
+package name is presumed available.
