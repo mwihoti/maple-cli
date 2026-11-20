@@ -1,81 +1,141 @@
-<p align="center"><strong>Codex CLI</strong> is a coding agent from OpenAI that runs locally on your computer.
-<p align="center">
-  <img src="https://github.com/openai/codex/blob/main/.github/codex-cli-splash.png" alt="Codex CLI splash" width="80%" />
-</p>
-</br>
-If you want Codex in your code editor (VS Code, Cursor, Windsurf), <a href="https://developers.openai.com/codex/ide">install in your IDE.</a>
-</br>If you want the desktop app experience, run <code>codex app</code> or visit <a href="https://chatgpt.com/codex?app-landing-page=true">the Codex App page</a>.
-</br>If you are looking for the <em>cloud-based agent</em> from OpenAI, <strong>Codex Web</strong>, go to <a href="https://chatgpt.com/codex">chatgpt.com/codex</a>.</p>
+# Maple Code — integration in progress
 
----
+This is the full Codex source checkout with the Maple provider changes applied.
+The Maple protocol adapter and native provider tests pass with cached Cargo
+dependencies. Live inference and the coding workflow still require access to
+the local Maple Proxy. The [validation record](docs/maple-validation.md)
+tracks build and test results.
 
-## Quickstart
+Work is on `feature/maple-provider`, based on inspected Codex `rust-v0.170.0`
+(commit `29eb79e9866b3262a777fdf8195c1b9e63684c91`). Original Apache-2.0
+[LICENSE](LICENSE) and [NOTICE](NOTICE) are preserved. Nothing has been pushed
+or published. See [architecture](docs/maple-architecture.md),
+[validation and limitations](docs/maple-validation.md), and the exact source
+provenance in [upstream-source.json](upstream-source.json).
 
-### Installing and running Codex CLI
+## Implemented
 
-Run the following on Mac or Linux to install Codex CLI:
+- Built-in `maple` provider, default `http://127.0.0.1:8080/v1`, configurable
+  with `MAPLE_BASE_URL` or a non-secret provider base URL override.
+- Bearer authentication from `MAPLE_API_KEY`, with endpoint-scoped OS credential
+  storage as fallback. No plaintext credential storage.
+- Chat Completions request/history adapter, namespaced JSON function calls and
+  custom raw-input tools such as apply_patch. Existing core runs all tools and
+  retains its approvals, sandbox and Git behavior.
+- Incremental SSE translation into upstream Responses events; text, reasoning,
+  usage and interleaved tool arguments; incomplete calls never execute.
+- Dynamic `/models` conversion using actual Maple capabilities/context data.
+  Non-tool models and unknown tool capabilities are excluded from the agent
+  catalog. Discovery does not prove account access.
+- Provider commands under `codex maple`: secure login, logout, auth status,
+  and model listing with `--search` and `--json`.
+- Existing `--model`, `/model`, model persistence and resume architecture reused.
+- Credential redaction before HTTP telemetry and prevention of MAPLE_API_KEY
+  inheritance by model-reachable child processes.
 
-```shell
-curl -fsSL https://chatgpt.com/codex/install.sh | sh
+Real Secret Service login, interactive model selection and session resume
+still need validation. Product branding and npm packaging follow the live
+coding smoke test.
+
+## Run what is testable now
+
+```bash
+cd /path/to/maple-code-full
+cargo test --locked --offline --target-dir /tmp/maple-protocol-target --manifest-path maple-protocol/Cargo.toml
+python -m unittest discover -s scripts/tests -v
 ```
 
-Run the following on Windows to install Codex CLI:
+## Build and test the native CLI
 
-```shell
-powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"
+Upstream pins Rust 1.95.0. See the [upstream build instructions](docs/install.md).
+After `cargo fetch --locked` succeeds, you can add `--offline` to use cached
+dependencies.
+
+```bash
+cd /path/to/maple-code-full/codex-rs
+cargo test --locked -p codex-api -p codex-model-provider-info -p codex-model-provider -p codex-protocol -p codex-cli
+cargo build --locked --bin codex
 ```
 
-The standalone installers download from `https://releases.openai.com/codex` by default and fall back to GitHub Releases if a metadata or asset download is unavailable. To force GitHub Releases, set `CODEX_INSTALLER_USE_RELEASES_OPENAI_COM` to `false` (`0` and `no` are also accepted):
+The original upstream build attempts are recorded in `maple-baseline-results.json`.
+The current lockfile includes the Maple protocol crate and the internal version
+changes required by the tagged source.
 
-```shell
-curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_INSTALLER_USE_RELEASES_OPENAI_COM=false sh
+## Authenticate and discover models after the native build passes
+
+Start Maple Proxy on the same computer. Keep the actual API key out of chat,
+shell arguments, config files and Git. Use the hidden prompt and OS store:
+
+```bash
+cd /path/to/maple-code-full
+./codex-rs/target/debug/codex maple login
+./codex-rs/target/debug/codex maple auth status
+./codex-rs/target/debug/codex maple models
+./codex-rs/target/debug/codex maple models --search 'your search'
 ```
 
-```powershell
-$env:CODEX_INSTALLER_USE_RELEASES_OPENAI_COM='false'; irm https://chatgpt.com/codex/install.ps1 | iex
+Login stores the key; it does not claim the server accepted it. Model discovery
+verifies the key/catalog request. An actual completion is still necessary to
+verify account access to a selected model. On Linux, an unlocked Secret Service
+credential store is required for stored credentials. If unavailable, securely
+set the environment variable in your own terminal:
+
+```bash
+read -rsp 'Maple API key: ' MAPLE_API_KEY
+export MAPLE_API_KEY
+export MAPLE_BASE_URL=http://127.0.0.1:8080/v1
 ```
 
-Codex CLI can also be installed via the following package managers:
+`MAPLE_API_KEY` takes precedence over stored credentials. `codex maple logout`
+deletes the current endpoint's stored key; also `unset MAPLE_API_KEY` to stop
+using an environment key. Auth status reports configuration, not verified access.
+Changing the base URL changes the credential-store account.
 
-```shell
-# Install using npm
-npm install -g @openai/codex
+Choose an exact tool-capable model ID from the live list; no model ID is assumed:
+
+```bash
+read -rp 'Model ID from the catalog: ' MAPLE_MODEL
+export MAPLE_MODEL
+./codex-rs/target/debug/codex \
+  -c 'model_provider="maple"' \
+  -c 'features.api_key_model_discovery=true' \
+  -c 'approval_policy="on-request"' \
+  --sandbox workspace-write --model "$MAPLE_MODEL"
 ```
 
-```shell
-# Install using Homebrew
-brew install --cask codex
+Use `/model` in the conversation to select another discovered model. Use the
+same provider settings with `codex resume --last` for upstream session resume.
+These flows require native end-to-end verification. Non-secret persistent
+settings are in [examples/maple.config.toml](examples/maple.config.toml).
+
+## Validate real inference and the coding workflow
+
+The optional Python protocol probe uses `MAPLE_API_KEY` from the environment:
+
+```bash
+python scripts/probe-maple.py models
+python scripts/probe-maple.py chat --model "$MAPLE_MODEL"
+python scripts/probe-maple.py tools --model "$MAPLE_MODEL"
 ```
 
-Then simply run `codex` to get started.
+The tools probe executes a real local addition function and returns its result
+to the model. It is a protocol check, not a substitute for coding-agent validation.
+The native adapter's streaming behavior has deterministic Rust tests.
 
-<details>
-<summary>You can also go to the <a href="https://github.com/openai/codex/releases/latest">latest GitHub Release</a> and download the appropriate binary for your platform.</summary>
+Run the actual native agent on the intentionally broken Rust fixture:
 
-Each GitHub Release contains many executables, but in practice, you likely want one of these:
+```bash
+python scripts/smoke-agent.py \
+  --binary ./codex-rs/target/debug/codex --model "$MAPLE_MODEL"
+```
 
-- macOS
-  - Apple Silicon/arm64: `codex-aarch64-apple-darwin.tar.gz`
-  - x86_64 (older Mac hardware): `codex-x86_64-apple-darwin.tar.gz`
-- Linux
-  - x86_64: `codex-x86_64-unknown-linux-musl.tar.gz`
-  - arm64: `codex-aarch64-unknown-linux-musl.tar.gz`
+This stages the original fixture in a temporary Git repository, verifies the
+failing baseline tests, and asks the agent to repair the source and run the
+tests under workspace-write sandboxing. The script checks the file change,
+the original tests and manifest, and the passing test result. It retains the
+repository for review. Headless execution denies operations that require
+approval. Use the interactive CLI to exercise approval prompts.
 
-Each archive contains a single entry with the platform baked into the name (e.g., `codex-x86_64-unknown-linux-musl`), so you likely want to rename it to `codex` after extracting it.
-
-</details>
-
-### Using Codex with your ChatGPT plan
-
-Run `codex` and select **Sign in with ChatGPT**. We recommend signing into your ChatGPT account to use Codex as part of your Plus, Pro, Business, Edu, or Enterprise plan. [Learn more about what's included in your ChatGPT plan](https://help.openai.com/en/articles/11369540-codex-in-chatgpt).
-
-You can also use Codex with an API key, but this requires [additional setup](https://developers.openai.com/codex/auth#sign-in-with-an-api-key).
-
-## Docs
-
-- [**Codex Documentation**](https://developers.openai.com/codex)
-- [**Contributing**](./docs/contributing.md)
-- [**Installing & building**](./docs/install.md)
-- [**Open source fund**](./docs/open-source-fund.md)
-
-This repository is licensed under the [Apache-2.0 License](LICENSE).
+There is currently no `maple-code` executable or npm package. The requested
+`maple-code login`, `maple-code models` and scoped npm install become release
+work only after these validation gates pass. No package name is presumed available.
