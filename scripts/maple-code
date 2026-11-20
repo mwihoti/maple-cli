@@ -47,4 +47,17 @@ fi
 BIN="$REPO/codex-rs/target/release/codex"
 [[ -x "$BIN" ]] || BIN="$REPO/codex-rs/target/debug/codex"
 
-exec "$BIN" "$@"
+# Started from $HOME, Codex reads ~/.codex/config.toml as a project config and
+# lets its model settings (for another provider) override ours. Re-assert the
+# Maple settings; an explicit --model or -c on the command line still wins.
+pin=()
+if [[ "$(pwd -P)" == "$(cd "$HOME" && pwd -P)" && -f "$HOME/.codex/config.toml" \
+      && "$CODEX_HOME" != "$HOME/.codex" && -f "$CODEX_HOME/config.toml" ]]; then
+  pin+=(-c 'model_provider="maple"')
+  for key in model model_reasoning_effort; do
+    value="$(sed -n "s/^$key *= *\"\(.*\)\" *$/\1/p" "$CODEX_HOME/config.toml" | head -1)"
+    [[ -n "$value" ]] && pin+=(-c "$key=\"$value\"")
+  done
+fi
+
+exec "$BIN" "${pin[@]}" "$@"
