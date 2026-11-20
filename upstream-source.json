@@ -1,0 +1,189 @@
+{
+  "repository": "https://github.com/openai/codex.git",
+  "tag": "rust-v0.170.0",
+  "commit": "29eb79e9866b3262a777fdf8195c1b9e63684c91",
+  "tree": "f657bf577be9e5dda06174066b9cbea2e6b8a02b",
+  "snapshot": "partial source-overlay snapshot; 43 upstream files were materialized, with a complete sibling checkout prepared separately",
+  "imported_files": [
+    {
+      "path": "LICENSE",
+      "blob": "4606e72e042564097e8780d66c1d4dcb611869bd"
+    },
+    {
+      "path": "NOTICE",
+      "blob": "2805899d56d0332d175cfc613c67d45d6f006db7"
+    },
+    {
+      "path": "docs/install.md",
+      "blob": "4f63765b5e72a5085585cb6c5b01eecb04200807"
+    },
+    {
+      "path": "docs/contributing.md",
+      "blob": "67b10a1c9b855bc32082929129b5abbe3c1d7b35"
+    },
+    {
+      "path": "codex-rs/rust-toolchain.toml",
+      "blob": "910c65114ec128a8317ee8257428451f3cd28230"
+    },
+    {
+      "path": "codex-rs/Cargo.toml",
+      "blob": "bc5910cdfcbfcac370f9780460a42f5fa469d2de"
+    },
+    {
+      "path": "codex-rs/cli/Cargo.toml",
+      "blob": "501db96af19619d25125c3e290037e1f9444640e"
+    },
+    {
+      "path": "codex-rs/cli/src/main.rs",
+      "blob": "5108253a5eaf31c344c033d8f03d3f3de91017b0"
+    },
+    {
+      "path": "codex-rs/cli/src/lib.rs",
+      "blob": "dbfd0bc0e76467f3b39e942558111ac1bc5adebe"
+    },
+    {
+      "path": "codex-rs/core/src/client.rs",
+      "blob": "5913d07c70efe46806837a1266a43ca4b9d3f844"
+    },
+    {
+      "path": "codex-rs/codex-api/src/endpoint/responses.rs",
+      "blob": "9c41a802eadd57cf20ffc733121921d8d3ba9d08"
+    },
+    {
+      "path": "codex-rs/codex-api/src/requests/responses.rs",
+      "blob": "9a16ceb1c44c0986183acc084633627a5edc10eb"
+    },
+    {
+      "path": "codex-rs/codex-api/src/sse/responses.rs",
+      "blob": "eafc92dd6914d00892b4cca3a862bfe6f33a0a92"
+    },
+    {
+      "path": "codex-rs/codex-api/src/common.rs",
+      "blob": "3942f3aa69cebd29fa0a708b8ae04aacb1c558d4"
+    },
+    {
+      "path": "codex-rs/model-provider-info/src/lib.rs",
+      "blob": "feeea5fea4b031f7238a4412ef31378cf89a5c97"
+    },
+    {
+      "path": "codex-rs/model-provider/src/provider.rs",
+      "blob": "daf061505e776c07ead59adcc89aa3338ad5e73a"
+    },
+    {
+      "path": "codex-rs/model-provider/src/models_endpoint.rs",
+      "blob": "2900c337e9023f945416341729a4625acf237f84"
+    },
+    {
+      "path": "codex-rs/models-manager/src/manager.rs",
+      "blob": "cdc890e54065d616f0bd723ea8abd93c2d15b768"
+    },
+    {
+      "path": "codex-rs/models-manager/src/model_info.rs",
+      "blob": "ca242dac85fd77cac298f93f6e12577db99d4561"
+    },
+    {
+      "path": "codex-rs/protocol/src/openai_models.rs",
+      "blob": "391acecc55078f112873d6246d5852e3fe906b2c"
+    },
+    {
+      "path": "codex-rs/protocol/src/models.rs",
+      "blob": "be6288a1bc61c3294265d13d2d82e431dfee581d"
+    },
+    {
+      "path": "codex-rs/keyring-store/src/lib.rs",
+      "blob": "bd38bc6ecd7519f79ffd162564d3caec252ff3b1"
+    },
+    {
+      "path": "codex-rs/keyring-store/Cargo.toml",
+      "blob": "7a2f1e15bdc3c79b0d74866c3e8d371d13fa9193"
+    },
+    {
+      "path": "codex-cli/bin/codex.js",
+      "blob": "132509521e6cddf3854ec902fa78cedd352c8e30"
+    },
+    {
+      "path": "codex-cli/package.json",
+      "blob": "7d3a49405d1f3be9af35d3ac2838dd35303a48b6"
+    },
+    {
+      "path": "codex-rs/tui/src/slash_command.rs",
+      "blob": "42f90a6b4c4c4dab400b1e8e9456721156f9f302"
+    },
+    {
+      "path": "codex-rs/tui/src/chatwidget.rs",
+      "blob": "9b2da49216a7c92b66e95155d948f0d3180d0797"
+    },
+    {
+      "path": "codex-rs/codex-api/src/endpoint/models.rs",
+      "blob": "99016987069c9d14b541a6e3a03dafe344f77e36"
+    },
+    {
+      "path": "codex-rs/codex-api/src/endpoint/session.rs",
+      "blob": "7849225b5cbb6c37456d14e85b3fe069d878ada3"
+    },
+    {
+      "path": "codex-rs/codex-api/Cargo.toml",
+      "blob": "bc82dd0b926ea4a0521237d1513a1d159a53eb61"
+    },
+    {
+      "path": "codex-rs/codex-api/src/lib.rs",
+      "blob": "23bf38193cccdc42429ab59f56c7961f96e4cec0"
+    },
+    {
+      "path": "codex-rs/config/src/config_toml.rs",
+      "blob": "340861ba5380de30c134cf6b16e3188ddb626085"
+    },
+    {
+      "path": "codex-rs/config/src/types.rs",
+      "blob": "e23e9764f8b4a0f0f3e1efcdc1728304bd43fd93"
+    },
+    {
+      "path": "codex-rs/core/src/thread_manager/model_catalog.rs",
+      "blob": "3e4a4357fac44143fad3bd4ede4e73d38f4d94fc"
+    },
+    {
+      "path": "codex-rs/model-provider-info/src/capabilities.rs",
+      "blob": "8571bb1513d7be61559380478482525586a78a0e"
+    },
+    {
+      "path": "codex-rs/codex-client/src/lib.rs",
+      "blob": "e634a2b2947c0a5dede108ab5cf1f4e599cc0d1f"
+    },
+    {
+      "path": "codex-rs/codex-client/src/sse.rs",
+      "blob": "ed1591f6de4bf4c7d7cef3ecbba8e52d07d2571c"
+    },
+    {
+      "path": "codex-rs/http-client/src/lib.rs",
+      "blob": "47274c8b8f4867092bd5f9d626075cdaf43f533e"
+    },
+    {
+      "path": "codex-rs/http-client/src/transport.rs",
+      "blob": "6eb86a3ca7e944405236f967abf515d99a0b2e35"
+    },
+    {
+      "path": "codex-rs/models-manager/src/catalog.rs",
+      "blob": "6137875a63ff0ce7f40985265d5d912332263527"
+    },
+    {
+      "path": "codex-rs/model-provider-info/Cargo.toml",
+      "blob": "51d3026637dce62a30f6574cb1a5d4624877ebe0"
+    },
+    {
+      "path": "codex-rs/protocol/src/shell_environment.rs",
+      "blob": "0c6c515c416d3829122e8037a3b9c49c1a581608"
+    },
+    {
+      "path": "codex-rs/models-manager/src/manager_tests.rs",
+      "blob": "fd24d1b2d9d0e6a6f6d950df1d9e705821fb163a"
+    }
+  ],
+  "maple_contract": {
+    "repository": "https://github.com/MaplePrivacyLabs/Maple",
+    "revision": "6fc9c8d8b5b3bcf350c8a9803788080d6c70c677",
+    "paths": [
+      "proxy/src/proxy.rs",
+      "services/opensecret/src/model_config.rs"
+    ]
+  }
+}
