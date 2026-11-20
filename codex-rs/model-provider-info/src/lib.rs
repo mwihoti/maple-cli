@@ -36,6 +36,7 @@ use std::time::Duration;
 
 mod capabilities;
 mod gateway_oauth;
+pub mod maple_credentials;
 mod oauth_session;
 pub use capabilities::ModelProviderCapabilities;
 pub use capabilities::RemoteCompactionSupport;
