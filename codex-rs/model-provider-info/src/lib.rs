@@ -772,6 +772,7 @@ pub fn built_in_model_providers(
     // Bundle OpenAI, supported cloud-hosted OpenAI backends, and local OSS providers.
     // Other compatible providers can be added through `model_providers` in config.toml.
     [
+        (MAPLE_PROVIDER_ID, create_maple_provider()),
         (OPENAI_PROVIDER_ID, openai_provider),
         (AMAZON_BEDROCK_PROVIDER_ID, amazon_bedrock_provider),
         (GCP_PROVIDER_ID, gcp_provider),
@@ -804,7 +805,23 @@ pub fn merge_configured_model_providers(
     configured_model_providers: HashMap<String, ModelProviderInfo>,
 ) -> Result<HashMap<String, ModelProviderInfo>, String> {
     for (key, mut provider) in configured_model_providers {
-        if key == "openai" {
+        if key == MAPLE_PROVIDER_ID {
+            if provider
+                != (ModelProviderInfo {
+                    base_url: provider.base_url.clone(),
+                    ..Default::default()
+                })
+            {
+                return Err("Maple provider overrides support only base_url; use MAPLE_API_KEY or the system credential store for authentication".into());
+            }
+            let base_url = provider.base_url.take();
+            if let Some(built_in) = model_providers.get_mut(&key)
+                && let Some(base_url) = base_url
+            {
+                codex_http_client::validate_endpoint_url(&base_url, "Maple base_url")?;
+                built_in.base_url = Some(base_url);
+            }
+        } else if key == "openai" {
             // Keep the built-in identity, inference routing, and authentication.
             // Only catalog routing is configurable through this provider entry.
             if let Some(catalog_url) = provider.model_catalog_url.take()
