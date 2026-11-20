@@ -13,6 +13,7 @@ pub const OPENAI_WORKLOAD_IDENTITY_CONTEXT_ENV_VAR: &str = "OPENAI_WORKLOAD_IDEN
 
 /// Environment variables that model-reachable child processes must not inherit.
 pub const NON_INHERITABLE_ENV_VARS: &[&str] = &[
+    "MAPLE_API_KEY",
     CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR,
     "NODE_REPL_AUTH_TOKEN",
     "CODEX_GUARDIAN_DECISIONS_API_KEY",
@@ -217,6 +218,49 @@ pub const WINDOWS_CORE_ENV_VARS: &[&str] = &[
 #[cfg(test)]
 #[path = "shell_environment_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+mod maple_key_tests {
+    use super::*;
+
+    #[test]
+    fn maple_key_cannot_be_inherited_or_restored_by_shell_policy() {
+        let policy = ShellEnvironmentPolicy {
+            inherit: ShellEnvironmentPolicyInherit::All,
+            ignore_default_excludes: true,
+            r#set: HashMap::from([("maple_api_key".into(), "override-fixture".into())]),
+            ..Default::default()
+        };
+        let env = populate_env(
+            [
+                ("MAPLE_API_KEY".into(), "fixture-key".into()),
+                ("PATH".into(), "/usr/bin".into()),
+            ],
+            &policy,
+            None,
+        );
+        assert!(
+            env.keys()
+                .all(|key| !key.eq_ignore_ascii_case("MAPLE_API_KEY"))
+        );
+        assert_eq!(env.get("PATH").map(String::as_str), Some("/usr/bin"));
+    }
+
+    #[test]
+    fn child_command_scrubber_removes_explicit_maple_key_override() {
+        let mut command = std::process::Command::new("unused-test-command");
+        command.env("maple_api_key", "fixture-key");
+        scrub_non_inheritable_env_vars(&mut command);
+        assert!(
+            command
+                .get_envs()
+                .filter(|(key, _)| key
+                    .to_str()
+                    .is_some_and(|s| s.eq_ignore_ascii_case("MAPLE_API_KEY")))
+                .all(|(_, value)| value.is_none())
+        );
+    }
+}
 
 #[cfg(all(test, target_os = "windows"))]
 mod windows_tests {
