@@ -65,3 +65,51 @@ catalogs and context sizes, refusal/truncation, malformed JSON, invalid IDs,
 unknown tools, safe provider diagnostics and cancelled partial output.
 History roundtrip tests do not prove the complete TUI session-resume flow.
 
+## Unresolved gates
+
+1. Repeat native validation with the pinned Rust 1.95.0 toolchain.
+2. Validate Secret Service login/logout and terminal input restoration on Arch.
+   There is no plaintext fallback. The current session cannot access system D-Bus.
+3. Start the host Maple Proxy, supply a real key locally, fetch current models
+   and establish an authenticated completion and actual tool-result roundtrip.
+4. Run `scripts/smoke-agent.py` with the built native binary. Validate real file
+   editing, command execution and the Git diff. Use the interactive CLI for
+   approval prompts, cancellation, model selection and session resume.
+5. After the coding workflow passes, change product defaults/branding to Maple
+   Code, expose the final `maple-code` commands, adapt upstream Linux x64 npm
+   native packaging, include notices, and verify local package installation.
+   Package name, publishing, pushes and deployments remain unapproved/unperformed.
+
+## Current compatibility limits
+
+- Maple is a Chat Completions provider, not a Responses endpoint. Only the
+  inspected built-in Maple identity selects translation; other providers retain
+  their existing protocols.
+- Only explicitly tool-capable chat catalog entries appear in agent selection.
+  Older proxies lacking capability metadata fail clearly; account entitlement
+  is determined by real requests, not catalog membership.
+- Models with unknown context limits retain unknown metadata. Token estimates
+  for Maple model families and automatic compaction need real validation;
+  no tokenizer-specific guarantee is made.
+- The native agent path sends streaming requests. Non-streaming completion
+  decoding is tested independently; JSON returned to an SSE request fails
+  rather than being fabricated into success.
+- Function tools and JSON-wrapped raw custom tools are translated. Provider-side
+  strict JSON-schema or custom grammar enforcement is not claimed; core still
+  validates and authorizes tool execution. Incremental function arguments are
+  buffered; upstream ignores function-argument preview events. Custom raw input
+  is released once complete.
+- Native hosted search, tool-search/deferred tools, uploaded-file/audio input,
+  encrypted history, Responses structured output, WebSockets, server-side
+  previous_response_id and remote compaction are unsupported. Unsupported
+  requests return explicit errors. Existing local compaction remains upstream.
+- Cross-provider resume of encrypted OpenAI history is unsupported. Maple-native
+  history keeps plaintext reasoning and tool IDs; switching model compatibility
+  still needs real requests.
+- A valid `[DONE]` with a matching finish reason is required before any completed
+  tool call is released. Malformed, filtered, truncated or disconnected streams
+  do not report success. Frames/output have adapter memory bounds.
+- The key is removed from model-reachable child environments using upstream's
+  existing restricted-variable mechanism. This does not create a new OS-level
+  secret isolation boundary against deliberately reading same-user process memory.
+
