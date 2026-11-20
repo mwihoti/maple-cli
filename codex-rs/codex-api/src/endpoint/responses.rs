@@ -80,9 +80,6 @@ impl<T: HttpTransport> ResponsesClient<T> {
             compression,
             turn_state,
         } = options;
-        let body = EncodedJsonBody::encode(&request)
-            .map_err(|e| ApiError::Stream(format!("failed to encode responses request: {e}")))?;
-
         let mut headers = extra_headers;
         if let Some(ref thread_id) = thread_id {
             insert_header(&mut headers, "x-client-request-id", thread_id);
@@ -92,6 +89,13 @@ impl<T: HttpTransport> ResponsesClient<T> {
             insert_header(&mut headers, "x-openai-subagent", &subagent);
         }
 
+        if self.session.provider().name == "Maple" {
+            let value = serde_json::to_value(&request)
+                .map_err(|_| ApiError::Stream("failed to encode Maple request".into()))?;
+            return self.stream_maple(value, headers, turn_state).await;
+        }
+        let body = EncodedJsonBody::encode(&request)
+            .map_err(|e| ApiError::Stream(format!("failed to encode responses request: {e}")))?;
         self.stream_encoded(body, headers, compression, turn_state)
             .await
     }
@@ -114,10 +118,49 @@ impl<T: HttpTransport> ResponsesClient<T> {
         compression: Compression,
         turn_state: Option<Arc<OnceLock<String>>>,
     ) -> Result<ResponseStream, ApiError> {
+        if self.session.provider().name == "Maple" {
+            return self.stream_maple(body, extra_headers, turn_state).await;
+        }
         let body = EncodedJsonBody::encode(&body)
             .map_err(|e| ApiError::Stream(format!("failed to encode responses request: {e}")))?;
         self.stream_encoded(body, extra_headers, compression, turn_state)
             .await
+    }
+
+    async fn stream_maple(
+        &self,
+        request: Value,
+        headers: HeaderMap,
+        turn_state: Option<Arc<OnceLock<String>>>,
+    ) -> Result<ResponseStream, ApiError> {
+        let translated =
+            maple_protocol::request::translate(&request).map_err(crate::maple::invalid)?;
+        let body = EncodedJsonBody::encode(&translated.body)
+            .map_err(|_| ApiError::Stream("failed to encode Maple request".into()))?;
+        let mut response = self
+            .session
+            .stream_encoded_json_with(
+                Method::POST,
+                "/chat/completions",
+                headers,
+                Some(body),
+                |req| {
+                    req.headers.insert(
+                        http::header::ACCEPT,
+                        HeaderValue::from_static("text/event-stream"),
+                    );
+                    // Maple does not advertise support for zstd request bodies.
+                    req.compression = RequestCompression::None;
+                },
+            )
+            .await?;
+        response.bytes = crate::maple::responses_stream(response.bytes, translated.tools);
+        Ok(spawn_response_stream(
+            response,
+            self.session.provider().stream_idle_timeout,
+            self.sse_telemetry.clone(),
+            turn_state,
+        ))
     }
 
     async fn stream_encoded(
