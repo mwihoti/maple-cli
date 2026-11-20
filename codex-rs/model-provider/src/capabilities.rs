@@ -1,6 +1,7 @@
 //! Provider capability defaults and resolution of custom provider overrides.
 
 use codex_api::is_azure_responses_provider;
+use codex_model_provider_info::MAPLE_PROVIDER_NAME;
 use codex_model_provider_info::ModelProviderInfo;
 use codex_model_provider_info::RemoteCompactionSupport;
 
@@ -42,8 +43,13 @@ impl ProviderCapabilities {
             },
             ..Self::default()
         };
+        // Maple translates requests to Chat Completions and only accepts direct
+        // local function/custom tools; hosted tools would fail every turn.
+        let hosted_tools = info.name != MAPLE_PROVIDER_NAME;
         let overrides = info.capabilities.unwrap_or_default();
         Self {
+            web_search: hosted_tools && defaults.web_search,
+            image_generation: hosted_tools && defaults.image_generation,
             external_web_access: overrides
                 .external_web_access
                 .unwrap_or(defaults.external_web_access),

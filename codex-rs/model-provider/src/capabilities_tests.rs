@@ -33,3 +33,15 @@ fn capability_overrides_preserve_unspecified_provider_defaults() {
         );
     }
 }
+
+#[test]
+fn maple_provider_disables_hosted_tools() {
+    let capabilities = create_model_provider(
+        codex_model_provider_info::create_maple_provider(),
+        /*auth_manager*/ None,
+    )
+    .capabilities();
+    assert!(!capabilities.web_search);
+    assert!(!capabilities.image_generation);
+    assert!(!capabilities.external_web_access);
+}
