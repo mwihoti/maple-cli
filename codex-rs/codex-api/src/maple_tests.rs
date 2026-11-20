@@ -297,3 +297,60 @@ async fn invalid_key_and_account_restrictions_preserve_status_and_redact_body() 
         assert!(headers.is_none());
     }
 }
+
+#[tokio::test]
+async fn tool_calls_become_executable_upstream_response_items_only_after_terminal_frame() {
+    let r = request();
+    let translated = maple_protocol::request::translate(&r).unwrap();
+    let name = translated.body["tools"][0]["function"]["name"].clone();
+    for terminal in [false, true] {
+        let mut body = frame(
+            json!({"tool_calls":[{"index":0,"id":"call-real","type":"function",
+            "function":{"name":name,"arguments":"{\"cmd\":\"cargo test\"}"}}]}),
+            json!("tool_calls"),
+        );
+        if terminal {
+            body.extend(b"data: [DONE]\n\n");
+        }
+        let client = ResponsesClient::new(
+            MemoryTransport::new(body),
+            provider(),
+            Arc::new(KeyAuth(true)),
+        );
+        let events = client
+            .stream(r.clone(), HeaderMap::new(), Compression::None, None)
+            .await
+            .unwrap()
+            .collect::<Vec<_>>()
+            .await;
+        assert_eq!(events.iter().any(|e|matches!(e,Ok(ResponseEvent::OutputItemDone(
+            codex_protocol::models::ResponseItem::FunctionCall{name,call_id,..})) if name=="exec_command" && call_id=="call-real")),terminal);
+        assert_eq!(events.iter().any(Result::is_err), !terminal);
+    }
+}
+
+#[tokio::test]
+async fn real_models_decoder_accepts_maple_catalog_without_inventing_context() {
+    let body = serde_json::to_vec(
+        &json!({"data":[{"id":"new-fixture","display_name":"New Fixture",
+        "tasks":["generate"],"capabilities":{"chat":true,"tool_use":true}}]}),
+    )
+    .unwrap();
+    let client = ModelsClient::new(
+        MemoryTransport::new(body),
+        provider(),
+        Arc::new(KeyAuth(true)),
+    );
+    let (models, _) = client
+        .list_models(
+            "http://127.0.0.1:8080/v1/models".into(),
+            HeaderMap::new(),
+            Some(1024 * 1024),
+        )
+        .await
+        .unwrap();
+    assert_eq!(models.len(), 1);
+    assert_eq!(models[0].slug, "new-fixture");
+    assert_eq!(models[0].context_window, None);
+    assert!(!models[0].supports_reasoning_summary_parameter);
+}
