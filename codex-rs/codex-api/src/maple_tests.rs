@@ -181,3 +181,119 @@ async fn cancellation_drops_pending_provider_stream_without_executing_tools() {
     .await
     .unwrap();
 }
+
+struct KeyAuth(bool);
+impl AuthProvider for KeyAuth {
+    fn add_auth_headers(&self, headers: &mut HeaderMap) -> Result<(), crate::auth::AuthError> {
+        headers.insert(
+            http::header::AUTHORIZATION,
+            if self.0 {
+                "Bearer fixture-key"
+            } else {
+                "Bearer invalid-fixture"
+            }
+            .parse()
+            .unwrap(),
+        );
+        Ok(())
+    }
+}
+
+fn provider() -> Provider {
+    Provider {
+        name: "Maple".into(),
+        base_url: "http://127.0.0.1:8080/v1".into(),
+        query_params: None,
+        headers: HeaderMap::new(),
+        retry: RetryConfig {
+            max_attempts: 1,
+            base_delay: Duration::from_millis(1),
+            retry_429: false,
+            retry_5xx: false,
+            retry_transport: false,
+        },
+        stream_idle_timeout: Duration::from_millis(100),
+    }
+}
+
+fn request() -> Value {
+    json!({"model":"fixture","input":[{"type":"message","role":"user","content":"Fix this"}],
+        "tools":[{"type":"function","name":"exec_command","parameters":{"type":"object"}}],"tool_choice":"auto"})
+}
+
+fn frame(delta: Value, reason: Value) -> Vec<u8> {
+    format!(
+        "data: {}\n\n",
+        json!({"id":"fixture-response","choices":[{
+        "index":0,"delta":delta,"finish_reason":reason}]})
+    )
+    .into_bytes()
+}
+
+#[tokio::test]
+async fn authenticated_maple_request_streams_through_real_upstream_parser() {
+    let mut body = frame(json!({"content":"Done 🍁"}), json!("stop"));
+    body.extend(b"data: [DONE]\n\n");
+    let transport = MemoryTransport::new(body);
+    let client = ResponsesClient::new(transport.clone(), provider(), Arc::new(KeyAuth(true)));
+    let events = client
+        .stream(request(), HeaderMap::new(), Compression::None, None)
+        .await
+        .unwrap()
+        .collect::<Vec<_>>()
+        .await;
+    assert!(
+        events
+            .iter()
+            .any(|e| matches!(e,Ok(ResponseEvent::OutputTextDelta(s)) if s=="Done 🍁"))
+    );
+    assert!(
+        events
+            .iter()
+            .any(|e| matches!(e, Ok(ResponseEvent::Completed { .. })))
+    );
+    let captured = transport.captured.lock().unwrap();
+    assert_eq!(captured[0].url, "http://127.0.0.1:8080/v1/chat/completions");
+    assert_eq!(captured[0].method, Method::POST);
+    let Some(RequestBody::EncodedJson(body)) = &captured[0].body else {
+        panic!("expected encoded chat body")
+    };
+    let body: Value = serde_json::from_slice(body.as_bytes()).unwrap();
+    assert!(body.get("messages").is_some());
+    assert!(body.get("input").is_none());
+}
+
+#[tokio::test]
+async fn invalid_key_and_account_restrictions_preserve_status_and_redact_body() {
+    for status in [
+        StatusCode::UNAUTHORIZED,
+        StatusCode::FORBIDDEN,
+        StatusCode::TOO_MANY_REQUESTS,
+    ] {
+        let mut transport = MemoryTransport::new(vec![]);
+        transport.status = status;
+        let client = ResponsesClient::new(
+            transport,
+            provider(),
+            Arc::new(KeyAuth(status != StatusCode::UNAUTHORIZED)),
+        );
+        let error = client
+            .stream(request(), HeaderMap::new(), Compression::None, None)
+            .await
+            .err()
+            .unwrap();
+        assert!(!format!("{error:?}").contains("fixture-key"));
+        let crate::error::ApiError::Transport(TransportError::Http {
+            status: actual,
+            url,
+            headers,
+            ..
+        }) = error
+        else {
+            panic!("HTTP status lost")
+        };
+        assert_eq!(actual, status);
+        assert!(url.is_none());
+        assert!(headers.is_none());
+    }
+}
