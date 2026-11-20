@@ -155,3 +155,65 @@ fn namespace_tools_round_trip_to_original_dispatch_names() {
     assert_eq!(call["namespace"], "functions");
     assert_eq!(call["call_id"], "a");
 }
+
+#[test]
+fn streaming_unicode_survives_every_possible_byte_boundary() {
+    let mut bytes = frame(
+        json!({"role":"assistant","content":"Hello 🍁\n世界"}),
+        json!("stop"),
+    );
+    bytes.extend(b"data: [DONE]\n\n");
+    for boundary in 0..=bytes.len() {
+        let mut d = Decoder::new(BTreeMap::new());
+        let mut events = d.feed(&bytes[..boundary]).unwrap();
+        events.extend(d.feed(&bytes[boundary..]).unwrap());
+        d.eof().unwrap();
+        assert_eq!(done(&events)[0]["content"][0]["text"], "Hello 🍁\n世界");
+        assert_eq!(events.last().unwrap()["type"], "response.completed");
+    }
+}
+
+#[test]
+fn sse_comments_crlf_cr_and_multiline_frames_are_supported() {
+    for newline in ["\n", "\r\n", "\r"] {
+        let text = format!(
+            ": heartbeat{newline}{newline}data: {{\"id\":\"fixture\",{newline}data: \"choices\":[{{\"index\":0,\"delta\":{{\"content\":\"ok\"}},\"finish_reason\":\"stop\"}}]}}{newline}{newline}data: [DONE]{newline}{newline}"
+        );
+        let mut d = Decoder::new(BTreeMap::new());
+        let mut events = Vec::new();
+        for byte in text.bytes() {
+            events.extend(d.feed(&[byte]).unwrap());
+        }
+        d.eof().unwrap();
+        assert_eq!(done(&events)[0]["content"][0]["text"], "ok");
+    }
+}
+
+#[test]
+fn incremental_interleaved_tool_arguments_preserve_ids_and_raw_custom_input() {
+    let c = request::translate(&request()).unwrap();
+    let exec = c.body["tools"][0]["function"]["name"].clone();
+    let patch = c.body["tools"][1]["function"]["name"].clone();
+    let mut d = Decoder::new(c.tools);
+    let first=d.feed(&frame(json!({"tool_calls":[
+        {"index":1,"id":"patch-b","type":"function","function":{"name":patch,"arguments":"{\"input\":\"*** Begin"}},
+        {"index":0,"id":"exec-a","type":"function","function":{"name":exec,"arguments":"{\"cmd\":"}}]}),Value::Null)).unwrap();
+    assert!(done(&first).is_empty());
+    let second = d
+        .feed(&frame(
+            json!({"tool_calls":[
+        {"index":0,"function":{"arguments":"\"cargo test\"}"}},
+        {"index":1,"function":{"arguments":" Patch\\n*** End Patch\"}"}}]}),
+            json!("tool_calls"),
+        ))
+        .unwrap();
+    assert!(done(&second).is_empty());
+    let events = d.feed(b"data: [DONE]\n\n").unwrap();
+    let items = done(&events);
+    assert_eq!(items.len(), 2);
+    assert_eq!(items[0]["call_id"], "exec-a");
+    assert_eq!(items[0]["arguments"], "{\"cmd\":\"cargo test\"}");
+    assert_eq!(items[1]["type"], "custom_tool_call");
+    assert_eq!(items[1]["input"], "*** Begin Patch\n*** End Patch");
+    assert_eq!(events.last().unwrap()["response"]["end_turn"], false);
+}
