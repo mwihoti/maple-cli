@@ -538,6 +538,27 @@ other non-default provider fields are not supported"
     /// (and non-empty) in the environment. If `env_key` is required but
     /// cannot be found, returns an error.
     pub fn api_key(&self) -> CodexResult<Option<String>> {
+        if self.name == MAPLE_PROVIDER_NAME {
+            if let Some(key) = std::env::var("MAPLE_API_KEY")
+                .ok()
+                .filter(|v| !v.trim().is_empty())
+            {
+                maple_credentials::validate_key(&key).map_err(CodexErr::InvalidRequest)?;
+                return Ok(Some(key));
+            }
+            let base_url = self
+                .base_url
+                .as_deref()
+                .ok_or_else(|| CodexErr::InvalidRequest("Maple base_url is required".into()))?;
+            let key = maple_credentials::load(&codex_keyring_store::DefaultKeyringStore, base_url)
+                .map_err(CodexErr::InvalidRequest)?;
+            return key.map(Some).ok_or_else(|| {
+                CodexErr::EnvVar(EnvVarError {
+                    var: "MAPLE_API_KEY".into(),
+                    instructions: Some("Set MAPLE_API_KEY or run `codex maple login`.".into()),
+                })
+            });
+        }
         match &self.env_key {
             Some(env_key) => {
                 let api_key = std::env::var(env_key)
