@@ -529,6 +529,22 @@ impl StaticModelsManager {
 }
 
 impl ModelsManager for OpenAiModelsManager {
+    fn try_raw_model_catalog(
+        &self,
+        refresh_strategy: RefreshStrategy,
+        http_client_factory: HttpClientFactory,
+    ) -> ModelsManagerFuture<'_, CoreResult<ModelsResponse>> {
+        Box::pin(async move {
+            if refresh_strategy != RefreshStrategy::InMemory {
+                self.refresh_available_models(refresh_strategy, &http_client_factory)
+                    .await?;
+            }
+            Ok(self
+                .raw_model_catalog(RefreshStrategy::InMemory, http_client_factory)
+                .await)
+        })
+    }
+
     fn ensure_initialized(
         &self,
         http_client_factory: HttpClientFactory,
