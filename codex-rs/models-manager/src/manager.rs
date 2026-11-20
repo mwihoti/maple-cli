@@ -232,6 +232,20 @@ pub trait ModelsManager: fmt::Debug + Send + Sync {
         })
     }
 
+    /// Refresh a catalog for an explicit command, propagating refresh failures.
+    /// Static catalogs retain their ordinary read behavior.
+    fn try_raw_model_catalog(
+        &self,
+        refresh_strategy: RefreshStrategy,
+        http_client_factory: HttpClientFactory,
+    ) -> ModelsManagerFuture<'_, CoreResult<ModelsResponse>> {
+        Box::pin(async move {
+            Ok(self
+                .raw_model_catalog(refresh_strategy, http_client_factory)
+                .await)
+        })
+    }
+
     /// Return model metadata and its locally determined source from the same snapshot.
     /// Implement refresh, error handling, and fallback here for both catalog views.
     fn model_catalog_with_origins(
