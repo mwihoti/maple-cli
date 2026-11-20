@@ -59,3 +59,24 @@ Maple metadata does not replace the coding-agent prompt. The existing TUI's
 `session_model_selection.rs` dispatches `UpdateModel`/`ApplyModelSelection`.
 These handlers are reused, with native flow verification still pending.
 
+## Verified external contract
+
+- https://maple.ai/docs/proxy/api: bearer authentication, `/v1/models`,
+  `/v1/chat/completions`, SSE, optional reasoning/usage; **no Responses API**.
+- https://maple.ai/docs/proxy/models: inspect `id`, `tasks`, `capabilities`,
+  `context_window`; discovery does not prove account entitlement.
+- The archived OpenSecretCloud proxy repository now points to
+  https://github.com/MaplePrivacyLabs/Maple/tree/master/proxy. The inspected
+  `services/opensecret/src/model_config.rs` confirms `capabilities.chat`,
+  `tool_use`, `vision`, `reasoning`, `reasoning.supported_efforts` and
+  `reasoning.default_effort`. Exact revision is in `upstream-source.json`.
+  The running local proxy contract remains unverified.
+
+Do not manufacture context sizes, model identifiers, reasoning levels or
+capabilities. Missing metadata remains unknown. Native server tools, encrypted
+history, uploaded files/audio and unsupported Responses items must fail clearly.
+Function and custom tools require different argument representations; namespaces
+need reversible names. Streaming tool arguments may interleave across indices.
+No tool is executable until a complete valid call is received. A truncated stream
+must never be reported as completed, and partial tool calls must not execute.
+
