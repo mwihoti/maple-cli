@@ -744,6 +744,10 @@ impl ModelProvider for ConfiguredModelProvider {
         );
         let auth_manager = self.auth_manager.clone();
         let manager = OpenAiModelsManager::with_settings(settings, endpoint, auth_manager);
+        if self.info.name == "Maple" {
+            // A failed Maple fetch must never fall back to unrelated bundled models.
+            return Arc::new(manager.with_provider_catalog());
+        }
         match &self.info.model_catalog_url {
             Some(_) => Arc::new(manager.with_provider_catalog()),
             None => Arc::new(manager),
