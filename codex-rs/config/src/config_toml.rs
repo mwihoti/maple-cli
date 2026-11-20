@@ -38,6 +38,7 @@ use codex_model_provider_info::AMAZON_BEDROCK_RUNTIME_PROVIDER_ID;
 use codex_model_provider_info::GCP_PROVIDER_ID;
 use codex_model_provider_info::LEGACY_OLLAMA_CHAT_PROVIDER_ID;
 use codex_model_provider_info::LMSTUDIO_OSS_PROVIDER_ID;
+use codex_model_provider_info::MAPLE_PROVIDER_ID;
 use codex_model_provider_info::ModelProviderInfo;
 use codex_model_provider_info::OLLAMA_CHAT_PROVIDER_REMOVED_ERROR;
 use codex_model_provider_info::OLLAMA_OSS_PROVIDER_ID;
@@ -64,7 +65,8 @@ use serde::Serialize;
 use serde::de::Error as SerdeError;
 use serde_json::Value as JsonValue;
 
-const RESERVED_MODEL_PROVIDER_IDS: [&str; 6] = [
+const RESERVED_MODEL_PROVIDER_IDS: [&str; 7] = [
+    MAPLE_PROVIDER_ID,
     AMAZON_BEDROCK_PROVIDER_ID,
     AMAZON_BEDROCK_RUNTIME_PROVIDER_ID,
     GCP_PROVIDER_ID,
