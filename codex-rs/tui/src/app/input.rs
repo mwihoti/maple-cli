@@ -614,7 +614,10 @@ impl App {
                         ),
                         (
                             "Run in background",
-                            "Exit Codex and leave the task running",
+                            crate::history_cell::branded(
+                                "Exit Codex and leave the task running",
+                                "Exit Maple Code and leave the task running",
+                            ),
                             RunningTaskExitAction::RunInBackground,
                         ),
                         (
