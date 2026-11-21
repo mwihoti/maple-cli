@@ -3340,6 +3340,18 @@ enabled = true
     }
 
     #[test]
+    fn full_access_conflicts_with_approval_policy() {
+        let err = MultitoolCli::try_parse_from([
+            "codex",
+            "--full-access",
+            "--ask-for-approval",
+            "on-request",
+        ])
+        .expect_err("conflicting permission flags should be rejected");
+        assert_eq!(err.kind(), clap::error::ErrorKind::ArgumentConflict);
+    }
+
+    #[test]
     fn approve_for_me_configures_interactive_mode() {
         for flag in ["--approve-for-me", "--not-so-yolo"] {
             let mut cli = MultitoolCli::try_parse_from(["codex", flag]).expect("parse flag");
