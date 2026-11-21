@@ -77,7 +77,7 @@ pub fn new_approval_decision_cell(
                 vec![
                     actor.subject().into(),
                     "approved".bold(),
-                    " codex network access to ".into(),
+                    format!(" {} network access to ", super::agent_name()).into(),
                     Span::from(target).dim(),
                     " this time".bold(),
                 ],
@@ -126,7 +126,7 @@ pub fn new_approval_decision_cell(
                 vec![
                     actor.subject().into(),
                     "approved".bold(),
-                    " codex network access to ".into(),
+                    format!(" {} network access to ", super::agent_name()).into(),
                     Span::from(target).dim(),
                     " every time this session".bold(),
                 ],
@@ -154,7 +154,7 @@ pub fn new_approval_decision_cell(
                     vec![
                         actor.subject().into(),
                         "denied".bold(),
-                        " codex network access to ".into(),
+                        format!(" {} network access to ", super::agent_name()).into(),
                         Span::from(target).dim(),
                         " and saved that rule".into(),
                     ],
@@ -198,7 +198,7 @@ pub fn new_approval_decision_cell(
                 vec![
                     actor.subject().into(),
                     "did not approve".bold(),
-                    " codex network access to ".into(),
+                    format!(" {} network access to ", super::agent_name()).into(),
                     Span::from(target).dim(),
                 ],
             ),
@@ -254,7 +254,11 @@ pub fn new_approval_decision_cell(
                 vec![
                     actor.subject().into(),
                     "canceled".bold(),
-                    " the request for codex network access to ".into(),
+                    format!(
+                        " the request for {} network access to ",
+                        super::agent_name()
+                    )
+                    .into(),
                     Span::from(target).dim(),
                 ],
             ),
