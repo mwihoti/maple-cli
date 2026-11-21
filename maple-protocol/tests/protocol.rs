@@ -162,6 +162,20 @@ fn tool_result_images_follow_the_tool_batch_in_a_user_message() {
 }
 
 #[test]
+fn tool_result_image_keeps_its_detail_setting() {
+    let mut r = request();
+    r["input"] = json!([
+        {"type":"message","role":"user","content":"look"},
+        {"type":"function_call","name":"view_image","call_id":"a","arguments":"{}"},
+        {"type":"function_call_output","call_id":"a","output":[
+            {"type":"input_image","image_url":"data:image/png;base64,fixture","detail":"low"}]},
+    ]);
+    let body = request::translate(&r).unwrap().body;
+    let last = body["messages"].as_array().unwrap().last().unwrap();
+    assert_eq!(last["content"][1]["image_url"]["detail"], "low");
+}
+
+#[test]
 fn namespace_tools_round_trip_to_original_dispatch_names() {
     let mut r = request();
     let tool = r["tools"][0].clone();
