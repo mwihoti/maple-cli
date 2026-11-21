@@ -606,7 +606,10 @@ impl App {
                     items: [
                         (
                             "Cancel task",
-                            "Stop the current task and stay in Codex",
+                            crate::history_cell::branded(
+                                "Stop the current task and stay in Codex",
+                                "Stop the current task and stay in Maple Code",
+                            ),
                             RunningTaskExitAction::CancelTask,
                         ),
                         (
