@@ -142,7 +142,9 @@ approval. Use the interactive CLI to exercise approval prompts.
 [scripts/install-from-source.sh](scripts/install-from-source.sh) builds the
 workspace, links the launcher into `~/.local/bin`, writes starter settings and
 asks for the API key without echoing it (`--release` builds the optimized
-binary). It does not download Maple Proxy. To do the same by hand, link the
+binary). It downloads Maple Proxy from Maple's releases when none is installed,
+checking the published SHA-256; `--update-proxy` replaces an installed one. To
+do the same by hand, link the
 launcher onto your `PATH` and copy the example settings:
 
 ```bash
@@ -164,6 +166,12 @@ The first catalog request after the proxy starts or idles waits for the proxy's
 enclave attestation handshake, measured at 7-14 seconds; later requests take
 well under a second. An attestation failure surfaces as a proxy 502; see
 `~/.maple-code/proxy.log`.
+
+Use a proxy from [Maple's releases](https://github.com/MaplePrivacyLabs/Maple/releases).
+The archived `OpenSecretCloud/maple-proxy` builds and the
+`ghcr.io/opensecretcloud/maple-proxy` image are no longer updated. An outdated
+proxy fails every request with "PCR0 is not approved by the configured trust
+policy" once Maple deploys a newer backend; updating the proxy fixes it.
 
 With the Maple provider active the interface calls itself Maple Code: the
 session header, the `exec` banner, the input placeholder and approval messages
