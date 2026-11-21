@@ -235,6 +235,8 @@ session help lines, the exit menu, resume hints and the full-access warning.
 The `/permissions` and `/quit` descriptions were seen reading "Maple Code" in a
 live session; the rest were type-checked only.
 
+`scripts/install-from-source.sh` was syntax-checked with `bash -n` only.
+
 Still unverified: OS keyring login, session resume, MCP tools exposed through
 deferred tool search, images on models without vision, and the release build.
 
