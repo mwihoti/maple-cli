@@ -98,7 +98,10 @@ impl SlashCommand {
             ),
             SlashCommand::Feedback => "send logs to maintainers or save a ZIP",
             SlashCommand::New => "start a new chat during a conversation",
-            SlashCommand::Init => "create an AGENTS.md file with instructions for Codex",
+            SlashCommand::Init => crate::history_cell::branded(
+                "create an AGENTS.md file with instructions for Codex",
+                "create an AGENTS.md file with instructions for Maple Code",
+            ),
             SlashCommand::Compact => "summarize conversation to prevent hitting the context limit",
             SlashCommand::Recap => "summarize the current conversation now",
             SlashCommand::Review => "review my current changes and find issues",
