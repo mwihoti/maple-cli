@@ -200,6 +200,18 @@ fn conversation_continues_after_a_tool_result_image() {
 }
 
 #[test]
+fn uploaded_files_in_tool_results_are_still_rejected() {
+    let mut r = request();
+    r["input"] = json!([
+        {"type":"message","role":"user","content":"look"},
+        {"type":"function_call","name":"view_image","call_id":"a","arguments":"{}"},
+        {"type":"function_call_output","call_id":"a","output":[
+            {"type":"input_file","file_id":"uploaded"}]},
+    ]);
+    assert!(request::translate(&r).is_err());
+}
+
+#[test]
 fn namespace_tools_round_trip_to_original_dispatch_names() {
     let mut r = request();
     let tool = r["tools"][0].clone();
