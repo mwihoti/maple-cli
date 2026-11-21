@@ -60,6 +60,15 @@ pub(crate) fn product_name() -> &'static str {
     }
 }
 
+/// Lowercase agent name used in approval and denial messages.
+pub(crate) fn agent_name() -> &'static str {
+    if MAPLE_BRAND.load(std::sync::atomic::Ordering::Relaxed) {
+        "maple-code"
+    } else {
+        "codex"
+    }
+}
+
 /// Composer placeholder naming the active product.
 pub(crate) fn composer_placeholder() -> String {
     if MAPLE_BRAND.load(std::sync::atomic::Ordering::Relaxed) {
