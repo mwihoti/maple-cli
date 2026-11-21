@@ -64,7 +64,7 @@ pub(crate) fn product_name() -> &'static str {
 pub(crate) fn codex_title(version: &str) -> Vec<Span<'static>> {
     vec![
         ">_ ".fg(accent_color()),
-        "OpenAI Codex".bold(),
+        product_name().bold(),
         format!(" (v{version})").dim(),
     ]
 }
