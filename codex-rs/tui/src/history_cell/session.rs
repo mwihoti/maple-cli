@@ -40,6 +40,26 @@ pub(crate) fn with_border_with_inner_width(
     out
 }
 
+/// The active provider is known only after config loads and can change at
+/// startup, so the brand is process state rather than a constant.
+static MAPLE_BRAND: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Select the product name shown in headers for the active model provider.
+pub(crate) fn set_brand_provider(model_provider_id: &str) {
+    MAPLE_BRAND.store(
+        model_provider_id == codex_model_provider_info::MAPLE_PROVIDER_ID,
+        std::sync::atomic::Ordering::Relaxed,
+    );
+}
+
+pub(crate) fn product_name() -> &'static str {
+    if MAPLE_BRAND.load(std::sync::atomic::Ordering::Relaxed) {
+        codex_model_provider_info::product_name(codex_model_provider_info::MAPLE_PROVIDER_ID)
+    } else {
+        "OpenAI Codex"
+    }
+}
+
 /// Brand title shared by the session header and the status card; each owns its own indentation.
 pub(crate) fn codex_title(version: &str) -> Vec<Span<'static>> {
     vec![
