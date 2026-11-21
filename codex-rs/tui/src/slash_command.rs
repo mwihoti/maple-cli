@@ -155,7 +155,10 @@ impl SlashCommand {
             SlashCommand::Agents => "open the agent command center",
             SlashCommand::MultiAgents => "switch between this session's subagents",
             SlashCommand::Side | SlashCommand::Btw => "start a side conversation",
-            SlashCommand::Permissions => "choose what Codex is allowed to do",
+            SlashCommand::Permissions => crate::history_cell::branded(
+                "choose what Codex is allowed to do",
+                "choose what Maple Code is allowed to do",
+            ),
             SlashCommand::Keymap => "remap TUI shortcuts",
             SlashCommand::Vim => "toggle Vim mode for the composer",
             SlashCommand::ElevateSandbox => "set up elevated agent sandbox",
