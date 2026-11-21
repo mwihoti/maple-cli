@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# install-from-source.sh: build this checkout and put `maple-code` on PATH.
+#
+# Usage: scripts/install-from-source.sh [--release]
+#
+# This is a source install, not a packaged release: it compiles the Rust
+# workspace (slow on a first build), links scripts/maple-code into
+# ~/.local/bin, and creates starter settings in ~/.maple-code. It never
+# overwrites an existing config or credentials file.
+set -euo pipefail
+
+REPO="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+HOME_DIR="${MAPLE_CODE_HOME:-$HOME/.maple-code}"
+BIN_DIR="${MAPLE_CODE_BIN_DIR:-$HOME/.local/bin}"
+profile=()
+[[ "${1:-}" == "--release" ]] && profile=(--release)
+
+command -v cargo >/dev/null || {
+  echo "install: cargo is required (https://rustup.rs)" >&2
+  exit 1
+}
+
+echo "install: building codex ${profile[*]:-(debug)} ..."
+(cd "$REPO/codex-rs" && cargo build "${profile[@]}" --bin codex)
+
+mkdir -p "$BIN_DIR" "$HOME_DIR/bin"
+ln -sfn "$REPO/scripts/maple-code" "$BIN_DIR/maple-code"
+echo "install: linked $BIN_DIR/maple-code"
+
+if [[ ! -e "$HOME_DIR/config.toml" ]]; then
+  cp "$REPO/examples/maple-code.config.toml" "$HOME_DIR/config.toml"
+  echo "install: wrote $HOME_DIR/config.toml"
+fi
+
+# The key is read without echo and stored in a file Git ignores.
+if [[ ! -e "$REPO/.env.maple" && -z "${MAPLE_API_KEY:-}" && -t 0 ]]; then
+  read -rsp "Maple API key (input hidden, Enter to skip): " key
+  echo
+  if [[ -n "$key" ]]; then
+    (umask 077 && printf "export MAPLE_API_KEY='%s'\nexport MAPLE_BASE_URL='http://127.0.0.1:8080/v1'\n" "$key" >"$REPO/.env.maple")
+    echo "install: wrote $REPO/.env.maple (mode 600, ignored by Git)"
+  fi
+  unset key
+fi
+
+if [[ ! -x "$HOME_DIR/bin/maple-proxy" ]] && ! command -v maple-proxy >/dev/null; then
+  echo "install: no maple-proxy binary found. Place one at $HOME_DIR/bin/maple-proxy," >&2
+  echo "         or run Maple Proxy yourself on 127.0.0.1:8080 before starting maple-code." >&2
+fi
+
+case ":$PATH:" in
+  *":$BIN_DIR:"*) ;;
+  *) echo "install: add $BIN_DIR to PATH to run maple-code from anywhere" >&2 ;;
+esac
+echo "install: done. Try: maple-code maple models"
