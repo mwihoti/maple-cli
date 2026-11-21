@@ -166,6 +166,13 @@ session header, the `exec` banner, the input placeholder and approval messages
 ("You approved maple-code to run ..."). Other providers keep the Codex name.
 The binary and its subcommands are still named `codex`.
 
+### Images
+
+Tools such as `view_image` return images in a tool result, which Chat
+Completions cannot carry. The adapter leaves a note in the tool result and
+sends the image in a user message straight after the tool batch. This needs a
+model whose Maple catalog entry reports `vision: true`.
+
 ### Full-access mode
 
 `maple-code --full-access` (also `maple-code exec --full-access "..."`) runs
