@@ -285,7 +285,11 @@ pub(crate) fn new_session_info(
             Line::from(vec![
                 "  ".into(),
                 "/permissions".into(),
-                " - choose what Codex is allowed to do".dim(),
+                crate::history_cell::branded(
+                    " - choose what Codex is allowed to do",
+                    " - choose what Maple Code is allowed to do",
+                )
+                .dim(),
             ]),
             Line::from(vec![
                 "  ".into(),
