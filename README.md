@@ -166,6 +166,9 @@ session header, the `exec` banner, the input placeholder and approval messages
 ("You approved maple-code to run ..."). Other providers keep the Codex name.
 The binary and its subcommands are still named `codex`.
 
+Resume hints, the exit menu and the `/` command descriptions follow the same
+rule, so a Maple session tells you to run `maple-code resume <id>`.
+
 ### Tool names
 
 Maple models see each tool under an opaque alias with the readable name in the
