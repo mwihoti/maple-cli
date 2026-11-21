@@ -58,7 +58,7 @@ pub fn new_approval_decision_cell(
                     vec![
                         actor.subject().into(),
                         "approved".bold(),
-                        " codex to run ".into(),
+                        format!(" {} to run ", super::agent_name()).into(),
                         Span::from(snippet).dim(),
                         " this time".bold(),
                     ]
@@ -103,7 +103,7 @@ pub fn new_approval_decision_cell(
                     vec![
                         actor.subject().into(),
                         "approved".bold(),
-                        " codex to run ".into(),
+                        format!(" {} to run ", super::agent_name()).into(),
                         Span::from(snippet).dim(),
                         " every time this session".bold(),
                     ]
@@ -165,13 +165,13 @@ pub fn new_approval_decision_cell(
                         ApprovalDecisionActor::User => vec![
                             actor.subject().into(),
                             "did not approve".bold(),
-                            " codex to run ".into(),
+                            format!(" {} to run ", super::agent_name()).into(),
                             snippet,
                         ],
                         ApprovalDecisionActor::Guardian => vec![
                             "Request ".into(),
                             "denied".bold(),
-                            " for codex to run ".into(),
+                            format!(" for {} to run ", super::agent_name()).into(),
                             snippet,
                         ],
                     }
