@@ -166,5 +166,14 @@ session header, the `exec` banner, the input placeholder and approval messages
 ("You approved maple-code to run ..."). Other providers keep the Codex name.
 The binary and its subcommands are still named `codex`.
 
+### Full-access mode
+
+`maple-code --full-access` (also `maple-code exec --full-access "..."`) runs
+without approval prompts and without the sandbox: the model can run any
+command, edit any file your user can, and use the network. It is the same
+switch as `--dangerously-bypass-approvals-and-sandbox`. Use it only in a
+directory and on a machine where that is acceptable, such as a container or a
+throwaway VM. Inside a running session, `/permissions` switches modes.
+
 There is no npm package yet. A scoped npm install remains release work, and no
 package name is presumed available.
