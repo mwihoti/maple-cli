@@ -123,11 +123,19 @@ impl WidgetRef for &WelcomeWidget {
             0
         };
         let mut lines: Vec<Line> = vec![Line::default(); usize::from(logo_rows)];
+        let (product, tagline) = if crate::history_cell::product_name() == "OpenAI Codex" {
+            ("Codex", ", OpenAI's command-line coding agent")
+        } else {
+            (
+                crate::history_cell::product_name(),
+                ", a command-line coding agent running on Maple",
+            )
+        };
         lines.push(Line::from(vec![
             "  ".into(),
             "Welcome to ".into(),
-            "Codex".bold(),
-            ", OpenAI's command-line coding agent".into(),
+            product.bold(),
+            tagline.into(),
         ]));
 
         Paragraph::new(lines)
