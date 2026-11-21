@@ -291,7 +291,7 @@ pub fn new_guardian_denied_patch_request(files: Vec<String>) -> Box<dyn HistoryC
     let mut summary = vec![
         "Request ".into(),
         "denied".bold(),
-        " for codex to apply ".into(),
+        format!(" for {} to apply ", super::agent_name()).into(),
     ];
     if files.len() == 1 {
         summary.push("a patch touching ".into());
@@ -323,7 +323,7 @@ pub fn new_guardian_timed_out_patch_request(files: Vec<String>) -> Box<dyn Histo
     let mut summary = vec![
         "Review ".into(),
         "timed out".bold(),
-        " before codex could apply ".into(),
+        format!(" before {} could apply ", super::agent_name()).into(),
     ];
     if files.len() == 1 {
         summary.push("a patch touching ".into());
