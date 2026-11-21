@@ -138,8 +138,12 @@ approval. Use the interactive CLI to exercise approval prompts.
 
 ## Run it as `maple-code`
 
-[scripts/maple-code](scripts/maple-code) is a launcher for a source build. Link
-it onto your `PATH` and copy the example settings:
+[scripts/maple-code](scripts/maple-code) is a launcher for a source build.
+[scripts/install-from-source.sh](scripts/install-from-source.sh) builds the
+workspace, links the launcher into `~/.local/bin`, writes starter settings and
+asks for the API key without echoing it (`--release` builds the optimized
+binary). It does not download Maple Proxy. To do the same by hand, link the
+launcher onto your `PATH` and copy the example settings:
 
 ```bash
 ln -s "$PWD/scripts/maple-code" ~/.local/bin/maple-code
