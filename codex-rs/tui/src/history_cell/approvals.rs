@@ -92,7 +92,11 @@ pub fn new_approval_decision_cell(
                 vec![
                     actor.subject().into(),
                     "approved".bold(),
-                    " codex to always run commands that start with ".into(),
+                    format!(
+                        " {} to always run commands that start with ",
+                        super::agent_name()
+                    )
+                    .into(),
                     snippet,
                 ],
             )
