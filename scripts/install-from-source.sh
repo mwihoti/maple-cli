@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 # install-from-source.sh: build this checkout and put `maple-code` on PATH.
 #
-# Usage: scripts/install-from-source.sh [--release]
+# Usage: scripts/install-from-source.sh [--release] [--update-proxy]
 #
 # This is a source install, not a packaged release: it compiles the Rust
 # workspace (slow on a first build), links scripts/maple-code into
-# ~/.local/bin, and creates starter settings in ~/.maple-code. It never
-# overwrites an existing config or credentials file.
+# ~/.local/bin, creates starter settings in ~/.maple-code and downloads Maple
+# Proxy when none is installed (--update-proxy replaces an installed one). It
+# never overwrites an existing config or credentials file.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 HOME_DIR="${MAPLE_CODE_HOME:-$HOME/.maple-code}"
 BIN_DIR="${MAPLE_CODE_BIN_DIR:-$HOME/.local/bin}"
 profile=()
-[[ "${1:-}" == "--release" ]] && profile=(--release)
+[[ " $* " == *" --release "* ]] && profile=(--release)
 
 command -v cargo >/dev/null || {
   echo "install: cargo is required (https://rustup.rs)" >&2
@@ -43,9 +44,39 @@ if [[ ! -e "$REPO/.env.maple" && -z "${MAPLE_API_KEY:-}" && -t 0 ]]; then
   unset key
 fi
 
-if [[ ! -x "$HOME_DIR/bin/maple-proxy" ]] && ! command -v maple-proxy >/dev/null; then
-  echo "install: no maple-proxy binary found. Place one at $HOME_DIR/bin/maple-proxy," >&2
-  echo "         or run Maple Proxy yourself on 127.0.0.1:8080 before starting maple-code." >&2
+# Maple Proxy comes from Maple's own releases. The archived
+# OpenSecretCloud/maple-proxy builds stop passing enclave attestation once
+# Maple deploys a newer backend, which shows up as a 502 on every request.
+PROXY_VERSION="${MAPLE_PROXY_VERSION:-v3.4.9}"
+PROXY_BASE="https://github.com/MaplePrivacyLabs/Maple/releases/download/$PROXY_VERSION"
+install_proxy() {
+  local asset tmp
+  case "$(uname -s)-$(uname -m)" in
+    Linux-x86_64) asset=maple-proxy-linux-x86_64.tar.gz ;;
+    Linux-aarch64) asset=maple-proxy-linux-aarch64.tar.gz ;;
+    Darwin-arm64) asset=maple-proxy-macos-aarch64.tar.gz ;;
+    *) echo "install: no Maple Proxy build for $(uname -s) $(uname -m)" >&2; return 1 ;;
+  esac
+  tmp="$(mktemp -d)"
+  # Chained with && because `set -e` is off inside a function called with ||.
+  # The download is refused unless it matches the checksum Maple publishes.
+  curl -fsSL -o "$tmp/$asset" "$PROXY_BASE/$asset" &&
+    curl -fsSL -o "$tmp/sums" "$PROXY_BASE/maple-proxy-release-final.sha256" &&
+    (cd "$tmp" && grep " $asset\$" sums >expected && [[ -s expected ]] &&
+      if command -v sha256sum >/dev/null; then sha256sum -c expected; else shasum -a 256 -c expected; fi) >/dev/null &&
+    tar -xzf "$tmp/$asset" -C "$tmp" maple-proxy &&
+    install -m 755 "$tmp/maple-proxy" "$HOME_DIR/bin/maple-proxy" || {
+    rm -rf "$tmp"
+    return 1
+  }
+  rm -rf "$tmp"
+  echo "install: installed Maple Proxy $PROXY_VERSION to $HOME_DIR/bin/maple-proxy"
+}
+if [[ " $* " == *" --update-proxy "* ]] || { [[ ! -x "$HOME_DIR/bin/maple-proxy" ]] && ! command -v maple-proxy >/dev/null; }; then
+  install_proxy || {
+    echo "install: could not install Maple Proxy. Place a binary at $HOME_DIR/bin/maple-proxy," >&2
+    echo "         or run Maple Proxy yourself on 127.0.0.1:8080 before starting maple-code." >&2
+  }
 fi
 
 case ":$PATH:" in
