@@ -335,7 +335,51 @@ fn malformed_or_unknown_tool_in_multi_call_response_releases_none() {
     }
     let mut d = Decoder::new(BTreeMap::new());
     d.feed(&frame(json!({"tool_calls":[{"index":0,"id":"a","function":{"name":"unauthorized","arguments":"{}"}}]}),json!("tool_calls"))).unwrap();
-    assert!(d.feed(b"data: [DONE]\n\n").is_err());
+    // An unknown tool becomes a call Codex cannot dispatch, not a dead turn.
+    let events = d.feed(b"data: [DONE]\n\n").unwrap();
+    let item = &done(&events)[0];
+    assert_eq!(item["name"], "unavailable_tool");
+    assert_eq!(item["arguments"], "{\"requested\":\"unauthorized\"}");
+}
+
+#[test]
+fn readable_tool_names_resolve_to_advertised_tools_only() {
+    let mut r = request();
+    let tool = r["tools"][0].clone();
+    let plain = tool["name"].as_str().unwrap().to_owned();
+    r["tools"] = json!([{"type":"namespace","name":"functions","tools":[tool]}]);
+    for requested in [plain.clone(), format!("functions.{plain}"), format!("functions__{plain}")] {
+        let c = request::translate(&r).unwrap();
+        let mut d = Decoder::new(c.tools);
+        d.feed(&frame(
+            json!({"tool_calls":[{"index":0,"id":"a","function":{"name":requested,"arguments":"{}"}}]}),
+            json!("tool_calls"),
+        ))
+        .unwrap();
+        let events = d.feed(b"data: [DONE]\n\n").unwrap();
+        let item = &done(&events)[0];
+        assert_eq!(item["name"], plain);
+        assert_eq!(item["namespace"], "functions");
+    }
+}
+
+#[test]
+fn ambiguous_readable_tool_names_are_not_resolved() {
+    let mut r = request();
+    let tool = r["tools"][0].clone();
+    let plain = tool["name"].as_str().unwrap().to_owned();
+    r["tools"] = json!([
+        {"type":"namespace","name":"one","tools":[tool.clone()]},
+        {"type":"namespace","name":"two","tools":[tool]}]);
+    let c = request::translate(&r).unwrap();
+    let mut d = Decoder::new(c.tools);
+    d.feed(&frame(
+        json!({"tool_calls":[{"index":0,"id":"a","function":{"name":plain,"arguments":"{}"}}]}),
+        json!("tool_calls"),
+    ))
+    .unwrap();
+    let events = d.feed(b"data: [DONE]\n\n").unwrap();
+    assert_eq!(done(&events)[0]["name"], "unavailable_tool");
 }
 
 #[test]

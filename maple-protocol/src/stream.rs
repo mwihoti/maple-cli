@@ -33,6 +33,30 @@ pub struct Decoder {
     output_bytes: usize,
 }
 
+/// Name reported to Codex when the model calls something that was never
+/// advertised. No tool has this name, so Codex answers with an error result.
+pub const UNAVAILABLE_TOOL: &str = "unavailable_tool";
+
+/// Finds the advertised tool a model meant. Models are given opaque wire
+/// aliases but often answer with the readable name from the description, with
+/// or without its namespace. Only advertised tools can be resolved, and a
+/// readable name shared by several tools resolves to none of them.
+fn resolve<'a>(tools: &'a BTreeMap<String, Tool>, requested: &str) -> Option<&'a Tool> {
+    if let Some(tool) = tools.get(requested) {
+        return Some(tool);
+    }
+    let mut matches = tools.values().filter(|tool| {
+        tool.name == requested
+            || tool.namespace.as_deref().is_some_and(|ns| {
+                ["__", ".", "/", ":", "-"]
+                    .iter()
+                    .any(|sep| requested == format!("{ns}{sep}{}", tool.name))
+            })
+    });
+    let first = matches.next()?;
+    matches.next().is_none().then_some(first)
+}
+
 impl Decoder {
     pub fn new(tools: BTreeMap<String, Tool>) -> Self {
         Self {
@@ -277,10 +301,16 @@ impl Decoder {
             if call.id.is_empty() || !ids.insert(&call.id) {
                 return Err(Error("missing or duplicate tool call identifier"));
             }
-            let tool = self
-                .tools
-                .get(&call.name)
-                .ok_or(Error("model requested an unadvertised tool"))?;
+            let Some(tool) = resolve(&self.tools, &call.name) else {
+                // Ending the turn here leaves the model no way to recover. Hand
+                // Codex a call to a name it cannot dispatch, so the model gets
+                // an "unsupported call" result and can retry with a real tool.
+                items.push(json!({"type":"function_call",
+                    "id":format!("maple_call_{id}_{index}"),"call_id":call.id,
+                    "name":UNAVAILABLE_TOOL,"namespace":null,"status":"completed",
+                    "arguments":json!({"requested":call.name}).to_string()}));
+                continue;
+            };
             let args: Value = serde_json::from_str(&call.arguments)
                 .map_err(|_| Error("tool arguments are not valid JSON"))?;
             if !args.is_object() {
