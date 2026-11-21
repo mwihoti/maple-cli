@@ -1,6 +1,7 @@
 # Copy to ~/.maple-code/config.toml for the scripts/maple-code launcher.
 model_provider = "maple"
-# Any ID from `maple-code maple models`.
+# Any ID from `maple-code maple models`. Screenshots and `view_image` need a
+# model Maple lists with vision support; this one has it.
 model = "deepseek-v4-1-flash"
 # Forwarded to Maple as reasoning_effort; lower is faster.
 model_reasoning_effort = "low"
