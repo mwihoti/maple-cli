@@ -131,7 +131,11 @@ impl AppExitInfo {
             lines.push("To continue this session, run:".to_string());
             lines.push(format!(
                 "  {}",
-                color_command(format!("codex resume {}", thread.thread_id)),
+                color_command(format!(
+                    "{} resume {}",
+                    crate::history_cell::agent_name(),
+                    thread.thread_id
+                )),
             ));
             if let Some(thread_name) = thread.thread_name.filter(|name| !name.is_empty()) {
                 lines.push(format!(
