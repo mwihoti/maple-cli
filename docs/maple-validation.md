@@ -230,6 +230,11 @@ undispatchable `unavailable_tool` call. This is covered by decoder tests; the
 original failure was not reproduced live. A normal `codex exec` tool call
 still completed on the rebuilt binary.
 
+More interface text follows the provider: `/` command descriptions, the
+session help lines, the exit menu, resume hints and the full-access warning.
+The `/permissions` and `/quit` descriptions were seen reading "Maple Code" in a
+live session; the rest were type-checked only.
+
 Still unverified: OS keyring login, session resume, MCP tools exposed through
 deferred tool search, images on models without vision, and the release build.
 
