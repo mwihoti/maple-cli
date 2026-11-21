@@ -207,8 +207,12 @@ For roughly ten minutes during testing every request returned 502 with
 "PCR0 is not approved by the configured trust policy" from both the container
 and the extracted proxy binary; it cleared without local changes.
 
-Still unverified: OS keyring login, interactive approval prompts, session
-resume, MCP tools exposed through deferred tool search, and the release build.
+A later session failed with "encrypted, audio, uploaded-file or non-user image
+content is unsupported" after the model called `view_image` on a screenshot.
+Tool-result images are now moved into a user message that follows the tool
+batch. A direct request in that shape returned HTTP 200 from
+`deepseek-v4-1-flash-1017-uncensored`, and `codex exec` identified the colour
+of a solid test image through `view_image`.
 
 `--full-access` was added as a visible alias of
 `--dangerously-bypass-approvals-and-sandbox`. Only argument parsing is tested;
@@ -218,4 +222,7 @@ With the Maple provider the TUI header reads "Maple Code", the composer
 placeholder reads "Ask Maple Code to do anything", and `exec` prints
 "Maple Code v<version>"; these were checked against the debug build. Approval
 messages use "maple-code" and are covered by a type check only.
+
+Still unverified: OS keyring login, session resume, MCP tools exposed through
+deferred tool search, images on models without vision, and the release build.
 
