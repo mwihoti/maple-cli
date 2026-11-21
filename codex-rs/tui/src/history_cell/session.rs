@@ -271,7 +271,11 @@ pub(crate) fn new_session_info(
             Line::from(vec![
                 "  ".into(),
                 "/init".into(),
-                " - create an AGENTS.md file with instructions for Codex".dim(),
+                crate::history_cell::branded(
+                    " - create an AGENTS.md file with instructions for Codex",
+                    " - create an AGENTS.md file with instructions for Maple Code",
+                )
+                .dim(),
             ]),
             Line::from(vec![
                 "  ".into(),
