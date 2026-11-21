@@ -3329,6 +3329,17 @@ enabled = true
     }
 
     #[test]
+    fn full_access_is_the_bypass_flag() {
+        let cli = MultitoolCli::try_parse_from(["codex", "--full-access"])
+            .expect("--full-access should parse");
+        assert!(
+            cli.interactive
+                .shared
+                .dangerously_bypass_approvals_and_sandbox
+        );
+    }
+
+    #[test]
     fn approve_for_me_configures_interactive_mode() {
         for flag in ["--approve-for-me", "--not-so-yolo"] {
             let mut cli = MultitoolCli::try_parse_from(["codex", flag]).expect("parse flag");
