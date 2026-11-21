@@ -30,6 +30,9 @@ fn alias(name: &str, namespace: Option<&str>) -> String {
     format!("maple_{hash:016x}")
 }
 
+const TOOL_IMAGE_NOTE: &str = "[image returned by this tool; attached in the next user message]";
+const TOOL_IMAGE_INTRO: &str = "Image output of the preceding tool call:";
+
 fn declarations(
     values: &[Value],
     namespace: Option<&str>,
@@ -95,7 +98,22 @@ fn declarations(
     Ok(())
 }
 
-fn content(v: &Value, role: &str) -> Result<Value> {
+fn image_part(item: &Value) -> Result<Value> {
+    let image = string(item, "image_url")?;
+    let mut part = json!({"type":"image_url","image_url":{"url":image}});
+    if let Some(detail) = item.get("detail").filter(|v| !v.is_null()) {
+        if !matches!(detail.as_str(), Some("auto" | "low" | "high")) {
+            return Err(Error("unsupported image detail"));
+        }
+        part["image_url"]["detail"] = detail.clone();
+    }
+    Ok(part)
+}
+
+/// Translates message content. Chat Completions tool results are text only, so
+/// images in a tool result are moved to `tool_images` and replaced by a note;
+/// the caller delivers them in a user message once all tool calls are resolved.
+fn content(v: &Value, role: &str, tool_images: &mut Vec<Value>) -> Result<Value> {
     if v.is_string() {
         return Ok(v.clone());
     }
@@ -105,16 +123,10 @@ fn content(v: &Value, role: &str) -> Result<Value> {
         match string(item, "type")? {
             "input_text" | "output_text" => parts.push(json!({"type":"text","text":
                 item["text"].as_str().ok_or(Error("invalid text content"))?})),
-            "input_image" if role == "user" => {
-                let image = string(item, "image_url")?;
-                let mut part = json!({"type":"image_url","image_url":{"url":image}});
-                if let Some(detail) = item.get("detail").filter(|v| !v.is_null()) {
-                    if !matches!(detail.as_str(), Some("auto" | "low" | "high")) {
-                        return Err(Error("unsupported image detail"));
-                    }
-                    part["image_url"]["detail"] = detail.clone();
-                }
-                parts.push(part);
+            "input_image" if role == "user" => parts.push(image_part(item)?),
+            "input_image" if role == "tool" => {
+                tool_images.push(image_part(item)?);
+                parts.push(json!({"type":"text","text":TOOL_IMAGE_NOTE}));
             }
             _ => {
                 return Err(Error(
@@ -177,6 +189,7 @@ pub fn translate(request: &Value) -> Result<ChatRequest> {
     let mut seen = BTreeSet::<String>::new();
     let mut reasoning = String::new();
     let mut calls_open = false;
+    let mut tool_images = Vec::<Value>::new();
     let input = if let Some(s) = request["input"].as_str() {
         vec![json!({"type":"message","role":"user","content":s})]
     } else {
@@ -210,7 +223,7 @@ pub fn translate(request: &Value) -> Result<ChatRequest> {
                 if !matches!(role, "system" | "developer" | "user" | "assistant") {
                     return Err(Error("unsupported conversation role"));
                 }
-                let mut msg = json!({"role":role,"content":content(&item["content"],role)?});
+                let mut msg = json!({"role":role,"content":content(&item["content"],role,&mut tool_images)?});
                 if role == "assistant" && !reasoning.is_empty() {
                     msg["reasoning"] = Value::String(std::mem::take(&mut reasoning));
                 }
@@ -260,8 +273,15 @@ pub fn translate(request: &Value) -> Result<ChatRequest> {
                 if !pending.remove(id) {
                     return Err(Error("tool result has no matching call identifier"));
                 }
-                let output = content(&item["output"], "tool")?;
+                let output = content(&item["output"], "tool", &mut tool_images)?;
                 messages.push(json!({"role":"tool","tool_call_id":id,"content":output}));
+                // Tool results must directly follow their calls, so images wait
+                // until the whole batch of calls has been answered.
+                if pending.is_empty() && !tool_images.is_empty() {
+                    let mut parts = vec![json!({"type":"text","text":TOOL_IMAGE_INTRO})];
+                    parts.append(&mut tool_images);
+                    messages.push(json!({"role":"user","content":parts}));
+                }
                 calls_open = false;
             }
             _ => {
