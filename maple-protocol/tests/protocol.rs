@@ -176,6 +176,30 @@ fn tool_result_image_keeps_its_detail_setting() {
 }
 
 #[test]
+fn conversation_continues_after_a_tool_result_image() {
+    let mut r = request();
+    r["input"] = json!([
+        {"type":"message","role":"user","content":"look"},
+        {"type":"function_call","name":"view_image","call_id":"a","arguments":"{}"},
+        {"type":"function_call_output","call_id":"a","output":[
+            {"type":"input_text","text":"viewed"},
+            {"type":"input_image","image_url":"data:image/png;base64,fixture"}]},
+        {"type":"message","role":"assistant","content":[{"type":"output_text","text":"red"}]},
+        {"type":"message","role":"user","content":"thanks"},
+    ]);
+    let body = request::translate(&r).unwrap().body;
+    let roles: Vec<&str> = body["messages"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|m| m["role"].as_str().unwrap())
+        .rev()
+        .take(5)
+        .collect();
+    assert_eq!(roles, ["user", "assistant", "user", "tool", "assistant"]);
+}
+
+#[test]
 fn namespace_tools_round_trip_to_original_dispatch_names() {
     let mut r = request();
     let tool = r["tools"][0].clone();
