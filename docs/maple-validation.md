@@ -210,6 +210,10 @@ and the extracted proxy binary; it cleared without local changes.
 Still unverified: OS keyring login, interactive approval prompts, session
 resume, MCP tools exposed through deferred tool search, and the release build.
 
+`--full-access` was added as a visible alias of
+`--dangerously-bypass-approvals-and-sandbox`. Only argument parsing is tested;
+no live session was run in that mode.
+
 With the Maple provider the TUI header reads "Maple Code", the composer
 placeholder reads "Ask Maple Code to do anything", and `exec` prints
 "Maple Code v<version>"; these were checked against the debug build. Approval
