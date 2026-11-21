@@ -1109,3 +1109,10 @@ fn cyber_access_program_capability_uses_provider_identity_and_explicit_overrides
         }
     }
 }
+
+#[test]
+fn product_name_follows_the_provider() {
+    assert_eq!(product_name(MAPLE_PROVIDER_ID), "Maple Code");
+    assert_eq!(product_name(OPENAI_PROVIDER_ID), "OpenAI Codex");
+    assert_eq!(product_name("some-custom-provider"), "OpenAI Codex");
+}
