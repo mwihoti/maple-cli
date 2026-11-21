@@ -458,7 +458,7 @@ impl ChatWidget {
             ]
         } else {
             vec![Line::from(vec![
-                "When Codex runs with full access, it can edit any file on your computer and run commands with network, without your approval. "
+                crate::history_cell::branded("When Codex runs with full access, it can edit any file on your computer and run commands with network, without your approval. ", "When Maple Code runs with full access, it can edit any file on your computer and run commands with network, without your approval. ")
                     .into(),
                 "Exercise caution when enabling full access. This significantly increases the risk of data loss, leaks, or unexpected behavior."
                     .red(),
