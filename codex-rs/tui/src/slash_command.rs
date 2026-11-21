@@ -92,7 +92,10 @@ impl SlashCommand {
     /// User-visible description shown in the popup.
     pub fn description(self) -> &'static str {
         match self {
-            SlashCommand::Config => "configure Codex preferences",
+            SlashCommand::Config => crate::history_cell::branded(
+                "configure Codex preferences",
+                "configure Maple Code preferences",
+            ),
             SlashCommand::Feedback => "send logs to maintainers or save a ZIP",
             SlashCommand::New => "start a new chat during a conversation",
             SlashCommand::Init => "create an AGENTS.md file with instructions for Codex",
