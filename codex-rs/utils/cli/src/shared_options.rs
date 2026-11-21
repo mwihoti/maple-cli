@@ -49,7 +49,7 @@ pub struct SharedCliOptions {
     )]
     pub auto_review: bool,
 
-    /// Skip all confirmation prompts and execute commands without sandboxing.
+    /// Full-access mode: skip all confirmation prompts and execute commands without sandboxing.
     /// EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed.
     #[arg(
         long = "dangerously-bypass-approvals-and-sandbox",
