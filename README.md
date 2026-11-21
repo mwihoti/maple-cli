@@ -166,6 +166,14 @@ session header, the `exec` banner, the input placeholder and approval messages
 ("You approved maple-code to run ..."). Other providers keep the Codex name.
 The binary and its subcommands are still named `codex`.
 
+### Tool names
+
+Maple models see each tool under an opaque alias with the readable name in the
+description. A model that answers with the readable name, with or without its
+namespace, is matched to the advertised tool when exactly one fits. Any other
+name becomes a call to `unavailable_tool`, which Codex answers with an
+"unsupported call" result so the model can retry instead of ending the turn.
+
 ### Images
 
 Tools such as `view_image` return images in a tool result, which Chat
