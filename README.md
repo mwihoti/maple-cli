@@ -161,5 +161,10 @@ enclave attestation handshake, measured at 7-14 seconds; later requests take
 well under a second. An attestation failure surfaces as a proxy 502; see
 `~/.maple-code/proxy.log`.
 
+With the Maple provider active the interface calls itself Maple Code: the
+session header, the `exec` banner, the input placeholder and approval messages
+("You approved maple-code to run ..."). Other providers keep the Codex name.
+The binary and its subcommands are still named `codex`.
+
 There is no npm package yet. A scoped npm install remains release work, and no
 package name is presumed available.
