@@ -1969,6 +1969,7 @@ async fn run_ratatui_app(
         config.cwd.as_path(),
     );
 
+    history_cell::set_brand_provider(&config.model_provider_id);
     if config.model_provider_id != startup_model_provider {
         startup_account = None;
         if matches!(&app_server_target, AppServerTarget::Embedded) {
