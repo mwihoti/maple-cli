@@ -212,6 +212,16 @@ fn uploaded_files_in_tool_results_are_still_rejected() {
 }
 
 #[test]
+fn assistant_images_are_still_rejected() {
+    let mut r = request();
+    r["input"] = json!([
+        {"type":"message","role":"assistant","content":[
+            {"type":"input_image","image_url":"data:image/png;base64,fixture"}]},
+    ]);
+    assert!(request::translate(&r).is_err());
+}
+
+#[test]
 fn namespace_tools_round_trip_to_original_dispatch_names() {
     let mut r = request();
     let tool = r["tools"][0].clone();
