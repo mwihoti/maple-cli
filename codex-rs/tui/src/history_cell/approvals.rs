@@ -209,7 +209,7 @@ pub fn new_approval_decision_cell(
                     vec![
                         "Review ".into(),
                         "timed out".bold(),
-                        " before codex could run ".into(),
+                        format!(" before {} could run ", super::agent_name()).into(),
                         Span::from(snippet).dim(),
                     ]
                 } else {
@@ -226,7 +226,7 @@ pub fn new_approval_decision_cell(
                 vec![
                     "Review ".into(),
                     "timed out".bold(),
-                    " before codex could access ".into(),
+                    format!(" before {} could access ", super::agent_name()).into(),
                     Span::from(target).dim(),
                 ],
             ),
