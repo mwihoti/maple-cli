@@ -138,6 +138,30 @@ fn inline_images_preserved_and_uploaded_files_rejected() {
 }
 
 #[test]
+fn tool_result_images_follow_the_tool_batch_in_a_user_message() {
+    let mut r = request();
+    let image = json!({"type":"input_image","image_url":"data:image/png;base64,fixture"});
+    r["input"] = json!([
+        {"type":"message","role":"user","content":"look"},
+        {"type":"function_call","name":"view_image","call_id":"a","arguments":"{}"},
+        {"type":"function_call","name":"view_image","call_id":"b","arguments":"{}"},
+        {"type":"function_call_output","call_id":"a","output":[image]},
+        {"type":"function_call_output","call_id":"b","output":"done"},
+    ]);
+    let body = request::translate(&r).unwrap().body;
+    let messages = body["messages"].as_array().unwrap();
+    let n = messages.len();
+    assert_eq!(messages[n - 3]["role"], "tool");
+    assert!(messages[n - 3]["content"].is_string());
+    assert_eq!(messages[n - 2]["role"], "tool");
+    assert_eq!(messages[n - 1]["role"], "user");
+    assert_eq!(
+        messages[n - 1]["content"][1]["image_url"]["url"],
+        "data:image/png;base64,fixture"
+    );
+}
+
+#[test]
 fn namespace_tools_round_trip_to_original_dispatch_names() {
     let mut r = request();
     let tool = r["tools"][0].clone();
