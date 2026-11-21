@@ -445,9 +445,10 @@ impl ChatWidget {
             };
             vec![
                 Line::default(),
-                Line::from(
+                Line::from(crate::history_cell::branded(
                     "When Codex runs with full access, it can edit any file on your computer and run commands with network, without your approval.",
-                ),
+                    "When Maple Code runs with full access, it can edit any file on your computer and run commands with network, without your approval.",
+                )),
                 Line::default(),
                 Line::from(vec![
                     "Cyber models carry a higher risk of dangerous actions.".red(),
