@@ -85,6 +85,15 @@ const MAX_REQUEST_MAX_RETRIES: u64 = 100;
 pub const OPENAI_PROVIDER_NAME: &str = "OpenAI";
 pub const MAPLE_PROVIDER_NAME: &str = "Maple";
 pub const MAPLE_PROVIDER_ID: &str = "maple";
+
+/// Product name shown in banners and headers for a session's provider.
+pub fn product_name(model_provider_id: &str) -> &'static str {
+    if model_provider_id == MAPLE_PROVIDER_ID {
+        "Maple Code"
+    } else {
+        "OpenAI Codex"
+    }
+}
 const OPENAI_ACTOR_AUTHORIZATION_HEADER: &str = "x-openai-actor-authorization";
 pub const OPENAI_PROVIDER_ID: &str = "openai";
 pub const CHATGPT_CODEX_BASE_URL: &str = "https://chatgpt.com/backend-api/codex";
