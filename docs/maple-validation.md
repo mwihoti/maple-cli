@@ -235,7 +235,15 @@ session help lines, the exit menu, resume hints and the full-access warning.
 The `/permissions` and `/quit` descriptions were seen reading "Maple Code" in a
 live session; the rest were type-checked only.
 
-`scripts/install-from-source.sh` was syntax-checked with `bash -n` only.
+On 2026-11-21 every request returned 502 with "PCR0 is not approved by the
+configured trust policy" for over twenty minutes; retries and a proxy restart
+did not help. Proxy 0.3.2 came from the archived OpenSecretCloud repository.
+Replacing it with the v3.4.9 proxy from MaplePrivacyLabs/Maple releases
+(checksum verified) restored the model list and a `codex exec` turn at once.
+The earlier ten-minute outage on 2026-11-20 was probably the same cause.
+
+`scripts/install-from-source.sh` was syntax-checked with `bash -n`, and its
+proxy download step was run on Linux x86_64 into a temporary directory.
 
 Still unverified: OS keyring login, session resume, MCP tools exposed through
 deferred tool search, images on models without vision, and the release build.
