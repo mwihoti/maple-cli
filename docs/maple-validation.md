@@ -223,6 +223,13 @@ placeholder reads "Ask Maple Code to do anything", and `exec` prints
 "Maple Code v<version>"; these were checked against the debug build. Approval
 messages use "maple-code" and are covered by a type check only.
 
+A session ended with "model requested an unadvertised tool". The name the
+model used was not captured. The decoder now resolves readable tool names to
+the single advertised tool they identify and turns any other name into an
+undispatchable `unavailable_tool` call. This is covered by decoder tests; the
+original failure was not reproduced live. A normal `codex exec` tool call
+still completed on the rebuilt binary.
+
 Still unverified: OS keyring login, session resume, MCP tools exposed through
 deferred tool search, images on models without vision, and the release build.
 
