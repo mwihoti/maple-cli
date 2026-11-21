@@ -217,7 +217,8 @@ impl ChatWidget {
             match &ev.action {
                 GuardianAssessmentAction::WriteStdin { .. } => {
                     history_cell::new_guardian_denied_action_request(format!(
-                        "codex to {}",
+                        "{} to {}",
+                        history_cell::agent_name(),
                         auto_review_denials::action_summary(&ev.action)
                     ))
                 }
@@ -231,16 +232,18 @@ impl ChatWidget {
                 GuardianAssessmentAction::McpToolCall {
                     server, tool_name, ..
                 } => history_cell::new_guardian_denied_action_request(format!(
-                    "codex to call MCP tool {server}.{tool_name}"
+                    "{} to call MCP tool {server}.{tool_name}",
+                    history_cell::agent_name()
                 )),
                 GuardianAssessmentAction::NetworkAccess { target, .. } => {
                     history_cell::new_guardian_denied_action_request(format!(
-                        "codex to access {target}"
+                        "{} to access {target}",
+                        history_cell::agent_name()
                     ))
                 }
                 GuardianAssessmentAction::RequestPermissions { reason, .. } => {
                     history_cell::new_guardian_denied_action_request(permission_request_summary(
-                        "codex to request permissions",
+                        &format!("{} to request permissions", history_cell::agent_name()),
                         reason,
                     ))
                 }
