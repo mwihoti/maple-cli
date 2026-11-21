@@ -140,7 +140,7 @@ impl AppExitInfo {
             if let Some(thread_name) = thread.thread_name.filter(|name| !name.is_empty()) {
                 lines.push(format!(
                     "Or run {} and select {}.",
-                    color_command("codex resume".to_string()),
+                    color_command(format!("{} resume", crate::history_cell::agent_name())),
                     color_command(thread_name),
                 ));
             }
