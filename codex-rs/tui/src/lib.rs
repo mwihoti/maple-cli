@@ -1406,6 +1406,7 @@ async fn run_ratatui_app(
     #[cfg(target_os = "windows")]
     let mut trust_decision_was_made = false;
     let mut startup_model_provider = initial_config.model_provider_id.clone();
+    history_cell::set_brand_provider(&initial_config.model_provider_id);
     let Some(active_app_server) = app_server.as_mut() else {
         unreachable!("app server should exist when auth is required");
     };
