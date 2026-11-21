@@ -622,7 +622,10 @@ impl App {
                         ),
                         (
                             "Exit",
-                            "Stop the current task and exit Codex",
+                            crate::history_cell::branded(
+                                "Stop the current task and exit Codex",
+                                "Stop the current task and exit Maple Code",
+                            ),
                             RunningTaskExitAction::Exit,
                         ),
                     ]
