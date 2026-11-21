@@ -1056,7 +1056,11 @@ fn patch_options(keymap: &ApprovalKeymap) -> Vec<ApprovalOption> {
             shortcuts: keymap.approve_for_session.clone(),
         },
         ApprovalOption {
-            label: "No, and tell Codex what to do differently".to_string(),
+            label: crate::history_cell::branded(
+                "No, and tell Codex what to do differently",
+                "No, and tell Maple Code what to do differently",
+            )
+            .to_string(),
             decision: ApprovalDecision::FileChange(FileChangeApprovalDecision::Cancel),
             shortcuts: keymap.decline.clone(),
         },
