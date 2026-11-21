@@ -5,6 +5,8 @@ model_provider = "maple"
 model = "deepseek-v4-1-flash"
 # Forwarded to Maple as reasoning_effort; lower is faster.
 model_reasoning_effort = "low"
+# These two lines keep prompts and the sandbox on. `maple-code --full-access`
+# turns both off for one run.
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 
