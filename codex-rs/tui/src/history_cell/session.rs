@@ -60,6 +60,16 @@ pub(crate) fn product_name() -> &'static str {
     }
 }
 
+/// Picks the wording for the active product. Both strings are spelled out at
+/// the call site so each stays searchable.
+pub(crate) fn branded(codex: &'static str, maple: &'static str) -> &'static str {
+    if MAPLE_BRAND.load(std::sync::atomic::Ordering::Relaxed) {
+        maple
+    } else {
+        codex
+    }
+}
+
 /// Lowercase agent name used in approval and denial messages.
 pub(crate) fn agent_name() -> &'static str {
     if MAPLE_BRAND.load(std::sync::atomic::Ordering::Relaxed) {
