@@ -2093,6 +2093,7 @@ async fn run_ratatui_app(
             if uses_embedded_network_policy {
                 embedded_network_policy.bind_config(&mut config);
             }
+            history_cell::set_brand_provider(&config.model_provider_id);
             if config.model_provider_id != previous_provider
                 && matches!(app_server_target, AppServerTarget::Embedded)
             {
