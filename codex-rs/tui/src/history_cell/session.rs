@@ -60,6 +60,15 @@ pub(crate) fn product_name() -> &'static str {
     }
 }
 
+/// Composer placeholder naming the active product.
+pub(crate) fn composer_placeholder() -> String {
+    if MAPLE_BRAND.load(std::sync::atomic::Ordering::Relaxed) {
+        "Ask Maple Code to do anything".to_string()
+    } else {
+        "Ask Codex to do anything".to_string()
+    }
+}
+
 /// Brand title shared by the session header and the status card; each owns its own indentation.
 pub(crate) fn codex_title(version: &str) -> Vec<Span<'static>> {
     vec![
