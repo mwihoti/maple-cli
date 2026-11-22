@@ -82,13 +82,19 @@ pub(super) fn parse(mut value: Value) -> Option<(Domain, Option<Recourse>)> {
         | ("file_content", "file_tool_result", "tool") => (
             "when content from a file involves ",
             "when content could enable ",
-            Some("You can continue without this file or ask Codex for an overview of "),
+            Some(crate::history_cell::branded(
+                "You can continue without this file or ask Codex for an overview of ",
+                "You can continue without this file or ask Maple Code for an overview of ",
+            )),
         ),
         ("web_search_result", "web_tool_call", "assistant")
         | ("web_search_result", "web_tool_result", "tool") => (
             "when a web search result contains information about ",
             "when content could enable ",
-            Some("You can retry without web search or ask Codex for an overview of "),
+            Some(crate::history_cell::branded(
+                "You can retry without web search or ask Codex for an overview of ",
+                "You can retry without web search or ask Maple Code for an overview of ",
+            )),
         ),
         ("other_tool", "other_tool_call", "assistant")
         | ("other_tool", "other_tool_result", "tool") => {
@@ -169,7 +175,10 @@ pub(super) fn parse(mut value: Value) -> Option<(Domain, Option<Recourse>)> {
         }
         suggestions.push((label.into(), prompt.into()));
     }
-    let overview = "You can ask Codex for an overview of ";
+    let overview = crate::history_cell::branded(
+        "You can ask Codex for an overview of ",
+        "You can ask Maple Code for an overview of ",
+    );
     let (lead, offer) = match wire.domain {
         Domain::Bio => (bio_lead, bio_offer.unwrap_or(overview)),
         Domain::Cyber => (cyber_lead, overview),

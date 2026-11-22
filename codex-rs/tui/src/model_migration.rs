@@ -89,7 +89,8 @@ pub(crate) fn migration_copy_for_models(
     }
 
     let heading_text = Span::from(format!(
-        "Codex just got an upgrade. Introducing {target_display_name}."
+        "{product} just got an upgrade. Introducing {target_display_name}.",
+        product = crate::history_cell::short_name()
     ))
     .bold();
     let description_line: Line<'static>;

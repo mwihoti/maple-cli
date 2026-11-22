@@ -98,7 +98,8 @@ impl ChatWidget {
                 let provider = provider_name(model_provider);
                 let current = provider_name(current_model_provider);
                 format!(
-                    "This chat uses {provider}, but Codex now uses {current}, so this chat is read-only."
+                    "This chat uses {provider}, but {product} now uses {current}, so this chat is read-only.",
+                    product = crate::history_cell::short_name()
                 )
             }
             ModelProviderError::ModelProviderNotConfigured { model_provider } => {
