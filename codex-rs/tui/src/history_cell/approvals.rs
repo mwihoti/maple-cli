@@ -145,7 +145,7 @@ pub fn new_approval_decision_cell(
                     vec![
                         actor.subject().into(),
                         "persisted".bold(),
-                        " Codex network access to ".into(),
+                        format!(" {} network access to ", super::short_name()).into(),
                         Span::from(target).dim(),
                     ],
                 ),
