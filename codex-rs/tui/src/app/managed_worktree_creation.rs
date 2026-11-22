@@ -24,9 +24,10 @@ pub(super) fn background_terminals_blocker(
                         && (source.message.contains("unknown variant")
                             || source.message.contains("unknown method"))) =>
         {
-            Some(
+            Some(crate::history_cell::branded(
                 "The local Codex service cannot check background terminals. Run `codex app-server daemon update`, then restart Codex.",
-            )
+                "The local Maple Code service cannot check background terminals. Run `codex app-server daemon update`, then restart Maple Code.",
+            ))
         }
         _ => Some("Active background terminals block /cd."),
     }
@@ -261,7 +262,10 @@ impl App {
             Ok(_) => {
                 return self.retained_worktree_error(
                     &checkout,
-                    "The new worktree is not trusted; run Codex there.",
+                    crate::history_cell::branded(
+                        "The new worktree is not trusted; run Codex there.",
+                        "The new worktree is not trusted; run Maple Code there.",
+                    ),
                 );
             }
             Err(error) => {
