@@ -190,7 +190,13 @@ fn recovery_view(
                     require_explicit_confirmation: true,
                     is_disabled: !can_restart,
                     disabled_reason: if !managed_daemon {
-                        Some("This server is not managed by Codex.".to_string())
+                        Some(
+                            crate::history_cell::branded(
+                                "This server is not managed by Codex.",
+                                "This server is not managed by Maple Code.",
+                            )
+                            .to_string(),
+                        )
                     } else if issue.restart_features.is_none() {
                         Some("Restart cannot resolve this compatibility check.".to_string())
                     } else {

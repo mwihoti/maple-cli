@@ -183,11 +183,18 @@ impl App {
                         "New sessions are paused while active turns finish or are canceled. The default shutdown wait is up to one minute.",
                     );
                     if !matches!(self.app_server_target, AppServerTarget::Embedded) {
-                        message.push_str(
+                        message.push_str(crate::history_cell::branded(
                             " If the server restarts, Codex will reconnect automatically.",
-                        );
+                            " If the server restarts, Maple Code will reconnect automatically.",
+                        ));
                     }
-                    (Some("Codex's background server is shutting down"), message)
+                    (
+                        Some(crate::history_cell::branded(
+                            "Codex's background server is shutting down",
+                            "Maple Code's background server is shutting down",
+                        )),
+                        message,
+                    )
                 } else {
                     (None, format!("Failed to start session: {error}"))
                 };
