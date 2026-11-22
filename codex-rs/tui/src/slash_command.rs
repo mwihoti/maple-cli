@@ -93,13 +93,19 @@ impl SlashCommand {
     pub fn description(self) -> &'static str {
         match self {
             SlashCommand::Config => crate::history_cell::branded(
-                "configure Codex preferences",
+                crate::history_cell::branded(
+                    "configure Codex preferences",
+                    "configure Maple Code preferences",
+                ),
                 "configure Maple Code preferences",
             ),
             SlashCommand::Feedback => "send logs to maintainers or save a ZIP",
             SlashCommand::New => "start a new chat during a conversation",
             SlashCommand::Init => crate::history_cell::branded(
-                "create an AGENTS.md file with instructions for Codex",
+                crate::history_cell::branded(
+                    "create an AGENTS.md file with instructions for Codex",
+                    "create an AGENTS.md file with instructions for Maple Code",
+                ),
                 "create an AGENTS.md file with instructions for Maple Code",
             ),
             SlashCommand::Compact => "summarize conversation to prevent hitting the context limit",
@@ -123,7 +129,10 @@ impl SlashCommand {
             SlashCommand::Diff => "show git diff (including untracked files)",
             SlashCommand::Mention => "mention a file",
             SlashCommand::Skills => crate::history_cell::branded(
-                "use skills to improve how Codex performs specific tasks",
+                crate::history_cell::branded(
+                    "use skills to improve how Codex performs specific tasks",
+                    "use skills to improve how Maple Code performs specific tasks",
+                ),
                 "use skills to improve how Maple Code performs specific tasks",
             ),
             SlashCommand::Import => "import setup, this project, and recent chats from Claude Code",
@@ -156,7 +165,10 @@ impl SlashCommand {
             SlashCommand::MultiAgents => "switch between this session's subagents",
             SlashCommand::Side | SlashCommand::Btw => "start a side conversation",
             SlashCommand::Permissions => crate::history_cell::branded(
-                "choose what Codex is allowed to do",
+                crate::history_cell::branded(
+                    "choose what Codex is allowed to do",
+                    "choose what Maple Code is allowed to do",
+                ),
                 "choose what Maple Code is allowed to do",
             ),
             SlashCommand::Keymap => "remap TUI shortcuts",
