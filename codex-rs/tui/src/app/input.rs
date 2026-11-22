@@ -607,7 +607,10 @@ impl App {
                         (
                             "Cancel task",
                             crate::history_cell::branded(
-                                "Stop the current task and stay in Codex",
+                                crate::history_cell::branded(
+                                    "Stop the current task and stay in Codex",
+                                    "Stop the current task and stay in Maple Code",
+                                ),
                                 "Stop the current task and stay in Maple Code",
                             ),
                             RunningTaskExitAction::CancelTask,
@@ -615,7 +618,10 @@ impl App {
                         (
                             "Run in background",
                             crate::history_cell::branded(
-                                "Exit Codex and leave the task running",
+                                crate::history_cell::branded(
+                                    "Exit Codex and leave the task running",
+                                    "Exit Maple Code and leave the task running",
+                                ),
                                 "Exit Maple Code and leave the task running",
                             ),
                             RunningTaskExitAction::RunInBackground,
@@ -623,7 +629,10 @@ impl App {
                         (
                             "Exit",
                             crate::history_cell::branded(
-                                "Stop the current task and exit Codex",
+                                crate::history_cell::branded(
+                                    "Stop the current task and exit Codex",
+                                    "Stop the current task and exit Maple Code",
+                                ),
                                 "Stop the current task and exit Maple Code",
                             ),
                             RunningTaskExitAction::Exit,
