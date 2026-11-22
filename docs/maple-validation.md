@@ -245,6 +245,13 @@ The earlier ten-minute outage on 2026-11-20 was probably the same cause.
 `scripts/install-from-source.sh` was syntax-checked with `bash -n`, and its
 proxy download step was run on Linux x86_64 into a temporary directory.
 
+On 2026-11-22 the remaining interface text in the TUI crate was moved to the
+provider-dependent wording: menus, notices, errors and the permissions picker.
+It passed `cargo check -p codex-tui`. The binary could not be relinked because
+the disk was full, so none of this text has been seen in a live session yet.
+Still named Codex: Windows-only prompts, sign-in onboarding, a few constants,
+text sent to the model, and messages produced by other crates.
+
 Still unverified: OS keyring login, session resume, MCP tools exposed through
 deferred tool search, images on models without vision, and the release build.
 
