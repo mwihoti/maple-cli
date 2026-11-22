@@ -937,7 +937,10 @@ fn exec_options(
             }),
             CommandExecutionApprovalDecision::Cancel => Some(ApprovalOption {
                 label: crate::history_cell::branded(
-                    "No, and tell Codex what to do differently",
+                    crate::history_cell::branded(
+                        "No, and tell Codex what to do differently",
+                        "No, and tell Maple Code what to do differently",
+                    ),
                     "No, and tell Maple Code what to do differently",
                 )
                 .to_string(),
@@ -1057,7 +1060,10 @@ fn patch_options(keymap: &ApprovalKeymap) -> Vec<ApprovalOption> {
         },
         ApprovalOption {
             label: crate::history_cell::branded(
-                "No, and tell Codex what to do differently",
+                crate::history_cell::branded(
+                    "No, and tell Codex what to do differently",
+                    "No, and tell Maple Code what to do differently",
+                ),
                 "No, and tell Maple Code what to do differently",
             )
             .to_string(),

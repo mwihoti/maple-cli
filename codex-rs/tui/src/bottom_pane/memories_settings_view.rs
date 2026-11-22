@@ -122,7 +122,7 @@ impl MemoriesSettingsView {
         header.push(Paragraph::new(Line::from("Memories".bold())).wrap(Wrap { trim: false }));
         header.push(
             Paragraph::new(Line::from(
-                "Choose how Codex uses and creates memories. Changes are saved to config.toml"
+                crate::history_cell::branded("Choose how Codex uses and creates memories. Changes are saved to config.toml", "Choose how Maple Code uses and creates memories. Changes are saved to config.toml")
                     .dim(),
             ))
             .wrap(Wrap { trim: false }),
@@ -137,7 +137,7 @@ impl MemoriesSettingsView {
         );
         header.push(
             Paragraph::new(Line::from(
-                "This clears local memory files and rollout summaries for the current Codex home."
+                crate::history_cell::branded("This clears local memory files and rollout summaries for the current Codex home.", "This clears local memory files and rollout summaries for the current Maple Code home.")
                     .dim(),
             ))
             .wrap(Wrap { trim: false }),
