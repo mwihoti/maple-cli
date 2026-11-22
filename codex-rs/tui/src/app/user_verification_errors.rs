@@ -12,7 +12,10 @@ use crate::app_command::UserVerificationFailure;
 pub(super) fn verification_failure(error: &TypedRequestError) -> UserVerificationFailure {
     let TypedRequestError::Server { source, .. } = error else {
         return UserVerificationFailure {
-            message: "Could not complete user verification with the local Codex binary.",
+            message: crate::history_cell::branded(
+                "Could not complete user verification with the local Codex binary.",
+                "Could not complete user verification with the local Maple Code binary.",
+            ),
             details: UserVerificationErrorDetails::Failed {
                 reason: UserVerificationFailureReason::ServiceError,
             },
@@ -25,10 +28,16 @@ pub(super) fn verification_failure(error: &TypedRequestError) -> UserVerificatio
     let message = match details {
         Some(UserVerificationErrorDetails::InvalidRequest {
             reason: UserVerificationInvalidRequestReason::InvalidParams,
-        }) => "The local Codex binary could not verify this request.",
+        }) => crate::history_cell::branded(
+            "The local Codex binary could not verify this request.",
+            "The local Maple Code binary could not verify this request.",
+        ),
         Some(UserVerificationErrorDetails::Unavailable {
             reason: UserVerificationUnavailableReason::CredentialMissing,
-        }) => "No user-verification credential is available in the local Codex binary.",
+        }) => crate::history_cell::branded(
+            "No user-verification credential is available in the local Codex binary.",
+            "No user-verification credential is available in the local Maple Code binary.",
+        ),
         Some(UserVerificationErrorDetails::Unavailable {
             reason: UserVerificationUnavailableReason::BiometricsUnavailable,
         }) => "Biometric verification is currently unavailable on this device.",
@@ -53,7 +62,10 @@ pub(super) fn verification_failure(error: &TypedRequestError) -> UserVerificatio
         | Some(UserVerificationErrorDetails::Failed {
             reason: UserVerificationFailureReason::ServiceError,
         })
-        | None => "The local Codex binary could not complete user verification.",
+        | None => crate::history_cell::branded(
+            "The local Codex binary could not complete user verification.",
+            "The local Maple Code binary could not complete user verification.",
+        ),
     };
     UserVerificationFailure {
         message,
