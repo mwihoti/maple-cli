@@ -70,6 +70,11 @@ pub(crate) fn branded(codex: &'static str, maple: &'static str) -> &'static str 
     }
 }
 
+/// Product name for running prose, such as "Restart Maple Code to apply".
+pub(crate) fn short_name() -> &'static str {
+    branded("Codex", "Maple Code")
+}
+
 /// Lowercase agent name used in approval and denial messages.
 pub(crate) fn agent_name() -> &'static str {
     if MAPLE_BRAND.load(std::sync::atomic::Ordering::Relaxed) {
