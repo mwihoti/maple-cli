@@ -65,7 +65,8 @@ pub(crate) fn server_version_notice(client: &str, server: Option<&str>) -> Optio
         ServerVersionNoticeKind::Different => "different from",
     };
     Some(format!(
-        "A background Codex service is running v{server}, {comparison} your Codex CLI v{client}."
+        "A background {product} service is running v{server}, {comparison} your {product} CLI v{client}.",
+        product = crate::history_cell::short_name()
     ))
 }
 

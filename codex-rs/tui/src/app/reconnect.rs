@@ -44,7 +44,10 @@ pub(super) async fn reconnect(
     presentation: ReconnectPresentation,
 ) -> Result<Reconnected> {
     if matches!(target, AppServerTarget::Cloud) {
-        color_eyre::eyre::bail!("Reopen Codex to reconnect the cloud backend.");
+        color_eyre::eyre::bail!(crate::history_cell::branded(
+            "Reopen Codex to reconnect the cloud backend.",
+            "Reopen Maple Code to reconnect the cloud backend."
+        ));
     }
     let mode = target.thread_params_mode();
     if matches!(target, AppServerTarget::Embedded) {
@@ -592,7 +595,7 @@ impl App {
         #[cfg(any(target_os = "windows", test))]
         if interrupted_windows_setup {
             self.chat_widget.add_error_message(
-                "Windows sandbox setup was interrupted. Restart Codex before using Agent mode."
+                crate::history_cell::branded("Windows sandbox setup was interrupted. Restart Codex before using Agent mode.", "Windows sandbox setup was interrupted. Restart Maple Code before using Agent mode.")
                     .to_string(),
             );
         }

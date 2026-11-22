@@ -61,7 +61,8 @@ impl App {
                     ServerVersionNoticeKind::Different => "≠",
                 };
             Some(format!(
-                "Service v{server} {comparison} Codex CLI v{client_version}{guidance}"
+                "Service v{server} {comparison} {product} CLI v{client_version}{guidance}",
+                product = crate::history_cell::short_name()
             ))
         });
     }
