@@ -69,10 +69,10 @@ impl IdeContextError {
                 "The selected IDE context is too large. Clear any large selection in your IDE and try /ide again.".to_string()
             }
             IdeContextError::Send(_) => {
-                "Codex could not request IDE context. Try /ide again.".to_string()
+                crate::history_cell::branded("Codex could not request IDE context. Try /ide again.", "Maple Code could not request IDE context. Try /ide again.").to_string()
             }
             IdeContextError::Read(_) | IdeContextError::InvalidResponse(_) => {
-                "Codex could not read IDE context. Try /ide again.".to_string()
+                crate::history_cell::branded("Codex could not read IDE context. Try /ide again.", "Maple Code could not read IDE context. Try /ide again.").to_string()
             }
         }
     }
@@ -89,11 +89,11 @@ impl IdeContextError {
                 OPEN_IDE_HINT.to_string()
             }
             IdeContextError::Read(error) if error.kind() == std::io::ErrorKind::TimedOut => {
-                "Codex timed out waiting for IDE context. It will keep trying on future messages."
+                crate::history_cell::branded("Codex timed out waiting for IDE context. It will keep trying on future messages.", "Maple Code timed out waiting for IDE context. It will keep trying on future messages.")
                     .to_string()
             }
             IdeContextError::RequestFailed(error) if error == "client-disconnected" => {
-                hint_with_retry("The IDE connection changed while Codex was requesting context.")
+                hint_with_retry(crate::history_cell::branded("The IDE connection changed while Codex was requesting context.", "The IDE connection changed while Maple Code was requesting context."))
             }
             IdeContextError::RequestFailed(error) if error == "request-timeout" => {
                 hint_with_retry("The IDE extension did not answer in time.")
@@ -106,13 +106,13 @@ impl IdeContextError {
                 "The connected IDE client does not support IDE context requests.".to_string()
             }
             IdeContextError::Send(_) => {
-                hint_with_retry("Codex lost the IDE connection while requesting context.")
+                hint_with_retry(crate::history_cell::branded("Codex lost the IDE connection while requesting context.", "Maple Code lost the IDE connection while requesting context."))
             }
             IdeContextError::InvalidResponse(_) => {
-                hint_with_retry("Codex received an unexpected IDE context response.")
+                hint_with_retry(crate::history_cell::branded("Codex received an unexpected IDE context response.", "Maple Code received an unexpected IDE context response."))
             }
             IdeContextError::RequestFailed(_) => hint_with_retry(IDE_DID_NOT_PROVIDE_CONTEXT_HINT),
-            IdeContextError::Read(_) => hint_with_retry("Codex could not read IDE context."),
+            IdeContextError::Read(_) => hint_with_retry(crate::history_cell::branded("Codex could not read IDE context.", "Maple Code could not read IDE context.")),
         }
     }
 

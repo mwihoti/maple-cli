@@ -173,7 +173,7 @@ fn discovery_error(error: TypedRequestError) -> String {
                     || source.message.contains("configRequirements/read")
                     || source.message.contains("config/read"))))
     {
-        return "This server does not support permission discovery. Upgrade the Codex server to use this menu.".to_string();
+        return crate::history_cell::branded("This server does not support permission discovery. Upgrade the Codex server to use this menu.", "This server does not support permission discovery. Upgrade the Maple Code server to use this menu.").to_string();
     }
     format!("Failed to load permissions: {error}")
 }
