@@ -21,7 +21,8 @@ impl App {
                 self.chat_widget.local_settings.tui.fullscreen_transcript = enabled;
                 let mode = if enabled { "Fullscreen" } else { "Scrollback" };
                 self.chat_widget.add_info_message(
-                    format!("Saved TUI mode: {mode}. Restart Codex to apply; launch overrides still apply."),
+                    format!("Saved TUI mode: {mode}. Restart {product} to apply; launch overrides still apply.",
+ product = crate::history_cell::short_name()),
                     /*hint*/ None,
                 );
             }

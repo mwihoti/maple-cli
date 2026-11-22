@@ -15,7 +15,14 @@ impl ChatWidget {
                 "Scrollback",
                 "Native terminal copy, paste and scrollback",
             ),
-            (true, "Fullscreen", "Scroll within Codex's fullscreen view"),
+            (
+                true,
+                "Fullscreen",
+                crate::history_cell::branded(
+                    "Scroll within Codex's fullscreen view",
+                    "Scroll within Maple Code's fullscreen view",
+                ),
+            ),
         ]
         .into_iter()
         .map(|(enabled, name, description)| SelectionItem {

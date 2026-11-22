@@ -161,7 +161,10 @@ impl App {
             return;
         }
         self.config_notification_test_pending = None;
-        let notice = if !tui.notify_test("Codex notification test") {
+        let notice = if !tui.notify_test(crate::history_cell::branded(
+            "Codex notification test",
+            "Maple Code notification test",
+        )) {
             "Could not send test · check terminal connection"
         } else if codex_terminal_detection::terminal_info().name
             == codex_terminal_detection::TerminalName::Ghostty
