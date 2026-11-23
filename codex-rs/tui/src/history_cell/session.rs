@@ -70,6 +70,11 @@ pub(crate) fn branded(codex: &'static str, maple: &'static str) -> &'static str 
     }
 }
 
+/// Whether the Maple provider is active, for choices that are not wording.
+pub(crate) fn is_maple_brand() -> bool {
+    MAPLE_BRAND.load(std::sync::atomic::Ordering::Relaxed)
+}
+
 /// Product name for running prose, such as "Restart Maple Code to apply".
 pub(crate) fn short_name() -> &'static str {
     branded("Codex", "Maple Code")
