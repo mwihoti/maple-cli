@@ -258,6 +258,14 @@ in the binary as "Use with caution: Maple Code can edit files ...". The other
 text moved on 2026-11-22 is now built but has still not been read on screen,
 apart from the header, the placeholder and the startup help lines.
 
+A Maple session used to open as "OpenAI Codex" with the OpenAI logo and
+"Ask Codex to do anything" for about a second, because the first frame was
+drawn before the provider was known. The name is now set from the bootstrap
+config, and the logo is replaced by a maple leaf for the Maple provider. The
+session was started in a 110x40 terminal and captured every 0.3 seconds: every
+frame read "Maple Code", and the first drawn frame showed the leaf. Only a
+provider set by `model_provider` in `config.toml` was tried.
+
 Still unverified: OS keyring login, session resume, MCP tools exposed through
 deferred tool search, images on models without vision, and the release build.
 
