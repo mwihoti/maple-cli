@@ -67,6 +67,10 @@ A debug build of the workspace writes about 32 GB under `codex-rs/target`; a
 release build writes about 5 GB. The linker crashes with a bus error if the
 disk fills part-way through.
 
+Cargo's incremental cache adds roughly another 30 GB for this workspace.
+Build with `CARGO_INCREMENTAL=0` to leave it out;
+`scripts/install-from-source.sh` does so unless you set `CARGO_INCREMENTAL=1`.
+
 ## Authenticate and discover models after the native build passes
 
 Start Maple Proxy on the same computer. Keep the actual API key out of chat,
