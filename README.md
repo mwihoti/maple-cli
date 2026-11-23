@@ -63,8 +63,9 @@ changes required by the tagged source.
 
 ### Disk space
 
-A debug build of the workspace writes about 32 GB under `codex-rs/target`; a
-release build writes about 5 GB. The linker crashes with a bus error if the
+A debug build of the workspace writes about 32 GB under `codex-rs/target`. A
+release build has not been completed here, so its size is unmeasured; a partial
+one had written 5 GB. The linker crashes with a bus error if the
 disk fills part-way through.
 
 Cargo's incremental cache adds roughly another 30 GB for this workspace.

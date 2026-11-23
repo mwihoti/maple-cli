@@ -36,15 +36,15 @@ command -v cargo >/dev/null || {
   exit 1
 }
 
-# A debug build writes about 32 GB under codex-rs/target and a release build
-# about 5 GB. Running out of space part-way crashes the linker.
+# A debug build writes about 32 GB under codex-rs/target. The release figure is
+# a lower bound: a partial release build had written 5 GB. Running out of space part-way crashes the linker.
 kind=debug need_gb=35
 [[ ${#profile[@]} -gt 0 ]] && kind=release need_gb=8
 free_gb=$(($(df -Pk "$REPO" | awk 'NR==2 {print $4}') / 1024 / 1024))
 # A checkout that has been built before only recompiles what changed.
 if [[ -z "${MAPLE_CODE_SKIP_DISK_CHECK:-}" && ! -x "$REPO/codex-rs/target/$kind/codex" ]] &&
   ((free_gb < need_gb)); then
-  echo "install: only ${free_gb} GB free; a first $kind build needs about ${need_gb} GB." >&2
+  echo "install: only ${free_gb} GB free; a first $kind build needs at least ${need_gb} GB." >&2
   echo "         Free some space, pass --release for a smaller build, or set" >&2
   echo "         MAPLE_CODE_SKIP_DISK_CHECK=1 to build anyway." >&2
   exit 1
