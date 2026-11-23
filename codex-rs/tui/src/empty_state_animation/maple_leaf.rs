@@ -19,3 +19,14 @@ const HALF_OUTLINE: [(f64, f64); 14] = [
     (0.035, -0.88),
     (0.0, -0.88),
 ];
+fn inside(x: f64, y: f64) -> bool {
+    let x = x.abs();
+    let mut inside = false;
+    for (i, &(x1, y1)) in HALF_OUTLINE.iter().enumerate() {
+        let (x2, y2) = HALF_OUTLINE[(i + 1) % HALF_OUTLINE.len()];
+        if (y1 > y) != (y2 > y) && x < (x2 - x1) * (y - y1) / (y2 - y1) + x1 {
+            inside = !inside;
+        }
+    }
+    inside
+}
