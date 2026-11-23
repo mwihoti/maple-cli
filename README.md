@@ -187,6 +187,11 @@ A Maple session opens with a maple leaf drawn in braille characters in place of
 the OpenAI logo. It turns on its stem once, settles facing you, and replays
 when clicked. Other providers keep the original logo.
 
+The product name is chosen from `model_provider` in `config.toml` before the
+first frame is drawn, so the screen no longer opens as "OpenAI Codex" for a
+moment. A provider selected only by a profile or a `-c` override is still
+applied a moment later, once the full configuration has loaded.
+
 ### Tool names
 
 Maple models see each tool under an opaque alias with the readable name in the
