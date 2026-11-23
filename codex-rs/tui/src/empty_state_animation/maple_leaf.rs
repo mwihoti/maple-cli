@@ -23,6 +23,8 @@ const HALF_OUTLINE: [(f64, f64); 14] = [
 ];
 // Braille dot bits in row-major order for a cell two dots wide and four tall.
 const DOT_BITS: [u8; 8] = [1, 8, 2, 16, 4, 32, 64, 128];
+const TIP_COLOR: (f64, f64, f64) = (247.0, 166.0, 60.0);
+const BASE_COLOR: (f64, f64, f64) = (206.0, 58.0, 36.0);
 
 fn inside(x: f64, y: f64) -> bool {
     let x = x.abs();
@@ -55,6 +57,14 @@ pub(super) fn frame(columns: u16, rows: u16) -> Vec<Cell> {
             if inside(x, y) {
                 cell.dots |= bit;
             }
+        }
+        if cell.dots != 0 {
+            let y = 1.0 - (row as f64 + 0.5) / rows as f64 * 2.0;
+            let blend = ((y + 1.0) / 2.0).clamp(0.0, 1.0);
+            let channel = |base: f64, tip: f64| (base + (tip - base) * blend) as u32;
+            cell.rgb = channel(BASE_COLOR.0, TIP_COLOR.0) << 16
+                | channel(BASE_COLOR.1, TIP_COLOR.1) << 8
+                | channel(BASE_COLOR.2, TIP_COLOR.2);
         }
     }
     cells
