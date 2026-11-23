@@ -16,6 +16,17 @@ BIN_DIR="${MAPLE_CODE_BIN_DIR:-$HOME/.local/bin}"
 profile=()
 [[ " $* " == *" --release "* ]] && profile=(--release)
 
+# --clean frees the intermediate build output and keeps the built programs, so
+# maple-code still runs. The next build starts from scratch.
+if [[ " $* " == *" --clean "* ]]; then
+  for dir in "$REPO"/codex-rs/target/*/; do
+    [[ -d "$dir/deps" ]] || continue
+    rm -rf "$dir/deps" "$dir/build" "$dir/incremental" "$dir/.fingerprint"
+    echo "install: cleaned ${dir%/}"
+  done
+  exit 0
+fi
+
 command -v cargo >/dev/null || {
   echo "install: cargo is required (https://rustup.rs)" >&2
   exit 1
