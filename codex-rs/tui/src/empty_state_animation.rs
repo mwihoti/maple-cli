@@ -3,6 +3,7 @@
 
 mod geometry;
 mod lighting;
+mod maple_leaf;
 mod paths;
 mod policy;
 mod renderer;
@@ -244,12 +245,18 @@ impl EmptyStateAnimation {
             terminal_palette::default_fg().unwrap_or((210, 221, 235)),
             background,
         );
-        let cells = self.renderer.get_or_insert_with(Renderer::default).frame(
-            area.width,
-            area.height,
-            phase,
-            &light,
-        );
+        let leaf;
+        let cells: &[renderer::Cell] = if crate::history_cell::is_maple_brand() {
+            leaf = maple_leaf::frame(area.width, area.height, phase);
+            &leaf
+        } else {
+            self.renderer.get_or_insert_with(Renderer::default).frame(
+                area.width,
+                area.height,
+                phase,
+                &light,
+            )
+        };
         for (i, cell) in cells.iter().enumerate().filter(|(_, cell)| cell.dots != 0) {
             let [_, r, g, b] = cell.rgb.to_be_bytes();
             let target = &mut buffer[(
