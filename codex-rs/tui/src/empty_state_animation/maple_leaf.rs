@@ -119,4 +119,15 @@ mod tests {
         assert!(edge_on > 0);
         assert!(edge_on * 4 < drawn(0.5));
     }
+
+    #[test]
+    fn leaf_is_mirrored_about_the_stem() {
+        let columns = 48;
+        let cells = frame(columns, /*rows*/ 17, /*phase*/ 0.5);
+        for row in cells.chunks(usize::from(columns)) {
+            let drawn = row.iter().map(|cell| cell.dots != 0).collect::<Vec<_>>();
+            let mirrored = drawn.iter().rev().copied().collect::<Vec<_>>();
+            assert_eq!(drawn, mirrored);
+        }
+    }
 }
