@@ -159,7 +159,7 @@ approval. Use the interactive CLI to exercise approval prompts.
 [scripts/install-from-source.sh](scripts/install-from-source.sh) builds the
 workspace, links the launcher into `~/.local/bin`, writes starter settings and
 asks for the API key without echoing it (`--release` builds the optimized
-binary). It downloads Maple Proxy from Maple's releases when none is installed,
+binary). Before a first build it checks that enough disk space is free. It downloads Maple Proxy from Maple's releases when none is installed,
 checking the published SHA-256; `--update-proxy` replaces an installed one. To
 do the same by hand, link the
 launcher onto your `PATH` and copy the example settings:
