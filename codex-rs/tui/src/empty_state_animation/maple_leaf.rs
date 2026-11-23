@@ -54,6 +54,8 @@ pub(super) fn frame(columns: u16, rows: u16, phase: f64) -> Vec<Cell> {
     let radius = (dot_height / 2.0 - 1.0).max(1.0);
     let turn = (phase * 2.0 * TAU).cos();
     let facing = turn.abs().max(MIN_TURN_WIDTH);
+    // The back of the leaf is slightly darker than the front.
+    let shade = if turn < 0.0 { 0.72 } else { 1.0 };
     let mut cells = vec![Cell::default(); columns * rows];
     for (index, cell) in cells.iter_mut().enumerate() {
         let column = index % columns;
@@ -70,7 +72,7 @@ pub(super) fn frame(columns: u16, rows: u16, phase: f64) -> Vec<Cell> {
         if cell.dots != 0 {
             let y = 1.0 - (row as f64 + 0.5) / rows as f64 * 2.0;
             let blend = ((y + 1.0) / 2.0).clamp(0.0, 1.0);
-            let channel = |base: f64, tip: f64| (base + (tip - base) * blend) as u32;
+            let channel = |base: f64, tip: f64| ((base + (tip - base) * blend) * shade) as u32;
             cell.rgb = channel(BASE_COLOR.0, TIP_COLOR.0) << 16
                 | channel(BASE_COLOR.1, TIP_COLOR.1) << 8
                 | channel(BASE_COLOR.2, TIP_COLOR.2);
