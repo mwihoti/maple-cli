@@ -21,6 +21,9 @@ command -v cargo >/dev/null || {
   exit 1
 }
 
+# The incremental cache speeds up repeated edits but grows to tens of gigabytes
+# for this workspace. Set CARGO_INCREMENTAL=1 to turn it back on.
+export CARGO_INCREMENTAL="${CARGO_INCREMENTAL:-0}"
 echo "install: building codex ${profile[*]:-(debug)} ..."
 (cd "$REPO/codex-rs" && cargo build "${profile[@]}" --bin codex)
 
