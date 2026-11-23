@@ -252,6 +252,12 @@ the disk was full, so none of this text has been seen in a live session yet.
 Still named Codex: Windows-only prompts, sign-in onboarding, a few constants,
 text sent to the model, and messages produced by other crates.
 
+On 2026-11-23, after disk space was freed, the binary was rebuilt with
+`CARGO_INCREMENTAL=0`. The full-access description in `/permissions` is present
+in the binary as "Use with caution: Maple Code can edit files ...". The other
+text moved on 2026-11-22 is now built but has still not been read on screen,
+apart from the header, the placeholder and the startup help lines.
+
 Still unverified: OS keyring login, session resume, MCP tools exposed through
 deferred tool search, images on models without vision, and the release build.
 
