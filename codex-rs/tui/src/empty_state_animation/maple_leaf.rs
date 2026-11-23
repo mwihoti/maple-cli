@@ -106,4 +106,17 @@ mod tests {
         let widest = settled.iter().map(|row| row.chars().count()).max();
         assert_eq!(widest, Some(40));
     }
+
+    #[test]
+    fn leaf_is_a_sliver_when_edge_on() {
+        let drawn = |phase| {
+            frame(/*columns*/ 48, /*rows*/ 17, phase)
+                .iter()
+                .filter(|cell| cell.dots != 0)
+                .count()
+        };
+        let edge_on = drawn(0.125);
+        assert!(edge_on > 0);
+        assert!(edge_on * 4 < drawn(0.5));
+    }
 }
