@@ -75,6 +75,9 @@ Build with `CARGO_INCREMENTAL=0` to leave it out;
 and keeps the built program, so `maple-code` still runs. The next build starts
 from scratch.
 
+On a filesystem with automatic snapshots, such as btrfs with snapper, deleted
+build output stays on disk until the snapshots that contain it are removed.
+
 ## Authenticate and discover models after the native build passes
 
 Start Maple Proxy on the same computer. Keep the actual API key out of chat,
