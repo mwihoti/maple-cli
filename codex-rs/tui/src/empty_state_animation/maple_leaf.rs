@@ -80,3 +80,30 @@ pub(super) fn frame(columns: u16, rows: u16, phase: f64) -> Vec<Cell> {
     }
     cells
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pretty_assertions::assert_eq;
+
+    fn rows(columns: u16, height: u16, phase: f64) -> Vec<String> {
+        frame(columns, height, phase)
+            .chunks(usize::from(columns))
+            .map(|row| {
+                row.iter()
+                    .map(|cell| char::from_u32(0x2800 + u32::from(cell.dots)).unwrap_or(' '))
+                    .collect::<String>()
+                    .trim_end_matches('\u{2800}')
+                    .to_owned()
+            })
+            .collect()
+    }
+
+    #[test]
+    fn settled_pose_faces_the_viewer_at_full_width() {
+        let settled = rows(/*columns*/ 48, /*height*/ 17, /*phase*/ 0.5);
+        assert_eq!(settled, rows(/*columns*/ 48, /*height*/ 17, /*phase*/ 1.5));
+        let widest = settled.iter().map(|row| row.chars().count()).max();
+        assert_eq!(widest, Some(40));
+    }
+}
