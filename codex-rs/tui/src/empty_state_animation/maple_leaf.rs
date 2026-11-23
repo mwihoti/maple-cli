@@ -130,4 +130,15 @@ mod tests {
             assert_eq!(drawn, mirrored);
         }
     }
+
+    #[test]
+    fn stem_reaches_below_the_blade() {
+        let settled = rows(/*columns*/ 48, /*height*/ 17, /*phase*/ 0.5);
+        let stem = settled
+            .iter()
+            .rev()
+            .find(|row| !row.is_empty())
+            .map(|row| row.trim_start_matches('\u{2800}').chars().count());
+        assert_eq!(stem, Some(2));
+    }
 }
