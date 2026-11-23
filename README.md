@@ -181,6 +181,12 @@ The binary and its subcommands are still named `codex`.
 Resume hints, the exit menu and the `/` command descriptions follow the same
 rule, so a Maple session tells you to run `maple-code resume <id>`.
 
+### Opening screen
+
+A Maple session opens with a maple leaf drawn in braille characters in place of
+the OpenAI logo. It turns on its stem once, settles facing you, and replays
+when clicked. Other providers keep the original logo.
+
 ### Tool names
 
 Maple models see each tool under an opaque alias with the readable name in the
