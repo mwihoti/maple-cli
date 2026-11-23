@@ -351,6 +351,11 @@ pub(super) async fn run_main_inner(
         screen.transcript_mode.is_owned(),
         screen.use_alt_screen,
     );
+    // The provisional first frame is drawn before the full config resolves, so
+    // pick its product name from the bootstrap config.
+    if let Some(provider) = bootstrap_config.config_toml.model_provider.as_deref() {
+        crate::history_cell::set_brand_provider(provider);
+    }
     let mut startup_draft = startup_draft::StartupDraft::new(
         initialized_terminal,
         terminal_restore_guard,
