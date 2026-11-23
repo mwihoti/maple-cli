@@ -1,4 +1,9 @@
 //! Braille maple leaf shown in place of the Codex logo when Maple is the provider.
+//!
+//! The leaf turns about its stem using the same phase as the logo, so the
+//! shared timing, fading and replay logic applies unchanged.
+
+use std::f64::consts::TAU;
 
 use super::renderer::Cell;
 
@@ -38,13 +43,15 @@ fn inside(x: f64, y: f64) -> bool {
     inside
 }
 
-/// Rasterizes the leaf facing the viewer.
-pub(super) fn frame(columns: u16, rows: u16) -> Vec<Cell> {
+/// Rasterizes the leaf for `phase`, where each half unit is one full turn.
+pub(super) fn frame(columns: u16, rows: u16, phase: f64) -> Vec<Cell> {
     let columns = usize::from(columns);
     let rows = usize::from(rows);
     let dot_width = (columns * 2) as f64;
     let dot_height = (rows * 4) as f64;
     let radius = (dot_height / 2.0 - 1.0).max(1.0);
+    let turn = (phase * 2.0 * TAU).cos();
+    let facing = turn.abs();
     let mut cells = vec![Cell::default(); columns * rows];
     for (index, cell) in cells.iter_mut().enumerate() {
         let column = index % columns;
@@ -52,7 +59,7 @@ pub(super) fn frame(columns: u16, rows: u16) -> Vec<Cell> {
         for (dot, bit) in DOT_BITS.iter().enumerate() {
             let dot_x = (column * 2 + dot % 2) as f64 + 0.5;
             let dot_y = (row * 4 + dot / 2) as f64 + 0.5;
-            let x = (dot_x - dot_width / 2.0) / radius;
+            let x = (dot_x - dot_width / 2.0) / radius / facing;
             let y = -(dot_y - dot_height / 2.0) / radius;
             if inside(x, y) {
                 cell.dots |= bit;
