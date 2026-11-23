@@ -71,6 +71,10 @@ Cargo's incremental cache adds roughly another 30 GB for this workspace.
 Build with `CARGO_INCREMENTAL=0` to leave it out;
 `scripts/install-from-source.sh` does so unless you set `CARGO_INCREMENTAL=1`.
 
+`scripts/install-from-source.sh --clean` deletes the intermediate build output
+and keeps the built program, so `maple-code` still runs. The next build starts
+from scratch.
+
 ## Authenticate and discover models after the native build passes
 
 Start Maple Proxy on the same computer. Keep the actual API key out of chat,
