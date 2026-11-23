@@ -2,12 +2,16 @@
 # install-from-source.sh: build this checkout and put `maple-code` on PATH.
 #
 # Usage: scripts/install-from-source.sh [--release] [--update-proxy]
+#        scripts/install-from-source.sh --clean
 #
 # This is a source install, not a packaged release: it compiles the Rust
 # workspace (slow on a first build), links scripts/maple-code into
 # ~/.local/bin, creates starter settings in ~/.maple-code and downloads Maple
 # Proxy when none is installed (--update-proxy replaces an installed one). It
 # never overwrites an existing config or credentials file.
+#
+# --clean removes intermediate build output and keeps the built program.
+# MAPLE_CODE_SKIP_DISK_CHECK=1 skips the free-space check before a first build.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
