@@ -141,4 +141,11 @@ mod tests {
             .map(|row| row.trim_start_matches('\u{2800}').chars().count());
         assert_eq!(stem, Some(2));
     }
+
+    #[test]
+    fn only_drawn_cells_carry_a_color() {
+        let cells = frame(/*columns*/ 48, /*rows*/ 17, /*phase*/ 0.5);
+        assert!(cells.iter().any(|cell| cell.dots != 0));
+        assert!(cells.iter().all(|cell| (cell.dots == 0) == (cell.rgb == 0)));
+    }
 }
