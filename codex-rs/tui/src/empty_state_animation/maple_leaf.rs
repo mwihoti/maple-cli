@@ -30,6 +30,8 @@ const HALF_OUTLINE: [(f64, f64); 14] = [
 const DOT_BITS: [u8; 8] = [1, 8, 2, 16, 4, 32, 64, 128];
 const TIP_COLOR: (f64, f64, f64) = (247.0, 166.0, 60.0);
 const BASE_COLOR: (f64, f64, f64) = (206.0, 58.0, 36.0);
+// Keeps the leaf visible as a thin sliver while it is edge-on.
+const MIN_TURN_WIDTH: f64 = 0.08;
 
 fn inside(x: f64, y: f64) -> bool {
     let x = x.abs();
@@ -51,7 +53,7 @@ pub(super) fn frame(columns: u16, rows: u16, phase: f64) -> Vec<Cell> {
     let dot_height = (rows * 4) as f64;
     let radius = (dot_height / 2.0 - 1.0).max(1.0);
     let turn = (phase * 2.0 * TAU).cos();
-    let facing = turn.abs();
+    let facing = turn.abs().max(MIN_TURN_WIDTH);
     let mut cells = vec![Cell::default(); columns * rows];
     for (index, cell) in cells.iter_mut().enumerate() {
         let column = index % columns;
