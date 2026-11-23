@@ -61,6 +61,12 @@ The original upstream build attempts are recorded in `maple-baseline-results.jso
 The current lockfile includes the Maple protocol crate and the internal version
 changes required by the tagged source.
 
+### Disk space
+
+A debug build of the workspace writes about 32 GB under `codex-rs/target`; a
+release build writes about 5 GB. The linker crashes with a bus error if the
+disk fills part-way through.
+
 ## Authenticate and discover models after the native build passes
 
 Start Maple Proxy on the same computer. Keep the actual API key out of chat,
