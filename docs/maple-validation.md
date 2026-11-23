@@ -266,6 +266,15 @@ session was started in a 110x40 terminal and captured every 0.3 seconds: every
 frame read "Maple Code", and the first drawn frame showed the leaf. Only a
 provider set by `model_provider` in `config.toml` was tried.
 
+The five maple leaf tests pass when `maple_leaf.rs` is compiled on its own with
+`rustc --test`. Within `cargo test -p codex-tui`, an earlier run passed the
+existing logo animation tests and two leaf tests; the final run was stopped
+because the machine ran out of memory, so three leaf tests and the startup
+tests have not run there. In that earlier run the `fresh_thread_header` snapshot
+failed because it records `v0.0.0` and this checkout reports `v0.170.0`; that
+is unrelated to the leaf. The installer's `--clean` flag and disk check were
+tried against a temporary directory, not a real build tree.
+
 Still unverified: OS keyring login, session resume, MCP tools exposed through
 deferred tool search, images on models without vision, and the release build.
 
