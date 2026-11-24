@@ -198,7 +198,7 @@ pub fn compute_keyring_account(maplecode_home: &Path, namespace: LocalSecretsNam
     match namespace {
         LocalSecretsNamespace::GatewayOAuth => format!("{home_account}|gateway-oauth"),
         LocalSecretsNamespace::ManagedSecrets
-        | LocalSecretsNamespace::MapleCodeAuth
+        | LocalSecretsNamespace::MaplecodeAuth
         | LocalSecretsNamespace::McpOAuth => home_account,
     }
 }

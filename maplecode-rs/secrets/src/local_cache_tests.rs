@@ -13,7 +13,7 @@ fn cached_reads_check_file_presence_key_rotation_and_keyring_errors() -> Result<
         .unwrap_or_else(PoisonError::into_inner);
     for namespace in [
         LocalSecretsNamespace::ManagedSecrets,
-        LocalSecretsNamespace::MapleCodeAuth,
+        LocalSecretsNamespace::MaplecodeAuth,
     ] {
         let home = tempfile::tempdir()?;
         let keyring = Arc::new(MockKeyringStore::default());
@@ -75,7 +75,7 @@ fn shared_caches_keep_homes_and_namespaces_isolated() -> Result<()> {
     for (index, home) in homes.iter().enumerate() {
         for namespace in [
             LocalSecretsNamespace::ManagedSecrets,
-            LocalSecretsNamespace::MapleCodeAuth,
+            LocalSecretsNamespace::MaplecodeAuth,
             LocalSecretsNamespace::McpOAuth,
         ] {
             let backend = LocalSecretsBackend::new_with_namespace(
@@ -108,7 +108,7 @@ fn saves_cache_committed_contents_and_preserve_them_after_a_failed_commit() -> R
         .unwrap_or_else(PoisonError::into_inner);
     for namespace in [
         LocalSecretsNamespace::ManagedSecrets,
-        LocalSecretsNamespace::MapleCodeAuth,
+        LocalSecretsNamespace::MaplecodeAuth,
         LocalSecretsNamespace::McpOAuth,
         LocalSecretsNamespace::GatewayOAuth,
     ] {

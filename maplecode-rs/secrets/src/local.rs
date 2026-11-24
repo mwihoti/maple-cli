@@ -58,7 +58,7 @@ pub enum LocalSecretsNamespace {
     #[default]
     ManagedSecrets,
     /// Maple Code authentication credentials used by the CLI, TUI, app server, and other clients.
-    MapleCodeAuth,
+    MaplecodeAuth,
     /// OAuth credentials for external MCP servers.
     McpOAuth,
     /// Gateway OAuth credentials, isolated from primary auth in file and encryption key.
@@ -176,7 +176,7 @@ impl LocalSecretsBackend {
     fn secrets_path(&self) -> PathBuf {
         let filename = match self.namespace {
             LocalSecretsNamespace::ManagedSecrets => LOCAL_SECRETS_FILENAME,
-            LocalSecretsNamespace::MapleCodeAuth => MAPLECODE_AUTH_SECRETS_FILENAME,
+            LocalSecretsNamespace::MaplecodeAuth => MAPLECODE_AUTH_SECRETS_FILENAME,
             LocalSecretsNamespace::McpOAuth => MCP_OAUTH_SECRETS_FILENAME,
             LocalSecretsNamespace::GatewayOAuth => GATEWAY_OAUTH_SECRETS_FILENAME,
         };
@@ -188,7 +188,7 @@ impl LocalSecretsBackend {
     fn decrypted_cache(&self) -> &Mutex<Option<CachedSecrets>> {
         match self.namespace {
             LocalSecretsNamespace::ManagedSecrets => &MANAGED_SECRETS_CACHE,
-            LocalSecretsNamespace::MapleCodeAuth => &MAPLECODE_AUTH_CACHE,
+            LocalSecretsNamespace::MaplecodeAuth => &MAPLECODE_AUTH_CACHE,
             LocalSecretsNamespace::McpOAuth => &MCP_OAUTH_CACHE,
             LocalSecretsNamespace::GatewayOAuth => &self.gateway_cache,
         }
@@ -561,7 +561,7 @@ mod tests {
         let maplecode_auth_backend = LocalSecretsBackend::new_with_namespace(
             maplecode_home.path().to_path_buf(),
             keyring.clone(),
-            LocalSecretsNamespace::MapleCodeAuth,
+            LocalSecretsNamespace::MaplecodeAuth,
         );
         let mcp_backend = LocalSecretsBackend::new_with_namespace(
             maplecode_home.path().to_path_buf(),
@@ -628,7 +628,7 @@ mod tests {
                 keyring_service(),
                 &compute_keyring_account(
                     maplecode_home.path(),
-                    LocalSecretsNamespace::MapleCodeAuth,
+                    LocalSecretsNamespace::MaplecodeAuth,
                 ),
             )
             .expect("remove primary secrets key");
@@ -646,7 +646,7 @@ mod tests {
             .unwrap_or_else(PoisonError::into_inner);
         for namespace in [
             LocalSecretsNamespace::ManagedSecrets,
-            LocalSecretsNamespace::MapleCodeAuth,
+            LocalSecretsNamespace::MaplecodeAuth,
             LocalSecretsNamespace::McpOAuth,
         ] {
             let maplecode_home = tempfile::tempdir().expect("tempdir");
