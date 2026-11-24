@@ -15,7 +15,7 @@ from collections.abc import Awaitable, Callable
 from typing import TypeVar
 
 from openai_maplecode import (
-    AsyncMapleCode,
+    AsyncMaplecode,
     JsonRpcError,
     ServerBusyError,
     is_retryable_error,
@@ -53,7 +53,7 @@ async def retry_on_overload_async(
 
 
 async def main() -> None:
-    async with AsyncMapleCode(config=runtime_config()) as maplecode:
+    async with AsyncMaplecode(config=runtime_config()) as maplecode:
         thread = await maplecode.thread_start(
             model="gpt-5.4", config={"model_reasoning_effort": "high"}
         )

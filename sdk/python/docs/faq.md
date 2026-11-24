@@ -29,13 +29,13 @@ Choose `run()` for most apps. Choose `stream()` for progress UIs, custom timeout
 
 ## Sync vs async clients
 
-- `MapleCode` is the sync public API.
-- `AsyncMapleCode` is an async replica of the same public API shape.
-- Prefer `async with AsyncMapleCode()` for async code. It is the standard path for
-  explicit startup/shutdown, and `AsyncMapleCode` initializes lazily on context
+- `Maplecode` is the sync public API.
+- `AsyncMaplecode` is an async replica of the same public API shape.
+- Prefer `async with AsyncMaplecode()` for async code. It is the standard path for
+  explicit startup/shutdown, and `AsyncMaplecode` initializes lazily on context
   entry or first awaited API use.
 
-If your app is not already async, stay with `MapleCode`.
+If your app is not already async, stay with `Maplecode`.
 
 ## How do I pass untrusted external content?
 
@@ -64,7 +64,7 @@ preserved in history. Pass it as the entire input to `thread.run(...)` or
 
 External messages and the new `include_turns`, `turn_service_tier`, and `source`
 options require CLI 0.151.0 or newer. If a custom executable is too old, the SDK
-raises `MapleCodeError` before sending the request. Upgrade that executable or use
+raises `MaplecodeError` before sending the request. Upgrade that executable or use
 the runtime installed with a matching SDK release.
 
 ## Does `include_turns=False` remove the conversation's context?
@@ -139,7 +139,7 @@ This avoids duplicate ways to do the same operation and keeps behavior explicit.
 
 ## Why does constructor fail?
 
-`MapleCode()` is eager: it starts transport and calls `initialize` in `__init__`.
+`Maplecode()` is eager: it starts transport and calls `initialize` in `__init__`.
 
 Common causes:
 

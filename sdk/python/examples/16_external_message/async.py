@@ -12,11 +12,11 @@ from _bootstrap import ensure_local_sdk_src, runtime_config
 
 ensure_local_sdk_src()
 
-from openai_maplecode import AsyncMapleCode, ExternalMessage, Sandbox
+from openai_maplecode import AsyncMaplecode, ExternalMessage, Sandbox
 
 
 async def main() -> None:
-    async with AsyncMapleCode(config=runtime_config()) as maplecode:
+    async with AsyncMaplecode(config=runtime_config()) as maplecode:
         thread = await maplecode.thread_start(sandbox=Sandbox.read_only)
         await thread.run(
             "When deployment notifications arrive, summarize their status and suggest "

@@ -9,11 +9,11 @@ import openai_maplecode
 import openai_maplecode.types as public_types
 from openai_maplecode import (
     ApprovalMode,
-    AsyncMapleCode,
+    AsyncMaplecode,
     AsyncThread,
     AsyncTurnHandle,
-    MapleCode,
-    MapleCodeConfig,
+    Maplecode,
+    MaplecodeConfig,
     ExternalMessage,
     Sandbox,
     Thread,
@@ -30,9 +30,9 @@ except ModuleNotFoundError:
 
 EXPECTED_ROOT_EXPORTS = [
     "__version__",
-    "MapleCodeConfig",
-    "MapleCode",
-    "AsyncMapleCode",
+    "MaplecodeConfig",
+    "Maplecode",
+    "AsyncMaplecode",
     "ApprovalMode",
     "Sandbox",
     "ChatgptLoginHandle",
@@ -54,10 +54,10 @@ EXPECTED_ROOT_EXPORTS = [
     "SkillInput",
     "MentionInput",
     "retry_on_overload",
-    "MapleCodeError",
+    "MaplecodeError",
     "TransportClosedError",
     "JsonRpcError",
-    "MapleCodeRpcError",
+    "MaplecodeRpcError",
     "ParseError",
     "InvalidRequestError",
     "MethodNotFoundError",
@@ -136,7 +136,7 @@ def _assert_no_any_annotations(fn: object) -> None:
 
 def test_root_exports_maplecode_config() -> None:
     """The root package should expose the process configuration object."""
-    assert MapleCodeConfig.__name__ == "MapleCodeConfig"
+    assert MaplecodeConfig.__name__ == "MaplecodeConfig"
 
 
 def test_root_exports_turn_result() -> None:
@@ -215,16 +215,16 @@ def test_package_and_default_client_versions_follow_project_version() -> None:
     pyproject = tomllib.loads(pyproject_path.read_text())
 
     assert openai_maplecode.__version__ == pyproject["project"]["version"]
-    assert MapleCodeConfig().client_version == openai_maplecode.__version__
+    assert MaplecodeConfig().client_version == openai_maplecode.__version__
 
 
 def test_curated_public_api_has_builtin_help_documentation() -> None:
     """The package's normal ``help()`` surface should explain common first-use APIs."""
     documented = {
         "module": openai_maplecode,
-        "MapleCode": MapleCode,
-        "AsyncMapleCode": AsyncMapleCode,
-        "MapleCodeConfig": MapleCodeConfig,
+        "Maplecode": Maplecode,
+        "AsyncMaplecode": AsyncMaplecode,
+        "MaplecodeConfig": MaplecodeConfig,
         "Thread": Thread,
         "AsyncThread": AsyncThread,
         "TurnHandle": TurnHandle,
@@ -232,8 +232,8 @@ def test_curated_public_api_has_builtin_help_documentation() -> None:
         "TurnResult": TurnResult,
         "ExternalMessage": ExternalMessage,
         "Sandbox": Sandbox,
-        "thread_start": MapleCode.thread_start,
-        "thread_resume": MapleCode.thread_resume,
+        "thread_start": Maplecode.thread_start,
+        "thread_resume": Maplecode.thread_resume,
         "thread_run": Thread.run,
         "thread_turn": Thread.turn,
     }
@@ -256,16 +256,16 @@ def test_package_root_exports_only_public_api() -> None:
         EXPECTED_ROOT_EXPORTS, True
     )
     assert {
-        "MapleCodeClient": hasattr(openai_maplecode, "MapleCodeClient"),
-        "AsyncMapleCodeClient": hasattr(openai_maplecode, "AsyncMapleCodeClient"),
+        "MaplecodeClient": hasattr(openai_maplecode, "MaplecodeClient"),
+        "AsyncMaplecodeClient": hasattr(openai_maplecode, "AsyncMaplecodeClient"),
         "InitializeResponse": hasattr(openai_maplecode, "InitializeResponse"),
         "ThreadStartParams": hasattr(openai_maplecode, "ThreadStartParams"),
         "TurnStartParams": hasattr(openai_maplecode, "TurnStartParams"),
         "TurnCompletedNotification": hasattr(openai_maplecode, "TurnCompletedNotification"),
         "TurnStatus": hasattr(openai_maplecode, "TurnStatus"),
     } == {
-        "MapleCodeClient": False,
-        "AsyncMapleCodeClient": False,
+        "MaplecodeClient": False,
+        "AsyncMaplecodeClient": False,
         "InitializeResponse": False,
         "ThreadStartParams": False,
         "TurnStartParams": False,
@@ -284,7 +284,7 @@ def test_package_star_import_matches_public_api() -> None:
 
 
 def test_types_module_exports_curated_public_types() -> None:
-    """The public type module should expose MapleCode protocol models."""
+    """The public type module should expose Maplecode protocol models."""
     assert public_types.__all__ == EXPECTED_TYPES_EXPORTS
     assert {name: hasattr(public_types, name) for name in EXPECTED_TYPES_EXPORTS} == dict.fromkeys(
         EXPECTED_TYPES_EXPORTS, True
@@ -324,7 +324,7 @@ def test_examples_use_public_import_surfaces() -> None:
 def test_generated_public_signatures_are_snake_case_and_typed() -> None:
     """Generated convenience methods should expose typed Pythonic keyword names."""
     expected = {
-        MapleCode.thread_start: [
+        Maplecode.thread_start: [
             "approval_mode",
             "base_instructions",
             "config",
@@ -340,7 +340,7 @@ def test_generated_public_signatures_are_snake_case_and_typed() -> None:
             "session_start_source",
             "thread_source",
         ],
-        MapleCode.thread_list: [
+        Maplecode.thread_list: [
             "archived",
             "cursor",
             "cwd",
@@ -353,7 +353,7 @@ def test_generated_public_signatures_are_snake_case_and_typed() -> None:
             "source_kinds",
             "use_state_db_only",
         ],
-        MapleCode.thread_resume: [
+        Maplecode.thread_resume: [
             "approval_mode",
             "base_instructions",
             "config",
@@ -366,7 +366,7 @@ def test_generated_public_signatures_are_snake_case_and_typed() -> None:
             "sandbox",
             "service_tier",
         ],
-        MapleCode.thread_fork: [
+        Maplecode.thread_fork: [
             "approval_mode",
             "base_instructions",
             "config",
@@ -406,7 +406,7 @@ def test_generated_public_signatures_are_snake_case_and_typed() -> None:
             "summary",
             "turn_service_tier",
         ],
-        AsyncMapleCode.thread_start: [
+        AsyncMaplecode.thread_start: [
             "approval_mode",
             "base_instructions",
             "config",
@@ -422,7 +422,7 @@ def test_generated_public_signatures_are_snake_case_and_typed() -> None:
             "session_start_source",
             "thread_source",
         ],
-        AsyncMapleCode.thread_list: [
+        AsyncMaplecode.thread_list: [
             "archived",
             "cursor",
             "cwd",
@@ -435,7 +435,7 @@ def test_generated_public_signatures_are_snake_case_and_typed() -> None:
             "source_kinds",
             "use_state_db_only",
         ],
-        AsyncMapleCode.thread_resume: [
+        AsyncMaplecode.thread_resume: [
             "approval_mode",
             "base_instructions",
             "config",
@@ -448,7 +448,7 @@ def test_generated_public_signatures_are_snake_case_and_typed() -> None:
             "sandbox",
             "service_tier",
         ],
-        AsyncMapleCode.thread_fork: [
+        AsyncMaplecode.thread_fork: [
             "approval_mode",
             "base_instructions",
             "config",
@@ -502,8 +502,8 @@ def test_generated_public_signatures_are_snake_case_and_typed() -> None:
 def test_new_thread_methods_default_to_auto_review() -> None:
     """New threads should start with auto-review unless callers opt out."""
     funcs = [
-        MapleCode.thread_start,
-        AsyncMapleCode.thread_start,
+        Maplecode.thread_start,
+        AsyncMaplecode.thread_start,
     ]
 
     assert {fn: _keyword_default(fn, "approval_mode") for fn in funcs} == dict.fromkeys(
@@ -514,12 +514,12 @@ def test_new_thread_methods_default_to_auto_review() -> None:
 def test_existing_thread_methods_default_to_preserving_approval_settings() -> None:
     """Existing thread operations should not serialize approval overrides by default."""
     funcs = [
-        MapleCode.thread_resume,
-        MapleCode.thread_fork,
+        Maplecode.thread_resume,
+        Maplecode.thread_fork,
         Thread.turn,
         Thread.run,
-        AsyncMapleCode.thread_resume,
-        AsyncMapleCode.thread_fork,
+        AsyncMaplecode.thread_resume,
+        AsyncMaplecode.thread_fork,
         AsyncThread.turn,
         AsyncThread.run,
     ]
@@ -529,16 +529,16 @@ def test_existing_thread_methods_default_to_preserving_approval_settings() -> No
 
 def test_lifecycle_methods_are_maplecode_scoped() -> None:
     """Lifecycle operations should hang off the client rather than thread objects."""
-    assert hasattr(MapleCode, "thread_resume")
-    assert hasattr(MapleCode, "thread_fork")
-    assert hasattr(MapleCode, "thread_archive")
-    assert hasattr(MapleCode, "thread_unarchive")
-    assert hasattr(AsyncMapleCode, "thread_resume")
-    assert hasattr(AsyncMapleCode, "thread_fork")
-    assert hasattr(AsyncMapleCode, "thread_archive")
-    assert hasattr(AsyncMapleCode, "thread_unarchive")
-    assert not hasattr(MapleCode, "thread")
-    assert not hasattr(AsyncMapleCode, "thread")
+    assert hasattr(Maplecode, "thread_resume")
+    assert hasattr(Maplecode, "thread_fork")
+    assert hasattr(Maplecode, "thread_archive")
+    assert hasattr(Maplecode, "thread_unarchive")
+    assert hasattr(AsyncMaplecode, "thread_resume")
+    assert hasattr(AsyncMaplecode, "thread_fork")
+    assert hasattr(AsyncMaplecode, "thread_archive")
+    assert hasattr(AsyncMaplecode, "thread_unarchive")
+    assert not hasattr(Maplecode, "thread")
+    assert not hasattr(AsyncMaplecode, "thread")
 
     assert not hasattr(Thread, "resume")
     assert not hasattr(Thread, "fork")
@@ -550,10 +550,10 @@ def test_lifecycle_methods_are_maplecode_scoped() -> None:
     assert not hasattr(AsyncThread, "unarchive")
 
     for fn in (
-        MapleCode.thread_archive,
-        MapleCode.thread_unarchive,
-        AsyncMapleCode.thread_archive,
-        AsyncMapleCode.thread_unarchive,
+        Maplecode.thread_archive,
+        Maplecode.thread_unarchive,
+        AsyncMaplecode.thread_archive,
+        AsyncMaplecode.thread_unarchive,
     ):
         _assert_no_any_annotations(fn)
 

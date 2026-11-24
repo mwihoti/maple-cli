@@ -646,10 +646,10 @@ def test_source_sdk_package_declares_stable_documentation() -> None:
         in pyproject["project"]["classifiers"],
         "license": pyproject["project"]["license"],
         "documentation": pyproject["project"]["urls"]["Documentation"],
-        "readme_is_stable": "# OpenAI MapleCode Python SDK\n" in readme,
+        "readme_is_stable": "# OpenAI Maplecode Python SDK\n" in readme,
         "local_license_file": (ROOT / "LICENSE").exists(),
     } == {
-        "description": "Python SDK for MapleCode",
+        "description": "Python SDK for Maplecode",
         "is_stable": True,
         "license": "Apache-2.0",
         "documentation": "https://github.com/openai/codex/tree/main/sdk/python/docs",
@@ -941,7 +941,7 @@ def test_stage_runtime_release_rejects_incomplete_package_layout(
     package_archive = tmp_path / "maplecode-package.tar.gz"
     _write_package_archive(package_dir, package_archive)
 
-    with pytest.raises(RuntimeError, match="Missing MapleCode package layout entries"):
+    with pytest.raises(RuntimeError, match="Missing Maplecode package layout entries"):
         script.stage_python_runtime_package(
             tmp_path / "runtime-stage", "1.2.3", tmp_path / source_name
         )
@@ -990,7 +990,7 @@ def test_stage_runtime_directory_rejects_non_regular_entries(
         except OSError:
             pytest.skip("Symlinks are not available on this platform")
 
-    with pytest.raises(RuntimeError, match="Expected a regular MapleCode package entry"):
+    with pytest.raises(RuntimeError, match="Expected a regular Maplecode package entry"):
         script.stage_python_runtime_package(tmp_path / "runtime-stage", "1.2.3", package_dir)
 
 
@@ -1215,7 +1215,7 @@ def test_sdk_release_rejects_unsupported_runtime_even_for_beta(
     project = sdk_release_source / "pyproject.toml"
     project.write_text(project.read_text().replace("==0.153.0", f"=={runtime_version}"))
 
-    with pytest.raises(RuntimeError, match=r"Cannot package.*MapleCode CLI 0\.151\.0 or newer"):
+    with pytest.raises(RuntimeError, match=r"Cannot package.*Maplecode CLI 0\.151\.0 or newer"):
         script.stage_python_sdk_package(tmp_path / "sdk-stage", "0.1.0b1")
 
 
@@ -1224,7 +1224,7 @@ def test_sdk_runtime_override_is_checked_after_stamping(
 ) -> None:
     script = _load_update_script_module()
     monkeypatch.setattr(script, "sdk_root", lambda: sdk_release_source)
-    with pytest.raises(RuntimeError, match=r"Cannot package.*MapleCode CLI 0\.151\.0 or newer"):
+    with pytest.raises(RuntimeError, match=r"Cannot package.*Maplecode CLI 0\.151\.0 or newer"):
         script.stage_python_sdk_package(tmp_path / "sdk-stage", "0.1.0b1", "0.149.0")
 
 
@@ -1297,12 +1297,12 @@ def test_default_runtime_is_resolved_from_installed_runtime_package(
 
     fake_binary = tmp_path / ("maplecode.exe" if client_module.os.name == "nt" else "maplecode")
     fake_binary.write_text("")
-    ops = client_module.MapleCodeBinResolverOps(
+    ops = client_module.MaplecodeBinResolverOps(
         installed_maplecode_path=lambda: fake_binary,
         path_exists=lambda path: path == fake_binary,
     )
 
-    config = client_module.MapleCodeConfig()
+    config = client_module.MaplecodeConfig()
     assert config.maplecode_bin is None
     assert client_module.resolve_maplecode_bin(config, ops) == fake_binary
 
@@ -1343,21 +1343,21 @@ def test_explicit_maplecode_bin_override_takes_priority(tmp_path: Path) -> None:
         "custom-maplecode.exe" if client_module.os.name == "nt" else "custom-maplecode"
     )
     explicit_binary.write_text("")
-    ops = client_module.MapleCodeBinResolverOps(
+    ops = client_module.MaplecodeBinResolverOps(
         installed_maplecode_path=lambda: (_ for _ in ()).throw(
             AssertionError("packaged runtime should not be used")
         ),
         path_exists=lambda path: path == explicit_binary,
     )
 
-    config = client_module.MapleCodeConfig(maplecode_bin=str(explicit_binary))
+    config = client_module.MaplecodeConfig(maplecode_bin=str(explicit_binary))
     assert client_module.resolve_maplecode_bin(config, ops) == explicit_binary
 
 
 def test_missing_runtime_package_requires_explicit_maplecode_bin() -> None:
     from openai_maplecode import client as client_module
 
-    ops = client_module.MapleCodeBinResolverOps(
+    ops = client_module.MaplecodeBinResolverOps(
         installed_maplecode_path=lambda: (_ for _ in ()).throw(
             FileNotFoundError("missing packaged runtime")
         ),
@@ -1365,13 +1365,13 @@ def test_missing_runtime_package_requires_explicit_maplecode_bin() -> None:
     )
 
     with pytest.raises(FileNotFoundError, match="missing packaged runtime"):
-        client_module.resolve_maplecode_bin(client_module.MapleCodeConfig(), ops)
+        client_module.resolve_maplecode_bin(client_module.MaplecodeConfig(), ops)
 
 
 def test_broken_runtime_package_does_not_fall_back() -> None:
     from openai_maplecode import client as client_module
 
-    ops = client_module.MapleCodeBinResolverOps(
+    ops = client_module.MaplecodeBinResolverOps(
         installed_maplecode_path=lambda: (_ for _ in ()).throw(
             FileNotFoundError("missing packaged binary")
         ),
@@ -1379,7 +1379,7 @@ def test_broken_runtime_package_does_not_fall_back() -> None:
     )
 
     with pytest.raises(FileNotFoundError) as exc_info:
-        client_module.resolve_maplecode_bin(client_module.MapleCodeConfig(), ops)
+        client_module.resolve_maplecode_bin(client_module.MaplecodeConfig(), ops)
 
     assert str(exc_info.value) == ("missing packaged binary")
 
@@ -1428,7 +1428,7 @@ def test_stage_sdk_rejects_empty_runtime_version(tmp_path: Path) -> None:
     args = script.parse_args(
         ["stage-sdk", str(tmp_path / "sdk-stage"), "--sdk-version", "1.2.3", "--maplecode-version", ""]
     )
-    with pytest.raises(RuntimeError, match="Could not normalize MapleCode version"):
+    with pytest.raises(RuntimeError, match="Could not normalize Maplecode version"):
         script.run_command(args, script.default_cli_ops())
 
 

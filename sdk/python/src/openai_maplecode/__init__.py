@@ -1,12 +1,12 @@
-"""Python SDK for running MapleCode workflows.
+"""Python SDK for running Maplecode workflows.
 
-Start with :class:`MapleCode` for synchronous applications or
-:class:`AsyncMapleCode` for async applications. Most programs create a thread and
+Start with :class:`Maplecode` for synchronous applications or
+:class:`AsyncMaplecode` for async applications. Most programs create a thread and
 run a turn::
 
-    from openai_maplecode import MapleCode, Sandbox
+    from openai_maplecode import Maplecode, Sandbox
 
-    with MapleCode() as maplecode:
+    with Maplecode() as maplecode:
         thread = maplecode.thread_start(sandbox=Sandbox.workspace_write)
         result = thread.run("Describe this project.")
         print(result.final_response)
@@ -16,12 +16,12 @@ from ._version import __version__
 from .api import (
     ApprovalMode,
     AsyncChatgptLoginHandle,
-    AsyncMapleCode,
+    AsyncMaplecode,
     AsyncDeviceCodeLoginHandle,
     AsyncThread,
     AsyncTurnHandle,
     ChatgptLoginHandle,
-    MapleCode,
+    Maplecode,
     DeviceCodeLoginHandle,
     ExternalMessage,
     ImageInput,
@@ -37,10 +37,10 @@ from .api import (
     TurnHandle,
     TurnResult,
 )
-from .client import MapleCodeConfig
+from .client import MaplecodeConfig
 from .errors import (
-    MapleCodeError,
-    MapleCodeRpcError,
+    MaplecodeError,
+    MaplecodeRpcError,
     InternalRpcError,
     InvalidParamsError,
     InvalidRequestError,
@@ -56,9 +56,9 @@ from .retry import retry_on_overload
 
 __all__ = [
     "__version__",
-    "MapleCodeConfig",
-    "MapleCode",
-    "AsyncMapleCode",
+    "MaplecodeConfig",
+    "Maplecode",
+    "AsyncMaplecode",
     "ApprovalMode",
     "Sandbox",
     "ChatgptLoginHandle",
@@ -80,10 +80,10 @@ __all__ = [
     "SkillInput",
     "MentionInput",
     "retry_on_overload",
-    "MapleCodeError",
+    "MaplecodeError",
     "TransportClosedError",
     "JsonRpcError",
-    "MapleCodeRpcError",
+    "MaplecodeRpcError",
     "ParseError",
     "InvalidRequestError",
     "MethodNotFoundError",

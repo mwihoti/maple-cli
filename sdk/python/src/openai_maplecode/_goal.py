@@ -288,7 +288,7 @@ class _GoalStreamCursor:
                 return [], False
             if self.status is None and not self.cleared:
                 raise RuntimeError(
-                    "the connected MapleCode runtime did not activate goal mode for this turn"
+                    "the connected Maplecode runtime did not activate goal mode for this turn"
                 )
             if self.cleared or _terminal_goal_status(self.status):
                 self.state.finish()

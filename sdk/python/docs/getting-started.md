@@ -27,7 +27,7 @@ login:
 ```python
 from openai_maplecode import Maple Code
 
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     login = maplecode.login_chatgpt()
     print(login.auth_url)
     print(login.wait().success)
@@ -36,7 +36,7 @@ with MapleCode() as maplecode:
 For device-code login:
 
 ```python
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     login = maplecode.login_chatgpt_device_code()
     print(login.verification_url, login.user_code)
     print(login.wait().success)
@@ -45,7 +45,7 @@ with MapleCode() as maplecode:
 For API-key login:
 
 ```python
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     maplecode.login_api_key("sk-...")
     print(maplecode.account().account)
 ```
@@ -55,7 +55,7 @@ with MapleCode() as maplecode:
 ```python
 from openai_maplecode import Maple Code, Sandbox
 
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     thread = maplecode.thread_start(sandbox=Sandbox.workspace_write)
     result = thread.run("Say hello in one sentence.")
 
@@ -82,7 +82,7 @@ Use one enum for the initial thread and later turn overrides:
 ```python
 from openai_maplecode import Maple Code, Sandbox
 
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     thread = maplecode.thread_start(sandbox=Sandbox.workspace_write)
     thread.run("Make the requested changes.")
     review = thread.run("Review the diff only.", sandbox=Sandbox.read_only)
@@ -103,7 +103,7 @@ also applies to subsequent turns on that thread.
 ```python
 from openai_maplecode import Maple Code
 
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     thread = maplecode.thread_start()
     thread.run("Summarize Rust ownership in two bullets.")
     result = thread.run("Now explain it to a Python developer.")
@@ -113,7 +113,7 @@ with MapleCode() as maplecode:
 To resume a stored thread later:
 
 ```python
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     thread = maplecode.thread_resume("thr_123")
     print(thread.run("Continue where we left off.").final_response)
 ```
@@ -123,11 +123,11 @@ with MapleCode() as maplecode:
 ```python
 import asyncio
 
-from openai_maplecode import AsyncMapleCode, Sandbox
+from openai_maplecode import AsyncMaplecode, Sandbox
 
 
 async def main() -> None:
-    async with AsyncMapleCode() as maplecode:
+    async with AsyncMaplecode() as maplecode:
         thread = await maplecode.thread_start(sandbox=Sandbox.workspace_write)
         result = await thread.run("Continue where we left off.")
         print(result.final_response)
@@ -142,11 +142,11 @@ Python's built-in documentation tools cover the curated SDK surface:
 
 ```python
 import openai_maplecode
-from openai_maplecode import Maple Code, MapleCodeConfig
+from openai_maplecode import Maple Code, MaplecodeConfig
 
 help(openai_maplecode)
 help(Maple Code)
-help(MapleCodeConfig)
+help(MaplecodeConfig)
 ```
 
 ```bash

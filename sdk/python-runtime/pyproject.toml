@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "openai-maplecode-cli-bin"
 version = "0.0.0-dev"
-description = "Pinned MapleCode CLI runtime for the Python SDK"
+description = "Pinned Maplecode CLI runtime for the Python SDK"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }

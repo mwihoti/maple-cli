@@ -7,7 +7,7 @@ from typing import Annotated, Any, Literal
 from enum import Enum
 
 
-class MapleCodeAppServerProtocolV2(BaseModel):
+class MaplecodeAppServerProtocolV2(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
@@ -35,7 +35,7 @@ class AmazonBedrockAccount(BaseModel):
     )
     type: Annotated[Literal["amazonBedrock"], Field(title="AmazonBedrockAccountType")]
     uses_maplecode_managed_credentials: Annotated[
-        bool | None, Field(alias="usesMapleCodeManagedCredentials")
+        bool | None, Field(alias="usesMaplecodeManagedCredentials")
     ] = False
 
 
@@ -571,107 +571,6 @@ class ClientInfo(BaseModel):
     version: str
 
 
-class MapleCodeErrorInfoValue(str, Enum):
-    context_window_exceeded = "contextWindowExceeded"
-    session_budget_exceeded = "sessionBudgetExceeded"
-    usage_limit_exceeded = "usageLimitExceeded"
-    rate_limit_exceeded = "rateLimitExceeded"
-    flex_unavailable = "flexUnavailable"
-    server_overloaded = "serverOverloaded"
-    model_not_found = "modelNotFound"
-    policy_capacity_unavailable = "policyCapacityUnavailable"
-    cyber_policy = "cyberPolicy"
-    misalignment_policy_violation = "misalignmentPolicyViolation"
-    too_many_denials = "tooManyDenials"
-    internal_server_error = "internalServerError"
-    unauthorized = "unauthorized"
-    bad_request = "badRequest"
-    thread_rollback_failed = "threadRollbackFailed"
-    sandbox_error = "sandboxError"
-    other = "other"
-
-    @classmethod
-    def _missing_(cls, value: object) -> MapleCodeErrorInfoValue | None:
-        if not isinstance(value, str):
-            return None
-        member = str.__new__(cls, value)
-        member._name_ = value
-        member._value_ = value
-        return member
-
-
-class HttpConnectionFailed(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    http_status_code: Annotated[int | None, Field(alias="httpStatusCode", ge=0)] = None
-
-
-class HttpConnectionFailedMapleCodeErrorInfo(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-        populate_by_name=True,
-    )
-    http_connection_failed: Annotated[HttpConnectionFailed, Field(alias="httpConnectionFailed")]
-
-
-class ResponseStreamConnectionFailed(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    http_status_code: Annotated[int | None, Field(alias="httpStatusCode", ge=0)] = None
-
-
-class ResponseStreamConnectionFailedMapleCodeErrorInfo(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-        populate_by_name=True,
-    )
-    response_stream_connection_failed: Annotated[
-        ResponseStreamConnectionFailed, Field(alias="responseStreamConnectionFailed")
-    ]
-
-
-class ResponseStreamDisconnected(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    http_status_code: Annotated[int | None, Field(alias="httpStatusCode", ge=0)] = None
-
-
-class ResponseStreamDisconnectedMapleCodeErrorInfo(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-        populate_by_name=True,
-    )
-    response_stream_disconnected: Annotated[
-        ResponseStreamDisconnected, Field(alias="responseStreamDisconnected")
-    ]
-
-
-class ResponseTooManyFailedAttempts(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    http_status_code: Annotated[int | None, Field(alias="httpStatusCode", ge=0)] = None
-
-
-class ResponseTooManyFailedAttemptsMapleCodeErrorInfo(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-        populate_by_name=True,
-    )
-    response_too_many_failed_attempts: Annotated[
-        ResponseTooManyFailedAttempts, Field(alias="responseTooManyFailedAttempts")
-    ]
-
-
-class MapleCodeResponseHandoffMode(Enum):
-    thinking = "thinking"
-    commentary = "commentary"
-    bem_tags = "bemTags"
-
-
 class CollabAgentStatus(Enum):
     pending_init = "pendingInit"
     running = "running"
@@ -960,7 +859,7 @@ class ProjectConfigLayerSource(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
-    dot_maplecode_folder: Annotated[AbsolutePathBuf, Field(alias="dotMapleCodeFolder")]
+    dot_maplecode_folder: Annotated[AbsolutePathBuf, Field(alias="dotMaplecodeFolder")]
     type: Annotated[Literal["project"], Field(title="ProjectConfigLayerSourceType")]
 
 
@@ -2403,7 +2302,7 @@ class ChatgptAuthTokensLoginAccountParams(BaseModel):
         str | None,
         Field(
             alias="chatgptPlanType",
-            description="Optional plan type supplied by the client.\n\nWhen `null`, MapleCode attempts to derive the plan type from access-token claims. If unavailable, the plan defaults to `unknown`.",
+            description="Optional plan type supplied by the client.\n\nWhen `null`, Maple Code attempts to derive the plan type from access-token claims. If unavailable, the plan defaults to `unknown`.",
         ),
     ] = None
     type: Annotated[
@@ -2559,6 +2458,107 @@ class ManagedHooksRequirements(BaseModel):
     user_prompt_submit: Annotated[list[ConfiguredHookMatcherGroup], Field(alias="UserPromptSubmit")]
     managed_dir: Annotated[str | None, Field(alias="managedDir")] = None
     windows_managed_dir: Annotated[str | None, Field(alias="windowsManagedDir")] = None
+
+
+class MaplecodeErrorInfoValue(str, Enum):
+    context_window_exceeded = "contextWindowExceeded"
+    session_budget_exceeded = "sessionBudgetExceeded"
+    usage_limit_exceeded = "usageLimitExceeded"
+    rate_limit_exceeded = "rateLimitExceeded"
+    flex_unavailable = "flexUnavailable"
+    server_overloaded = "serverOverloaded"
+    model_not_found = "modelNotFound"
+    policy_capacity_unavailable = "policyCapacityUnavailable"
+    cyber_policy = "cyberPolicy"
+    misalignment_policy_violation = "misalignmentPolicyViolation"
+    too_many_denials = "tooManyDenials"
+    internal_server_error = "internalServerError"
+    unauthorized = "unauthorized"
+    bad_request = "badRequest"
+    thread_rollback_failed = "threadRollbackFailed"
+    sandbox_error = "sandboxError"
+    other = "other"
+
+    @classmethod
+    def _missing_(cls, value: object) -> MaplecodeErrorInfoValue | None:
+        if not isinstance(value, str):
+            return None
+        member = str.__new__(cls, value)
+        member._name_ = value
+        member._value_ = value
+        return member
+
+
+class HttpConnectionFailed(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    http_status_code: Annotated[int | None, Field(alias="httpStatusCode", ge=0)] = None
+
+
+class HttpConnectionFailedMaplecodeErrorInfo(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    http_connection_failed: Annotated[HttpConnectionFailed, Field(alias="httpConnectionFailed")]
+
+
+class ResponseStreamConnectionFailed(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    http_status_code: Annotated[int | None, Field(alias="httpStatusCode", ge=0)] = None
+
+
+class ResponseStreamConnectionFailedMaplecodeErrorInfo(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    response_stream_connection_failed: Annotated[
+        ResponseStreamConnectionFailed, Field(alias="responseStreamConnectionFailed")
+    ]
+
+
+class ResponseStreamDisconnected(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    http_status_code: Annotated[int | None, Field(alias="httpStatusCode", ge=0)] = None
+
+
+class ResponseStreamDisconnectedMaplecodeErrorInfo(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    response_stream_disconnected: Annotated[
+        ResponseStreamDisconnected, Field(alias="responseStreamDisconnected")
+    ]
+
+
+class ResponseTooManyFailedAttempts(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    http_status_code: Annotated[int | None, Field(alias="httpStatusCode", ge=0)] = None
+
+
+class ResponseTooManyFailedAttemptsMaplecodeErrorInfo(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    response_too_many_failed_attempts: Annotated[
+        ResponseTooManyFailedAttempts, Field(alias="responseTooManyFailedAttempts")
+    ]
+
+
+class MaplecodeResponseHandoffMode(Enum):
+    thinking = "thinking"
+    commentary = "commentary"
+    bem_tags = "bemTags"
 
 
 class MarketplaceAddParams(BaseModel):
@@ -5418,7 +5418,8 @@ class ThreadApproveGuardianDeniedActionParams(BaseModel):
         populate_by_name=True,
     )
     event: Annotated[
-        Any, Field(description="Serialized `maplecode_protocol::protocol::GuardianAssessmentEvent`.")
+        Any,
+        Field(description="Serialized `maplecode_protocol::protocol::GuardianAssessmentEvent`."),
     ]
     thread_id: Annotated[str, Field(alias="threadId")]
 
@@ -8423,50 +8424,6 @@ class FuzzyFileSearchRequest(BaseModel):
     params: FuzzyFileSearchParams
 
 
-class ActiveTurnNotSteerable(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    turn_kind: Annotated[NonSteerableTurnKind, Field(alias="turnKind")]
-
-
-class ActiveTurnNotSteerableMapleCodeErrorInfo(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-        populate_by_name=True,
-    )
-    active_turn_not_steerable: Annotated[
-        ActiveTurnNotSteerable, Field(alias="activeTurnNotSteerable")
-    ]
-
-
-class MapleCodeErrorInfo(
-    RootModel[
-        MapleCodeErrorInfoValue
-        | Literal["inferenceHookDenied"]
-        | HttpConnectionFailedMapleCodeErrorInfo
-        | ResponseStreamConnectionFailedMapleCodeErrorInfo
-        | ResponseStreamDisconnectedMapleCodeErrorInfo
-        | ResponseTooManyFailedAttemptsMapleCodeErrorInfo
-        | ActiveTurnNotSteerableMapleCodeErrorInfo
-        | dict[str, Any]
-    ]
-):
-    root: Annotated[
-        MapleCodeErrorInfoValue
-        | Literal["inferenceHookDenied"]
-        | HttpConnectionFailedMapleCodeErrorInfo
-        | ResponseStreamConnectionFailedMapleCodeErrorInfo
-        | ResponseStreamDisconnectedMapleCodeErrorInfo
-        | ResponseTooManyFailedAttemptsMapleCodeErrorInfo
-        | ActiveTurnNotSteerableMapleCodeErrorInfo
-        | dict[str, Any],
-        Field(
-            description="This translation layer make sure that we expose maplecode error code in camel case.\n\nWhen an upstream HTTP status is available (for example, from the Responses API or a provider), it is forwarded in `httpStatusCode` on the relevant `maplecodeErrorInfo` variant."
-        ),
-    ]
-
-
 class CollabAgentState(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -9377,7 +9334,9 @@ class ChatgptLoginAccountParams(BaseModel):
         populate_by_name=True,
     )
     app_brand: Annotated[LoginAppBrand | None, Field(alias="appBrand")] = None
-    maplecode_streamlined_login: Annotated[bool | None, Field(alias="maplecodeStreamlinedLogin")] = None
+    maplecode_streamlined_login: Annotated[
+        bool | None, Field(alias="maplecodeStreamlinedLogin")
+    ] = None
     type: Annotated[Literal["chatgpt"], Field(title="Chatgptv2::LoginAccountParamsType")]
     use_hosted_login_success_page: Annotated[
         bool | None, Field(alias="useHostedLoginSuccessPage")
@@ -9402,6 +9361,50 @@ class LoginAccountParams(
         | AmazonBedrockLoginAccountParams
         | AmazonBedrockAccessKeysLoginAccountParams,
         Field(title="LoginAccountParams"),
+    ]
+
+
+class ActiveTurnNotSteerable(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    turn_kind: Annotated[NonSteerableTurnKind, Field(alias="turnKind")]
+
+
+class ActiveTurnNotSteerableMaplecodeErrorInfo(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    active_turn_not_steerable: Annotated[
+        ActiveTurnNotSteerable, Field(alias="activeTurnNotSteerable")
+    ]
+
+
+class MaplecodeErrorInfo(
+    RootModel[
+        MaplecodeErrorInfoValue
+        | Literal["inferenceHookDenied"]
+        | HttpConnectionFailedMaplecodeErrorInfo
+        | ResponseStreamConnectionFailedMaplecodeErrorInfo
+        | ResponseStreamDisconnectedMaplecodeErrorInfo
+        | ResponseTooManyFailedAttemptsMaplecodeErrorInfo
+        | ActiveTurnNotSteerableMaplecodeErrorInfo
+        | dict[str, Any]
+    ]
+):
+    root: Annotated[
+        MaplecodeErrorInfoValue
+        | Literal["inferenceHookDenied"]
+        | HttpConnectionFailedMaplecodeErrorInfo
+        | ResponseStreamConnectionFailedMaplecodeErrorInfo
+        | ResponseStreamDisconnectedMaplecodeErrorInfo
+        | ResponseTooManyFailedAttemptsMaplecodeErrorInfo
+        | ActiveTurnNotSteerableMaplecodeErrorInfo
+        | dict[str, Any],
+        Field(
+            description="This translation layer make sure that we expose maplecode error code in camel case.\n\nWhen an upstream HTTP status is available (for example, from the Responses API or a provider), it is forwarded in `httpStatusCode` on the relevant `maplecodeErrorInfo` variant."
+        ),
     ]
 
 
@@ -11038,7 +11041,7 @@ class WebSearchThreadItem(BaseModel):
     results: Annotated[
         list[Any] | None,
         Field(
-            description="Structured search results returned out-of-band by standalone web search.\n\nThese stay as opaque JSON at the extension/app-server boundary so new result fields and result types can pass through without a MapleCode release."
+            description="Structured search results returned out-of-band by standalone web search.\n\nThese stay as opaque JSON at the extension/app-server boundary so new result fields and result types can pass through without a Maple Code release."
         ),
     ] = None
     started_at_ms: Annotated[
@@ -11453,7 +11456,9 @@ class TurnError(BaseModel):
         populate_by_name=True,
     )
     additional_details: Annotated[str | None, Field(alias="additionalDetails")] = None
-    maplecode_error_info: Annotated[MapleCodeErrorInfo | None, Field(alias="maplecodeErrorInfo")] = None
+    maplecode_error_info: Annotated[
+        MaplecodeErrorInfo | None, Field(alias="maplecodeErrorInfo")
+    ] = None
     message: str
     misalignment: Annotated[
         MisalignmentErrorDetails | None,
@@ -12793,7 +12798,7 @@ class Turn(BaseModel):
         TurnError | None, Field(description="Error associated with a failed or interrupted turn.")
     ] = None
     id: Annotated[
-        str, Field(description="Identifier for this turn. MapleCode-generated turn IDs are UUIDv7.")
+        str, Field(description="Identifier for this turn. Maplecode-generated turn IDs are UUIDv7.")
     ]
     items: Annotated[
         list[ThreadItem], Field(description="Thread items currently included in this turn payload.")
@@ -13315,7 +13320,8 @@ class Thread(BaseModel):
         ),
     ] = "legacy"
     id: Annotated[
-        str, Field(description="Identifier for this thread. MapleCode-generated thread IDs are UUIDv7.")
+        str,
+        Field(description="Identifier for this thread. Maplecode-generated thread IDs are UUIDv7."),
     ]
     model: Annotated[
         str | None,

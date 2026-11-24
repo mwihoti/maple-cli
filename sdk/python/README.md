@@ -19,7 +19,7 @@ available:
 ```python
 from openai_maplecode import Maple Code
 
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     thread = maplecode.thread_start()
     result = thread.run("Explain this repository in three bullets.")
     print(result.final_response)
@@ -36,7 +36,7 @@ browser login explicitly:
 ```python
 from openai_maplecode import Maple Code
 
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     login = maplecode.login_chatgpt()
     print(login.auth_url)
     print(login.wait().success)
@@ -45,7 +45,7 @@ with MapleCode() as maplecode:
 For device-code login:
 
 ```python
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     login = maplecode.login_chatgpt_device_code()
     print(login.verification_url, login.user_code)
     login.wait()
@@ -54,7 +54,7 @@ with MapleCode() as maplecode:
 For API-key login:
 
 ```python
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     maplecode.login_api_key("sk-...")
 ```
 

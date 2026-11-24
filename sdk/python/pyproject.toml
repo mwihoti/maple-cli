@@ -5,7 +5,7 @@ build-backend = "uv_build"
 [project]
 name = "openai-maplecode"
 version = "0.0.0-dev"
-description = "Python SDK for MapleCode"
+description = "Python SDK for Maplecode"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"

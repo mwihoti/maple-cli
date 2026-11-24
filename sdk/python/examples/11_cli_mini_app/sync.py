@@ -10,14 +10,14 @@ from _bootstrap import ensure_local_sdk_src, runtime_config
 ensure_local_sdk_src()
 
 from openai_maplecode import (
-    MapleCode,
+    Maplecode,
 )
 from openai_maplecode.types import (
     ThreadTokenUsageUpdatedNotification,
     TurnCompletedNotification,
 )
 
-print("MapleCode mini CLI. Type /exit to quit.")
+print("Maplecode mini CLI. Type /exit to quit.")
 
 
 def _format_usage(usage: object) -> str:
@@ -30,7 +30,7 @@ def _format_usage(usage: object) -> str:
     )
 
 
-with MapleCode(config=runtime_config()) as maplecode:
+with Maplecode(config=runtime_config()) as maplecode:
     thread = maplecode.thread_start(model="gpt-5.4", config={"model_reasoning_effort": "high"})
     print("Thread:", thread.id)
 

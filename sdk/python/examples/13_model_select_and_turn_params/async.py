@@ -12,7 +12,7 @@ ensure_local_sdk_src()
 import asyncio
 
 from openai_maplecode import (
-    AsyncMapleCode,
+    AsyncMaplecode,
     Sandbox,
 )
 from openai_maplecode.types import (
@@ -70,7 +70,7 @@ OUTPUT_SCHEMA = {
 
 
 async def main() -> None:
-    async with AsyncMapleCode(config=runtime_config()) as maplecode:
+    async with AsyncMaplecode(config=runtime_config()) as maplecode:
         models = await maplecode.models(include_hidden=True)
         selected_model = _pick_highest_model(models.data)
         selected_effort = _pick_highest_turn_effort(selected_model)

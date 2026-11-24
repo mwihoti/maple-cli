@@ -41,8 +41,8 @@ from ._run import (
     _collect_turn_result,
 )
 from ._sandbox import Sandbox as Sandbox, _sandbox_mode, _sandbox_policy
-from .async_client import AsyncMapleCodeClient
-from .client import MapleCodeClient, MapleCodeConfig
+from .async_client import AsyncMaplecodeClient
+from .client import MaplecodeClient, MaplecodeConfig
 from .generated.v2_all import (
     ApiKeyLoginAccountParams,
     GetAccountParams,
@@ -75,15 +75,15 @@ from .generated.v2_all import (
 from .models import InitializeResponse, JsonObject, Notification
 
 
-class MapleCode:
-    """Synchronous client for creating threads and running MapleCode turns.
+class Maplecode:
+    """Synchronous client for creating threads and running Maplecode turns.
 
     The client starts its runtime connection during construction. Use it as a
     context manager so resources are closed promptly.
     """
 
-    def __init__(self, config: MapleCodeConfig | None = None) -> None:
-        self._client = MapleCodeClient(config=config)
+    def __init__(self, config: MaplecodeConfig | None = None) -> None:
+        self._client = MaplecodeClient(config=config)
         try:
             self._client.start()
             self._init = validate_initialize_metadata(self._client.initialize())
@@ -91,7 +91,7 @@ class MapleCode:
             self._client.close()
             raise
 
-    def __enter__(self) -> "MapleCode":
+    def __enter__(self) -> "Maplecode":
         return self
 
     def __exit__(self, _exc_type, _exc, _tb) -> None:
@@ -105,7 +105,7 @@ class MapleCode:
         self._client.close()
 
     def login_api_key(self, api_key: str) -> None:
-        """Authenticate MapleCode with an API key."""
+        """Authenticate Maplecode with an API key."""
         self._client.account_login_start(
             LoginAccountParams(
                 root=ApiKeyLoginAccountParams(
@@ -124,14 +124,14 @@ class MapleCode:
         return start_device_code_login(self._client)
 
     def account(self, *, refresh_token: bool = False) -> GetAccountResponse:
-        """Read the current MapleCode account state."""
+        """Read the current Maplecode account state."""
         return self._client.account_read(GetAccountParams(refresh_token=refresh_token))
 
     def logout(self) -> None:
-        """Clear the current MapleCode account session."""
+        """Clear the current Maplecode account session."""
         self._client.account_logout()
 
-    # BEGIN GENERATED: MapleCode.flat_methods
+    # BEGIN GENERATED: Maplecode.flat_methods
     def thread_start(
         self,
         *,
@@ -150,7 +150,7 @@ class MapleCode:
         session_start_source: ThreadStartSource | None = None,
         thread_source: ThreadSource | None = None,
     ) -> Thread:
-        """Create a new MapleCode conversation thread."""
+        """Create a new Maplecode conversation thread."""
         approval_policy, approvals_reviewer = _approval_mode_settings(approval_mode)
         params = ThreadStartParams(
             approval_policy=approval_policy,
@@ -294,10 +294,10 @@ class MapleCode:
         unarchived = self._client.thread_unarchive(thread_id)
         return Thread(self._client, unarchived.thread.id)
 
-    # END GENERATED: MapleCode.flat_methods
+    # END GENERATED: Maplecode.flat_methods
 
     def models(self, *, include_hidden: bool = False) -> ModelListResponse:
-        """List available models reported by MapleCode.
+        """List available models reported by Maplecode.
 
         The deprecated ``Model.supports_personality`` field is always ``False``
         on the current app-server.
@@ -305,21 +305,21 @@ class MapleCode:
         return self._client.model_list(include_hidden=include_hidden)
 
 
-class AsyncMapleCode:
-    """Async mirror of :class:`MapleCode`.
+class AsyncMaplecode:
+    """Async mirror of :class:`Maplecode`.
 
-    Prefer ``async with AsyncMapleCode()`` so initialization and shutdown are
+    Prefer ``async with AsyncMaplecode()`` so initialization and shutdown are
     explicit and paired. The async client initializes lazily on context entry
     or first awaited API use.
     """
 
-    def __init__(self, config: MapleCodeConfig | None = None) -> None:
-        self._client = AsyncMapleCodeClient(config=config)
+    def __init__(self, config: MaplecodeConfig | None = None) -> None:
+        self._client = AsyncMaplecodeClient(config=config)
         self._init: InitializeResponse | None = None
         self._initialized = False
         self._init_lock = asyncio.Lock()
 
-    async def __aenter__(self) -> "AsyncMapleCode":
+    async def __aenter__(self) -> "AsyncMaplecode":
         await self._ensure_initialized()
         return self
 
@@ -347,7 +347,7 @@ class AsyncMapleCode:
     def metadata(self) -> InitializeResponse:
         if self._init is None:
             raise RuntimeError(
-                "AsyncMapleCode is not initialized yet. Prefer `async with AsyncMapleCode()`; "
+                "AsyncMaplecode is not initialized yet. Prefer `async with AsyncMaplecode()`; "
                 "initialization also happens on first awaited API use."
             )
         return self._init
@@ -358,7 +358,7 @@ class AsyncMapleCode:
         self._initialized = False
 
     async def login_api_key(self, api_key: str) -> None:
-        """Authenticate MapleCode with an API key."""
+        """Authenticate Maplecode with an API key."""
         await self._ensure_initialized()
         await self._client.account_login_start(
             LoginAccountParams(
@@ -380,16 +380,16 @@ class AsyncMapleCode:
         return await async_start_device_code_login(self)
 
     async def account(self, *, refresh_token: bool = False) -> GetAccountResponse:
-        """Read the current MapleCode account state."""
+        """Read the current Maplecode account state."""
         await self._ensure_initialized()
         return await self._client.account_read(GetAccountParams(refresh_token=refresh_token))
 
     async def logout(self) -> None:
-        """Clear the current MapleCode account session."""
+        """Clear the current Maplecode account session."""
         await self._ensure_initialized()
         await self._client.account_logout()
 
-    # BEGIN GENERATED: AsyncMapleCode.flat_methods
+    # BEGIN GENERATED: AsyncMaplecode.flat_methods
     async def thread_start(
         self,
         *,
@@ -408,7 +408,7 @@ class AsyncMapleCode:
         session_start_source: ThreadStartSource | None = None,
         thread_source: ThreadSource | None = None,
     ) -> AsyncThread:
-        """Create a new MapleCode conversation thread."""
+        """Create a new Maplecode conversation thread."""
         await self._ensure_initialized()
         approval_policy, approvals_reviewer = _approval_mode_settings(approval_mode)
         params = ThreadStartParams(
@@ -558,10 +558,10 @@ class AsyncMapleCode:
         unarchived = await self._client.thread_unarchive(thread_id)
         return AsyncThread(self, unarchived.thread.id)
 
-    # END GENERATED: AsyncMapleCode.flat_methods
+    # END GENERATED: AsyncMaplecode.flat_methods
 
     async def models(self, *, include_hidden: bool = False) -> ModelListResponse:
-        """List available models reported by MapleCode.
+        """List available models reported by Maplecode.
 
         The deprecated ``Model.supports_personality`` field is always ``False``
         on the current app-server.
@@ -574,7 +574,7 @@ class AsyncMapleCode:
 class Thread:
     """Synchronous conversation thread used to run one or more turns."""
 
-    _client: MapleCodeClient
+    _client: MaplecodeClient
     id: str
 
     # BEGIN GENERATED: Thread.flat_methods
@@ -680,7 +680,7 @@ class Thread:
 class AsyncThread:
     """Asynchronous conversation thread used to run one or more turns."""
 
-    _maplecode: AsyncMapleCode
+    _maplecode: AsyncMaplecode
     id: str
 
     # BEGIN GENERATED: AsyncThread.flat_methods
@@ -790,13 +790,13 @@ class AsyncThread:
 class TurnHandle:
     """Control and consume a synchronous turn after it has started."""
 
-    _client: MapleCodeClient
+    _client: MaplecodeClient
     thread_id: str
     id: str
     _subscription: _TurnSubscription = field(init=False, repr=False, compare=False)
 
     def __init__(
-        self, _client: MapleCodeClient, thread_id: str, id: str, *, _subscription=None
+        self, _client: MaplecodeClient, thread_id: str, id: str, *, _subscription=None
     ) -> None:
         self._client, self.thread_id, self.id = _client, thread_id, id
         if _subscription is None:
@@ -847,12 +847,14 @@ class TurnHandle:
 class AsyncTurnHandle:
     """Control and consume an asynchronous turn after it has started."""
 
-    _maplecode: AsyncMapleCode
+    _maplecode: AsyncMaplecode
     thread_id: str
     id: str
     _subscription: _TurnSubscription = field(init=False, repr=False, compare=False)
 
-    def __init__(self, _maplecode: AsyncMapleCode, thread_id: str, id: str, *, _subscription=None) -> None:
+    def __init__(
+        self, _maplecode: AsyncMaplecode, thread_id: str, id: str, *, _subscription=None
+    ) -> None:
         self._maplecode, self.thread_id, self.id = _maplecode, thread_id, id
         if _subscription is None:
             self.__post_init__()

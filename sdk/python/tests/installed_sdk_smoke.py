@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 from app_server_harness import AppServerHarness
 
 import openai_maplecode
-from openai_maplecode import MapleCode
+from openai_maplecode import Maplecode
 
 
 def main() -> None:
@@ -20,7 +20,7 @@ def main() -> None:
     with TemporaryDirectory() as directory, AppServerHarness(Path(directory)) as harness:
         harness.responses.enqueue_assistant_message("Installed SDK works")
         config = replace(harness.app_server_config(), maplecode_bin=None)
-        with MapleCode(config=config) as maplecode:
+        with Maplecode(config=config) as maplecode:
             thread = maplecode.thread_start()
             result = thread.run(
                 "Check the installed SDK", turn_service_tier="default", source="automation"

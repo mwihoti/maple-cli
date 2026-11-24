@@ -10,8 +10,8 @@ Thread starts default to `ApprovalMode.auto_review`; turn starts accept an optio
 ```python
 from openai_maplecode import (
     Maple Code,
-    AsyncMapleCode,
-    MapleCodeConfig,
+    AsyncMaplecode,
+    MaplecodeConfig,
     ApprovalMode,
     Sandbox,
     ChatgptLoginHandle,
@@ -55,7 +55,7 @@ from openai_maplecode.types import (
 ## Maple Code (sync)
 
 ```python
-MapleCode(config: MapleCodeConfig | None = None)
+Maplecode(config: MaplecodeConfig | None = None)
 ```
 
 Properties/methods:
@@ -78,7 +78,7 @@ Properties/methods:
 Context manager:
 
 ```python
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     ...
 ```
 
@@ -110,20 +110,20 @@ compatibility. This field is deprecated and always `False` on the current
 app-server; it describes selectable personality, not the separate
 `Personality.none` opt-out.
 
-## AsyncMapleCode (async parity)
+## AsyncMaplecode (async parity)
 
 ```python
-AsyncMapleCode(config: MapleCodeConfig | None = None)
+AsyncMaplecode(config: MaplecodeConfig | None = None)
 ```
 
 Preferred usage:
 
 ```python
-async with AsyncMapleCode() as maplecode:
+async with AsyncMaplecode() as maplecode:
     ...
 ```
 
-`AsyncMapleCode` initializes lazily. Context entry is the standard path because it
+`AsyncMaplecode` initializes lazily. Context entry is the standard path because it
 ensures startup and shutdown are paired explicitly.
 
 Properties/methods:
@@ -149,7 +149,7 @@ notes also apply to the async methods and model results.
 Async context manager:
 
 ```python
-async with AsyncMapleCode() as maplecode:
+async with AsyncMaplecode() as maplecode:
     ...
 ```
 
@@ -229,10 +229,10 @@ These options have the same behavior on sync and async `run(...)` and `turn(...)
 | `source: str \| None = None`              | Labels the caller that initiated a new turn, such as `"review_ui"`. This is metadata; it does not schedule work or grant authority. Ignored when input joins an active turn.                                 |
 
 `ExternalMessage`, `turn_service_tier`, `source`, and explicit `include_turns`
-on resume/fork require Maple Code CLI 0.151.0 or newer. The SDK raises `MapleCodeError`
+on resume/fork require Maple Code CLI 0.151.0 or newer. The SDK raises `MaplecodeError`
 before sending these options to an older runtime, which would otherwise ignore
 them. Published SDK releases install a matching runtime automatically; when
-using `MapleCodeConfig.maplecode_bin`, choose a compatible executable. Unversioned local
+using `MaplecodeConfig.maplecode_bin`, choose a compatible executable. Unversioned local
 builds are checked lazily against their experimental schema before these options
 are sent. A custom `launch_args_override` must report a supported version.
 
@@ -243,7 +243,7 @@ Use `sandbox=` consistently on thread lifecycle methods and turns:
 ```python
 from openai_maplecode import Maple Code, Sandbox
 
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     thread = maplecode.thread_start(sandbox=Sandbox.workspace_write)
     result = thread.run("Review the diff only.", sandbox=Sandbox.read_only)
 ```
@@ -272,7 +272,7 @@ Other handles start when they join; use `thread.read(include_turns=True)` for ea
 Behavior notes:
 
 - `stream()` and `run()` consume only notifications for their own turn ID
-- one `MapleCode` instance can stream multiple active turns concurrently
+- one `Maplecode` instance can stream multiple active turns concurrently
 
 ### AsyncTurnHandle
 
@@ -284,7 +284,7 @@ Behavior notes:
 Behavior notes:
 
 - `stream()` and `run()` consume only notifications for their own turn ID
-- one `AsyncMapleCode` instance can stream multiple active turns concurrently
+- one `AsyncMaplecode` instance can stream multiple active turns concurrently
 
 ## Inputs
 
@@ -413,7 +413,7 @@ from openai_maplecode import (
 ```python
 from openai_maplecode import Maple Code
 
-with MapleCode() as maplecode:
+with Maplecode() as maplecode:
     thread = maplecode.thread_start(model="gpt-5.4", config={"model_reasoning_effort": "high"})
     result = thread.run("Say hello in one sentence.")
     print(result.final_response)

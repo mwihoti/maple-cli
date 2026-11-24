@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import time
 
-from openai_maplecode.async_client import AsyncMapleCodeClient
+from openai_maplecode.async_client import AsyncMaplecodeClient
 from openai_maplecode.generated.v2_all import (
     TurnCompletedNotification,
 )
@@ -15,7 +15,7 @@ def test_async_client_allows_concurrent_transport_calls() -> None:
 
     async def scenario() -> int:
         """Run two blocking sync calls and report peak overlap."""
-        client = AsyncMapleCodeClient()
+        client = AsyncMaplecodeClient()
         active = 0
         max_active = 0
 
@@ -40,7 +40,7 @@ def test_async_client_turn_notification_methods_delegate_to_sync_client() -> Non
 
     async def scenario() -> tuple[list[tuple[str, str]], Notification, str]:
         """Record the sync-client calls made by async turn notification wrappers."""
-        client = AsyncMapleCodeClient()
+        client = AsyncMaplecodeClient()
         event = Notification(
             method="unknown/direct",
             payload=UnknownNotification(params={"turnId": "turn-1"}),

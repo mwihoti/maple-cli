@@ -23,7 +23,7 @@ def require_runtime_version(version: str | None) -> None:
     except InvalidVersion:
         pass
     raise ValueError(
-        f"MapleCode CLI {MINIMUM_RUNTIME_VERSION} or newer is required; "
+        f"Maplecode CLI {MINIMUM_RUNTIME_VERSION} or newer is required; "
         f"reported version is {version or 'unknown'!r}"
     )
 

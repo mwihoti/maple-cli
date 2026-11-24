@@ -2,8 +2,8 @@
 
 Each example folder contains runnable versions:
 
-- `sync.py` (public sync surface: `MapleCode`)
-- `async.py` (public async surface: `AsyncMapleCode`)
+- `sync.py` (public sync surface: `Maplecode`)
+- `async.py` (public async surface: `AsyncMaplecode`)
 
 All examples intentionally use only public SDK exports from `openai_maplecode`
 and `openai_maplecode.types`.

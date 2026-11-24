@@ -11,7 +11,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from openai_maplecode import MapleCodeConfig
+from openai_maplecode import MaplecodeConfig
 
 Json = dict[str, Any]
 
@@ -226,14 +226,14 @@ class AppServerHarness:
         shutil.rmtree(self.maplecode_home, ignore_errors=True)
         shutil.rmtree(self.workspace, ignore_errors=True)
 
-    def app_server_config(self) -> MapleCodeConfig:
+    def app_server_config(self) -> MaplecodeConfig:
         """Prefer the CI binary, then a local debug build, then the installed runtime."""
         binary_name = "maplecode.exe" if os.name == "nt" else "maplecode"
         debug_binary = Path(__file__).resolve().parents[3] / "maplecode-rs/target/debug" / binary_name
         maplecode_bin = os.environ.get("MAPLECODE_EXEC_PATH")
         if maplecode_bin is None and debug_binary.is_file():
             maplecode_bin = str(debug_binary)
-        return MapleCodeConfig(
+        return MaplecodeConfig(
             maplecode_bin=maplecode_bin,
             cwd=str(self.workspace),
             env={

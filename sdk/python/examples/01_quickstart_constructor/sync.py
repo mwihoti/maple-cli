@@ -13,9 +13,9 @@ from _bootstrap import (
 
 ensure_local_sdk_src()
 
-from openai_maplecode import MapleCode
+from openai_maplecode import Maplecode
 
-with MapleCode(config=runtime_config()) as maplecode:
+with Maplecode(config=runtime_config()) as maplecode:
     print("Server:", server_label(maplecode.metadata))
 
     thread = maplecode.thread_start(model="gpt-5.4", config={"model_reasoning_effort": "high"})

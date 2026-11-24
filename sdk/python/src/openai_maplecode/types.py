@@ -1,4 +1,4 @@
-"""Public MapleCode protocol model exports for type annotations and matching."""
+"""Public Maplecode protocol model exports for type annotations and matching."""
 
 from __future__ import annotations
 

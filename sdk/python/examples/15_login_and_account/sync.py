@@ -9,9 +9,9 @@ from _bootstrap import ensure_local_sdk_src, runtime_config
 
 ensure_local_sdk_src()
 
-from openai_maplecode import MapleCode
+from openai_maplecode import Maplecode
 
-with MapleCode(config=runtime_config()) as maplecode:
+with Maplecode(config=runtime_config()) as maplecode:
     # Browser login returns a live handle. Open `auth_url` and call `wait()`
     # in a real app; this example cancels immediately so it stays non-blocking.
     login = maplecode.login_chatgpt()

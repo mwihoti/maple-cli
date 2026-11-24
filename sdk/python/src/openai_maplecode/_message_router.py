@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from typing import Iterator
 
 from ._goal import _GoalOperationState
-from .errors import MapleCodeError, TransportClosedError, map_jsonrpc_error
+from .errors import MaplecodeError, TransportClosedError, map_jsonrpc_error
 from .generated.notification_registry import notification_turn_id
 from .generated.v2_all import AccountLoginCompletedNotification
 from .models import JsonValue, Notification, UnknownNotification
@@ -275,7 +275,7 @@ class MessageRouter:
                     )
                 )
             else:
-                waiter.put(MapleCodeError("Malformed JSON-RPC error response"))
+                waiter.put(MaplecodeError("Malformed JSON-RPC error response"))
             return
 
         waiter.put(msg.get("result"))

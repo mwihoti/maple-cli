@@ -8,8 +8,8 @@ from app_server_harness import AppServerHarness
 from app_server_helpers import TINY_PNG_BYTES, streaming_response
 
 from openai_maplecode import (
-    AsyncMapleCode,
-    MapleCode,
+    AsyncMaplecode,
+    Maplecode,
     ExternalMessage,
     ImageInput,
     LocalImageInput,
@@ -40,7 +40,7 @@ def test_external_message_preserves_tool_authority_through_resume(tmp_path) -> N
     with AppServerHarness(tmp_path) as harness:
         harness.responses.enqueue_assistant_message("Update received", response_id="external")
         harness.responses.enqueue_assistant_message("Still available", response_id="resumed")
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             thread = maplecode.thread_start()
             result = thread.run(
                 ExternalMessage(tool_name="notifications", namespace="slack", content=content)
@@ -48,7 +48,7 @@ def test_external_message_preserves_tool_authority_through_resume(tmp_path) -> N
             external_item = next(
                 item for item in result.items if item.root.type == "functionCallOutput"
             )
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             resumed = maplecode.thread_resume(thread.id, include_turns=False)
             history = resumed.read(include_turns=True)
             persisted = next(
@@ -86,7 +86,7 @@ def test_external_message_joins_active_turn_with_tool_authority(tmp_path) -> Non
             "Update processed", response_id="external-second"
         )
         with ThreadPoolExecutor(max_workers=2) as consumers:
-            with MapleCode(config=harness.app_server_config()) as maplecode:
+            with Maplecode(config=harness.app_server_config()) as maplecode:
                 thread = maplecode.thread_start()
                 original = thread.turn("Monitor deployment updates.")
                 original_result = consumers.submit(original.run)
@@ -124,7 +124,7 @@ def test_async_external_message_reaches_model_with_tool_authority(tmp_path) -> N
             harness.responses.enqueue_assistant_message(
                 "Async update received", response_id="external-async"
             )
-            async with AsyncMapleCode(config=harness.app_server_config()) as maplecode:
+            async with AsyncMaplecode(config=harness.app_server_config()) as maplecode:
                 thread = await maplecode.thread_start()
                 result = await thread.run(
                     ExternalMessage(tool_name="notifications", content="External async update")
@@ -154,7 +154,7 @@ def test_async_external_message_allows_both_handles_to_consume(tmp_path) -> None
             harness.responses.enqueue_assistant_message(
                 "Update processed", response_id="async-second"
             )
-            async with AsyncMapleCode(config=harness.app_server_config()) as maplecode:
+            async with AsyncMaplecode(config=harness.app_server_config()) as maplecode:
                 thread = await maplecode.thread_start()
                 original = await thread.turn("Monitor deployment updates.")
                 original_result = asyncio.create_task(original.run())
@@ -179,7 +179,7 @@ def test_external_message_uses_core_tool_output_truncation(tmp_path) -> None:
         harness.responses.enqueue_assistant_message(
             "Context received", response_id="truncated-external"
         )
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             thread = maplecode.thread_start(config={"tool_output_token_limit": 32})
             thread.run(ExternalMessage(tool_name="notifications", content=content))
         request = harness.responses.single_request()
@@ -202,7 +202,7 @@ def test_data_url_image_input_reaches_responses_api(
             response_id="data-url-image",
         )
 
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             result = maplecode.thread_start().run(
                 [
                     TextInput("Describe the data URL image."),
@@ -238,7 +238,7 @@ def test_local_image_input_reaches_responses_api(
             response_id="local-image",
         )
 
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             result = maplecode.thread_start().run(
                 [
                     TextInput("Describe the local image."),
@@ -274,7 +274,7 @@ def test_skill_input_injects_loaded_skill_body(tmp_path) -> None:
             response_id="skill-input",
         )
 
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             result = maplecode.thread_start().run(
                 [
                     TextInput("Use the selected skill."),

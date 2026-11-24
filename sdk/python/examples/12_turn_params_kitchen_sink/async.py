@@ -13,7 +13,7 @@ ensure_local_sdk_src()
 import asyncio
 
 from openai_maplecode import (
-    AsyncMapleCode,
+    AsyncMaplecode,
 )
 from openai_maplecode.types import (
     ReasoningSummary,
@@ -41,7 +41,7 @@ PROMPT = (
 
 
 async def main() -> None:
-    async with AsyncMapleCode(config=runtime_config()) as maplecode:
+    async with AsyncMaplecode(config=runtime_config()) as maplecode:
         thread = await maplecode.thread_start(
             model="gpt-5.4", config={"model_reasoning_effort": "high"}
         )

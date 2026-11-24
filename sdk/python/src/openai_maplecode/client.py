@@ -18,7 +18,7 @@ from ._initialize_metadata import _split_user_agent
 from ._message_router import MessageRouter, _TurnSubscription
 from ._runtime_requirements import CheckoutCapabilities, require_runtime_version
 from ._version import __version__ as SDK_VERSION
-from .errors import MapleCodeError, InvalidRequestError, TransportClosedError
+from .errors import MaplecodeError, InvalidRequestError, TransportClosedError
 from .generated.notification_registry import NOTIFICATION_MODELS
 from .generated.v2_all import (
     AccountLoginCompletedNotification,
@@ -115,8 +115,8 @@ def _installed_maplecode_path() -> Path:
         from maplecode_cli_bin import bundled_maplecode_path
     except ImportError as exc:
         raise FileNotFoundError(
-            "Unable to locate the pinned MapleCode runtime. Install the published SDK build "
-            f"with its {RUNTIME_PKG_NAME} dependency, or set MapleCodeConfig.maplecode_bin "
+            "Unable to locate the pinned Maplecode runtime. Install the published SDK build "
+            f"with its {RUNTIME_PKG_NAME} dependency, or set MaplecodeConfig.maplecode_bin "
             "explicitly."
         ) from exc
 
@@ -163,24 +163,24 @@ def _path_env_key(env: dict[str, str]) -> str:
 
 
 @dataclass(frozen=True)
-class MapleCodeBinResolverOps:
+class MaplecodeBinResolverOps:
     installed_maplecode_path: Callable[[], Path]
     path_exists: Callable[[Path], bool]
 
 
-def _default_maplecode_bin_resolver_ops() -> MapleCodeBinResolverOps:
-    return MapleCodeBinResolverOps(
+def _default_maplecode_bin_resolver_ops() -> MaplecodeBinResolverOps:
+    return MaplecodeBinResolverOps(
         installed_maplecode_path=_installed_maplecode_path,
         path_exists=lambda path: path.exists(),
     )
 
 
-def resolve_maplecode_bin(config: "MapleCodeConfig", ops: MapleCodeBinResolverOps) -> Path:
+def resolve_maplecode_bin(config: "MaplecodeConfig", ops: MaplecodeBinResolverOps) -> Path:
     if config.maplecode_bin is not None:
         maplecode_bin = Path(config.maplecode_bin)
         if not ops.path_exists(maplecode_bin):
             raise FileNotFoundError(
-                f"MapleCode binary not found at {maplecode_bin}. Set MapleCodeConfig.maplecode_bin "
+                f"Maplecode binary not found at {maplecode_bin}. Set MaplecodeConfig.maplecode_bin "
                 "to a valid binary path."
             )
         return maplecode_bin
@@ -188,16 +188,16 @@ def resolve_maplecode_bin(config: "MapleCodeConfig", ops: MapleCodeBinResolverOp
     return ops.installed_maplecode_path()
 
 
-def _resolve_maplecode_bin(config: "MapleCodeConfig") -> Path:
+def _resolve_maplecode_bin(config: "MaplecodeConfig") -> Path:
     return resolve_maplecode_bin(config, _default_maplecode_bin_resolver_ops())
 
 
 @dataclass(slots=True)
-class MapleCodeConfig:
-    """Configuration for launching and identifying the local MapleCode runtime.
+class MaplecodeConfig:
+    """Configuration for launching and identifying the local Maplecode runtime.
 
-    Most callers can use ``MapleCode()`` without configuration. Set ``maplecode_bin``
-    only when intentionally using a specific local MapleCode executable.
+    Most callers can use ``Maplecode()`` without configuration. Set ``maplecode_bin``
+    only when intentionally using a specific local Maplecode executable.
     """
 
     maplecode_bin: str | None = None
@@ -206,20 +206,20 @@ class MapleCodeConfig:
     cwd: str | None = None
     env: dict[str, str] | None = None
     client_name: str = "maplecode_python_sdk"
-    client_title: str = "MapleCode Python SDK"
+    client_title: str = "Maplecode Python SDK"
     client_version: str = SDK_VERSION
     experimental_api: bool = True
 
 
-class MapleCodeClient:
+class MaplecodeClient:
     """Synchronous typed JSON-RPC client for `maplecode app-server` over stdio."""
 
     def __init__(
         self,
-        config: MapleCodeConfig | None = None,
+        config: MaplecodeConfig | None = None,
         approval_handler: ApprovalHandler | None = None,
     ) -> None:
-        self.config = config or MapleCodeConfig()
+        self.config = config or MaplecodeConfig()
         self._approval_handler = approval_handler or self._default_approval_handler
         self._proc: subprocess.Popen[str] | None = None
         self._lock = threading.Lock()
@@ -232,7 +232,7 @@ class MapleCodeClient:
         self._runtime_version: str | None = None
         self._checkout_capabilities: CheckoutCapabilities | None = None
 
-    def __enter__(self) -> "MapleCodeClient":
+    def __enter__(self) -> "MaplecodeClient":
         self.start()
         return self
 
@@ -356,13 +356,13 @@ class MapleCodeClient:
                 else:
                     require_runtime_version(self._runtime_version)
             except ValueError as exc:
-                raise MapleCodeError(
+                raise MaplecodeError(
                     f"{method} with {', '.join(supplied_fields)}: {exc}. "
-                    "Configure MapleCodeConfig.maplecode_bin with a supported CLI."
+                    "Configure MaplecodeConfig.maplecode_bin with a supported CLI."
                 ) from exc
         result = self._request_raw(method, params)
         if not isinstance(result, dict):
-            raise MapleCodeError(f"{method} response must be a JSON object")
+            raise MaplecodeError(f"{method} response must be a JSON object")
         return response_model.model_validate(result)
 
     def _request_raw(self, method: str, params: JsonObject | None = None) -> JsonValue:
@@ -635,7 +635,7 @@ class MapleCodeClient:
             activated = True
             turn_id = state.wait_for_start(_GOAL_START_TIMEOUT_S)
             if turn_id is None:
-                raise MapleCodeError(
+                raise MaplecodeError(
                     "timed out waiting for goal turn to start after "
                     f"{int(_GOAL_START_TIMEOUT_S)} seconds"
                 )
@@ -895,28 +895,28 @@ class MapleCodeClient:
 
     def _write_message(self, payload: JsonObject) -> None:
         if self._proc is None or self._proc.stdin is None:
-            raise TransportClosedError("MapleCode process is not running")
+            raise TransportClosedError("Maplecode process is not running")
         with self._lock:
             self._proc.stdin.write(json.dumps(payload) + "\n")
             self._proc.stdin.flush()
 
     def _read_message(self) -> dict[str, JsonValue]:
         if self._proc is None or self._proc.stdout is None:
-            raise TransportClosedError("MapleCode process is not running")
+            raise TransportClosedError("Maplecode process is not running")
 
         line = self._proc.stdout.readline()
         if not line:
             raise TransportClosedError(
-                f"MapleCode process closed stdout. stderr_tail={self._stderr_tail()[:2000]}"
+                f"Maplecode process closed stdout. stderr_tail={self._stderr_tail()[:2000]}"
             )
 
         try:
             message = json.loads(line)
         except json.JSONDecodeError as exc:
-            raise MapleCodeError(f"Invalid JSON-RPC line: {line!r}") from exc
+            raise MaplecodeError(f"Invalid JSON-RPC line: {line!r}") from exc
 
         if not isinstance(message, dict):
-            raise MapleCodeError(f"Invalid JSON-RPC payload: {message!r}")
+            raise MaplecodeError(f"Invalid JSON-RPC payload: {message!r}")
         return message
 
 

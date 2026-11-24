@@ -48,11 +48,11 @@ def ensure_local_sdk_src() -> Path:
 
 
 def runtime_config():
-    """Return an example-friendly MapleCodeConfig for repo-source SDK usage."""
-    from openai_maplecode import MapleCodeConfig
+    """Return an example-friendly MaplecodeConfig for repo-source SDK usage."""
+    from openai_maplecode import MaplecodeConfig
 
     ensure_runtime_package_installed(sys.executable, _SDK_PYTHON_DIR)
-    return MapleCodeConfig()
+    return MaplecodeConfig()
 
 
 def _png_chunk(chunk_type: bytes, data: bytes) -> bytes:

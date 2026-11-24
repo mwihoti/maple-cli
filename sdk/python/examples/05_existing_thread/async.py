@@ -11,11 +11,11 @@ ensure_local_sdk_src()
 
 import asyncio
 
-from openai_maplecode import AsyncMapleCode
+from openai_maplecode import AsyncMaplecode
 
 
 async def main() -> None:
-    async with AsyncMapleCode(config=runtime_config()) as maplecode:
+    async with AsyncMaplecode(config=runtime_config()) as maplecode:
         original = await maplecode.thread_start(
             model="gpt-5.4", config={"model_reasoning_effort": "high"}
         )

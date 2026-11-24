@@ -8,8 +8,8 @@ import pytest
 from pydantic import ValidationError
 
 from openai_maplecode._runtime_requirements import CheckoutCapabilities
-from openai_maplecode.client import MapleCodeClient, _params_dict
-from openai_maplecode.errors import MapleCodeError
+from openai_maplecode.client import MaplecodeClient, _params_dict
+from openai_maplecode.errors import MaplecodeError
 from openai_maplecode.generated.notification_registry import notification_turn_id
 from openai_maplecode.generated.v2_all import (
     AbsolutePathBuf,
@@ -162,8 +162,8 @@ def test_approval_review_paths_preserve_existing_wrappers(model, fields) -> None
 
 def _initialized_client(
     monkeypatch: pytest.MonkeyPatch, metadata: JsonObject
-) -> tuple[MapleCodeClient, list[tuple[str, JsonObject | None]]]:
-    client = MapleCodeClient()
+) -> tuple[MaplecodeClient, list[tuple[str, JsonObject | None]]]:
+    client = MaplecodeClient()
     requests: list[tuple[str, JsonObject | None]] = []
 
     def request_raw(method: str, params: JsonObject | None) -> JsonObject:
@@ -193,7 +193,7 @@ def test_new_options_reject_unsupported_runtime_before_sending(
 ) -> None:
     client, requests = _initialized_client(monkeypatch, {"userAgent": f"maplecode-cli/{version}"})
 
-    with pytest.raises(MapleCodeError, match=r"MapleCode CLI 0\.151\.0 or newer"):
+    with pytest.raises(MaplecodeError, match=r"Maplecode CLI 0\.151\.0 or newer"):
         client.request(method, params, response_model=InitializeResponse)
 
     assert requests == []
@@ -255,7 +255,7 @@ def test_unversioned_checkout_probes_and_caches_its_own_schema(
         if supports_options:
             client.request(method, params, response_model=InitializeResponse)
         else:
-            with pytest.raises(MapleCodeError, match="checkout does not support"):
+            with pytest.raises(MaplecodeError, match="checkout does not support"):
                 client.request(method, params, response_model=InitializeResponse)
     assert len(requests) == (2 if supports_options else 0)
     assert probes == [
@@ -278,7 +278,7 @@ def test_unversioned_custom_launch_requires_verifiable_capabilities(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     client, requests = _initialized_client(monkeypatch, {"userAgent": "maplecode-cli/0.0.0"})
-    with pytest.raises(MapleCodeError, match="Cannot verify an unversioned CLI"):
+    with pytest.raises(MaplecodeError, match="Cannot verify an unversioned CLI"):
         client.request(
             "turn/start", {"turnTrigger": "automation"}, response_model=InitializeResponse
         )
@@ -309,7 +309,7 @@ def test_new_options_require_fresh_initialize_metadata_after_close(
     client, requests = _initialized_client(monkeypatch, {"userAgent": "maplecode-cli/0.153.0"})
     client.close()
 
-    with pytest.raises(MapleCodeError, match="reported version is 'unknown'"):
+    with pytest.raises(MaplecodeError, match="reported version is 'unknown'"):
         client.request("thread/resume", {"excludeTurns": True}, response_model=InitializeResponse)
 
     assert requests == []
@@ -344,7 +344,7 @@ def test_plan_type_accepts_business_prolite_from_newer_runtime() -> None:
     assert response.account is not None
     assert response.account.root.plan_type.value == plan_type
 
-    client = MapleCodeClient()
+    client = MaplecodeClient()
     account_updated = client._coerce_notification(
         "account/updated",
         {"authMode": "chatgpt", "planType": plan_type},
@@ -448,7 +448,7 @@ def test_thread_resume_response_accepts_auto_review_reviewer() -> None:
 
 
 def test_notifications_are_typed_with_canonical_v2_methods() -> None:
-    client = MapleCodeClient()
+    client = MaplecodeClient()
     event = client._coerce_notification(
         "thread/tokenUsage/updated",
         {
@@ -479,7 +479,7 @@ def test_notifications_are_typed_with_canonical_v2_methods() -> None:
 
 
 def test_unknown_notifications_fall_back_to_unknown_payloads() -> None:
-    client = MapleCodeClient()
+    client = MaplecodeClient()
     event = client._coerce_notification(
         "unknown/notification",
         {
@@ -526,14 +526,14 @@ def test_unknown_notifications_fall_back_to_unknown_payloads() -> None:
     ],
 )
 def test_decoded_notifications_match_the_declared_payload_type(method, params, expected) -> None:
-    event = MapleCodeClient()._coerce_notification(method, params)
+    event = MaplecodeClient()._coerce_notification(method, params)
 
     assert event == Notification(method=method, payload=expected)
     assert isinstance(event.payload, get_type_hints(Notification)["payload"])
 
 
 def test_invalid_notification_payload_falls_back_to_unknown() -> None:
-    client = MapleCodeClient()
+    client = MaplecodeClient()
     event = client._coerce_notification("thread/tokenUsage/updated", {"threadId": "missing"})
 
     assert event.method == "thread/tokenUsage/updated"
@@ -567,7 +567,7 @@ def test_generated_notification_turn_id_handles_known_payload_shapes() -> None:
 
 def test_turn_notification_router_demuxes_registered_turns() -> None:
     """The router should deliver out-of-order turn events to the matching queues."""
-    client = MapleCodeClient()
+    client = MaplecodeClient()
     client.register_turn_notifications("turn-1")
     client.register_turn_notifications("turn-2")
 
@@ -610,7 +610,7 @@ def test_turn_notification_router_demuxes_registered_turns() -> None:
 
 def test_goal_notification_router_routes_by_thread_id() -> None:
     """A goal operation should receive turn notifications across physical turn ids."""
-    client = MapleCodeClient()
+    client = MaplecodeClient()
     state = client.register_goal_operation("thread-1")
 
     client._router.route_notification(
@@ -636,7 +636,7 @@ def test_goal_notification_router_routes_by_thread_id() -> None:
 
 def test_client_reader_routes_interleaved_turn_notifications_by_turn_id() -> None:
     """Reader-loop routing should preserve order within each interleaved turn stream."""
-    client = MapleCodeClient()
+    client = MaplecodeClient()
     client.register_turn_notifications("turn-1")
     client.register_turn_notifications("turn-2")
 
@@ -715,7 +715,7 @@ def test_client_reader_routes_interleaved_turn_notifications_by_turn_id() -> Non
 
 def test_turn_notification_router_starts_at_explicit_registration() -> None:
     """Explicit registration receives events from when the caller attaches."""
-    client = MapleCodeClient()
+    client = MaplecodeClient()
     client.register_turn_notifications("turn-1")
     client._router.route_notification(
         client._coerce_notification(
@@ -740,7 +740,7 @@ def test_turn_notification_router_starts_at_explicit_registration() -> None:
 
 def test_turn_notification_router_clears_unregistered_turn_when_completed() -> None:
     """A completed unregistered turn should not leave a pending queue behind."""
-    client = MapleCodeClient()
+    client = MaplecodeClient()
     client._router.route_notification(
         client._coerce_notification(
             "item/agentMessage/delta",
@@ -767,7 +767,7 @@ def test_turn_notification_router_clears_unregistered_turn_when_completed() -> N
 
 def test_turn_notification_router_routes_unknown_turn_notifications() -> None:
     """Unknown notifications should still route when their raw params carry a turn id."""
-    client = MapleCodeClient()
+    client = MaplecodeClient()
     client.register_turn_notifications("turn-1")
     client.register_turn_notifications("turn-2")
 

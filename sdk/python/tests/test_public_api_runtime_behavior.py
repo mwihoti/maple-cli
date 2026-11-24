@@ -11,8 +11,8 @@ import pytest
 import openai_maplecode.api as public_api_module
 from openai_maplecode.api import (
     ApprovalMode,
-    AsyncMapleCode,
-    MapleCode,
+    AsyncMaplecode,
+    Maplecode,
     ExternalMessage,
     Sandbox,
     TextInput,
@@ -57,17 +57,17 @@ def test_maplecode_init_failure_closes_client(monkeypatch: pytest.MonkeyPatch) -
             self._closed = True
             closed.append(True)
 
-    monkeypatch.setattr(public_api_module, "MapleCodeClient", FakeClient)
+    monkeypatch.setattr(public_api_module, "MaplecodeClient", FakeClient)
 
     with pytest.raises(RuntimeError, match="missing required metadata"):
-        MapleCode()
+        Maplecode()
 
     assert closed == [True]
 
 
 def test_async_maplecode_init_failure_closes_client() -> None:
     async def scenario() -> None:
-        maplecode = AsyncMapleCode()
+        maplecode = AsyncMaplecode()
         close_calls = 0
 
         async def fake_start() -> None:
@@ -96,7 +96,7 @@ def test_async_maplecode_init_failure_closes_client() -> None:
 
 def test_async_maplecode_initializes_only_once_under_concurrency() -> None:
     async def scenario() -> None:
-        maplecode = AsyncMapleCode()
+        maplecode = AsyncMaplecode()
         start_calls = 0
         initialize_calls = 0
         ready = asyncio.Event()
@@ -133,7 +133,7 @@ def test_async_maplecode_initializes_only_once_under_concurrency() -> None:
     asyncio.run(scenario())
 
 
-@pytest.mark.parametrize("api_type", [MapleCode, AsyncMapleCode])
+@pytest.mark.parametrize("api_type", [Maplecode, AsyncMaplecode])
 @pytest.mark.parametrize(
     ("options", "expected"),
     [
@@ -147,7 +147,7 @@ def test_include_turns_preserves_omission_and_inverts_explicit_values(
     api_type, options, expected
 ) -> None:
     async def scenario() -> None:
-        async_api = api_type is AsyncMapleCode
+        async_api = api_type is AsyncMaplecode
         rpc = AsyncMock if async_api else Mock
         thread_response = SimpleNamespace(thread=SimpleNamespace(id="thread-2"))
         client = SimpleNamespace(
@@ -171,7 +171,7 @@ def test_include_turns_preserves_omission_and_inverts_explicit_values(
     asyncio.run(scenario())
 
 
-@pytest.mark.parametrize("api_type", [MapleCode, AsyncMapleCode])
+@pytest.mark.parametrize("api_type", [Maplecode, AsyncMaplecode])
 @pytest.mark.parametrize("method", ["run", "turn"])
 @pytest.mark.parametrize(
     "content", [None, "External update", [{"type": "input_text", "text": "External update"}]]
@@ -180,7 +180,7 @@ def test_turn_inputs_and_options_reach_the_client(api_type, method, content) -> 
     """User and external inputs preserve distinct wire representations for every entry point."""
 
     async def scenario() -> None:
-        async_api = api_type is AsyncMapleCode
+        async_api = api_type is AsyncMaplecode
         rpc = AsyncMock if async_api else Mock
         completed = Notification(
             method="turn/completed",
@@ -241,12 +241,12 @@ def test_turn_inputs_and_options_reach_the_client(api_type, method, content) -> 
     asyncio.run(scenario())
 
 
-@pytest.mark.parametrize("api_type", [MapleCode, AsyncMapleCode])
+@pytest.mark.parametrize("api_type", [Maplecode, AsyncMaplecode])
 def test_external_messages_cannot_be_mixed_with_user_input_or_sent_as_user_steering(
     api_type,
 ) -> None:
     async def scenario() -> None:
-        async_api = api_type is AsyncMapleCode
+        async_api = api_type is AsyncMaplecode
         rpc = AsyncMock if async_api else Mock
         client = SimpleNamespace(
             _start_turn=rpc(), turn_steer=rpc(), _subscribe_turn_notifications=Mock()

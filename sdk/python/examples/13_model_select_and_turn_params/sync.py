@@ -10,7 +10,7 @@ from _bootstrap import ensure_local_sdk_src, runtime_config
 ensure_local_sdk_src()
 
 from openai_maplecode import (
-    MapleCode,
+    Maplecode,
     Sandbox,
 )
 from openai_maplecode.types import (
@@ -66,7 +66,7 @@ OUTPUT_SCHEMA = {
     "additionalProperties": False,
 }
 
-with MapleCode(config=runtime_config()) as maplecode:
+with Maplecode(config=runtime_config()) as maplecode:
     models = maplecode.models(include_hidden=True)
     selected_model = _pick_highest_model(models.data)
     selected_effort = _pick_highest_turn_effort(selected_model)

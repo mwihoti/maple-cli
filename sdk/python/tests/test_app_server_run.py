@@ -17,7 +17,7 @@ from app_server_helpers import (
     assistant_message_with_phase,
 )
 
-from openai_maplecode import AsyncMapleCode, MapleCode
+from openai_maplecode import AsyncMaplecode, Maplecode
 from openai_maplecode.generated.v2_all import MessagePhase
 
 
@@ -28,7 +28,7 @@ def test_sync_thread_run_uses_mock_responses(
     with AppServerHarness(tmp_path) as harness:
         harness.responses.enqueue_assistant_message("Hello from the mock.", response_id="run-1")
 
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             thread = maplecode.thread_start()
             result = thread.run("hello")
 
@@ -55,7 +55,7 @@ def test_sync_thread_run_uses_mock_responses(
 def test_checkout_supports_new_options_and_history_selection(tmp_path) -> None:
     with AppServerHarness(tmp_path) as harness:
         harness.responses.enqueue_assistant_message("Options supported")
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             thread = maplecode.thread_start()
             result = thread.run("hello", turn_service_tier="default", source="automation")
             resumed = maplecode.thread_resume(thread.id, include_turns=False)
@@ -86,7 +86,7 @@ def test_run_params_and_usage_cross_app_server_boundary(tmp_path) -> None:
             )
         )
 
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             thread = maplecode.thread_start()
             result = thread.run(
                 "use overrides",
@@ -142,7 +142,7 @@ def test_async_thread_run_uses_mock_responses(
                 response_id="async-run-1",
             )
 
-            async with AsyncMapleCode(config=harness.app_server_config()) as maplecode:
+            async with AsyncMaplecode(config=harness.app_server_config()) as maplecode:
                 thread = await maplecode.thread_start()
                 result = await thread.run("async hello")
 
@@ -175,7 +175,7 @@ def test_sync_turn_result_uses_last_unknown_phase_message(tmp_path) -> None:
             )
         )
 
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             result = maplecode.thread_start().run("case: last unknown phase wins")
 
     assert {
@@ -201,7 +201,7 @@ def test_sync_turn_result_preserves_empty_last_message(tmp_path) -> None:
             )
         )
 
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             result = maplecode.thread_start().run("case: empty last message")
 
     assert {
@@ -230,7 +230,7 @@ def test_sync_turn_result_does_not_promote_commentary_only_to_final(tmp_path) ->
             )
         )
 
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             result = maplecode.thread_start().run("case: commentary only")
 
     assert {
@@ -265,7 +265,7 @@ def test_async_turn_result_uses_last_unknown_phase_message(tmp_path) -> None:
                 )
             )
 
-            async with AsyncMapleCode(config=harness.app_server_config()) as maplecode:
+            async with AsyncMaplecode(config=harness.app_server_config()) as maplecode:
                 result = await (await maplecode.thread_start()).run("case: async last unknown phase")
 
         assert {
@@ -301,7 +301,7 @@ def test_async_turn_result_does_not_promote_commentary_only_to_final(
                 )
             )
 
-            async with AsyncMapleCode(config=harness.app_server_config()) as maplecode:
+            async with AsyncMaplecode(config=harness.app_server_config()) as maplecode:
                 result = await (await maplecode.thread_start()).run("case: async commentary only")
 
         assert {
@@ -327,7 +327,7 @@ def test_thread_run_raises_when_real_app_server_reports_failed_turn(tmp_path) ->
             )
         )
 
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             thread = maplecode.thread_start()
             with pytest.raises(RuntimeError, match="boom from mock model"):
                 thread.run("trigger failure")
@@ -359,7 +359,7 @@ def test_final_answer_phase_survives_real_app_server_mapping(tmp_path) -> None:
             )
         )
 
-        with MapleCode(config=harness.app_server_config()) as maplecode:
+        with Maplecode(config=harness.app_server_config()) as maplecode:
             result = maplecode.thread_start().run("choose final answer")
 
     assert {

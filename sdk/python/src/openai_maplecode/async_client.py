@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 from ._goal import _GoalOperationState
 from ._message_router import _TurnSubscription
-from .client import MapleCodeClient, MapleCodeConfig
+from .client import MaplecodeClient, MaplecodeConfig
 from .generated.v2_all import (
     AccountLoginCompletedNotification,
     AgentMessageDeltaNotification,
@@ -54,20 +54,20 @@ ReturnT = TypeVar("ReturnT")
 _TURN_START_EXECUTOR = ThreadPoolExecutor(thread_name_prefix="maplecode-turn-start")
 
 
-class AsyncMapleCodeClient:
-    """Async wrapper around MapleCodeClient using thread offloading."""
+class AsyncMaplecodeClient:
+    """Async wrapper around MaplecodeClient using thread offloading."""
 
-    def __init__(self, config: MapleCodeConfig | None = None) -> None:
+    def __init__(self, config: MaplecodeConfig | None = None) -> None:
         """Create the wrapped sync client that owns the transport process."""
-        self._sync = MapleCodeClient(config=config)
+        self._sync = MaplecodeClient(config=config)
 
-    async def __aenter__(self) -> "AsyncMapleCodeClient":
-        """Start the MapleCode process when entering an async context."""
+    async def __aenter__(self) -> "AsyncMaplecodeClient":
+        """Start the Maplecode process when entering an async context."""
         await self.start()
         return self
 
     async def __aexit__(self, _exc_type, _exc, _tb) -> None:
-        """Close the MapleCode process when leaving an async context."""
+        """Close the Maplecode process when leaving an async context."""
         await self.close()
 
     async def _call_sync(
@@ -99,7 +99,7 @@ class AsyncMapleCodeClient:
         await self._call_sync(self._sync.close)
 
     async def initialize(self) -> InitializeResponse:
-        """Initialize the MapleCode session."""
+        """Initialize the Maplecode session."""
         return await self._call_sync(self._sync.initialize)
 
     def _subscribe_turn_notifications(self, turn_id: str) -> _TurnSubscription:

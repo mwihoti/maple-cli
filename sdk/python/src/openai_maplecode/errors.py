@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import Any
 
 
-class MapleCodeError(Exception):
+class MaplecodeError(Exception):
     """Base exception for SDK errors."""
 
 
-class JsonRpcError(MapleCodeError):
+class JsonRpcError(MaplecodeError):
     """Raw JSON-RPC error wrapper from the server."""
 
     def __init__(self, code: int, message: str, data: Any = None):
@@ -17,35 +17,35 @@ class JsonRpcError(MapleCodeError):
         self.data = data
 
 
-class TransportClosedError(MapleCodeError):
-    """Raised when the MapleCode transport closes unexpectedly."""
+class TransportClosedError(MaplecodeError):
+    """Raised when the Maplecode transport closes unexpectedly."""
 
 
-class MapleCodeRpcError(JsonRpcError):
+class MaplecodeRpcError(JsonRpcError):
     """Base typed error for JSON-RPC failures."""
 
 
-class ParseError(MapleCodeRpcError):
+class ParseError(MaplecodeRpcError):
     """Raised when a request or response cannot be parsed."""
 
 
-class InvalidRequestError(MapleCodeRpcError):
+class InvalidRequestError(MaplecodeRpcError):
     """Raised when the runtime rejects the request shape."""
 
 
-class MethodNotFoundError(MapleCodeRpcError):
+class MethodNotFoundError(MaplecodeRpcError):
     """Raised when the requested operation is unavailable."""
 
 
-class InvalidParamsError(MapleCodeRpcError):
+class InvalidParamsError(MaplecodeRpcError):
     """Raised when an operation receives invalid parameters."""
 
 
-class InternalRpcError(MapleCodeRpcError):
+class InternalRpcError(MaplecodeRpcError):
     """Raised when the runtime reports an internal RPC failure."""
 
 
-class ServerBusyError(MapleCodeRpcError):
+class ServerBusyError(MaplecodeRpcError):
     """Server is overloaded / unavailable and caller should retry."""
 
 
@@ -104,7 +104,7 @@ def map_jsonrpc_error(code: int, message: str, data: Any = None) -> JsonRpcError
             return ServerBusyError(code, message, data)
         if _contains_retry_limit_text(message):
             return RetryLimitExceededError(code, message, data)
-        return MapleCodeRpcError(code, message, data)
+        return MaplecodeRpcError(code, message, data)
 
     return JsonRpcError(code, message, data)
 
