@@ -6,7 +6,7 @@ use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_runtime_agent_instance::AgentHostAuthorization;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
 use maplecode_runtime_agent_instance::RuntimeRegistrationMetadata;
@@ -19,17 +19,17 @@ use wiremock::MockServer;
 use wiremock::ResponseTemplate;
 use wiremock::matchers::path;
 
-struct ChangingCredentials(std::sync::RwLock<MapleCodeAuth>);
+struct ChangingCredentials(std::sync::RwLock<MaplecodeAuth>);
 
 impl maplecode_login::ExternalAuth for ChangingCredentials {
-    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.read().unwrap().clone()) })
     }
 
     fn refresh(
         &self,
         _: maplecode_login::ExternalAuthRefreshContext,
-    ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -42,13 +42,13 @@ async fn discovery_signs_each_get_and_rejects_a_changed_credential_source() {
             "runtime_agent_instance_id": "runtime-cloud", "agent_host_id": "host-a",
             "actor": {"kind": "platform", "user_id": "user-a", "organization_id": "org-a", "project_id": null},
         }))).mount(&server).await;
-        Mock::given(path("/api/maplecode/environments"))
+        Mock::given(path("/api/codex/environments"))
             .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!([])))
             .expect(2)
             .mount(&server)
             .await;
         let factory = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault);
-        let auth = MapleCodeAuth::from_api_key("key-a");
+        let auth = MaplecodeAuth::from_api_key("key-a");
         let credentials = AuthManager::from_auth_for_testing(auth.clone());
         let source = Arc::new(ChangingCredentials(std::sync::RwLock::new(auth.clone())));
         credentials.set_external_auth(source.clone()).await.unwrap();
@@ -100,7 +100,7 @@ async fn discovery_signs_each_get_and_rejects_a_changed_credential_source() {
                 .count(),
             1,
         );
-        *source.0.write().unwrap() = MapleCodeAuth::from_api_key("key-b");
+        *source.0.write().unwrap() = MaplecodeAuth::from_api_key("key-b");
         assert!(
             list_environments_with_origins(&client, &server.uri(), &HeaderMap::new(), &[])
                 .await

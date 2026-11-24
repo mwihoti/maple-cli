@@ -96,14 +96,14 @@ async fn environment_discovery_refreshes_after_cloud_startup() {
         .expect(2)
         .mount(&server)
         .await;
-    Mock::given(path("/api/maplecode/environments"))
+    Mock::given(path("/api/codex/environments"))
         .respond_with(ResponseTemplate::new(401))
         .with_priority(10)
         .expect(0)
         .mount(&server)
         .await;
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/environments"))
+        .and(path("/api/codex/environments"))
         .and(header("authorization", format!("Bearer {current}")))
         .and(header("chatgpt-account-id", "account-a"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!([
@@ -248,7 +248,7 @@ async fn cloud_list_preserves_existing_agent_identity_during_runtime_rollout() -
         .mount(&server)
         .await;
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/environments"))
+        .and(path("/api/codex/environments"))
         .and(header("chatgpt-account-id", "account-a"))
         .respond_with(
             ResponseTemplate::new(200)

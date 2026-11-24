@@ -66,7 +66,7 @@ async fn autodetect_environment_id_with_origins(
                 )
             } else {
                 format!(
-                    "{}/api/maplecode/environments/by-repo/{}/{}/{}",
+                    "{}/api/codex/environments/by-repo/{}/{}/{}",
                     base_url, "github", owner, repo
                 )
             };
@@ -96,7 +96,7 @@ async fn autodetect_environment_id_with_origins(
     let list_url = if base_url.contains("/backend-api") {
         format!("{base_url}/wham/environments")
     } else {
-        format!("{base_url}/api/maplecode/environments")
+        format!("{base_url}/api/codex/environments")
     };
     crate::append_error_log(format!("env: GET {list_url}"));
     // Fetch and log the full environments JSON for debugging
@@ -346,7 +346,7 @@ async fn list_environments_with_origins(
                 )
             } else {
                 format!(
-                    "{}/api/maplecode/environments/by-repo/{}/{}/{}",
+                    "{}/api/codex/environments/by-repo/{}/{}/{}",
                     base_url, "github", owner, repo
                 )
             };
@@ -386,7 +386,7 @@ async fn list_environments_with_origins(
     let list_url = if base_url.contains("/backend-api") {
         format!("{base_url}/wham/environments")
     } else {
-        format!("{base_url}/api/maplecode/environments")
+        format!("{base_url}/api/codex/environments")
     };
     match get_json::<Vec<CodeEnvironment>>(http, &list_url, headers).await {
         Ok(list) => {

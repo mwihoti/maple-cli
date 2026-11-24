@@ -112,7 +112,7 @@ async fn production_http_forwards_headers_and_decodes_response() {
             label: Some("Real".to_string()),
         }
     );
-    assert!(request.starts_with("GET /api/maplecode/environments HTTP/1.1\r\n"));
+    assert!(request.starts_with("GET /api/codex/environments HTTP/1.1\r\n"));
     assert!(
         request
             .to_ascii_lowercase()

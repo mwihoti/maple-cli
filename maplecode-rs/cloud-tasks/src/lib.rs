@@ -16,7 +16,7 @@ use maplecode_git_utils::current_branch_name;
 use maplecode_git_utils::default_branch_name;
 use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::RouteAwareClientPool;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::default_client::get_maplecode_user_agent;
 use maplecode_model_provider::ClientAuth;
 use maplecode_model_provider::auth_provider_from_auth_manager;
@@ -79,9 +79,9 @@ async fn init_backend(
         && matches!(
             auth.as_ref(),
             Some(
-                MapleCodeAuth::Chatgpt(_)
-                    | MapleCodeAuth::ChatgptAuthTokens(_)
-                    | MapleCodeAuth::PersonalAccessToken(_)
+                MaplecodeAuth::Chatgpt(_)
+                    | MaplecodeAuth::ChatgptAuthTokens(_)
+                    | MaplecodeAuth::PersonalAccessToken(_)
             )
         ) {
         // Use the validated command destination for registration as well as actor refresh.
