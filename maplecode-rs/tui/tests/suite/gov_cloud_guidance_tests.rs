@@ -23,7 +23,7 @@ fn gov_cloud_startup_persists_only_acknowledgment() -> Result<()> {
             "{config}\n[model_providers.amazon-bedrock]\nbase_url = 'https://bedrock-mantle.us-gov-west-1.api.aws/openai/v1'\n"
         );
         std::fs::write(&path, &config)?;
-        let mut terminal = PtyMapleCode::start(&cwd, home, &args)?;
+        let mut terminal = PtyMaplecode::start(&cwd, home, &args)?;
         terminal.wait_for_screen("Using Maple Code with AWS GovCloud")?;
         let original = std::fs::read_to_string(&path)?;
         let deadline = Instant::now() + STARTUP_TIMEOUT;
@@ -36,7 +36,7 @@ fn gov_cloud_startup_persists_only_acknowledgment() -> Result<()> {
                     ensure!(status.success(), "quit exited with {status}");
                     break;
                 }
-            } else if terminal.screen_contains("Maple Code") {
+            } else if terminal.screen_contains(">_ Maple Code") {
                 break;
             }
             ensure!(Instant::now() < deadline, "{action} did not complete");
@@ -50,7 +50,7 @@ fn gov_cloud_startup_persists_only_acknowledgment() -> Result<()> {
             );
             let home = std::mem::replace(&mut terminal._maplecode_home, tempfile::tempdir()?);
             drop(terminal);
-            let mut restarted = PtyMapleCode::start(&cwd, home, &args)?;
+            let mut restarted = PtyMaplecode::start(&cwd, home, &args)?;
             // The startup draft says "loading"; the actual model appears after guidance.
             restarted.wait_for_screen("gpt-5.6-terra")?;
             assert!(!restarted.screen_contains("Using Maple Code with AWS GovCloud"));

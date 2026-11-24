@@ -35,7 +35,7 @@ fn focus_gained_with_unanswered_palette_queries_preserves_immediate_input() -> R
     let maplecode_home = tempfile::tempdir()?;
     write_test_config(maplecode_home.path(), &repo_root)?;
 
-    let mut terminal = PtyMapleCode::start(&repo_root, maplecode_home, &["--no-alt-screen"])?;
+    let mut terminal = PtyMaplecode::start(&repo_root, maplecode_home, &["--no-alt-screen"])?;
     terminal.wait_for_startup()?;
 
     let startup_output_len = terminal.output.len();
@@ -125,7 +125,7 @@ async fn interactive_startup_honors_maplecode_home_symlink_opt_out() -> Result<(
 
     // A fresh home has no daemon. Writing through the link exercises the embedded server's
     // local executor and its sandbox policy.
-    let mut terminal = PtyMapleCode::start(
+    let mut terminal = PtyMaplecode::start(
         &workspace_path,
         maplecode_home,
         &[
@@ -165,7 +165,7 @@ fn default_owned_screen_entry_paints_before_sync_ends_and_exit_clears_inline_dra
     let repo_root = maplecode_utils_cargo_bin::repo_root()?;
     let maplecode_home = tempfile::tempdir()?;
     write_test_config(maplecode_home.path(), &repo_root)?;
-    let mut terminal = PtyMapleCode::start(&repo_root, maplecode_home, &[])?;
+    let mut terminal = PtyMaplecode::start(&repo_root, maplecode_home, &[])?;
     terminal.wait_for_startup()?;
     let deadline = Instant::now() + STARTUP_TIMEOUT;
     while !terminal.parser.screen().alternate_screen() && Instant::now() < deadline {
@@ -279,7 +279,7 @@ fn fullscreen_transcript_can_opt_out_to_terminal_scrollback() -> Result<()> {
     let repo_root = maplecode_utils_cargo_bin::repo_root()?;
     let maplecode_home = tempfile::tempdir()?;
     write_test_config(maplecode_home.path(), &repo_root)?;
-    let mut terminal = PtyMapleCode::start(
+    let mut terminal = PtyMaplecode::start(
         &repo_root,
         maplecode_home,
         &["-c", "tui.fullscreen_transcript=false"],
@@ -296,7 +296,7 @@ fn fullscreen_transcript_can_opt_out_to_terminal_scrollback() -> Result<()> {
     Ok(())
 }
 
-pub(super) struct PtyMapleCode {
+pub(super) struct PtyMaplecode {
     master: File,
     slave: File,
     child: Child,
@@ -308,7 +308,7 @@ pub(super) struct PtyMapleCode {
     _maplecode_home: TempDir,
 }
 
-impl PtyMapleCode {
+impl PtyMaplecode {
     pub(super) fn start(
         repo_root: &Path,
         maplecode_home: TempDir,
@@ -567,7 +567,7 @@ impl PtyMapleCode {
     }
 }
 
-impl Drop for PtyMapleCode {
+impl Drop for PtyMaplecode {
     fn drop(&mut self) {
         let _ = self.child.kill();
         let _ = self.child.wait();
@@ -617,7 +617,7 @@ fn no_daemon_skips_startup_and_discovery() -> Result<()> {
         } else {
             None
         };
-        let mut terminal = PtyMapleCode::start(workspace.path(), home, &["--no-daemon"])?;
+        let mut terminal = PtyMaplecode::start(workspace.path(), home, &["--no-daemon"])?;
         terminal.wait_for_startup()?;
         terminal.write_input(b"/status")?;
         terminal.wait_for_screen("show current session configuration")?;
@@ -658,7 +658,7 @@ fn auto_daemon_start_failure_exits_with_manual_fallback_hint() -> Result<()> {
     )?;
     // An incomplete selected package must fail without installing a replacement.
     std::fs::create_dir_all(home.path().join("packages/app-server-daemon/current"))?;
-    let mut terminal = PtyMapleCode::start(
+    let mut terminal = PtyMaplecode::start(
         workspace.path(),
         home,
         &[

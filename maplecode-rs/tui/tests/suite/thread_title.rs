@@ -1,6 +1,6 @@
 //! Exercises automatic title generation alongside a foreground skill installation prompt.
 
-use super::focus_palette::PtyMapleCode;
+use super::focus_palette::PtyMaplecode;
 use super::focus_palette::write_test_config;
 use anyhow::Result;
 use core_test_support::responses;
@@ -59,7 +59,7 @@ wire_api = 'responses'
 status_line = ['thread-title']",
         server.uri(),
     )?;
-    let mut terminal = PtyMapleCode::start(
+    let mut terminal = PtyMaplecode::start(
         &cwd,
         home,
         &[

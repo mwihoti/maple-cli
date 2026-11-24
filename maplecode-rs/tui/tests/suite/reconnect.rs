@@ -1,6 +1,6 @@
 //! Drives automatic reconnect through the real binary and terminal event loop.
 
-use super::focus_palette::PtyMapleCode;
+use super::focus_palette::PtyMaplecode;
 use super::focus_palette::write_test_config;
 use anyhow::Result;
 use anyhow::ensure;
@@ -204,7 +204,7 @@ async fn automatic_reconnect_restores_draft_and_routes_new_notifications() -> Re
         }
         Ok::<_, anyhow::Error>(methods)
     });
-    let mut terminal = PtyMapleCode::start(
+    let mut terminal = PtyMaplecode::start(
         &workspace_path,
         maplecode_home,
         &[

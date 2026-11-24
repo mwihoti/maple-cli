@@ -1,6 +1,6 @@
 //! Exercise editor handoff through a terminal, including editors that switch screens.
 
-use super::PtyMapleCode;
+use super::PtyMaplecode;
 use super::write_test_config;
 use anyhow::Result;
 use anyhow::ensure;
@@ -47,7 +47,7 @@ fn external_editors_keep_the_screen_and_return_the_draft() -> Result<()> {
         let maplecode = maplecode_utils_cargo_bin::cargo_bin("maplecode-tui")
             .or_else(|_| maplecode_utils_cargo_bin::cargo_bin("maplecode"))?;
         let mut terminal =
-            PtyMapleCode::start_binary(&maplecode, &repo_root, home, &args, Some(&editor))?;
+            PtyMaplecode::start_binary(&maplecode, &repo_root, home, &args, Some(&editor))?;
         terminal.wait_for_startup()?;
         terminal.wait_for_screen("GPT-5.6-Terra")?;
         terminal.write_input(b"initial draft")?;

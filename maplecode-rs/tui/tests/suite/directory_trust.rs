@@ -1,6 +1,6 @@
 //! Exercises folder consent against a connected server through the real terminal event loop.
 
-use super::focus_palette::PtyMapleCode;
+use super::focus_palette::PtyMaplecode;
 use super::focus_palette::write_test_config;
 use anyhow::Result;
 use futures::SinkExt;
@@ -157,7 +157,7 @@ async fn connected_trust_cancellation_and_acceptance_control_task_creation() -> 
                 });
             }
         });
-        let mut terminal = PtyMapleCode::start(
+        let mut terminal = PtyMaplecode::start(
             &repo_root,
             maplecode_home,
             &["--no-alt-screen", "do not submit this launch prompt"],

@@ -1,6 +1,6 @@
 //! Exercises daemon compatibility recovery through real TUI startup.
 
-use super::focus_palette::PtyMapleCode;
+use super::focus_palette::PtyMaplecode;
 use super::focus_palette::write_test_config;
 use anyhow::Context;
 use anyhow::Result;
@@ -60,7 +60,7 @@ async fn incompatible_daemon_can_run_embedded_for_explicit_features() -> Result<
         } else {
             vec!["-c", "features.api_key_model_discovery=true"]
         };
-        let mut terminal = PtyMapleCode::start(&cwd, home, &args)?;
+        let mut terminal = PtyMaplecode::start(&cwd, home, &args)?;
         terminal.wait_for_screen("Background server has incompatible feature settings")?;
         terminal.write_input(b"1")?;
         terminal.wait_for_startup()?;

@@ -1,6 +1,6 @@
 //! Resume and fork picker and --last provider defaults through the real CLI and app server.
 
-use super::focus_palette::PtyMapleCode;
+use super::focus_palette::PtyMaplecode;
 use super::focus_palette::write_test_config;
 use anyhow::Context;
 use anyhow::Result;
@@ -93,7 +93,7 @@ async fn resume_lists_all_providers_and_fork_keeps_provider_filter() -> Result<(
                 ]);
             }
             let case = format!("{action}: embedded={embedded}, last={last}, explicit={explicit}");
-            let mut terminal = PtyMapleCode::start_cli(&cwd, home, &args)?;
+            let mut terminal = PtyMaplecode::start_cli(&cwd, home, &args)?;
             if action == "resume" && last && explicit {
                 // --last finds the newest thread across providers. An explicit override
                 // cannot switch that thread from server-provider to openai.
@@ -179,7 +179,7 @@ requires_openai_auth = true
 "#
         ),
     )?;
-    let mut terminal = PtyMapleCode::start(
+    let mut terminal = PtyMaplecode::start(
         &cwd,
         home,
         &["--profile", "work", "--no-daemon", "verify the gateway"],

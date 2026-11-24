@@ -604,7 +604,7 @@ small,
   background: var(--secondary);
 }
 
-/* MapleCode Button size="compact"; appearance stays with the button variant. */
+/* Maplecode Button size="compact"; appearance stays with the button variant. */
 .btn-sm {
   --btn-size: 24px;
   padding-inline: 8px;

@@ -1,6 +1,6 @@
 //! Checks that interactive startup persists detection without replacing a user preference.
 
-use super::focus_palette::PtyMapleCode;
+use super::focus_palette::PtyMaplecode;
 use super::focus_palette::write_test_config;
 use anyhow::Result;
 use pretty_assertions::assert_eq;
@@ -15,7 +15,7 @@ fn startup_records_screen_reader_detection() -> Result<()> {
     let path = home.path().join("config.toml");
     let contents = std::fs::read_to_string(&path)?;
     std::fs::write(&path, format!("{contents}\n[tui]\nanimations = true\n"))?;
-    let mut terminal = PtyMapleCode::start(&repo_root, home, &[])?;
+    let mut terminal = PtyMaplecode::start(&repo_root, home, &[])?;
     terminal.wait_for_startup()?;
     let deadline = Instant::now() + Duration::from_secs(/*secs*/ 30);
     loop {

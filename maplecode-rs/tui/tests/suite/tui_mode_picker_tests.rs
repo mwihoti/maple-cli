@@ -17,7 +17,7 @@ fn tui_mode_picker_applies_only_after_restart() -> Result<()> {
         ),
     )?;
     for (launch, current) in [false, true, false].into_iter().enumerate() {
-        let mut terminal = PtyMapleCode::start(&root, home, &[])?;
+        let mut terminal = PtyMaplecode::start(&root, home, &[])?;
         terminal.wait_for_startup()?;
         // The header precedes session setup; wait for the thread ID before sending commands.
         let deadline = Instant::now() + STARTUP_TIMEOUT;

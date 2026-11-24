@@ -2,7 +2,7 @@
 //!
 //! Uses the CLI binary when available (including Bazel CI) to cover its dispatch frames.
 
-use super::focus_palette::PtyMapleCode;
+use super::focus_palette::PtyMaplecode;
 use super::focus_palette::write_test_config;
 use anyhow::Result;
 use anyhow::ensure;
@@ -20,9 +20,9 @@ use wiremock::matchers::body_string_contains;
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn picker_side_worktree_fork_and_cd_run_on_the_production_stack() -> Result<()> {
     let start = if maplecode_utils_cargo_bin::cargo_bin("maplecode").is_ok() {
-        PtyMapleCode::start_cli
+        PtyMaplecode::start_cli
     } else {
-        PtyMapleCode::start
+        PtyMaplecode::start
     };
     let repository = tempfile::tempdir_in("/tmp")?;
     let root = repository.path().canonicalize()?;
@@ -177,7 +177,7 @@ async fn picker_side_worktree_fork_and_cd_run_on_the_production_stack() -> Resul
     Ok(())
 }
 
-fn submit(terminal: &mut PtyMapleCode, input: &str) -> Result<()> {
+fn submit(terminal: &mut PtyMaplecode, input: &str) -> Result<()> {
     // Send one paste event so slashes in arguments cannot accept a completion
     // while earlier characters are still buffered by paste-burst detection.
     terminal.write_input(format!("\x1b[200~{input}\x1b[201~").as_bytes())?;
@@ -197,7 +197,7 @@ fn submit(terminal: &mut PtyMapleCode, input: &str) -> Result<()> {
 }
 
 fn wait_for_owned_worktrees(
-    terminal: &mut PtyMapleCode,
+    terminal: &mut PtyMaplecode,
     manager: &WorktreeManager,
     source: &Path,
     count: usize,
