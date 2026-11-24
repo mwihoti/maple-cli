@@ -13,10 +13,10 @@ use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::AuthManager;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::TokenData;
 use maplecode_protocol::auth::AuthMode;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::openai_models::ModelAccessPrograms;
 use maplecode_protocol::openai_models::ModelOrigin;
 use maplecode_protocol::openai_models::ModelsResponse;
@@ -63,7 +63,7 @@ async fn explicit_catalog_read_propagates_access_and_rate_limit_errors() {
 
 #[tokio::test]
 async fn explicit_catalog_read_reports_parse_errors_without_claiming_no_models() {
-    let endpoint = TestModelsEndpoint::with_command_auth(vec![Err(MapleCodeErr::InvalidRequest(
+    let endpoint = TestModelsEndpoint::with_command_auth(vec![Err(MaplecodeErr::InvalidRequest(
         "fixture malformed catalog".into(),
     ))]);
     let manager = OpenAiModelsManager::new_without_cache(endpoint, None).with_provider_catalog();
@@ -79,8 +79,8 @@ async fn explicit_catalog_read_does_not_return_stale_success_after_refresh_failu
     let models = vec![remote_model("fixture-model", "Fixture Model", 0)];
     let endpoint = TestModelsEndpoint::with_command_auth(vec![
         Ok(models.clone()),
-        Err(MapleCodeErr::RequestTimeout),
-        Err(MapleCodeErr::InvalidRequest(
+        Err(MaplecodeErr::RequestTimeout),
+        Err(MaplecodeErr::InvalidRequest(
             "fixture malformed catalog".into(),
         )),
     ]);
@@ -97,7 +97,7 @@ async fn explicit_catalog_read_does_not_return_stale_success_after_refresh_failu
         .expect_err("explicit command must report timeout instead of stale data");
     assert!(matches!(
         error.details(),
-        MapleCodeErrorDetails::RequestTimeout
+        MaplecodeErrorDetails::RequestTimeout
     ));
     // Existing best-effort conversation reads keep the last successful snapshot.
     assert_eq!(
@@ -317,15 +317,15 @@ impl TestModelsEndpoint {
 struct TestExternalApiKeyAuth;
 
 impl ExternalAuth for TestExternalApiKeyAuth {
-    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
-        Box::pin(async { Ok(MapleCodeAuth::from_api_key("test-external-api-key")) })
+    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
+        Box::pin(async { Ok(MaplecodeAuth::from_api_key("test-external-api-key")) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
-        Box::pin(async { Ok(MapleCodeAuth::from_api_key("test-external-api-key")) })
+    ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
+        Box::pin(async { Ok(MaplecodeAuth::from_api_key("test-external-api-key")) })
     }
 }
 
@@ -333,14 +333,14 @@ impl ExternalAuth for TestExternalApiKeyAuth {
 struct TestUnresolvedExternalApiKeyAuth;
 
 impl ExternalAuth for TestUnresolvedExternalApiKeyAuth {
-    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Err(std::io::Error::other("unresolved test auth")) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Err(std::io::Error::other("unresolved test auth")) })
     }
 }
@@ -386,7 +386,7 @@ fn openai_manager_for_tests(
         maplecode_home,
         endpoint_client,
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         )),
     )
 }
@@ -518,7 +518,7 @@ async fn manager_without_cache_fetches_on_every_refresh() {
     let manager = OpenAiModelsManager::new_without_cache(
         endpoint.clone(),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         )),
     );
 
@@ -558,7 +558,7 @@ async fn injected_cache_hit_avoids_remote_fetch() {
         cache,
         endpoint.clone(),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         )),
     );
 
@@ -582,7 +582,7 @@ async fn injected_cache_read_error_falls_back_and_persists_remote_models() {
         cache.clone(),
         endpoint.clone(),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         )),
     );
 
@@ -624,7 +624,7 @@ async fn injected_cache_write_error_does_not_fail_remote_refresh() {
         cache,
         endpoint.clone(),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         )),
     );
 
@@ -687,7 +687,7 @@ async fn injected_cache_ttl_refresh_preserves_cached_payload() {
         cache.clone(),
         TestModelsEndpoint::new(Vec::new()),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::from_api_key("test-api-key"),
+            MaplecodeAuth::from_api_key("test-api-key"),
         )),
     );
     manager.set_api_key_model_discovery_enabled(/*enabled*/ true);
@@ -713,7 +713,7 @@ async fn injected_cache_ttl_refresh_preserves_cached_payload() {
     assert_eq!(stored_entries[0].models, cached_models);
 }
 
-async fn chatgpt_auth_tokens_for_tests(maplecode_home: &Path) -> MapleCodeAuth {
+async fn chatgpt_auth_tokens_for_tests(maplecode_home: &Path) -> MaplecodeAuth {
     let auth_dot_json = maplecode_login::AuthDotJson {
         auth_mode: Some(AuthMode::ChatgptAuthTokens),
         openai_api_key: None,
@@ -743,7 +743,7 @@ c2ln",
     )
     .expect("auth.json should be written");
 
-    MapleCodeAuth::from_auth_storage(
+    MaplecodeAuth::from_auth_storage(
         maplecode_home,
         AuthCredentialsStoreMode::File,
         /*chatgpt_base_url*/ None,
@@ -1200,7 +1200,7 @@ async fn refresh_available_models_keeps_merging_for_custom_api_auth() {
         maplecode_home.path().to_path_buf(),
         endpoint.clone(),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::from_api_key("test-api-key"),
+            MaplecodeAuth::from_api_key("test-api-key"),
         )),
     );
     let mut expected = load_remote_models_from_file().expect("bundled models should parse");
@@ -1250,11 +1250,11 @@ async fn authoritative_catalog_access_rejection_invalidates_cache_until_refresh_
     for error in [
         catalog_http_error(/*status*/ 401),
         catalog_http_error(/*status*/ 403),
-        MapleCodeErr::RefreshTokenFailed(maplecode_protocol::error::RefreshTokenFailedError::new(
+        MaplecodeErr::RefreshTokenFailed(maplecode_protocol::error::RefreshTokenFailedError::new(
             maplecode_protocol::error::RefreshTokenFailedReason::Revoked,
             "credentials revoked",
         )),
-        MapleCodeErrorDetails::GatewayLoginRequired(
+        MaplecodeErrorDetails::GatewayLoginRequired(
             maplecode_login::GatewayAuthError::LoginRequired.to_string(),
         )
         .into(),
@@ -1315,8 +1315,8 @@ async fn authoritative_catalog_access_rejection_invalidates_cache_until_refresh_
     }
 }
 
-fn catalog_http_error(status: u16) -> MapleCodeErr {
-    MapleCodeErr::UnexpectedStatus(maplecode_protocol::error::UnexpectedResponseError {
+fn catalog_http_error(status: u16) -> MaplecodeErr {
+    MaplecodeErr::UnexpectedStatus(maplecode_protocol::error::UnexpectedResponseError {
         status: status.try_into().expect("valid status"),
         body: String::new(),
         user_message: None,
@@ -1331,13 +1331,13 @@ fn catalog_http_error(status: u16) -> MapleCodeErr {
 #[tokio::test]
 async fn authoritative_catalog_refresh_failure_preserves_snapshot_and_freshness() {
     for error in [
-        MapleCodeErr::RequestTimeout,
-        MapleCodeErr::Stream("network unavailable".to_string()),
+        MaplecodeErr::RequestTimeout,
+        MaplecodeErr::Stream("network unavailable".to_string()),
         catalog_http_error(/*status*/ 429),
         catalog_http_error(/*status*/ 503),
         catalog_http_error(/*status*/ 404),
-        MapleCodeErr::InvalidRequest("malformed catalog".to_string()),
-        MapleCodeErr::InvalidRequest(
+        MaplecodeErr::InvalidRequest("malformed catalog".to_string()),
+        MaplecodeErr::InvalidRequest(
             maplecode_login::GatewayAuthError::LoginInProgress.to_string(),
         ),
     ] {
@@ -1432,7 +1432,7 @@ async fn failed_discovery_does_not_reuse_a_catalog_from_another_identity() {
         )],
     };
     let cache = TestModelsCache::with_entry(stored.clone());
-    let endpoint = TestModelsEndpoint::with_command_auth(vec![Err(MapleCodeErr::RequestTimeout)]);
+    let endpoint = TestModelsEndpoint::with_command_auth(vec![Err(MaplecodeErr::RequestTimeout)]);
     let manager =
         OpenAiModelsManager::new_with_cache(cache.clone(), endpoint, /*auth_manager*/ None)
             .with_provider_catalog();
@@ -1645,7 +1645,7 @@ async fn refresh_available_models_drops_removed_remote_models() {
         )),
         endpoint.clone(),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         )),
     );
 
@@ -1742,7 +1742,7 @@ impl TestAuthAwareModelsEndpoint {
                 .auth()
                 .await
                 .as_ref()
-                .is_some_and(MapleCodeAuth::uses_maplecode_backend),
+                .is_some_and(MaplecodeAuth::uses_maplecode_backend),
             None => false,
         }
     }
@@ -1797,7 +1797,7 @@ async fn refresh_available_models_fetches_when_external_api_key_overrides_chatgp
     let dynamic_slug = "dynamic-model-only-for-test-external-api-key";
     let maplecode_home = tempdir().expect("temp dir");
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     auth_manager
         .set_external_auth(Arc::new(TestExternalApiKeyAuth))
         .await
@@ -1839,7 +1839,7 @@ async fn refresh_available_models_uses_cached_chatgpt_when_external_api_key_is_u
     let dynamic_slug = "dynamic-model-only-for-test-unresolved-external-api-key";
     let maplecode_home = tempdir().expect("temp dir");
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     auth_manager
         .set_external_auth(Arc::new(TestUnresolvedExternalApiKeyAuth))
         .await
@@ -1936,7 +1936,7 @@ fn build_available_models_picks_default_after_hiding_hidden_models() {
 #[tokio::test]
 async fn static_manager_reads_latest_auth_mode() {
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let chatgpt_only_model = {
         let mut model = remote_model("chatgpt-only", "ChatGPT Only", /*priority*/ 0);
         model.supported_in_api = false;

@@ -19,7 +19,7 @@ async fn api_key_discovery_disabled_preserves_command_auth_discovery_and_merging
     let manager = OpenAiModelsManager::new_without_cache(
         endpoint.clone(),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::from_api_key("test-key"),
+            MaplecodeAuth::from_api_key("test-key"),
         )),
     );
     let mut merged = load_remote_models_from_file().unwrap();
@@ -39,7 +39,7 @@ async fn api_key_discovery_flag_controls_fetches_and_cached_catalogs() {
     let home = tempdir().unwrap();
     let models = vec![remote_model("dynamic", "Dynamic", /*priority*/ 0)];
     let endpoint = TestModelsEndpoint::without_refresh(vec![models.clone()]);
-    let auth = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-key"));
+    let auth = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("test-key"));
     let manager =
         OpenAiModelsManager::new(home.path().into(), endpoint.clone(), Some(auth.clone()));
     let bundled = load_remote_models_from_file().unwrap();

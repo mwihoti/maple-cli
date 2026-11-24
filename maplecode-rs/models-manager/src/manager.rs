@@ -15,7 +15,7 @@ use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AuthManager;
 use maplecode_protocol::auth::AuthMode;
 use maplecode_protocol::config_types::CollaborationModeMask;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::Result as CoreResult;
 use maplecode_protocol::openai_models::ModelInfo;
 use maplecode_protocol::openai_models::ModelPreset;
@@ -884,8 +884,8 @@ impl OpenAiModelsManager {
                 let access_denied = matches!(error.http_status_code_value(), Some(401 | 403));
                 let credentials_rejected = matches!(
                     error.details(),
-                    MapleCodeErrorDetails::RefreshTokenFailed(_)
-                        | MapleCodeErrorDetails::GatewayLoginRequired(_)
+                    MaplecodeErrorDetails::RefreshTokenFailed(_)
+                        | MaplecodeErrorDetails::GatewayLoginRequired(_)
                 );
 
                 if is_provider_catalog && (access_denied || credentials_rejected) {
