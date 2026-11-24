@@ -117,7 +117,7 @@
       "description": "Analytics settings loaded from config.toml. Fields are optional so we can apply defaults.",
       "properties": {
         "enabled": {
-          "description": "When `false`, disables OpenAI analytics across MapleCode product surfaces in this profile. Custom OTLP metrics exporters remain enabled; set `otel.metrics_exporter = \"none\"` to disable them.",
+          "description": "When `false`, disables OpenAI analytics across Maplecode product surfaces in this profile. Custom OTLP metrics exporters remain enabled; set `otel.metrics_exporter = \"none\"` to disable them.",
           "type": "boolean"
         }
       },
@@ -153,7 +153,7 @@
         },
         "enabled": {
           "default": true,
-          "description": "When `false`, MapleCode does not surface this app.",
+          "description": "When `false`, Maplecode does not surface this app.",
           "type": "boolean"
         },
         "links": {
@@ -314,7 +314,7 @@
       "type": "object"
     },
     "AskForApproval": {
-      "description": "Determines the conditions under which the user is consulted to approve running the command proposed by MapleCode.",
+      "description": "Determines the conditions under which the user is consulted to approve running the command proposed by Maplecode.",
       "oneOf": [
         {
           "description": "The model decides when to ask the user for approval.",
@@ -371,7 +371,7 @@
       "type": "object"
     },
     "AuthCredentialsStoreMode": {
-      "description": "Determine where MapleCode should store CLI auth credentials.",
+      "description": "Determine where Maplecode should store CLI auth credentials.",
       "oneOf": [
         {
           "description": "Persist credentials in MAPLECODE_HOME/auth.json.",
@@ -1770,7 +1770,7 @@
     },
     "ExternalConfigMigrationPrompts": {
       "additionalProperties": false,
-      "description": "Settings for notices we display to users via the tui and app-server clients (primarily the MapleCode IDE extension). NOTE: these are different from notifications - notices are warnings, NUX screens, acknowledgements, etc.",
+      "description": "Settings for notices we display to users via the tui and app-server clients (primarily the Maplecode IDE extension). NOTE: these are different from notifications - notices are warnings, NUX screens, acknowledgements, etc.",
       "properties": {
         "home": {
           "description": "Tracks whether home-level external config migration prompts are hidden.",
@@ -2122,7 +2122,7 @@
               "$ref": "#/definitions/OAuthCredentialsStore"
             }
           ],
-          "description": "Where MapleCode stores this gateway's OAuth credentials. Defaults to the keyring-backed store."
+          "description": "Where Maplecode stores this gateway's OAuth credentials. Defaults to the keyring-backed store."
         },
         "delivery": {
           "allOf": [
@@ -2741,12 +2741,12 @@
       "properties": {
         "last_revision": {
           "default": null,
-          "description": "Git revision MapleCode last successfully activated for this marketplace.",
+          "description": "Git revision Maplecode last successfully activated for this marketplace.",
           "type": "string"
         },
         "last_updated": {
           "default": null,
-          "description": "Last time MapleCode successfully added or refreshed this marketplace.",
+          "description": "Last time Maplecode successfully added or refreshed this marketplace.",
           "type": "string"
         },
         "ref": {
@@ -2819,7 +2819,7 @@
               "$ref": "#/definitions/McpServerIdpOAuthConfig"
             }
           ],
-          "description": "Shared enterprise authorization, independent of MapleCode account credentials."
+          "description": "Shared enterprise authorization, independent of Maplecode account credentials."
         }
       },
       "required": [
@@ -2914,7 +2914,7 @@
           "type": "string"
         },
         "callback_port": {
-          "description": "Fixed callback port that takes precedence over MapleCode's global OAuth callback port.",
+          "description": "Fixed callback port that takes precedence over Maplecode's global OAuth callback port.",
           "format": "uint16",
           "minimum": 0.0,
           "type": "integer"
@@ -3039,7 +3039,7 @@
           "type": "integer"
         },
         "min_rate_limit_remaining_percent": {
-          "description": "Minimum remaining percentage required in MapleCode rate-limit windows before memory startup runs.",
+          "description": "Minimum remaining percentage required in Maplecode rate-limit windows before memory startup runs.",
           "format": "int64",
           "maximum": 100.0,
           "minimum": 0.0,
@@ -3271,7 +3271,7 @@
           "type": "string"
         },
         "model_catalog_url": {
-          "description": "Optional full URL for a MapleCode-native model catalog. When unset, OpenAI discovery uses the MapleCode backend unless `base_url` overrides the inference endpoint. The endpoint must serve the MapleCode catalog format, not the public `/v1/models` API.\n\nFor built-in OpenAI, set this under `[model_providers.openai]`; other non-default provider overrides are rejected. The URL must use HTTPS and an allowed ChatGPT host. Other hosts require a custom provider. Inference still uses `openai_base_url`.\n\nCatalog requests use the provider's credentials, including an API key or ChatGPT access token. Only configure an endpoint you trust with those credentials. Setting this URL does not grant catalog access or guarantee that the endpoint accepts a regional API key. Existing discovery gates and entitlement checks apply.",
+          "description": "Optional full URL for a Maplecode-native model catalog. When unset, OpenAI discovery uses the Maplecode backend unless `base_url` overrides the inference endpoint. The endpoint must serve the Maplecode catalog format, not the public `/v1/models` API.\n\nFor built-in OpenAI, set this under `[model_providers.openai]`; other non-default provider overrides are rejected. The URL must use HTTPS and an allowed ChatGPT host. Other hosts require a custom provider. Inference still uses `openai_base_url`.\n\nCatalog requests use the provider's credentials, including an API key or ChatGPT access token. Only configure an endpoint you trust with those credentials. Setting this URL does not grant catalog access or guarantee that the endpoint accepts a regional API key. Existing discovery gates and entitlement checks apply.",
           "type": "string"
         },
         "name": {
@@ -3780,7 +3780,7 @@
           "description": "Tracks scopes where external config migration prompts should be suppressed."
         },
         "fast_default_opt_out": {
-          "description": "Tracks whether the user opted out of MapleCode-managed fast defaults.",
+          "description": "Tracks whether the user opted out of Maplecode-managed fast defaults.",
           "type": "boolean"
         },
         "hide_full_access_warning": {
@@ -3877,17 +3877,17 @@
       ]
     },
     "OAuthCredentialsStoreMode": {
-      "description": "Determine where MapleCode should store and read MCP credentials.",
+      "description": "Determine where Maplecode should store and read MCP credentials.",
       "oneOf": [
         {
-          "description": "Prefer `Keyring` and use `File` when keyring storage is unavailable. Once an MCP client loads credentials from one store, that client keeps the resolved store for its lifetime so refreshes cannot switch to a possibly stale credential source. Credentials stored in the keyring will only be readable by MapleCode unless the user explicitly grants access via OS-level keyring access.",
+          "description": "Prefer `Keyring` and use `File` when keyring storage is unavailable. Once an MCP client loads credentials from one store, that client keeps the resolved store for its lifetime so refreshes cannot switch to a possibly stale credential source. Credentials stored in the keyring will only be readable by Maplecode unless the user explicitly grants access via OS-level keyring access.",
           "enum": [
             "auto"
           ],
           "type": "string"
         },
         {
-          "description": "MAPLECODE_HOME/.credentials.json This file will be readable to MapleCode and other applications running as the same user.",
+          "description": "MAPLECODE_HOME/.credentials.json This file will be readable to Maplecode and other applications running as the same user.",
           "enum": [
             "file"
           ],
@@ -4217,7 +4217,7 @@
         },
         "enabled": {
           "default": true,
-          "description": "When `false`, MapleCode skips initializing this plugin MCP server.",
+          "description": "When `false`, Maplecode skips initializing this plugin MCP server.",
           "type": "boolean"
         },
         "enabled_tools": {
@@ -4683,7 +4683,7 @@
       "description": "Working directory to use when resuming or forking a session.",
       "oneOf": [
         {
-          "description": "Use the directory where MapleCode was launched.",
+          "description": "Use the directory where Maplecode was launched.",
           "enum": [
             "current"
           ],
@@ -5681,7 +5681,7 @@
         },
         "terminal_resize_reflow_max_rows": {
           "default": null,
-          "description": "Trim terminal resize-reflow replay to the most recent rendered terminal rows when the transcript exceeds this cap. Omit to use MapleCode's terminal-specific default. Set to `0` to keep all rendered rows.",
+          "description": "Trim terminal resize-reflow replay to the most recent rendered terminal rows when the transcript exceeds this cap. Omit to use Maplecode's terminal-specific default. Set to `0` to keep all rendered rows.",
           "format": "uint",
           "minimum": 0.0,
           "type": "integer"
@@ -7733,7 +7733,7 @@
           "$ref": "#/definitions/AnalyticsConfigToml"
         }
       ],
-      "description": "When `enabled` is `false`, disables OpenAI analytics across MapleCode product surfaces on this machine. Custom OTLP metrics exporters are controlled by `otel.metrics_exporter`. When unset, the default depends on the client."
+      "description": "When `enabled` is `false`, disables OpenAI analytics across Maplecode product surfaces on this machine. Custom OTLP metrics exporters are controlled by `otel.metrics_exporter`. When unset, the default depends on the client."
     },
     "approval_policy": {
       "allOf": [
@@ -7761,7 +7761,7 @@
       "description": "Settings for app-specific controls."
     },
     "apps_mcp_product_sku": {
-      "description": "Optional product SKU forwarded on host-owned MapleCode Apps MCP requests.",
+      "description": "Optional product SKU forwarded on host-owned Maplecode Apps MCP requests.",
       "type": "string"
     },
     "audio": {
@@ -7796,7 +7796,7 @@
       "type": "string"
     },
     "check_for_update_on_startup": {
-      "description": "When `true`, checks for MapleCode updates on startup and surfaces update prompts. Set to `false` only if your MapleCode updates are centrally managed. Defaults to `true`.",
+      "description": "When `true`, checks for Maplecode updates on startup and surfaces update prompts. Set to `false` only if your Maplecode updates are centrally managed. Defaults to `true`.",
       "type": "boolean"
     },
     "cli_auth_credentials_store": {
@@ -7806,7 +7806,7 @@
         }
       ],
       "default": null,
-      "description": "Preferred backend for storing CLI auth credentials. file (default): Use a file in the MapleCode home directory. keyring: Use an OS-specific keyring service. auto: Use the keyring if available, otherwise use a file."
+      "description": "Preferred backend for storing CLI auth credentials. file (default): Use a file in the Maplecode home directory. keyring: Use an OS-specific keyring service. auto: Use the keyring if available, otherwise use a file."
     },
     "cloud": {
       "allOf": [
@@ -8589,7 +8589,7 @@
           "$ref": "#/definitions/FeedbackConfigToml"
         }
       ],
-      "description": "When `false`, disables feedback collection across MapleCode product surfaces. Defaults to `true`."
+      "description": "When `false`, disables feedback collection across Maplecode product surfaces. Defaults to `true`."
     },
     "file_opener": {
       "allOf": [
@@ -8709,7 +8709,7 @@
       "description": "Trusted enterprise IdP shared by EMA-enabled MCP servers and plugins."
     },
     "mcp_oauth_callback_port": {
-      "description": "Optional fixed port for the local HTTP callback server used during MCP OAuth login. When unset, MapleCode will bind to an ephemeral port chosen by the OS.",
+      "description": "Optional fixed port for the local HTTP callback server used during MCP OAuth login. When unset, Maplecode will bind to an ephemeral port chosen by the OS.",
       "format": "uint16",
       "minimum": 0.0,
       "type": "integer"
@@ -8725,7 +8725,7 @@
         }
       ],
       "default": null,
-      "description": "Preferred backend for storing MCP OAuth credentials. keyring: Use an OS-specific keyring service. https://github.com/openai/codex/blob/main/codex-rs/rmcp-client/src/oauth.rs#L2 file: Use a file in the MapleCode home directory. auto (default): Use the OS-specific keyring service if available, otherwise use a file."
+      "description": "Preferred backend for storing MCP OAuth credentials. keyring: Use an OS-specific keyring service. https://github.com/openai/codex/blob/main/codex-rs/rmcp-client/src/oauth.rs#L2 file: Use a file in the Maplecode home directory. auto (default): Use the OS-specific keyring service if available, otherwise use a file."
     },
     "mcp_optional_startup_grace_ms": {
       "description": "Milliseconds to wait for optional MCP servers while building the initial tool catalog.\n\nDefaults to 1000. Set to 0 to disable the shared grace and wait for each server's configured `startup_timeout_sec` instead.",
@@ -8738,7 +8738,7 @@
         "$ref": "#/definitions/RawMcpServerConfig"
       },
       "default": {},
-      "description": "Definition for MCP servers that MapleCode can reach out to for tool calls.",
+      "description": "Definition for MCP servers that Maplecode can reach out to for tool calls.",
       "type": "object"
     },
     "memories": {
@@ -8785,7 +8785,7 @@
           "$ref": "#/definitions/AbsolutePathBuf"
         }
       ],
-      "description": "Optional path to a file containing model instructions that will override the built-in instructions for the selected model. Users are STRONGLY DISCOURAGED from using this field, as deviating from the instructions sanctioned by MapleCode will likely degrade model performance."
+      "description": "Optional path to a file containing model instructions that will override the built-in instructions for the selected model. Users are STRONGLY DISCOURAGED from using this field, as deviating from the instructions sanctioned by Maplecode will likely degrade model performance."
     },
     "model_post_turn_compact_threshold_percent": {
       "description": "Percentage of the usable context window that triggers compaction after a final response. Existing auto-compaction limits still apply. Omitted or zero disables turn-end compaction; valid values are 0–100.",
@@ -9004,7 +9004,7 @@
           "$ref": "#/definitions/AbsolutePathBuf"
         }
       ],
-      "description": "Directory where MapleCode stores the SQLite state DB. Defaults to `$MAPLECODE_SQLITE_HOME` when set. Otherwise uses `$MAPLECODE_HOME`."
+      "description": "Directory where Maplecode stores the SQLite state DB. Defaults to `$MAPLECODE_SQLITE_HOME` when set. Otherwise uses `$MAPLECODE_HOME`."
     },
     "suppress_unstable_features_warning": {
       "description": "Suppress warnings about unstable (under development) features.",
