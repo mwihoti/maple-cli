@@ -61,8 +61,8 @@ fn config_layer_stack_with_user_config(
     .expect("compose requirements")
     .expect("requirements should be present");
     let requirements_toml = with_sources.clone().into_toml();
-    let requirements =
-        maplecode_config::ConfigRequirements::try_from(with_sources).expect("normalize requirements");
+    let requirements = maplecode_config::ConfigRequirements::try_from(with_sources)
+        .expect("normalize requirements");
     let layers = user_config
         .map(|(contents, file)| {
             vec![ConfigLayerEntry::new(
@@ -354,7 +354,8 @@ source = "https://github.com/example/blocked.git"
         )),
     );
     let marketplace_path = AbsolutePathBuf::try_from(
-        marketplace_install_root(maplecode_home.path()).join("debug/.agents/plugins/marketplace.json"),
+        marketplace_install_root(maplecode_home.path())
+            .join("debug/.agents/plugins/marketplace.json"),
     )
     .expect("absolute marketplace path");
 
@@ -443,7 +444,12 @@ url = "https://github.com/openai/plugins.git"
         ] {
             assert!(
                 MarketplacePolicy::from_requirements(config.requirements())
-                    .validate_install(config, maplecode_home.path(), &repository_manifest, marketplace)
+                    .validate_install(
+                        config,
+                        maplecode_home.path(),
+                        &repository_manifest,
+                        marketplace
+                    )
                     .is_err()
             );
         }
@@ -559,8 +565,8 @@ enabled = true
         )),
     );
 
-    let projected =
-        policy_filtered_plugin_config(&stack, maplecode_home.path()).expect("project plugin config");
+    let projected = policy_filtered_plugin_config(&stack, maplecode_home.path())
+        .expect("project plugin config");
     assert_eq!(
         projected["marketplaces"]
             .as_table()
@@ -625,8 +631,8 @@ enabled = true
         )),
     );
 
-    let projected =
-        policy_filtered_plugin_config(&stack, maplecode_home.path()).expect("project plugin config");
+    let projected = policy_filtered_plugin_config(&stack, maplecode_home.path())
+        .expect("project plugin config");
 
     assert_eq!(
         projected["marketplaces"]
@@ -691,8 +697,8 @@ enabled = true
         )),
     );
 
-    let projected =
-        policy_filtered_plugin_config(&stack, maplecode_home.path()).expect("project plugin config");
+    let projected = policy_filtered_plugin_config(&stack, maplecode_home.path())
+        .expect("project plugin config");
     assert_eq!(
         projected["marketplaces"]
             .as_table()

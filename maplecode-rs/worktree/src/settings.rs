@@ -25,7 +25,10 @@ pub struct WorktreeSettings {
 
 impl WorktreeSettings {
     /// Shares Desktop's allocation root while leaving CLI cleanup disabled.
-    pub fn for_cli(maplecode_home: &Path, desktop: Option<&HashMap<String, Value>>) -> Result<Self> {
+    pub fn for_cli(
+        maplecode_home: &Path,
+        desktop: Option<&HashMap<String, Value>>,
+    ) -> Result<Self> {
         let desktop = desktop
             .and_then(|settings| settings.get(WORKTREE_ROOT))
             .map(|root| HashMap::from([(WORKTREE_ROOT.to_owned(), root.clone())]));

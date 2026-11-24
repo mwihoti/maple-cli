@@ -2,8 +2,8 @@
 //! must publish only committed snapshots.
 
 use super::*;
-use maplecode_keyring_store::tests::MockKeyringStore;
 use keyring::Error as KeyringError;
+use maplecode_keyring_store::tests::MockKeyringStore;
 use pretty_assertions::assert_eq;
 
 #[test]

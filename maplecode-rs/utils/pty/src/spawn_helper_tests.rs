@@ -238,7 +238,11 @@ async fn helper_preserves_cwd_env_arg0_and_streams() -> anyhow::Result<()> {
 async fn helper_reports_target_exec_and_cwd_errno() {
     for (program, cwd, errno) in [
         ("/maplecode-missing-spawn-target", "/", libc::ENOENT),
-        ("/bin/sh", "/maplecode-missing-spawn-directory", libc::ENOENT),
+        (
+            "/bin/sh",
+            "/maplecode-missing-spawn-directory",
+            libc::ENOENT,
+        ),
         ("/", "/", libc::EACCES),
     ] {
         let result =

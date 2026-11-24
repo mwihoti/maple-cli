@@ -4,6 +4,8 @@
 use std::collections::BTreeSet;
 use std::time::Duration;
 
+use futures::StreamExt;
+use futures::stream;
 use maplecode_attachment_store::AttachmentStore;
 use maplecode_history::AcceptedFileAudio;
 use maplecode_history::MapleCodeHarnessMetadata;
@@ -14,8 +16,6 @@ use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::FunctionCallOutputContentItem;
 use maplecode_protocol::models::ImageReference;
 use maplecode_protocol::models::ResponseItem;
-use futures::StreamExt;
-use futures::stream;
 
 /// Exact file identity proven by a terminal provider error and its submitted request.
 #[derive(Clone)]

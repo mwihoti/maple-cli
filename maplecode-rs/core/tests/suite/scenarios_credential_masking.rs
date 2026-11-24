@@ -2,11 +2,11 @@
 
 use super::*;
 use anyhow::Context;
-use maplecode_protocol::models::PermissionProfile;
 use core_test_support::exec_server::ExecServerProcess;
 use core_test_support::managed_network_requirements_loader;
 use core_test_support::responses::ev_function_call;
 use core_test_support::skip_if_sandbox;
+use maplecode_protocol::models::PermissionProfile;
 use pretty_assertions::assert_eq;
 use pretty_assertions::assert_ne;
 
@@ -30,9 +30,10 @@ async fn remote_credential_masking_request_history(
     let expect_masking = !use_login_shell && executor_startup_env.is_none();
     let use_zsh_snapshot = shell.name() == "zsh" && expect_masking;
     let home = Arc::new(TempDir::new()?);
-    if let Some(warning) =
-        maplecode_sandboxing::system_bwrap_warning(&PermissionProfile::workspace_write(), home.path())
-    {
+    if let Some(warning) = maplecode_sandboxing::system_bwrap_warning(
+        &PermissionProfile::workspace_write(),
+        home.path(),
+    ) {
         eprintln!("skipping sandbox test: {warning}");
         return Ok(());
     }

@@ -213,7 +213,9 @@ impl TurnRequestProcessor {
                 .guardian_review(cancellation)
                 .await
                 .map_err(|err| match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                        invalid_request(message.clone())
+                    }
                     _ => internal_error(format!("Guardian review failed: {err}")),
                 })?;
         Ok(Some(
@@ -738,7 +740,9 @@ impl TurnRequestProcessor {
             .await
             .map_err(|err| {
                 let error = match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                        invalid_request(message.clone())
+                    }
                     _ => internal_error(format!("failed to submit turn input: {err}")),
                 };
                 self.track_error_response(&request_id, &error, /*error_type*/ None);
@@ -1058,7 +1062,9 @@ impl TurnRequestProcessor {
                 .await
                 .map_err(|_| internal_error("thread settings operation ended before replying"))?
                 .map_err(|err| match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                        invalid_request(message.clone())
+                    }
                     _ => internal_error(format!("failed to update thread settings: {err}")),
                 })?;
         }
@@ -1162,7 +1168,9 @@ impl TurnRequestProcessor {
             .await
             .map_err(|err| {
                 let error = match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                        invalid_request(message.clone())
+                    }
                     _ => internal_error(format!("failed to steer turn: {err}")),
                 };
                 self.track_error_response(request_id, &error, /*error_type*/ None);
@@ -1203,9 +1211,11 @@ impl TurnRequestProcessor {
                         let error = TurnError {
                             misalignment: None,
                             message: message.clone(),
-                            maplecode_error_info: Some(MapleCodeErrorInfo::ActiveTurnNotSteerable {
-                                turn_kind: turn_kind.into(),
-                            }),
+                            maplecode_error_info: Some(
+                                MapleCodeErrorInfo::ActiveTurnNotSteerable {
+                                    turn_kind: turn_kind.into(),
+                                },
+                            ),
                             additional_details: None,
                         };
                         let data = match serde_json::to_value(error) {
@@ -1333,7 +1343,9 @@ impl TurnRequestProcessor {
                     .unwrap_or(false),
                 maplecode_responses_as_items: params.maplecode_responses_as_items.unwrap_or(false),
                 maplecode_response_item_prefix: params.maplecode_response_item_prefix,
-                maplecode_response_handoff_mode: params.maplecode_response_handoff_mode.unwrap_or_default(),
+                maplecode_response_handoff_mode: params
+                    .maplecode_response_handoff_mode
+                    .unwrap_or_default(),
                 backend_reasoning_status: params.backend_reasoning_status,
                 maplecode_response_handoff_channel_prefixes: params
                     .maplecode_response_handoff_channel_prefixes,

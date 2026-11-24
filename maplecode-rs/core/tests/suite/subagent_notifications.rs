@@ -1,5 +1,33 @@
 use anyhow::Result;
 use assert_matches::assert_matches;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::assert_parent_turn;
+use core_test_support::responses::assert_root_turn;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::ev_tool_search_call;
+use core_test_support::responses::mount_response_once_match;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::namespace_child_tool;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::strip_metadata_from_json;
+use core_test_support::responses::strip_response_item_ids_from_json;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use maplecode_agent_graph_store::AgentGraphStore;
 use maplecode_agent_graph_store::AgentGraphStoreError;
 use maplecode_agent_graph_store::AgentGraphStoreFuture;
@@ -45,34 +73,6 @@ use maplecode_thread_store::LoadThreadHistoryParams;
 use maplecode_thread_store::LocalThreadStore;
 use maplecode_thread_store::LocalThreadStoreConfig;
 use maplecode_thread_store::ThreadStoreError;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::assert_parent_turn;
-use core_test_support::responses::assert_root_turn;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::ev_tool_search_call;
-use core_test_support::responses::mount_response_once_match;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::namespace_child_tool;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::strip_metadata_from_json;
-use core_test_support::responses::strip_response_item_ids_from_json;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -971,7 +971,8 @@ async fn subagent_stop_replaces_stop_and_skips_internal_subagents() -> Result<()
         read_hook_log(test.maplecode_home_path(), "subagent_stop_hook_log.jsonl")?;
     assert_eq!(subagent_stop_inputs_after_internal, subagent_stop_inputs);
 
-    let stop_inputs_after_internal = read_hook_log(test.maplecode_home_path(), "stop_hook_log.jsonl")?;
+    let stop_inputs_after_internal =
+        read_hook_log(test.maplecode_home_path(), "stop_hook_log.jsonl")?;
     assert_eq!(stop_inputs_after_internal.len(), stop_input_count);
 
     Ok(())
@@ -2778,9 +2779,10 @@ async fn plaintext_multi_agent_v2_completion_sends_agent_message(
     let (child_request, child_turn_metadata) = loop {
         let child_request = child_request.requests().into_iter().find_map(|request| {
             let body = request.body_json();
-            let turn_metadata: Value =
-                serde_json::from_str(body["client_metadata"]["x-maplecode-turn-metadata"].as_str()?)
-                    .ok()?;
+            let turn_metadata: Value = serde_json::from_str(
+                body["client_metadata"]["x-maplecode-turn-metadata"].as_str()?,
+            )
+            .ok()?;
             turn_metadata
                 .get("parent_turn_id")
                 .and_then(Value::as_str)?;

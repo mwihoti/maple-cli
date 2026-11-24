@@ -5,6 +5,19 @@ use std::fs;
 use std::path::Path;
 use std::sync::Arc;
 
+use core_test_support::TempDirExt;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::strip_metadata_from_json;
+use core_test_support::responses::strip_response_item_ids_from_json;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::shell::default_user_shell;
 use maplecode_features::Feature;
@@ -26,19 +39,6 @@ use maplecode_protocol::protocol::ENVIRONMENT_CONTEXT_OPEN_TAG;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::TempDirExt;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::strip_metadata_from_json;
-use core_test_support::responses::strip_response_item_ids_from_json;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use test_case::test_case;
@@ -330,7 +330,9 @@ async fn gpt_5_tools_without_apply_patch_append_apply_patch_instructions() -> an
     .await;
 
     let TestMapleCode {
-        home: _home, maplecode, ..
+        home: _home,
+        maplecode,
+        ..
     } = test_maplecode()
         .with_pre_build_hook(write_global_instructions)
         .with_config(|config| {
@@ -761,7 +763,9 @@ async fn per_turn_overrides_keep_cached_prefix_and_key_constant() -> anyhow::Res
     .await;
 
     let TestMapleCode {
-        home: _home, maplecode, ..
+        home: _home,
+        maplecode,
+        ..
     } = test_maplecode()
         .with_pre_build_hook(write_global_instructions)
         .with_config(|config| {

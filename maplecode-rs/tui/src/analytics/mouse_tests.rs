@@ -2,12 +2,12 @@
 
 use super::*;
 use crate::analytics::controls::Control;
-use maplecode_config::types::KeybindingSpec;
-use maplecode_config::types::KeybindingsSpec;
-use maplecode_config::types::TuiKeymap;
 use crossterm::event::MouseButton;
 use crossterm::event::MouseEvent;
 use crossterm::event::MouseEventKind;
+use maplecode_config::types::KeybindingSpec;
+use maplecode_config::types::KeybindingsSpec;
+use maplecode_config::types::TuiKeymap;
 use pretty_assertions::assert_eq;
 use ratatui::layout::Rect;
 

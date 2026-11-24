@@ -142,10 +142,12 @@ async fn non_startup_history_dismisses_logo_until_a_new_thread() -> Result<()> {
     assert!(app.chat_widget.finish_rate_limit_reset_hint_refresh(
         request,
         Vec::new(),
-        Ok(maplecode_app_server_protocol::RateLimitResetCreditsSummary {
-            available_count: 1,
-            credits: None,
-        }),
+        Ok(
+            maplecode_app_server_protocol::RateLimitResetCreditsSummary {
+                available_count: 1,
+                credits: None,
+            }
+        ),
     ));
     // The same startup notice stays eligible both pending and committed to history.
     assert!(app.chat_widget.empty_state_composer().is_some());

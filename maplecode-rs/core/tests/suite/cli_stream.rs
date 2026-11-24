@@ -1,11 +1,11 @@
+use core_test_support::fs_wait;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
 use maplecode_git_utils::SanitizedGitUrl;
 use maplecode_git_utils::collect_git_info;
 use maplecode_login::MAPLECODE_ACCESS_TOKEN_ENV_VAR;
 use maplecode_login::MAPLECODE_API_KEY_ENV_VAR;
 use maplecode_protocol::protocol::GitInfo;
-use core_test_support::fs_wait;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use std::io;
 #[cfg(unix)]
@@ -74,7 +74,10 @@ fn personal_access_token_exec_command(server: &MockServer, home: &TempDir) -> Co
     cmd.arg("exec")
         .arg("--skip-git-repo-check")
         .arg("-c")
-        .arg(format!("openai_base_url=\"{}/api/maplecode\"", server.uri()))
+        .arg(format!(
+            "openai_base_url=\"{}/api/maplecode\"",
+            server.uri()
+        ))
         .arg("-c")
         .arg(format!("chatgpt_base_url=\"{}/backend-api\"", server.uri()))
         .arg("-C")

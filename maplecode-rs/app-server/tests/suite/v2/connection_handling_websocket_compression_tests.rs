@@ -7,14 +7,14 @@ use anyhow::Context;
 use anyhow::Result;
 use anyhow::bail;
 use app_test_support::create_mock_responses_server_sequence_unchecked;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_protocol::JSONRPCMessage;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_transport::WEBSOCKET_COMPRESSION_HEADER;
 use maplecode_app_server_transport::ZSTD_STREAM_PROTOCOL;
 use maplecode_app_server_transport::ZstdDecoder;
 use maplecode_app_server_transport::ZstdEncoder;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tempfile::TempDir;
@@ -39,7 +39,8 @@ async fn websocket_compression_requires_server_feature() -> Result<()> {
             Vec::new()
         };
         let (mut process, address) =
-            spawn_websocket_server_with_args(maplecode_home.path(), "ws://127.0.0.1:0", &args).await?;
+            spawn_websocket_server_with_args(maplecode_home.path(), "ws://127.0.0.1:0", &args)
+                .await?;
         let mut request = format!("ws://{address}").into_client_request()?;
         request.headers_mut().insert(
             WEBSOCKET_COMPRESSION_HEADER,

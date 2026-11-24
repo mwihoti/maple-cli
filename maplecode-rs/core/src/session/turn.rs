@@ -71,6 +71,8 @@ use crate::tools::spec_plan::tool_suggest_enabled;
 use crate::turn_diff_tracker::TurnDiffTracker;
 use crate::turn_timing::record_turn_ttft_metric;
 use crate::util::error_or_panic;
+use futures::prelude::*;
+use futures::stream::FuturesOrdered;
 use maplecode_analytics::AppInvocation;
 use maplecode_analytics::CompactionPhase;
 use maplecode_analytics::CompactionReason;
@@ -111,12 +113,12 @@ use maplecode_protocol::openai_models::InputModality;
 use maplecode_protocol::openai_models::ModelInfo;
 use maplecode_protocol::protocol::AgentMessageContentDeltaEvent;
 use maplecode_protocol::protocol::AgentReasoningSectionBreakEvent;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::ErrorEvent;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::HookEventName;
 use maplecode_protocol::protocol::HookExecutionMode;
 use maplecode_protocol::protocol::InternalSessionSource;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::PlanDeltaEvent;
 use maplecode_protocol::protocol::ReasoningContentDeltaEvent;
 use maplecode_protocol::protocol::ReasoningRawContentDeltaEvent;
@@ -145,8 +147,6 @@ use maplecode_utils_stream_parser::AssistantTextStreamParser;
 use maplecode_utils_stream_parser::ProposedPlanSegment;
 use maplecode_utils_stream_parser::extract_proposed_plan_text;
 use maplecode_utils_stream_parser::strip_citations;
-use futures::prelude::*;
-use futures::stream::FuturesOrdered;
 use tokio_util::sync::CancellationToken;
 use tracing::Instrument;
 use tracing::error;
@@ -196,7 +196,9 @@ async fn preserve_initial_input_during<T>(
     // If suspension took the task, its cleanup owns the input.
     *input = exchange_input(/* replacement */ None)
         .await?
-        .ok_or_else(|| MapleCodeErr::Fatal("initial input missing after turn preparation".into()))?;
+        .ok_or_else(|| {
+            MapleCodeErr::Fatal("initial input missing after turn preparation".into())
+        })?;
     Ok(result)
 }
 
@@ -423,7 +425,10 @@ pub(crate) async fn run_turn(
         // Token-budget compaction resets history, which can discard the evidence
         // referenced by a pending delta review. Leave budget failures unreusable.
         if !auto_summarization_enabled
-            || !matches!(error.details(), MapleCodeErrorDetails::ContextWindowExceeded)
+            || !matches!(
+                error.details(),
+                MapleCodeErrorDetails::ContextWindowExceeded
+            )
         {
             return Err(error);
         }
@@ -893,7 +898,8 @@ pub(crate) async fn run_turn(
                         {
                             if matches!(
                                 err.details(),
-                                MapleCodeErrorDetails::Interrupted | MapleCodeErrorDetails::TurnAborted
+                                MapleCodeErrorDetails::Interrupted
+                                    | MapleCodeErrorDetails::TurnAborted
                             ) {
                                 return Err(err);
                             }
@@ -2976,7 +2982,8 @@ async fn try_run_sampling_request(
     }
     let sampling_timing_guard = turn_context.turn_timing_state.begin_sampling();
     let mut response_id_for_assessment = None;
-    let mut answer_moderation: Option<maplecode_protocol::protocol::TargetedAnswerModeration> = None;
+    let mut answer_moderation: Option<maplecode_protocol::protocol::TargetedAnswerModeration> =
+        None;
     let mut pending_assessment: Option<maplecode_api::GuardianAssessment> = None;
     let mut response_completed = false;
     let mut request_token_usage: Option<maplecode_protocol::protocol::TokenUsage> = None;
@@ -3772,7 +3779,9 @@ async fn try_run_sampling_request(
     if let Some(finish_post_request) = finish_post_request {
         let (status, error) = match (response_completed, &outcome) {
             (true, _) => (ModelRequestStatus::Completed, None),
-            (false, Err(error)) if !matches!(error.details(), MapleCodeErrorDetails::TurnAborted) => {
+            (false, Err(error))
+                if !matches!(error.details(), MapleCodeErrorDetails::TurnAborted) =>
+            {
                 (ModelRequestStatus::Failed, Some(error.to_string()))
             }
             _ => (ModelRequestStatus::Cancelled, None),

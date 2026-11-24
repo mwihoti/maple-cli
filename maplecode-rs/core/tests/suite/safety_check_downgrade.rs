@@ -1,18 +1,4 @@
 use anyhow::Result;
-use maplecode_core::TurnInputRequest;
-use maplecode_protocol::config_types::CollaborationMode;
-use maplecode_protocol::config_types::ModeKind;
-use maplecode_protocol::config_types::Settings;
-use maplecode_protocol::models::ContentItem;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::models::ResponseItem;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::ModelRerouteReason;
-use maplecode_protocol::protocol::ModelVerification;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_function_call;
 use core_test_support::responses::ev_model_verification_metadata;
@@ -29,6 +15,20 @@ use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
+use maplecode_core::TurnInputRequest;
+use maplecode_protocol::config_types::CollaborationMode;
+use maplecode_protocol::config_types::ModeKind;
+use maplecode_protocol::config_types::Settings;
+use maplecode_protocol::models::ContentItem;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::models::ResponseItem;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::ModelRerouteReason;
+use maplecode_protocol::protocol::ModelVerification;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use wiremock::ResponseTemplate;
 
@@ -92,7 +92,10 @@ async fn openai_model_header_mismatch_emits_warning_event() -> Result<()> {
     assert_eq!(reroute.to_model, SERVER_MODEL);
     assert_eq!(reroute.reason, ModelRerouteReason::HighRiskCyberActivity);
 
-    let warning = wait_for_event(&test.maplecode, |event| matches!(event, EventMsg::Warning(_))).await;
+    let warning = wait_for_event(&test.maplecode, |event| {
+        matches!(event, EventMsg::Warning(_))
+    })
+    .await;
     let EventMsg::Warning(warning) = warning else {
         panic!("expected warning event");
     };
@@ -144,7 +147,8 @@ async fn error_response_emits_typed_error_without_retry(
             }]))
             .await?;
 
-        let error = wait_for_event(&test.maplecode, |event| matches!(event, EventMsg::Error(_))).await;
+        let error =
+            wait_for_event(&test.maplecode, |event| matches!(event, EventMsg::Error(_))).await;
         let EventMsg::Error(error) = error else {
             panic!("expected error event");
         };

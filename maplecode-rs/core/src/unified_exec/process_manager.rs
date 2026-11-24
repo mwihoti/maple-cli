@@ -16,7 +16,6 @@ use uuid::Uuid;
 use super::oneshot::Completion;
 use super::process::OutputDrainPolicy;
 
-use crate::maplecode_thread::BackgroundTerminalInfo;
 use crate::exec_env::MAPLECODE_PERMISSION_PROFILE_ENV_VAR;
 use crate::exec_env::MAPLECODE_THREAD_ID_ENV_VAR;
 use crate::exec_env::MAPLECODE_VERSION_ENV_VAR;
@@ -26,6 +25,7 @@ use crate::exec_env::inject_permission_profile_env;
 use crate::exec_env::inject_session_env;
 use crate::exec_env::set_tool_call_id_env_var;
 use crate::guardian::GuardianReviewContext;
+use crate::maplecode_thread::BackgroundTerminalInfo;
 use crate::plugins::metrics::finish_and_track_measurements;
 use crate::sandboxing::ExecRequest;
 use crate::sandboxing::ExecServerEnvConfig;
@@ -1452,18 +1452,19 @@ impl UnifiedExecProcessManager {
             } else {
                 None
             };
-        let spawn_result = maplecode_sandboxing::spawn_process(maplecode_sandboxing::SpawnRequest {
-            command: &request.command,
-            cwd: native_cwd.as_path(),
-            env: &request.env,
-            arg0: &request.arg0,
-            sandbox: request.sandbox,
-            windows_sandbox,
-            tty,
-            stdin_open: tty,
-            inherited_fds: maplecode_utils_pty::ChildFds::Inherited(&[]),
-        })
-        .await;
+        let spawn_result =
+            maplecode_sandboxing::spawn_process(maplecode_sandboxing::SpawnRequest {
+                command: &request.command,
+                cwd: native_cwd.as_path(),
+                env: &request.env,
+                arg0: &request.arg0,
+                sandbox: request.sandbox,
+                windows_sandbox,
+                tty,
+                stdin_open: tty,
+                inherited_fds: maplecode_utils_pty::ChildFds::Inherited(&[]),
+            })
+            .await;
         let spawned =
             spawn_result.map_err(|err| UnifiedExecError::create_process(err.to_string()))?;
         UnifiedExecProcess::from_spawned(spawned, request.sandbox).await

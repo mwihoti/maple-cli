@@ -1,6 +1,6 @@
 use maplecode_analytics::AnalyticsEventsClient;
-use maplecode_analytics::MapleCodeGoalEvent;
 use maplecode_analytics::GoalEventKind;
+use maplecode_analytics::MapleCodeGoalEvent;
 
 #[derive(Clone)]
 pub(crate) struct GoalAnalytics {

@@ -5,6 +5,11 @@ use std::sync::Mutex;
 use std::time::Duration;
 
 use anyhow::Result;
+use core_test_support::ThreadIdle;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::NotSubmittedReason;
 use maplecode_core::StartIfIdleSubmission;
 use maplecode_core::TurnInputRequest;
@@ -12,10 +17,10 @@ use maplecode_core::TurnInputSubmission;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::protocol::AgentStatus;
@@ -24,11 +29,6 @@ use maplecode_protocol::protocol::InterAgentCommunication;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::ThreadIdle;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
@@ -87,7 +87,10 @@ impl ExternalAuth for WakeBarriers {
         })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         self.resolve()
     }
 }
@@ -228,7 +231,11 @@ async fn pending_agent_message_wake_respects_control_changes(
                 })
                 .await?;
             assert_eq!(
-                test.maplecode.config_snapshot().await.collaboration_mode.mode,
+                test.maplecode
+                    .config_snapshot()
+                    .await
+                    .collaboration_mode
+                    .mode,
                 ModeKind::Plan
             );
             vec![first_mail]

@@ -222,8 +222,11 @@ impl ExecServerCommand {
                 .then(maplecode_exec_server::registration_auth_from_stdin)
                 .transpose()?;
             let stdin_auth = if self.chatgpt_token_stdin {
-                maplecode_http_client::validate_https_endpoint_url(&base_url, "ChatGPT token registry")
-                    .map_err(anyhow::Error::msg)?;
+                maplecode_http_client::validate_https_endpoint_url(
+                    &base_url,
+                    "ChatGPT token registry",
+                )
+                .map_err(anyhow::Error::msg)?;
                 Some(read_chatgpt_stdin_auth(self.chatgpt_account_id.take())?)
             } else {
                 None
@@ -255,7 +258,8 @@ impl ExecServerCommand {
             let telemetry_config = (!self.executor_credential_stdin).then_some(&config);
             let (_otel, telemetry) = exec_server_telemetry::init(telemetry_config);
             let mut credential_provider = None;
-            let auth_provider: maplecode_api::SharedAuthProvider = if self.executor_credential_stdin {
+            let auth_provider: maplecode_api::SharedAuthProvider = if self.executor_credential_stdin
+            {
                 let ExecutorCredentialPipe {
                     provider,
                     parent_closed,
@@ -290,17 +294,18 @@ impl ExecServerCommand {
                 )
                 .await?
             };
-            let mut remote_config = maplecode_exec_server::RemoteEnvironmentConfig::new_with_transport(
-                base_url,
-                environment_id,
-                if direct_transport {
-                    maplecode_exec_server::RemoteEnvironmentTransport::Direct
-                } else {
-                    maplecode_exec_server::RemoteEnvironmentTransport::Noise
-                },
-                auth_provider,
-                config.http_client_factory(),
-            )?;
+            let mut remote_config =
+                maplecode_exec_server::RemoteEnvironmentConfig::new_with_transport(
+                    base_url,
+                    environment_id,
+                    if direct_transport {
+                        maplecode_exec_server::RemoteEnvironmentTransport::Direct
+                    } else {
+                        maplecode_exec_server::RemoteEnvironmentTransport::Noise
+                    },
+                    auth_provider,
+                    config.http_client_factory(),
+                )?;
             if self.executor_credential_stdin || self.registration_bearer_stdin {
                 remote_config = remote_config.with_executor_credential_auth()?;
             } else if self.chatgpt_token_stdin {

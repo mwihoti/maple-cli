@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use futures::StreamExt;
 use maplecode_exec_server::EnvironmentAccess;
 use maplecode_exec_server::EnvironmentAccessExt;
 use maplecode_exec_server::EnvironmentAccessKey;
@@ -16,7 +17,6 @@ use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_plugins::PluginIdentity;
 use maplecode_utils_plugins::PluginSkillRoot;
 use maplecode_utils_plugins::SkillDiscoveryMode;
-use futures::StreamExt;
 use tracing::error;
 
 use super::MAX_QUALIFIED_NAME_LEN;

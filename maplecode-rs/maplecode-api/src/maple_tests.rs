@@ -7,9 +7,11 @@ use crate::endpoint::models::ModelsClient;
 use crate::endpoint::responses::ResponsesClient;
 use crate::provider::{Provider, RetryConfig};
 use crate::requests::Compression;
-use maplecode_client::{HttpTransport, Request, RequestBody, Response, StreamResponse, TransportError};
 use futures::StreamExt;
 use http::{HeaderMap, Method, StatusCode};
+use maplecode_client::{
+    HttpTransport, Request, RequestBody, Response, StreamResponse, TransportError,
+};
 use serde_json::{Value, json};
 use std::pin::Pin;
 use std::sync::atomic::{AtomicBool, Ordering};

@@ -20,12 +20,12 @@ use crate::oauth::build_authorization_url;
 use crate::oauth::generate_pkce;
 use crate::oauth::generate_state;
 use chrono::Utc;
+use http::StatusCode;
 use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClient;
 use maplecode_http_client::HttpClientBuilder;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_keyring_store::KeyringStore;
-use http::StatusCode;
 use sha2::Digest;
 use sha2::Sha256;
 use tokio::sync::Mutex;
@@ -43,11 +43,11 @@ mod storage;
 mod token;
 
 pub use crate::oauth::OAuthDeviceCodePrompt;
-pub use maplecode_model_provider_info::OAuthSessionConfig;
 pub use login::OAuthLoginControl;
 pub use login::OAuthSessionStatus;
 pub use login::OAuthSessionStatusChange;
 pub use login::subscribe_oauth_session_status;
+pub use maplecode_model_provider_info::OAuthSessionConfig;
 pub use request::OAuthRequestCredentials;
 pub use request::OAuthSessionRequest;
 
@@ -323,7 +323,8 @@ impl OAuthSessionManager {
         cached: &mut OAuthSessionCache,
         policy: &RefreshPolicy,
     ) -> io::Result<RefreshOutcome> {
-        let credential_lock = Arc::new(storage::lock_credentials(&self.state.maplecode_home).await?);
+        let credential_lock =
+            Arc::new(storage::lock_credentials(&self.state.maplecode_home).await?);
         // Recovery always rereads under the cross-process lock before choosing a token.
         // Even a replacement from storage must differ from the token rejected by this request.
         for _ in 0..2 {
@@ -468,7 +469,8 @@ impl OAuthSessionManager {
 
         // Wait for user interaction without the store lock, then serialize issuance and
         // persistence with refreshes. Use the current stored token as the failed-save baseline.
-        let credential_lock = Arc::new(storage::lock_credentials(&self.state.maplecode_home).await?);
+        let credential_lock =
+            Arc::new(storage::lock_credentials(&self.state.maplecode_home).await?);
         let stored = self.load_token_async().await?;
         if stored != cached.token {
             cached.token = stored;

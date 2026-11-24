@@ -1,3 +1,4 @@
+use ignore::overrides::OverrideBuilder;
 use maplecode_protocol::permissions::FileSystemAccessMode;
 use maplecode_protocol::permissions::FileSystemPath;
 use maplecode_protocol::permissions::FileSystemSandboxEntry;
@@ -6,7 +7,6 @@ use maplecode_protocol::permissions::ReadDenyMatcher;
 use maplecode_protocol::permissions::ResolvedFileSystemPermissions;
 use maplecode_protocol::permissions::windows_deny_read_glob_scan;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use ignore::overrides::OverrideBuilder;
 use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;

@@ -18,6 +18,12 @@ use app_test_support::test_absolute_path;
 use app_test_support::to_response;
 use app_test_support::write_chatgpt_auth;
 use chrono::Utc;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
 use maplecode_app_server_protocol::ActivePermissionProfile;
 use maplecode_app_server_protocol::ApprovalsReviewer;
 use maplecode_app_server_protocol::AskForApproval;
@@ -126,12 +132,6 @@ use maplecode_state::StateRuntime;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_absolute_path::test_support::PathExt;
 use maplecode_utils_path_uri::LegacyAppPathString;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::fs::FileTimes;
@@ -184,7 +184,11 @@ async fn thread_resume_paginated_model_context_preserves_original_metadata() -> 
         Some("mock_provider"),
         /*git_info*/ None,
     )?;
-    let path = rollout_path(maplecode_home.path(), "2025-01-05T12-00-00", &conversation_id);
+    let path = rollout_path(
+        maplecode_home.path(),
+        "2025-01-05T12-00-00",
+        &conversation_id,
+    );
     let settings: ThreadSettingsAppliedEvent = serde_json::from_value(json!({
         "thread_id": conversation_id,
         "thread_settings": {
@@ -2134,7 +2138,10 @@ async fn cold_resume_without_active_permission_profile_restores_base_permissions
         .with_approval_policy("on-request")
         .with_root_config(&format!("default_permissions = \"{configured_default}\""))
         .write(maplecode_home.path())?;
-    std::fs::write(maplecode_home.path().join("requirements.toml"), requirements)?;
+    std::fs::write(
+        maplecode_home.path().join("requirements.toml"),
+        requirements,
+    )?;
     let mut builder = TestAppServer::builder().with_maplecode_home(maplecode_home.path());
     if local {
         builder = builder.without_auto_env();
@@ -2835,7 +2842,11 @@ async fn thread_resume_returns_rollout_history() -> Result<()> {
         },
     }))?;
     append_rollout_item_to_path(
-        &rollout_path(maplecode_home.path(), "2025-01-05T12-00-00", &conversation_id),
+        &rollout_path(
+            maplecode_home.path(),
+            "2025-01-05T12-00-00",
+            &conversation_id,
+        ),
         &RolloutItem::EventMsg(EventMsg::ThreadSettingsApplied(settings)),
     )
     .await?;
@@ -2895,7 +2906,10 @@ async fn thread_resume_returns_rollout_history() -> Result<()> {
 
 #[tokio::test]
 async fn thread_resume_redacts_payloads_for_chatgpt_remote_clients() -> Result<()> {
-    for client_name in ["maplecode_chatgpt_android_remote", "maplecode_chatgpt_ios_remote"] {
+    for client_name in [
+        "maplecode_chatgpt_android_remote",
+        "maplecode_chatgpt_ios_remote",
+    ] {
         let remote_resume = resume_redaction_fixture(Some(client_name)).await?;
         let remote_turn = remote_resume
             .thread
@@ -4284,7 +4298,11 @@ async fn cold_paginated_resume_restores_usage_without_loading_turns() -> Result<
         Some("mock_provider"),
         /*git_info*/ None,
     )?;
-    let path = rollout_path(maplecode_home.path(), "2025-01-05T12-00-00", &conversation_id);
+    let path = rollout_path(
+        maplecode_home.path(),
+        "2025-01-05T12-00-00",
+        &conversation_id,
+    );
     let canonical_turn_id = "persisted-token-usage-turn";
     append_rollout_item_to_path(
         &path,
@@ -5143,7 +5161,10 @@ async fn thread_resume_checkpoints_settings_without_advancing_recency() -> Resul
         .await?;
     let ThreadResumeResponse { cwd, .. } =
         timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(resume_id)).await??;
-    assert_eq!(cwd, AbsolutePathBuf::from_absolute_path(maplecode_home.path())?);
+    assert_eq!(
+        cwd,
+        AbsolutePathBuf::from_absolute_path(maplecode_home.path())?
+    );
 
     let turn_id = mcp
         .send_turn_start_request(TurnStartParams {
@@ -5503,7 +5524,11 @@ async fn thread_resume_rejects_mismatched_path_for_running_thread_id() -> Result
     }
 
     let stale_thread_id = Uuid::new_v4().to_string();
-    let stale_path = rollout_path(maplecode_home.path(), "2025-01-01T00-00-00", &stale_thread_id);
+    let stale_path = rollout_path(
+        maplecode_home.path(),
+        "2025-01-01T00-00-00",
+        &stale_thread_id,
+    );
     std::fs::create_dir_all(stale_path.parent().expect("stale path parent"))?;
     let thread_uuid = Uuid::parse_str(&stale_thread_id)?;
     let mut stale_file = std::fs::File::create(&stale_path)?;

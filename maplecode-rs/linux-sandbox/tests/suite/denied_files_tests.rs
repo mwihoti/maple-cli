@@ -1,8 +1,8 @@
 //! Multiple denied files must not prevent sandbox startup or expose protected contents.
 
 use super::LONG_TIMEOUT_MS;
-use super::maplecode_linux_sandbox_exe;
 use super::create_env_from_core_vars;
+use super::maplecode_linux_sandbox_exe;
 use super::run_cmd_result_with_permission_profile_for_cwd;
 use super::should_skip_bwrap_tests;
 use maplecode_protocol::models::PermissionProfile;
@@ -136,9 +136,18 @@ printf '%s\000' "$MAPLECODE_TEST_DENIED_PATH_0" "$MAPLECODE_TEST_DENIED_PATH_1" 
                 "MAPLECODE_TEST_PROTECTED_RG_MARKER",
                 fixture.path().join("protected-rg-ran"),
             ),
-            ("MAPLECODE_TEST_DENIED_PATH_0", denied_files[0].0.to_path_buf()),
-            ("MAPLECODE_TEST_DENIED_PATH_1", denied_files[1].0.to_path_buf()),
-            ("MAPLECODE_TEST_DENIED_PATH_2", denied_files[2].0.to_path_buf()),
+            (
+                "MAPLECODE_TEST_DENIED_PATH_0",
+                denied_files[0].0.to_path_buf(),
+            ),
+            (
+                "MAPLECODE_TEST_DENIED_PATH_1",
+                denied_files[1].0.to_path_buf(),
+            ),
+            (
+                "MAPLECODE_TEST_DENIED_PATH_2",
+                denied_files[2].0.to_path_buf(),
+            ),
         ] {
             env.insert(
                 name.to_string(),

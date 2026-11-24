@@ -7,7 +7,6 @@
 //! Wheel input accumulates fractional rows and discards the remainder when direction reverses.
 
 use crate::key_hint::KeyBindingListExt;
-use maplecode_protocol::ThreadId;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyEventKind;
@@ -15,6 +14,7 @@ use crossterm::event::KeyModifiers;
 use crossterm::event::MouseButton;
 use crossterm::event::MouseEvent;
 use crossterm::event::MouseEventKind;
+use maplecode_protocol::ThreadId;
 use ratatui::layout::Position as ScreenPosition;
 
 use super::*;

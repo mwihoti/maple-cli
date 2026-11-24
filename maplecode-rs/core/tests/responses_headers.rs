@@ -1,6 +1,12 @@
 use std::process::Command;
 use std::sync::Arc;
 
+use core_test_support::TestMapleCodeResponsesRequestKind;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses;
+use core_test_support::responses_metadata as test_responses_metadata;
+use core_test_support::test_maplecode::test_maplecode;
+use futures::StreamExt;
 use maplecode_core::ModelClient;
 use maplecode_core::Prompt;
 use maplecode_core::ResponseEvent;
@@ -18,12 +24,6 @@ use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol_test_support::uuid_v7_item_id_generator_for_test;
-use core_test_support::TestMapleCodeResponsesRequestKind;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses;
-use core_test_support::responses_metadata as test_responses_metadata;
-use core_test_support::test_maplecode::test_maplecode;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use wiremock::matchers::header;
@@ -130,7 +130,10 @@ async fn responses_stream_includes_subagent_header_on_review() {
     );
 
     let client = ModelClient::new(
-        maplecode_model_provider::create_model_provider(provider.clone(), /*auth_manager*/ None),
+        maplecode_model_provider::create_model_provider(
+            provider.clone(),
+            /*auth_manager*/ None,
+        ),
         AgentIdentityAuthPolicy::JwtOnly,
         thread_id,
         uuid_v7_item_id_generator_for_test(),
@@ -280,7 +283,10 @@ async fn responses_stream_includes_subagent_header_on_other() {
     );
 
     let client = ModelClient::new(
-        maplecode_model_provider::create_model_provider(provider.clone(), /*auth_manager*/ None),
+        maplecode_model_provider::create_model_provider(
+            provider.clone(),
+            /*auth_manager*/ None,
+        ),
         AgentIdentityAuthPolicy::JwtOnly,
         thread_id,
         uuid_v7_item_id_generator_for_test(),
@@ -393,10 +399,11 @@ async fn responses_respects_model_info_overrides_from_config() {
     let config = Arc::new(config);
 
     let thread_id = ThreadId::new();
-    let auth_mode =
-        maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("Test API Key"))
-            .auth_mode()
-            .map(TelemetryAuthMode::from);
+    let auth_mode = maplecode_core::test_support::auth_manager_from_auth(
+        MapleCodeAuth::from_api_key("Test API Key"),
+    )
+    .auth_mode()
+    .map(TelemetryAuthMode::from);
     let session_source =
         SessionSource::SubAgent(SubAgentSource::Other("override-check".to_string()));
     let model_info =
@@ -415,7 +422,10 @@ async fn responses_respects_model_info_overrides_from_config() {
     );
 
     let client = ModelClient::new(
-        maplecode_model_provider::create_model_provider(provider.clone(), /*auth_manager*/ None),
+        maplecode_model_provider::create_model_provider(
+            provider.clone(),
+            /*auth_manager*/ None,
+        ),
         AgentIdentityAuthPolicy::JwtOnly,
         thread_id,
         uuid_v7_item_id_generator_for_test(),
@@ -515,8 +525,8 @@ async fn responses_stream_includes_turn_metadata_header_for_git_workspace_e2e() 
     let initial_header = initial_request
         .header("x-maplecode-turn-metadata")
         .expect("x-maplecode-turn-metadata header should be present");
-    let initial_parsed: serde_json::Value =
-        serde_json::from_str(&initial_header).expect("x-maplecode-turn-metadata should be valid JSON");
+    let initial_parsed: serde_json::Value = serde_json::from_str(&initial_header)
+        .expect("x-maplecode-turn-metadata should be valid JSON");
     let initial_turn_id = initial_parsed
         .get("turn_id")
         .and_then(serde_json::Value::as_str)

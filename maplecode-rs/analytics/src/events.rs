@@ -4,9 +4,6 @@ use std::time::Duration;
 use crate::facts::AppInvocation;
 use crate::facts::ArtifactOperation;
 use crate::facts::ArtifactOperationLifecycle;
-use crate::facts::MapleCodeCompactionEvent;
-use crate::facts::MapleCodeErrKind;
-use crate::facts::MapleCodeGoalEvent;
 use crate::facts::CompactionImplementation;
 use crate::facts::CompactionPhase;
 use crate::facts::CompactionReason;
@@ -18,6 +15,9 @@ use crate::facts::GoalEventKind;
 use crate::facts::HookRunFact;
 use crate::facts::ImagePreparationMetadata;
 use crate::facts::InvocationType;
+use crate::facts::MapleCodeCompactionEvent;
+use crate::facts::MapleCodeErrKind;
+use crate::facts::MapleCodeGoalEvent;
 use crate::facts::PluginInstallRequested;
 use crate::facts::PluginState;
 use crate::facts::SubAgentThreadStartedInput;
@@ -30,8 +30,8 @@ use crate::facts::TurnSteerResult;
 use crate::facts::TurnSubmissionType;
 use crate::guardian_v2::GuardianV2EventRequest;
 use crate::now_unix_millis;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::CommandExecutionSource;
+use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_login::default_client::originator;
 use maplecode_plugin::PluginId;
 use maplecode_plugin::PluginTelemetryMetadata;
@@ -1370,7 +1370,9 @@ pub(crate) fn maplecode_app_metadata(
     }
 }
 
-pub(crate) fn maplecode_plugin_metadata(plugin: PluginTelemetryMetadata) -> MapleCodePluginMetadata {
+pub(crate) fn maplecode_plugin_metadata(
+    plugin: PluginTelemetryMetadata,
+) -> MapleCodePluginMetadata {
     maplecode_plugin_metadata_with_product_client_id(plugin, originator().value)
 }
 

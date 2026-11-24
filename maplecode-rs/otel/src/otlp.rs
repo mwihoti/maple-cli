@@ -1,7 +1,7 @@
 use crate::config::OtelTlsConfig;
 use crate::headers_helper::HeadersHelper;
-use maplecode_utils_absolute_path::AbsolutePathBuf;
 use http::Uri;
+use maplecode_utils_absolute_path::AbsolutePathBuf;
 use opentelemetry_otlp::OTEL_EXPORTER_OTLP_TIMEOUT;
 use opentelemetry_otlp::OTEL_EXPORTER_OTLP_TIMEOUT_DEFAULT;
 use opentelemetry_otlp::tonic_types::transport::Certificate as TonicCertificate;
@@ -198,7 +198,11 @@ pub(crate) fn build_async_http_client(
         builder = builder.without_redirects();
     }
     Ok(crate::network_policy::RuntimeHttpClient {
-        client: builder.build_with_tls(factory, maplecode_http_client::ClientRouteClass::Other, config),
+        client: builder.build_with_tls(
+            factory,
+            maplecode_http_client::ClientRouteClass::Other,
+            config,
+        ),
         timeout: resolve_otlp_timeout(timeout_var),
         runtime: match &headers_helper {
             Some(helper) => helper.runtime.clone(),

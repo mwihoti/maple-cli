@@ -55,7 +55,10 @@ async fn tmux_split_preserves_fresh_session_composer_row_after_resize_reflow() -
             .arg(&session_name)
             .arg("--")
             .arg("env")
-            .arg(format!("MAPLECODE_HOME={}", maplecode_home.path().display()))
+            .arg(format!(
+                "MAPLECODE_HOME={}",
+                maplecode_home.path().display()
+            ))
             .arg("OPENAI_API_KEY=dummy")
             .arg(maplecode)
             .arg("-c")
@@ -219,7 +222,10 @@ async fn tmux_width_resize_restore_keeps_visible_content_anchored() -> Result<()
             .arg(&session_name)
             .arg("--")
             .arg("env")
-            .arg(format!("MAPLECODE_HOME={}", maplecode_home.path().display()))
+            .arg(format!(
+                "MAPLECODE_HOME={}",
+                maplecode_home.path().display()
+            ))
             .arg("OPENAI_API_KEY=dummy")
             .arg(maplecode)
             .arg("-c")
@@ -345,7 +351,10 @@ async fn tmux_scrolled_composer_resize_preserves_visible_draft_text() -> Result<
             .arg(&session_name)
             .arg("--")
             .arg("env")
-            .arg(format!("MAPLECODE_HOME={}", maplecode_home.path().display()))
+            .arg(format!(
+                "MAPLECODE_HOME={}",
+                maplecode_home.path().display()
+            ))
             .arg("OPENAI_API_KEY=dummy")
             .arg(maplecode)
             .arg("--model")
@@ -392,8 +401,11 @@ async fn tmux_scrolled_composer_resize_preserves_visible_draft_text() -> Result<
             .arg("-l")
             .arg(&final_line),
     )?;
-    let baseline =
-        wait_for_capture_contains(&maplecode_pane, &final_line, Duration::from_secs(/*secs*/ 15))?;
+    let baseline = wait_for_capture_contains(
+        &maplecode_pane,
+        &final_line,
+        Duration::from_secs(/*secs*/ 15),
+    )?;
 
     for (phase, width, height, minimum_visible_rows) in
         [("narrowed", "28", "9", 2), ("restored", "44", "14", 6)]
@@ -470,7 +482,10 @@ async fn run_repeated_resize_smoke() -> Result<()> {
             .arg(&session_name)
             .arg("--")
             .arg("env")
-            .arg(format!("MAPLECODE_HOME={}", maplecode_home.path().display()))
+            .arg(format!(
+                "MAPLECODE_HOME={}",
+                maplecode_home.path().display()
+            ))
             .arg("OPENAI_API_KEY=dummy")
             .arg(maplecode)
             .arg("-c")

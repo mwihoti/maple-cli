@@ -7,14 +7,22 @@ use std::time::Duration;
 use tokio_util::sync::CancellationToken;
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::sse;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_core::TurnInputRequest;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthKeyringBackendKind;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
 use maplecode_login::login_with_api_key;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_models_manager::manager::RefreshStrategy;
@@ -29,14 +37,6 @@ use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::sse;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use http::HeaderMap;
-use http::HeaderValue;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use test_case::test_case;
@@ -54,7 +54,10 @@ impl ExternalAuth for SelectedAuth {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         self.resolve()
     }
 }
@@ -75,7 +78,10 @@ impl ExternalAuth for StallingAuth {
         })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         self.resolve()
     }
 }

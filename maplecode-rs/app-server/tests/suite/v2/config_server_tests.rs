@@ -3,6 +3,8 @@
 use super::https_mock::tls_listener;
 use anyhow::Result;
 use app_test_support::TestAppServer;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
 use maplecode_app_server_protocol::LoginAccountResponse;
 use maplecode_app_server_protocol::LogoutAccountResponse;
 use maplecode_app_server_protocol::ThreadResumeParams;
@@ -12,8 +14,6 @@ use maplecode_app_server_protocol::TurnStartParams;
 use maplecode_app_server_protocol::TurnStatus;
 use maplecode_app_server_protocol::UserInput;
 use maplecode_config::test_support::CloudConfigBundleFixture;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use std::path::Path;
 use std::path::PathBuf;
@@ -267,21 +267,22 @@ async fn stdin_token_startup(
         .expect(u64::from(matches!(expected, SkipPolicy | LoadPolicy)))
         .mount_as_scoped(&registry)
         .await;
-    let mut child = tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?)
-        .current_dir(home.path())
-        .env("MAPLECODE_HOME", home.path())
-        .env("MAPLECODE_CA_CERTIFICATE", ca)
-        .env("NO_PROXY", "127.0.0.1")
-        .args(["-c", &format!("chatgpt_base_url={origin:?}")])
-        .arg("exec-server")
-        .args(["--remote", &origin])
-        .args(["--environment-id", "env"])
-        .args(["--chatgpt-token-stdin", "--exit-on-stdin-close"])
-        .args(["--chatgpt-account-id", "endor"])
-        .stdin(Stdio::piped())
-        .stderr(Stdio::piped())
-        .kill_on_drop(true)
-        .spawn()?;
+    let mut child =
+        tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?)
+            .current_dir(home.path())
+            .env("MAPLECODE_HOME", home.path())
+            .env("MAPLECODE_CA_CERTIFICATE", ca)
+            .env("NO_PROXY", "127.0.0.1")
+            .args(["-c", &format!("chatgpt_base_url={origin:?}")])
+            .arg("exec-server")
+            .args(["--remote", &origin])
+            .args(["--environment-id", "env"])
+            .args(["--chatgpt-token-stdin", "--exit-on-stdin-close"])
+            .args(["--chatgpt-account-id", "endor"])
+            .stdin(Stdio::piped())
+            .stderr(Stdio::piped())
+            .kill_on_drop(true)
+            .spawn()?;
     let mut stdin = child.stdin.take().context("exec-server stdin")?;
     stdin.write_all(format!("{token}\n").as_bytes()).await?;
     let (pending, exit_timeout) = match expected {

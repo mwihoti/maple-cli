@@ -16,6 +16,13 @@ use crate::state::ActiveTurn;
 use crate::test_support::models_manager_with_provider;
 use crate::tools::hook_names::HookToolName;
 use crate::turn_metadata::ExecutionMetadata;
+use core_test_support::hooks::trusted_config_layer_stack;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
 use maplecode_app_server_protocol as app_server_protocol;
 use maplecode_config::CONFIG_TOML_FILE;
 use maplecode_config::config_toml::ConfigToml;
@@ -45,13 +52,6 @@ use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use maplecode_protocol::turn_input::ResponsesApiClientMetadataUpdate;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::hooks::trusted_config_layer_stack;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
 use opentelemetry::trace::TracerProvider;
 use opentelemetry_sdk::trace::InMemorySpanExporter;
 use opentelemetry_sdk::trace::SdkTracerProvider;
@@ -228,7 +228,8 @@ fn expected_mcp_turn_metadata(turn_context: &TurnContext) -> serde_json::Value {
 
 fn write_sample_plugin_mcp(maplecode_home: &std::path::Path) {
     let plugin_root = maplecode_home.join("plugins/cache/test/sample/local");
-    std::fs::create_dir_all(plugin_root.join(".maplecode-plugin")).expect("create plugin manifest dir");
+    std::fs::create_dir_all(plugin_root.join(".maplecode-plugin"))
+        .expect("create plugin manifest dir");
     std::fs::write(
         plugin_root.join(".maplecode-plugin/plugin.json"),
         r#"{
@@ -722,7 +723,8 @@ async fn mcp_result_telemetry_truncates_long_target_id() {
     .await;
 
     assert!(
-        logs.contains(&format!("maplecode.mcp.target.id=\"{truncated}\"")) && !logs.contains("tail"),
+        logs.contains(&format!("maplecode.mcp.target.id=\"{truncated}\""))
+            && !logs.contains("tail"),
         "long MCP result telemetry target_id should be truncated\nlogs:\n{logs}"
     );
 }
@@ -1555,7 +1557,10 @@ fn mcp_tool_call_item_metadata_only_trusts_maplecode_apps_identity() {
     );
 
     assert_eq!(
-        McpToolCallItemMetadata::from_tool_metadata(MAPLECODE_APPS_MCP_SERVER_NAME, Some(&metadata),),
+        McpToolCallItemMetadata::from_tool_metadata(
+            MAPLECODE_APPS_MCP_SERVER_NAME,
+            Some(&metadata),
+        ),
         McpToolCallItemMetadata {
             connector_id: Some("asdk_app_0123456789abcdef0123456789abcdef".to_string()),
             link_id: Some("link_fedcba9876543210fedcba9876543210".to_string()),
@@ -1699,7 +1704,8 @@ async fn maplecode_apps_tool_call_request_meta_includes_turn_metadata_and_maplec
 }
 
 #[tokio::test]
-async fn maplecode_apps_tool_call_request_meta_includes_call_id_without_existing_maplecode_apps_meta() {
+async fn maplecode_apps_tool_call_request_meta_includes_call_id_without_existing_maplecode_apps_meta()
+ {
     let (_, turn_context) = make_session_and_context().await;
     let turn_context = Arc::new(turn_context);
     let step_context = StepContext::for_test(Arc::clone(&turn_context));
@@ -2854,7 +2860,8 @@ async fn maybe_persist_mcp_tool_approval_preserves_plugin_default_activation() {
 
     maybe_persist_mcp_tool_approval(&session, &turn_context, key).await;
 
-    let contents = std::fs::read_to_string(maplecode_home.join(CONFIG_TOML_FILE)).expect("read config");
+    let contents =
+        std::fs::read_to_string(maplecode_home.join(CONFIG_TOML_FILE)).expect("read config");
     let parsed: ConfigToml = toml::from_str(&contents).expect("parse config");
     let tool = parsed
         .plugins
@@ -3842,7 +3849,10 @@ async fn approval_metadata_is_released_when_the_invocation_future_is_dropped() {
     );
     assert_eq!(
         session
-            .mcp_tool_approval_metadata(&McpServerKey::unscoped(MAPLECODE_APPS_MCP_SERVER_NAME), "call")
+            .mcp_tool_approval_metadata(
+                &McpServerKey::unscoped(MAPLECODE_APPS_MCP_SERVER_NAME),
+                "call"
+            )
             .map(|context| (context.invocation, context.metadata.connector_id)),
         Some((Some(invocation.clone()), Some("connector".to_string()))),
     );
@@ -3854,7 +3864,10 @@ async fn approval_metadata_is_released_when_the_invocation_future_is_dropped() {
     drop(call);
     assert!(
         session
-            .mcp_tool_approval_metadata(&McpServerKey::unscoped(MAPLECODE_APPS_MCP_SERVER_NAME), "call")
+            .mcp_tool_approval_metadata(
+                &McpServerKey::unscoped(MAPLECODE_APPS_MCP_SERVER_NAME),
+                "call"
+            )
             .is_none()
     );
     let _next_metadata = session.register_mcp_tool_approval_metadata(

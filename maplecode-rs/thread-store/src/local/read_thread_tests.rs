@@ -28,7 +28,9 @@ async fn empty_archived_reads_without_sqlite_preserve_source_and_file_time()
     let timestamp = "2026-07-09T00:00:00Z";
     let created_at = DateTime::parse_from_rfc3339(timestamp)?.with_timezone(&Utc);
     let updated_at = DateTime::parse_from_rfc3339("2026-07-10T00:00:00Z")?.with_timezone(&Utc);
-    let directory = home.path().join(maplecode_rollout::ARCHIVED_SESSIONS_SUBDIR);
+    let directory = home
+        .path()
+        .join(maplecode_rollout::ARCHIVED_SESSIONS_SUBDIR);
     fs::create_dir_all(&directory)?;
     let path = directory.join(format!("rollout-2026-07-09T00-00-00-{thread_id}.jsonl"));
     let line = RolloutLine {

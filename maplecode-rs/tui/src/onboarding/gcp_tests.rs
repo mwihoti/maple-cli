@@ -3,12 +3,12 @@
 //! Exercises Google Cloud onboarding through the widget and embedded app-server.
 
 use super::*;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyModifiers;
 use maplecode_app_server_protocol::ConfigBatchWriteParams;
 use maplecode_app_server_protocol::ConfigEdit;
 use maplecode_app_server_protocol::ConfigWriteResponse;
 use maplecode_app_server_protocol::MergeStrategy;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyModifiers;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

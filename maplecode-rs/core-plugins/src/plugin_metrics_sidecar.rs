@@ -1,4 +1,5 @@
 use crate::ResolvedPluginMetricsOperation;
+use futures::StreamExt;
 use maplecode_analytics::PluginMeasurementRow;
 use maplecode_exec_server::CreateDirectoryOptions;
 use maplecode_exec_server::Environment;
@@ -11,7 +12,6 @@ use maplecode_protocol::models::FileSystemPermissions;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathConvention;
 use maplecode_utils_path_uri::PathUri;
-use futures::StreamExt;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;

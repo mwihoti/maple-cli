@@ -1,3 +1,5 @@
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_api::ImageEditRequest;
 use maplecode_api::ImageGenerationRequest;
 use maplecode_api::ImageRequestError;
@@ -12,8 +14,6 @@ use maplecode_login::default_client::add_originator_header;
 use maplecode_login::default_client::create_transport_for_routes_async;
 use maplecode_model_provider::SharedModelProvider;
 use maplecode_protocol::error::MapleCodeErr;
-use http::HeaderMap;
-use http::HeaderValue;
 
 const X_MAPLECODE_IMAGE_TURN_ID_HEADER: &str = "x-maplecode-image-turn-id";
 

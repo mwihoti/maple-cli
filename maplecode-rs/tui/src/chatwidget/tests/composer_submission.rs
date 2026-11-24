@@ -2309,7 +2309,8 @@ async fn default_shortcuts_edit_most_recent_queued_message() {
 async fn unbound_queued_message_edit_does_not_fall_back_to_alt_up() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
     let mut config = maplecode_config::types::TuiKeymap::default();
-    config.chat.edit_queued_message = Some(maplecode_config::types::KeybindingsSpec::Many(Vec::new()));
+    config.chat.edit_queued_message =
+        Some(maplecode_config::types::KeybindingsSpec::Many(Vec::new()));
     let keymap = RuntimeKeymap::from_config(&config).expect("valid unbound queued edit");
     chat.apply_keymap_update(config, &keymap);
     chat.bottom_pane.set_task_running(/*running*/ true);
@@ -2617,8 +2618,7 @@ async fn task_mention_submission_and_transcript_preserve_the_visible_title() {
 async fn committed_user_message_with_hidden_prompt_context_renders_local_images() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
     let local_image = PathBuf::from("/tmp/context-image.png");
-    let raw_message =
-        "# Context from my IDE setup:\n\n## Active file: src/lib.rs\n\n## My request for MapleCode:\n";
+    let raw_message = "# Context from my IDE setup:\n\n## Active file: src/lib.rs\n\n## My request for MapleCode:\n";
 
     complete_user_message_for_inputs(
         &mut chat,

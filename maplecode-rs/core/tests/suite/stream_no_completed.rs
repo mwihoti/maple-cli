@@ -1,11 +1,6 @@
 //! Verifies that the agent retries when the SSE stream terminates before
 //! delivering a `response.completed` event.
 
-use maplecode_core::TurnInputRequest;
-use maplecode_model_provider_info::ModelProviderInfo;
-use maplecode_model_provider_info::WireApi;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::streaming_sse::StreamingSseChunk;
@@ -13,6 +8,11 @@ use core_test_support::streaming_sse::start_streaming_sse_server;
 use core_test_support::test_maplecode::TestMapleCode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_core::TurnInputRequest;
+use maplecode_model_provider_info::ModelProviderInfo;
+use maplecode_model_provider_info::WireApi;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use std::net::TcpListener;
 use wiremock::MockServer;
@@ -94,7 +94,10 @@ async fn retries_on_early_close() {
         .unwrap();
 
     // Wait until TurnComplete (should succeed after retry).
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let requests = server.requests().await;
     assert_eq!(
@@ -133,8 +136,10 @@ async fn connection_failure_pauses_retry_budget_until_provider_is_reachable() ->
         }]))
         .await?;
 
-    let EventMsg::StreamError(connection_error) =
-        wait_for_event(&maplecode, |event| matches!(event, EventMsg::StreamError(_))).await
+    let EventMsg::StreamError(connection_error) = wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::StreamError(_))
+    })
+    .await
     else {
         unreachable!("predicate guarantees a stream error event");
     };
@@ -153,15 +158,19 @@ async fn connection_failure_pauses_retry_budget_until_provider_is_reachable() ->
     )
     .await;
 
-    let EventMsg::StreamError(stream_error) =
-        wait_for_event(&maplecode, |event| matches!(event, EventMsg::StreamError(_))).await
+    let EventMsg::StreamError(stream_error) = wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::StreamError(_))
+    })
+    .await
     else {
         unreachable!("predicate guarantees a stream error event");
     };
     assert_eq!(stream_error.message, "Reconnecting... 1/1");
 
-    let EventMsg::TurnComplete(completed) =
-        wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await
+    let EventMsg::TurnComplete(completed) = wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await
     else {
         unreachable!("predicate guarantees a turn complete event");
     };

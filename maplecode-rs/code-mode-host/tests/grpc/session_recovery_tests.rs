@@ -7,6 +7,7 @@ use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 
 use anyhow::Result;
+use futures::StreamExt;
 use maplecode_code_mode::CodeModeOutputTruncation;
 use maplecode_code_mode::CodeModeSessionOptions;
 use maplecode_code_mode::CodeModeSessionProvider;
@@ -16,7 +17,6 @@ use maplecode_code_mode::NoopCodeModeSessionDelegate;
 use maplecode_code_mode::RuntimeResponse;
 use maplecode_code_mode_host::GrpcCodeModeHost;
 use maplecode_code_mode_protocol::grpc::code_mode_host_server::CodeModeHostServer;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use tokio::net::TcpListener;
 use tokio::net::TcpStream;

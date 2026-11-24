@@ -44,8 +44,8 @@ impl CodeModeExecuteHandler {
         code: String,
         telemetry: &mut CodeModeToolCallGuard,
     ) -> Result<CodeModeToolOutput, FunctionCallError> {
-        let args =
-            maplecode_code_mode::parse_exec_source(&code).map_err(FunctionCallError::RespondToModel)?;
+        let args = maplecode_code_mode::parse_exec_source(&code)
+            .map_err(FunctionCallError::RespondToModel)?;
         let exec = ExecContext {
             session,
             turn: Arc::clone(&step_context.turn),
@@ -137,7 +137,10 @@ impl CodeModeExecuteHandler {
         code_cell_trace.record_initial_response(&response);
         // Yielded cells keep running, so terminal lifecycle is only emitted
         // here when the first response also ended the runtime.
-        if matches!(response, maplecode_code_mode::RuntimeResponse::Yielded { .. }) {
+        if matches!(
+            response,
+            maplecode_code_mode::RuntimeResponse::Yielded { .. }
+        ) {
             telemetry.record_cell_timing(
                 &cell_id,
                 maplecode_extension_api::CodeModeCellTiming::ExecYielded,

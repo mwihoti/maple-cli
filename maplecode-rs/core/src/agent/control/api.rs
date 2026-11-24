@@ -20,6 +20,7 @@ use crate::agent_communication::AgentCommunicationKind;
 use crate::maplecode_thread::GuardianRootSnapshot;
 use crate::maplecode_thread::ThreadConfigSnapshot;
 use crate::rollout_budget::RolloutBudgetReminder;
+use futures::future::BoxFuture;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
@@ -29,7 +30,6 @@ use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::TokenUsage;
 use maplecode_rollout_trace::ThreadTraceContext;
-use futures::future::BoxFuture;
 use std::collections::HashSet;
 
 impl AgentControl for LocalAgentControl {
@@ -85,7 +85,9 @@ impl AgentControl for LocalAgentControl {
                         .rsplit_once('/')
                         .and_then(|(parent, _)| AgentPath::try_from(parent).ok())
                         .ok_or_else(|| {
-                            MapleCodeErr::InvalidRequest("spawn input needs a child path".to_string())
+                            MapleCodeErr::InvalidRequest(
+                                "spawn input needs a child path".to_string(),
+                            )
                         })?;
                     SpawnInitialInput::InterAgentCommunication(
                         message.into_communication(author, recipient, mode),

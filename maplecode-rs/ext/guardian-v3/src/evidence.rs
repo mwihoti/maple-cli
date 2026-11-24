@@ -2,8 +2,8 @@
 //! A capture has a fixed end; consumers acknowledge records only after their writes succeed.
 
 use anyhow::ensure;
-use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::HistoryInitialization;
+use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RetainedContextEvent;
 use maplecode_history::RolloutItem;

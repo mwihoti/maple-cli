@@ -1,6 +1,13 @@
 //! Exercises attachment races through Core submissions and real sideband sockets.
 
 use anyhow::Result;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::start_mock_server;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_api::RealtimeEvent;
 use maplecode_protocol::protocol::ConversationStartParams;
 use maplecode_protocol::protocol::ConversationStartTransport;
@@ -13,13 +20,6 @@ use maplecode_protocol::protocol::RealtimeConversationVersion;
 use maplecode_protocol::protocol::RealtimeOutputModality;
 use maplecode_protocol::protocol::RealtimeSidebandTransport;
 use maplecode_protocol::protocol::ThreadHistoryMode;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -214,7 +214,10 @@ async fn initiated_sideband_detach_preserves_queued_transcript_in_history() -> R
         drop(events);
         drop(commands);
         detach(&test, &session).await?;
-        let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+        let history = test
+            .maplecode
+            .load_history(/*include_archived*/ false)
+            .await?;
         let tails = history.items.iter().filter(|item| {
             matches!(item,
                 maplecode_history::RolloutItem::ResponseItem(maplecode_history::ResponseItemEnvelope {
@@ -361,7 +364,10 @@ async fn start(
     test: &TestMapleCode,
     session: &str,
     url: &str,
-) -> Result<(String, oneshot::Receiver<maplecode_protocol::error::Result<()>>)> {
+) -> Result<(
+    String,
+    oneshot::Receiver<maplecode_protocol::error::Result<()>>,
+)> {
     let params = params(session, url);
     let (reply, result) = oneshot::channel();
     let id = test
@@ -687,9 +693,9 @@ async fn failed_attachment_leaves_core_disconnected() -> Result<()> {
 #[test_case::test_case(false; "drop unfinished tail")]
 #[tokio::test]
 async fn completed_turns_reach_history_before_the_next_handoff(flush_tail: bool) -> Result<()> {
-    use maplecode_protocol::protocol::RealtimeEvent;
     use core_test_support::responses;
     use core_test_support::wait_for_event;
+    use maplecode_protocol::protocol::RealtimeEvent;
 
     let api = start_mock_server().await;
     let replies = ["handoff", "text"].map(|id| {

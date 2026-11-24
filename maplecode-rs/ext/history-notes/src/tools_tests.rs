@@ -147,7 +147,8 @@ fn rejects_malformed_attachments_instead_of_silently_dropping_them() {
         let result = HistoryNotesToolOutput::new(
             json!({"encrypted_output": "enc_payload", "images": images}),
         );
-        let Err(maplecode_extension_api::FunctionCallError::RespondToModel(message)) = result else {
+        let Err(maplecode_extension_api::FunctionCallError::RespondToModel(message)) = result
+        else {
             panic!("expected a model-facing image error");
         };
         assert_eq!(message, "History backend returned invalid image content.");

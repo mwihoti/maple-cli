@@ -2,13 +2,13 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use anyhow::bail;
+use futures::FutureExt;
+use futures::future::BoxFuture;
 use maplecode_hooks::HookMcpCall;
 use maplecode_hooks::HookMcpExecutor;
 use maplecode_hooks::HookMcpOutput;
 use maplecode_mcp::McpRuntime;
 use maplecode_protocol::ThreadId;
-use futures::FutureExt;
-use futures::future::BoxFuture;
 use serde_json::Value;
 
 pub(crate) struct CoreHookMcpExecutor {

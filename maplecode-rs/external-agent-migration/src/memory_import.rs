@@ -77,7 +77,9 @@ pub(super) async fn import(
     // consolidation must not leave a partially imported v1 workspace.
     let workspace_locks = versions
         .iter()
-        .map(|version| MemoryWorkspaceLock::try_acquire(&maplecode_home.join(version.directory_name())))
+        .map(|version| {
+            MemoryWorkspaceLock::try_acquire(&maplecode_home.join(version.directory_name()))
+        })
         .collect::<io::Result<Vec<_>>>()?;
     let maplecode_home = maplecode_home.to_path_buf();
     let state_db = std::sync::Arc::clone(state_db);

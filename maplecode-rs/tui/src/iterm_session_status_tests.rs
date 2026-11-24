@@ -1,10 +1,10 @@
 use std::io;
 
+use crossterm::Command;
 use maplecode_terminal_detection::Multiplexer;
 use maplecode_terminal_detection::TerminalBackend;
 use maplecode_terminal_detection::TerminalInfo;
 use maplecode_terminal_detection::TerminalName;
-use crossterm::Command;
 use pretty_assertions::assert_eq;
 
 use super::CachedStatus;

@@ -6,10 +6,10 @@ use std::time::Duration;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
 use tokio::sync::Notify;
 use wiremock::Mock;
 use wiremock::MockServer;
@@ -39,7 +39,10 @@ impl ExternalAuth for StaticExternalAuth {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         self.resolve()
     }
 }
@@ -163,7 +166,10 @@ impl ExternalAuth for RotatingExternalAuth {
         })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         self.0.fetch_add(/*val*/ 1, Ordering::SeqCst);
         self.resolve()
     }

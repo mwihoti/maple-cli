@@ -39,7 +39,10 @@ impl ExecServerProcess {
         Self::start_with_version_and_home(version, TempDir::new()?).await
     }
 
-    pub async fn start_with_version_and_home(version: &str, maplecode_home: TempDir) -> Result<Self> {
+    pub async fn start_with_version_and_home(
+        version: &str,
+        maplecode_home: TempDir,
+    ) -> Result<Self> {
         let package = maplecode_home.path().join("package");
         let bin = package.join("bin");
         std::fs::create_dir_all(&bin)?;

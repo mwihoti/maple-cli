@@ -8,6 +8,16 @@ use crate::PluginProviders;
 use crate::PluginsThreadState;
 use crate::install_plugin_providers;
 use anyhow::Context;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::recorded_apps_tool_calls;
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::test_maplecode::run_test_with_large_stack;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core_plugins::ExecutorPluginProvider;
 use maplecode_core_plugins::PluginCatalog;
@@ -27,16 +37,6 @@ use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::config_types::Settings;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::recorded_apps_tool_calls;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::test_maplecode::run_test_with_large_stack;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;
@@ -164,15 +164,17 @@ async fn disabling_plugins_clears_cloud_catalog_and_skips_discovery() -> anyhow:
                 .await;
         }
         registry.mcp_server_contributors()[0]
-            .contribute(maplecode_extension_api::McpServerContributionContext::for_step(
-                &config,
-                &thread_init,
-                &thread,
-                "test",
-                &[],
-                /*executor_capability_discovery*/ None,
-                /*executor_capability_discovery_v2*/ None,
-            ))
+            .contribute(
+                maplecode_extension_api::McpServerContributionContext::for_step(
+                    &config,
+                    &thread_init,
+                    &thread,
+                    "test",
+                    &[],
+                    /*executor_capability_discovery*/ None,
+                    /*executor_capability_discovery_v2*/ None,
+                ),
+            )
             .await;
         if let Some(state) = thread.get::<PluginsThreadState>() {
             assert_eq!(state.cloud_catalog(), expected_catalog, "turn {turn_id}");
@@ -526,11 +528,13 @@ async fn run_cloud_catalog_refresh_lifecycle() -> anyhow::Result<()> {
         )
         .with_exec_server_url("none")
         .with_extensions(Arc::new(extensions.build()))
-        .with_auth(maplecode_login::MapleCodeAuth::from_external_chatgpt_tokens(
-            "header.e30.initial",
-            "account-a",
-            /*chatgpt_plan_type*/ None,
-        )?)
+        .with_auth(
+            maplecode_login::MapleCodeAuth::from_external_chatgpt_tokens(
+                "header.e30.initial",
+                "account-a",
+                /*chatgpt_plan_type*/ None,
+            )?,
+        )
         .with_model_info_override("gpt-5.5", |model| {
             model.supports_search_tool = false;
         })
@@ -702,7 +706,8 @@ async fn run_cloud_catalog_refresh_lifecycle() -> anyhow::Result<()> {
             test.thread_manager.auth_manager().reload().await;
             tokio::time::timeout(std::time::Duration::from_secs(10), async {
                 loop {
-                    if resources.auth_cache_key_for_server(maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME)
+                    if resources
+                        .auth_cache_key_for_server(maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME)
                         != previous_auth
                         && test
                             .maplecode
@@ -765,8 +770,9 @@ async fn run_cloud_catalog_refresh_lifecycle() -> anyhow::Result<()> {
                             .unwrap_or_else(std::sync::PoisonError::into_inner)
                             .clone()
                             .context("cloud provider resource client missing")?;
-                        let previous_auth = resources
-                            .auth_cache_key_for_server(maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME);
+                        let previous_auth = resources.auth_cache_key_for_server(
+                            maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME,
+                        );
                         // Rotate credentials without replacing the captured runtime/client.
                         maplecode_login::auth::login_with_chatgpt_auth_tokens(
                             test.maplecode_home_path(),
@@ -776,9 +782,9 @@ async fn run_cloud_catalog_refresh_lifecycle() -> anyhow::Result<()> {
                         )?;
                         test.thread_manager.auth_manager().reload().await;
                         // Auth must be published while cloud discovery remains paused.
-                        while resources
-                            .auth_cache_key_for_server(maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME)
-                            == previous_auth
+                        while resources.auth_cache_key_for_server(
+                            maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME,
+                        ) == previous_auth
                         {
                             tokio::task::yield_now().await;
                         }

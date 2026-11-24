@@ -14,6 +14,29 @@ use crate::session::session::Session;
 use crate::session::tests::update_turn_settings_for_test;
 use crate::session::turn_context::TurnContext;
 use crate::test_support;
+use core_test_support::PathBufExt;
+use core_test_support::TempDirExt;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::context_snapshot::SnapshotEntry;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::assert_parent_turn;
+use core_test_support::responses::assert_root_turn;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_response_sequence;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_failed;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_path_buf;
+use insta::Settings;
+use insta::assert_snapshot;
 use maplecode_analytics::GuardianApprovalRequestSource;
 use maplecode_config::ConfigLayerStack;
 use maplecode_config::NetworkConstraints;
@@ -64,29 +87,6 @@ use maplecode_protocol::protocol::TurnCompleteEvent;
 use maplecode_protocol_test_support::ContentItemTestExt;
 use maplecode_utils_path_uri::LegacyAppPathString;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::TempDirExt;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::context_snapshot::SnapshotEntry;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::assert_parent_turn;
-use core_test_support::responses::assert_root_turn;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_response_sequence;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_failed;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_path_buf;
-use insta::Settings;
-use insta::assert_snapshot;
 use pretty_assertions::assert_eq;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -127,7 +127,8 @@ impl maplecode_extension_api::ContextContributor for GuardianMemoryContextProbe 
         &'a self,
         _session_store: &'a maplecode_extension_api::ExtensionData,
         thread_store: &'a maplecode_extension_api::ExtensionData,
-    ) -> maplecode_extension_api::ExtensionFuture<'a, Vec<maplecode_extension_api::PromptFragment>> {
+    ) -> maplecode_extension_api::ExtensionFuture<'a, Vec<maplecode_extension_api::PromptFragment>>
+    {
         Box::pin(async move {
             if thread_store
                 .get::<GuardianMemoryContextEnabled>()
@@ -520,9 +521,9 @@ async fn build_guardian_prompt_includes_parent_turn_denied_reads() -> anyhow::Re
             },
             FileSystemSandboxEntry {
                 path: FileSystemPath::Special {
-                    value: maplecode_protocol::permissions::FileSystemSpecialPath::project_roots(Some(
-                        "private".to_string(),
-                    )),
+                    value: maplecode_protocol::permissions::FileSystemSpecialPath::project_roots(
+                        Some("private".to_string()),
+                    ),
                 },
                 access: FileSystemAccessMode::Deny,
                 missing_path_behavior: None,
@@ -755,9 +756,9 @@ async fn guardian_mcp_uses_thread_permissions_for_an_unavailable_captured_enviro
             ),
             FileSystemSandboxEntry::new(
                 FileSystemPath::Special {
-                    value: maplecode_protocol::permissions::FileSystemSpecialPath::project_roots(Some(
-                        "private".into(),
-                    )),
+                    value: maplecode_protocol::permissions::FileSystemSpecialPath::project_roots(
+                        Some("private".into()),
+                    ),
                 },
                 FileSystemAccessMode::Deny,
             ),
@@ -776,7 +777,8 @@ async fn guardian_mcp_uses_thread_permissions_for_an_unavailable_captured_enviro
     let mut selection = original.selection();
     selection.cwd = PathUri::from_abs_path(&captured_root);
     selection.workspace_roots = vec![selection.cwd.clone()];
-    selection.config = maplecode_protocol::protocol::EnvironmentConfigState::Failed("offline".into());
+    selection.config =
+        maplecode_protocol::protocol::EnvironmentConfigState::Failed("offline".into());
     let captured = crate::environment_selection::TurnEnvironmentSnapshot {
         environments: vec![TurnEnvironmentState::Failed {
             required_skills: Vec::new(),
@@ -1360,7 +1362,8 @@ async fn guardian_reuse_respects_effective_policy_and_personality_opt_out(
         .unwrap()
         .policy = Some("changed action policy".to_string());
     let mut different_personality = changed_policy.clone();
-    different_personality.personality = Some(maplecode_protocol::config_types::Personality::Pragmatic);
+    different_personality.personality =
+        Some(maplecode_protocol::config_types::Personality::Pragmatic);
     let mut omit_personality = different_personality.clone();
     omit_personality.personality = Some(maplecode_protocol::config_types::Personality::None);
     for (index, context) in [
@@ -1815,7 +1818,9 @@ async fn guardian_review_request_layout_matches_model_visible_request_snapshot()
     // Check exact separators before the snapshot normalizes trailing whitespace.
     let guardian_user_text = request.message_input_texts("user").concat();
     assert!(guardian_user_text.contains(">>> TRANSCRIPT START\n"));
-    assert!(guardian_user_text.contains("The Maple Code agent has requested the following action:\n"));
+    assert!(
+        guardian_user_text.contains("The Maple Code agent has requested the following action:\n")
+    );
     assert!(guardian_user_text.contains(&format!(
         ">>> TRANSCRIPT END\nReviewed Maple Code session id: {}\n",
         fixed_guardian_parent_session_id()
@@ -2882,8 +2887,10 @@ async fn guardian_review_routes_required_actions(
         fn decide<'a>(
             &'a self,
             _input: &'a maplecode_extension_api::ApprovalDecisionInput<'_>,
-        ) -> maplecode_extension_api::ExtensionFuture<'a, Option<maplecode_extension_api::ApprovalDecision>>
-        {
+        ) -> maplecode_extension_api::ExtensionFuture<
+            'a,
+            Option<maplecode_extension_api::ApprovalDecision>,
+        > {
             Box::pin(async { Some(maplecode_extension_api::ApprovalDecision::Allow) })
         }
     }

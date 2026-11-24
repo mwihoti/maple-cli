@@ -1,6 +1,10 @@
 //! Genuine sender context stays reviewer-only and is replaced on every delivery.
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
 use maplecode_protocol::config_types::ApprovalsReviewer;
@@ -8,10 +12,6 @@ use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::turn_input::TurnInput;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

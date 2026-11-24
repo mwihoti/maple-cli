@@ -4,6 +4,8 @@
 //! when a config mutation must be owned by the app server rather than written
 //! to the local `config.toml` directly.
 
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_client::TypedRequestError;
 use maplecode_app_server_protocol::ClientRequest;
@@ -32,8 +34,6 @@ use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::LegacyAppPathString;
 use maplecode_utils_path_uri::PathConvention;
 use maplecode_utils_path_uri::PathUri;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
 use serde_json::Value as JsonValue;
 use std::fmt::Display;
 use std::path::Path;
@@ -110,7 +110,9 @@ pub(crate) fn build_service_tier_selection_edits(service_tier: Option<&str>) -> 
             let config_value = if service_tier == SERVICE_TIER_DEFAULT_REQUEST_VALUE {
                 SERVICE_TIER_DEFAULT_REQUEST_VALUE
             } else {
-                match maplecode_protocol::config_types::ServiceTier::from_request_value(service_tier) {
+                match maplecode_protocol::config_types::ServiceTier::from_request_value(
+                    service_tier,
+                ) {
                     Some(maplecode_protocol::config_types::ServiceTier::Fast) => "fast",
                     Some(maplecode_protocol::config_types::ServiceTier::Flex) => "flex",
                     None => service_tier,

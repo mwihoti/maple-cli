@@ -306,7 +306,8 @@ pub trait ExternalAuth: Send + Sync {
     fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth>;
 
     /// Refreshes auth and makes the returned value current for future `resolve()` calls.
-    fn refresh(&self, context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth>;
+    fn refresh(&self, context: ExternalAuthRefreshContext)
+    -> ExternalAuthFuture<'_, MapleCodeAuth>;
 
     /// Maps a provider error into the retry policy used by external-auth reload and recovery.
     fn classify_error(&self, error: std::io::Error) -> RefreshTokenError {
@@ -321,7 +322,10 @@ impl ExternalAuth for FixedApiKeyAuth {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         self.resolve()
     }
 }
@@ -1079,7 +1083,9 @@ pub fn logout(
     auth_credentials_store_mode: AuthCredentialsStoreMode,
     keyring_backend_kind: AuthKeyringBackendKind,
 ) -> std::io::Result<bool> {
-    if auth_credentials_store_mode == AuthCredentialsStoreMode::File && !maplecode_home.try_exists()? {
+    if auth_credentials_store_mode == AuthCredentialsStoreMode::File
+        && !maplecode_home.try_exists()?
+    {
         return Ok(false);
     }
     let storage = create_auth_storage(
@@ -1331,8 +1337,11 @@ impl AuthConfig {
         &self,
         enable_maplecode_api_key_env: bool,
     ) -> std::io::Result<Option<MapleCodeAuth>> {
-        self.load_auth_with_modes(enable_maplecode_api_key_env, /*allowed_auth_modes*/ None)
-            .await
+        self.load_auth_with_modes(
+            enable_maplecode_api_key_env,
+            /*allowed_auth_modes*/ None,
+        )
+        .await
     }
 
     /// Applies the mode filter to the selected source before hydrating its credentials.
@@ -1403,7 +1412,9 @@ fn validate_auth_restrictions(
     };
     if matches!(
         auth,
-        MapleCodeAuth::ApiKey(_) | MapleCodeAuth::BedrockApiKey(_) | MapleCodeAuth::BedrockAccessKeys(_)
+        MapleCodeAuth::ApiKey(_)
+            | MapleCodeAuth::BedrockApiKey(_)
+            | MapleCodeAuth::BedrockAccessKeys(_)
     ) {
         return Ok(());
     }
@@ -1832,7 +1843,9 @@ async fn request_chatgpt_token_refresh(
     {
         Ok(response) => Ok(response),
         Err(OAuthError::Rejected(rejection)) => {
-            if let Some(maplecode_http_client::HttpError::Policy(denied)) = rejection.body_read_error {
+            if let Some(maplecode_http_client::HttpError::Policy(denied)) =
+                rejection.body_read_error
+            {
                 return Err(denied.into());
             }
             let status = rejection.status;
@@ -2304,7 +2317,10 @@ impl Debug for AuthManager {
         f.debug_struct("AuthManager")
             .field("maplecode_home", &self.maplecode_home)
             .field("inner", &self.inner)
-            .field("enable_maplecode_api_key_env", &self.enable_maplecode_api_key_env)
+            .field(
+                "enable_maplecode_api_key_env",
+                &self.enable_maplecode_api_key_env,
+            )
             .field(
                 "auth_credentials_store_mode",
                 &self.auth_credentials_store_mode,
@@ -2511,7 +2527,10 @@ impl AuthManager {
     }
 
     /// Create an AuthManager with a specific MapleCodeAuth and maplecode home, for testing only.
-    pub fn from_auth_for_testing_with_home(auth: MapleCodeAuth, maplecode_home: PathBuf) -> Arc<Self> {
+    pub fn from_auth_for_testing_with_home(
+        auth: MapleCodeAuth,
+        maplecode_home: PathBuf,
+    ) -> Arc<Self> {
         let cached = CachedAuth {
             auth: Some(auth),
             permanent_refresh_failure: None,
@@ -2669,7 +2688,10 @@ impl AuthManager {
         self.auth_change_state_tx.subscribe()
     }
 
-    pub fn refresh_failure_for_auth(&self, auth: &MapleCodeAuth) -> Option<RefreshTokenFailedError> {
+    pub fn refresh_failure_for_auth(
+        &self,
+        auth: &MapleCodeAuth,
+    ) -> Option<RefreshTokenFailedError> {
         self.inner.read().ok().and_then(|cached| {
             cached
                 .permanent_refresh_failure
@@ -2718,7 +2740,9 @@ impl AuthManager {
 
     /// Refreshes auth, then captures credentials and their account-bound factory together.
     /// The auth read lock prevents an identity change between the two snapshots.
-    pub async fn auth_with_http_client_factory(&self) -> Option<(MapleCodeAuth, HttpClientFactory)> {
+    pub async fn auth_with_http_client_factory(
+        &self,
+    ) -> Option<(MapleCodeAuth, HttpClientFactory)> {
         self.auth().await?;
         let cached = self.inner.read().ok()?;
         Some((cached.auth.clone()?, self.http_client_factory()))
@@ -2732,7 +2756,9 @@ impl AuthManager {
         let Some(auth) = self.auth().await else {
             return Ok(None);
         };
-        if policy == AgentIdentityAuthPolicy::ChatGptAuth && matches!(auth, MapleCodeAuth::Chatgpt(_)) {
+        if policy == AgentIdentityAuthPolicy::ChatGptAuth
+            && matches!(auth, MapleCodeAuth::Chatgpt(_))
+        {
             let _bootstrap_permit = self
                 .agent_identity_lock
                 .acquire()
@@ -2824,7 +2850,10 @@ impl AuthManager {
 
     /// Checks the persisted account owner without requiring an EMA-eligible account grant.
     /// Dedicated enterprise credentials still belong to this account login.
-    pub async fn account_login_is_current(&self, expected: &MapleCodeAuth) -> std::io::Result<bool> {
+    pub async fn account_login_is_current(
+        &self,
+        expected: &MapleCodeAuth,
+    ) -> std::io::Result<bool> {
         if !matches!(expected, MapleCodeAuth::Chatgpt(_)) {
             return Ok(self.auth_cached().is_some_and(|current| {
                 !matches!(current, MapleCodeAuth::Chatgpt(_))
@@ -3185,7 +3214,11 @@ impl AuthManager {
         }
     }
 
-    fn set_cached_auth_locked(&self, guard: &mut CachedAuth, new_auth: Option<MapleCodeAuth>) -> bool {
+    fn set_cached_auth_locked(
+        &self,
+        guard: &mut CachedAuth,
+        new_auth: Option<MapleCodeAuth>,
+    ) -> bool {
         let previous = guard.auth.as_ref();
         let changed = !AuthManager::auths_equal(previous, new_auth.as_ref());
         let auth_changed_for_refresh = !Self::auths_equal_for_refresh(previous, new_auth.as_ref());
@@ -3410,9 +3443,12 @@ impl AuthManager {
         allowed_auth_modes: Option<Vec<AuthMode>>,
     ) -> Result<Arc<Self>, AuthManagerInitializationError> {
         let external_auth = WorkloadIdentityExternalAuth::from_process_config(&auth_config)?;
-        let mut manager =
-            Self::new_from_auth_config(auth_config, enable_maplecode_api_key_env, allowed_auth_modes)
-                .await;
+        let mut manager = Self::new_from_auth_config(
+            auth_config,
+            enable_maplecode_api_key_env,
+            allowed_auth_modes,
+        )
+        .await;
         manager.workload_identity_selected = external_auth.is_some();
         let manager = Arc::new(manager);
         if let Some(external_auth) = external_auth {
@@ -3644,7 +3680,9 @@ impl AuthManager {
 
     /// Returns the precise kind of credentials backing the current authentication.
     pub fn get_api_auth_mode(&self) -> Option<AuthMode> {
-        self.auth_cached().as_ref().map(MapleCodeAuth::api_auth_mode)
+        self.auth_cached()
+            .as_ref()
+            .map(MapleCodeAuth::api_auth_mode)
     }
 
     /// Returns the effective backend auth mode for the current authentication.

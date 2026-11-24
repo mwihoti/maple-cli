@@ -1,11 +1,27 @@
+use core_test_support::test_maplecode::local_requests;
 use maplecode_protocol::protocol::TurnEnvironmentRequest;
 use maplecode_protocol::protocol::TurnEnvironmentRequests;
-use core_test_support::test_maplecode::local_requests;
 use std::fs;
 use std::sync::Arc;
 use std::sync::Mutex;
 
 use anyhow::Result;
+use core_test_support::PathBufExt;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::context_snapshot::SnapshotEntry;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
 use maplecode_config::types::Personality;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
@@ -31,22 +47,6 @@ use maplecode_protocol::user_input::UserInput;
 use maplecode_skills_extension::SkillsExtensionConfig;
 use maplecode_skills_extension::install;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::context_snapshot::SnapshotEntry;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -533,7 +533,10 @@ async fn snapshot_model_visible_layout_resume_with_personality_change() -> Resul
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
     let initial_request = initial_mock.single_request();
 
     let resumed_mock = mount_sse_once(
@@ -641,7 +644,10 @@ async fn snapshot_model_visible_layout_resume_override_matches_rollout_model() -
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
     let initial_request = initial_mock.single_request();
 
     let resumed_mock = mount_sse_once(

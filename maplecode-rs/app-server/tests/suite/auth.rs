@@ -63,7 +63,10 @@ shell_snapshot = false
     )
 }
 
-fn create_config_toml_forced_login(maplecode_home: &Path, forced_method: &str) -> std::io::Result<()> {
+fn create_config_toml_forced_login(
+    maplecode_home: &Path,
+    forced_method: &str,
+) -> std::io::Result<()> {
     let config_toml = maplecode_home.join("config.toml");
     let contents = format!(
         r#"
@@ -169,7 +172,10 @@ async fn personal_access_token_without_email_supports_auth_status_and_account_re
         .with_env_overrides(&[
             ("OPENAI_API_KEY", None),
             ("MAPLECODE_ACCESS_TOKEN", Some("at-test-token")),
-            ("MAPLECODE_AUTHAPI_BASE_URL", Some(authapi_base_url.as_str())),
+            (
+                "MAPLECODE_AUTHAPI_BASE_URL",
+                Some(authapi_base_url.as_str()),
+            ),
         ])
         .build_initialized_with_timeout(DEFAULT_READ_TIMEOUT)
         .await?;

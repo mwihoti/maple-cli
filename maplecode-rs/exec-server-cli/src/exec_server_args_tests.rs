@@ -224,8 +224,9 @@ fn exec_server_transport_and_aws_options_require_registration_arguments() {
             "--aws-sigv4",
         ],
     ] {
-        let error = ExecServerCli::try_parse_from(["maplecode-exec-server"].into_iter().chain(options))
-            .expect_err("require remote URL and environment ID");
+        let error =
+            ExecServerCli::try_parse_from(["maplecode-exec-server"].into_iter().chain(options))
+                .expect_err("require remote URL and environment ID");
         assert_eq!(error.kind(), ErrorKind::MissingRequiredArgument);
     }
 }

@@ -3,9 +3,9 @@
 use std::collections::HashMap;
 use std::time::Duration;
 
+use futures::future::BoxFuture;
 use maplecode_protocol::hooks::HookEventsToml;
 use maplecode_utils_path_uri::PathUri;
-use futures::future::BoxFuture;
 
 /// An admitted requirements source. The owner must not populate this from user configuration.
 pub struct EnvironmentHookSource {

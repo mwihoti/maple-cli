@@ -1,27 +1,6 @@
 #![cfg(not(target_os = "windows"))]
 
 use anyhow::Ok;
-use maplecode_core::TurnInputRequest;
-use maplecode_features::Feature;
-use maplecode_history::RolloutItem;
-use maplecode_protocol::config_types::CollaborationMode;
-use maplecode_protocol::config_types::ModeKind;
-use maplecode_protocol::config_types::Settings;
-use maplecode_protocol::items::AgentMessageContent;
-use maplecode_protocol::items::TurnItem;
-use maplecode_protocol::models::ImageDetail;
-use maplecode_protocol::models::ImageReference;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::models::WebSearchAction;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::ItemCompletedEvent;
-use maplecode_protocol::protocol::ItemStartedEvent;
-use maplecode_protocol::protocol::ThreadHistoryMode;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::user_input::ByteRange;
-use maplecode_protocol::user_input::TextElement;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::PathBufExt;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -44,6 +23,27 @@ use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
+use maplecode_core::TurnInputRequest;
+use maplecode_features::Feature;
+use maplecode_history::RolloutItem;
+use maplecode_protocol::config_types::CollaborationMode;
+use maplecode_protocol::config_types::ModeKind;
+use maplecode_protocol::config_types::Settings;
+use maplecode_protocol::items::AgentMessageContent;
+use maplecode_protocol::items::TurnItem;
+use maplecode_protocol::models::ImageDetail;
+use maplecode_protocol::models::ImageReference;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::models::WebSearchAction;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::ItemCompletedEvent;
+use maplecode_protocol::protocol::ItemStartedEvent;
+use maplecode_protocol::protocol::ThreadHistoryMode;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::user_input::ByteRange;
+use maplecode_protocol::user_input::TextElement;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 
 fn disabled_plan_turn(
@@ -177,7 +177,8 @@ async fn assistant_message_item_is_emitted() -> anyhow::Result<()> {
     .await;
 
     assert_eq!(started.id, completed.id);
-    let Some(maplecode_protocol::items::AgentMessageContent::Text { text }) = completed.content.first()
+    let Some(maplecode_protocol::items::AgentMessageContent::Text { text }) =
+        completed.content.first()
     else {
         panic!("expected agent message text content");
     };

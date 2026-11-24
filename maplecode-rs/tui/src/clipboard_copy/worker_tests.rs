@@ -325,10 +325,10 @@ fn delivery_claim_cannot_be_abandoned() {
 
 #[tokio::test]
 async fn right_click_paste_uses_normal_input_and_discards_stale_reads() {
-    use maplecode_config::types::RightClickPaste;
     use crossterm::event::MouseButton;
     use crossterm::event::MouseEvent;
     use crossterm::event::MouseEventKind;
+    use maplecode_config::types::RightClickPaste;
     let mut tui = crate::tui::test_support::make_test_tui().unwrap();
     let (started, start_rx) = mpsc::channel();
     let (release, released) = mpsc::channel();
@@ -554,10 +554,10 @@ fn expired_text_read_rejects_backlog_and_discards_late_completion() {
 #[tokio::test(start_paused = true)]
 async fn cloud_handoff_keeps_an_owned_clipboard_read_until_completion_or_input() {
     use crate::app::test_support::ClipboardHandoff;
-    use maplecode_config::types::RightClickPaste;
     use crossterm::event::MouseButton;
     use crossterm::event::MouseEvent;
     use crossterm::event::MouseEventKind;
+    use maplecode_config::types::RightClickPaste;
 
     let shortcut = Some(KeyCode::Char('v'));
     for (shortcut, cancellation) in [

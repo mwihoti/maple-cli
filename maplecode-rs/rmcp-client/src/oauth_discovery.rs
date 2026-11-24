@@ -4,8 +4,8 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use maplecode_exec_server::HttpClient;
 use http::HeaderMap;
+use maplecode_exec_server::HttpClient;
 use rmcp::transport::AuthorizationManager;
 use rmcp::transport::auth::AuthError;
 use rmcp::transport::auth::AuthorizationMetadata;

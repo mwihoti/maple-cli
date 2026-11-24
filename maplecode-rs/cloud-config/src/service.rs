@@ -83,7 +83,9 @@ impl<S: BundleSource + 'static> CloudConfigBundleService<S> {
     pub(crate) fn from_source(source: S, maplecode_home: PathBuf, timeout: Duration) -> Self {
         let maplecode_home = AbsolutePathBuf::resolve_path_against_base(maplecode_home, "/");
         let cache = match source.cache_namespace() {
-            Some(namespace) => CloudConfigBundleCache::for_source(maplecode_home.clone(), &namespace),
+            Some(namespace) => {
+                CloudConfigBundleCache::for_source(maplecode_home.clone(), &namespace)
+            }
             None => CloudConfigBundleCache::new(maplecode_home.clone()),
         };
         Self {
@@ -129,8 +131,10 @@ impl<S: BundleSource + 'static> CloudConfigBundleService<S> {
     pub(crate) async fn load_startup_bundle_with_timeout(
         &self,
     ) -> Result<Option<CloudConfigBundle>, CloudConfigBundleLoadError> {
-        let _timer =
-            maplecode_otel::start_global_timer("maplecode.cloud_config_bundle.fetch.duration_ms", &[]);
+        let _timer = maplecode_otel::start_global_timer(
+            "maplecode.cloud_config_bundle.fetch.duration_ms",
+            &[],
+        );
         let started_at = Instant::now();
         let load_result = timeout(self.timeout, self.load_startup_bundle())
             .await

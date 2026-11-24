@@ -142,7 +142,11 @@ impl HostSkillsRequest<'_> {
 
 impl HostSkillsService {
     pub fn new(maplecode_home: AbsolutePathBuf, bundled_skills_enabled: bool) -> Self {
-        Self::new_with_restriction_product(maplecode_home, bundled_skills_enabled, Some(Product::MapleCode))
+        Self::new_with_restriction_product(
+            maplecode_home,
+            bundled_skills_enabled,
+            Some(Product::MapleCode),
+        )
     }
 
     pub fn new_with_restriction_product(

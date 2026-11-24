@@ -68,7 +68,12 @@ async fn reused_pool_uses_current_endpoint_product_and_authentication() {
     let first_server = MockServer::start().await;
     let second_server = MockServer::start().await;
     for (server, token, account, product_sku) in [
-        (&first_server, "header.e30.first", "first-account", "maplecode"),
+        (
+            &first_server,
+            "header.e30.first",
+            "first-account",
+            "maplecode",
+        ),
         (
             &second_server,
             "header.e30.second",

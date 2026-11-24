@@ -1,5 +1,5 @@
-use maplecode_utils_absolute_path::AbsolutePathBuf;
 use dirs::home_dir;
+use maplecode_utils_absolute_path::AbsolutePathBuf;
 use std::path::PathBuf;
 
 /// Returns the path to the Maple Code configuration directory, which can be
@@ -17,7 +17,9 @@ pub fn find_maplecode_home() -> std::io::Result<AbsolutePathBuf> {
     find_maplecode_home_from_env(maplecode_home_env.as_deref())
 }
 
-fn find_maplecode_home_from_env(maplecode_home_env: Option<&str>) -> std::io::Result<AbsolutePathBuf> {
+fn find_maplecode_home_from_env(
+    maplecode_home_env: Option<&str>,
+) -> std::io::Result<AbsolutePathBuf> {
     // Honor the `MAPLECODE_HOME` environment variable when it is set to allow users
     // (and tests) to override the default location.
     match maplecode_home_env {
@@ -65,8 +67,8 @@ fn find_maplecode_home_from_env(maplecode_home_env: Option<&str>) -> std::io::Re
 #[cfg(test)]
 mod tests {
     use super::find_maplecode_home_from_env;
-    use maplecode_utils_absolute_path::AbsolutePathBuf;
     use dirs::home_dir;
+    use maplecode_utils_absolute_path::AbsolutePathBuf;
     use pretty_assertions::assert_eq;
     use std::fs;
     use std::io::ErrorKind;
@@ -80,7 +82,8 @@ mod tests {
             .to_str()
             .expect("missing maplecode home path should be valid utf-8");
 
-        let err = find_maplecode_home_from_env(Some(missing_str)).expect_err("missing MAPLECODE_HOME");
+        let err =
+            find_maplecode_home_from_env(Some(missing_str)).expect_err("missing MAPLECODE_HOME");
         assert_eq!(err.kind(), ErrorKind::NotFound);
         assert!(
             err.to_string().contains("MAPLECODE_HOME"),
@@ -124,8 +127,8 @@ mod tests {
 
     #[test]
     fn find_maplecode_home_without_env_uses_default_home_dir() {
-        let resolved =
-            find_maplecode_home_from_env(/*maplecode_home_env*/ None).expect("default MAPLECODE_HOME");
+        let resolved = find_maplecode_home_from_env(/*maplecode_home_env*/ None)
+            .expect("default MAPLECODE_HOME");
         let mut expected = home_dir().expect("home dir");
         expected.push(".maplecode");
         let expected = AbsolutePathBuf::from_absolute_path(expected).expect("absolute home");

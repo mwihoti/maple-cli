@@ -1,8 +1,8 @@
 //! Model-switch compaction must retain the historical model/program pair across replay.
 
 use super::*;
-use maplecode_core::MapleCodeThread;
 use maplecode_core::ForkSnapshot;
+use maplecode_core::MapleCodeThread;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnStartOptions;
 use maplecode_protocol::turn_input::CyberAccessProgram;

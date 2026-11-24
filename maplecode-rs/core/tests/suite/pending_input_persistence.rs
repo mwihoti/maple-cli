@@ -6,6 +6,11 @@ use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
 
+use core_test_support::responses;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInput;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnInputSubmission;
@@ -41,11 +46,6 @@ use maplecode_thread_store::ThreadPage;
 use maplecode_thread_store::ThreadStore;
 use maplecode_thread_store::ThreadStoreFuture;
 use maplecode_thread_store::UpdateThreadMetadataParams;
-use core_test_support::responses;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
@@ -643,7 +643,10 @@ async fn local_preparation_is_durable_before_first_input_and_survives_restart(
         .await?;
 
     // Read disk before shutdown or a first turn can add another durability barrier.
-    let rollout_path = initial.maplecode.rollout_path().expect("local rollout path");
+    let rollout_path = initial
+        .maplecode
+        .rollout_path()
+        .expect("local rollout path");
     let (items, _, parse_errors) = RolloutRecorder::load_rollout_items(&rollout_path).await?;
     let persisted_preparation = items
         .into_iter()

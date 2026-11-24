@@ -134,8 +134,9 @@ async fn originator_catalogs_are_isolated_and_reused_from_disk() {
     }
     let client = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault);
     for _ in 0..2 {
-        let auth =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        let auth = AuthManager::from_auth_for_testing(
+            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        );
         let endpoint = Arc::new(OpenAiModelsEndpoint::new(
             provider.clone(),
             Some(Arc::clone(&auth)),
@@ -158,7 +159,11 @@ async fn originator_catalogs_are_isolated_and_reused_from_disk() {
             chat.raw_model_catalog(RefreshStrategy::OnlineIfUncached, client.clone()),
         );
         let mut actual = vec![default_catalog, work_catalog];
-        for originator in ["maplecode_work_web", "maplecode_work_desktop", "maplecode_work_mobile"] {
+        for originator in [
+            "maplecode_work_web",
+            "maplecode_work_desktop",
+            "maplecode_work_mobile",
+        ] {
             actual.push(
                 manager
                     .for_originator(originator)

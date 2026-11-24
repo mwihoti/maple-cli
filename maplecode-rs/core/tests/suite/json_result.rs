@@ -1,5 +1,12 @@
 #![cfg(not(target_os = "windows"))]
 
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnStartOptions;
 use maplecode_protocol::config_types::CollaborationMode;
@@ -10,13 +17,6 @@ use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use responses::ev_assistant_message;
 use responses::ev_completed;
@@ -70,7 +70,9 @@ async fn maplecode_returns_json_result(model: String) -> anyhow::Result<()> {
     };
     responses::mount_sse_once_match(&server, match_json_text_param, sse1).await;
 
-    let TestMapleCode { maplecode, config, .. } = test_maplecode().build(&server).await?;
+    let TestMapleCode {
+        maplecode, config, ..
+    } = test_maplecode().build(&server).await?;
     let cwd = config.cwd.clone();
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, cwd.as_path());

@@ -5,18 +5,18 @@ use super::BoardClock;
 use super::configure;
 use super::done;
 use anyhow::Context;
-use maplecode_core::TurnInputRequest;
-use maplecode_features::Feature;
-use maplecode_features::RemoteMessageBoardConfigToml;
-use maplecode_protocol::openai_models::ToolMode;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::Op;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::context_snapshot::SnapshotEntry;
 use core_test_support::responses;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_core::TurnInputRequest;
+use maplecode_features::Feature;
+use maplecode_features::RemoteMessageBoardConfigToml;
+use maplecode_protocol::openai_models::ToolMode;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::Op;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -43,10 +43,11 @@ async fn remote_board_uses_the_existing_tools_and_session_identity() -> anyhow::
         .with_config(move |config| {
             configure(config);
             config.ephemeral = true;
-            config.current_time_reminder = Some(maplecode_core::config::CurrentTimeReminderConfig {
-                clock_source: maplecode_features::CurrentTimeSource::External,
-                ..Default::default()
-            });
+            config.current_time_reminder =
+                Some(maplecode_core::config::CurrentTimeReminderConfig {
+                    clock_source: maplecode_features::CurrentTimeSource::External,
+                    ..Default::default()
+                });
             config.multi_agent_v2.message_board_remote = Some(RemoteMessageBoardConfigToml {
                 url,
                 bearer_token: Some(token.into()),

@@ -145,8 +145,8 @@ fn manager_attaches_metadata_tags_to_metrics() -> Result<()> {
             2,
         )
     );
-    let metric =
-        find_metric(&resource_metrics, "maplecode.session_started").expect("counter metric missing");
+    let metric = find_metric(&resource_metrics, "maplecode.session_started")
+        .expect("counter metric missing");
     let attrs = match metric.data() {
         AggregatedMetrics::U64(data) => match data {
             MetricData::Sum(sum) => {
@@ -205,8 +205,8 @@ fn manager_allows_disabling_metadata_tags() -> Result<()> {
     manager.shutdown_metrics()?;
 
     let resource_metrics = latest_metrics(&exporter);
-    let metric =
-        find_metric(&resource_metrics, "maplecode.session_started").expect("counter metric missing");
+    let metric = find_metric(&resource_metrics, "maplecode.session_started")
+        .expect("counter metric missing");
     let attrs = match metric.data() {
         AggregatedMetrics::U64(data) => match data {
             MetricData::Sum(sum) => {
@@ -247,8 +247,8 @@ fn manager_attaches_optional_service_name_tag() -> Result<()> {
     manager.shutdown_metrics()?;
 
     let resource_metrics = latest_metrics(&exporter);
-    let metric =
-        find_metric(&resource_metrics, "maplecode.session_started").expect("counter metric missing");
+    let metric = find_metric(&resource_metrics, "maplecode.session_started")
+        .expect("counter metric missing");
     let attrs = match metric.data() {
         AggregatedMetrics::U64(data) => match data {
             MetricData::Sum(sum) => {

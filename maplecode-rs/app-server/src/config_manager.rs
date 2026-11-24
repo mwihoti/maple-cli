@@ -147,7 +147,10 @@ impl ConfigManager {
             .mcp_ema_cancellation
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        maplecode_config::McpEmaCancellation::pending(current.startup.clone(), current.lifetime.clone())
+        maplecode_config::McpEmaCancellation::pending(
+            current.startup.clone(),
+            current.lifetime.clone(),
+        )
     }
 
     pub(crate) fn with_embedded_network_policy(
@@ -160,7 +163,8 @@ impl ConfigManager {
     }
 
     pub(crate) fn user_config_path(&self) -> std::io::Result<AbsolutePathBuf> {
-        self.loader_overrides.user_config_path(self.maplecode_home())
+        self.loader_overrides
+            .user_config_path(self.maplecode_home())
     }
 
     pub(crate) fn loader_overrides(&self) -> &LoaderOverrides {
@@ -425,10 +429,11 @@ impl ConfigManager {
         cwd: Option<PathBuf>,
     ) -> std::io::Result<CloudStartupConfig> {
         let bootstrap = self.load_startup_config(cwd.clone()).await?.config;
-        let auth =
-            AuthManager::shared_from_config(&bootstrap, /*enable_maplecode_api_key_env*/ false)
-                .await
-                .map_err(std::io::Error::other)?;
+        let auth = AuthManager::shared_from_config(
+            &bootstrap, /*enable_maplecode_api_key_env*/ false,
+        )
+        .await
+        .map_err(std::io::Error::other)?;
         self.update_managed_config_loader(auth, &bootstrap);
         let config = self.load_latest_config(cwd).await;
         Ok(CloudStartupConfig { bootstrap, config })
@@ -602,7 +607,10 @@ impl ConfigManager {
     ) -> std::io::Result<Config> {
         let mut session_flags = TomlValue::Table(Default::default());
         for layer in thread_config.config_layer_stack.layers_low_to_high() {
-            if matches!(layer.name, maplecode_config::ConfigLayerSource::SessionFlags) {
+            if matches!(
+                layer.name,
+                maplecode_config::ConfigLayerSource::SessionFlags
+            ) {
                 maplecode_config::merge_toml_values(&mut session_flags, &layer.config);
             }
         }

@@ -98,7 +98,12 @@ pub(super) fn has_cached_directory_plugins(
 ) -> bool {
     // Ignore each entry so Serde still requires `plugins` to be an array.
     load_cached_directory_plugins::<IgnoredAny>(
-        maplecode_home, config, auth, scope, /*collection*/ None, cache_mode,
+        maplecode_home,
+        config,
+        auth,
+        scope,
+        /*collection*/ None,
+        cache_mode,
     )
     .is_some()
 }

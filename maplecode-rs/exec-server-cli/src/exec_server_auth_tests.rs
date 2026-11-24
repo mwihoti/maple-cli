@@ -3,11 +3,11 @@
 use std::path::Path;
 use std::time::Duration;
 
+use http::HeaderValue;
+use http::Method;
 use maplecode_aws_auth::AwsAccessKeys;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthKeyringBackendKind;
-use http::HeaderValue;
-use http::Method;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use wiremock::Mock;

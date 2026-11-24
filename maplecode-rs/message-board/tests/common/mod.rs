@@ -9,12 +9,12 @@ use std::sync::atomic::Ordering;
 
 use chrono::DateTime;
 use chrono::Utc;
+use futures::future::BoxFuture;
 use maplecode_message_board::*;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::MapleCodeErr;
 use maplecode_protocol::error::Result;
-use futures::future::BoxFuture;
 
 pub struct Host {
     pub clock: AtomicI64,

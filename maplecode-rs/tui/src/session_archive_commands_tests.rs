@@ -393,8 +393,12 @@ async fn trusts_sqlite_name_over_legacy_index_for_delete() -> color_eyre::Result
         ))
         .await
         .map_err(std::io::Error::other)?;
-    maplecode_rollout::append_thread_name(config.maplecode_home.as_path(), thread_id, "old-session")
-        .await?;
+    maplecode_rollout::append_thread_name(
+        config.maplecode_home.as_path(),
+        thread_id,
+        "old-session",
+    )
+    .await?;
 
     let mut app_server = start_app_server(config.clone()).await?;
     let error = run_session_queue_action_with_app_server(

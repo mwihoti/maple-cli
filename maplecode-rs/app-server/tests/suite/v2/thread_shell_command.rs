@@ -544,7 +544,10 @@ fn current_shell_slow_command() -> Result<(String, String)> {
     Ok((format!("{command}{suffix}"), expected_output))
 }
 
-fn assert_no_command_executions(items: &[maplecode_app_server_protocol::ThreadItem], context: &str) {
+fn assert_no_command_executions(
+    items: &[maplecode_app_server_protocol::ThreadItem],
+    context: &str,
+) {
     assert!(
         items
             .iter()

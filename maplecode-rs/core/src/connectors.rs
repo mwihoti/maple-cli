@@ -203,10 +203,10 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
 ) -> anyhow::Result<AccessibleConnectorsStatus> {
     let auth_manager = mcp_manager.auth_manager();
     let auth = auth_manager.auth().await;
-    if !config
-        .features
-        .apps_enabled_for_auth(auth.as_ref().is_some_and(MapleCodeAuth::uses_maplecode_backend))
-    {
+    if !config.features.apps_enabled_for_auth(
+        auth.as_ref()
+            .is_some_and(MapleCodeAuth::uses_maplecode_backend),
+    ) {
         return Ok(AccessibleConnectorsStatus {
             connectors: Vec::new(),
             maplecode_apps_ready: true,
@@ -225,7 +225,8 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
     }
 
     let mut mcp_servers = effective_mcp_servers(&mcp_config, auth.as_ref());
-    let maplecode_apps_server = maplecode_mcp::McpServerKey::unscoped(MAPLECODE_APPS_MCP_SERVER_NAME);
+    let maplecode_apps_server =
+        maplecode_mcp::McpServerKey::unscoped(MAPLECODE_APPS_MCP_SERVER_NAME);
     mcp_servers.retain(|key, _| key == &maplecode_apps_server);
     let mcp_config = Arc::new(mcp_config.for_threadless_operations(&mcp_servers));
     if mcp_servers.is_empty() {

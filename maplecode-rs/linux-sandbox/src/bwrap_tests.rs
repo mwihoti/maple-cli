@@ -345,7 +345,8 @@ fn writable_roots_under_symlinked_ancestors_bind_real_target() {
     let logical_memories = logical_maplecode.join("memories");
     std::fs::create_dir_all(&logical_home).expect("create logical home");
     std::fs::create_dir_all(&real_memories).expect("create memories dir");
-    std::os::unix::fs::symlink(&real_maplecode, &logical_maplecode).expect("create symlinked maplecode home");
+    std::os::unix::fs::symlink(&real_maplecode, &logical_maplecode)
+        .expect("create symlinked maplecode home");
 
     let logical_memories_root =
         AbsolutePathBuf::from_absolute_path(&logical_memories).expect("absolute memories");
@@ -845,7 +846,8 @@ fn mounts_dev_before_writable_dev_binds() {
 
 #[test]
 fn non_utf8_daemon_socket_mask_path_is_rejected() {
-    let daemon_directory = PathBuf::from(OsString::from_vec(b"/tmp/maplecode-daemon-\xff".to_vec()));
+    let daemon_directory =
+        PathBuf::from(OsString::from_vec(b"/tmp/maplecode-daemon-\xff".to_vec()));
     assert!(
         append_daemon_socket_masks(
             &mut Vec::new(),
@@ -879,7 +881,8 @@ fn read_only_tmp_carveout_keeps_daemon_sockets_masked() {
         .windows(3)
         .position(|window| window == ["--ro-bind", "/tmp", "/tmp"])
         .expect("read-only tmp bind");
-    let daemon_directory = path_to_string(&maplecode_uds::shared_daemon_socket_directory().unwrap());
+    let daemon_directory =
+        path_to_string(&maplecode_uds::shared_daemon_socket_directory().unwrap());
     assert_eq!(
         &args.args[tmp_bind + 3..tmp_bind + 9],
         [

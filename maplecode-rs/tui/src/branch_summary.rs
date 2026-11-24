@@ -664,7 +664,10 @@ mod tests {
             repo_search_order_from_output(
                 r#"{"nameWithOwner":"fcoury/maplecode","parent":{"nameWithOwner":"openai/codex"}}"#
             ),
-            Some(vec!["openai/codex".to_string(), "fcoury/maplecode".to_string()])
+            Some(vec![
+                "openai/codex".to_string(),
+                "fcoury/maplecode".to_string()
+            ])
         );
     }
 

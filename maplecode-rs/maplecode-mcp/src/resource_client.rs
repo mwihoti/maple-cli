@@ -307,7 +307,9 @@ impl McpResourceClient {
         let catalog = matches!(params.mime_type.as_str(), "mcp/plugin" | "mcp/skill");
         let params = serde_json::to_value(params)
             .context("failed to serialize Maple Code Apps resource params")?;
-        let connections = self.runtime.latest_host_owned_maplecode_apps_connections()?;
+        let connections = self
+            .runtime
+            .latest_host_owned_maplecode_apps_connections()?;
         let list = async move |client: Arc<RmcpClient>, timeout| {
             client
                 .send_custom_request_with_timeout("resources/list", Some(params), timeout)

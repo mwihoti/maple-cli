@@ -1,10 +1,10 @@
 //! End-to-end command lifecycle with a snapshot of its complete model-visible history.
 
 use super::*;
-use maplecode_protocol::openai_models::ConfigShellToolType;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use core_test_support::responses;
 use core_test_support::test_maplecode::TestMapleCodeHarness;
+use maplecode_protocol::openai_models::ConfigShellToolType;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use pretty_assertions::assert_eq;
 
 // The watcher does not yield after sending ExecCommandEnd. A single worker lets it
@@ -159,7 +159,13 @@ text(result.output);"#
     resumed
         .submit_turn("Check command sessions after restarting.")
         .await?;
-    assert!(resumed.maplecode.list_background_terminals().await.is_empty());
+    assert!(
+        resumed
+            .maplecode
+            .list_background_terminals()
+            .await
+            .is_empty()
+    );
     resumed.maplecode.shutdown_and_wait().await?;
     let rollout = fs::read_to_string(resumed.maplecode.rollout_path().expect("resumed rollout"))?
         .lines()

@@ -3,6 +3,10 @@ use crate::accepted_lines::accepted_line_counts_from_unified_diff;
 use crate::accepted_lines::accepted_line_fingerprint_event_requests;
 use crate::accepted_lines::accepted_line_repo_hash_for_cwd;
 use crate::events::AppServerRpcTransport;
+use crate::events::FinalApprovalOutcome;
+use crate::events::GuardianReviewEventParams;
+use crate::events::GuardianReviewEventPayload;
+use crate::events::GuardianReviewEventRequest;
 use crate::events::MapleCodeAppMentionedEventRequest;
 use crate::events::MapleCodeAppServerClientMetadata;
 use crate::events::MapleCodeAppUsedEventRequest;
@@ -47,10 +51,6 @@ use crate::events::MapleCodeTurnSteerEventParams;
 use crate::events::MapleCodeTurnSteerEventRequest;
 use crate::events::MapleCodeWebSearchEventParams;
 use crate::events::MapleCodeWebSearchEventRequest;
-use crate::events::FinalApprovalOutcome;
-use crate::events::GuardianReviewEventParams;
-use crate::events::GuardianReviewEventPayload;
-use crate::events::GuardianReviewEventRequest;
 use crate::events::ReviewResolution;
 use crate::events::ReviewStatus;
 use crate::events::ReviewSubjectKind;
@@ -86,8 +86,6 @@ use crate::facts::AppUsedInput;
 use crate::facts::ArtifactOperationInput;
 use crate::facts::CodeModeToolCallFact;
 use crate::facts::CodeModeToolCallStatus;
-use crate::facts::MapleCodeCompactionEvent;
-use crate::facts::MapleCodeGoalEvent;
 use crate::facts::ControlToolCallFact;
 use crate::facts::ControlToolCallStatus;
 use crate::facts::CustomAnalyticsFact;
@@ -98,6 +96,8 @@ use crate::facts::HookRunInput;
 use crate::facts::ImagePreparationFact;
 use crate::facts::ImagePreparationMetadata;
 use crate::facts::InvocationType;
+use crate::facts::MapleCodeCompactionEvent;
+use crate::facts::MapleCodeGoalEvent;
 use crate::facts::McpToolCallElicitation;
 use crate::facts::PluginInstallFailedInput;
 use crate::facts::PluginInstallRequestedInput;
@@ -130,7 +130,6 @@ use crate::serialize_enum_as_string;
 use crate::usize_to_u64;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ClientResponse;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::CollabAgentStatus;
 use maplecode_app_server_protocol::CollabAgentTool;
 use maplecode_app_server_protocol::CollabAgentToolCallStatus;
@@ -145,6 +144,7 @@ use maplecode_app_server_protocol::FileChangeApprovalDecision;
 use maplecode_app_server_protocol::GuardianApprovalReviewAction;
 use maplecode_app_server_protocol::GuardianApprovalReviewStatus;
 use maplecode_app_server_protocol::InitializeParams;
+use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::McpToolCallStatus;
 use maplecode_app_server_protocol::NetworkPolicyRuleAction;
 use maplecode_app_server_protocol::PatchApplyStatus;
@@ -1040,18 +1040,19 @@ impl AnalyticsReducer {
                     },
                 );
                 base.cell_id = cell_id;
-                let event = TrackEventRequest::DynamicToolCall(MapleCodeDynamicToolCallEventRequest {
-                    event_type: "maplecode_dynamic_tool_call_event",
-                    event_params: MapleCodeDynamicToolCallEventParams {
-                        base,
-                        dynamic_tool_name: tool_name,
-                        success: Some(success),
-                        output_content_item_count: None,
-                        output_text_item_count: None,
-                        output_image_item_count: None,
-                        output_audio_item_count: None,
-                    },
-                });
+                let event =
+                    TrackEventRequest::DynamicToolCall(MapleCodeDynamicToolCallEventRequest {
+                        event_type: "maplecode_dynamic_tool_call_event",
+                        event_params: MapleCodeDynamicToolCallEventParams {
+                            base,
+                            dynamic_tool_name: tool_name,
+                            success: Some(success),
+                            output_content_item_count: None,
+                            output_text_item_count: None,
+                            output_image_item_count: None,
+                            output_audio_item_count: None,
+                        },
+                    });
                 let counts = &mut self.turn_state(turn_id.clone()).tool_counts;
                 counts.total += 1;
                 counts.dynamic_tool_call += 1;
@@ -1559,10 +1560,12 @@ impl AnalyticsReducer {
 
     fn ingest_plugin_used(&mut self, input: PluginUsedInput, out: &mut Vec<TrackEventRequest>) {
         let PluginUsedInput { tracking, plugin } = input;
-        out.push(TrackEventRequest::PluginUsed(MapleCodePluginUsedEventRequest {
-            event_type: "maplecode_plugin_used",
-            event_params: maplecode_plugin_used_metadata(&tracking, plugin),
-        }));
+        out.push(TrackEventRequest::PluginUsed(
+            MapleCodePluginUsedEventRequest {
+                event_type: "maplecode_plugin_used",
+                event_params: maplecode_plugin_used_metadata(&tracking, plugin),
+            },
+        ));
     }
 
     fn ingest_plugin_install_requested(
@@ -2502,7 +2505,11 @@ impl AnalyticsReducer {
         ));
     }
 
-    fn ingest_compaction(&mut self, input: MapleCodeCompactionEvent, out: &mut Vec<TrackEventRequest>) {
+    fn ingest_compaction(
+        &mut self,
+        input: MapleCodeCompactionEvent,
+        out: &mut Vec<TrackEventRequest>,
+    ) {
         let Some((connection_state, thread_state, thread_metadata)) =
             self.thread_context_or_warn(AnalyticsDropSite::compaction(&input))
         else {
@@ -2589,18 +2596,20 @@ impl AnalyticsReducer {
         else {
             return;
         };
-        out.push(TrackEventRequest::Goal(Box::new(MapleCodeGoalEventRequest {
-            event_type: "maplecode_goal_event",
-            event_params: maplecode_goal_event_params(
-                input,
-                thread_metadata.session_id.clone(),
-                thread_state.app_server_client(connection_state),
-                connection_state.runtime.clone(),
-                thread_metadata.thread_source.clone(),
-                thread_metadata.subagent_source.clone(),
-                thread_metadata.parent_thread_id.clone(),
-            ),
-        })));
+        out.push(TrackEventRequest::Goal(Box::new(
+            MapleCodeGoalEventRequest {
+                event_type: "maplecode_goal_event",
+                event_params: maplecode_goal_event_params(
+                    input,
+                    thread_metadata.session_id.clone(),
+                    thread_state.app_server_client(connection_state),
+                    connection_state.runtime.clone(),
+                    thread_metadata.thread_source.clone(),
+                    thread_metadata.subagent_source.clone(),
+                    thread_metadata.parent_thread_id.clone(),
+                ),
+            },
+        )));
     }
 
     fn ingest_guardian_review_completed(
@@ -2691,24 +2700,26 @@ impl AnalyticsReducer {
             warn_missing_analytics_context(&drop_site, MissingAnalyticsContext::ThreadMetadata);
             return;
         };
-        out.push(TrackEventRequest::TurnSteer(MapleCodeTurnSteerEventRequest {
-            event_type: "maplecode_turn_steer_event",
-            event_params: MapleCodeTurnSteerEventParams {
-                thread_id: pending_request.thread_id,
-                session_id: thread_metadata.session_id.clone(),
-                expected_turn_id: Some(pending_request.expected_turn_id),
-                accepted_turn_id,
-                app_server_client: thread_state.app_server_client(connection_state),
-                runtime: connection_state.runtime.clone(),
-                thread_source: thread_metadata.thread_source.clone(),
-                subagent_source: thread_metadata.subagent_source.clone(),
-                parent_thread_id: thread_metadata.parent_thread_id.clone(),
-                num_input_images: pending_request.num_input_images,
-                result,
-                rejection_reason,
-                created_at: pending_request.created_at,
+        out.push(TrackEventRequest::TurnSteer(
+            MapleCodeTurnSteerEventRequest {
+                event_type: "maplecode_turn_steer_event",
+                event_params: MapleCodeTurnSteerEventParams {
+                    thread_id: pending_request.thread_id,
+                    session_id: thread_metadata.session_id.clone(),
+                    expected_turn_id: Some(pending_request.expected_turn_id),
+                    accepted_turn_id,
+                    app_server_client: thread_state.app_server_client(connection_state),
+                    runtime: connection_state.runtime.clone(),
+                    thread_source: thread_metadata.thread_source.clone(),
+                    subagent_source: thread_metadata.subagent_source.clone(),
+                    parent_thread_id: thread_metadata.parent_thread_id.clone(),
+                    num_input_images: pending_request.num_input_images,
+                    result,
+                    rejection_reason,
+                    created_at: pending_request.created_at,
+                },
             },
-        }));
+        ));
     }
 
     fn emit_review_event(
@@ -2734,29 +2745,34 @@ impl AnalyticsReducer {
         else {
             return;
         };
-        out.push(TrackEventRequest::ReviewEvent(MapleCodeReviewEventRequest {
-            event_type: "maplecode_review_event",
-            event_params: MapleCodeReviewEventParams {
-                thread_id: pending_review.thread_id,
-                turn_id: pending_review.turn_id,
-                item_id: pending_review.item_id,
-                review_id: pending_review.review_id,
-                app_server_client: thread_state.app_server_client(connection_state),
-                runtime: connection_state.runtime.clone(),
-                thread_source: thread_metadata.thread_source.clone(),
-                subagent_source: thread_metadata.subagent_source.clone(),
-                parent_thread_id: thread_metadata.parent_thread_id.clone(),
-                subject_kind: pending_review.subject_kind,
-                subject_name: pending_review.subject_name,
-                reviewer,
-                trigger: pending_review.trigger,
-                status,
-                resolution,
-                started_at_ms: pending_review.started_at_ms,
-                completed_at_ms,
-                duration_ms: observed_duration_ms(pending_review.started_at_ms, completed_at_ms),
+        out.push(TrackEventRequest::ReviewEvent(
+            MapleCodeReviewEventRequest {
+                event_type: "maplecode_review_event",
+                event_params: MapleCodeReviewEventParams {
+                    thread_id: pending_review.thread_id,
+                    turn_id: pending_review.turn_id,
+                    item_id: pending_review.item_id,
+                    review_id: pending_review.review_id,
+                    app_server_client: thread_state.app_server_client(connection_state),
+                    runtime: connection_state.runtime.clone(),
+                    thread_source: thread_metadata.thread_source.clone(),
+                    subagent_source: thread_metadata.subagent_source.clone(),
+                    parent_thread_id: thread_metadata.parent_thread_id.clone(),
+                    subject_kind: pending_review.subject_kind,
+                    subject_name: pending_review.subject_name,
+                    reviewer,
+                    trigger: pending_review.trigger,
+                    status,
+                    resolution,
+                    started_at_ms: pending_review.started_at_ms,
+                    completed_at_ms,
+                    duration_ms: observed_duration_ms(
+                        pending_review.started_at_ms,
+                        completed_at_ms,
+                    ),
+                },
             },
-        }));
+        ));
     }
 
     fn record_item_review_summary(
@@ -3170,17 +3186,19 @@ fn tool_item_event(input: ToolItemEventInput<'_>) -> Option<TrackEventRequest> {
                     review_summary,
                 },
             );
-            Some(TrackEventRequest::FileChange(MapleCodeFileChangeEventRequest {
-                event_type: "maplecode_file_change_event",
-                event_params: MapleCodeFileChangeEventParams {
-                    base,
-                    file_change_count: usize_to_u64(changes.len()),
-                    file_add_count: counts.add,
-                    file_update_count: counts.update,
-                    file_delete_count: counts.delete,
-                    file_move_count: counts.move_,
+            Some(TrackEventRequest::FileChange(
+                MapleCodeFileChangeEventRequest {
+                    event_type: "maplecode_file_change_event",
+                    event_params: MapleCodeFileChangeEventParams {
+                        base,
+                        file_change_count: usize_to_u64(changes.len()),
+                        file_add_count: counts.add,
+                        file_update_count: counts.update,
+                        file_delete_count: counts.delete,
+                        file_move_count: counts.move_,
+                    },
                 },
-            }))
+            ))
         }
         ThreadItemPayload::McpToolCall {
             id,
@@ -3365,15 +3383,17 @@ fn tool_item_event(input: ToolItemEventInput<'_>) -> Option<TrackEventRequest> {
                     review_summary,
                 },
             );
-            Some(TrackEventRequest::WebSearch(MapleCodeWebSearchEventRequest {
-                event_type: "maplecode_web_search_event",
-                event_params: MapleCodeWebSearchEventParams {
-                    base,
-                    web_search_action: item.action.as_ref().map(web_search_action_kind),
-                    query_present: !item.query.trim().is_empty(),
-                    query_count: web_search_query_count(&item.query, item.action.as_ref()),
+            Some(TrackEventRequest::WebSearch(
+                MapleCodeWebSearchEventRequest {
+                    event_type: "maplecode_web_search_event",
+                    event_params: MapleCodeWebSearchEventParams {
+                        base,
+                        web_search_action: item.action.as_ref().map(web_search_action_kind),
+                        query_present: !item.query.trim().is_empty(),
+                        query_count: web_search_query_count(&item.query, item.action.as_ref()),
+                    },
                 },
-            }))
+            ))
         }
         ThreadItemPayload::ImageGeneration(item) => {
             let (terminal_status, failure_kind) = image_generation_outcome(item.status.as_str());
@@ -3828,7 +3848,9 @@ struct FileChangeCounts {
     move_: u64,
 }
 
-fn file_change_counts(changes: &[maplecode_app_server_protocol::FileUpdateChange]) -> FileChangeCounts {
+fn file_change_counts(
+    changes: &[maplecode_app_server_protocol::FileUpdateChange],
+) -> FileChangeCounts {
     let mut counts = FileChangeCounts::default();
     for change in changes {
         match &change.kind {
@@ -4029,7 +4051,8 @@ fn maplecode_turn_event_params(
         turn_error: completed.turn_error,
         maplecode_error_kind: maplecode_error.map(|error| error.kind),
         maplecode_error_http_status_code: maplecode_error.and_then(|error| error.http_status_code),
-        usage_limit_window_minutes: maplecode_error.and_then(|error| error.usage_limit_window_minutes),
+        usage_limit_window_minutes: maplecode_error
+            .and_then(|error| error.usage_limit_window_minutes),
         steer_count: Some(turn_state.steer_count),
         total_tool_call_count: Some(turn_state.tool_counts.total),
         shell_command_count: Some(turn_state.tool_counts.shell_command),

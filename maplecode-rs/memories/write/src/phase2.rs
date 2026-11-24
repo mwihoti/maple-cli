@@ -256,7 +256,9 @@ mod job {
             maplecode_state::Phase2JobClaimOutcome::SkippedCooldown => {
                 return Err("skipped_cooldown");
             }
-            maplecode_state::Phase2JobClaimOutcome::SkippedRunning => return Err("skipped_running"),
+            maplecode_state::Phase2JobClaimOutcome::SkippedRunning => {
+                return Err("skipped_running");
+            }
         };
 
         Ok(Claim { token, watermark })

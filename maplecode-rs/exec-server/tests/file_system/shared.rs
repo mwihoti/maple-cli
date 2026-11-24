@@ -1,5 +1,6 @@
 use anyhow::Context;
 use anyhow::Result;
+use futures::TryStreamExt;
 use maplecode_exec_server::CopyOptions;
 use maplecode_exec_server::CreateDirectoryOptions;
 use maplecode_exec_server::EnvironmentAccess;
@@ -34,7 +35,6 @@ use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_sandboxing::policy_transforms::effective_file_system_sandbox_policy;
 use maplecode_sandboxing::policy_transforms::effective_network_sandbox_policy;
 use maplecode_utils_path_uri::PathUri;
-use futures::TryStreamExt;
 use pretty_assertions::assert_eq;
 use std::path::Path;
 use std::sync::Arc;
@@ -1206,8 +1206,9 @@ async fn sandboxed_file_operations_cannot_read_or_write_helper_siblings() -> Res
     std::fs::create_dir(&workspace)?;
 
     let helper = runtime_dir.join("maplecode-test-helper");
-    std::fs::hard_link(&helper_paths.maplecode_exe, &helper)
-        .or_else(|_| maplecode_utils_cargo_bin::copy_executable(&helper_paths.maplecode_exe, &helper))?;
+    std::fs::hard_link(&helper_paths.maplecode_exe, &helper).or_else(|_| {
+        maplecode_utils_cargo_bin::copy_executable(&helper_paths.maplecode_exe, &helper)
+    })?;
     let linux_sandbox = if helper_paths.maplecode_linux_sandbox_exe.is_some() {
         let alias = runtime_dir.join("maplecode-linux-sandbox");
         std::fs::hard_link(&helper, &alias)

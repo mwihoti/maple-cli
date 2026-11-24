@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_api::ReqwestTransport;
 use maplecode_api::SearchClient;
 use maplecode_api::SearchCommands;
@@ -37,8 +39,6 @@ use maplecode_tools::ResponsesApiNamespace;
 use maplecode_tools::ResponsesApiNamespaceTool;
 use maplecode_tools::ToolExposure;
 use maplecode_tools::default_namespace_description;
-use http::HeaderMap;
-use http::HeaderValue;
 use url::Url;
 
 use crate::history::recent_input;
@@ -96,7 +96,10 @@ impl<'call> ToolExecutor<ToolCall<'call>> for WebSearchTool {
         true
     }
 
-    fn handle<'a>(&'a self, call: ToolCall<'call>) -> maplecode_extension_api::ToolExecutorFuture<'a>
+    fn handle<'a>(
+        &'a self,
+        call: ToolCall<'call>,
+    ) -> maplecode_extension_api::ToolExecutorFuture<'a>
     where
         'call: 'a,
     {

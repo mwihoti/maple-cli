@@ -25,7 +25,10 @@ fn winget_package_starts_and_reselects_daemon() -> Result<()> {
     for directory in ["bin", "maplecode-path", "maplecode-resources/voice"] {
         std::fs::create_dir_all(package.join(directory))?;
     }
-    copy_executable(&maplecode_utils_cargo_bin::cargo_bin("maplecode")?, &maplecode)?;
+    copy_executable(
+        &maplecode_utils_cargo_bin::cargo_bin("maplecode")?,
+        &maplecode,
+    )?;
     for helper in [
         "maplecode-code-mode-host.exe",
         "maplecode-path/rg.exe",

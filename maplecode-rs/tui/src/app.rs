@@ -93,13 +93,20 @@ use crate::update_action::UpdateAction;
 use crate::version::MAPLECODE_CLI_VERSION;
 use crate::workspace_command::AppServerWorkspaceCommandRunner;
 use crate::workspace_command::WorkspaceCommandRunner;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
+use crossterm::event::MouseButton;
+use crossterm::event::MouseEventKind;
 use maplecode_ansi_escape::ansi_escape_line;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_client::TypedRequestError;
 use maplecode_app_server_protocol::AddCreditsNudgeCreditType;
 use maplecode_app_server_protocol::AskForApproval;
 use maplecode_app_server_protocol::ClientRequest;
-use maplecode_app_server_protocol::MapleCodeErrorInfo as AppServerMapleCodeErrorInfo;
 use maplecode_app_server_protocol::ConfigBatchWriteParams;
 use maplecode_app_server_protocol::ConfigReadResponse;
 use maplecode_app_server_protocol::ConfigValueWriteParams;
@@ -109,6 +116,7 @@ use maplecode_app_server_protocol::GetAccountRateLimitsResponse;
 use maplecode_app_server_protocol::HooksListEntry;
 use maplecode_app_server_protocol::ListMcpServerStatusParams;
 use maplecode_app_server_protocol::ListMcpServerStatusResponse;
+use maplecode_app_server_protocol::MapleCodeErrorInfo as AppServerMapleCodeErrorInfo;
 #[cfg(test)]
 use maplecode_app_server_protocol::McpAuthStatus;
 use maplecode_app_server_protocol::McpServerStatus;
@@ -163,14 +171,6 @@ use maplecode_rollout::StateDbHandle;
 use maplecode_terminal_detection::user_agent;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_approval_presets::builtin_permission_profile_for_active_permission_profile;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
-use crossterm::event::MouseButton;
-use crossterm::event::MouseEventKind;
 use ratatui::layout::Rect;
 use ratatui::layout::Size;
 use ratatui::style::Stylize;
@@ -638,7 +638,8 @@ pub(crate) struct App {
     daemon_cli_executable: Option<AbsolutePathBuf>,
     pub(crate) pending_update_action: Option<UpdateAction>,
     /// Retained through all loop exits so shutdown cannot interrupt stop followed by start.
-    daemon_restart: Option<JoinHandle<anyhow::Result<maplecode_app_server_daemon::LifecycleOutput>>>,
+    daemon_restart:
+        Option<JoinHandle<anyhow::Result<maplecode_app_server_daemon::LifecycleOutput>>>,
 
     /// Tracks the thread we intentionally shut down while exiting the app.
     ///
@@ -690,8 +691,9 @@ pub(crate) struct App {
     primary_session_configured: Option<ThreadSessionState>,
     pending_primary_events: VecDeque<ThreadBufferedEvent>,
     pending_app_server_requests: PendingAppServerRequests,
-    dynamic_tool_status_updates:
-        tokio::sync::broadcast::Sender<maplecode_app_server_protocol::ThreadStatusChangedNotification>,
+    dynamic_tool_status_updates: tokio::sync::broadcast::Sender<
+        maplecode_app_server_protocol::ThreadStatusChangedNotification,
+    >,
     dynamic_tool_tasks: HashMap<maplecode_app_server_protocol::RequestId, (String, JoinHandle<()>)>,
     pending_startup_thread_start: bool,
     pending_server_version_notice: Option<crate::status::remote_connection::ServerVersionNotice>,

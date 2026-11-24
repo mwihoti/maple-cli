@@ -10,13 +10,13 @@ use anyhow::Result;
 use anyhow::bail;
 use base64::Engine as _;
 use base64::engine::general_purpose;
+use crossterm::cursor::MoveTo;
+use crossterm::queue;
+use image::imageops::FilterType;
 use maplecode_terminal_detection::Multiplexer;
 use maplecode_terminal_detection::TerminalInfo;
 use maplecode_terminal_detection::TerminalName;
 use maplecode_terminal_detection::terminal_info;
-use crossterm::cursor::MoveTo;
-use crossterm::queue;
-use image::imageops::FilterType;
 use ratatui::layout::Rect;
 
 use super::sixel;

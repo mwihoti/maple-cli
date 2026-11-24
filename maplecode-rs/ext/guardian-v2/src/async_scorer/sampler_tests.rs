@@ -1,4 +1,12 @@
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::responses::WebSocketConnectionConfig;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_model_verification_metadata;
+use core_test_support::responses::ev_output_text_delta;
+use core_test_support::skip_if_no_network;
 use maplecode_api::ApiError;
 use maplecode_context_fragments::RenderedFragment;
 use maplecode_core::cyber_access_program::ApiKeyCyberAccessPrograms;
@@ -10,10 +18,10 @@ use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AgentIdentityAuthPolicy;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_prompts::GuardianClassifierInstructions;
@@ -26,14 +34,6 @@ use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::turn_input::CyberAccessProgram;
 use maplecode_protocol_test_support::uuid_v7_item_id_generator_for_test;
-use core_test_support::responses;
-use core_test_support::responses::WebSocketConnectionConfig;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_model_verification_metadata;
-use core_test_support::responses::ev_output_text_delta;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashSet;
@@ -248,9 +248,9 @@ pub(in crate::async_scorer) fn sampler_config(base_url: String) -> LunaSamplerCo
         ),
         provider: create_model_provider(
             ModelProviderInfo::create_openai_provider(Some(base_url)),
-            Some(AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(
-                "test-api-key",
-            ))),
+            Some(AuthManager::from_auth_for_testing(
+                MapleCodeAuth::from_api_key("test-api-key"),
+            )),
         ),
         http_client_factory: HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault),
         agent_identity_policy: AgentIdentityAuthPolicy::JwtOnly,
@@ -836,9 +836,9 @@ async fn sampler_returns_classification_token_before_terminal_response_events() 
     let base_url = proxy_websocket_servers(&[&idle_server, &server]).await?;
     let provider = create_model_provider(
         ModelProviderInfo::create_openai_provider(Some(base_url)),
-        Some(AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(
-            "test-api-key",
-        ))),
+        Some(AuthManager::from_auth_for_testing(
+            MapleCodeAuth::from_api_key("test-api-key"),
+        )),
     );
     let sampler = connect_sampler(LunaSamplerConfig {
         api_key_cyber_access_programs: ApiKeyCyberAccessPrograms::Disabled,
@@ -1259,7 +1259,10 @@ async fn parent_response_id_survives_classifier_transport_retry() -> Result<()> 
                     body["client_metadata"].get("parent_response_id").cloned(),
                     body["client_metadata"].get("guardian_credits_requested"),
                 ),
-                (uses_maplecode_backend.then(|| json!(parent_response_id)), None)
+                (
+                    uses_maplecode_backend.then(|| json!(parent_response_id)),
+                    None
+                )
             );
             assert!(!body["input"].to_string().contains(parent_response_id));
         }

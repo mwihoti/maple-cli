@@ -5,6 +5,8 @@ use app_test_support::TestAppServer;
 use app_test_support::create_final_assistant_message_sse_response;
 use app_test_support::create_request_permissions_sse_response;
 use app_test_support::write_models_cache_with_models;
+use core_test_support::responses;
+use core_test_support::skip_if_wine_exec;
 use maplecode_app_server_protocol::AdditionalPermissionProfile;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::CommandExecutionApprovalDecision;
@@ -33,8 +35,6 @@ use maplecode_protocol::request_permissions::RequestPermissionProfile;
 use maplecode_protocol::request_permissions::RequestPermissionsResponse;
 use maplecode_utils_path_uri::LegacyAppPathString;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::responses;
-use core_test_support::skip_if_wine_exec;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
@@ -850,12 +850,14 @@ async fn request_permissions_round_trip() -> Result<()> {
         serde_json::to_value(PermissionsRequestApprovalResponse {
             permissions: maplecode_app_server_protocol::GrantedPermissionProfile {
                 network: None,
-                file_system: Some(maplecode_app_server_protocol::AdditionalFileSystemPermissions {
-                    read: None,
-                    write: Some(vec![requested_writes[0].clone()]),
-                    glob_scan_max_depth: None,
-                    entries: None,
-                }),
+                file_system: Some(
+                    maplecode_app_server_protocol::AdditionalFileSystemPermissions {
+                        read: None,
+                        write: Some(vec![requested_writes[0].clone()]),
+                        glob_scan_max_depth: None,
+                        entries: None,
+                    },
+                ),
             },
             scope: PermissionGrantScope::Turn,
             strict_auto_review: None,

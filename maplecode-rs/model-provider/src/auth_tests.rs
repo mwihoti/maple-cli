@@ -1,5 +1,6 @@
 //! Unit tests for the auth module.
 
+use http::header::AUTHORIZATION;
 use maplecode_agent_identity::generate_agent_key_material;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthKeyringBackendKind;
@@ -11,7 +12,6 @@ use maplecode_model_provider_info::create_oss_provider_with_base_url;
 use maplecode_protocol::account::PlanType;
 use maplecode_protocol::config_types::ModelProviderAuthInfo;
 use maplecode_protocol::error::MapleCodeErrorDetails;
-use http::header::AUTHORIZATION;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::num::NonZeroU64;
@@ -475,15 +475,15 @@ async fn failed_refresh_retries_only_with_newer_credentials() {
             let recovery = provider.refresh_after_unauthorized(rejected);
             let concurrent_update = async {
                 external.barrier.wait().await;
-                updates.send_replace(MapleCodeAuth::Headers(AuthHeaders::new(HeaderMap::from_iter(
-                    [
+                updates.send_replace(MapleCodeAuth::Headers(AuthHeaders::new(
+                    HeaderMap::from_iter([
                         (AUTHORIZATION, HeaderValue::from_static(token)),
                         (
                             http::HeaderName::from_static("chatgpt-account-id"),
                             HeaderValue::from_static(account),
                         ),
-                    ],
-                ))));
+                    ]),
+                )));
                 manager.reload().await;
                 external.barrier.wait().await;
             };
@@ -499,8 +499,9 @@ async fn failed_refresh_retries_only_with_newer_credentials() {
 
 #[tokio::test]
 async fn first_party_run_scope_uses_agent_assertion_and_exposes_telemetry() {
-    let auth =
-        MapleCodeAuth::AgentIdentity(agent_identity_auth(/*chatgpt_account_is_fedramp*/ false).await);
+    let auth = MapleCodeAuth::AgentIdentity(
+        agent_identity_auth(/*chatgpt_account_is_fedramp*/ false).await,
+    );
     let provider = ModelProviderInfo::create_openai_provider(/*base_url*/ None);
 
     let auth = resolve_provider_auth_for_scope(

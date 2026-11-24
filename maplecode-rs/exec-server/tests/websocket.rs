@@ -4,6 +4,7 @@ mod common;
 
 #[cfg(target_os = "linux")]
 use anyhow::Context;
+use common::exec_server::exec_server;
 #[cfg(target_os = "linux")]
 use maplecode_exec_server::Environment;
 use maplecode_exec_server::InitializeParams;
@@ -15,7 +16,6 @@ use maplecode_exec_server_protocol::JSONRPCResponse;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 #[cfg(target_os = "linux")]
 use maplecode_utils_path_uri::PathUri;
-use common::exec_server::exec_server;
 use pretty_assertions::assert_eq;
 #[cfg(target_os = "linux")]
 use std::time::Duration;

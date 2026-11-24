@@ -19,6 +19,9 @@ use axum::body::Bytes;
 use axum::http::HeaderMap;
 use axum::routing::get;
 use axum::routing::post;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::skip_if_remote;
+use core_test_support::stdio_server_bin;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::JSONRPCError;
 use maplecode_app_server_protocol::ListMcpServerStatusParams;
@@ -38,9 +41,6 @@ use maplecode_protocol::config_types::TrustLevel;
 use maplecode_rmcp_client::McpOAuthCallbackMode;
 use maplecode_rmcp_client::resolve_mcp_oauth_callback_url;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::skip_if_remote;
-use core_test_support::stdio_server_bin;
 use pretty_assertions::assert_eq;
 use rmcp::handler::server::ServerHandler;
 use rmcp::model::Implementation;
@@ -787,7 +787,9 @@ async fn mcp_server_status_list_returns_raw_server_and_tool_names(plugin: bool) 
         std::fs::create_dir_all(plugin_root.path().join(".agents/plugins"))?;
         std::fs::create_dir_all(plugin_root.path().join("sample/.maplecode-plugin"))?;
         std::fs::write(
-            plugin_root.path().join("sample/.maplecode-plugin/plugin.json"),
+            plugin_root
+                .path()
+                .join("sample/.maplecode-plugin/plugin.json"),
             serde_json::to_vec(&json!({"name": "sample"}))?,
         )?;
         std::fs::write(

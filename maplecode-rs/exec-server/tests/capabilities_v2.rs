@@ -2,6 +2,8 @@
 mod common;
 
 use anyhow::Context;
+use common::exec_server::ExecServerHarness;
+use common::exec_server::exec_server_with_env;
 use maplecode_exec_server::CAPABILITIES_DISCOVER_V2_METHOD;
 use maplecode_exec_server::DiscoverV2CapabilitiesRequest;
 use maplecode_exec_server::DiscoverV2CapabilitiesResponse;
@@ -9,8 +11,6 @@ use maplecode_exec_server::InitializeResponse;
 use maplecode_exec_server::SkillDiscoveryRoot;
 use maplecode_exec_server_protocol::JSONRPCMessage;
 use maplecode_utils_path_uri::PathUri;
-use common::exec_server::ExecServerHarness;
-use common::exec_server::exec_server_with_env;
 use pretty_assertions::assert_eq;
 
 #[cfg(any(target_os = "linux", target_os = "macos", windows))]
@@ -134,7 +134,8 @@ async fn v2_rpc_refreshes_metadata_and_enforces_sandbox() -> anyhow::Result<()> 
         );
         #[cfg(windows)]
         let sandbox = FileSystemSandboxContext {
-            windows_sandbox_selection: maplecode_exec_server::WindowsSandboxSelection::RestrictedToken,
+            windows_sandbox_selection:
+                maplecode_exec_server::WindowsSandboxSelection::RestrictedToken,
             ..sandbox
         };
         let restricted = DiscoverV2CapabilitiesRequest {

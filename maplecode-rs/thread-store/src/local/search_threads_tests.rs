@@ -190,9 +190,13 @@ async fn write_named_rollout(home: &Path, id: Uuid, attached_to: Option<Uuid>) -
         ThreadHistoryMode::Legacy,
     )
     .expect("write rollout");
-    maplecode_rollout::append_thread_name(home, ThreadId::from_u128(id.as_u128()), "matching title")
-        .await
-        .expect("save thread name");
+    maplecode_rollout::append_thread_name(
+        home,
+        ThreadId::from_u128(id.as_u128()),
+        "matching title",
+    )
+    .await
+    .expect("save thread name");
     path
 }
 

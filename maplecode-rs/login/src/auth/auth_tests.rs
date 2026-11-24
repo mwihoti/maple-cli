@@ -383,8 +383,10 @@ async fn agent_identity_jwt_uses_explicit_staging_endpoint_overrides() -> anyhow
     )
     .await;
     let authapi_base_url = format!("{}/api/accounts/", authapi_server.uri());
-    let _authapi_guard =
-        EnvVarGuard::set("MAPLECODE_AGENT_IDENTITY_AUTHAPI_BASE_URL", &authapi_base_url);
+    let _authapi_guard = EnvVarGuard::set(
+        "MAPLECODE_AGENT_IDENTITY_AUTHAPI_BASE_URL",
+        &authapi_base_url,
+    );
     let jwks_base_url = format!("{}/api/maplecode/", jwks_server.uri());
     let _jwks_guard = EnvVarGuard::set("MAPLECODE_AGENT_IDENTITY_JWKS_BASE_URL", &jwks_base_url);
 
@@ -425,8 +427,10 @@ async fn agent_identity_jwt_supports_existing_staging_launcher() -> anyhow::Resu
     )
     .await;
     let authapi_base_url = format!("{}/api/accounts", authapi_server.uri());
-    let _authapi_guard =
-        EnvVarGuard::set("MAPLECODE_AGENT_IDENTITY_AUTHAPI_BASE_URL", &authapi_base_url);
+    let _authapi_guard = EnvVarGuard::set(
+        "MAPLECODE_AGENT_IDENTITY_AUTHAPI_BASE_URL",
+        &authapi_base_url,
+    );
     let jwks_base_url = format!("{}/api/maplecode", jwks_server.uri());
     let _jwks_guard = EnvVarGuard::set("MAPLECODE_AGENT_IDENTITY_JWKS_BASE_URL", &jwks_base_url);
 
@@ -1630,7 +1634,10 @@ impl ExternalAuth for StaticExternalAuth {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 }
@@ -1645,7 +1652,10 @@ impl ExternalAuth for RefreshingExternalAuth {
         Box::pin(async { Ok(self.initial.clone()) })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         Box::pin(async { Ok(self.refreshed.clone()) })
     }
 }
@@ -1682,7 +1692,10 @@ impl ExternalAuth for FailingExternalAuth {
         })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         Box::pin(async { Err(std::io::Error::other("external auth failed")) })
     }
 
@@ -1744,7 +1757,10 @@ impl ExternalAuth for RecoveringExternalAuth {
         })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         self.resolve()
     }
 }
@@ -2046,9 +2062,12 @@ async fn workload_identity_auth_is_immutable_and_process_local() {
         chatgpt_account_id: Some("workspace-one".to_string()),
     })
     .expect("fake access token");
-    let auth =
-        MapleCodeAuth::from_external_chatgpt_tokens(&access_token, "workspace-one", Some("enterprise"))
-            .expect("external ChatGPT auth");
+    let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+        &access_token,
+        "workspace-one",
+        Some("enterprise"),
+    )
+    .expect("external ChatGPT auth");
 
     manager
         .install_external_auth(Arc::new(StaticExternalAuth(auth.clone())))
@@ -2407,9 +2426,10 @@ async fn shared_from_config_prefers_workload_identity_to_explicit_access_token()
     let _rule_guard = EnvVarGuard::set(OPENAI_FEDERATION_RULE_ID_ENV_VAR, "rule-one");
     let _assertion_file_guard = EnvVarGuard::remove(OPENAI_IDENTITY_TOKEN_FILE_ENV_VAR);
 
-    let error = AuthManager::shared_from_config(&config, /*enable_maplecode_api_key_env*/ false)
-        .await
-        .expect_err("partial workload identity config should fail closed");
+    let error =
+        AuthManager::shared_from_config(&config, /*enable_maplecode_api_key_env*/ false)
+            .await
+            .expect_err("partial workload identity config should fail closed");
 
     assert!(
         error
@@ -2638,8 +2658,10 @@ async fn personal_access_token_does_not_offer_unauthorized_recovery() {
         .mount(&server)
         .await;
     let _authapi_guard = EnvVarGuard::set("MAPLECODE_AUTHAPI_BASE_URL", &server.uri());
-    let _access_token_guard =
-        EnvVarGuard::set(MAPLECODE_ACCESS_TOKEN_ENV_VAR, "at-no-unauthorized-recovery");
+    let _access_token_guard = EnvVarGuard::set(
+        MAPLECODE_ACCESS_TOKEN_ENV_VAR,
+        "at-no-unauthorized-recovery",
+    );
     let manager = Arc::new(
         AuthManager::new(
             maplecode_home.path().to_path_buf(),
@@ -2844,10 +2866,11 @@ async fn workspace_policy_rejects_agent_identity_before_hydration() {
         .await;
         config.managed_auth_policy.allowed_chatgpt_workspaces =
             Some(vec![WORKSPACE_ID_ALLOWED.to_string()]);
-        let manager =
-            AuthManager::shared_from_auth_config(config, /*enable_maplecode_api_key_env*/ false)
-                .await
-                .expect("auth manager");
+        let manager = AuthManager::shared_from_auth_config(
+            config, /*enable_maplecode_api_key_env*/ false,
+        )
+        .await
+        .expect("auth manager");
         assert_eq!(manager.auth().await, None);
     }
 
@@ -3164,8 +3187,8 @@ async fn enforce_login_restrictions_blocks_env_api_key_when_chatgpt_required() {
 }
 
 fn agent_identity_record(account_id: &str) -> AgentIdentityAuthRecord {
-    let key_material =
-        maplecode_agent_identity::generate_agent_key_material().expect("generate agent key material");
+    let key_material = maplecode_agent_identity::generate_agent_key_material()
+        .expect("generate agent key material");
     AgentIdentityAuthRecord {
         agent_runtime_id: "agent-runtime-id".to_string(),
         agent_private_key: key_material.private_key_pkcs8_base64,

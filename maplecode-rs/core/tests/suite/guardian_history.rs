@@ -3,6 +3,20 @@
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use image::DynamicImage;
+use image::RgbImage;
 use maplecode_core::ForkSnapshot;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
@@ -29,20 +43,6 @@ use maplecode_thread_store::ForkBoundary;
 use maplecode_thread_store::InMemoryThreadStore;
 use maplecode_thread_store::LoadThreadHistoryParams;
 use maplecode_thread_store::PrepareForkParams;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use image::DynamicImage;
-use image::RgbImage;
 use pretty_assertions::assert_eq;
 use rand::RngCore;
 use rand::SeedableRng;
@@ -433,7 +433,8 @@ async fn guardian_history_uses_deltas_between_eviction_batches(
         }
     }))?;
     test.maplecode =
-        super::guardian_checkpoint_migration::resume(&test, &test.maplecode, vec![checkpoint]).await?;
+        super::guardian_checkpoint_migration::resume(&test, &test.maplecode, vec![checkpoint])
+            .await?;
 
     let mut responses = Vec::new();
     for index in 0..3 {
@@ -793,7 +794,10 @@ async fn guardian_storage_policy_applies_before_capture_and_resume(
     assert_eq!(originals.len(), HISTORY_ENTRIES);
     test.maplecode.ensure_rollout_materialized().await;
     test.maplecode.flush_rollout().await?;
-    let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let history = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     test.maplecode =
         super::guardian_checkpoint_migration::resume(&test, &test.maplecode, history.items).await?;
     let restored = test.maplecode.conversation_history_snapshot().await;

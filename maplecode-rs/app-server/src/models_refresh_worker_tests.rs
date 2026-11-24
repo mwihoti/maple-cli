@@ -36,7 +36,9 @@ fn test_thread_manager(
 ) -> Arc<maplecode_core::ThreadManager> {
     let factory = match models_manager {
         Some(models) => maplecode_core::test_support::fixed_model_catalog(models),
-        None => Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+        None => Arc::new(ModelCatalogSettings::disk(
+            config.maplecode_home.to_path_buf(),
+        )),
     };
     let startup = maplecode_core::build_startup_models(
         config,
@@ -170,7 +172,9 @@ async fn refreshes_immediately_periodically_and_stops_when_dropped() {
         endpoint.clone(),
         /*auth_manager*/ None,
     ));
-    let work_manager = models_manager.for_originator("maplecode_work_desktop").unwrap();
+    let work_manager = models_manager
+        .for_originator("maplecode_work_desktop")
+        .unwrap();
     let mut work_updates = work_manager.model_catalog_updates().unwrap();
     let auth_manager = maplecode_login::AuthManager::shared_from_config(
         config.as_ref(),

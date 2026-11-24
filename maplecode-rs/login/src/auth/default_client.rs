@@ -4,6 +4,9 @@
 //! Use [`crate::default_client`] or [`maplecode_login::default_client`] from other crates in this
 //! workspace.
 
+use http::HeaderMap;
+use http::HeaderValue;
+use http::header::USER_AGENT;
 use maplecode_http_client::BuildRouteAwareHttpClientError;
 use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClient;
@@ -14,9 +17,6 @@ pub use maplecode_http_client::RequestBuilder as MapleCodeRequestBuilder;
 use maplecode_http_client::ReqwestTransport;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_terminal_detection::user_agent;
-use http::HeaderMap;
-use http::HeaderValue;
-use http::header::USER_AGENT;
 use std::sync::LazyLock;
 use std::sync::Mutex;
 use std::sync::RwLock;
@@ -40,7 +40,8 @@ use crate::outbound_proxy::AuthRouteConfig;
 /// Parenthesis will be added by Maple Code. This should only specify what goes inside of the parenthesis.
 pub static USER_AGENT_SUFFIX: LazyLock<Mutex<Option<String>>> = LazyLock::new(|| Mutex::new(None));
 pub const DEFAULT_ORIGINATOR: &str = "maplecode_cli_rs";
-pub const MAPLECODE_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR: &str = "MAPLECODE_INTERNAL_ORIGINATOR_OVERRIDE";
+pub const MAPLECODE_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR: &str =
+    "MAPLECODE_INTERNAL_ORIGINATOR_OVERRIDE";
 pub use maplecode_model_provider_info::RESIDENCY_HEADER_NAME;
 pub use maplecode_model_provider_info::ResidencyRequirement;
 pub use maplecode_model_provider_info::read_managed_residency_requirement as read_default_client_residency_requirement;

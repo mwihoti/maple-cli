@@ -22,6 +22,9 @@ use crate::legacy_core::config::resolve_profile_v2_config_path;
 use crate::named_session_lookup::SessionCollection;
 use crate::named_session_lookup::display_label;
 use crate::named_session_lookup::lookup;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
+use color_eyre::eyre::eyre;
 use maplecode_app_server_protocol::Thread as AppServerThread;
 use maplecode_arg0::Arg0DispatchPaths;
 use maplecode_config::CloudConfigBundleLoader;
@@ -33,9 +36,6 @@ use maplecode_protocol::ThreadId;
 use maplecode_utils_cli::CliConfigOverrides;
 use maplecode_utils_home_dir::find_maplecode_home;
 use maplecode_utils_oss::get_default_model_for_oss_provider;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
-use color_eyre::eyre::eyre;
 
 use super::RemoteAppServerEndpoint;
 

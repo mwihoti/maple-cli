@@ -1,5 +1,7 @@
 mod common;
 
+use common::exec_server::exec_server;
+use common::exec_server::exec_server_with_env;
 use maplecode_config::CONFIG_TOML_FILE;
 use maplecode_config::ConfigLayerSource;
 use maplecode_config::format_config_layer_source;
@@ -12,8 +14,6 @@ use maplecode_exec_server::EnvironmentConfigReadResponse;
 use maplecode_exec_server::ExecServerError;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use common::exec_server::exec_server;
-use common::exec_server::exec_server_with_env;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

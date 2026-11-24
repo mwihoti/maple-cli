@@ -8,8 +8,8 @@ use super::merge_request_headers;
 use crate::ApiError;
 use crate::RESPONSES_PATH;
 use crate::WebsocketTelemetry;
-use maplecode_websocket_client::WebSocketConnector;
 use http::HeaderMap;
+use maplecode_websocket_client::WebSocketConnector;
 use std::sync::Arc;
 use std::sync::OnceLock;
 

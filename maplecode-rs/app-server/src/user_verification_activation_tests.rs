@@ -13,8 +13,20 @@ use serde_json::json;
 #[tokio::test]
 async fn user_verification_initialize_owns_advertisement_and_eligibility() -> Result<()> {
     for (origin, name, opt_in, supported, expected) in [
-        (ConnectionOrigin::InProcess, "maplecode-tui", true, true, true),
-        (ConnectionOrigin::WebSocket, "maplecode-tui", true, true, false),
+        (
+            ConnectionOrigin::InProcess,
+            "maplecode-tui",
+            true,
+            true,
+            true,
+        ),
+        (
+            ConnectionOrigin::WebSocket,
+            "maplecode-tui",
+            true,
+            true,
+            false,
+        ),
         (
             ConnectionOrigin::RemoteControl,
             "maplecode-tui",
@@ -24,9 +36,27 @@ async fn user_verification_initialize_owns_advertisement_and_eligibility() -> Re
         ),
         (ConnectionOrigin::Stdio, "maplecode-tui", true, true, false),
         (ConnectionOrigin::InProcess, "other-ui", true, true, false),
-        (ConnectionOrigin::InProcess, "maplecode-tui", false, true, false),
-        (ConnectionOrigin::InProcess, "maplecode-tui", true, false, false),
-        (ConnectionOrigin::Stdio, "Maple Code Desktop", true, true, true),
+        (
+            ConnectionOrigin::InProcess,
+            "maplecode-tui",
+            false,
+            true,
+            false,
+        ),
+        (
+            ConnectionOrigin::InProcess,
+            "maplecode-tui",
+            true,
+            false,
+            false,
+        ),
+        (
+            ConnectionOrigin::Stdio,
+            "Maple Code Desktop",
+            true,
+            true,
+            true,
+        ),
         (
             ConnectionOrigin::InProcess,
             "Maple Code Desktop",
@@ -49,9 +79,27 @@ async fn user_verification_initialize_owns_advertisement_and_eligibility() -> Re
             false,
         ),
         (ConnectionOrigin::Stdio, "other-ui", true, true, false),
-        (ConnectionOrigin::Stdio, "maplecode_desktop", true, true, false),
-        (ConnectionOrigin::Stdio, "Maple Code Desktop", false, true, false),
-        (ConnectionOrigin::Stdio, "Maple Code Desktop", true, false, false),
+        (
+            ConnectionOrigin::Stdio,
+            "maplecode_desktop",
+            true,
+            true,
+            false,
+        ),
+        (
+            ConnectionOrigin::Stdio,
+            "Maple Code Desktop",
+            false,
+            true,
+            false,
+        ),
+        (
+            ConnectionOrigin::Stdio,
+            "Maple Code Desktop",
+            true,
+            false,
+            false,
+        ),
     ] {
         let probe: fn() -> bool = if supported { || true } else { || false };
         let mut h = Harness::new(origin, probe).await?;

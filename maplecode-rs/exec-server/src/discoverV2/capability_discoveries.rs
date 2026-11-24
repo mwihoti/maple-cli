@@ -4,10 +4,10 @@ use std::collections::HashMap;
 use std::io;
 use std::sync::Arc;
 
+use futures::StreamExt;
 use maplecode_file_system::ExecutorFileSystem;
 use maplecode_skills::parse_skill_frontmatter_metadata;
 use maplecode_skills::parse_skill_metadata;
-use futures::StreamExt;
 use serde::Deserialize;
 use serde::Serialize;
 

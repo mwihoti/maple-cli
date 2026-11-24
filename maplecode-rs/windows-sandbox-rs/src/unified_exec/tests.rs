@@ -236,7 +236,12 @@ async fn collect_stdout_and_exit(
     });
     let exit_code = timeout(timeout_duration, exit_rx)
         .await
-        .unwrap_or_else(|_| panic!("timed out waiting for exit\n{}", sandbox_log(maplecode_home)))
+        .unwrap_or_else(|_| {
+            panic!(
+                "timed out waiting for exit\n{}",
+                sandbox_log(maplecode_home)
+            )
+        })
         .unwrap_or(-1);
     let stdout = timeout(timeout_duration, stdout_task)
         .await
@@ -383,7 +388,8 @@ fn registered_non_tty_cmd_forwards_env_output_and_exit() {
         crate::registered_core_requested(),
         "registered Core opt-in is required"
     );
-    let maplecode_home = PathBuf::from(std::env::var_os("MAPLECODE_HOME").expect("fixture MAPLECODE_HOME"));
+    let maplecode_home =
+        PathBuf::from(std::env::var_os("MAPLECODE_HOME").expect("fixture MAPLECODE_HOME"));
     assert!(
         crate::app_package::registered_setup_is_ready(&maplecode_home)
             .expect("validate the installed package and service receipt"),
@@ -392,7 +398,10 @@ fn registered_non_tty_cmd_forwards_env_output_and_exit() {
     let cwd = tempfile::tempdir().expect("isolated command workspace");
     current_thread_runtime().block_on(async {
         let mut env_map: HashMap<String, String> = std::env::vars().collect();
-        env_map.insert("MAPLECODE_REGISTERED_TEST".into(), "REGISTERED-ENV-OK".into());
+        env_map.insert(
+            "MAPLECODE_REGISTERED_TEST".into(),
+            "REGISTERED-ENV-OK".into(),
+        );
         let spawned = spawn_windows_sandbox_session_elevated_for_permission_profile(
             &PermissionProfile::workspace_write(),
             workspace_roots_for(cwd.path()).as_slice(),
@@ -747,7 +756,10 @@ fn legacy_capture_emits_output_and_preserves_descendant_after_normal_exit() {
     let workspace = tempfile::tempdir().expect("create sandbox workspace");
     let cwd = workspace.path().to_path_buf();
     let maplecode_home = sandbox_home("legacy-capture-native");
-    println!("capture native maplecode_home={}", maplecode_home.path().display());
+    println!(
+        "capture native maplecode_home={}",
+        maplecode_home.path().display()
+    );
     let ready_marker = cwd.join("descendant-started");
     let release_marker = cwd.join("release-descendant");
     let survival_marker = cwd.join("descendant-survived");
@@ -890,9 +902,12 @@ fn legacy_workspace_write_delete_is_limited_to_writable_roots() {
         )
         .await
         .expect("spawn legacy delete session");
-        let (stdout, exit_code) =
-            collect_stdout_and_exit(spawned, maplecode_home.path(), Duration::from_secs(/*secs*/ 10))
-                .await;
+        let (stdout, exit_code) = collect_stdout_and_exit(
+            spawned,
+            maplecode_home.path(),
+            Duration::from_secs(/*secs*/ 10),
+        )
+        .await;
         let stdout = String::from_utf8_lossy(&stdout);
 
         assert_eq!(
@@ -1096,7 +1111,10 @@ fn legacy_tty_powershell_emits_output_and_accepts_input() {
     runtime.block_on(async move {
         let cwd = sandbox_cwd();
         let maplecode_home = sandbox_home("legacy-tty-pwsh");
-        println!("tty pwsh maplecode_home={}", maplecode_home.path().display());
+        println!(
+            "tty pwsh maplecode_home={}",
+            maplecode_home.path().display()
+        );
         let permission_profile = PermissionProfile::workspace_write();
         let spawned = spawn_windows_sandbox_session_legacy(
             &permission_profile,

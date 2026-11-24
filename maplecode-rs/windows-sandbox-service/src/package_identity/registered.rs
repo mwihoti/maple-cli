@@ -33,12 +33,14 @@ pub(crate) fn authorize_setup_runtime(
 }
 
 fn authorize_runtime_client_process(process: &AuthorizedClientProcess) -> Result<()> {
-    let client_family =
-        unsafe { maplecode_windows_sandbox::process_package_family(process.handle.as_raw_handle()) }
-            .context("read runtime registration client package family")?;
-    let service_family =
-        unsafe { maplecode_windows_sandbox::process_package_family(Threading::GetCurrentProcess()) }
-            .context("read runtime registration service package family")?;
+    let client_family = unsafe {
+        maplecode_windows_sandbox::process_package_family(process.handle.as_raw_handle())
+    }
+    .context("read runtime registration client package family")?;
+    let service_family = unsafe {
+        maplecode_windows_sandbox::process_package_family(Threading::GetCurrentProcess())
+    }
+    .context("read runtime registration service package family")?;
     require_runtime_package_family(client_family.as_deref(), service_family.as_deref())?;
     let mut image = [0u16; 32768];
     let mut length = image.len() as u32;

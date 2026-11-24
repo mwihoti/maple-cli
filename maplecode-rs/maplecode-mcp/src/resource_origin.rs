@@ -313,7 +313,10 @@ impl ResourceOrigin {
             }),
         );
         binding
-            .read_resource(&McpServerKey::unscoped(MAPLECODE_APPS_MCP_SERVER_NAME), params)
+            .read_resource(
+                &McpServerKey::unscoped(MAPLECODE_APPS_MCP_SERVER_NAME),
+                params,
+            )
             .await
     }
 }

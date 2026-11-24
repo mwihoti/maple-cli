@@ -1,6 +1,11 @@
 //! Fresh catalogs repair saved settings before sending while preserving retained history.
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_features::Feature;
 use maplecode_login::MapleCodeAuth;
 use maplecode_models_manager::bundled_models_response;
@@ -14,11 +19,6 @@ use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::turn_input::TurnInputRequest;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use wiremock::MockServer;
@@ -53,7 +53,11 @@ fn catalog(efforts: &[ReasoningEffort], tiers: &[&str]) -> Result<ModelsResponse
     })
 }
 
-async fn run_turn(test: &TestMapleCode, text: &str, settings: ThreadSettingsOverrides) -> Result<()> {
+async fn run_turn(
+    test: &TestMapleCode,
+    text: &str,
+    settings: ThreadSettingsOverrides,
+) -> Result<()> {
     test.maplecode
         .start_or_steer_turn(
             TurnInputRequest::user_input(vec![UserInput::Text {
@@ -71,7 +75,11 @@ async fn run_turn(test: &TestMapleCode, text: &str, settings: ThreadSettingsOver
     Ok(())
 }
 
-async fn start_test(server: &MockServer, effort: ReasoningEffort, tier: &str) -> Result<TestMapleCode> {
+async fn start_test(
+    server: &MockServer,
+    effort: ReasoningEffort,
+    tier: &str,
+) -> Result<TestMapleCode> {
     responses::mount_models_once(
         server,
         catalog(

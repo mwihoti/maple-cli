@@ -5,8 +5,8 @@ use crate::inline_visualization::InlineVisualizationContext;
 use crate::markdown::render_streaming_markdown_agent_with_links_and_cwd;
 use crate::terminal_hyperlinks::HyperlinkLine;
 use crate::terminal_hyperlinks::visible_lines;
-use maplecode_protocol::ThreadId;
 use insta::assert_debug_snapshot;
+use maplecode_protocol::ThreadId;
 use pretty_assertions::assert_eq;
 use std::path::Path;
 use std::path::PathBuf;
@@ -298,7 +298,10 @@ fn inline_visualizations_use_canonical_full_render() {
     let mut source = String::new();
     let mut render = StreamingRender::new();
 
-    for chunk in ["Before.\n\n", "::maplecode-inline-vis{file=\"missing.html\"}\n"] {
+    for chunk in [
+        "Before.\n\n",
+        "::maplecode-inline-vis{file=\"missing.html\"}\n",
+    ] {
         source.push_str(chunk);
         render.append(
             &source,
@@ -327,7 +330,10 @@ fn inline_visualizations_use_canonical_full_render() {
 #[test]
 fn inline_visualizations_without_context_use_canonical_full_render() {
     let (_, render) = assert_rich_stream_matches_full_render(
-        &["Before.\n\n", "::maplecode-inline-vis{file=\"missing.html\"}\n"],
+        &[
+            "Before.\n\n",
+            "::maplecode-inline-vis{file=\"missing.html\"}\n",
+        ],
         Some(80),
     );
 

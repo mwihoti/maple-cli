@@ -11,6 +11,8 @@ use std::pin::Pin;
 use std::sync::Arc;
 use std::time::Instant;
 
+use futures::Stream;
+use futures::StreamExt;
 use maplecode_code_mode_protocol::CellId;
 use maplecode_code_mode_protocol::CodeModeOutputTruncation;
 use maplecode_code_mode_protocol::CodeModeSession;
@@ -22,8 +24,6 @@ use maplecode_code_mode_protocol::grpc::code_mode_host_server::CodeModeHost;
 use maplecode_code_mode_protocol::host::LEGACY_MAX_PENDING_DELEGATE_CALLS;
 use maplecode_code_mode_protocol::host::MAX_PENDING_DELEGATE_CALLS;
 use maplecode_protocol::protocol::W3cTraceContext;
-use futures::Stream;
-use futures::StreamExt;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::Request;
@@ -465,8 +465,8 @@ impl CodeModeHost for GrpcCodeModeHost {
         if let Some(trace) = trace.as_ref() {
             maplecode_otel::set_parent_from_w3c_trace_context(&execute_span, trace);
         }
-        let callback_traceparent =
-            maplecode_otel::span_w3c_trace_context(&execute_span).and_then(|trace| trace.traceparent);
+        let callback_traceparent = maplecode_otel::span_w3c_trace_context(&execute_span)
+            .and_then(|trace| trace.traceparent);
         Box::pin(
             self.execute_request(request, callback_traceparent)
                 .instrument(execute_span),

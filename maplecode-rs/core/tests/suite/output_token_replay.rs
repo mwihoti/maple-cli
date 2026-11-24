@@ -1,8 +1,6 @@
 //! Replay is OpenAI-only; stored ciphertext survives opt-out and provider changes.
 
 use anyhow::Result;
-use maplecode_core::config::Config;
-use maplecode_features::Feature;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_function_call;
@@ -14,6 +12,8 @@ use core_test_support::responses::strip_metadata_from_json;
 use core_test_support::responses::strip_response_item_ids_from_json;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
+use maplecode_core::config::Config;
+use maplecode_features::Feature;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

@@ -6,6 +6,19 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_LIST_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
+use core_test_support::apps_test_server::apps_enabled_builder;
+use core_test_support::apps_test_server::recorded_apps_tool_call_by_call_id;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_maplecode::test_env;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
 use maplecode_extension_api::ExtensionFuture;
@@ -26,19 +39,6 @@ use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_LIST_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
-use core_test_support::apps_test_server::apps_enabled_builder;
-use core_test_support::apps_test_server::recorded_apps_tool_call_by_call_id;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::test_env;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -510,7 +510,8 @@ async fn tool_start_receives_frozen_host_plugin_root() -> Result<()> {
 
     let server = responses::start_mock_server().await;
     let maplecode_home = Arc::new(tempfile::tempdir()?);
-    let plugin_root = super::plugins::write_sample_plugin_manifest_and_config(maplecode_home.as_ref());
+    let plugin_root =
+        super::plugins::write_sample_plugin_manifest_and_config(maplecode_home.as_ref());
     let test_env = test_env().await?;
     let server_config = json!({
         "command": super::rmcp_client::remote_aware_stdio_server_bin()?,

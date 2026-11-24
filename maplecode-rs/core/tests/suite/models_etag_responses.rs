@@ -1,22 +1,11 @@
 #![cfg(not(target_os = "windows"))]
 
-use maplecode_core::TurnInputRequest;
 use core_test_support::test_maplecode::local_requests;
+use maplecode_core::TurnInputRequest;
 use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Result;
-use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
-use maplecode_protocol::config_types::CollaborationMode;
-use maplecode_protocol::config_types::ModeKind;
-use maplecode_protocol::config_types::Settings;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::openai_models::ModelsResponse;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::TempDirExt;
 use core_test_support::responses;
 use core_test_support::responses::ev_assistant_message;
@@ -29,6 +18,17 @@ use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event_with_timeout;
+use maplecode_features::Feature;
+use maplecode_login::MapleCodeAuth;
+use maplecode_protocol::config_types::CollaborationMode;
+use maplecode_protocol::config_types::ModeKind;
+use maplecode_protocol::config_types::Settings;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::openai_models::ModelsResponse;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use wiremock::MockServer;
 

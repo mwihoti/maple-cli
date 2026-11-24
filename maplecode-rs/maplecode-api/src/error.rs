@@ -1,9 +1,9 @@
 use crate::rate_limits::RateLimitError;
+use http::StatusCode;
 use maplecode_client::TransportError;
 use maplecode_http_client::RetryAfter;
 use maplecode_protocol::error::ResponseIncompleteError;
 use maplecode_protocol::protocol::MisalignmentErrorDetails;
-use http::StatusCode;
 use serde_json::Value;
 use thiserror::Error;
 

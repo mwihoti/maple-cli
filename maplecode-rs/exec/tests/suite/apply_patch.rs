@@ -2,7 +2,6 @@
 
 use anyhow::Context;
 use assert_cmd::prelude::*;
-use maplecode_apply_patch::MAPLECODE_CORE_APPLY_PATCH_ARG1;
 use core_test_support::responses::ev_apply_patch_custom_tool_call;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -10,6 +9,7 @@ use core_test_support::responses::ev_exec_command_call_with_args;
 use core_test_support::responses::mount_sse_sequence;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
+use maplecode_apply_patch::MAPLECODE_CORE_APPLY_PATCH_ARG1;
 use pretty_assertions::assert_eq;
 use std::fs;
 use std::process::Command;
@@ -353,14 +353,14 @@ async fn test_apply_patch_freeform_tool() -> anyhow::Result<()> {
 #[cfg(not(target_os = "windows"))]
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn shutdown_flushes_completed_turn_and_file_diff() -> anyhow::Result<()> {
+    use core_test_support::skip_if_no_network;
+    use core_test_support::test_maplecode_exec::test_maplecode_exec;
     use maplecode_login::AuthDotJson;
     use maplecode_login::AuthKeyringBackendKind;
     use maplecode_login::TokenData;
     use maplecode_login::save_auth;
     use maplecode_login::token_data::IdTokenInfo;
     use maplecode_protocol::auth::AuthMode;
-    use core_test_support::skip_if_no_network;
-    use core_test_support::test_maplecode_exec::test_maplecode_exec;
     use std::sync::Arc;
     use std::sync::atomic::AtomicUsize;
     use std::sync::atomic::Ordering;
@@ -505,7 +505,9 @@ async fn shutdown_flushes_completed_turn_and_file_diff() -> anyhow::Result<()> {
         deliveries.load(Ordering::Acquire)
     );
     assert!(
-        event_types.iter().any(|event| event == "maplecode_turn_event"),
+        event_types
+            .iter()
+            .any(|event| event == "maplecode_turn_event"),
         "no completed event was delivered; request paths: {request_paths:?}"
     );
     assert!(

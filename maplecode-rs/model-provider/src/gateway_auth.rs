@@ -95,7 +95,9 @@ fn gateway_auth_error(error: std::io::Error) -> MapleCodeErr {
             GatewayAuthError::LoginRequired => {
                 MapleCodeErrorDetails::GatewayLoginRequired(login_error.to_string()).into()
             }
-            GatewayAuthError::LoginInProgress => MapleCodeErr::InvalidRequest(login_error.to_string()),
+            GatewayAuthError::LoginInProgress => {
+                MapleCodeErr::InvalidRequest(login_error.to_string())
+            }
         };
     }
     // Issuer errors may echo arbitrary credentials from configured URLs. Keep the

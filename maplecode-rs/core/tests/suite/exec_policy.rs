@@ -1,6 +1,23 @@
 #![allow(clippy::unwrap_used)]
 
 use anyhow::Result;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_exec_command_call;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_completed;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_target_windows;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::EnvironmentConfig;
 use maplecode_core::TurnInputRequest;
@@ -25,23 +42,6 @@ use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ReviewDecision;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_exec_command_call;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_completed;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_target_windows;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -114,18 +114,21 @@ async fn git_status_requires_approval_under_unless_trusted() -> Result<()> {
     skip_if_wine_exec!(Ok(()), "command approval requires host-native paths");
 
     let server = start_mock_server().await;
-    let mut builder = test_maplecode().with_model("gpt-5.2").with_config(|config| {
-        config
-            .features
-            .enable(Feature::UnifiedExec)
-            .expect("test config should allow feature update");
-        config.permissions.approval_policy = Constrained::allow_any(AskForApproval::UnlessTrusted);
-        config
-            .permissions
-            .set_permission_profile(PermissionProfile::workspace_write())
-            .expect("set workspace-write permissions");
-        config.approvals_reviewer = ApprovalsReviewer::User;
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.2")
+        .with_config(|config| {
+            config
+                .features
+                .enable(Feature::UnifiedExec)
+                .expect("test config should allow feature update");
+            config.permissions.approval_policy =
+                Constrained::allow_any(AskForApproval::UnlessTrusted);
+            config
+                .permissions
+                .set_permission_profile(PermissionProfile::workspace_write())
+                .expect("set workspace-write permissions");
+            config.approvals_reviewer = ApprovalsReviewer::User;
+        });
     let test = builder.build_with_auto_env(&server).await?;
     let call_id = "git-status-approval";
     let args = json!({"cmd": "git status", "yield_time_ms": 1_000});
@@ -214,7 +217,11 @@ prefix_rule(pattern=["git", "status"], decision="allow")
     let migrated_policy_path = migrated.maplecode_home_path().join("rules/default.rules");
     assert_eq!(fs::read_to_string(&migrated_policy_path)?, MIGRATED_POLICY);
     assert_eq!(
-        fs::read_to_string(migrated.maplecode_home_path().join(MIGRATION_MARKER_FILENAME))?,
+        fs::read_to_string(
+            migrated
+                .maplecode_home_path()
+                .join(MIGRATION_MARKER_FILENAME)
+        )?,
         "v1\n"
     );
 
@@ -1118,16 +1125,18 @@ async fn environment_command_policy_changes_invalidate_session_approvals() -> Re
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn unified_exec_empty_script_with_collaboration_mode_does_not_panic() -> Result<()> {
     let server = start_mock_server().await;
-    let mut builder = test_maplecode().with_model("gpt-5.2").with_config(|config| {
-        config
-            .features
-            .enable(Feature::UnifiedExec)
-            .expect("test config should allow feature update");
-        config
-            .features
-            .enable(Feature::CollaborationModes)
-            .expect("test config should allow feature update");
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.2")
+        .with_config(|config| {
+            config
+                .features
+                .enable(Feature::UnifiedExec)
+                .expect("test config should allow feature update");
+            config
+                .features
+                .enable(Feature::CollaborationModes)
+                .expect("test config should allow feature update");
+        });
     let test = builder.build(&server).await?;
     let call_id = "unified-exec-empty-script-collab";
     let args = json!({
@@ -1177,16 +1186,18 @@ async fn unified_exec_empty_script_with_collaboration_mode_does_not_panic() -> R
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn unified_exec_whitespace_script_with_collaboration_mode_does_not_panic() -> Result<()> {
     let server = start_mock_server().await;
-    let mut builder = test_maplecode().with_model("gpt-5.2").with_config(|config| {
-        config
-            .features
-            .enable(Feature::UnifiedExec)
-            .expect("test config should allow feature update");
-        config
-            .features
-            .enable(Feature::CollaborationModes)
-            .expect("test config should allow feature update");
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.2")
+        .with_config(|config| {
+            config
+                .features
+                .enable(Feature::UnifiedExec)
+                .expect("test config should allow feature update");
+            config
+                .features
+                .enable(Feature::CollaborationModes)
+                .expect("test config should allow feature update");
+        });
     let test = builder.build(&server).await?;
     let call_id = "unified-exec-whitespace-script-collab";
     let args = json!({

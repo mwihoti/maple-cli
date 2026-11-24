@@ -10,6 +10,15 @@ use std::sync::atomic::Ordering;
 use std::time::Duration;
 
 use anyhow::Context;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses;
+use core_test_support::responses::start_mock_server;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_event_with_timeout;
 use maplecode_core::NotSubmittedReason;
 use maplecode_core::StartIfIdleSubmission;
 use maplecode_core::StartThreadOptions;
@@ -45,15 +54,6 @@ use maplecode_thread_store::LocalQueueStore;
 use maplecode_thread_store::QueueStore;
 use maplecode_thread_store::ThreadStoreError;
 use maplecode_utils_absolute_path::test_support::PathExt;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses;
-use core_test_support::responses::start_mock_server;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_event_with_timeout;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use tokio::sync::oneshot;
@@ -215,7 +215,10 @@ async fn test_queue() -> anyhow::Result<(Arc<dyn QueueStore>, TempDir)> {
 }
 
 fn loaded_thread_queue(test: &TestMapleCode) -> anyhow::Result<Arc<dyn QueueStore>> {
-    let runtime = test.maplecode.state_db().context("state runtime unavailable")?;
+    let runtime = test
+        .maplecode
+        .state_db()
+        .context("state runtime unavailable")?;
     Ok(Arc::new(LocalQueueStore::new(runtime)))
 }
 
@@ -503,7 +506,9 @@ async fn starting_a_selected_item_while_active_leaves_it_queued() -> anyhow::Res
         },
     ]])
     .await;
-    let test = test_maplecode().build_with_streaming_server(&server).await?;
+    let test = test_maplecode()
+        .build_with_streaming_server(&server)
+        .await?;
     let thread_id = test.session_configured.thread_id;
     let service = QueuedItemService::new(
         loaded_thread_queue(&test)?,
@@ -758,7 +763,10 @@ async fn externally_changed_queues_dispatch_independently_and_retry_failed_wakes
     wait_for_queue_empty(&queue, thread_id).await?;
     wait_for_queue_empty(&queue, independent_thread.thread_id).await?;
 
-    let rollout_path = test.maplecode.rollout_path().context("rollout path missing")?;
+    let rollout_path = test
+        .maplecode
+        .rollout_path()
+        .context("rollout path missing")?;
     test.maplecode.shutdown_and_wait().await?;
     test.thread_manager.remove_thread(&thread_id).await;
     external_queue
@@ -851,7 +859,8 @@ async fn rejected_queue_messages_are_consumed_without_retrying_or_blocking_follo
         })
         .collect::<anyhow::Result<Vec<_>>>()?;
     assert_eq!(vec!["A", "C"], prompts);
-    let hook_log = std::fs::read_to_string(test.maplecode_home_path().join("queue_prompt_hook.log"))?;
+    let hook_log =
+        std::fs::read_to_string(test.maplecode_home_path().join("queue_prompt_hook.log"))?;
     assert_eq!(
         vec!["A", "blocked", "C"],
         hook_log.lines().collect::<Vec<_>>()
@@ -882,14 +891,19 @@ async fn explicitly_started_rejected_queue_messages_are_consumed() -> anyhow::Re
     let rejected = queue.enqueue(thread_id, user_input("blocked")).await?;
     let submission = tokio::time::timeout(
         Duration::from_secs(10),
-        queue.start(test.maplecode.as_ref(), Some(rejected.id), /*trace*/ None),
+        queue.start(
+            test.maplecode.as_ref(),
+            Some(rejected.id),
+            /*trace*/ None,
+        ),
     )
     .await?
     .expect("explicitly started input should be submitted");
     assert!(matches!(submission, StartIfIdleSubmission::Started { .. }));
     wait_for_hooked_turn(&test).await;
     assert!(queue.list(thread_id).await?.is_empty());
-    let hook_log = std::fs::read_to_string(test.maplecode_home_path().join("queue_prompt_hook.log"))?;
+    let hook_log =
+        std::fs::read_to_string(test.maplecode_home_path().join("queue_prompt_hook.log"))?;
     assert_eq!(vec!["blocked"], hook_log.lines().collect::<Vec<_>>());
     assert!(responses.requests().is_empty());
     Ok(())

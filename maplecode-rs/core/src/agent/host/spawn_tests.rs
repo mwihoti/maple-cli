@@ -2,10 +2,10 @@
 
 //! Tests same-manager child bindings and invocation lifetime.
 
-use crate::MapleCodeThread;
 use crate::ConfigRefreshOutcome;
 use crate::HostThreadSpawnReservation;
 use crate::HostToolInvocationLookup;
+use crate::MapleCodeThread;
 use crate::ThreadManager;
 use crate::agent::host::InvocationReservation;
 use crate::config::ConfigBuilder;
@@ -61,8 +61,9 @@ async fn spawn_call(parent: &MapleCodeThread) -> anyhow::Result<ToolInvocation> 
 async fn prepare_child_retains_loaded_exec_policy_requirements_after_mcp_refresh()
 -> anyhow::Result<()> {
     let home = tempfile::tempdir()?;
-    let builder =
-        || ConfigBuilder::without_managed_config_for_tests().maplecode_home(home.path().to_path_buf());
+    let builder = || {
+        ConfigBuilder::without_managed_config_for_tests().maplecode_home(home.path().to_path_buf())
+    };
     let mut config = builder()
         .cloud_config_bundle(CloudConfigBundleFixture::loader_with_enterprise_requirement(
             "[[rules.prefix_rules]]\npattern = [{ token = 'managed-command' }]\ndecision = 'forbidden'",

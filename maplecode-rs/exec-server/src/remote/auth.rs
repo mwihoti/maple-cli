@@ -2,10 +2,10 @@
 //! Transport failures and other HTTP errors are never replayed here.
 //! A deadline before the first transport send remains a retryable unsent request.
 
-use maplecode_http_client::HttpResponse;
-use maplecode_http_client::Request;
 use http::HeaderValue;
 use http::StatusCode;
+use maplecode_http_client::HttpResponse;
+use maplecode_http_client::Request;
 use tokio::time::Instant;
 use tokio::time::timeout_at;
 

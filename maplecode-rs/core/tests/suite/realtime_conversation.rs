@@ -1,6 +1,20 @@
 use anyhow::Context;
 use anyhow::Result;
 use chrono::Utc;
+use core_test_support::responses;
+use core_test_support::responses::WebSocketConnectionConfig;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::start_websocket_server;
+use core_test_support::responses::start_websocket_server_with_headers;
+use core_test_support::skip_if_no_network;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_protocol::ThreadRealtimeItemContent;
 use maplecode_app_server_protocol::ThreadRealtimeSessionOutcome;
 use maplecode_app_server_protocol::ThreadRealtimeTranscriptRole;
@@ -20,7 +34,6 @@ use maplecode_protocol::ThreadId;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::ConversationAudioParams;
 use maplecode_protocol::protocol::ConversationStartParams;
 use maplecode_protocol::protocol::ConversationStartTransport;
@@ -28,6 +41,7 @@ use maplecode_protocol::protocol::ConversationTextParams;
 use maplecode_protocol::protocol::ConversationTextRole;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::InternalSessionSource;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::RealtimeAudioFrame;
 use maplecode_protocol::protocol::RealtimeConversationRealtimeEvent;
@@ -43,20 +57,6 @@ use maplecode_protocol::protocol::ThreadHistoryMode;
 use maplecode_protocol::protocol::ThreadSource;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::ListTimelineParams;
-use core_test_support::responses;
-use core_test_support::responses::WebSocketConnectionConfig;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::start_websocket_server;
-use core_test_support::responses::start_websocket_server_with_headers;
-use core_test_support::skip_if_no_network;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -454,7 +454,10 @@ async fn conversation_start_audio_text_close_round_trip() -> Result<()> {
     ));
 
     test.maplecode.ensure_rollout_materialized().await;
-    let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let history = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     assert!(
         !history
             .items
@@ -874,7 +877,10 @@ async fn conversation_webrtc_frameless_chatgpt_sends_maplecode_headers_to_backen
         test.thread_manager.start_thread(options).await?
     };
     let maplecode = &conversation.thread;
-    assert_eq!(maplecode.config_snapshot().await.thread_source, thread_source);
+    assert_eq!(
+        maplecode.config_snapshot().await.thread_source,
+        thread_source
+    );
     let requested_realtime_session_id = Uuid::new_v4().to_string();
     let voice_session_id = "voice-session-test".to_string();
 
@@ -2393,7 +2399,10 @@ async fn assert_transport_close_tail_flush(
     .await;
     assert_eq!(closed.reason.as_deref(), Some("transport_closed"));
     // Closed must be a history barrier, including when there is no active turn.
-    let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let history = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     let tails = history.items.iter().filter(|item| {
         matches!(item, RolloutItem::ResponseItem(ResponseItemEnvelope { item: ResponseItem::Message { role, content, .. }, .. })
             if role == "user" && content.iter().any(|item| matches!(item,
@@ -2448,7 +2457,10 @@ async fn conversation_audio_before_start_emits_error() -> Result<()> {
         _ => None,
     })
     .await;
-    assert_eq!(err.maplecode_error_info, Some(MapleCodeErrorInfo::BadRequest));
+    assert_eq!(
+        err.maplecode_error_info,
+        Some(MapleCodeErrorInfo::BadRequest)
+    );
     assert_eq!(err.message, "conversation is not running");
 
     server.shutdown().await;
@@ -2467,7 +2479,8 @@ async fn conversation_start_preflight_failure_emits_realtime_error_only() -> Res
     skip_if_no_network!(Ok(()));
 
     let server = start_websocket_server(vec![]).await;
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+    let mut builder =
+        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
     let test = builder.build_with_websocket_server(&server).await?;
 
     test.maplecode
@@ -2599,7 +2612,10 @@ async fn conversation_text_before_start_emits_error() -> Result<()> {
         _ => None,
     })
     .await;
-    assert_eq!(err.maplecode_error_info, Some(MapleCodeErrorInfo::BadRequest));
+    assert_eq!(
+        err.maplecode_error_info,
+        Some(MapleCodeErrorInfo::BadRequest)
+    );
     assert_eq!(err.message, "conversation is not running");
 
     server.shutdown().await;
@@ -4841,7 +4857,10 @@ async fn inbound_handoff_request_starts_turn_and_promotes_its_artifact() -> Resu
         &api_server,
         responses::sse(vec![
             responses::ev_response_created("resp-1"),
-            responses::ev_assistant_message("msg-1", "::maplecode-realtime-inline{}\nShared artifact"),
+            responses::ev_assistant_message(
+                "msg-1",
+                "::maplecode-realtime-inline{}\nShared artifact",
+            ),
             responses::ev_completed("resp-1"),
         ]),
     )
@@ -5340,7 +5359,10 @@ async fn conversation_close_routes_only_remaining_transcript_tail_once() -> Resu
     .await;
     assert_eq!(closed.reason.as_deref(), Some("requested"));
 
-    let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let history = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     let tails = history.items.iter().filter(|item| {
         matches!(item, RolloutItem::ResponseItem(ResponseItemEnvelope { item: ResponseItem::Message { role, content, .. }, .. })
             if role == "user" && content.iter().any(|item| matches!(item,
@@ -5975,7 +5997,10 @@ async fn inbound_handoff_request_updates_realtime_state_during_active_turn(
     .await;
     assert_eq!(closed.reason.as_deref(), Some("requested"));
     if flush_transcript_tail_on_session_end {
-        let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+        let history = test
+            .maplecode
+            .load_history(/*include_archived*/ false)
+            .await?;
         assert!(history.items.iter().any(|item| {
             matches!(item, RolloutItem::ResponseItem(ResponseItemEnvelope {
                 item: ResponseItem::Message { role, content, .. }, ..

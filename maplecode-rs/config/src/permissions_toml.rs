@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 use crate::merge::merge_toml_values;
+use indexmap::IndexMap;
 use maplecode_network_proxy::InjectedHeaderConfig;
 use maplecode_network_proxy::MitmHookActionsConfig;
 use maplecode_network_proxy::MitmHookBodyConfig;
@@ -12,7 +13,6 @@ use maplecode_network_proxy::NetworkProxyConfig;
 use maplecode_network_proxy::NetworkUnixSocketPermission as ProxyNetworkUnixSocketPermission;
 use maplecode_network_proxy::normalize_host;
 use maplecode_protocol::permissions::FileSystemAccessMode;
-use indexmap::IndexMap;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;

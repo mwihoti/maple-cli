@@ -1,9 +1,9 @@
 //! Hands observed inference spending to one host-owned accounting authority.
 
+use futures::future::BoxFuture;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::protocol::TokenUsage;
-use futures::future::BoxFuture;
 
 /// Provider-reported spending for one response, including compaction.
 #[derive(Clone, Debug, PartialEq, Eq)]

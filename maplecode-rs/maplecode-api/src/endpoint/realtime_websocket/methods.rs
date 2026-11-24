@@ -21,6 +21,11 @@ use crate::endpoint::realtime_websocket::protocol::RealtimeVoice;
 use crate::endpoint::realtime_websocket::protocol::parse_realtime_event;
 use crate::error::ApiError;
 use crate::provider::Provider;
+use futures::SinkExt;
+use futures::StreamExt;
+use http::HeaderMap;
+use http::HeaderValue;
+use http::StatusCode;
 use maplecode_client::backoff;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::NetworkPolicyDenied;
@@ -32,11 +37,6 @@ use maplecode_utils_rustls_provider::ensure_rustls_crypto_provider;
 use maplecode_websocket_client::WebSocketConnection;
 use maplecode_websocket_client::WebSocketConnector;
 use maplecode_websocket_client::WebSocketTlsMode;
-use futures::SinkExt;
-use futures::StreamExt;
-use http::HeaderMap;
-use http::HeaderValue;
-use http::StatusCode;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
@@ -1020,7 +1020,9 @@ impl RealtimeWebsocketClient {
                 .await;
             match result {
                 Ok(connection) => return Ok(connection),
-                Err(err @ ApiError::Transport(maplecode_http_client::TransportError::Policy(_))) => {
+                Err(
+                    err @ ApiError::Transport(maplecode_http_client::TransportError::Policy(_)),
+                ) => {
                     return Err(err);
                 }
                 Err(err) if webrtc_sideband_session_ended(&err) => return Err(err),
@@ -1373,6 +1375,8 @@ mod tests {
     use super::*;
     use crate::endpoint::realtime_websocket::protocol::RealtimeTranscriptEntry;
     use crate::provider::RetryConfig;
+    use http::HeaderValue;
+    use http::StatusCode;
     use maplecode_http_client::OutboundProxyPolicy::ReqwestDefault;
     use maplecode_protocol::protocol::RealtimeHandoffRequested;
     use maplecode_protocol::protocol::RealtimeInputAudioSpeechStarted;
@@ -1383,8 +1387,6 @@ mod tests {
     use maplecode_protocol::protocol::RealtimeTranscriptDelta;
     use maplecode_protocol::protocol::RealtimeTranscriptDone;
     use maplecode_protocol::protocol::RealtimeVoice;
-    use http::HeaderValue;
-    use http::StatusCode;
     use pretty_assertions::assert_eq;
     use serde_json::Value;
     use serde_json::json;

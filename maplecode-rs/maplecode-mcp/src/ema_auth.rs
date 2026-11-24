@@ -9,6 +9,7 @@ use anyhow::Context;
 use anyhow::Result;
 use anyhow::anyhow;
 use anyhow::bail;
+use futures::future::BoxFuture;
 use maplecode_config::McpEmaAuthScope;
 use maplecode_config::McpServerIdpOAuthConfig;
 use maplecode_config::types::AuthKeyringBackendKind;
@@ -31,7 +32,6 @@ use maplecode_rmcp_client::StoredOAuthCredentialSnapshot;
 use maplecode_rmcp_client::StreamableHttpBearerToken;
 use maplecode_rmcp_client::StreamableHttpRedirectMode;
 use maplecode_rmcp_client::stored_oauth_credential_snapshot;
-use futures::future::BoxFuture;
 use tokio_util::sync::CancellationToken;
 use tokio_util::task::AbortOnDropHandle;
 

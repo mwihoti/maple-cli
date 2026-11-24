@@ -1131,8 +1131,8 @@ See the Maple Code keymap documentation for supported actions and examples."
         if !tui.is_terminal_focused() {
             app.recap.note_focus_lost(Instant::now());
         }
-        let _ =
-            app.initialize_server_version_notice(MAPLECODE_CLI_VERSION, app_server.server_version());
+        let _ = app
+            .initialize_server_version_notice(MAPLECODE_CLI_VERSION, app_server.server_version());
         if initial_server_version_notice.is_none() {
             app.update_server_version_overview_notice(
                 MAPLECODE_CLI_VERSION,

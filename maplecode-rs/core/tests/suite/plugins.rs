@@ -6,6 +6,35 @@ use std::time::Duration;
 use std::time::Instant;
 
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
+use core_test_support::apps_test_server::recorded_apps_tool_calls;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::ev_tool_search_call;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::namespace_child_tool;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+#[cfg(unix)]
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_target_windows;
+use core_test_support::stdio_server_bin;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
 use maplecode_analytics::AnalyticsEventsClient;
 use maplecode_analytics::PluginMeasurementRow;
 use maplecode_analytics::PluginMeasurementsInput;
@@ -39,35 +68,6 @@ use maplecode_protocol::user_input::UserInput;
 use maplecode_skills_extension::HostSkillsLoadInput;
 use maplecode_skills_extension::SkillsExtensionConfig;
 use maplecode_skills_extension::install;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
-use core_test_support::apps_test_server::recorded_apps_tool_calls;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::ev_tool_search_call;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::namespace_child_tool;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-#[cfg(unix)]
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_target_windows;
-use core_test_support::stdio_server_bin;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use test_case::test_case;
@@ -120,7 +120,8 @@ fn write_sample_plugin_manifest_and_config_at_root(
     plugin_root: std::path::PathBuf,
     plugin_config_name: &str,
 ) -> std::path::PathBuf {
-    std::fs::create_dir_all(plugin_root.join(".maplecode-plugin")).expect("create plugin manifest dir");
+    std::fs::create_dir_all(plugin_root.join(".maplecode-plugin"))
+        .expect("create plugin manifest dir");
     std::fs::write(
         plugin_root.join(".maplecode-plugin/plugin.json"),
         format!(
@@ -566,7 +567,10 @@ async fn persisted_remote_plugin_command_attribution_flows_through_turn_context(
         "sandboxed plugin command failed: {}",
         end.aggregated_output
     );
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     for (plugin_id, script_path) in [
         (begin.plugin_id.as_deref(), begin.script_path.as_deref()),
@@ -1253,7 +1257,10 @@ async fn bundled_plugin_compatibility_guard_in_agent_turn(
     .await;
     Mock::given(method("GET"))
         .and(path("/ps/plugins/installed"))
-        .and(header("OAI-Product-Sku", product_sku.unwrap_or("maplecode")))
+        .and(header(
+            "OAI-Product-Sku",
+            product_sku.unwrap_or("maplecode"),
+        ))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "plugins": [{
                 "id": format!("plugins~Plugin_{plugin_name}"),
@@ -1583,7 +1590,10 @@ async fn curated_plugin_skills_follow_auth_switch() -> Result<()> {
         },
     ];
 
-    async fn loaded_plugin_skills_for_config(test_maplecode: &TestMapleCode, config: &Config) -> String {
+    async fn loaded_plugin_skills_for_config(
+        test_maplecode: &TestMapleCode,
+        config: &Config,
+    ) -> String {
         let plugins_input = config.plugins_config_input();
         let plugins_manager = test_maplecode.thread_manager.plugins_manager();
         let plugin_outcome = plugins_manager.plugins_for_config(&plugins_input).await;
@@ -1688,7 +1698,8 @@ enabled = true
             .with_extensions(skills_extensions())
             .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
         let test_maplecode = builder.build_with_auto_env(&server).await?;
-        let initial_skills = loaded_plugin_skills_for_config(&test_maplecode, &test_maplecode.config).await;
+        let initial_skills =
+            loaded_plugin_skills_for_config(&test_maplecode, &test_maplecode.config).await;
         assert_loaded_plugin_skills(
             fixture.name,
             "initial ChatGPT config",
@@ -1728,12 +1739,19 @@ enabled = true
                 Some(AuthMode::BedrockApiKey)
             }
             TargetAuth::NoMapleCodeAuth => {
-                test_maplecode.thread_manager.auth_manager().logout().await?;
+                test_maplecode
+                    .thread_manager
+                    .auth_manager()
+                    .logout()
+                    .await?;
                 None
             }
         };
         assert_eq!(
-            test_maplecode.thread_manager.auth_manager().get_api_auth_mode(),
+            test_maplecode
+                .thread_manager
+                .auth_manager()
+                .get_api_auth_mode(),
             expected_auth_mode
         );
         test_maplecode.thread_manager.skills_service().clear_cache();
@@ -1877,9 +1895,12 @@ async fn explicit_plugin_mentions_use_apps_for_chatgpt_dual_surface_plugins(
     let config = std::fs::read_to_string(&config_path)?;
     std::fs::write(config_path, format!("{config}\n{app_config}\n"))?;
 
-    let test_maplecode =
-        build_apps_enabled_plugin_test_maplecode(&server, maplecode_home, apps_server.chatgpt_base_url)
-            .await?;
+    let test_maplecode = build_apps_enabled_plugin_test_maplecode(
+        &server,
+        maplecode_home,
+        apps_server.chatgpt_base_url,
+    )
+    .await?;
     let maplecode = Arc::clone(&test_maplecode.maplecode);
     wait_for_mcp_server(&maplecode, MAPLECODE_APPS_MCP_SERVER_NAME).await?;
 
@@ -1964,9 +1985,12 @@ async fn explicit_plugin_mentions_keep_non_conflicting_mcp_for_chatgpt_auth() ->
     write_plugin_mcp_plugin(maplecode_home.as_ref(), &rmcp_test_server_bin);
     write_plugin_app_plugin_with_name(maplecode_home.as_ref(), "sample_app");
 
-    let test_maplecode =
-        build_apps_enabled_plugin_test_maplecode(&server, maplecode_home, apps_server.chatgpt_base_url)
-            .await?;
+    let test_maplecode = build_apps_enabled_plugin_test_maplecode(
+        &server,
+        maplecode_home,
+        apps_server.chatgpt_base_url,
+    )
+    .await?;
     let maplecode = Arc::clone(&test_maplecode.maplecode);
     wait_for_mcp_server(&maplecode, "sample").await?;
 
@@ -2150,7 +2174,8 @@ async fn explicitly_requested_mcp_waits_for_startup(request: ExplicitMcpRequest)
     let skill_path = dunce::canonicalize(write_plugin_skill_plugin(maplecode_home.as_ref()))?;
     write_plugin_mcp_plugin(maplecode_home.as_ref(), &rmcp_test_server_bin);
     write_plugin_app_plugin(maplecode_home.as_ref());
-    let initialize_barrier = block_plugin_mcp_startup(maplecode_home.as_ref(), &rmcp_test_server_bin);
+    let initialize_barrier =
+        block_plugin_mcp_startup(maplecode_home.as_ref(), &rmcp_test_server_bin);
 
     let mut builder = test_maplecode()
         .with_home(maplecode_home)
@@ -2259,10 +2284,12 @@ async fn explicit_plugin_mentions_track_plugin_used_analytics() -> Result<()> {
 
     maplecode
         .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![maplecode_protocol::user_input::UserInput::Mention {
-                name: "sample".into(),
-                path: format!("plugin://{SAMPLE_PLUGIN_CONFIG_NAME}"),
-            }])
+            TurnInputRequest::user_input(vec![
+                maplecode_protocol::user_input::UserInput::Mention {
+                    name: "sample".into(),
+                    path: format!("plugin://{SAMPLE_PLUGIN_CONFIG_NAME}"),
+                },
+            ])
             .with_responses_metadata(Some(std::collections::HashMap::from([]))),
         )
         .await?;
@@ -2304,7 +2331,8 @@ async fn explicit_plugin_skill_invocation_tracks_remote_plugin_id() -> Result<()
     .await;
 
     let maplecode_home = Arc::new(TempDir::new()?);
-    let skill_path = dunce::canonicalize(write_remote_plugin_skill_plugin(maplecode_home.as_ref()))?;
+    let skill_path =
+        dunce::canonicalize(write_remote_plugin_skill_plugin(maplecode_home.as_ref()))?;
     persist_sample_remote_plugin_id(maplecode_home.as_ref());
     let test_maplecode = build_analytics_plugin_test_maplecode(&server, maplecode_home).await?;
     let maplecode = Arc::clone(&test_maplecode.maplecode);

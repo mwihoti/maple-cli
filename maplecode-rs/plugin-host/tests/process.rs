@@ -1,7 +1,7 @@
-use maplecode_plugin_host::PluginProcess;
-use maplecode_plugin_host::PluginProcessError;
 use futures::SinkExt;
 use futures::StreamExt;
+use maplecode_plugin_host::PluginProcess;
+use maplecode_plugin_host::PluginProcessError;
 use pretty_assertions::assert_eq;
 #[cfg(unix)]
 use tokio::io::AsyncReadExt;

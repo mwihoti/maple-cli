@@ -947,7 +947,10 @@ mod tests {
             })
         }
 
-        fn handle<'a>(&'a self, _invocation: ToolInvocation) -> maplecode_tools::ToolExecutorFuture<'a>
+        fn handle<'a>(
+            &'a self,
+            _invocation: ToolInvocation,
+        ) -> maplecode_tools::ToolExecutorFuture<'a>
         where
             ToolInvocation: 'a,
         {

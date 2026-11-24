@@ -297,7 +297,8 @@ mod tests {
     // Happy-path tests using a mock HTTP server; skip if sandbox network is disabled.
     #[tokio::test]
     async fn test_fetch_models_happy_path() {
-        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
+        {
             tracing::info!(
                 "{} is set; skipping test_fetch_models_happy_path",
                 maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR
@@ -328,7 +329,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_fetch_version() {
-        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
+        {
             tracing::info!(
                 "{} is set; skipping test_fetch_version",
                 maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR
@@ -364,7 +366,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_pull_model_stream_parses_large_json_lines() {
-        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
+        {
             tracing::info!(
                 "{} set; skipping test_pull_model_stream_parses_large_json_lines",
                 maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR
@@ -408,7 +411,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_probe_server_happy_path_openai_compat_and_native() {
-        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
+        {
             tracing::info!(
                 "{} set; skipping test_probe_server_happy_path_openai_compat_and_native",
                 maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR
@@ -445,7 +449,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_try_from_oss_provider_ok_when_server_running() {
-        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
+        {
             tracing::info!(
                 "{} set; skipping test_try_from_oss_provider_ok_when_server_running",
                 maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR
@@ -469,7 +474,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_try_from_provider_preserves_outbound_proxy_policy() {
-        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
+        {
             tracing::info!(
                 "{} set; skipping test_try_from_provider_preserves_outbound_proxy_policy",
                 maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR
@@ -507,7 +513,8 @@ mod tests {
     async fn test_try_from_provider_handles_invalid_custom_ca_by_proxy_policy() {
         const CHILD_POLICY_ENV: &str = "MAPLECODE_OLLAMA_INVALID_CA_TEST_POLICY";
 
-        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
+        {
             tracing::info!(
                 "{} set; skipping test_try_from_provider_handles_invalid_custom_ca_by_proxy_policy",
                 maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR
@@ -609,7 +616,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_try_from_oss_provider_err_when_server_missing() {
-        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
+        {
             tracing::info!(
                 "{} set; skipping test_try_from_oss_provider_err_when_server_missing",
                 maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR

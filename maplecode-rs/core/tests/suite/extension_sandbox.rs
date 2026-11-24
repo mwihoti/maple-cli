@@ -5,6 +5,14 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_target_windows;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
 use maplecode_core::config::Constrained;
@@ -45,14 +53,6 @@ use maplecode_protocol::request_permissions::RequestPermissionProfile;
 use maplecode_protocol::request_permissions::RequestPermissionsResponse;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_target_windows;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
@@ -139,17 +139,16 @@ async fn generated_image_ui_item_is_file_backed_in_rollout() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    let live_image =
-        wait_for_event_match(&test.maplecode, |event| match event {
-            EventMsg::ItemCompleted(event) => match &event.item {
-                maplecode_protocol::items::TurnItem::Extension(ExtensionItem::ImageGeneration(
-                    image,
-                )) if image.id == image_call_id => Some(image.clone()),
-                _ => None,
-            },
+    let live_image = wait_for_event_match(&test.maplecode, |event| match event {
+        EventMsg::ItemCompleted(event) => match &event.item {
+            maplecode_protocol::items::TurnItem::Extension(ExtensionItem::ImageGeneration(
+                image,
+            )) if image.id == image_call_id => Some(image.clone()),
             _ => None,
-        })
-        .await;
+        },
+        _ => None,
+    })
+    .await;
     assert_eq!(
         live_image.image,
         GeneratedImageRef::File {
@@ -186,16 +185,15 @@ async fn generated_image_ui_item_is_file_backed_in_rollout() -> Result<()> {
         .filter_map(|line| maplecode_rollout::parse_rollout_line(line).ok())
         .map(|line| line.item)
         .collect::<Vec<_>>();
-    let image =
-        rollout.iter().find_map(|item| match item {
-            RolloutItem::EventMsg(EventMsg::ItemCompleted(event)) => match &event.item {
-                maplecode_protocol::items::TurnItem::Extension(ExtensionItem::ImageGeneration(
-                    image,
-                )) if image.id == image_call_id => Some(image),
-                _ => None,
-            },
+    let image = rollout.iter().find_map(|item| match item {
+        RolloutItem::EventMsg(EventMsg::ItemCompleted(event)) => match &event.item {
+            maplecode_protocol::items::TurnItem::Extension(ExtensionItem::ImageGeneration(
+                image,
+            )) if image.id == image_call_id => Some(image),
             _ => None,
-        });
+        },
+        _ => None,
+    });
     let image = image.context("persisted image-generation item")?;
     assert_eq!(image, &live_image);
 
@@ -234,7 +232,8 @@ async fn extension_tool_respects_restrictions(deny_network: bool) -> Result<()> 
     let server = responses::start_mock_server().await;
     let responses_url = format!("{}/v1/responses", server.uri()).parse()?;
     let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
-    let extensions = image_generation_extensions(&auth, |config| Some(config.maplecode_home.clone()));
+    let extensions =
+        image_generation_extensions(&auth, |config| Some(config.maplecode_home.clone()));
     let mut builder = test_maplecode()
         .with_auth(auth)
         .with_extensions(extensions)

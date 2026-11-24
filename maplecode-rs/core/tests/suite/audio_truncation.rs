@@ -1,6 +1,11 @@
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::responses;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_protocol::dynamic_tools::DynamicToolCallOutputContentItem;
@@ -17,11 +22,6 @@ use maplecode_protocol::openai_models::TruncationPolicyConfig;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 
 const TEST_WAV_SAMPLE_RATE: u32 = 8_000;
@@ -61,7 +61,12 @@ async fn dynamic_tool_audio_exceeding_the_output_budget_is_omitted() -> Result<(
         vec![
             sse(vec![
                 responses::ev_response_created("resp-1"),
-                responses::ev_function_call_with_namespace(call_id, "maplecode_app", tool_name, "{}"),
+                responses::ev_function_call_with_namespace(
+                    call_id,
+                    "maplecode_app",
+                    tool_name,
+                    "{}",
+                ),
                 responses::ev_completed("resp-1"),
             ]),
             sse(vec![

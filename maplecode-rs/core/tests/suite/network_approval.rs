@@ -1,5 +1,35 @@
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
+use core_test_support::managed_network_requirements_loader;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_response_once_match;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_host_windows;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_no_remote_env;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_target_windows;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::local;
+use core_test_support::test_maplecode::local_request;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::tracing::NamedTraceEvents;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_with_timeout;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_config::types::ApprovalsReviewer;
 use maplecode_core::EnvironmentConfig;
@@ -68,36 +98,6 @@ use maplecode_protocol::request_permissions::RequestPermissionProfile;
 use maplecode_protocol::request_permissions::RequestPermissionsResponse;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::LoadThreadHistoryParams;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
-use core_test_support::managed_network_requirements_loader;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_response_once_match;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_host_windows;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_no_remote_env;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_target_windows;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::local;
-use core_test_support::test_maplecode::local_request;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::tracing::NamedTraceEvents;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_with_timeout;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -1024,7 +1024,9 @@ async fn background_network_approval_uses_current_review_settings_and_original_e
                 turn_id: active_turn_id.clone(),
                 update: maplecode_protocol::protocol::TurnSettingsUpdate {
                     model: Some("guardian-parent-b".to_string()),
-                    effort: Some(Some(maplecode_protocol::openai_models::ReasoningEffort::Medium)),
+                    effort: Some(Some(
+                        maplecode_protocol::openai_models::ReasoningEffort::Medium,
+                    )),
                     ..Default::default()
                 },
                 reply,

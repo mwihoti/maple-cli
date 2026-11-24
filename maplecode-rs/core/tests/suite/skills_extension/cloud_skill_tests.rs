@@ -193,7 +193,9 @@ text({ names: result.skills.map(skill => skill.name), warnings: result.warnings,
                 .enable(Feature::CodeModeHost)
                 .expect("code mode host should be configurable in tests");
         })
-        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?);
+        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
+            "maplecode-code-mode-host",
+        )?);
     let test = builder.build_with_auto_env(&server).await?;
 
     test.submit_turn("Use $demo:explicit-only.").await?;

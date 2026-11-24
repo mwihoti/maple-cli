@@ -3,11 +3,11 @@
 use super::*;
 use crate::app::test_support::make_test_app;
 use crate::chatwidget::tests::render_bottom_popup;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use maplecode_app_server_protocol::GatewayAuth;
 use maplecode_app_server_protocol::ModelProviderSummary;
 use maplecode_app_server_protocol::ProviderSettings;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

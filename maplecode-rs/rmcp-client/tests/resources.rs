@@ -3,13 +3,13 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 
+use futures::FutureExt as _;
 use maplecode_rmcp_client::ElicitationAction;
 use maplecode_rmcp_client::ElicitationResponse;
 use maplecode_rmcp_client::LocalStdioServerLauncher;
 use maplecode_rmcp_client::RmcpClient;
 use maplecode_rmcp_client::mcp_error;
 use maplecode_utils_cargo_bin::CargoBinError;
-use futures::FutureExt as _;
 use pretty_assertions::assert_eq;
 use rmcp::model::ClientCapabilities;
 use rmcp::model::ElicitationCapability;
@@ -34,7 +34,8 @@ fn init_params() -> InitializeRequestParams {
         Some(ElicitationCapability::new().with_form(FormElicitationCapability::new()));
     InitializeRequestParams::new(
         capabilities,
-        Implementation::new("maplecode-test", "0.0.0-test").with_title("Maple Code rmcp resource test"),
+        Implementation::new("maplecode-test", "0.0.0-test")
+            .with_title("Maple Code rmcp resource test"),
     )
     .with_protocol_version(ProtocolVersion::V_2025_06_18)
 }
@@ -123,7 +124,10 @@ async fn rmcp_client_can_list_and_read_resources() -> anyhow::Result<()> {
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn rmcp_client_preserves_each_resource_error() -> anyhow::Result<()> {
     let client = resource_client().await?;
-    for uri in ["memo://maplecode/missing-first", "memo://maplecode/missing-second"] {
+    for uri in [
+        "memo://maplecode/missing-first",
+        "memo://maplecode/missing-second",
+    ] {
         let error = client
             .read_resource(
                 ReadResourceRequestParams::new(uri),

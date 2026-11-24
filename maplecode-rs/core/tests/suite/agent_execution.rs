@@ -1,18 +1,5 @@
 use anyhow::Context;
 use anyhow::Result;
-use maplecode_core::AgentTreeShutdownFailure;
-use maplecode_core::AgentTreeShutdownFailureReason;
-use maplecode_core::windows_sandbox::WindowsSandboxLevelExt;
-use maplecode_exec_server::CreateDirectoryOptions;
-use maplecode_features::Feature;
-use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::models::PermissionProfileSnapshot;
-use maplecode_protocol::protocol::EnvironmentConfig;
-use maplecode_protocol::protocol::EnvironmentConfigState;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::protocol::TurnEnvironmentRequests;
 use core_test_support::apps_test_server::AppsTestServer;
 use core_test_support::responses::ResponseMock;
 use core_test_support::responses::ev_assistant_message;
@@ -27,6 +14,19 @@ use core_test_support::submit_thread_settings;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use futures::FutureExt;
+use maplecode_core::AgentTreeShutdownFailure;
+use maplecode_core::AgentTreeShutdownFailureReason;
+use maplecode_core::windows_sandbox::WindowsSandboxLevelExt;
+use maplecode_exec_server::CreateDirectoryOptions;
+use maplecode_features::Feature;
+use maplecode_protocol::config_types::WindowsSandboxLevel;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::models::PermissionProfileSnapshot;
+use maplecode_protocol::protocol::EnvironmentConfig;
+use maplecode_protocol::protocol::EnvironmentConfigState;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::protocol::TurnEnvironmentRequests;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;
@@ -615,7 +615,11 @@ async fn v2_residency_reload_preserves_inherited_environment_and_tools(
         )
         .await?;
         assert_eq!(
-            test.maplecode.config_snapshot().await.environments.environments,
+            test.maplecode
+                .config_snapshot()
+                .await
+                .environments
+                .environments,
             vec![parent_environment]
         );
         // Resume is nonblocking: retry while the released executor finishes startup.
@@ -815,7 +819,12 @@ async fn tree_shutdown_waits_for_children_without_affecting_other_roots() -> Res
         .start_thread(StartThreadOptions::new(test.config.clone()))
         .await?;
 
-    assert!(test.maplecode.wait_until_terminated().now_or_never().is_none());
+    assert!(
+        test.maplecode
+            .wait_until_terminated()
+            .now_or_never()
+            .is_none()
+    );
     let shutdown = test
         .thread_manager
         .request_agent_tree_shutdown(worker_id)
@@ -845,7 +854,12 @@ async fn tree_shutdown_waits_for_children_without_affecting_other_roots() -> Res
         .expect("tree shutdown should succeed");
     // Legacy waiters observe the same successful completion after a detailed wait.
     shutdown.wait().await?;
-    assert!(test.maplecode.wait_until_terminated().now_or_never().is_some());
+    assert!(
+        test.maplecode
+            .wait_until_terminated()
+            .now_or_never()
+            .is_some()
+    );
     assert!(worker.wait_until_terminated().now_or_never().is_some());
     assert!(
         internal
@@ -934,7 +948,10 @@ async fn tree_shutdown_cancels_admitted_session_startup() -> Result<()> {
         Ok(_) => panic!("cancelled internal session startup must not succeed"),
         Err(error) => error,
     };
-    assert!(matches!(error.details(), MapleCodeErrorDetails::TurnAborted));
+    assert!(matches!(
+        error.details(),
+        MapleCodeErrorDetails::TurnAborted
+    ));
     drop(release);
     test.maplecode.shutdown_and_wait().await?;
     Ok(())

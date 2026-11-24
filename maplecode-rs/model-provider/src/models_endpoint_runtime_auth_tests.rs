@@ -444,7 +444,8 @@ async fn runtime_catalog_follows_redirects_without_forwarding_credentials_to_ano
                 .expect(1)
                 .mount(&target)
                 .await;
-            let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("key-a"));
+            let credentials =
+                AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("key-a"));
             let runtime = runtime_manager(&server, Arc::clone(&credentials));
             let mut info = ModelProviderInfo::create_openai_provider(Some(server.uri()));
             info.env_http_headers = None;

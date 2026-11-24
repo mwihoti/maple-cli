@@ -3,8 +3,8 @@
 
 use super::LocalAgentControl;
 use crate::agent::types::LiveAgent;
-use crate::maplecode_thread::ThreadConfigSnapshot;
 use crate::config::Config;
+use crate::maplecode_thread::ThreadConfigSnapshot;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::MapleCodeErrorDetails;
 use maplecode_protocol::error::Result as MapleCodeResult;

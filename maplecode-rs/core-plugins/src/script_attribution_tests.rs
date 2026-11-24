@@ -10,6 +10,8 @@ use crate::test_support::TEST_CURATED_PLUGIN_SHA;
 use crate::test_support::write_curated_plugin_sha_with;
 use crate::test_support::write_openai_api_curated_marketplace;
 use crate::test_support::write_openai_curated_marketplace;
+use futures::FutureExt;
+use futures::future::BoxFuture;
 use maplecode_exec_server::ExecServerError;
 use maplecode_exec_server::LOCAL_FS;
 use maplecode_exec_server::NoiseChannelPublicKey;
@@ -19,8 +21,6 @@ use maplecode_exec_server_test_support::environment_manager_without_environments
 use maplecode_plugin::PluginLoadOutcome;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_plugins::SkillDiscoveryMode;
-use futures::FutureExt;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
@@ -54,7 +54,11 @@ fn loaded_plugin(config_name: &str, root: &Path, enabled: bool) -> LoadedPlugin 
         error: None,
     }
 }
-fn synced_plugin_root(maplecode_home: &Path, marketplace: &str, plugin_name: &str) -> AbsolutePathBuf {
+fn synced_plugin_root(
+    maplecode_home: &Path,
+    marketplace: &str,
+    plugin_name: &str,
+) -> AbsolutePathBuf {
     let synced_root = curated_plugins_repo_path(maplecode_home);
     match marketplace {
         OPENAI_CURATED_MARKETPLACE_NAME => {
@@ -290,9 +294,12 @@ fn assert_invalid_metrics_manifest(maplecode_home: &Path, root: &AbsolutePathBuf
 }
 fn assert_untrusted(maplecode_home: &Path, config_name: &str, root: &Path) {
     assert!(
-        roots_for(maplecode_home, vec![loaded_plugin(config_name, root, ENABLED)])
-            .roots
-            .is_empty()
+        roots_for(
+            maplecode_home,
+            vec![loaded_plugin(config_name, root, ENABLED)]
+        )
+        .roots
+        .is_empty()
     );
 }
 fn command(parts: &[&str]) -> Vec<String> {
@@ -821,7 +828,10 @@ fn executor_cache_identity_obeys_windows_and_posix_case_conventions() {
     let (_reference, roots) =
         reference_fixture(&[("sites", "2.0.0-RC1", "selected", "printf shared\\n\n")]);
     let plugin_id = PluginId::parse("sites@openai-curated-remote").expect("plugin id");
-    for prefix in ["file:///C:/Users/user/.maplecode", "file://server/share/.maplecode"] {
+    for prefix in [
+        "file:///C:/Users/user/.maplecode",
+        "file://server/share/.maplecode",
+    ] {
         let script = PathUri::parse(&format!(
             "{prefix}/PLUGINS/CACHE/OPENAI-CURATED-REMOTE/SITES/2.0.0-rc1/{REFERENCE_HELPER}"
         ))

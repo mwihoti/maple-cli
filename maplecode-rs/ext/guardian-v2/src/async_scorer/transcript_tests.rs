@@ -1,4 +1,5 @@
 use super::ContextInput;
+use core_test_support::responses::user_message_item;
 use maplecode_extension_api::ConversationHistorySnapshot;
 use maplecode_extension_api::ResponseItem;
 use maplecode_guardian_context::ContextTarget;
@@ -15,7 +16,6 @@ use maplecode_protocol::models::ReasoningItemContent;
 use maplecode_protocol::models::ReasoningItemReasoningSummary;
 use maplecode_protocol::protocol::InterAgentCommunication;
 use maplecode_protocol::protocol::TruncationPolicy;
-use core_test_support::responses::user_message_item;
 use pretty_assertions::assert_eq;
 
 use super::MANUAL_APPROVAL_DEVELOPER_PREFIX;
@@ -32,7 +32,8 @@ impl super::TranscriptConfig {
     fn build_context(
         &self,
         input: ContextInput<'_>,
-    ) -> Result<maplecode_guardian_context::ComposedContext, maplecode_guardian_context::SectionError> {
+    ) -> Result<maplecode_guardian_context::ComposedContext, maplecode_guardian_context::SectionError>
+    {
         let (mut context, _) = self.collect_context(input)?.compose(/*cursor*/ None, &[])?;
         context.retain_new_instructions(&[]);
         Ok(context)

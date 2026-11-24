@@ -92,7 +92,8 @@ pub async fn managed_config_bundle_loader_for_storage(
         ));
     }
     let service =
-        chatgpt_config_bundle_service_for_storage(auth_config, enable_maplecode_api_key_env).await?;
+        chatgpt_config_bundle_service_for_storage(auth_config, enable_maplecode_api_key_env)
+            .await?;
     Ok(managed_config_bundle_loader_for_service(service).0)
 }
 
@@ -162,7 +163,8 @@ pub async fn chatgpt_config_bundle_loader_for_storage(
     enable_maplecode_api_key_env: bool,
 ) -> std::io::Result<CloudConfigBundleLoader> {
     let service =
-        chatgpt_config_bundle_service_for_storage(auth_config, enable_maplecode_api_key_env).await?;
+        chatgpt_config_bundle_service_for_storage(auth_config, enable_maplecode_api_key_env)
+            .await?;
     let (loader, _) = managed_config_bundle_loader_for_service(service);
     Ok(loader)
 }
@@ -246,7 +248,8 @@ async fn chatgpt_config_bundle_service_for_storage(
     enable_maplecode_api_key_env: bool,
 ) -> std::io::Result<CloudConfigBundleService<ChatGptSource<BackendBundleClient>>> {
     let auth_manager =
-        AuthManager::shared_from_auth_config(auth_config.clone(), enable_maplecode_api_key_env).await?;
+        AuthManager::shared_from_auth_config(auth_config.clone(), enable_maplecode_api_key_env)
+            .await?;
     Ok(CloudConfigBundleService::new(
         auth_manager,
         Arc::new(BackendBundleClient::new(

@@ -1,11 +1,6 @@
 //! Enterprise authentication and revocation preserve ordinary tools and accumulated history.
 
 use anyhow::Result;
-use maplecode_config::test_support::CloudConfigBundleFixture;
-use maplecode_login::MapleCodeAuth;
-use maplecode_protocol::openai_models::ToolMode;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::McpStartupStatus;
 use core_test_support::apps_test_server::AppsTestServer;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
@@ -14,6 +9,11 @@ use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event_match;
 use core_test_support::wait_for_event_with_timeout;
+use maplecode_config::test_support::CloudConfigBundleFixture;
+use maplecode_login::MapleCodeAuth;
+use maplecode_protocol::openai_models::ToolMode;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::McpStartupStatus;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -324,7 +324,8 @@ http_headers = {{ Authorization = "Bearer ordinary-access" }}
                     .permissions
                     .set_permission_profile(maplecode_protocol::models::PermissionProfile::Disabled)
                     .expect("full access");
-                config.approvals_reviewer = maplecode_protocol::config_types::ApprovalsReviewer::User;
+                config.approvals_reviewer =
+                    maplecode_protocol::config_types::ApprovalsReviewer::User;
                 config
                     .features
                     .enable(maplecode_features::Feature::ToolCallMcpElicitation)
@@ -345,11 +346,11 @@ http_headers = {{ Authorization = "Bearer ordinary-access" }}
     .await;
     assert!(startup.failed.is_empty(), "{startup:?}");
     if matches!(scenario, EnterpriseLifecycle::RefreshPermissions) {
+        use core_test_support::wait_for_event;
         use maplecode_protocol::protocol::AskForApproval;
         use maplecode_protocol::protocol::ElicitationAction;
         use maplecode_protocol::protocol::Op;
         use maplecode_protocol::protocol::ThreadSettingsOverrides;
-        use core_test_support::wait_for_event;
 
         // Force a new manager while still in full access. A queued settings update
         // is a barrier before status reads flush the hard refresh.

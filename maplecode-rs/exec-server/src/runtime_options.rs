@@ -47,7 +47,9 @@ impl ExecServerRuntimeOptions {
             proxy_private_ips_via_upstream: false,
             prefer_mxc: None,
             maplecode_self_exe: absolute_path(maplecode_self_exe)?,
-            maplecode_linux_sandbox_exe: maplecode_linux_sandbox_exe.map(absolute_path).transpose()?,
+            maplecode_linux_sandbox_exe: maplecode_linux_sandbox_exe
+                .map(absolute_path)
+                .transpose()?,
             #[cfg(target_os = "macos")]
             allowed_symlinked_maplecode_home: None,
         })

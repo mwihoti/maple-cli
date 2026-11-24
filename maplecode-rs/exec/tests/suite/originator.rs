@@ -1,9 +1,9 @@
 #![cfg(not(target_os = "windows"))]
 #![allow(clippy::unwrap_used)]
 
-use maplecode_login::default_client::MAPLECODE_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
 use core_test_support::responses;
 use core_test_support::test_maplecode_exec::test_maplecode_exec;
+use maplecode_login::default_client::MAPLECODE_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
 use wiremock::matchers::header;
 
 /// Verify that when the server reports an error, `maplecode-exec` exits with a
@@ -40,11 +40,18 @@ async fn supports_originator_override() -> anyhow::Result<()> {
         responses::ev_assistant_message("response_1", "Hello, world!"),
         responses::ev_completed("response_1"),
     ]);
-    responses::mount_sse_once_match(&server, header("Originator", "maplecode_exec_override"), body)
-        .await;
+    responses::mount_sse_once_match(
+        &server,
+        header("Originator", "maplecode_exec_override"),
+        body,
+    )
+    .await;
 
     test.cmd_with_server(&server)
-        .env("MAPLECODE_INTERNAL_ORIGINATOR_OVERRIDE", "maplecode_exec_override")
+        .env(
+            "MAPLECODE_INTERNAL_ORIGINATOR_OVERRIDE",
+            "maplecode_exec_override",
+        )
         .arg("--skip-git-repo-check")
         .arg("tell me something")
         .assert()

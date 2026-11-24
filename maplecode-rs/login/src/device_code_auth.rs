@@ -1,5 +1,5 @@
-use maplecode_http_client::HttpClient;
 use http::StatusCode;
+use maplecode_http_client::HttpClient;
 use serde::Deserialize;
 use serde::Serialize;
 use serde::de::Deserializer;

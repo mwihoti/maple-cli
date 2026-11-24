@@ -21,6 +21,33 @@ use std::time::Duration;
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::context_snapshot::SnapshotEntry;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_custom_tool_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_message_item_added;
+use core_test_support::responses::ev_output_text_delta;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::stdio_server_bin;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::environment_config_for_selection;
+use core_test_support::test_maplecode::executor_path_uri;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
 use maplecode_analytics::CompactionTrigger;
 use maplecode_config::ConfigLayerEntry;
 use maplecode_config::ConfigLayerSource;
@@ -82,33 +109,6 @@ use maplecode_skills_extension::SkillsExtensionConfig;
 use maplecode_skills_extension::install;
 use maplecode_skills_extension::install_with_providers;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::context_snapshot::SnapshotEntry;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_custom_tool_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_message_item_added;
-use core_test_support::responses::ev_output_text_delta;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::stdio_server_bin;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::environment_config_for_selection;
-use core_test_support::test_maplecode::executor_path_uri;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tempfile::TempDir;
@@ -2136,7 +2136,9 @@ async fn skill_read_recovers_omitted_installation_and_reads_selected_environment
         })
         .with_model_info_override("gpt-6-astra", |model| {
             model.truncation_policy =
-                maplecode_protocol::openai_models::TruncationPolicyConfig::bytes(/*limit*/ 1200);
+                maplecode_protocol::openai_models::TruncationPolicyConfig::bytes(
+                    /*limit*/ 1200,
+                );
         })
         // The named executor runs on this host and reads the temporary workspace above.
         .build(&server)
@@ -2720,7 +2722,10 @@ async fn astra_continues_after_input_yields_a_code_mode_cell() -> Result<()> {
             },
         })
         .await?;
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let requests = mock.requests();
     assert!(requests[1].body_contains_text("Script running with cell ID 1"));
@@ -3028,10 +3033,10 @@ async fn subagent_browser_auth_resolves_user_prompt() -> Result<()> {
 #[cfg(not(target_os = "windows"))]
 #[tokio::test]
 async fn guardian_elastic_budgeting_request_history() -> Result<()> {
+    use core_test_support::responses;
     use maplecode_config::test_support::CloudConfigBundleFixture;
     use maplecode_protocol::config_types::ApprovalsReviewer;
     use maplecode_protocol::protocol::AskForApproval;
-    use core_test_support::responses;
     const ENTRY_TOKENS: usize = 128;
     const TRANSCRIPT_ENTRIES_PER_SECTION: usize = 2;
     const SECTION_TOKENS: usize = ENTRY_TOKENS * TRANSCRIPT_ENTRIES_PER_SECTION;
@@ -3815,11 +3820,11 @@ enum LiveSuffix {
 async fn astra_async_compaction_keeps_work_added_after_its_snapshot(
     suffix: LiveSuffix,
 ) -> Result<()> {
+    use core_test_support::responses::ev_completed_with_tokens;
     use maplecode_protocol::config_types::CollaborationMode;
     use maplecode_protocol::config_types::ModeKind;
     use maplecode_protocol::config_types::Settings;
     use maplecode_protocol::protocol::ThreadSettingsOverrides;
-    use core_test_support::responses::ev_completed_with_tokens;
 
     skip_if_no_network!(Ok(()));
     let over_budget = matches!(suffix, LiveSuffix::OverBudgetRetainedTool);
@@ -4108,8 +4113,8 @@ enum ExecCatalogRefresh {
 #[test_case::test_case(ExecCatalogRefresh::Metadata; "exec metadata refresh")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn astra_async_compaction_preserves_exec_catalog(change: ExecCatalogRefresh) -> Result<()> {
-    use maplecode_models_manager::manager::RefreshStrategy;
     use core_test_support::responses::mount_models_once_with_etag;
+    use maplecode_models_manager::manager::RefreshStrategy;
 
     skip_if_no_network!(Ok(()));
     let (release_background, background_gate) = oneshot::channel();
@@ -4616,7 +4621,10 @@ async fn async_compaction_reuses_pending_work(
         test.submit_text_turn("after manual compaction").await?;
     }
 
-    let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let history = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     let usage = |id| {
         history
             .items

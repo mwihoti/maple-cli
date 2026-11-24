@@ -1136,7 +1136,10 @@ remote_plugin = true
 #[tokio::test]
 async fn plugin_read_rejects_invalid_remote_plugin_name() -> Result<()> {
     let maplecode_home = TempDir::new()?;
-    write_remote_plugin_catalog_config(maplecode_home.path(), "https://example.invalid/backend-api/")?;
+    write_remote_plugin_catalog_config(
+        maplecode_home.path(),
+        "https://example.invalid/backend-api/",
+    )?;
     let mut mcp = TestAppServer::builder()
         .with_maplecode_home(maplecode_home.path())
         .without_auto_env()
@@ -2561,7 +2564,10 @@ async fn batch_apps(
     }
 }
 
-fn write_connectors_config(maplecode_home: &std::path::Path, base_url: &str) -> std::io::Result<()> {
+fn write_connectors_config(
+    maplecode_home: &std::path::Path,
+    base_url: &str,
+) -> std::io::Result<()> {
     std::fs::write(
         maplecode_home.join("config.toml"),
         format!(

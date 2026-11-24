@@ -1,4 +1,5 @@
 //! Standalone consumer; prints event kinds without logging payloads.
+use futures::StreamExt;
 use maplecode_cloud_client::AddUserMessageRequest;
 use maplecode_cloud_client::AdmissionOutcome;
 use maplecode_cloud_client::Client;
@@ -8,7 +9,6 @@ use maplecode_cloud_client::SubmissionMode;
 use maplecode_cloud_client::UserMessageInput;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
-use futures::StreamExt;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

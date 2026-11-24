@@ -286,7 +286,11 @@ async fn connector_requests_reject_unsupported_openai_destinations() {
                         error
                             .downcast_ref::<maplecode_protocol::error::MapleCodeErr>()
                             .map(maplecode_protocol::error::MapleCodeErr::details),
-                        Some(maplecode_protocol::error::MapleCodeErrorDetails::UnsupportedOperation(_))
+                        Some(
+                            maplecode_protocol::error::MapleCodeErrorDetails::UnsupportedOperation(
+                                _
+                            )
+                        )
                     ),
                     "{base_url} ({mode:?}): {error:#}",
                 );

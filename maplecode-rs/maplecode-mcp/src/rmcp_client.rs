@@ -35,10 +35,6 @@ use std::time::Instant;
 use crate::McpServerKey;
 use crate::auth::McpAuthProvider;
 use crate::client_tool_catalog::ClientToolCatalog;
-use crate::maplecode_apps::normalize_maplecode_apps_callable_name;
-use crate::maplecode_apps::normalize_maplecode_apps_callable_namespace;
-use crate::maplecode_apps::normalize_maplecode_apps_tool_title;
-use crate::maplecode_apps::prepare_openai_file_params_for_model;
 use crate::connection_pool::ConnectionKey;
 use crate::connection_pool::ConnectionSharing;
 use crate::connection_pool::ConnectionSlot;
@@ -46,6 +42,10 @@ use crate::connection_pool::LEASE_CAPABILITY;
 use crate::connection_pool::SharingNegotiation;
 use crate::elicitation::ElicitationRequestManager;
 use crate::executor_environment_http_client::ExecutorEnvironmentHttpClient;
+use crate::maplecode_apps::normalize_maplecode_apps_callable_name;
+use crate::maplecode_apps::normalize_maplecode_apps_callable_namespace;
+use crate::maplecode_apps::normalize_maplecode_apps_tool_title;
+use crate::maplecode_apps::prepare_openai_file_params_for_model;
 use crate::mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use crate::mcp::ToolPluginContext;
 use crate::openai_docs_source_attribution::maybe_with_openai_docs_source_attribution;
@@ -61,6 +61,9 @@ use crate::tools::ToolInfo;
 use anyhow::Result;
 use anyhow::anyhow;
 use async_channel::Sender;
+use futures::future::BoxFuture;
+use futures::future::FutureExt;
+use futures::future::Shared;
 use maplecode_async_utils::CancelErr;
 use maplecode_async_utils::OrCancelExt;
 use maplecode_config::McpServerAuth;
@@ -91,9 +94,6 @@ use maplecode_rmcp_client::StreamableHttpBearerToken;
 use maplecode_rmcp_client::StreamableHttpRedirectMode;
 use maplecode_rmcp_client::ToolWithConnectorId;
 use maplecode_rmcp_client::is_authentication_required_error;
-use futures::future::BoxFuture;
-use futures::future::FutureExt;
-use futures::future::Shared;
 use rmcp::model::ClientCapabilities;
 use rmcp::model::ElicitationCapability;
 use rmcp::model::Implementation;
@@ -118,7 +118,8 @@ const MAX_PLUGIN_PROVENANCE_BYTES: usize = 1_024;
 pub(crate) const MCP_TOOLS_LIST_DURATION_METRIC: &str = "maplecode.mcp.tools.list.duration_ms";
 pub(crate) const MCP_TOOLS_FETCH_UNCACHED_DURATION_METRIC: &str =
     "maplecode.mcp.tools.fetch_uncached.duration_ms";
-pub(crate) const MAPLECODE_APPS_REFRESH_DURATION_METRIC: &str = "maplecode.apps.refresh.duration_ms";
+pub(crate) const MAPLECODE_APPS_REFRESH_DURATION_METRIC: &str =
+    "maplecode.apps.refresh.duration_ms";
 pub(crate) const DEFAULT_STARTUP_TIMEOUT: Duration = Duration::from_secs(30);
 pub(crate) const DEFAULT_TOOL_TIMEOUT: Duration = Duration::from_secs(300);
 
@@ -227,7 +228,8 @@ impl MapleCodeAppsStartupReconnect {
                     Err(error) => {
                         state.last_error = Some(error.clone());
                         state.consecutive_failures = state.consecutive_failures.saturating_add(1);
-                        let retry_after = maplecode_apps_reconnect_backoff(state.consecutive_failures);
+                        let retry_after =
+                            maplecode_apps_reconnect_backoff(state.consecutive_failures);
                         state.retry_not_before = Some(TokioInstant::now() + retry_after);
                         warn!(
                             error = %error,
@@ -776,7 +778,9 @@ impl AsyncManagedClient {
         } else {
             match self.client().await {
                 Ok(client) => Ok(client.listed_catalog().await),
-                Err(error) if self.is_maplecode_apps_mcp_server => self.cached_catalog().ok_or(error),
+                Err(error) if self.is_maplecode_apps_mcp_server => {
+                    self.cached_catalog().ok_or(error)
+                }
                 Err(error) => Err(error),
             }
         }
@@ -1016,7 +1020,8 @@ fn maplecode_apps_tool_info_from_listed_tool(
     let callable_namespace =
         normalize_maplecode_apps_callable_namespace(server_name, connector_name.as_deref());
     if let Some(title) = tool_def.title.as_deref() {
-        let normalized_title = normalize_maplecode_apps_tool_title(connector_name.as_deref(), title);
+        let normalized_title =
+            normalize_maplecode_apps_tool_title(connector_name.as_deref(), title);
         if tool_def.title.as_deref() != Some(normalized_title.as_str()) {
             tool_def.title = Some(normalized_title);
         }
@@ -1389,7 +1394,8 @@ pub(crate) fn mcp_initialize_request_params(
     }
     InitializeRequestParams::new(
         capabilities,
-        Implementation::new("maplecode-mcp-client", env!("CARGO_PKG_VERSION")).with_title("MapleCode"),
+        Implementation::new("maplecode-mcp-client", env!("CARGO_PKG_VERSION"))
+            .with_title("MapleCode"),
     )
     .with_protocol_version(ProtocolVersion::V_2025_06_18)
 }

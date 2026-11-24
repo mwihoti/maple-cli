@@ -1,8 +1,8 @@
+use http::StatusCode;
 use maplecode_api::ApiError;
 use maplecode_api::TransportError;
 use maplecode_protocol::error::MapleCodeErr;
 use maplecode_protocol::error::MapleCodeErrorDetails;
-use http::StatusCode;
 
 pub(super) const CREDENTIAL_EXPORT_CONFIG_ERROR_PREFIX: &str =
     "AWS credential export configuration error:";

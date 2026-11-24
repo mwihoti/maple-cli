@@ -1,3 +1,12 @@
+use core_test_support::PathBufExt;
+use core_test_support::responses;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::MapleCodeThread;
 use maplecode_core::REVIEW_PROMPT;
 use maplecode_core::TurnInputRequest;
@@ -38,15 +47,6 @@ use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::protocol::TurnEnvironmentRequests;
 use maplecode_protocol::review_format::render_review_output_text;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::PathBufExt;
-use core_test_support::responses;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -134,7 +134,10 @@ async fn review_op_emits_lifecycle_and_review_output() {
         }
         other => panic!("expected entered review item completion, got {other:?}"),
     }
-    let entered = wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
+    let entered = wait_for_event(&maplecode, |ev| {
+        matches!(ev, EventMsg::EnteredReviewMode(_))
+    })
+    .await;
     match entered {
         EventMsg::EnteredReviewMode(event) => {
             assert_eq!(event.turn_id.as_deref(), Some(review_turn_id.as_str()));
@@ -309,11 +312,12 @@ async fn review_overload_preserves_lifecycle_order() {
             .set_body_json(serde_json::json!({ "error": { "code": "server_is_overloaded" } })),
     )
     .await;
-    let maplecode = new_conversation_for_server(&server, Arc::new(TempDir::new().unwrap()), |config| {
-        config.model_provider.request_max_retries = Some(0);
-        config.model_provider.stream_max_retries = Some(0);
-    })
-    .await;
+    let maplecode =
+        new_conversation_for_server(&server, Arc::new(TempDir::new().unwrap()), |config| {
+            config.model_provider.request_max_retries = Some(0);
+            config.model_provider.stream_max_retries = Some(0);
+        })
+        .await;
 
     maplecode
         .submit(Op::Review {
@@ -461,7 +465,10 @@ async fn review_op_with_plain_text_emits_review_fallback() {
         .await
         .unwrap();
 
-    let _entered = wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
+    let _entered = wait_for_event(&maplecode, |ev| {
+        matches!(ev, EventMsg::EnteredReviewMode(_))
+    })
+    .await;
     let closed = wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::ExitedReviewMode(_))).await;
     let review = match closed {
         EventMsg::ExitedReviewMode(ev) => ev
@@ -754,7 +761,10 @@ async fn review_uses_updated_turn_permissions_and_approval_policy() {
         })
         .await
         .expect("review should start");
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     assert_eq!(maplecode.thread_settings_snapshot().await, stored_settings);
     let request = request_log.single_request();
@@ -956,7 +966,10 @@ async fn review_resolves_inherited_summary_preferences() -> anyhow::Result<()> {
             matches!(event, EventMsg::TurnComplete(_))
         })
         .await;
-        assert_eq!(test.maplecode.thread_settings_snapshot().await, stored_settings);
+        assert_eq!(
+            test.maplecode.thread_settings_snapshot().await,
+            stored_settings
+        );
     }
     let actual = request_log
         .requests()
@@ -1024,7 +1037,10 @@ async fn review_uses_custom_review_model_from_config() {
         .unwrap();
 
     // Wait for completion
-    let _entered = wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
+    let _entered = wait_for_event(&maplecode, |ev| {
+        matches!(ev, EventMsg::EnteredReviewMode(_))
+    })
+    .await;
     let _closed = wait_for_event(&maplecode, |ev| {
         matches!(
             ev,
@@ -1090,7 +1106,10 @@ async fn review_uses_session_model_when_review_model_unset() {
         .await
         .unwrap();
 
-    let _entered = wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
+    let _entered = wait_for_event(&maplecode, |ev| {
+        matches!(ev, EventMsg::EnteredReviewMode(_))
+    })
+    .await;
     let _closed = wait_for_event(&maplecode, |ev| {
         matches!(
             ev,
@@ -1201,9 +1220,13 @@ async fn review_input_isolated_from_parent_history() {
             .await
             .unwrap();
     }
-    let maplecode =
-        resume_conversation_for_server(&server, maplecode_home.clone(), session_file.clone(), |_| {})
-            .await;
+    let maplecode = resume_conversation_for_server(
+        &server,
+        maplecode_home.clone(),
+        session_file.clone(),
+        |_| {},
+    )
+    .await;
 
     // Submit review request; it must start fresh (no parent history in `input`).
     let review_prompt = "Please review only this".to_string();
@@ -1219,7 +1242,10 @@ async fn review_input_isolated_from_parent_history() {
         .await
         .unwrap();
 
-    let _entered = wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
+    let _entered = wait_for_event(&maplecode, |ev| {
+        matches!(ev, EventMsg::EnteredReviewMode(_))
+    })
+    .await;
     let _closed = wait_for_event(&maplecode, |ev| {
         matches!(
             ev,
@@ -1332,7 +1358,10 @@ async fn review_history_surfaces_in_parent_session() {
         })
         .await
         .unwrap();
-    let _entered = wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
+    let _entered = wait_for_event(&maplecode, |ev| {
+        matches!(ev, EventMsg::EnteredReviewMode(_))
+    })
+    .await;
     let _closed = wait_for_event(&maplecode, |ev| {
         matches!(
             ev,
@@ -1477,7 +1506,10 @@ async fn review_uses_overridden_cwd_for_base_branch_merge_base() {
         .await
         .unwrap();
 
-    let _entered = wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
+    let _entered = wait_for_event(&maplecode, |ev| {
+        matches!(ev, EventMsg::EnteredReviewMode(_))
+    })
+    .await;
     let _complete = wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let requests = request_log.requests();

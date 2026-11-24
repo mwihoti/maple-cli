@@ -22,13 +22,13 @@ mod top_level_tools;
 
 use crate::AgentSessionReader;
 use crate::context::ContextualUserFragment;
+use indexmap::IndexMap;
 use maplecode_extension_api::PreviousWorldStateSection;
 use maplecode_extension_api::RenderedWorldStateFragment;
 use maplecode_extension_api::WorldStateSectionContribution;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ContentItemKind;
 use maplecode_protocol::models::ResponseItem;
-use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
 use serde::de::DeserializeOwned;

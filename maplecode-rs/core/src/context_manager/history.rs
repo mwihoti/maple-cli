@@ -36,6 +36,7 @@ use crate::session::turn_context::TurnContext;
 use crate::utils::json::serialized_json_bytes;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use image::ImageReader;
 use maplecode_attachment_store::AttachmentStore;
 use maplecode_context_fragments::set_annotated_content;
 use maplecode_context_fragments::to_annotated_content;
@@ -43,8 +44,8 @@ use maplecode_extension_api::ConversationHistorySnapshot;
 use maplecode_guardian_context::ContextBudgeting;
 use maplecode_guardian_context::SectionHistory;
 use maplecode_guardian_context::TranscriptHistory;
-use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::GuardianHistoryCheckpoint;
+use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RetainedContext;
 use maplecode_history::RetainedContextEntry;
@@ -79,7 +80,6 @@ use maplecode_utils_output_truncation::approx_token_count;
 use maplecode_utils_output_truncation::approx_tokens_from_byte_count_i64;
 use maplecode_utils_output_truncation::truncate_function_output_payload;
 use maplecode_utils_output_truncation::with_serialization_allowance;
-use image::ImageReader;
 use std::collections::BTreeSet;
 use std::io::Cursor;
 use std::num::NonZeroUsize;
@@ -233,8 +233,11 @@ impl ConversationHistorySnapshot for SharedConversationHistory {
 
     fn review_items_with_sources(
         &self,
-    ) -> Box<dyn Iterator<Item = (&ResponseItem, Option<&maplecode_history::RetainedSource>)> + Send + '_>
-    {
+    ) -> Box<
+        dyn Iterator<Item = (&ResponseItem, Option<&maplecode_history::RetainedSource>)>
+            + Send
+            + '_,
+    > {
         if self.guardian_review_mode != GuardianContextMode::ThreadOwned {
             let items = self.review_history.as_ref().map_or_else(
                 || self.items(),

@@ -1225,8 +1225,9 @@ impl AccountRequestProcessor {
                 Self::detailed_rate_limit_reset_credits(&client).await
             }
         },);
-        let response = response
-            .map_err(|err| internal_error(format!("failed to fetch maplecode rate limits: {err}")))?;
+        let response = response.map_err(|err| {
+            internal_error(format!("failed to fetch maplecode rate limits: {err}"))
+        })?;
         if response.rate_limits.is_empty() {
             return Err(internal_error(
                 "failed to fetch maplecode rate limits: no snapshots returned",
@@ -1637,9 +1638,9 @@ pub(crate) async fn clear_account_configuration(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use http::StatusCode;
     use maplecode_backend_client::TokenUsageProfileDailyBucket;
     use maplecode_backend_client::TokenUsageProfileStats;
-    use http::StatusCode;
     use pretty_assertions::assert_eq;
 
     #[test]

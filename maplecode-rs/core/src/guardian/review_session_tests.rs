@@ -140,7 +140,8 @@ async fn run_review_preserves_evidence_during_parent_compaction() {
         let Op::TurnInput { request, reply, .. } = submission.op else {
             panic!("expected reviewer prompt");
         };
-        let maplecode_protocol::turn_input::TurnInput::UserInput { content, .. } = request.input else {
+        let maplecode_protocol::turn_input::TurnInput::UserInput { content, .. } = request.input
+        else {
             panic!("expected user input");
         };
         let text = serde_json::to_string(&content).unwrap();

@@ -4,6 +4,7 @@
 //! and emit a warning; a disabled factory does not open storage.
 //! Tool namespaces follow the host's configuration at runtime startup.
 
+use futures::future::BoxFuture;
 use maplecode_extension_api::ExtensionData;
 use maplecode_extension_api::ExtensionEventSink;
 use maplecode_extension_api::ExtensionFuture;
@@ -24,7 +25,6 @@ use maplecode_protocol::error::Result;
 use maplecode_protocol::openai_models::MultiAgentToolMessages;
 use maplecode_tools::ToolCall;
 use maplecode_tools::ToolExecutor;
-use futures::future::BoxFuture;
 use std::sync::Arc;
 
 type BoardFactory<C> = dyn for<'a> Fn(

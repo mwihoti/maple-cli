@@ -330,12 +330,13 @@ fn config_parse_errors_are_distinguished_from_policy_and_io_failures() {
 #[test]
 fn policy_event_excludes_real_parser_values_but_retains_safe_codes() {
     let contents = "Authorization = \"Bearer synthetic-secret";
-    let requirements =
-        maplecode_config::compose_requirements([maplecode_config::RequirementsLayerEntry::from_toml(
+    let requirements = maplecode_config::compose_requirements([
+        maplecode_config::RequirementsLayerEntry::from_toml(
             maplecode_config::RequirementSource::Unknown,
             contents,
-        )])
-        .unwrap_err();
+        ),
+    ])
+    .unwrap_err();
     let fragment = maplecode_config::cloud_config_layers_from_fragments(
         [maplecode_config::CloudConfigFragment {
             id: "synthetic-id".into(),
@@ -380,7 +381,9 @@ fn policy_event_excludes_real_parser_values_but_retains_safe_codes() {
     ] {
         assert_eq!(
             policy_rejection_diagnostic(&error),
-            format!("Maple Code sandbox provisioning was rejected by administrator policy: {expected}")
+            format!(
+                "Maple Code sandbox provisioning was rejected by administrator policy: {expected}"
+            )
         );
     }
 }

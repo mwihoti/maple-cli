@@ -53,9 +53,10 @@ pub(crate) fn authorize_client_process(pipe: HANDLE) -> Result<AuthorizedClientP
     let client_family =
         unsafe { maplecode_windows_sandbox::process_package_family(process.as_raw_handle()) }
             .context("read provisioning client package identity")?;
-    let service_family =
-        unsafe { maplecode_windows_sandbox::process_package_family(Threading::GetCurrentProcess()) }
-            .context("read provisioning service package identity")?;
+    let service_family = unsafe {
+        maplecode_windows_sandbox::process_package_family(Threading::GetCurrentProcess())
+    }
+    .context("read provisioning service package identity")?;
     match client_family {
         Some(client_family) => match service_family.as_deref() {
             Some(service_family) if client_family != service_family => {
@@ -73,7 +74,9 @@ pub(crate) fn authorize_client_process(pipe: HANDLE) -> Result<AuthorizedClientP
         },
         #[cfg(debug_assertions)]
         None if FOREGROUND_MODE.load(Ordering::Acquire) => {}
-        None => bail!("provisioning clients must run with an installed Maple Code package identity"),
+        None => {
+            bail!("provisioning clients must run with an installed Maple Code package identity")
+        }
     }
 
     Ok(AuthorizedClientProcess { handle: process })

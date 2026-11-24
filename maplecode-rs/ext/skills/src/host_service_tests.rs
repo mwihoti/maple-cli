@@ -254,7 +254,9 @@ async fn skills_for_config_bounds_plugin_generations_and_preserves_live_snapshot
         let snapshot = skills_service
             .snapshot_for_config(
                 &input,
-                Some(&maplecode_exec_server::FileSystemEnvironmentAccessor::unrestricted(&LOCAL_FS)),
+                Some(
+                    &maplecode_exec_server::FileSystemEnvironmentAccessor::unrestricted(&LOCAL_FS),
+                ),
             )
             .await;
 
@@ -270,7 +272,9 @@ async fn skills_for_config_bounds_plugin_generations_and_preserves_live_snapshot
                 .snapshot_for_config(
                     input,
                     Some(
-                        &maplecode_exec_server::FileSystemEnvironmentAccessor::unrestricted(&LOCAL_FS),
+                        &maplecode_exec_server::FileSystemEnvironmentAccessor::unrestricted(
+                            &LOCAL_FS,
+                        ),
                     ),
                 )
                 .await;
@@ -339,7 +343,12 @@ async fn watchable_skill_root_paths_exclude_plugin_and_system_roots() {
 async fn snapshot_for_config_merges_extension_host_and_legacy_plugin_roots() {
     let maplecode_home = tempfile::tempdir().expect("tempdir");
     let cwd = tempfile::tempdir().expect("tempdir");
-    write_user_skill(&maplecode_home, "user", "user-skill", "from the host loader");
+    write_user_skill(
+        &maplecode_home,
+        "user",
+        "user-skill",
+        "from the host loader",
+    );
     let plugin_skill_path = write_plugin_skill(
         &maplecode_home,
         "test",
@@ -762,7 +771,12 @@ async fn skills_for_cwd_loads_repo_and_user_roots_with_local_fs() {
     let repo_dot_maplecode = cwd.path().join(".maplecode");
     fs::create_dir_all(&repo_dot_maplecode).expect("create repo config dir");
 
-    write_user_skill(&maplecode_home, "user", "user-skill", "from local user root");
+    write_user_skill(
+        &maplecode_home,
+        "user",
+        "user-skill",
+        "from local user root",
+    );
     let repo_skill_dir = repo_dot_maplecode.join("skills/repo");
     fs::create_dir_all(&repo_skill_dir).expect("create repo skill dir");
     fs::write(
@@ -859,7 +873,12 @@ async fn skills_for_cwd_without_fs_skips_repo_roots() {
     let repo_dot_maplecode = cwd.path().join(".maplecode");
     fs::create_dir_all(&repo_dot_maplecode).expect("create repo config dir");
 
-    write_user_skill(&maplecode_home, "user", "user-skill", "from local user root");
+    write_user_skill(
+        &maplecode_home,
+        "user",
+        "user-skill",
+        "from local user root",
+    );
     let repo_skill_dir = repo_dot_maplecode.join("skills/repo");
     fs::create_dir_all(&repo_skill_dir).expect("create repo skill dir");
     fs::write(
@@ -1028,8 +1047,11 @@ async fn skills_for_config_ignores_cwd_cache_when_session_flags_reenable_skill()
     let disabled_skill_config = path_toggle_config(&skill_path, /*enabled*/ false);
     let enabled_skill_config = path_toggle_config(&skill_path, /*enabled*/ true);
     let parent_stack = config_stack(&maplecode_home, &disabled_skill_config);
-    let child_stack =
-        config_stack_with_session_flags(&maplecode_home, &disabled_skill_config, &enabled_skill_config);
+    let child_stack = config_stack_with_session_flags(
+        &maplecode_home,
+        &disabled_skill_config,
+        &enabled_skill_config,
+    );
     let skills_service = HostSkillsService::new(
         maplecode_home.path().abs(),
         /*bundled_skills_enabled*/ true,

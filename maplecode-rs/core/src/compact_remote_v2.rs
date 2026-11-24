@@ -27,8 +27,8 @@ use crate::hook_runtime::PostCompactHookOutcome;
 use crate::hook_runtime::PreCompactHookOutcome;
 use crate::hook_runtime::run_post_compact_hooks;
 use crate::hook_runtime::run_pre_compact_hooks;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
 use crate::responses_metadata::CompactionTurnMetadata;
+use crate::responses_metadata::MapleCodeResponsesMetadata;
 use crate::responses_retry::ResponsesStreamRequest;
 use crate::responses_retry::ResponsesStreamRetryState;
 use crate::responses_retry::handle_response_stream_error;
@@ -36,6 +36,7 @@ use crate::session::RequestEffortUsage;
 use crate::session::session::Session;
 use crate::session::step_context::StepContext;
 use crate::session::turn_context::TurnContext;
+use futures::StreamExt;
 use maplecode_analytics::CompactionImplementation;
 use maplecode_analytics::CompactionPhase;
 use maplecode_analytics::CompactionReason;
@@ -65,7 +66,6 @@ use maplecode_protocol::protocol::TruncationPolicy;
 use maplecode_rollout_trace::InferenceTraceContext;
 use maplecode_utils_output_truncation::approx_token_count;
 use maplecode_utils_output_truncation::truncate_text;
-use futures::StreamExt;
 use tokio_util::sync::CancellationToken;
 
 #[path = "compact_remote_v2_attempt.rs"]
@@ -958,9 +958,7 @@ mod tests {
     #[test]
     fn build_v2_compacted_history_filters_to_installed_retention_shape() {
         let hook = maplecode_protocol::items::build_hook_prompt_message(
-            &[maplecode_protocol::items::HookPromptFragment::from_single_hook(
-                "hook", "hook-run",
-            )],
+            &[maplecode_protocol::items::HookPromptFragment::from_single_hook("hook", "hook-run")],
             &maplecode_protocol_test_support::uuid_v7_item_id_generator_for_test(),
         )
         .expect("hook prompt");
@@ -1092,7 +1090,10 @@ mod tests {
         );
 
         assert_eq!(truncated.len(), 1);
-        assert_eq!(truncated[0].metadata, Some(MapleCodeHarnessMetadata::default()));
+        assert_eq!(
+            truncated[0].metadata,
+            Some(MapleCodeHarnessMetadata::default())
+        );
     }
 
     #[test]

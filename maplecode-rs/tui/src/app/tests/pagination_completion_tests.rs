@@ -126,7 +126,8 @@ pub(super) async fn completed_history_app(
 
 #[tokio::test]
 async fn older_page_updates_the_parked_parent_without_moving_focus() -> Result<()> {
-    let (mut app, _maplecode_home, thread_id) = completed_history_app(&["Oldest", "Newest"]).await?;
+    let (mut app, _maplecode_home, thread_id) =
+        completed_history_app(&["Oldest", "Newest"]).await?;
     let mut app_server = crate::start_embedded_app_server_for_picker(&app.config).await?;
     let started = app_server
         .resume_thread(

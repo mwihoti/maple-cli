@@ -696,9 +696,10 @@ async fn startup_draft_applies_super_editor_keymap_without_inserting_pending_new
         .expect("build startup configuration");
     let mut settings = crate::local_settings::LocalSettings::from(&config);
     settings.tui.vim_mode_default = true;
-    settings.tui.keymap.editor.move_line_start = Some(maplecode_config::types::KeybindingsSpec::One(
-        maplecode_config::types::KeybindingSpec("super-z".to_string()),
-    ));
+    settings.tui.keymap.editor.move_line_start =
+        Some(maplecode_config::types::KeybindingsSpec::One(
+            maplecode_config::types::KeybindingSpec("super-z".to_string()),
+        ));
     let mut pump = startup_test_pump(std::iter::empty());
     pump.bottom_pane.insert_str("draft");
     pump.apply_settings(&settings, config.cwd.as_path());
@@ -799,7 +800,10 @@ async fn startup_draft_waits_for_onboarding_before_accepting_input() {
                 maplecode_home.path(),
                 Ok(system_config_path),
                 || Ok(false),
-                |name| (name == "MAPLECODE_HOME").then(|| maplecode_home.path().as_os_str().to_os_string()),
+                |name| {
+                    (name == "MAPLECODE_HOME")
+                        .then(|| maplecode_home.path().as_os_str().to_os_string())
+                },
             )
         {
             StartupDraftInitialScreen::Onboarding

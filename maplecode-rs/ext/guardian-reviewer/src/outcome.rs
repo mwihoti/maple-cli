@@ -50,7 +50,10 @@ impl GuardianReviewError {
     }
 
     #[cfg(test)]
-    pub(crate) fn session_with_error_info(err: anyhow::Error, error_info: MapleCodeErrorInfo) -> Self {
+    pub(crate) fn session_with_error_info(
+        err: anyhow::Error,
+        error_info: MapleCodeErrorInfo,
+    ) -> Self {
         Self::Session {
             message: err.to_string(),
             error_info: Some(error_info),

@@ -10,12 +10,12 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::code_mode_host::CodeModeHostRecorder;
+use futures::future::try_join_all;
 use maplecode_code_mode::CodeModeProcessMetricsSample;
 use maplecode_code_mode::CodeModeSessionProvider;
 use maplecode_code_mode::FunctionCallOutputContentItem;
 use maplecode_code_mode::GrpcCodeModeSessionProvider;
-use core_test_support::code_mode_host::CodeModeHostRecorder;
-use futures::future::try_join_all;
 use pretty_assertions::assert_eq;
 use tokio::sync::Notify;
 use tokio::sync::Semaphore;

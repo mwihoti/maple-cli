@@ -14,18 +14,18 @@ use crate::agent::types::LiveAgent;
 use crate::agent::types::SpawnAgentOptions;
 use crate::agent::types::SpawnProgramSource;
 use crate::agents_md_manager::SessionInstructions;
+use crate::config::PermissionProfileSnapshot;
 use crate::maplecode_thread::MapleCodeThread;
 use crate::maplecode_thread::ThreadConfigSnapshot;
-use crate::config::PermissionProfileSnapshot;
 use crate::thread_manager::StartThreadOptions;
+use futures::StreamExt;
+use futures::stream;
 use maplecode_features::Feature;
 use maplecode_protocol::dynamic_tools::DynamicToolSpec;
 use maplecode_protocol::error::AgentErrorContext;
 use maplecode_protocol::intersect_effective_permission_profiles;
 use maplecode_protocol::protocol::EnvironmentConfigState;
 use maplecode_utils_path_uri::PathUri;
-use futures::StreamExt;
-use futures::stream;
 use std::time::Instant;
 
 const AGENT_NAMES: &str = include_str!("../../../assets/agent/agent_names.txt");
@@ -49,7 +49,9 @@ pub(in crate::agent) async fn effective_spawn_config(
     let model_info = thread
         .thread_extension_data()
         .get::<maplecode_protocol::openai_models::ModelInfo>()
-        .ok_or_else(|| MapleCodeErr::Fatal("spawned thread is missing model metadata".to_string()))?;
+        .ok_or_else(|| {
+            MapleCodeErr::Fatal("spawned thread is missing model metadata".to_string())
+        })?;
     config.reasoning_effort = config
         .reasoning_effort
         .or_else(|| model_info.default_reasoning_level.clone())
@@ -1134,7 +1136,9 @@ impl LocalAgentControl {
             .as_deref()
             .map(AgentPath::try_from)
             .transpose()
-            .map_err(|err| MapleCodeErr::InvalidRequest(format!("invalid stored agent path: {err}")))?;
+            .map_err(|err| {
+                MapleCodeErr::InvalidRequest(format!("invalid stored agent path: {err}"))
+            })?;
         let resumed_agent_nickname = stored_thread.agent_nickname.clone();
         let resumed_agent_role = stored_thread.agent_role.clone();
         let history = load_agent_model_context(&state, thread_id, stored_thread.history_mode)

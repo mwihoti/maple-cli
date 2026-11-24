@@ -16,6 +16,7 @@ use std::sync::Weak;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 
+use indexmap::IndexMap;
 use maplecode_code_mode::CellId;
 use maplecode_features::Feature;
 use maplecode_features::Features;
@@ -30,7 +31,6 @@ use maplecode_protocol::models::ToolResultMetadata;
 use maplecode_protocol::models::executed_tool_call_metadata_bytes;
 use maplecode_protocol::models::normalize_executed_tool_call_completeness;
 use maplecode_protocol::openai_models::ToolMode;
-use indexmap::IndexMap;
 use serde_json::Value as JsonValue;
 
 use crate::session::step_context::StepContext;

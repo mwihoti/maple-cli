@@ -15,12 +15,12 @@ use std::time::Duration;
 use std::time::Instant;
 
 use async_channel::Sender;
+use futures::future::try_join;
 use maplecode_protocol::shell_environment::is_non_inheritable_env_var;
 #[cfg(unix)]
 use maplecode_utils_pty::Command;
 #[cfg(windows)]
 use maplecode_utils_pty::JobObject;
-use futures::future::try_join;
 use serde_json::Value;
 use tokio::io::AsyncWriteExt;
 #[cfg(not(unix))]

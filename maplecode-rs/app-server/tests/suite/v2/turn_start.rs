@@ -17,6 +17,15 @@ use app_test_support::write_chatgpt_auth;
 use app_test_support::write_mock_responses_config_toml_with_chatgpt_base_url;
 use app_test_support::write_models_cache;
 use app_test_support::write_models_cache_with_models;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_LIST_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
 use maplecode_app_server::INPUT_TOO_LARGE_ERROR_CODE;
 use maplecode_app_server::INVALID_PARAMS_ERROR_CODE;
 use maplecode_app_server_protocol::AdditionalContextEntry;
@@ -91,15 +100,6 @@ use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::protocol::MULTI_AGENT_MODE_OPEN_TAG;
 use maplecode_protocol::user_input::MAX_USER_INPUT_TEXT_CHARS;
 use maplecode_utils_absolute_path::test_support::PathExt;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_LIST_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -610,7 +610,8 @@ async fn turn_start_with_empty_input_runs_model_request() -> Result<()> {
         [maplecode_app_server_protocol::ThreadItem { payload: ThreadItemPayload::AgentMessage { text, .. }, .. }] if text == "Done"
     ));
 
-    let event = wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_event").await?;
+    let event =
+        wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_event").await?;
     assert_eq!(
         (
             event["event_params"]["turn_id"].as_str(),
@@ -1386,7 +1387,8 @@ async fn turn_start_emits_raw_response_completed_with_upstream_usage(
             .and_then(|params| params.get("usageMetadata")),
         Some(&expected_metadata),
     );
-    let notification: maplecode_app_server_protocol::ServerNotification = notification.try_into()?;
+    let notification: maplecode_app_server_protocol::ServerNotification =
+        notification.try_into()?;
     let maplecode_app_server_protocol::ServerNotification::RawResponseCompleted(notification) =
         notification
     else {
@@ -1567,7 +1569,8 @@ async fn turn_start_tracks_thread_originator_in_analytics() -> Result<()> {
     )
     .await??;
 
-    let event = wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_event").await?;
+    let event =
+        wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_event").await?;
     assert_eq!(event["event_params"]["thread_id"], thread.id);
     assert_eq!(event["event_params"]["session_id"], thread.session_id);
     assert_eq!(event["event_params"]["turn_id"], turn.id);
@@ -1843,7 +1846,8 @@ async fn turn_profile_tracks_blocking_tool_and_follow_up_sampling() -> Result<()
     )
     .await??;
 
-    let event = wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_event").await?;
+    let event =
+        wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_event").await?;
     let params = &event["event_params"];
     assert_eq!(
         json!({
@@ -3245,7 +3249,9 @@ async fn turn_start_exec_approval_toggle_v2() -> Result<()> {
                     text_elements: Vec::new(),
                 }],
                 approval_policy: Some(maplecode_app_server_protocol::AskForApproval::Never),
-                sandbox_policy: Some(maplecode_app_server_protocol::SandboxPolicy::DangerFullAccess),
+                sandbox_policy: Some(
+                    maplecode_app_server_protocol::SandboxPolicy::DangerFullAccess,
+                ),
                 model: Some("mock-model".to_string()),
                 effort: Some(ReasoningEffort::Medium),
                 summary: Some(ReasoningSummary::Auto),
@@ -3533,12 +3539,14 @@ async fn turn_start_explicit_local_environment_updates_legacy_cwd_between_turns(
                 runtime_workspace_roots: None,
                 approval_policy: Some(maplecode_app_server_protocol::AskForApproval::Never),
                 approvals_reviewer: None,
-                sandbox_policy: Some(maplecode_app_server_protocol::SandboxPolicy::WorkspaceWrite {
-                    writable_roots: vec![first_writable_root],
-                    network_access: false,
-                    exclude_tmpdir_env_var: true,
-                    exclude_slash_tmp: true,
-                }),
+                sandbox_policy: Some(
+                    maplecode_app_server_protocol::SandboxPolicy::WorkspaceWrite {
+                        writable_roots: vec![first_writable_root],
+                        network_access: false,
+                        exclude_tmpdir_env_var: true,
+                        exclude_slash_tmp: true,
+                    },
+                ),
                 permissions: None,
                 model: Some("mock-model".to_string()),
                 effort: Some(ReasoningEffort::Medium),
@@ -4993,7 +5001,8 @@ async fn direct_input_to_multi_agent_v2_subagent_is_rejected(
     assert!(!failed_event.to_string().contains(CHILD_PROMPT));
 
     let turn_event = wait_for_matching_analytics_event(&server, DEFAULT_READ_TIMEOUT, |event| {
-        event["event_type"] == "maplecode_turn_event" && event["event_params"]["thread_id"] == thread.id
+        event["event_type"] == "maplecode_turn_event"
+            && event["event_params"]["thread_id"] == thread.id
     })
     .await?;
     assert_eq!(turn_event["event_params"]["subagent_tool_call_count"], 2);
@@ -5616,7 +5625,9 @@ async fn command_execution_notifications_include_process_id(
                     text: "run a command".to_string(),
                     text_elements: Vec::new(),
                 }],
-                sandbox_policy: Some(maplecode_app_server_protocol::SandboxPolicy::DangerFullAccess),
+                sandbox_policy: Some(
+                    maplecode_app_server_protocol::SandboxPolicy::DangerFullAccess,
+                ),
                 ..Default::default()
             },
         })
@@ -5798,7 +5809,9 @@ async fn command_execution_notifications_include_trusted_plugin_id(
                     text: "run a plugin command".to_string(),
                     text_elements: Vec::new(),
                 }],
-                sandbox_policy: Some(maplecode_app_server_protocol::SandboxPolicy::DangerFullAccess),
+                sandbox_policy: Some(
+                    maplecode_app_server_protocol::SandboxPolicy::DangerFullAccess,
+                ),
                 ..Default::default()
             },
         })
@@ -5877,7 +5890,9 @@ async fn turn_start_with_elevated_override_does_not_persist_project_trust() -> R
             params: TurnStartParams {
                 thread_id: thread.id,
                 cwd: Some(workspace.path().to_path_buf()),
-                sandbox_policy: Some(maplecode_app_server_protocol::SandboxPolicy::DangerFullAccess),
+                sandbox_policy: Some(
+                    maplecode_app_server_protocol::SandboxPolicy::DangerFullAccess,
+                ),
                 input: vec![V2UserInput::Text {
                     text: "Hello".to_string(),
                     text_elements: Vec::new(),

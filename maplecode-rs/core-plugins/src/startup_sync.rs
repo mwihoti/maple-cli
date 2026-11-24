@@ -7,12 +7,12 @@ use std::process::Stdio;
 use std::time::Duration;
 
 use self::http_client::StartupSyncHttpClient;
+use http::Method;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::RequestBuilder;
 use maplecode_login::default_client::default_headers;
 use maplecode_otel::CURATED_PLUGINS_STARTUP_SYNC_FINAL_METRIC;
 use maplecode_otel::CURATED_PLUGINS_STARTUP_SYNC_METRIC;
-use http::Method;
 use serde::Deserialize;
 use tempfile::TempDir;
 use tracing::warn;
@@ -121,7 +121,11 @@ fn sync_openai_plugins_repo_with_transport_overrides(
                     "git sync failed for curated plugin sync; falling back to GitHub HTTP"
                 );
             }
-            match sync_openai_plugins_repo_via_http(maplecode_home, api_base_url, http_client_factory) {
+            match sync_openai_plugins_repo_via_http(
+                maplecode_home,
+                api_base_url,
+                http_client_factory,
+            ) {
                 Ok(remote_sha) => {
                     emit_curated_plugins_startup_sync_metric("http", "success");
                     emit_curated_plugins_startup_sync_final_metric("http", "success");
@@ -609,7 +613,8 @@ fn read_local_git_or_sha_file(
 
 fn git_ls_remote_head_sha(maplecode_home: &Path, git_binary: &Path) -> Result<String, String> {
     let mut command = git_command(git_binary)?;
-    let _trusted_repository = crate::configure_trusted_git_repository(&mut command, maplecode_home)?;
+    let _trusted_repository =
+        crate::configure_trusted_git_repository(&mut command, maplecode_home)?;
     command
         .current_dir(maplecode_home)
         .arg("ls-remote")

@@ -2,14 +2,14 @@
 
 use std::io;
 
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_transport::CompressionConnection;
 use maplecode_app_server_transport::WEBSOCKET_COMPRESSION_HEADER;
 use maplecode_app_server_transport::WebSocketCompression;
 use maplecode_app_server_transport::ZstdDecoder;
 use maplecode_app_server_transport::ZstdEncoder;
 use maplecode_app_server_transport::zstd_codec_pair;
-use futures::SinkExt;
-use futures::StreamExt;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
 use tokio_tungstenite::WebSocketStream;

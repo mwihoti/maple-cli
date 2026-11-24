@@ -775,7 +775,9 @@ fn resolve_remote_addr_accepts_default_socket() -> color_eyre::Result<()> {
     assert_eq!(
         resolve_remote_addr("unix://")?,
         RemoteAppServerEndpoint::UnixSocket {
-            socket_path: maplecode_app_server_client::app_server_control_socket_path(&maplecode_home)?,
+            socket_path: maplecode_app_server_client::app_server_control_socket_path(
+                &maplecode_home
+            )?,
         }
     );
     Ok(())
@@ -836,7 +838,8 @@ async fn default_daemon_auto_connect_skips_missing_socket() -> color_eyre::Resul
 #[tokio::test]
 async fn default_daemon_auto_connect_probes_socket_only() -> color_eyre::Result<()> {
     let maplecode_home = TempDir::new()?;
-    let socket_path = maplecode_app_server_client::app_server_control_socket_path(maplecode_home.path())?;
+    let socket_path =
+        maplecode_app_server_client::app_server_control_socket_path(maplecode_home.path())?;
     #[cfg(windows)]
     {
         let parent = socket_path.as_path().parent().expect("socket parent");
@@ -1648,7 +1651,8 @@ async fn embedded_state_db_failure_is_typed_for_cli_recovery() -> color_eyre::Re
     let mut config = build_config(&temp_dir).await?;
     let occupied_sqlite_home = temp_dir.path().join("sqlite-home");
     std::fs::write(&occupied_sqlite_home, "occupied")?;
-    let sqlite = maplecode_state::SqliteConfig::new_for_testing(occupied_sqlite_home.as_path().abs());
+    let sqlite =
+        maplecode_state::SqliteConfig::new_for_testing(occupied_sqlite_home.as_path().abs());
     config.sqlite = sqlite.clone();
 
     let err = match init_state_db_for_app_server_target(&config, &AppServerTarget::Embedded).await {

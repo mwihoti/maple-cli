@@ -23,6 +23,8 @@ use crate::remote_plugin_id_resolver::RemotePluginIdResolver;
 use crate::store::PluginStore;
 use crate::store::plugin_version_for_source;
 use crate::store::plugin_version_for_source_with_fallback_manifest;
+use futures::StreamExt;
+use futures::stream;
 use maplecode_config::ConfigLayerStack;
 use maplecode_config::HooksFile;
 use maplecode_config::SkillConfigRules;
@@ -56,8 +58,6 @@ use maplecode_utils_plugins::PluginSkillRoot;
 use maplecode_utils_plugins::SkillDiscoveryMode;
 use maplecode_utils_plugins::find_plugin_manifest_path;
 use maplecode_utils_plugins::migrated_command_skills_root;
-use futures::StreamExt;
-use futures::stream;
 use serde::Deserialize;
 use serde_json::Value as JsonValue;
 use std::collections::HashMap;
@@ -411,7 +411,8 @@ pub fn refresh_curated_plugin_cache(
     configured_curated_plugin_ids: &[PluginId],
 ) -> Result<bool, String> {
     let cache_plugin_version = curated_plugin_cache_version(plugin_version);
-    let store = PluginStore::try_new(maplecode_home.to_path_buf()).map_err(|err| err.to_string())?;
+    let store =
+        PluginStore::try_new(maplecode_home.to_path_buf()).map_err(|err| err.to_string())?;
     let curated_marketplace_paths = curated_marketplace_paths_for_cache_refresh(maplecode_home)?;
     let mut loaded_marketplace_names = HashSet::<String>::new();
     let mut marketplace_plugin_keys = HashSet::<String>::new();
@@ -579,7 +580,8 @@ pub(crate) fn refresh_non_curated_plugin_cache_with_mode<'a>(
         .map(PluginId::as_key)
         .collect::<HashSet<_>>();
 
-    let store = PluginStore::try_new(maplecode_home.to_path_buf()).map_err(|err| err.to_string())?;
+    let store =
+        PluginStore::try_new(maplecode_home.to_path_buf()).map_err(|err| err.to_string())?;
     let marketplace_outcome = list_marketplaces_with_home(additional_roots, /*home_dir*/ None)
         .map_err(|err| format!("failed to discover marketplaces for cache refresh: {err}"))?;
     let mut plugin_sources = HashMap::<String, (MarketplacePluginSource, Option<String>)>::new();

@@ -2,6 +2,23 @@
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::create_directory_symlink;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::mount_function_call_agent_response;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_target_windows;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
 use maplecode_core::config::Constrained;
@@ -24,23 +41,6 @@ use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::request_permissions::PermissionGrantScope;
 use maplecode_protocol::request_permissions::RequestPermissionsResponse;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::create_directory_symlink;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::mount_function_call_agent_response;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_target_windows;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -206,30 +206,31 @@ async fn stdin_reviews_escalated_terminal_with_denied_reads_before_delivering_in
     skip_if_target_windows!(Ok(()), "uses a POSIX interactive shell");
     skip_if_no_network!(Ok(()));
     skip_if_sandbox!(Ok(()));
-    let harness = TestMapleCodeHarness::with_auto_env_builder(test_maplecode().with_config(|config| {
-        config.features.enable(Feature::WriteStdinApproval).unwrap();
-        config
-            .features
-            .enable(Feature::ExecPermissionApprovals)
-            .unwrap();
-        config.features.enable(Feature::UnifiedExec).unwrap();
-        config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
-        let mut file_system = PermissionProfile::read_only().file_system_sandbox_policy();
-        file_system.entries.push(FileSystemSandboxEntry::new(
-            FileSystemPath::GlobPattern {
-                pattern: "**/secret.env".into(),
-            },
-            FileSystemAccessMode::Deny,
-        ));
-        config
-            .permissions
-            .set_permission_profile(PermissionProfile::from_runtime_permissions(
-                &file_system,
-                NetworkSandboxPolicy::Restricted,
-            ))
-            .unwrap();
-    }))
-    .await?;
+    let harness =
+        TestMapleCodeHarness::with_auto_env_builder(test_maplecode().with_config(|config| {
+            config.features.enable(Feature::WriteStdinApproval).unwrap();
+            config
+                .features
+                .enable(Feature::ExecPermissionApprovals)
+                .unwrap();
+            config.features.enable(Feature::UnifiedExec).unwrap();
+            config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
+            let mut file_system = PermissionProfile::read_only().file_system_sandbox_policy();
+            file_system.entries.push(FileSystemSandboxEntry::new(
+                FileSystemPath::GlobPattern {
+                    pattern: "**/secret.env".into(),
+                },
+                FileSystemAccessMode::Deny,
+            ));
+            config
+                .permissions
+                .set_permission_profile(PermissionProfile::from_runtime_permissions(
+                    &file_system,
+                    NetworkSandboxPolicy::Restricted,
+                ))
+                .unwrap();
+        }))
+        .await?;
     let maplecode = &harness.test().maplecode;
     harness.write_file("secret.env", "secret").await?;
     let _open = mount_function_call_agent_response(
@@ -257,7 +258,10 @@ async fn stdin_reviews_escalated_terminal_with_denied_reads_before_delivering_in
             decision: ReviewDecision::Approved,
         })
         .await?;
-    wait_for_event(maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let _writes = mount_sse_sequence(harness.server(), vec![
         tool_response("denied", "write_stdin", json!({"session_id":1000,"chars":"printf denied > denied-marker\n"})),
@@ -328,8 +332,10 @@ async fn strict_stdin_review_reaches_guardian_with_sandbox_prompts_disabled() ->
         fn decide<'a>(
             &'a self,
             input: &'a maplecode_extension_api::ApprovalDecisionInput<'_>,
-        ) -> maplecode_extension_api::ExtensionFuture<'a, Option<maplecode_extension_api::ApprovalDecision>>
-        {
+        ) -> maplecode_extension_api::ExtensionFuture<
+            'a,
+            Option<maplecode_extension_api::ApprovalDecision>,
+        > {
             self.0
                 .lock()
                 .unwrap()

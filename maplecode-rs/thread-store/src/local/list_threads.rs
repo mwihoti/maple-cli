@@ -313,7 +313,9 @@ pub(super) async fn list_rollout_threads(
 
 fn state_relation_filter(filter: ThreadRelationFilter) -> maplecode_state::ThreadRelationFilter {
     match filter {
-        ThreadRelationFilter::IncludeAttached => maplecode_state::ThreadRelationFilter::IncludeAttached,
+        ThreadRelationFilter::IncludeAttached => {
+            maplecode_state::ThreadRelationFilter::IncludeAttached
+        }
         ThreadRelationFilter::DirectChildrenOf(id) => {
             maplecode_state::ThreadRelationFilter::DirectChildrenOf(id)
         }

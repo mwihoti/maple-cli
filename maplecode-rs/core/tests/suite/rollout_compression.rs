@@ -8,6 +8,16 @@ use std::time::SystemTime;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::MapleCodeThread;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
@@ -21,16 +31,6 @@ use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::ForkBoundary;
 use maplecode_thread_store::LoadThreadHistoryParams;
 use maplecode_thread_store::PrepareForkParams;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use wiremock::MockServer;
 
@@ -177,9 +177,9 @@ async fn compressed_shared_fork_resume_preserves_checkpoint_and_frozen_history()
                 history: Arc::new(context.items),
                 rollout_path: Some(child_path),
             }),
-            maplecode_core::test_support::auth_manager_from_auth(maplecode_login::MapleCodeAuth::from_api_key(
-                "dummy",
-            )),
+            maplecode_core::test_support::auth_manager_from_auth(
+                maplecode_login::MapleCodeAuth::from_api_key("dummy"),
+            ),
             /*parent_trace*/ None,
             ClientMcpExtensions::default(),
         )

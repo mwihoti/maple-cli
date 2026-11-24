@@ -406,7 +406,9 @@ async fn remove_stale_remote_plugin_caches(
         REMOTE_WORKSPACE_SHARED_WITH_ME_PRIVATE_MARKETPLACE_NAME,
         REMOTE_WORKSPACE_SHARED_WITH_ME_UNLISTED_MARKETPLACE_NAME,
     ] {
-        let marketplace_root = maplecode_home.join(PLUGINS_CACHE_DIR).join(marketplace_name);
+        let marketplace_root = maplecode_home
+            .join(PLUGINS_CACHE_DIR)
+            .join(marketplace_name);
         if !marketplace_root.exists() {
             continue;
         }
@@ -436,8 +438,11 @@ async fn remove_stale_remote_plugin_caches(
             if installed_plugin_names.contains(&plugin_name) {
                 continue;
             }
-            if is_remote_plugin_cache_mutation_in_flight(maplecode_home, marketplace_name, &plugin_name)
-            {
+            if is_remote_plugin_cache_mutation_in_flight(
+                maplecode_home,
+                marketplace_name,
+                &plugin_name,
+            ) {
                 continue;
             }
 
@@ -782,8 +787,10 @@ mod tests {
             );
             assert_eq!(
                 serde_json::from_str::<serde_json::Value>(
-                    &std::fs::read_to_string(plugin_root.join(".maplecode-remote-plugin-install.json"))
-                        .expect("read remote plugin install metadata")
+                    &std::fs::read_to_string(
+                        plugin_root.join(".maplecode-remote-plugin-install.json")
+                    )
+                    .expect("read remote plugin install metadata")
                 )
                 .expect("parse remote plugin install metadata"),
                 json!({

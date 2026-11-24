@@ -266,6 +266,7 @@ async fn remote_session_commands_with_workload_identity_use_server_auth() -> Res
     use app_test_support::MockResponsesConfig;
     use app_test_support::TestAppServer;
     use app_test_support::create_final_assistant_message_sse_response;
+    use core_test_support::responses;
     use maplecode_app_server_client::AppServerEvent;
     use maplecode_app_server_client::DEFAULT_IN_PROCESS_CHANNEL_CAPACITY;
     use maplecode_app_server_client::RemoteAppServerClient;
@@ -288,7 +289,6 @@ async fn remote_session_commands_with_workload_identity_use_server_auth() -> Res
     use maplecode_app_server_protocol::TurnStatus;
     use maplecode_protocol::shell_environment::OPENAI_FEDERATION_RULE_ID_ENV_VAR;
     use maplecode_protocol::shell_environment::OPENAI_IDENTITY_TOKEN_FILE_ENV_VAR;
-    use core_test_support::responses;
     use tokio::process::Command;
     use tokio::time::timeout;
     use wiremock::Mock;
@@ -322,7 +322,10 @@ async fn remote_session_commands_with_workload_identity_use_server_auth() -> Res
             ("MAPLECODE_ACCESS_TOKEN", None),
             (OPENAI_FEDERATION_RULE_ID_ENV_VAR, None),
             (OPENAI_IDENTITY_TOKEN_FILE_ENV_VAR, None),
-            ("MAPLECODE_QUEUE_SERVER_API_KEY", Some("server-only-test-key")),
+            (
+                "MAPLECODE_QUEUE_SERVER_API_KEY",
+                Some("server-only-test-key"),
+            ),
         ])
         .build()
         .await?;
@@ -414,7 +417,8 @@ async fn remote_session_commands_with_workload_identity_use_server_auth() -> Res
         request.headers["authorization"].to_str()?,
         "Bearer server-only-test-key"
     );
-    let metadata: Value = serde_json::from_str(request.headers["x-maplecode-turn-metadata"].to_str()?)?;
+    let metadata: Value =
+        serde_json::from_str(request.headers["x-maplecode-turn-metadata"].to_str()?)?;
     assert_eq!(metadata["turn_trigger"], "queue");
 
     let name = "remote-session-lifecycle";
@@ -602,13 +606,14 @@ fn remote_session_commands_validate_config() -> Result<()> {
         for &(args, config_file, config) in cases {
             let maplecode_home = TempDir::new()?;
             std::fs::write(maplecode_home.path().join(config_file), config)?;
-            let output = std::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?)
-                .env("MAPLECODE_HOME", maplecode_home.path())
-                .current_dir(maplecode_home.path())
-                .args(args)
-                .args(["--remote", "ws://127.0.0.1:1"])
-                .args(command)
-                .output()?;
+            let output =
+                std::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?)
+                    .env("MAPLECODE_HOME", maplecode_home.path())
+                    .current_dir(maplecode_home.path())
+                    .args(args)
+                    .args(["--remote", "ws://127.0.0.1:1"])
+                    .args(command)
+                    .output()?;
             let stderr = String::from_utf8(output.stderr)?;
             assert!(!output.status.success());
             assert!(

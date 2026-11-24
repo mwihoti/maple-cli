@@ -2,6 +2,16 @@
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
 use maplecode_core::context::ContextualUserFragment;
@@ -24,16 +34,6 @@ use maplecode_protocol::request_user_input::RequestUserInputAnswer;
 use maplecode_protocol::request_user_input::RequestUserInputResponse;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_protocol_test_support::ContentItemTestExt;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -186,7 +186,9 @@ async fn guardian_revalidates_owning_session_before_allow(
                     .expect("enable test feature");
             }
         })
-        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?)
+        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
+            "maplecode-code-mode-host",
+        )?)
         .build_with_auto_env(&server)
         .await?;
     if review_mode == GuardianContextMode::Legacy {
@@ -207,7 +209,10 @@ async fn guardian_revalidates_owning_session_before_allow(
     }
     assert_eq!(
         GuardianContextMode::from_history(
-            test.maplecode.conversation_history_snapshot().await.as_ref()
+            test.maplecode
+                .conversation_history_snapshot()
+                .await
+                .as_ref()
         ),
         review_mode,
     );
@@ -347,7 +352,10 @@ async fn guardian_authorization_revision_survives_compaction_not_user_input() ->
     test.maplecode
         .inject_response_items(vec![ContextualUserFragment::into(internal_context)])
         .await?;
-    assert_eq!(test.maplecode.guardian_authorization_version().await, expected);
+    assert_eq!(
+        test.maplecode.guardian_authorization_version().await,
+        expected
+    );
 
     // An explicit user goal edit invalidates cached authorization, unlike its continuation.
     test.maplecode
@@ -357,7 +365,10 @@ async fn guardian_authorization_revision_survives_compaction_not_user_input() ->
         })
         .await?;
     expected.user_message_revision += 1;
-    assert_eq!(test.maplecode.guardian_authorization_version().await, expected);
+    assert_eq!(
+        test.maplecode.guardian_authorization_version().await,
+        expected
+    );
 
     // The same text submitted by the user must invalidate, even if it looks internal.
     responses::mount_sse_once(
@@ -367,7 +378,10 @@ async fn guardian_authorization_revision_survives_compaction_not_user_input() ->
     .await;
     test.submit_text_turn(&notification_text).await?;
     expected.user_message_revision += 1;
-    assert_eq!(test.maplecode.guardian_authorization_version().await, expected);
+    assert_eq!(
+        test.maplecode.guardian_authorization_version().await,
+        expected
+    );
 
     // Failed image preparation must not turn a real user message into internal context.
     responses::mount_sse_once(
@@ -388,14 +402,20 @@ async fn guardian_authorization_revision_survives_compaction_not_user_input() ->
     })
     .await;
     expected.user_message_revision += 1;
-    assert_eq!(test.maplecode.guardian_authorization_version().await, expected);
+    assert_eq!(
+        test.maplecode.guardian_authorization_version().await,
+        expected
+    );
 
     test.maplecode.submit(Op::Compact).await?;
     wait_for_event(&test.maplecode, |event| {
         matches!(event, EventMsg::TurnComplete(_))
     })
     .await;
-    assert_eq!(test.maplecode.guardian_authorization_version().await, expected);
+    assert_eq!(
+        test.maplecode.guardian_authorization_version().await,
+        expected
+    );
 
     Ok(())
 }

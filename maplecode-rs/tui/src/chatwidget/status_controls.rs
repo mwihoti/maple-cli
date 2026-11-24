@@ -370,7 +370,10 @@ impl ChatWidget {
         preview_data.thread_id = self.thread_id;
         preview_data.pull_request_url = self.status_line_pull_request_url().map(str::to_owned);
 
-        if self.rate_limit_snapshots_by_limit_id.contains_key("maplecode") {
+        if self
+            .rate_limit_snapshots_by_limit_id
+            .contains_key("maplecode")
+        {
             for item in [
                 StatusSurfacePreviewItem::FiveHourLimit,
                 StatusSurfacePreviewItem::WeeklyLimit,

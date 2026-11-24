@@ -33,9 +33,13 @@ struct WorkspaceFsmonitorProbeRunner<'a> {
 
 impl FsmonitorProbeRunner for WorkspaceFsmonitorProbeRunner<'_> {
     async fn run_probe(&mut self, args: &[&str]) -> Option<Vec<u8>> {
-        let argv = ["git", "-c", maplecode_git_utils::SAFE_BARE_REPOSITORY_CONFIG]
-            .into_iter()
-            .chain(args.iter().copied());
+        let argv = [
+            "git",
+            "-c",
+            maplecode_git_utils::SAFE_BARE_REPOSITORY_CONFIG,
+        ]
+        .into_iter()
+        .chain(args.iter().copied());
         let command = WorkspaceCommand::new(argv, self.cwd.to_path_buf());
         match self.runner.run(command).await {
             Ok(output) if output.success() => Some(output.stdout.into_bytes()),
@@ -759,11 +763,15 @@ mod tests {
     }
 
     fn git_probe_command(args: &[&str]) -> Vec<String> {
-        ["git", "-c", maplecode_git_utils::SAFE_BARE_REPOSITORY_CONFIG]
-            .into_iter()
-            .chain(args.iter().copied())
-            .map(str::to_string)
-            .collect()
+        [
+            "git",
+            "-c",
+            maplecode_git_utils::SAFE_BARE_REPOSITORY_CONFIG,
+        ]
+        .into_iter()
+        .chain(args.iter().copied())
+        .map(str::to_string)
+        .collect()
     }
 
     fn filter_override_env(driver: &str) -> HashMap<String, Option<String>> {

@@ -27,6 +27,8 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 
 use crate::linux_run_main::synthetic_mount_registry_root;
+use ignore::WalkState;
+use ignore::overrides::OverrideBuilder;
 use maplecode_protocol::error::MapleCodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::permissions::FileSystemPolicyProjection;
@@ -37,8 +39,6 @@ use maplecode_protocol::protocol::FileSystemSandboxPolicy;
 use maplecode_protocol::protocol::FileSystemSpecialPath;
 use maplecode_protocol::protocol::WritableRoot;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use ignore::WalkState;
-use ignore::overrides::OverrideBuilder;
 
 /// Linux "platform defaults" that keep common system binaries and dynamic
 /// libraries readable when a split filesystem policy requests `:minimal`.
@@ -813,7 +813,9 @@ fn append_daemon_socket_masks(
             let destination = destination
                 .to_str()
                 .ok_or_else(|| {
-                    MapleCodeErr::Fatal("app-server socket mask path must be valid UTF-8".to_string())
+                    MapleCodeErr::Fatal(
+                        "app-server socket mask path must be valid UTF-8".to_string(),
+                    )
                 })?
                 .to_string();
             args.extend([
@@ -1006,9 +1008,9 @@ fn glob_files(
     } else {
         walker.build_parallel().run(|| Box::new(&visit));
     }
-    paths
-        .into_inner()
-        .map_err(|_| MapleCodeErr::Fatal("unreadable glob scan result mutex poisoned".to_string()))?
+    paths.into_inner().map_err(|_| {
+        MapleCodeErr::Fatal("unreadable glob scan result mutex poisoned".to_string())
+    })?
 }
 
 fn path_to_string(path: &Path) -> String {

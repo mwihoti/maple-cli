@@ -10,7 +10,6 @@ use crate::events::subagent_thread_started_event_request;
 use crate::facts::AnalyticsFact;
 use crate::facts::CodeModeToolCallFact;
 use crate::facts::CodeModeToolCallStatus;
-use crate::facts::MapleCodeCompactionEvent;
 use crate::facts::CompactionImplementation;
 use crate::facts::CompactionPhase;
 use crate::facts::CompactionReason;
@@ -18,6 +17,7 @@ use crate::facts::CompactionStatus;
 use crate::facts::CompactionStrategy;
 use crate::facts::CompactionTrigger;
 use crate::facts::CustomAnalyticsFact;
+use crate::facts::MapleCodeCompactionEvent;
 use crate::facts::SubAgentThreadStartedInput;
 use crate::facts::ThreadInitializationMode;
 use crate::facts::TurnResolvedConfigFact;
@@ -900,7 +900,10 @@ async fn subagent_tool_items_inherit_parent_connection_metadata() {
             json!({"turn_id": "turn-subagent", "root_turn_id": "child-causal-root", "tool_event_type": "model_tool_call"}),
         ]
     );
-    assert_eq!(payload[0]["event_type"], "maplecode_command_execution_event");
+    assert_eq!(
+        payload[0]["event_type"],
+        "maplecode_command_execution_event"
+    );
     assert_eq!(payload[0]["event_params"]["thread_id"], "thread-subagent");
     assert_eq!(payload[0]["event_params"]["session_id"], "session-thread-1");
     assert_eq!(payload[0]["event_params"]["thread_source"], "subagent");
@@ -910,6 +913,9 @@ async fn subagent_tool_items_inherit_parent_connection_metadata() {
         payload[0]["event_params"]["app_server_client"]["client_name"],
         "maplecode-tui"
     );
-    assert_eq!(payload[1]["event_type"], "maplecode_dynamic_tool_call_event");
+    assert_eq!(
+        payload[1]["event_type"],
+        "maplecode_dynamic_tool_call_event"
+    );
     assert_eq!(payload[1]["event_params"]["parent_thread_id"], "thread-1");
 }

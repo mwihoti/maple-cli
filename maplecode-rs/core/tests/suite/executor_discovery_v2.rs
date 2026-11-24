@@ -2,6 +2,15 @@
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::apps_enabled_builder;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
 use maplecode_core::windows_sandbox::WindowsSandboxLevelExt;
@@ -52,15 +61,6 @@ use maplecode_skills_extension::catalog::SkillPackageId;
 use maplecode_skills_extension::catalog::SkillResourceId;
 use maplecode_skills_extension::catalog::SkillSourceKind;
 use maplecode_skills_extension::install_with_providers;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::apps_enabled_builder;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -226,8 +226,9 @@ impl Executor {
         let served_inventory = Arc::clone(&inventory);
         let recorded = Arc::clone(&requests);
         let discovery_attempts = Arc::new(AtomicUsize::new(0));
-        let http = maplecode_exec_server::Environment::create_for_tests(/*exec_server_url*/ None)?
-            .get_http_client();
+        let http =
+            maplecode_exec_server::Environment::create_for_tests(/*exec_server_url*/ None)?
+                .get_http_client();
         let task = tokio::spawn(async move {
             let mut connections = tokio::task::JoinSet::new();
             while let Ok((stream, _)) = listener.accept().await {
@@ -519,7 +520,8 @@ async fn v2_discovery_failures_retry_or_remain_cached_by_error_kind() -> Result<
             DiscoveryFailure::Server => {
                 assert!(first.is_err());
                 assert!(concurrent.is_err());
-                let next_turn = maplecode_exec_server::ExecutorCapabilityDiscoveryV2Cache::default();
+                let next_turn =
+                    maplecode_exec_server::ExecutorCapabilityDiscoveryV2Cache::default();
                 next_turn
                     .discover("executor", &environment, request.clone())
                     .await
@@ -636,9 +638,15 @@ async fn check_acquisition(enabled: bool, version: &'static str) -> Result<()> {
     if acquires_v2 {
         observed.lock().await.clear();
         mcp_snapshots_per_step.lock().await.clear();
-        let _ = test.maplecode.current_mcp_config_and_runtime_context().await;
+        let _ = test
+            .maplecode
+            .current_mcp_config_and_runtime_context()
+            .await;
         let initial_calls = calls().await;
-        let _ = test.maplecode.current_mcp_config_and_runtime_context().await;
+        let _ = test
+            .maplecode
+            .current_mcp_config_and_runtime_context()
+            .await;
         assert!(initial_calls > 0);
         assert_eq!(
             calls().await,
@@ -654,8 +662,8 @@ async fn check_acquisition(enabled: bool, version: &'static str) -> Result<()> {
     selection.environment_id = maplecode_exec_server::REMOTE_ENVIRONMENT_ID.to_string();
     let cwd = selection.cwd.clone();
     selection.workspace_roots = vec![cwd.clone()];
-    selection.config =
-        maplecode_protocol::protocol::EnvironmentConfigState::Ready(maplecode_core::EnvironmentConfig {
+    selection.config = maplecode_protocol::protocol::EnvironmentConfigState::Ready(
+        maplecode_core::EnvironmentConfig {
             environment_hooks: Default::default(),
             allow_login_shell: false,
             workspace_roots: selection.workspace_roots.clone(),
@@ -674,13 +682,15 @@ async fn check_acquisition(enabled: bool, version: &'static str) -> Result<()> {
             } else {
                 vec![maplecode_protocol::capabilities::SelectedCapabilityRoot {
                     id: "legacy-root".to_string(),
-                    location: maplecode_protocol::capabilities::CapabilityRootLocation::Environment {
-                        environment_id: selection.environment_id.clone(),
-                        path: cwd.clone(),
-                    },
+                    location:
+                        maplecode_protocol::capabilities::CapabilityRootLocation::Environment {
+                            environment_id: selection.environment_id.clone(),
+                            path: cwd.clone(),
+                        },
                 }]
             },
-        });
+        },
+    );
     // Only the successful lifecycle case needs two turns and multiple model steps.
     let turns = if acquires_v2 { 2 } else { 1 };
     let mut previous_inventory = None;
@@ -883,15 +893,18 @@ async fn v1_reuses_session_and_turn_discovery_across_model_steps() -> Result<()>
         .build_with_auto_env(&model)
         .await?;
     let selection = test.maplecode.environment_selections().await.remove(0);
-    let mut config =
-        core_test_support::test_maplecode::environment_config_for_selection(&test.config, &selection);
-    config.selected_capability_roots = vec![maplecode_protocol::capabilities::SelectedCapabilityRoot {
-        id: "legacy-root".to_string(),
-        location: maplecode_protocol::capabilities::CapabilityRootLocation::Environment {
-            environment_id: selection.environment_id.clone(),
-            path: selection.cwd.clone(),
-        },
-    }];
+    let mut config = core_test_support::test_maplecode::environment_config_for_selection(
+        &test.config,
+        &selection,
+    );
+    config.selected_capability_roots =
+        vec![maplecode_protocol::capabilities::SelectedCapabilityRoot {
+            id: "legacy-root".to_string(),
+            location: maplecode_protocol::capabilities::CapabilityRootLocation::Environment {
+                environment_id: selection.environment_id.clone(),
+                path: selection.cwd.clone(),
+            },
+        }];
     test.maplecode.environment_ready(&selection, config).await?;
     let permissions = maplecode_protocol::request_permissions::RequestPermissionProfile {
         file_system: Some(
@@ -1223,7 +1236,10 @@ async fn auth_rotation_refreshes_plugin_acceptance_before_merged_skills() -> Res
                     entries: vec![
                         SkillCatalogEntry::new(
                             SkillPackageId("skill://plugin_demo/demo".into()),
-                            SkillAuthority::new(SkillSourceKind::Cloud, MAPLECODE_APPS_MCP_SERVER_NAME),
+                            SkillAuthority::new(
+                                SkillSourceKind::Cloud,
+                                MAPLECODE_APPS_MCP_SERVER_NAME,
+                            ),
                             "inert-sentinel",
                             "Accepted plugin skill",
                             SkillResourceId::new("skill://plugin_demo/demo/SKILL.md"),
@@ -1336,7 +1352,9 @@ async fn auth_rotation_refreshes_plugin_acceptance_before_merged_skills() -> Res
                 )?;
                 test.thread_manager.auth_manager().reload().await;
                 tokio::time::timeout(Duration::from_secs(15), async {
-                    while client.auth_cache_key_for_server(MAPLECODE_APPS_MCP_SERVER_NAME) == previous {
+                    while client.auth_cache_key_for_server(MAPLECODE_APPS_MCP_SERVER_NAME)
+                        == previous
+                    {
                         tokio::task::yield_now().await;
                     }
                 })

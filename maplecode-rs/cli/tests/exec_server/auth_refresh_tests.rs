@@ -42,7 +42,8 @@ async fn executor_startup_rejects_agent_identity_before_cloud_config() -> Result
         home.path().join("config.toml"),
         "cli_auth_credentials_store = 'file'\n",
     )?;
-    let mut command = tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?);
+    let mut command =
+        tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?);
     command
         .current_dir(home.path())
         .env("MAPLECODE_HOME", home.path())
@@ -122,30 +123,31 @@ async fn noise_executor_refreshes_on_401_and_reloads_rotated_credentials() -> Re
         .expect(0)
         .mount(&registry)
         .await;
-    let mut child = tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?)
-        .current_dir(home.path())
-        .env("MAPLECODE_HOME", home.path())
-        .env_remove("MAPLECODE_API_KEY")
-        .env_remove("OPENAI_API_KEY")
-        .env_remove("MAPLECODE_ACCESS_TOKEN")
-        .env(
-            "MAPLECODE_REFRESH_TOKEN_URL_OVERRIDE",
-            format!("{}/refresh", registry.uri()),
-        )
-        .env("NO_PROXY", "127.0.0.1,localhost")
-        .env("no_proxy", "127.0.0.1,localhost")
-        .args([
-            "exec-server",
-            "--remote",
-            &registry.uri(),
-            "--environment-id",
-            "env",
-            "--exit-on-stdin-close",
-        ])
-        .stdin(Stdio::piped())
-        .stderr(Stdio::piped())
-        .kill_on_drop(true)
-        .spawn()?;
+    let mut child =
+        tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?)
+            .current_dir(home.path())
+            .env("MAPLECODE_HOME", home.path())
+            .env_remove("MAPLECODE_API_KEY")
+            .env_remove("OPENAI_API_KEY")
+            .env_remove("MAPLECODE_ACCESS_TOKEN")
+            .env(
+                "MAPLECODE_REFRESH_TOKEN_URL_OVERRIDE",
+                format!("{}/refresh", registry.uri()),
+            )
+            .env("NO_PROXY", "127.0.0.1,localhost")
+            .env("no_proxy", "127.0.0.1,localhost")
+            .args([
+                "exec-server",
+                "--remote",
+                &registry.uri(),
+                "--environment-id",
+                "env",
+                "--exit-on-stdin-close",
+            ])
+            .stdin(Stdio::piped())
+            .stderr(Stdio::piped())
+            .kill_on_drop(true)
+            .spawn()?;
     let stdin = child.stdin.take();
     let (socket, _) = listener.accept().await?;
     let mut websocket = accept_async(socket).await?;

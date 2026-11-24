@@ -1,22 +1,4 @@
 use anyhow::Context;
-use maplecode_core::TurnInputRequest;
-use maplecode_features::Feature;
-use maplecode_protocol::config_types::CollaborationMode;
-use maplecode_protocol::config_types::ModeKind;
-use maplecode_protocol::config_types::Settings;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::permissions::NetworkSandboxPolicy;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::ExecCommandEndEvent;
-use maplecode_protocol::protocol::ExecCommandSource;
-use maplecode_protocol::protocol::ExecOutputStream;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::protocol::TurnAbortReason;
-use maplecode_protocol::protocol::TurnEnvironmentRequests;
-use maplecode_protocol::protocol::TurnEnvironmentSelection;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::PathBufExt;
 use core_test_support::PathExt;
 use core_test_support::assert_regex_match;
@@ -37,6 +19,24 @@ use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
 use core_test_support::wait_for_event_with_timeout;
+use maplecode_core::TurnInputRequest;
+use maplecode_features::Feature;
+use maplecode_protocol::config_types::CollaborationMode;
+use maplecode_protocol::config_types::ModeKind;
+use maplecode_protocol::config_types::Settings;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::permissions::NetworkSandboxPolicy;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::ExecCommandEndEvent;
+use maplecode_protocol::protocol::ExecCommandSource;
+use maplecode_protocol::protocol::ExecOutputStream;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::protocol::TurnAbortReason;
+use maplecode_protocol::protocol::TurnEnvironmentRequests;
+use maplecode_protocol::protocol::TurnEnvironmentSelection;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use regex_lite::escape;
 use std::path::PathBuf;
@@ -238,7 +238,11 @@ async fn user_shell_command_honors_default_and_extended_deadlines() -> anyhow::R
 
         let completed = async {
             loop {
-                let event = fixture.maplecode.next_event().await.expect("read shell event");
+                let event = fixture
+                    .maplecode
+                    .next_event()
+                    .await
+                    .expect("read shell event");
                 if let EventMsg::ExecCommandEnd(end) = event.msg {
                     break end;
                 }
@@ -406,12 +410,13 @@ async fn user_shell_command_does_not_replace_active_turn() -> anyhow::Result<()>
 async fn user_shell_command_history_is_persisted_and_shared_with_model() -> anyhow::Result<()> {
     let server = responses::start_mock_server().await;
     // Disable it to ease command matching.
-    let mut builder = core_test_support::test_maplecode::test_maplecode().with_config(move |config| {
-        config
-            .features
-            .disable(Feature::ShellSnapshot)
-            .expect("test config should allow feature update");
-    });
+    let mut builder =
+        core_test_support::test_maplecode::test_maplecode().with_config(move |config| {
+            config
+                .features
+                .disable(Feature::ShellSnapshot)
+                .expect("test config should allow feature update");
+        });
     let test = builder.build(&server).await?;
 
     #[cfg(windows)]
@@ -458,7 +463,10 @@ async fn user_shell_command_history_is_persisted_and_shared_with_model() -> anyh
     assert_eq!(end_event.exit_code, 0);
     assert_eq!(end_event.aggregated_output.trim(), "not-set");
 
-    let _ = wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    let _ = wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let responses = vec![responses::sse(vec![
         responses::ev_response_created("resp-1"),
@@ -564,7 +572,10 @@ async fn user_shell_command_output_is_truncated_in_history() -> anyhow::Result<(
     .await;
     assert_eq!(end_event.exit_code, 0);
 
-    let _ = wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    let _ = wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let responses = vec![responses::sse(vec![
         responses::ev_response_created("resp-1"),
@@ -604,9 +615,11 @@ async fn user_shell_command_is_truncated_only_once() -> anyhow::Result<()> {
 
     let server = start_mock_server().await;
 
-    let mut builder = test_maplecode().with_model("gpt-5.4").with_config(|config| {
-        config.tool_output_token_limit = Some(100);
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.4")
+        .with_config(|config| {
+            config.tool_output_token_limit = Some(100);
+        });
     let fixture = builder.build(&server).await?;
 
     let call_id = "user-shell-double-truncation";

@@ -10,6 +10,7 @@ use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
 
+use http::HeaderMap;
 use maplecode_api::AuthError;
 use maplecode_api::AuthHeadersFuture;
 use maplecode_api::AuthProvider;
@@ -23,7 +24,6 @@ use maplecode_http_client::RequestBody;
 use maplecode_http_client::RequestCompression;
 use maplecode_login::AuthManager;
 use maplecode_login::MapleCodeAuth;
-use http::HeaderMap;
 use tokio::sync::Semaphore;
 
 /// Follows stored credential rotation without allowing an executor's owner to change.

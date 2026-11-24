@@ -56,6 +56,9 @@ use crate::tui::FrameRequester;
 pub(crate) use bottom_pane_view::BottomPaneView;
 pub(crate) use bottom_pane_view::ViewCompletion;
 pub(crate) use bottom_pane_view::ViewPresentation;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
 use maplecode_app_server_protocol::SkillMetadata;
 use maplecode_app_server_protocol::ToolRequestUserInputParams;
 use maplecode_features::Features;
@@ -64,9 +67,6 @@ use maplecode_plugin::PluginCapabilitySummary;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::user_input::TextElement;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Stylize;
@@ -2726,12 +2726,12 @@ mod tests {
     use crate::status_indicator_widget::StatusDetailsCapitalization;
     use crate::test_support::PathBufExt;
     use crate::test_support::test_path_buf;
-    use maplecode_app_server_protocol::CommandExecutionApprovalDecision;
     use crossterm::event::KeyCode;
     use crossterm::event::KeyEvent;
     use crossterm::event::KeyEventKind;
     use crossterm::event::KeyModifiers;
     use insta::assert_snapshot;
+    use maplecode_app_server_protocol::CommandExecutionApprovalDecision;
     use pretty_assertions::assert_eq;
     use ratatui::buffer::Buffer;
     use ratatui::layout::Rect;
@@ -2812,14 +2812,16 @@ mod tests {
             item_id: "call".into(),
             is_blocking: true,
             auto_resolution_ms: None,
-            questions: vec![maplecode_app_server_protocol::ToolRequestUserInputQuestion {
-                id: "question".into(),
-                header: String::new(),
-                question: "Which way?".into(),
-                is_other: false,
-                is_secret: false,
-                options: None,
-            }],
+            questions: vec![
+                maplecode_app_server_protocol::ToolRequestUserInputQuestion {
+                    id: "question".into(),
+                    header: String::new(),
+                    question: "Which way?".into(),
+                    is_other: false,
+                    is_secret: false,
+                    options: None,
+                },
+            ],
         };
         let mut covering = RequestUserInputOverlay::new_with_keymap(
             request,

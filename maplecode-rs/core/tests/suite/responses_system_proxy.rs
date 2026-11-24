@@ -1,12 +1,12 @@
 use anyhow::Result;
-use maplecode_features::Feature;
-use maplecode_models_manager::bundled_models_response;
 use core_test_support::responses;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_response_created;
 use core_test_support::responses::sse;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
+use maplecode_features::Feature;
+use maplecode_models_manager::bundled_models_response;
 use pretty_assertions::assert_eq;
 use std::time::Duration;
 use tokio::io::AsyncReadExt;
@@ -41,7 +41,9 @@ async fn responses_beta_header_tracks_system_proxy_opt_in() -> Result<()> {
         test.submit_turn("hello").await?;
 
         let request = response.single_request();
-        let beta_features = request.header("x-maplecode-beta-features").unwrap_or_default();
+        let beta_features = request
+            .header("x-maplecode-beta-features")
+            .unwrap_or_default();
         assert_eq!(
             beta_features
                 .split(',')

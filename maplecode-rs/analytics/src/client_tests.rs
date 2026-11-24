@@ -10,6 +10,8 @@ use super::send_track_events_request;
 use super::track_event_request_batches;
 #[cfg(debug_assertions)]
 use crate::events::AppServerRpcTransport;
+#[cfg(debug_assertions)]
+use crate::events::FinalApprovalOutcome;
 use crate::events::MapleCodeAcceptedLineFingerprintsEventParams;
 use crate::events::MapleCodeAcceptedLineFingerprintsEventRequest;
 #[cfg(debug_assertions)]
@@ -32,8 +34,6 @@ use crate::events::MapleCodePluginUsedMetadata;
 use crate::events::MapleCodeRuntimeMetadata;
 #[cfg(debug_assertions)]
 use crate::events::MapleCodeToolItemEventBase;
-#[cfg(debug_assertions)]
-use crate::events::FinalApprovalOutcome;
 use crate::events::SkillInvocationEventParams;
 use crate::events::SkillInvocationEventRequest;
 #[cfg(debug_assertions)]

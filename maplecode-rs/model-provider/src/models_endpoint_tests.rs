@@ -513,7 +513,9 @@ async fn explicit_catalog_reuses_auth_headers_and_query_parameters() {
         let auth_manager = AuthManager::from_auth_for_testing(auth);
         // The parallel residency test must not change this catalog's cache identity.
         let provider = ModelProviderInfo {
-            model_catalog_url: Some(format!("{}/maplecode/models?deployment=one", server.uri()).into()),
+            model_catalog_url: Some(
+                format!("{}/maplecode/models?deployment=one", server.uri()).into(),
+            ),
             query_params: Some(std::collections::HashMap::from([(
                 "api-version".to_string(),
                 "2026-09".into(),
@@ -600,7 +602,10 @@ async fn explicit_catalog_rejects_redirects_without_forwarding_provider_credenti
         .and(path("/maplecode/models"))
         .respond_with(
             ResponseTemplate::new(/*s*/ 302)
-                .insert_header("location", format!("{}/maplecode/models", destination.uri()))
+                .insert_header(
+                    "location",
+                    format!("{}/maplecode/models", destination.uri()),
+                )
                 .set_body_string("catalog-secret"),
         )
         .expect(1)

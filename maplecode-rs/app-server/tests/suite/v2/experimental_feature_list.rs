@@ -149,7 +149,10 @@ async fn experimental_feature_list_resolves_thread_project_config() -> Result<()
     let server = create_mock_responses_server_repeating_assistant("Done").await;
     let maplecode_home = TempDir::new()?;
     let workspace = TempDir::new()?;
-    let maplecode_home_key = maplecode_home.path().to_string_lossy().replace('\\', "\\\\");
+    let maplecode_home_key = maplecode_home
+        .path()
+        .to_string_lossy()
+        .replace('\\', "\\\\");
     let workspace_key = workspace.path().to_string_lossy().replace('\\', "\\\\");
     MockResponsesConfig::new(&server.uri())
         .with_extra_config(&format!(

@@ -116,7 +116,8 @@ impl LocalAgentRuntime {
                 }
             };
             if let Some(context) = context {
-                fragment.messages = maplecode_guardian_reviewer::guardian_sender_exchanges(&context);
+                fragment.messages =
+                    maplecode_guardian_reviewer::guardian_sender_exchanges(&context);
             }
         }
         Some(fragment)

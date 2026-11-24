@@ -56,7 +56,10 @@ async fn explicit_provider_token_survives_a_workspace_switch_during_setup() {
     let mut headers = http::HeaderMap::new();
     resolved.auth.add_auth_headers(&mut headers).unwrap();
     assert_eq!(
-        resolved.credential.as_ref().and_then(MapleCodeAuth::api_key),
+        resolved
+            .credential
+            .as_ref()
+            .and_then(MapleCodeAuth::api_key),
         Some("provider-token")
     );
     assert_eq!(

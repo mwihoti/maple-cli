@@ -1,15 +1,15 @@
 //! Exercises real local, remote, and foreign-OS copy paths through model tool calls.
 
 use super::*;
-use maplecode_config::ConfigLayerSource;
-use maplecode_config::ConfigLayerStack;
-use maplecode_models_manager::bundled_models_response;
-use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use core_test_support::TempDirExt;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::context_snapshot::SnapshotEntry;
 use core_test_support::responses::ResponsesRequest;
+use maplecode_config::ConfigLayerSource;
+use maplecode_config::ConfigLayerStack;
+use maplecode_models_manager::bundled_models_response;
+use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 
@@ -291,10 +291,10 @@ async fn copy_file_transfers_between_local_and_foreign_executors() -> Result<()>
 #[test_case(true; "reject swapping source and target")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn copy_hooks_follow_source_and_target(swap_endpoints: bool) -> Result<()> {
+    use core_test_support::exec_server::ExecServerProcess;
     use maplecode_protocol::models::PermissionProfile;
     use maplecode_protocol::models::PermissionProfileSnapshot;
     use maplecode_protocol::permissions::NetworkSandboxPolicy;
-    use core_test_support::exec_server::ExecServerProcess;
 
     let server = start_mock_server().await;
     let mut extensions = ExtensionRegistryBuilder::new();

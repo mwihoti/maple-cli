@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use http::HeaderMap;
 use maplecode_api::AuthError;
 use maplecode_api::AuthProvider;
 use maplecode_api::SharedAuthProvider;
@@ -16,7 +17,6 @@ use maplecode_model_provider_info::ModelProviderAwsAuthInfo;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_protocol::error::MapleCodeErr;
 use maplecode_protocol::error::Result;
-use http::HeaderMap;
 
 use crate::BearerAuthProvider;
 use crate::shared_state::process_shared_state;
@@ -355,11 +355,11 @@ impl AuthProvider for BedrockSigV4AuthProvider {
 mod tests {
     use std::num::NonZeroU64;
 
+    use http::HeaderValue;
     use maplecode_api::AuthProvider;
     use maplecode_login::auth::BedrockAccessKeysAuth;
     use maplecode_login::auth::BedrockApiKeyAuth;
     use maplecode_model_provider_info::AwsCredentialExportConfig;
-    use http::HeaderValue;
     use pretty_assertions::assert_eq;
 
     use super::*;
@@ -394,13 +394,13 @@ mod tests {
                 api_key: "managed-bedrock-api-key".to_string(),
                 region: "us-east-1".to_string(),
             }));
-        let managed_access_keys = AuthManager::from_auth_for_testing(MapleCodeAuth::BedrockAccessKeys(
-            BedrockAccessKeysAuth {
+        let managed_access_keys = AuthManager::from_auth_for_testing(
+            MapleCodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
                 access_key_id: "managed-access-key-id".to_string(),
                 secret_access_key: "managed-secret-access-key".to_string(),
                 session_token: None,
-            },
-        ));
+            }),
+        );
         let cases: &[(
             &ModelProviderInfo,
             Option<&AuthManager>,

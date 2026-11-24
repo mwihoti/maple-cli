@@ -1,8 +1,4 @@
 use anyhow::Result;
-use maplecode_core::TurnInputRequest;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses::ev_response_created;
 use core_test_support::responses::mount_sse_once;
 use core_test_support::responses::sse;
@@ -10,6 +6,10 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_core::TurnInputRequest;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -73,7 +73,10 @@ async fn quota_exceeded_emits_single_error_event(code: &str) -> Result<()> {
         }
     }
 
-    assert_eq!(error_events, 1, "expected exactly one MapleCode:Error event");
+    assert_eq!(
+        error_events, 1,
+        "expected exactly one MapleCode:Error event"
+    );
     let requests = server.received_requests().await.expect("recorded requests");
     assert_eq!(
         requests

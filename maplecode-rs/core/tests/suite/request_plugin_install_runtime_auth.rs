@@ -2,12 +2,12 @@
 
 use super::*;
 use base64::Engine;
+use core_test_support::runtime_auth::PROBE_SERVER;
+use core_test_support::runtime_auth::run_harness_through_proxy;
 use maplecode_features::RuntimeAuthMode;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
 use maplecode_protocol::mcp::ClientMcpExtensions;
-use core_test_support::runtime_auth::PROBE_SERVER;
-use core_test_support::runtime_auth::run_harness_through_proxy;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 
@@ -100,7 +100,11 @@ async fn resumed_plugin_install_uses_the_threads_account(mode: RuntimeAuthMode) 
             })
             .await?;
         let replacement = maplecode_core::test_support::auth_manager_from_auth_with_home(
-            MapleCodeAuth::from_external_chatgpt_tokens(&actor_token("b"), "account-b", Some("plus"))?,
+            MapleCodeAuth::from_external_chatgpt_tokens(
+                &actor_token("b"),
+                "account-b",
+                Some("plus"),
+            )?,
             test.maplecode_home_path().to_path_buf(),
         );
         let resumed = test

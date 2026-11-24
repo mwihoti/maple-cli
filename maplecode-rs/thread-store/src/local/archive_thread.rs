@@ -90,11 +90,17 @@ async fn archive_thread_with_paths(
     let mut archived_path = None;
     let mut rollout_moves = Vec::new();
     for rollout_path in rollout_paths {
-        if rollout_path_is_archived(store.config.maplecode_home.as_path(), rollout_path.as_path()) {
+        if rollout_path_is_archived(
+            store.config.maplecode_home.as_path(),
+            rollout_path.as_path(),
+        ) {
             continue;
         }
         let canonical_rollout_path = scoped_rollout_path(
-            store.config.maplecode_home.join(maplecode_rollout::SESSIONS_SUBDIR),
+            store
+                .config
+                .maplecode_home
+                .join(maplecode_rollout::SESSIONS_SUBDIR),
             rollout_path.as_path(),
             "sessions",
         )?;

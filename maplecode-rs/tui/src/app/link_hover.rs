@@ -1,7 +1,6 @@
 //! Match hover feedback to transcript links and the pane divider. Keep passive link drags with their original view.
 //! Recheck after painting so scrolling and live output cannot leave a hand over stale content.
 
-use maplecode_protocol::ThreadId;
 use crossterm::event::KeyModifiers;
 use crossterm::event::MouseButton::Left;
 use crossterm::event::MouseEvent;
@@ -10,6 +9,7 @@ use crossterm::event::MouseEventKind::Moved;
 use crossterm::event::MouseEventKind::ScrollDown;
 use crossterm::event::MouseEventKind::ScrollUp;
 use crossterm::event::MouseEventKind::Up;
+use maplecode_protocol::ThreadId;
 
 use super::App;
 use crate::transcript_view::ViewAction;

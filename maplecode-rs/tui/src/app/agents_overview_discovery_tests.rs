@@ -4,11 +4,11 @@ use super::*;
 use crate::app::agents_overview_discovery::AgentsOverviewDiscovery;
 use crate::app_event::AgentsOverviewAction;
 use crate::app_server_session::ThreadParamsMode;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_client::CloudOperation;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::JSONRPCMessage;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;
@@ -130,7 +130,10 @@ async fn check_discovery(mixed_sources: bool) -> Result<()> {
                 "thread/loaded/list" => json!({"data": [], "nextCursor": null}),
                 "thread/list" => {
                     if params["sortKey"] == "section_position" {
-                        assert_eq!(params["sectionId"], maplecode_state::PINNED_THREAD_SECTION_ID);
+                        assert_eq!(
+                            params["sectionId"],
+                            maplecode_state::PINNED_THREAD_SECTION_ID
+                        );
                         let interactive = params["sourceKinds"] == json!([]);
                         let cursor = params["cursor"].as_str();
                         let reopened = server_show_reopened_pin.load(Ordering::SeqCst);

@@ -6,6 +6,7 @@ use app_test_support::TestAppServer;
 use app_test_support::create_mock_responses_server_repeating_assistant;
 use app_test_support::to_response;
 use app_test_support::write_chatgpt_auth;
+use core_test_support::stdio_server_bin;
 use maplecode_app_server_protocol::AskForApproval;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ConfigWarningNotification;
@@ -45,7 +46,6 @@ use maplecode_protocol::config_types::SERVICE_TIER_DEFAULT_REQUEST_VALUE;
 use maplecode_protocol::config_types::TrustLevel;
 use maplecode_protocol::models::BUILT_IN_PERMISSION_PROFILE_WORKSPACE;
 use maplecode_protocol::openai_models::ReasoningEffort;
-use core_test_support::stdio_server_bin;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -1889,7 +1889,12 @@ fn create_config_toml_without_approval_policy(
     maplecode_home: &Path,
     server_uri: &str,
 ) -> std::io::Result<()> {
-    create_config_toml(maplecode_home, server_uri, "sandbox_mode = \"read-only\"", "")
+    create_config_toml(
+        maplecode_home,
+        server_uri,
+        "sandbox_mode = \"read-only\"",
+        "",
+    )
 }
 
 fn create_config_toml(

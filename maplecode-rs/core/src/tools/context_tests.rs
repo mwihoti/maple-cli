@@ -1,10 +1,10 @@
 use super::*;
 use crate::unified_exec::output::CapturedStream;
+use core_test_support::assert_regex_match;
 use maplecode_protocol::models::DEFAULT_IMAGE_DETAIL;
 use maplecode_protocol::models::ImageReference;
 use maplecode_protocol::models::SearchToolCallParams;
 use maplecode_utils_head_tail_buffer::format_output_omission_marker;
-use core_test_support::assert_regex_match;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -349,18 +349,20 @@ fn tool_search_payloads_roundtrip_as_tool_search_outputs() {
         },
     };
     let response = ToolSearchOutput {
-        tools: vec![LoadableToolSpec::Function(maplecode_tools::ResponsesApiTool {
-            name: "create_event".to_string(),
-            description: String::new(),
-            strict: false,
-            defer_loading: Some(true),
-            parameters: maplecode_tools::JsonSchema::object(
-                /*properties*/ Default::default(),
-                /*required*/ None,
-                /*additional_properties*/ None,
-            ),
-            output_schema: None,
-        })],
+        tools: vec![LoadableToolSpec::Function(
+            maplecode_tools::ResponsesApiTool {
+                name: "create_event".to_string(),
+                description: String::new(),
+                strict: false,
+                defer_loading: Some(true),
+                parameters: maplecode_tools::JsonSchema::object(
+                    /*properties*/ Default::default(),
+                    /*required*/ None,
+                    /*additional_properties*/ None,
+                ),
+                output_schema: None,
+            },
+        )],
     }
     .to_response_item("search-1", &payload);
 

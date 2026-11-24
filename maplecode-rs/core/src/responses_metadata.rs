@@ -2,6 +2,8 @@ use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::io::ErrorKind;
 
+use http::HeaderMap as ApiHeaderMap;
+use http::HeaderValue;
 use maplecode_analytics::CompactionImplementation;
 use maplecode_analytics::CompactionPhase;
 use maplecode_analytics::CompactionReason;
@@ -16,8 +18,6 @@ use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::protocol::ThreadSource;
 use maplecode_utils_string::to_ascii_json_string;
 use maplecode_utils_string::to_json_string_bounded;
-use http::HeaderMap as ApiHeaderMap;
-use http::HeaderValue;
 use serde::Serialize;
 use serde_json::Value;
 
@@ -343,7 +343,10 @@ impl MapleCodeResponsesMetadata {
             ),
             (SESSION_ID_KEY.to_string(), self.session_id.clone()),
             (THREAD_ID_KEY.to_string(), self.thread_id.clone()),
-            (X_MAPLECODE_WINDOW_ID_HEADER.to_string(), self.window_id.clone()),
+            (
+                X_MAPLECODE_WINDOW_ID_HEADER.to_string(),
+                self.window_id.clone(),
+            ),
         ]);
         if let Some(turn_id) = &self.turn_id {
             client_metadata.insert(TURN_ID_KEY.to_string(), turn_id.clone());
@@ -369,7 +372,10 @@ impl MapleCodeResponsesMetadata {
         if self.has_turn_metadata()
             && let Some(turn_metadata_json) = self.turn_metadata_json()
         {
-            client_metadata.insert(X_MAPLECODE_TURN_METADATA_HEADER.to_string(), turn_metadata_json);
+            client_metadata.insert(
+                X_MAPLECODE_TURN_METADATA_HEADER.to_string(),
+                turn_metadata_json,
+            );
         }
         if include_internal && let Some(attribution) = &self.mcp_attribution {
             let serialized = to_json_string_bounded(attribution, MAX_MCP_ATTRIBUTION_BYTES)

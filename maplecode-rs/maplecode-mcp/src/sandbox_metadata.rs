@@ -57,7 +57,11 @@ pub(crate) fn augment_metadata(
 ) -> anyhow::Result<()> {
     let state = serde_json::to_value(state)?;
     let launcher = executable
-        .map(|maplecode_executable| serde_json::to_value(SandboxLauncher { maplecode_executable }))
+        .map(|maplecode_executable| {
+            serde_json::to_value(SandboxLauncher {
+                maplecode_executable,
+            })
+        })
         .transpose()?;
     let Some(metadata) = meta
         .get_or_insert_with(|| Value::Object(Map::new()))

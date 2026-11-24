@@ -7,9 +7,9 @@
 
 use std::sync::Arc;
 
-use maplecode_protocol::protocol::W3cTraceContext;
 use futures::FutureExt;
 use futures::future::BoxFuture;
+use maplecode_protocol::protocol::W3cTraceContext;
 use tokio::sync::mpsc;
 
 use super::HttpResponseBodyStream;

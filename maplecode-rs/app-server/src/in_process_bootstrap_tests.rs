@@ -19,10 +19,10 @@ use maplecode_http_client::NetworkPolicyDenied;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
 use maplecode_model_provider::DEFAULT_CHATGPT_BASE_URL;
 use maplecode_protocol::config_types::TrustLevel;
 use pretty_assertions::assert_eq;
@@ -35,7 +35,10 @@ impl ExternalAuth for BootstrapExternalAuth {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         self.resolve()
     }
 }
@@ -83,7 +86,8 @@ async fn bootstrap_discovery_survives_identity_installation_but_account_access_i
                 },
             }))?),
         );
-        let auth = MapleCodeAuth::from_external_chatgpt_tokens(&token, identity, Some("enterprise"))?;
+        let auth =
+            MapleCodeAuth::from_external_chatgpt_tokens(&token, identity, Some("enterprise"))?;
         manager
             .set_external_auth(Arc::new(BootstrapExternalAuth(auth)))
             .await?;

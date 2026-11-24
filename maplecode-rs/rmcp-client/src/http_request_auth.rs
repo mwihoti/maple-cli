@@ -1,7 +1,7 @@
-use maplecode_api::AuthError;
-use maplecode_api::SharedAuthProvider;
 use futures::future::BoxFuture;
 use http::HeaderMap;
+use maplecode_api::AuthError;
+use maplecode_api::SharedAuthProvider;
 
 /// Select request-scoped auth for each HTTP operation on a long-lived MCP connection.
 pub trait AuthProviderResolver: Send + Sync {

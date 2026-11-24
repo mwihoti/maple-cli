@@ -1,5 +1,8 @@
 use super::*;
 use crate::sandboxing::SandboxPermissions;
+use core_test_support::PathBufExt;
+use core_test_support::test_path_buf;
+use futures::poll;
 use maplecode_direct_tool_timing::ToolBatchTiming;
 use maplecode_network_proxy::BlockedRequestArgs;
 use maplecode_protocol::models::PermissionProfile;
@@ -7,9 +10,6 @@ use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_utils_critical_path::CriticalPath;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::test_path_buf;
-use futures::poll;
 use pretty_assertions::assert_eq;
 use std::future::poll_fn;
 use std::sync::atomic::AtomicUsize;

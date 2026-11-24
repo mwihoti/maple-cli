@@ -1016,7 +1016,9 @@ impl MapleCodeThread {
         cancellation: &CancellationToken,
     ) -> MapleCodeResult<crate::guardian_review::GuardianReviewResult> {
         if self.session.active_turn.lock().await.is_some() {
-            return Err(MapleCodeErr::InvalidRequest("thread has an active turn".into()));
+            return Err(MapleCodeErr::InvalidRequest(
+                "thread has an active turn".into(),
+            ));
         }
         let history = self.session.clone_history().await;
         let tool_call = history.raw_items().next_back().cloned().ok_or_else(|| {
@@ -1281,7 +1283,10 @@ impl MapleCodeThread {
     /// Captures the exact MCP config and environment bindings for the current thread state.
     pub async fn current_mcp_config_and_runtime_context(
         &self,
-    ) -> (Arc<maplecode_mcp::McpConfig>, maplecode_mcp::McpRuntimeContext) {
+    ) -> (
+        Arc<maplecode_mcp::McpConfig>,
+        maplecode_mcp::McpRuntimeContext,
+    ) {
         let config = self.session.get_config().await;
         let (mcp_config, runtime_context) = self.runtime_mcp_config_and_context(&config).await;
         (Arc::new(mcp_config), runtime_context)

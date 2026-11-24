@@ -28,6 +28,8 @@ use crate::onboarding::mark_url_hyperlink;
 use crate::render::renderable::ColumnRenderable;
 use crate::render::renderable::Renderable;
 use crate::tui::FrameRequester;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
 use maplecode_app_server_protocol::PluginAuthPolicy;
 use maplecode_app_server_protocol::PluginAvailability;
 use maplecode_app_server_protocol::PluginDetail;
@@ -46,8 +48,6 @@ use maplecode_core_plugins::remote::REMOTE_WORKSPACE_SHARED_WITH_ME_MARKETPLACE_
 use maplecode_core_plugins::remote::REMOTE_WORKSPACE_SHARED_WITH_ME_PRIVATE_MARKETPLACE_NAME;
 use maplecode_core_plugins::remote::REMOTE_WORKSPACE_SHARED_WITH_ME_UNLISTED_MARKETPLACE_NAME;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::prelude::Widget;

@@ -1,6 +1,7 @@
 use anyhow::Context;
 use anyhow::Result;
 use base64::Engine;
+use core_test_support::skip_if_no_network;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_login::AuthDotJson;
 use maplecode_login::AuthKeyringBackendKind;
@@ -14,7 +15,6 @@ use maplecode_login::save_auth;
 use maplecode_login::token_data::IdTokenInfo;
 use maplecode_login::token_data::TokenData;
 use maplecode_protocol::auth::AuthMode;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

@@ -1,11 +1,11 @@
 use super::*;
 use crate::collaboration_modes;
+use crossterm::event::KeyCode;
 use maplecode_app_server_client::AppServerClient;
 use maplecode_app_server_client::CloudOperation;
 use maplecode_app_server_client::CloudUserMessageReceipt;
 use maplecode_config::LoaderOverrides;
 use maplecode_protocol::config_types::SERVICE_TIER_DEFAULT_REQUEST_VALUE;
-use crossterm::event::KeyCode;
 use pretty_assertions::assert_eq;
 
 #[tokio::test]

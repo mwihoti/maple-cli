@@ -3,16 +3,16 @@
 use super::*;
 use crate::app::backend_sessions::BackendSessions;
 use crate::app_server_session::AppServerSessionEvent;
-use maplecode_app_server_protocol::SkillMetadata;
-use maplecode_app_server_protocol::SkillScope;
-use maplecode_app_server_protocol::SkillsListEntry;
-use maplecode_config::types::HistoryPersistence;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::responses;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyModifiers;
+use maplecode_app_server_protocol::SkillMetadata;
+use maplecode_app_server_protocol::SkillScope;
+use maplecode_app_server_protocol::SkillsListEntry;
+use maplecode_config::types::HistoryPersistence;
 use pretty_assertions::assert_eq;
 
 #[tokio::test]
@@ -1146,7 +1146,8 @@ async fn check_retained_draft_handoff(
             /*git_info*/ None,
         )
         .expect("materialize the retained thread");
-        let path = app_test_support::rollout_path(&app.config.maplecode_home, timestamp, &thread_id);
+        let path =
+            app_test_support::rollout_path(&app.config.maplecode_home, timestamp, &thread_id);
         let contents = std::fs::read_to_string(&path)?;
         let (metadata, history) = contents.split_once('\n').expect("rollout with history");
         let mut metadata: serde_json::Value = serde_json::from_str(metadata)?;

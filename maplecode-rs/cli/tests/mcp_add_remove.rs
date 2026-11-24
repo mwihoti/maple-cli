@@ -118,7 +118,11 @@ async fn npm_server_names_round_trip_through_cli() -> Result<()> {
         .args(["mcp", "remove", name])
         .assert()
         .success();
-    assert!(load_global_mcp_servers(maplecode_home.path()).await?.is_empty());
+    assert!(
+        load_global_mcp_servers(maplecode_home.path())
+            .await?
+            .is_empty()
+    );
     Ok(())
 }
 
@@ -200,7 +204,10 @@ async fn add_and_login_discover_oauth_through_configured_http_proxy() -> Result<
     std::fs::write(config_path, config)?;
 
     // Local OAuth login does not require the execution-environment registry.
-    std::fs::write(maplecode_home.path().join("environments.toml"), "invalid = [")?;
+    std::fs::write(
+        maplecode_home.path().join("environments.toml"),
+        "invalid = [",
+    )?;
 
     let mut login = maplecode_command(maplecode_home.path())?;
     login
@@ -373,7 +380,11 @@ async fn add_rejects_blank_client_credentials_before_saving() -> Result<()> {
         let stderr = String::from_utf8(output.stderr)?;
         assert!(!stderr.contains("cli-secret-marker"));
         assert!(!String::from_utf8(output.stdout)?.contains("cli-secret-marker"));
-        assert!(load_global_mcp_servers(maplecode_home.path()).await?.is_empty());
+        assert!(
+            load_global_mcp_servers(maplecode_home.path())
+                .await?
+                .is_empty()
+        );
         errors.push(stderr.trim().to_string());
     }
     insta::assert_snapshot!(errors.join("\n"), @r"

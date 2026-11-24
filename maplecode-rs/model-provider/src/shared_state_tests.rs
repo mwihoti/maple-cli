@@ -6,6 +6,9 @@ use crate::AgentIdentitySessionFallback;
 use crate::ProviderAuthScope;
 use crate::create_model_provider;
 use crate::test_support::seed_gateway_auth;
+use http::HeaderMap;
+use http::HeaderName;
+use http::HeaderValue;
 use maplecode_api::Compression;
 use maplecode_api::ResponsesClient;
 use maplecode_http_client::ClientRouteClass;
@@ -27,9 +30,6 @@ use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_protocol::error::MapleCodeErrorDetails;
 use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::SessionSource;
-use http::HeaderMap;
-use http::HeaderName;
-use http::HeaderValue;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use wiremock::Mock;
@@ -705,7 +705,8 @@ async fn gateway_login_required_invalidates_the_last_successful_catalog() {
         })),
         ..Default::default()
     };
-    let login_control = maplecode_login::GatewayLoginControl::for_runtime(&primary.runtime_config());
+    let login_control =
+        maplecode_login::GatewayLoginControl::for_runtime(&primary.runtime_config());
     login_control.require_explicit_login();
     let gateway = seed_gateway_auth(
         &info,
@@ -793,7 +794,8 @@ async fn gateway_login_states_stop_request_retries() {
         })),
         ..ModelProviderInfo::create_openai_provider(Some(server.uri()))
     };
-    let login_control = maplecode_login::GatewayLoginControl::for_runtime(&primary.runtime_config());
+    let login_control =
+        maplecode_login::GatewayLoginControl::for_runtime(&primary.runtime_config());
     login_control.require_explicit_login();
     let provider = create_model_provider(info, Some(primary));
     let gateway = provider.gateway_auth_manager().unwrap().unwrap();

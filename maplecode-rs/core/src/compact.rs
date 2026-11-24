@@ -18,21 +18,22 @@ use crate::hook_runtime::PostCompactHookOutcome;
 use crate::hook_runtime::PreCompactHookOutcome;
 use crate::hook_runtime::run_post_compact_hooks;
 use crate::hook_runtime::run_pre_compact_hooks;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
 use crate::responses_metadata::CompactionTurnMetadata;
+use crate::responses_metadata::MapleCodeResponsesMetadata;
 use crate::session::RequestEffortUsage;
 use crate::session::session::Session;
 use crate::session::step_context::StepContext;
 use crate::session::turn::get_last_assistant_message_from_turn;
 use crate::session::turn_context::TurnContext;
 use crate::state::AutoCompactWindowIds;
-use maplecode_analytics::MapleCodeCompactionEvent;
+use futures::prelude::*;
 use maplecode_analytics::CompactionImplementation;
 use maplecode_analytics::CompactionPhase;
 use maplecode_analytics::CompactionReason;
 use maplecode_analytics::CompactionStatus;
 use maplecode_analytics::CompactionStrategy;
 use maplecode_analytics::CompactionTrigger;
+use maplecode_analytics::MapleCodeCompactionEvent;
 use maplecode_analytics::now_unix_seconds;
 use maplecode_context_fragments::AnnotatedContent;
 use maplecode_context_fragments::set_annotated_content;
@@ -56,7 +57,6 @@ use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_rollout_trace::InferenceTraceContext;
 use maplecode_utils_output_truncation::approx_token_count;
-use futures::prelude::*;
 use tracing::error;
 
 pub use maplecode_prompts::SUMMARIZATION_PROMPT;
@@ -404,9 +404,9 @@ async fn run_compact_task_inner_impl(
     let pending_sequence =
         crate::compact_pending_input::pending_mail_sequence(history.annotated_items());
     if let Some(first) = pending_sequence {
-        let summary = new_history
-            .pop()
-            .ok_or_else(|| MapleCodeErr::Fatal("local compaction summary is missing".to_string()))?;
+        let summary = new_history.pop().ok_or_else(|| {
+            MapleCodeErr::Fatal("local compaction summary is missing".to_string())
+        })?;
         new_history.extend(
             history
                 .annotated_items()
@@ -535,9 +535,13 @@ impl CompactionAnalyticsAttempt {
                 maplecode_error_kind: maplecode_error.map(Into::into),
                 maplecode_error_http_status_code: maplecode_error
                     .and_then(MapleCodeErr::http_status_code_value),
-                usage_limit_window_minutes: maplecode_error.and_then(|error| match error.details() {
-                    MapleCodeErrorDetails::UsageLimitReached(error) => error.limit_window_minutes,
-                    _ => None,
+                usage_limit_window_minutes: maplecode_error.and_then(|error| {
+                    match error.details() {
+                        MapleCodeErrorDetails::UsageLimitReached(error) => {
+                            error.limit_window_minutes
+                        }
+                        _ => None,
+                    }
                 }),
                 active_context_tokens_before,
                 active_context_tokens_after,

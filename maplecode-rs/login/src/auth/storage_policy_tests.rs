@@ -370,7 +370,11 @@ fn auto_auth_storage_load_falls_back_when_keyring_errors() -> anyhow::Result<()>
     assert_eq!(tokens.access_token, "rotated-access");
     assert_eq!(tokens.refresh_token, "rotated-refresh");
     assert_eq!(storage.load()?, Some(refreshed.clone()));
-    assert_keyring_saved_auth_and_removed_fallback(&mock_keyring, maplecode_home.path(), &refreshed)?;
+    assert_keyring_saved_auth_and_removed_fallback(
+        &mock_keyring,
+        maplecode_home.path(),
+        &refreshed,
+    )?;
     // An absent fallback must not select a plaintext destination for cached credentials.
     storage.file_storage.delete()?;
     mock_keyring.set_error(&key, KeyringError::Invalid("error".into(), "load".into()));
@@ -452,7 +456,11 @@ fn auto_auth_storage_save_prefers_keyring() -> anyhow::Result<()> {
     let expected = auth_with_prefix("to-save");
     storage.save(&expected)?;
 
-    assert_keyring_saved_auth_and_removed_fallback(&mock_keyring, maplecode_home.path(), &expected)?;
+    assert_keyring_saved_auth_and_removed_fallback(
+        &mock_keyring,
+        maplecode_home.path(),
+        &expected,
+    )?;
     Ok(())
 }
 

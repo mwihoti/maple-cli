@@ -3,11 +3,11 @@
 use std::collections::BTreeMap;
 
 use base64::Engine;
-use maplecode_http_client::HttpClient;
-use maplecode_http_client::HttpClientBuilder;
 use http::HeaderMap;
 use http::HeaderValue;
 use http::StatusCode;
+use maplecode_http_client::HttpClient;
+use maplecode_http_client::HttpClientBuilder;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -299,8 +299,10 @@ async fn success_body_revocation_preserves_the_policy_error() {
     .unwrap();
     assert!(matches!(
         result,
-        Err(OAuthError::Transport(maplecode_http_client::HttpError::Policy(
-            maplecode_http_client::NetworkPolicyDenied::Revoked
-        )))
+        Err(OAuthError::Transport(
+            maplecode_http_client::HttpError::Policy(
+                maplecode_http_client::NetworkPolicyDenied::Revoked
+            )
+        ))
     ));
 }

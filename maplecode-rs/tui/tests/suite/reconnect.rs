@@ -4,9 +4,9 @@ use super::focus_palette::PtyMapleCode;
 use super::focus_palette::write_test_config;
 use anyhow::Result;
 use anyhow::ensure;
-use maplecode_app_server_protocol::JSONRPCMessage;
 use futures::SinkExt;
 use futures::StreamExt;
+use maplecode_app_server_protocol::JSONRPCMessage;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::time::Duration;
@@ -32,7 +32,8 @@ async fn automatic_reconnect_restores_draft_and_routes_new_notifications() -> Re
         config_path,
         format!("{config}\n[tui]\nstatus_line = [\"thread-id\"]\n"),
     )?;
-    let socket = maplecode_app_server_client::app_server_control_socket_path(maplecode_home.path())?;
+    let socket =
+        maplecode_app_server_client::app_server_control_socket_path(maplecode_home.path())?;
     std::fs::create_dir_all(socket.parent().unwrap())?;
     let listener = UnixListener::bind(socket.as_path())?;
     let (disconnect_tx, mut disconnect_rx) = tokio::sync::oneshot::channel();

@@ -313,11 +313,11 @@ use crate::key_hint;
 use crate::key_hint::KeyBinding;
 use crate::key_hint::ShortcutHint;
 use crate::key_hint::has_ctrl_or_alt;
-use maplecode_message_history::HistoryBatchCursor;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyEventKind;
 use crossterm::event::KeyModifiers;
+use maplecode_message_history::HistoryBatchCursor;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
@@ -4399,7 +4399,8 @@ impl ChatComposer {
                 if !connector.is_accessible || !connector.is_enabled {
                     continue;
                 }
-                let display_name = maplecode_connectors::metadata::connector_display_label(connector);
+                let display_name =
+                    maplecode_connectors::metadata::connector_display_label(connector);
                 let description = Some(Self::connector_brief_description(connector));
                 let slug = maplecode_connectors::metadata::connector_mention_slug(connector);
                 let search_terms = vec![display_name.clone(), connector.id.clone(), slug.clone()];

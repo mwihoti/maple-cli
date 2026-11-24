@@ -1,15 +1,15 @@
 use super::*;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
 use maplecode_app_server_protocol::AccountRateLimitsUpdatedNotification;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::CreditsSnapshot;
 use maplecode_app_server_protocol::ErrorNotification;
 use maplecode_app_server_protocol::GetAccountRateLimitsResponse;
+use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::RateLimitReachedType;
 use maplecode_app_server_protocol::RateLimitResetCreditsSummary;
 use maplecode_app_server_protocol::RateLimitSnapshot;
 use maplecode_app_server_protocol::RateLimitWindow;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
 use pretty_assertions::assert_eq;
 
 fn rate_limit_snapshot(

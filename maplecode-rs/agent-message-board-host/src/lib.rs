@@ -9,11 +9,12 @@
 
 use chrono::DateTime;
 use chrono::Utc;
+use futures::future::BoxFuture;
 use maplecode_agent_message_board_client::RemoteAgentMessageBoard;
 use maplecode_agent_message_board_extension::BoardBackend;
 use maplecode_agent_message_board_extension::local_board_options;
-use maplecode_core::MapleCodeThread;
 use maplecode_core::MULTI_AGENT_V2_NAMESPACE_DESCRIPTION;
+use maplecode_core::MapleCodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_core::config::Config;
 use maplecode_extension_api::ExtensionRegistryBuilder;
@@ -35,7 +36,6 @@ use maplecode_protocol::protocol::Op;
 use maplecode_state::SqliteConfig;
 use maplecode_thread_store::ThreadStoreError;
 use maplecode_thread_store::ThreadStoreResult;
-use futures::future::BoxFuture;
 use std::sync::Arc;
 use std::sync::Weak;
 
@@ -224,7 +224,9 @@ impl MessageBoardHost for LocalBoardHost {
         Box::pin(async move {
             let recipient = match self.actor(recipient_id).await {
                 Ok(thread) => thread,
-                Err(error) if matches!(error.details(), MapleCodeErrorDetails::ThreadNotFound(_)) => {
+                Err(error)
+                    if matches!(error.details(), MapleCodeErrorDetails::ThreadNotFound(_)) =>
+                {
                     return Ok(NotificationDelivery::SkippedInactive);
                 }
                 Err(error) => return Err(error),

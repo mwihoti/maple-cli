@@ -54,7 +54,9 @@ pub(crate) fn set_brand_provider(model_provider_id: &str) {
 
 pub(crate) fn product_name() -> &'static str {
     if MAPLE_BRAND.load(std::sync::atomic::Ordering::Relaxed) {
-        maplecode_model_provider_info::product_name(maplecode_model_provider_info::MAPLE_PROVIDER_ID)
+        maplecode_model_provider_info::product_name(
+            maplecode_model_provider_info::MAPLE_PROVIDER_ID,
+        )
     } else {
         "Maple Code"
     }

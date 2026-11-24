@@ -32,6 +32,7 @@ use crate::session::turn_context::TurnContext;
 pub(crate) use approvals::ApprovalContext;
 pub(crate) use approvals::ApprovalResolution;
 pub(crate) use approvals::ApprovalResolutionSource;
+pub(crate) use executed_tool_calls::ExecutedToolCalls;
 use maplecode_features::Feature;
 use maplecode_protocol::exec_output::ExecToolCallOutput;
 use maplecode_protocol::openai_models::ModelInfo;
@@ -40,7 +41,6 @@ use maplecode_tools::ToolName;
 use maplecode_utils_output_truncation::TruncationPolicy;
 use maplecode_utils_output_truncation::formatted_truncate_text;
 use maplecode_utils_output_truncation::truncate_text;
-pub(crate) use executed_tool_calls::ExecutedToolCalls;
 pub use multi_agent_tool::MULTI_AGENT_V2_NAMESPACE_DESCRIPTION;
 pub use router::ToolRouter;
 

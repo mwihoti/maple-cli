@@ -1,12 +1,12 @@
 //! Model-visible instructions and tools from catalog routing, refresh, and compaction.
 
 use super::*;
+use core_test_support::responses;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_models_manager::model_info::model_info_from_slug;
 use maplecode_protocol::openai_models::ApplyPatchToolType;
 use maplecode_protocol::openai_models::ModelVisibility;
 use maplecode_protocol::openai_models::ModelsResponse;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 
 /// Originator routing supplies the actual turn's instructions and tools without changing legacy callers.
@@ -66,7 +66,12 @@ async fn originator_catalogs_control_turn_instructions_and_tools() -> Result<()>
         .build_with_auto_env(&server)
         .await?;
     test.submit_turn("Describe the task.").await?;
-    for originator in ["maplecode_work_cca", "chatgpt_cca", "unknown", "maplecode_work_cca"] {
+    for originator in [
+        "maplecode_work_cca",
+        "chatgpt_cca",
+        "unknown",
+        "maplecode_work_cca",
+    ] {
         let started = test
             .thread_manager
             .start_thread(StartThreadOptions {

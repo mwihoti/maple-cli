@@ -65,7 +65,8 @@ impl GoalMetrics {
             maplecode_state::ThreadGoalStatus::UsageLimited => GOAL_USAGE_LIMITED_METRIC,
             maplecode_state::ThreadGoalStatus::BudgetLimited => GOAL_BUDGET_LIMITED_METRIC,
             maplecode_state::ThreadGoalStatus::Complete => GOAL_COMPLETED_METRIC,
-            maplecode_state::ThreadGoalStatus::Active | maplecode_state::ThreadGoalStatus::Paused => {
+            maplecode_state::ThreadGoalStatus::Active
+            | maplecode_state::ThreadGoalStatus::Paused => {
                 return;
             }
         };

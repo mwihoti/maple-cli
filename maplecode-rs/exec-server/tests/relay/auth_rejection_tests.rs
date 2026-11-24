@@ -2,9 +2,9 @@
 //! Exercise authorization failures in the real session-recovery loop.
 
 use super::*;
-use maplecode_exec_server::EnvironmentObservedStatus;
 use futures::SinkExt;
 use futures::StreamExt;
+use maplecode_exec_server::EnvironmentObservedStatus;
 use pretty_assertions::assert_eq;
 use prost::Message as _;
 use std::collections::BTreeSet;

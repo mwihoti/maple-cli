@@ -6,6 +6,24 @@ use crate::runtime::MemoryStartupContext;
 use crate::start_memories_startup_task;
 use crate::storage::rebuild_raw_memories_file_from_memories;
 use crate::storage::sync_rollout_summaries_from_memories;
+use core_test_support::fs_wait;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+#[cfg(unix)]
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::sse;
+#[cfg(unix)]
+use core_test_support::responses::sse_failed;
+use core_test_support::responses::start_mock_server;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_config::types::MemoriesConfig;
 use maplecode_features::Feature;
@@ -35,24 +53,6 @@ use maplecode_rollout::RolloutItem;
 use maplecode_rollout::RolloutLine;
 use maplecode_state::Phase2JobClaimOutcome;
 use maplecode_utils_absolute_path::test_support::PathExt;
-use core_test_support::fs_wait;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-#[cfg(unix)]
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::sse;
-#[cfg(unix)]
-use core_test_support::responses::sse_failed;
-use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::path::Path;
@@ -677,7 +677,9 @@ async fn memories_startup_phase1_uses_live_thread_service_tier_and_detached_meta
         &test.maplecode,
         maplecode_protocol::protocol::ThreadSettingsOverrides {
             service_tier: Some(Some(ServiceTier::Fast.request_value().to_string())),
-            permission_profile: Some(maplecode_protocol::models::PermissionProfile::workspace_write()),
+            permission_profile: Some(
+                maplecode_protocol::models::PermissionProfile::workspace_write(),
+            ),
             ..Default::default()
         },
     )
@@ -1117,7 +1119,8 @@ async fn run_memory_phase_two_model_request_test(
                 /*max_running_jobs*/ 1,
             )
             .await?;
-        let maplecode_state::Stage1JobClaimOutcome::Claimed { ownership_token } = phase1_claim else {
+        let maplecode_state::Stage1JobClaimOutcome::Claimed { ownership_token } = phase1_claim
+        else {
             panic!("claim v2 source")
         };
         store
@@ -1242,7 +1245,10 @@ async fn trigger_memories_startup(test: &TestMapleCode) {
 async fn memory_startup_context_with_provider(
     test: &TestMapleCode,
     provider: SharedModelProvider,
-) -> (Arc<MemoryStartupContext>, Arc<maplecode_core::config::Config>) {
+) -> (
+    Arc<MemoryStartupContext>,
+    Arc<maplecode_core::config::Config>,
+) {
     let config_snapshot = test.maplecode.config_snapshot().await;
     let mut config = test.config.clone();
     config
@@ -1573,7 +1579,10 @@ async fn read_rollout_summary_bodies(memory_root: &Path) -> anyhow::Result<Vec<S
 
 async fn shutdown_test_maplecode(test: &TestMapleCode) -> anyhow::Result<()> {
     test.maplecode.submit(Op::Shutdown {}).await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::ShutdownComplete)).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::ShutdownComplete)
+    })
+    .await;
     Ok(())
 }
 
@@ -1647,6 +1656,8 @@ async fn memories_startup_phase2_v2_consolidates_without_a_handbook() -> anyhow:
 async fn memories_startup_uses_thread_runtime_and_keeps_custom_destinations_independent()
 -> anyhow::Result<()> {
     use base64::Engine;
+    use core_test_support::runtime_auth::PROBE_SERVER;
+    use core_test_support::runtime_auth::run_harness_through_proxy;
     use maplecode_features::RuntimeAuthMode;
     use maplecode_login::AuthManager;
     use maplecode_login::MapleCodeAuth;
@@ -1655,8 +1666,6 @@ async fn memories_startup_uses_thread_runtime_and_keeps_custom_destinations_inde
     use maplecode_runtime_agent_instance::RuntimeAuthManager;
     use maplecode_runtime_agent_instance::RuntimeRegistrationMetadata;
     use maplecode_runtime_agent_instance::RuntimeRole;
-    use core_test_support::runtime_auth::PROBE_SERVER;
-    use core_test_support::runtime_auth::run_harness_through_proxy;
     use pretty_assertions::assert_eq;
     use serde_json::json;
     use std::sync::Arc;

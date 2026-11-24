@@ -1,5 +1,6 @@
 //! Run isolated structured requests through existing app-server methods.
 
+use color_eyre::eyre::eyre;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_protocol::AskForApproval;
 use maplecode_app_server_protocol::ClientRequest;
@@ -21,7 +22,6 @@ use maplecode_app_server_protocol::UserInput;
 use maplecode_protocol::models::BUILT_IN_PERMISSION_PROFILE_READ_ONLY;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::openai_models::ReasoningEffort;
-use color_eyre::eyre::eyre;
 use serde_json::Value;
 use std::time::Duration;
 use tokio::sync::mpsc::UnboundedReceiver;

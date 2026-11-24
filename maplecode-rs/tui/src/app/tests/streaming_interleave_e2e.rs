@@ -3,12 +3,12 @@
 use super::*;
 use crate::chatwidget::tests::helpers::normalize_completion_timestamps;
 use app_test_support::MockResponsesConfig;
-use maplecode_app_server_client::AppServerEvent;
-use maplecode_app_server_protocol::CommandExecutionStatus;
-use maplecode_model_provider_info::ModelProviderInfo;
 use core_test_support::responses;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
+use maplecode_app_server_client::AppServerEvent;
+use maplecode_app_server_protocol::CommandExecutionStatus;
+use maplecode_model_provider_info::ModelProviderInfo;
 use pretty_assertions::assert_eq;
 use std::time::Duration;
 use tokio::sync::oneshot;

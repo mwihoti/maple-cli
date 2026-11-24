@@ -1,6 +1,10 @@
 //! Exercises thread-owned storage attribution through turn-time MCP authentication recovery.
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_config::McpServerConfig;
 use maplecode_config::types::OAuthCredentialsStoreMode;
 use maplecode_core::StartThreadOptions;
@@ -14,10 +18,6 @@ use maplecode_protocol::protocol::SessionMeta;
 use maplecode_protocol::protocol::SessionMetaLine;
 use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use opentelemetry_sdk::metrics::data::AggregatedMetrics;
 use opentelemetry_sdk::metrics::data::MetricData;
 use pretty_assertions::assert_eq;

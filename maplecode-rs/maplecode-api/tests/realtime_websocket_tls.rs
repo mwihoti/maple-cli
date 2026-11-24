@@ -8,6 +8,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::time::Instant;
 
+use http::HeaderMap;
 use maplecode_api::Provider;
 use maplecode_api::RealtimeEventParser;
 use maplecode_api::RealtimeOutputModality;
@@ -18,7 +19,6 @@ use maplecode_api::RetryConfig;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_protocol::protocol::RealtimeVoice;
-use http::HeaderMap;
 use pretty_assertions::assert_eq;
 
 const ADDRESS_ENV: &str = "MAPLECODE_TEST_REALTIME_TLS_ADDRESS";

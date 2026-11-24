@@ -1,6 +1,8 @@
 //! An unloaded worker retains its own permissions when a sibling wakes it.
 
 use super::*;
+use core_test_support::ThreadIdle;
+use core_test_support::responses::sse_response;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::ThreadEvictionOutcome;
 use maplecode_core::TurnInputRequest;
@@ -12,8 +14,6 @@ use maplecode_protocol::permissions::FileSystemSandboxEntry;
 use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_protocol::protocol::SandboxPolicy;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::ThreadIdle;
-use core_test_support::responses::sse_response;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 

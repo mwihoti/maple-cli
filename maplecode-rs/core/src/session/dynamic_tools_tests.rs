@@ -123,14 +123,16 @@ async fn dynamic_tools_update_keeps_catalog_when_persistence_fails() {
         .shutdown()
         .await
         .expect("close persistence");
-    let replacement = vec![maplecode_protocol::dynamic_tools::DynamicToolSpec::Function(
-        maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec {
-            name: "check_release".into(),
-            description: "Check the release.".into(),
-            input_schema: json!({"type": "object", "properties": {}}),
-            defer_loading: false,
-        },
-    )];
+    let replacement = vec![
+        maplecode_protocol::dynamic_tools::DynamicToolSpec::Function(
+            maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec {
+                name: "check_release".into(),
+                description: "Check the release.".into(),
+                input_schema: json!({"type": "object", "properties": {}}),
+                defer_loading: false,
+            },
+        ),
+    ];
     let error = session
         .replace_dynamic_tools(replacement)
         .await

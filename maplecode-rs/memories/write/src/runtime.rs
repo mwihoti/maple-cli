@@ -1,5 +1,6 @@
 use crate::metrics::MEMORY_STORAGE_BYTES;
 use crate::workspace::memory_storage_bytes;
+use futures::StreamExt;
 use maplecode_core::MapleCodeThread;
 use maplecode_core::ModelClient;
 use maplecode_core::NewThread;
@@ -39,7 +40,6 @@ use maplecode_protocol::user_input::UserInput;
 use maplecode_rollout_trace::InferenceTraceContext;
 use maplecode_state::MemoryStore;
 use maplecode_terminal_detection::user_agent;
-use futures::StreamExt;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
@@ -112,7 +112,9 @@ fn build_session_telemetry(
 ) -> SessionTelemetry {
     let auth = auth_manager.auth_cached();
     let auth = auth.as_ref();
-    let auth_mode = auth.map(MapleCodeAuth::auth_mode).map(TelemetryAuthMode::from);
+    let auth_mode = auth
+        .map(MapleCodeAuth::auth_mode)
+        .map(TelemetryAuthMode::from);
     let account_id = auth.and_then(MapleCodeAuth::get_account_id);
     let account_email = auth.and_then(MapleCodeAuth::get_account_email);
     let auth_env_telemetry = collect_auth_env_telemetry(
@@ -382,7 +384,8 @@ impl MemoryStartupContext {
                 ResponseEvent::OutputTextDelta(delta) => result.push_str(&delta),
                 ResponseEvent::OutputItemDone(item) => {
                     if result.is_empty()
-                        && let maplecode_protocol::models::ResponseItem::Message { content, .. } = item
+                        && let maplecode_protocol::models::ResponseItem::Message { content, .. } =
+                            item
                         && let Some(text) = content_items_to_text(&content)
                     {
                         result.push_str(&text);

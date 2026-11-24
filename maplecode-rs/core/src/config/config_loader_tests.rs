@@ -845,8 +845,9 @@ collaboration_modes = "true""#;
     std::fs::write(&config_path, contents).expect("write config");
 
     let _guard = maplecode_utils_absolute_path::AbsolutePathBufGuard::new(tmp.path());
-    let error = maplecode_config::config_error_from_typed_toml::<ConfigToml>(&config_path, contents)
-        .expect("schema error");
+    let error =
+        maplecode_config::config_error_from_typed_toml::<ConfigToml>(&config_path, contents)
+            .expect("schema error");
 
     let value_line = contents.lines().nth(1).expect("value line");
     let value_column = value_line.find("\"true\"").expect("value") + 1;
@@ -1309,7 +1310,8 @@ allowed_sandbox_modes = ["read-only"]
 
 #[cfg(target_os = "macos")]
 #[tokio::test]
-async fn managed_preferences_requirements_resolve_paths_against_maplecode_home() -> anyhow::Result<()> {
+async fn managed_preferences_requirements_resolve_paths_against_maplecode_home()
+-> anyhow::Result<()> {
     use base64::Engine;
 
     let tmp = tempdir()?;
@@ -1338,7 +1340,8 @@ model_catalog_json = "models.json"
         &maplecode_config::NoopThreadConfigLoader,
     )
     .await?;
-    let expected_log_dir = AbsolutePathBuf::resolve_path_against_base("~/.maplecode/logs", &maplecode_home);
+    let expected_log_dir =
+        AbsolutePathBuf::resolve_path_against_base("~/.maplecode/logs", &maplecode_home);
     let requirements = layers.requirements_toml();
 
     assert_eq!(
@@ -3097,8 +3100,11 @@ deny_read = ["secrets/**"]
     assert_eq!(
         filesystem.deny_read,
         Some(vec![
-            FilesystemDenyReadPattern::from_input(&format!("{}/secrets/**", maplecode_home.display()))
-                .expect("bundle requirements path should resolve against maplecode_home")
+            FilesystemDenyReadPattern::from_input(&format!(
+                "{}/secrets/**",
+                maplecode_home.display()
+            ))
+            .expect("bundle requirements path should resolve against maplecode_home")
         ])
     );
 
@@ -3289,12 +3295,17 @@ async fn project_layers_prefer_closest_cwd() -> std::io::Result<()> {
     let project_layers: Vec<_> = layers
         .layers_high_to_low()
         .filter_map(|layer| match &layer.name {
-            ConfigLayerSource::Project { dot_maplecode_folder } => Some(dot_maplecode_folder),
+            ConfigLayerSource::Project {
+                dot_maplecode_folder,
+            } => Some(dot_maplecode_folder),
             _ => None,
         })
         .collect();
     assert_eq!(project_layers.len(), 2);
-    assert_eq!(project_layers[0].as_path(), nested.join(".maplecode").as_path());
+    assert_eq!(
+        project_layers[0].as_path(),
+        nested.join(".maplecode").as_path()
+    );
     assert_eq!(
         project_layers[1].as_path(),
         project_root.join(".maplecode").as_path()
@@ -3472,7 +3483,11 @@ async fn malformed_untrusted_linked_worktree_does_not_read_root_hooks() -> std::
     tokio::fs::create_dir_all(worktree_root.join(".maplecode")).await?;
     tokio::fs::create_dir_all(repo_root.join(".maplecode")).await?;
     write_linked_worktree_pointer(&repo_root, &worktree_root).await?;
-    tokio::fs::write(worktree_root.join(".maplecode").join(CONFIG_TOML_FILE), "foo =").await?;
+    tokio::fs::write(
+        worktree_root.join(".maplecode").join(CONFIG_TOML_FILE),
+        "foo =",
+    )
+    .await?;
     tokio::fs::write(repo_root.join(".maplecode").join(CONFIG_TOML_FILE), [0xff]).await?;
 
     let maplecode_home = tmp.path().join("home");
@@ -3622,7 +3637,9 @@ async fn nested_project_root_markers_do_not_redirect_regular_repo_hooks() -> std
     assert_eq!(project_layers.len(), 2);
     assert_eq!(
         project_layers[0].hooks_config_folder(),
-        Some(AbsolutePathBuf::from_absolute_path(nested.join(".maplecode"))?)
+        Some(AbsolutePathBuf::from_absolute_path(
+            nested.join(".maplecode")
+        )?)
     );
     assert_eq!(
         project_layers[1].hooks_config_folder(),
@@ -3657,8 +3674,8 @@ fn project_hook_command(layer: &ConfigLayerEntry) -> Option<&str> {
 }
 
 #[tokio::test]
-async fn project_paths_resolve_relative_to_dot_maplecode_and_override_in_order() -> std::io::Result<()>
-{
+async fn project_paths_resolve_relative_to_dot_maplecode_and_override_in_order()
+-> std::io::Result<()> {
     let tmp = tempdir()?;
     let project_root = tmp.path().join("project");
     let nested = project_root.join("child");
@@ -3672,7 +3689,11 @@ model_instructions_file = "root.txt"
     let nested_cfg = r#"
 model_instructions_file = "child.txt"
 "#;
-    tokio::fs::write(project_root.join(".maplecode").join(CONFIG_TOML_FILE), root_cfg).await?;
+    tokio::fs::write(
+        project_root.join(".maplecode").join(CONFIG_TOML_FILE),
+        root_cfg,
+    )
+    .await?;
     tokio::fs::write(nested.join(".maplecode").join(CONFIG_TOML_FILE), nested_cfg).await?;
     tokio::fs::write(
         project_root.join(".maplecode").join("root.txt"),
@@ -3773,7 +3794,8 @@ async fn inline_instructions_set_base_instructions() -> std::io::Result<()> {
 }
 
 #[tokio::test]
-async fn project_layer_is_added_when_dot_maplecode_exists_without_config_toml() -> std::io::Result<()> {
+async fn project_layer_is_added_when_dot_maplecode_exists_without_config_toml()
+-> std::io::Result<()> {
     let tmp = tempdir()?;
     let project_root = tmp.path().join("project");
     let nested = project_root.join("child");
@@ -3807,7 +3829,9 @@ async fn project_layer_is_added_when_dot_maplecode_exists_without_config_toml() 
         .collect();
     let expected_project_layer = ConfigLayerEntry::new(
         ConfigLayerSource::Project {
-            dot_maplecode_folder: AbsolutePathBuf::from_absolute_path(project_root.join(".maplecode"))?,
+            dot_maplecode_folder: AbsolutePathBuf::from_absolute_path(
+                project_root.join(".maplecode"),
+            )?,
         },
         TomlValue::Table(toml::map::Map::new()),
     );
@@ -4554,12 +4578,17 @@ async fn project_root_markers_supports_alternate_markers() -> std::io::Result<()
     let project_layers: Vec<_> = layers
         .layers_high_to_low()
         .filter_map(|layer| match &layer.name {
-            ConfigLayerSource::Project { dot_maplecode_folder } => Some(dot_maplecode_folder),
+            ConfigLayerSource::Project {
+                dot_maplecode_folder,
+            } => Some(dot_maplecode_folder),
             _ => None,
         })
         .collect();
     assert_eq!(project_layers.len(), 2);
-    assert_eq!(project_layers[0].as_path(), nested.join(".maplecode").as_path());
+    assert_eq!(
+        project_layers[0].as_path(),
+        nested.join(".maplecode").as_path()
+    );
     assert_eq!(
         project_layers[1].as_path(),
         project_root.join(".maplecode").as_path()
@@ -4614,7 +4643,9 @@ mod requirements_exec_policy_tests {
         let dot_maplecode_folder = AbsolutePathBuf::from_absolute_path(dot_maplecode_folder)
             .expect("absolute dot_maplecode_folder");
         let layer = ConfigLayerEntry::new(
-            ConfigLayerSource::Project { dot_maplecode_folder },
+            ConfigLayerSource::Project {
+                dot_maplecode_folder,
+            },
             TomlValue::Table(Default::default()),
         );
         ConfigLayerStack::new(vec![layer], requirements, ConfigRequirementsToml::default())

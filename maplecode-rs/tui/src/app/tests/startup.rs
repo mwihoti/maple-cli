@@ -7,12 +7,12 @@ use crate::bottom_pane::BottomPane;
 use crate::bottom_pane::BottomPaneParams;
 use crate::tui::FrameRequester;
 use app_test_support::create_fake_parented_rollout_with_source;
-use maplecode_app_server_protocol::ToolRequestUserInputOption;
-use maplecode_app_server_protocol::ToolRequestUserInputQuestion;
-use maplecode_utils_approval_presets::builtin_approval_presets;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyModifiers;
+use maplecode_app_server_protocol::ToolRequestUserInputOption;
+use maplecode_app_server_protocol::ToolRequestUserInputQuestion;
+use maplecode_utils_approval_presets::builtin_approval_presets;
 use pretty_assertions::assert_eq;
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::unbounded_channel;
@@ -59,9 +59,11 @@ async fn windows_sandbox_setup_uses_observed_thread_host() {
             ids.into_iter()
                 .map(|id| maplecode_app_server_protocol::ThreadEnvironment {
                     environment_id: id.to_string(),
-                    cwd: maplecode_utils_absolute_path::AbsolutePathBuf::try_from(std::env::temp_dir())
-                        .unwrap()
-                        .into(),
+                    cwd: maplecode_utils_absolute_path::AbsolutePathBuf::try_from(
+                        std::env::temp_dir(),
+                    )
+                    .unwrap()
+                    .into(),
                     runtime_workspace_roots: Vec::new(),
                 })
                 .collect::<Vec<_>>()
@@ -2037,7 +2039,8 @@ async fn windows_sandbox_config_refresh_uses_connected_server() -> Result<()> {
         &mut tui,
         &mut recovered,
         AppEvent::ResolvePermissionProfile {
-            profile_id: maplecode_protocol::models::BUILT_IN_PERMISSION_PROFILE_READ_ONLY.to_string(),
+            profile_id:
+                maplecode_protocol::models::BUILT_IN_PERMISSION_PROFILE_READ_ONLY.to_string(),
         },
     ))
     .await?;

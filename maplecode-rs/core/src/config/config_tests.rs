@@ -693,7 +693,10 @@ disable_in_process_fallback = true
     assert_eq!(config.code_mode.tool_input_schema_max_bytes, Some(36_000));
     assert_eq!(
         config.code_mode.excluded_tool_namespaces,
-        vec!["mcp__maplecode_apps".to_string(), "multi_agent_v1".to_string()]
+        vec![
+            "mcp__maplecode_apps".to_string(),
+            "multi_agent_v1".to_string()
+        ]
     );
     assert_eq!(
         config.code_mode.direct_only_tool_namespaces,
@@ -5815,7 +5818,8 @@ async fn rebuild_with_session_layers_refreshes_requirements() -> std::io::Result
         oauth: None,
     };
     let maplecode_home = TempDir::new()?;
-    let user_file = AbsolutePathBuf::resolve_path_against_base(CONFIG_TOML_FILE, maplecode_home.path());
+    let user_file =
+        AbsolutePathBuf::resolve_path_against_base(CONFIG_TOML_FILE, maplecode_home.path());
     let project_dot_maplecode =
         AbsolutePathBuf::resolve_path_against_base("project/.maplecode", maplecode_home.path());
     let mcp_requirements = BTreeMap::from([
@@ -6056,7 +6060,8 @@ async fn rebuild_with_session_layers_refreshes_plugin_derived_mcp_config() -> an
 }"#,
     )?;
 
-    let user_file = AbsolutePathBuf::resolve_path_against_base(CONFIG_TOML_FILE, maplecode_home.path());
+    let user_file =
+        AbsolutePathBuf::resolve_path_against_base(CONFIG_TOML_FILE, maplecode_home.path());
     let refreshed_layer_stack = ConfigLayerStack::new(
         vec![ConfigLayerEntry::new(
             ConfigLayerSource::User {
@@ -7314,12 +7319,14 @@ async fn managed_config_overrides_oauth_store_mode() -> anyhow::Result<()> {
         &maplecode_config::NoopThreadConfigLoader,
     )
     .await?;
-    let cfg =
-        deserialize_config_toml_with_base(config_layer_stack.effective_config(), maplecode_home.path())
-            .map_err(|e| {
-                tracing::error!("Failed to deserialize overridden config: {e}");
-                e
-            })?;
+    let cfg = deserialize_config_toml_with_base(
+        config_layer_stack.effective_config(),
+        maplecode_home.path(),
+    )
+    .map_err(|e| {
+        tracing::error!("Failed to deserialize overridden config: {e}");
+        e
+    })?;
     assert_eq!(
         cfg.mcp_oauth_credentials_store,
         Some(OAuthCredentialsStoreMode::Keyring),
@@ -7457,12 +7464,14 @@ async fn managed_config_wins_over_cli_overrides() -> anyhow::Result<()> {
     )
     .await?;
 
-    let cfg =
-        deserialize_config_toml_with_base(config_layer_stack.effective_config(), maplecode_home.path())
-            .map_err(|e| {
-                tracing::error!("Failed to deserialize overridden config: {e}");
-                e
-            })?;
+    let cfg = deserialize_config_toml_with_base(
+        config_layer_stack.effective_config(),
+        maplecode_home.path(),
+    )
+    .map_err(|e| {
+        tracing::error!("Failed to deserialize overridden config: {e}");
+        e
+    })?;
 
     assert_eq!(cfg.model.as_deref(), Some("managed_config"));
     Ok(())
@@ -8694,7 +8703,8 @@ async fn set_model_updates_defaults() -> anyhow::Result<()> {
         .apply()
         .await?;
 
-    let serialized = tokio::fs::read_to_string(maplecode_home.path().join(CONFIG_TOML_FILE)).await?;
+    let serialized =
+        tokio::fs::read_to_string(maplecode_home.path().join(CONFIG_TOML_FILE)).await?;
     let parsed: ConfigToml = toml::from_str(&serialized)?;
 
     assert_eq!(parsed.model.as_deref(), Some("gpt-5.4"));
@@ -12717,7 +12727,8 @@ smart_approvals = true
     assert!(config.features.enabled(Feature::GuardianApproval));
     assert_eq!(config.approvals_reviewer, ApprovalsReviewer::User);
 
-    let serialized = tokio::fs::read_to_string(maplecode_home.path().join(CONFIG_TOML_FILE)).await?;
+    let serialized =
+        tokio::fs::read_to_string(maplecode_home.path().join(CONFIG_TOML_FILE)).await?;
     assert!(serialized.contains("smart_approvals = true"));
     assert!(!serialized.contains("guardian_approval"));
     assert!(!serialized.contains("approvals_reviewer"));
@@ -14258,7 +14269,8 @@ metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:1/v1/metrics", p
 #[tokio::test]
 async fn absent_allow_login_shell_does_not_report_an_override() -> std::io::Result<()> {
     let maplecode_home = TempDir::new()?;
-    let config = load_with_enterprise_requirement(&maplecode_home, "allow_login_shell = false").await?;
+    let config =
+        load_with_enterprise_requirement(&maplecode_home, "allow_login_shell = false").await?;
 
     assert!(!config.permissions.allow_login_shell);
     assert!(

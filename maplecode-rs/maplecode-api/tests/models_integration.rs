@@ -1,3 +1,5 @@
+use http::HeaderMap;
+use http::Method;
 use maplecode_api::AuthProvider;
 use maplecode_api::ModelsClient;
 use maplecode_api::Provider;
@@ -13,8 +15,6 @@ use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::openai_models::ReasoningEffortPreset;
 use maplecode_protocol::openai_models::TruncationPolicyConfig;
 use maplecode_protocol::openai_models::default_input_modalities;
-use http::HeaderMap;
-use http::Method;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;

@@ -2,6 +2,7 @@
 //! Provisioning and durable board ownership belong to the research host.
 
 use crate::RemoteAgentMessageBoard;
+use futures::channel::oneshot;
 use maplecode_extension_api::ExtensionData;
 use maplecode_extension_api::ExtensionFuture;
 use maplecode_extension_api::ExtensionRegistryBuilder;
@@ -14,7 +15,6 @@ use maplecode_extension_api::TurnStopInput;
 use maplecode_message_board::MessageBoardHost;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::MapleCodeErrKind;
-use futures::channel::oneshot;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio_util::task::AbortOnDropHandle;

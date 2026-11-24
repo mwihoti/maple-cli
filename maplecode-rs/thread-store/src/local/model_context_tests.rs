@@ -730,8 +730,10 @@ fn contextual_user_message() -> RolloutItem {
 fn completed_user_message(turn_id: &str, message: &str) -> RolloutItem {
     RolloutItem::EventMsg(EventMsg::ItemCompleted(ItemCompletedEvent {
         content_token_count: None,
-        thread_id: maplecode_protocol::ThreadId::from_string("00000000-0000-0000-0000-000000000000")
-            .expect("fixture thread id"),
+        thread_id: maplecode_protocol::ThreadId::from_string(
+            "00000000-0000-0000-0000-000000000000",
+        )
+        .expect("fixture thread id"),
         turn_id: turn_id.to_string(),
         item: TurnItem::UserMessage(UserMessageItem {
             id: format!("user-{turn_id}"),

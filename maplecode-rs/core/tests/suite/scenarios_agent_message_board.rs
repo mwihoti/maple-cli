@@ -1,14 +1,6 @@
 //! Exercises board tools through the runtime, including resume and native mailbox notifications.
 
 use anyhow::Context;
-use maplecode_core::TurnInputRequest;
-use maplecode_features::Feature;
-use maplecode_message_board::PostMetadata;
-use maplecode_protocol::items::TurnItem;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MultiAgentVersion;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::context_snapshot::SnapshotEntry;
@@ -25,6 +17,14 @@ use core_test_support::streaming_sse::start_streaming_sse_server;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
+use maplecode_core::TurnInputRequest;
+use maplecode_features::Feature;
+use maplecode_message_board::PostMetadata;
+use maplecode_protocol::items::TurnItem;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::MultiAgentVersion;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -42,7 +42,10 @@ enum BoardClock {
 }
 
 impl maplecode_core::TimeProvider for BoardClock {
-    fn current_time(&self, _thread_id: maplecode_protocol::ThreadId) -> maplecode_core::TimeFuture<'_> {
+    fn current_time(
+        &self,
+        _thread_id: maplecode_protocol::ThreadId,
+    ) -> maplecode_core::TimeFuture<'_> {
         Box::pin(async move {
             match self {
                 Self::Available => Ok(chrono::DateTime::parse_from_rfc3339(
@@ -176,10 +179,11 @@ async fn board_post_and_reads_reach_model_context_without_self_notices(
         .with_config(move |config| {
             configure(config);
             config.multi_agent_v2.message_board_in_memory = in_memory;
-            config.current_time_reminder = Some(maplecode_core::config::CurrentTimeReminderConfig {
-                clock_source: maplecode_features::CurrentTimeSource::External,
-                ..Default::default()
-            });
+            config.current_time_reminder =
+                Some(maplecode_core::config::CurrentTimeReminderConfig {
+                    clock_source: maplecode_features::CurrentTimeSource::External,
+                    ..Default::default()
+                });
         })
         .with_external_time_provider(std::sync::Arc::new(BoardClock::Available))
         .build_with_auto_env(&server)
@@ -913,10 +917,11 @@ async fn board_clock_failure_does_not_fall_back_or_create_a_channel() -> anyhow:
         .with_config(|config| {
             configure(config);
             config.include_environment_context = false;
-            config.current_time_reminder = Some(maplecode_core::config::CurrentTimeReminderConfig {
-                clock_source: maplecode_features::CurrentTimeSource::External,
-                ..Default::default()
-            });
+            config.current_time_reminder =
+                Some(maplecode_core::config::CurrentTimeReminderConfig {
+                    clock_source: maplecode_features::CurrentTimeSource::External,
+                    ..Default::default()
+                });
         })
         .with_external_time_provider(std::sync::Arc::new(BoardClock::Unavailable))
         .build_with_auto_env(&server)
@@ -1039,10 +1044,11 @@ async fn maplecode_instances_share_board_with_fixed_access() -> anyhow::Result<(
                 .disable(Feature::EnableRequestCompression)
                 .expect("capture gated requests");
             config.multi_agent_v2.tool_namespace = Some("collaboration".into());
-            config.current_time_reminder = Some(maplecode_core::config::CurrentTimeReminderConfig {
-                clock_source: maplecode_features::CurrentTimeSource::External,
-                ..Default::default()
-            });
+            config.current_time_reminder =
+                Some(maplecode_core::config::CurrentTimeReminderConfig {
+                    clock_source: maplecode_features::CurrentTimeSource::External,
+                    ..Default::default()
+                });
         })
         .with_external_time_provider(Arc::new(BoardClock::Available))
         .build_with_auto_env(&server)

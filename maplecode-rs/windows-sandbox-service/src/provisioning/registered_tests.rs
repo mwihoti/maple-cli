@@ -159,7 +159,8 @@ fn native_successful_sibling_validation() -> Result<()> {
                                     Err(anyhow!("fixture PackageManager query failed"))
                                 } else {
                                     Ok(vec![
-                                        "MapleCode.SandboxFixture_1.0.0.0_x64__8wekyb3d8bbwe".into(),
+                                        "MapleCode.SandboxFixture_1.0.0.0_x64__8wekyb3d8bbwe"
+                                            .into(),
                                     ])
                                 }
                             } else {

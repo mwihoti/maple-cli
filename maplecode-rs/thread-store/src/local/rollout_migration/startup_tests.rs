@@ -396,7 +396,9 @@ async fn permanently_skips_failed_rollouts_without_blocking_the_cursor() {
         .insert_thread_if_absent(&metadata)
         .await
         .expect("restore thread metadata");
-    let archived_directory = home.path().join(maplecode_rollout::ARCHIVED_SESSIONS_SUBDIR);
+    let archived_directory = home
+        .path()
+        .join(maplecode_rollout::ARCHIVED_SESSIONS_SUBDIR);
     fs::create_dir_all(&archived_directory).expect("create archived directory");
     let archived_path = archived_directory.join(failed_path.file_name().expect("rollout filename"));
     fs::rename(&failed_path, &archived_path).expect("archive failed rollout");
@@ -466,7 +468,9 @@ async fn retries_busy_rollouts_after_archive_and_compression_move() {
     );
 
     drop(writer_guard);
-    let archived_directory = home.path().join(maplecode_rollout::ARCHIVED_SESSIONS_SUBDIR);
+    let archived_directory = home
+        .path()
+        .join(maplecode_rollout::ARCHIVED_SESSIONS_SUBDIR);
     fs::create_dir_all(&archived_directory).expect("create archived directory");
     let archived_path = archived_directory.join(path.file_name().expect("rollout filename"));
     fs::rename(&path, &archived_path).expect("archive busy rollout");

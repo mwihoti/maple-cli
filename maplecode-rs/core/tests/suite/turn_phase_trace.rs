@@ -1,6 +1,15 @@
 //! Cross-trace admission links and phase boundaries through a real blocked tool.
 //! Each case uses an isolated process so SQLite workers share its tracing collector.
 
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::RecoverTurnRequest;
 use maplecode_core::StartIfIdleSubmission;
 use maplecode_core::StartThreadOptions;
@@ -12,15 +21,6 @@ use maplecode_protocol::dynamic_tools::DynamicToolSpec;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use opentelemetry::KeyValue;
 use opentelemetry::trace::TracerProvider as _;
 use opentelemetry_sdk::propagation::TraceContextPropagator;

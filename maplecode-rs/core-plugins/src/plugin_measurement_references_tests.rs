@@ -5,11 +5,11 @@ use crate::test_support::load_plugins_config;
 use crate::test_support::write_file;
 use anyhow::Context;
 use anyhow::Result;
+use flate2::Compression;
+use flate2::write::GzEncoder;
 use maplecode_exec_server::LOCAL_FS;
 use maplecode_utils_path_uri::PathConvention;
 use maplecode_utils_path_uri::PathUri;
-use flate2::Compression;
-use flate2::write::GzEncoder;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -43,7 +43,10 @@ fn isolated_bundle_test(name: &str) -> Result<bool> {
             "--nocapture",
         ])
         .env(CHILD, name)
-        .env("MAPLECODE_TEST_ALLOW_HTTP_REMOTE_PLUGIN_BUNDLE_DOWNLOADS", "1")
+        .env(
+            "MAPLECODE_TEST_ALLOW_HTTP_REMOTE_PLUGIN_BUNDLE_DOWNLOADS",
+            "1",
+        )
         .output()?;
     assert!(
         output.status.success(),

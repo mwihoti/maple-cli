@@ -1,21 +1,3 @@
-use maplecode_core::TurnInputRequest;
-use maplecode_core::config::Constrained;
-use maplecode_features::Feature;
-use maplecode_otel::SessionTelemetry;
-use maplecode_otel::TelemetryAuthMode;
-use maplecode_protocol::ThreadId;
-use maplecode_protocol::ToolName;
-use maplecode_protocol::approvals::NetworkPolicyAmendment;
-use maplecode_protocol::approvals::NetworkPolicyRuleAction;
-use maplecode_protocol::config_types::ServiceTier;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::openai_models::ReasoningEffort;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::ReviewDecision;
-use maplecode_protocol::protocol::SessionSource;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_custom_tool_call;
@@ -35,6 +17,24 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::test_maplecode::TestMapleCode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_core::TurnInputRequest;
+use maplecode_core::config::Constrained;
+use maplecode_features::Feature;
+use maplecode_otel::SessionTelemetry;
+use maplecode_otel::TelemetryAuthMode;
+use maplecode_protocol::ThreadId;
+use maplecode_protocol::ToolName;
+use maplecode_protocol::approvals::NetworkPolicyAmendment;
+use maplecode_protocol::approvals::NetworkPolicyRuleAction;
+use maplecode_protocol::config_types::ServiceTier;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::openai_models::ReasoningEffort;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::ReviewDecision;
+use maplecode_protocol::protocol::SessionSource;
+use maplecode_protocol::user_input::UserInput;
 use std::sync::Mutex;
 use std::time::Duration;
 use tracing::Level;
@@ -1056,7 +1056,9 @@ async fn handle_response_item_records_tool_result_for_exec_command_call() {
     logs_assert(|lines: &[&str]| {
         let line = lines
             .iter()
-            .find(|line| line.contains("maplecode.tool_result") && line.contains("call_id=shell-call"))
+            .find(|line| {
+                line.contains("maplecode.tool_result") && line.contains("call_id=shell-call")
+            })
             .ok_or_else(|| "missing maplecode.tool_result event".to_string())?;
 
         if !line.contains("tool_name=exec_command") {
@@ -1093,7 +1095,8 @@ fn tool_decision_assertion<'a>(
         let line = lines
             .iter()
             .find(|line| {
-                line.contains("maplecode.tool_decision") && line.contains(&format!("call_id={call_id}"))
+                line.contains("maplecode.tool_decision")
+                    && line.contains(&format!("call_id={call_id}"))
             })
             .ok_or_else(|| format!("missing maplecode.tool_decision event for {call_id}"))?;
 
@@ -1340,8 +1343,10 @@ async fn handle_exec_command_user_approved_records_tool_decision() {
         .await
         .unwrap();
 
-    let approval_event =
-        wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::ExecApprovalRequest(_))).await;
+    let approval_event = wait_for_event(&maplecode, |ev| {
+        matches!(ev, EventMsg::ExecApprovalRequest(_))
+    })
+    .await;
     let EventMsg::ExecApprovalRequest(approval) = approval_event else {
         panic!("expected ExecApprovalRequest event");
     };
@@ -1404,8 +1409,10 @@ async fn handle_exec_command_user_approved_for_session_records_tool_decision() {
         .await
         .unwrap();
 
-    let approval_event =
-        wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::ExecApprovalRequest(_))).await;
+    let approval_event = wait_for_event(&maplecode, |ev| {
+        matches!(ev, EventMsg::ExecApprovalRequest(_))
+    })
+    .await;
     let EventMsg::ExecApprovalRequest(approval) = approval_event else {
         panic!("expected ExecApprovalRequest event");
     };
@@ -1468,8 +1475,10 @@ async fn handle_exec_command_user_denies_records_tool_decision() {
         .await
         .unwrap();
 
-    let approval_event =
-        wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::ExecApprovalRequest(_))).await;
+    let approval_event = wait_for_event(&maplecode, |ev| {
+        matches!(ev, EventMsg::ExecApprovalRequest(_))
+    })
+    .await;
     let EventMsg::ExecApprovalRequest(approval) = approval_event else {
         panic!("expected ExecApprovalRequest event");
     };

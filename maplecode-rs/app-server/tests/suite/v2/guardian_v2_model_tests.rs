@@ -18,6 +18,8 @@ use axum::http::HeaderMap;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::get;
+use core_test_support::load_default_config_for_test;
+use core_test_support::skip_if_no_network;
 use maplecode_app_server_protocol::ApprovalsReviewer;
 use maplecode_app_server_protocol::CyberAccessProgram;
 use maplecode_app_server_protocol::ItemGuardianApprovalReviewCompletedNotification;
@@ -30,8 +32,6 @@ use maplecode_app_server_protocol::TurnStatus;
 use maplecode_app_server_protocol::UserInput;
 use maplecode_features::Feature;
 use maplecode_login::AuthCredentialsStoreMode;
-use core_test_support::load_default_config_for_test;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -94,7 +94,8 @@ async fn computer_use_scoring_follows_model_review_requirement(
     let mut reviewed_model =
         maplecode_core::test_support::construct_model_info_offline(REVIEWED_MODEL, &config);
     reviewed_model.node_repl_auto_review_required = true;
-    write_models_cache_with_models(maplecode_home.path(), vec![ordinary_model, reviewed_model]).await?;
+    write_models_cache_with_models(maplecode_home.path(), vec![ordinary_model, reviewed_model])
+        .await?;
     let mut app_server = TestAppServer::builder()
         .with_maplecode_home(maplecode_home.path())
         .build_initialized_with_timeout(TIMEOUT)
@@ -247,7 +248,8 @@ computer_use_only = false
     let models = [MODEL, "gpt-5.6-luna", "gpt-6.1-sol"]
         .into_iter()
         .map(|slug| {
-            let mut info = maplecode_core::test_support::construct_model_info_offline(slug, &config);
+            let mut info =
+                maplecode_core::test_support::construct_model_info_offline(slug, &config);
             if slug == MODEL {
                 info.auto_review_model_override = Some("gpt-6.1-sol".to_owned());
             }

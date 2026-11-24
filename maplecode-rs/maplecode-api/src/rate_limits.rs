@@ -1,9 +1,9 @@
+use http::HeaderMap;
 use maplecode_protocol::account::PlanType;
 use maplecode_protocol::protocol::CreditsSnapshot;
 use maplecode_protocol::protocol::RateLimitReachedType;
 use maplecode_protocol::protocol::RateLimitSnapshot;
 use maplecode_protocol::protocol::RateLimitWindow;
-use http::HeaderMap;
 use serde::Deserialize;
 use std::collections::BTreeSet;
 use std::fmt::Display;

@@ -8,8 +8,8 @@ use crate::bottom_pane::TranscriptFooter;
 use crate::key_hint::KeyBindingListExt;
 use crate::keymap::ListAction;
 use crate::keymap::RuntimeKeymap;
-use maplecode_protocol::ThreadId;
 use crossterm::event::KeyEvent;
+use maplecode_protocol::ThreadId;
 use ratatui::style::Modifier;
 use ratatui::style::Style;
 

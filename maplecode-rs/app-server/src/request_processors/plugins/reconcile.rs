@@ -22,7 +22,9 @@ impl PluginRequestProcessor {
         let plugins_input = config.plugins_config_input();
         let auth = self.auth_manager.auth().await;
         if !plugins_input.plugins_enabled
-            || !auth.as_ref().is_some_and(MapleCodeAuth::uses_maplecode_backend)
+            || !auth
+                .as_ref()
+                .is_some_and(MapleCodeAuth::uses_maplecode_backend)
         {
             return Ok(Some(PluginReconcileResponse::default().into()));
         }

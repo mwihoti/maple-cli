@@ -5,8 +5,8 @@ use maplecode_app_server_protocol::ChatgptAuthTokensRefreshParams;
 use maplecode_app_server_protocol::ChatgptAuthTokensRefreshReason;
 use maplecode_app_server_protocol::ChatgptAuthTokensRefreshResponse;
 use maplecode_app_server_protocol::ServerRequestPayload;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuthFuture;
+use maplecode_login::MapleCodeAuth;
 use maplecode_login::auth::ExternalAuth;
 use maplecode_login::auth::ExternalAuthRefreshContext;
 use maplecode_login::auth::ExternalAuthRefreshReason;
@@ -92,7 +92,10 @@ impl ExternalAuth for ExternalAuthBridge {
         })
     }
 
-    fn refresh(&self, context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         Box::pin(ExternalAuthBridge::refresh(self, context))
     }
 }

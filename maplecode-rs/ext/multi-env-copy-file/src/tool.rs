@@ -3,6 +3,7 @@
 
 use std::collections::BTreeMap;
 
+use futures::StreamExt;
 use maplecode_tools::FunctionCallError;
 use maplecode_tools::JsonSchema;
 use maplecode_tools::JsonToolOutput;
@@ -14,7 +15,6 @@ use maplecode_tools::ToolName;
 use maplecode_tools::ToolPayload;
 use maplecode_tools::ToolSpec;
 use maplecode_utils_path_uri::LegacyAppPathString;
-use futures::StreamExt;
 use serde::Deserialize;
 use serde_json::json;
 

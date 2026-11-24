@@ -3,12 +3,12 @@
 use anyhow::Result;
 use app_test_support::TestAppServer;
 use app_test_support::to_response;
+use core_test_support::responses;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::ThreadStartParams;
 use maplecode_app_server_protocol::ThreadStartResponse;
 use maplecode_app_server_protocol::TurnStartParams;
 use maplecode_app_server_protocol::UserInput;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

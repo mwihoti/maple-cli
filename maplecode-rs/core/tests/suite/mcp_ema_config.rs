@@ -3,6 +3,10 @@
 use std::sync::Arc;
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event_match;
 use maplecode_config::LoaderOverrides;
 use maplecode_config::McpServerAuth;
 use maplecode_config::test_support::CloudConfigBundleFixture;
@@ -12,10 +16,6 @@ use maplecode_core::config::set_project_trust_level;
 use maplecode_login::MapleCodeAuth;
 use maplecode_protocol::config_types::TrustLevel;
 use maplecode_protocol::protocol::EventMsg;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use tempfile::tempdir;
 use test_case::test_case;
@@ -44,7 +44,10 @@ async fn refresh_ema_denial_clears_authority_for_configured_servers() -> Result<
         ))
         .build_with_auto_env(&responses_server)
         .await?;
-    let (before, _) = fixture.maplecode.current_mcp_config_and_runtime_context().await;
+    let (before, _) = fixture
+        .maplecode
+        .current_mcp_config_and_runtime_context()
+        .await;
     let current_config = fixture.maplecode.config().await;
     let refreshed = ConfigBuilder::default()
         .loader_overrides(LoaderOverrides::without_managed_config_for_tests())
@@ -64,7 +67,10 @@ async fn refresh_ema_denial_clears_authority_for_configured_servers() -> Result<
             .await,
         ConfigRefreshOutcome::Published
     );
-    let (after, _) = fixture.maplecode.current_mcp_config_and_runtime_context().await;
+    let (after, _) = fixture
+        .maplecode
+        .current_mcp_config_and_runtime_context()
+        .await;
     let old_servers = maplecode_mcp::configured_mcp_servers(&before);
     let new_servers = maplecode_mcp::configured_mcp_servers(&after);
     let old = old_servers["enterprise"]
@@ -120,7 +126,10 @@ async fn enterprise_activation_respects_configuration(scenario: ActivationScenar
         ))
         .build_with_auto_env(&responses_server)
         .await?;
-    let (runtime_config, _) = fixture.maplecode.current_mcp_config_and_runtime_context().await;
+    let (runtime_config, _) = fixture
+        .maplecode
+        .current_mcp_config_and_runtime_context()
+        .await;
     let expected_enabled = match scenario {
         ActivationScenario::FeatureDisabled | ActivationScenario::MissingIdp => Some(false),
         ActivationScenario::OperatorEnabled => Some(true),

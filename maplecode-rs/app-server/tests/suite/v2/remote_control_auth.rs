@@ -118,7 +118,11 @@ async fn open_relay(app: &mut TestAppServer, listener: &TcpListener) -> Result<R
         tokio_tungstenite::accept_hdr_async(
             stream,
             |request: &tokio_tungstenite::tungstenite::handshake::server::Request, response| {
-                assert!(!request.headers().contains_key("x-maplecode-subscribe-cursor"));
+                assert!(
+                    !request
+                        .headers()
+                        .contains_key("x-maplecode-subscribe-cursor")
+                );
                 Ok(response)
             },
         ),
@@ -399,7 +403,10 @@ async fn logout_login_enable_recovers_first_unauthorized_enrollment() -> Result<
     let revoke_url = format!("{}/oauth/revoke", oauth.uri());
     let mut app = TestAppServer::builder()
         .with_maplecode_home(home.path())
-        .with_env_overrides(&[("MAPLECODE_REVOKE_TOKEN_URL_OVERRIDE", Some(revoke_url.as_str()))])
+        .with_env_overrides(&[(
+            "MAPLECODE_REVOKE_TOKEN_URL_OVERRIDE",
+            Some(revoke_url.as_str()),
+        )])
         .without_auto_env()
         .build_initialized()
         .await?;

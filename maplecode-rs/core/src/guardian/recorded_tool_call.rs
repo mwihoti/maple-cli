@@ -110,7 +110,9 @@ pub(crate) async fn review_tool_call(
             .registered_tool(&parsed_call.tool_name)
             .filter(|_| step.tool_router.exposes_tool(&parsed_call.tool_name))
             .ok_or_else(|| {
-                MapleCodeErr::InvalidRequest("the requested tool is unavailable on this thread".into())
+                MapleCodeErr::InvalidRequest(
+                    "the requested tool is unavailable on this thread".into(),
+                )
             })?;
         let advertised_mcp_tool = tool.runtime.mcp_tool_info();
         if !is_supported_builtin && advertised_mcp_tool.is_none() {

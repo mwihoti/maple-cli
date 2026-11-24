@@ -1,8 +1,8 @@
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_api::AuthProvider;
 use maplecode_http_client::CHATGPT_ACCOUNT_ID_HEADER;
 use maplecode_login::auth::is_fedramp_api_key;
-use http::HeaderMap;
-use http::HeaderValue;
 
 /// Bearer-token auth provider for OpenAI-compatible model-provider requests.
 #[derive(Clone, Default)]

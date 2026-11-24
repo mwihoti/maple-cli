@@ -2,6 +2,9 @@
 
 use crate::app_command::RealtimeSdp;
 use crate::legacy_core::config::Config;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::ensure;
+use http::HeaderValue;
 use maplecode_api::RealtimeCallClient;
 use maplecode_api::RealtimeEventParser;
 use maplecode_api::RealtimeSessionConfig;
@@ -20,9 +23,6 @@ use maplecode_model_provider::prepare_provider_request;
 use maplecode_prompts::prepare_realtime_backend_prompt;
 use maplecode_protocol::protocol::RealtimeOutputModality;
 use maplecode_protocol::protocol::RealtimeVoice;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::ensure;
-use http::HeaderValue;
 
 #[derive(Debug)]
 pub(crate) struct CreatedCall {

@@ -4,9 +4,9 @@ use std::sync::Mutex;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 
+use futures::StreamExt;
 use maplecode_code_mode::CodeModeProcessMetrics;
 use maplecode_code_mode::CodeModeProcessMetricsSample;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use tokio_stream::wrappers::TcpListenerStream;
 use tonic::transport::Endpoint;
@@ -26,21 +26,22 @@ async fn metrics_failures_and_deadlines_preserve_sessions_and_keepalive() -> Res
     let collector_calls = calls.clone();
     let (release, blocked) = std::sync::mpsc::channel::<()>();
     let blocked = Mutex::new(blocked);
-    let host = maplecode_code_mode_host::GrpcCodeModeHost::with_process_metrics(Arc::new(move || {
-        match collector_calls.fetch_add(1, Ordering::SeqCst) {
-            0 => Ok(snapshot.clone()),
-            1 => Err("metrics unavailable".to_string()),
-            2 => panic!("collector panic"),
-            _ => {
-                blocked
-                    .lock()
-                    .unwrap()
-                    .recv()
-                    .map_err(|error| error.to_string())?;
-                Ok(snapshot.clone())
+    let host =
+        maplecode_code_mode_host::GrpcCodeModeHost::with_process_metrics(Arc::new(move || {
+            match collector_calls.fetch_add(1, Ordering::SeqCst) {
+                0 => Ok(snapshot.clone()),
+                1 => Err("metrics unavailable".to_string()),
+                2 => panic!("collector panic"),
+                _ => {
+                    blocked
+                        .lock()
+                        .unwrap()
+                        .recv()
+                        .map_err(|error| error.to_string())?;
+                    Ok(snapshot.clone())
+                }
             }
-        }
-    }));
+        }));
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
     let address = listener.local_addr()?;
     let connections = Arc::new(AtomicUsize::new(0));
@@ -147,13 +148,14 @@ fn stuck_collector_does_not_block_runtime_shutdown() -> Result<()> {
         runtime.block_on(async {
             let calls = Arc::new(AtomicUsize::new(0));
             let collector_calls = calls.clone();
-            let host =
-                maplecode_code_mode_host::GrpcCodeModeHost::with_process_metrics(Arc::new(move || {
+            let host = maplecode_code_mode_host::GrpcCodeModeHost::with_process_metrics(Arc::new(
+                move || {
                     collector_calls.fetch_add(1, Ordering::SeqCst);
                     loop {
                         std::thread::park();
                     }
-                }));
+                },
+            ));
             let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
             let address = listener.local_addr()?;
             let server = tokio_util::task::AbortOnDropHandle::new(tokio::spawn(async move {

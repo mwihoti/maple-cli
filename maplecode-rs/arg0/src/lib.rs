@@ -122,7 +122,9 @@ pub fn arg0_dispatch() -> Option<Arg0PathEntryGuard> {
                 }
             }
             None => {
-                eprintln!("Error: {MAPLECODE_CORE_APPLY_PATCH_ARG1} requires a UTF-8 PATCH argument.");
+                eprintln!(
+                    "Error: {MAPLECODE_CORE_APPLY_PATCH_ARG1} requires a UTF-8 PATCH argument."
+                );
                 1
             }
         };
@@ -537,9 +539,9 @@ mod tests {
     use super::linux_sandbox_exe_path;
     use super::run_main_with_arg0_guard;
     use anyhow::ensure;
-    use maplecode_install_context::MapleCodePackageLayout;
     use maplecode_install_context::InstallContext;
     use maplecode_install_context::InstallMethod;
+    use maplecode_install_context::MapleCodePackageLayout;
     use maplecode_utils_absolute_path::AbsolutePathBuf;
     use pretty_assertions::assert_eq;
     use std::fs;

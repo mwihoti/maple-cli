@@ -12,10 +12,10 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
+use futures::FutureExt;
 use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::RouteAwareClientPool;
-use futures::FutureExt;
 #[cfg(unix)]
 use std::os::unix::process::CommandExt;
 use tokio::io::AsyncReadExt;
@@ -272,7 +272,8 @@ async fn adopt_managed_updater(
     running_identity: &ExecutableIdentity,
     listener: &mut Option<maplecode_uds::UnixListener>,
 ) -> Result<UpdateLoopControl> {
-    let managed_bin = resolved_managed_maplecode_bin(&daemon.current_managed_maplecode_bin()?).await?;
+    let managed_bin =
+        resolved_managed_maplecode_bin(&daemon.current_managed_maplecode_bin()?).await?;
     if executable_identity(&managed_bin).await? == *running_identity {
         return Ok(UpdateLoopControl::Continue);
     }
@@ -481,7 +482,8 @@ async fn update_once(
             {
                 anyhow::ensure!(
                     daemon.is_stable_standalone_release()?
-                        && resolved_managed_maplecode_bin(&daemon.current_managed_maplecode_bin()?).await?
+                        && resolved_managed_maplecode_bin(&daemon.current_managed_maplecode_bin()?)
+                            .await?
                             == managed_maplecode_bin,
                     "managed daemon changed during the update; retry"
                 );

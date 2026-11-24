@@ -5,14 +5,14 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 
+use futures::StreamExt;
+use futures::stream::FuturesUnordered;
 use maplecode_http_client::OutboundProxyRoute;
 #[cfg(windows)]
 use maplecode_http_client::WindowsProxyTls;
 use maplecode_http_client::build_rustls_client_config_with_custom_ca;
 #[cfg(windows)]
 use maplecode_http_client::connect_windows_proxy;
-use futures::StreamExt;
-use futures::stream::FuturesUnordered;
 use rustls::ClientConfig;
 use rustls::pki_types::ServerName;
 use tokio::net::TcpStream;

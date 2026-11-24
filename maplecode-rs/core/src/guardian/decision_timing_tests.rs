@@ -1,11 +1,11 @@
 #![cfg(test)]
 //! Verifies review timing binds to its invocation before scheduling and respects the capture gate.
 
+use core_test_support::PathBufExt;
+use core_test_support::test_path_buf;
 use maplecode_direct_tool_timing::ToolBatchTiming;
 use maplecode_utils_critical_path::CriticalPath;
 use maplecode_utils_critical_path::PathDurations;
-use core_test_support::PathBufExt;
-use core_test_support::test_path_buf;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use std::time::Duration;

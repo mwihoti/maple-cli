@@ -1,10 +1,10 @@
 #![cfg(test)]
 //! Negotiated callback budgets protect older clients on a shared host.
 
+use futures::StreamExt;
 use maplecode_code_mode_protocol::grpc as proto;
 use maplecode_code_mode_protocol::grpc::code_mode_host_server::CodeModeHost;
 use maplecode_code_mode_protocol::host::LEGACY_MAX_PENDING_DELEGATE_CALLS;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use tonic::Code;
 use tonic::Request;

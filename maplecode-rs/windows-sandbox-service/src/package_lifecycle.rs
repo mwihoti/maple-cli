@@ -97,7 +97,8 @@ impl PackageLifecycle {
         if let Some(previous) = previous {
             // A missing watcher does not retire its owner; other clients can use elevated setup.
             ensure!(
-                previous.user_sid == record.user_sid && previous.maplecode_home == record.maplecode_home,
+                previous.user_sid == record.user_sid
+                    && previous.maplecode_home == record.maplecode_home,
                 crate::ipc::ServiceUnavailable(
                     "installation is already registered to a different owner or home"
                 )

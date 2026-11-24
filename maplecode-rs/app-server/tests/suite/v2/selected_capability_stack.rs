@@ -9,6 +9,10 @@ use app_test_support::create_final_assistant_message_sse_response;
 use app_test_support::to_response;
 use app_test_support::write_chatgpt_auth;
 use app_test_support::write_mock_responses_config_toml_with_chatgpt_base_url;
+use core_test_support::process::wait_for_pid_file;
+use core_test_support::responses;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::stdio_server_bin;
 use maplecode_app_server_protocol::AppInfo;
 use maplecode_app_server_protocol::CapabilityRootLocation;
 use maplecode_app_server_protocol::EnvironmentAddResponse;
@@ -28,10 +32,6 @@ use maplecode_exec_server::LOCAL_ENVIRONMENT_ID;
 use maplecode_protocol::protocol::PLUGINS_INSTRUCTIONS_OPEN_TAG;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::process::wait_for_pid_file;
-use core_test_support::responses;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::stdio_server_bin;
 use pretty_assertions::assert_eq;
 use pretty_assertions::assert_ne;
 use serde_json::json;
@@ -452,7 +452,8 @@ async fn selected_capability_stack_tracks_environment_selection_and_resume() -> 
             .is_some_and(|text| text.contains(NO_SELECTED_SKILLS_MESSAGE))
     );
 
-    exec_server = spawn_exec_server(fixture.maplecode_home.path(), &fixture.exec_server_url).await?;
+    exec_server =
+        spawn_exec_server(fixture.maplecode_home.path(), &fixture.exec_server_url).await?;
     add_environment(&mut app_server, &fixture.exec_server_url).await?;
 
     run_turn(

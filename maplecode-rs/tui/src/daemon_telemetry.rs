@@ -55,9 +55,10 @@ pub(super) async fn record_start(
         return;
     };
     if let Some(metrics) = otel.metrics() {
-        let mut tags = maplecode_app_server_daemon::telemetry::settings_tags(&config.maplecode_home)
-            .await
-            .to_vec();
+        let mut tags =
+            maplecode_app_server_daemon::telemetry::settings_tags(&config.maplecode_home)
+                .await
+                .to_vec();
         tags.extend([
             ("initiation_source", "tui_auto_start"),
             ("outcome", outcome),

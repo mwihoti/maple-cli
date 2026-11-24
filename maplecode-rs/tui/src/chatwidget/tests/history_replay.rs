@@ -48,9 +48,10 @@ async fn resumed_initial_messages_render_history() {
     // The first attachment can change project credentials even with an in-process server.
     chat.status_account_display = Some(StatusAccountDisplay::ApiKey);
     let mut model = crate::test_support::TEST_MODEL_PRESETS[0].clone();
-    model.available_access_programs = Some(maplecode_protocol::openai_models::ModelAccessPrograms {
-        cyber: vec![maplecode_protocol::turn_input::CyberAccessProgram::Standard],
-    });
+    model.available_access_programs =
+        Some(maplecode_protocol::openai_models::ModelAccessPrograms {
+            cyber: vec![maplecode_protocol::turn_input::CyberAccessProgram::Standard],
+        });
     chat.model_catalog = Arc::new(ModelCatalog::new(vec![model]));
     chat.handle_thread_session(configured.clone());
     assert!(

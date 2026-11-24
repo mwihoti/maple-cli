@@ -36,12 +36,18 @@ use std::sync::atomic::Ordering;
 use tempfile::tempdir;
 
 fn write_auth_json(maplecode_home: &Path, value: serde_json::Value) -> std::io::Result<()> {
-    std::fs::write(maplecode_home.join("auth.json"), serde_json::to_string(&value)?)?;
+    std::fs::write(
+        maplecode_home.join("auth.json"),
+        serde_json::to_string(&value)?,
+    )?;
     Ok(())
 }
 
 fn create_test_cache(maplecode_home: &Path) -> CloudConfigBundleCache {
-    CloudConfigBundleCache::new(AbsolutePathBuf::resolve_path_against_base(maplecode_home, "/"))
+    CloudConfigBundleCache::new(AbsolutePathBuf::resolve_path_against_base(
+        maplecode_home,
+        "/",
+    ))
 }
 
 async fn write_test_cache(cache: &CloudConfigBundleCache, bundle: CloudConfigBundle) {
@@ -119,8 +125,8 @@ async fn auth_manager_with_plan(plan_type: &str) -> Arc<AuthManager> {
 }
 
 async fn auth_manager_with_agent_identity_business_plan() -> Arc<AuthManager> {
-    let key_material =
-        maplecode_agent_identity::generate_agent_key_material().expect("generate agent key material");
+    let key_material = maplecode_agent_identity::generate_agent_key_material()
+        .expect("generate agent key material");
     AuthManager::from_auth_for_testing(MapleCodeAuth::AgentIdentity(
         AgentIdentityAuth::from_record(
             AgentIdentityAuthRecord {
@@ -370,7 +376,10 @@ impl StaticBundleClient {
 }
 
 impl BundleClient for StaticBundleClient {
-    async fn get_bundle(&self, _auth: &MapleCodeAuth) -> Result<CloudConfigBundle, BundleRequestError> {
+    async fn get_bundle(
+        &self,
+        _auth: &MapleCodeAuth,
+    ) -> Result<CloudConfigBundle, BundleRequestError> {
         self.request_count.fetch_add(1, Ordering::SeqCst);
         Ok(self.bundle.clone())
     }
@@ -379,7 +388,10 @@ impl BundleClient for StaticBundleClient {
 struct PendingBundleClient;
 
 impl BundleClient for PendingBundleClient {
-    async fn get_bundle(&self, _auth: &MapleCodeAuth) -> Result<CloudConfigBundle, BundleRequestError> {
+    async fn get_bundle(
+        &self,
+        _auth: &MapleCodeAuth,
+    ) -> Result<CloudConfigBundle, BundleRequestError> {
         pending::<()>().await;
         Ok(CloudConfigBundle::default())
     }
@@ -397,7 +409,10 @@ impl Drop for NotifyingPendingBundleClient {
 }
 
 impl BundleClient for NotifyingPendingBundleClient {
-    async fn get_bundle(&self, _auth: &MapleCodeAuth) -> Result<CloudConfigBundle, BundleRequestError> {
+    async fn get_bundle(
+        &self,
+        _auth: &MapleCodeAuth,
+    ) -> Result<CloudConfigBundle, BundleRequestError> {
         self.request_started.notify_one();
         pending::<()>().await;
         Ok(CloudConfigBundle::default())
@@ -423,7 +438,10 @@ impl SequenceBundleClient {
 }
 
 impl BundleClient for SequenceBundleClient {
-    async fn get_bundle(&self, _auth: &MapleCodeAuth) -> Result<CloudConfigBundle, BundleRequestError> {
+    async fn get_bundle(
+        &self,
+        _auth: &MapleCodeAuth,
+    ) -> Result<CloudConfigBundle, BundleRequestError> {
         let attempt = self.request_count.fetch_add(1, Ordering::SeqCst);
         self.request_started.notify_one();
         if attempt < self.timeout_attempts {
@@ -443,7 +461,10 @@ struct TokenBundleClient {
 }
 
 impl BundleClient for TokenBundleClient {
-    async fn get_bundle(&self, auth: &MapleCodeAuth) -> Result<CloudConfigBundle, BundleRequestError> {
+    async fn get_bundle(
+        &self,
+        auth: &MapleCodeAuth,
+    ) -> Result<CloudConfigBundle, BundleRequestError> {
         self.request_count.fetch_add(1, Ordering::SeqCst);
         if matches!(
             auth.get_token().as_deref(),
@@ -498,7 +519,10 @@ impl ExternalAuth for TestExternalChatgptAuth {
 }
 
 impl BundleClient for UnauthorizedBundleClient {
-    async fn get_bundle(&self, _auth: &MapleCodeAuth) -> Result<CloudConfigBundle, BundleRequestError> {
+    async fn get_bundle(
+        &self,
+        _auth: &MapleCodeAuth,
+    ) -> Result<CloudConfigBundle, BundleRequestError> {
         self.request_count.fetch_add(1, Ordering::SeqCst);
         Err(BundleRequestError::Unauthorized {
             status_code: Some(401),
@@ -1768,21 +1792,23 @@ async fn refresh_replaces_initial_errors_and_recovers_with_success() {
 #[test]
 fn bundle_response_conversion_preserves_fragment_order() {
     let response = ConfigBundleResponse {
-        config_toml: Some(Some(Box::new(maplecode_backend_client::DeliveredConfigToml {
-            enterprise_managed: Some(Some(vec![
-                DeliveredTomlFragment::new(
-                    "cfg_high".to_string(),
-                    "High config".to_string(),
-                    "model = \"high\"".to_string(),
-                ),
-                DeliveredTomlFragment::new(
-                    "cfg_low".to_string(),
-                    "Low config".to_string(),
-                    "model = \"low\"".to_string(),
-                ),
-            ])),
-            managed_layers: None,
-        }))),
+        config_toml: Some(Some(Box::new(
+            maplecode_backend_client::DeliveredConfigToml {
+                enterprise_managed: Some(Some(vec![
+                    DeliveredTomlFragment::new(
+                        "cfg_high".to_string(),
+                        "High config".to_string(),
+                        "model = \"high\"".to_string(),
+                    ),
+                    DeliveredTomlFragment::new(
+                        "cfg_low".to_string(),
+                        "Low config".to_string(),
+                        "model = \"low\"".to_string(),
+                    ),
+                ])),
+                managed_layers: None,
+            },
+        ))),
         requirements_toml: Some(Some(Box::new(
             maplecode_backend_client::DeliveredRequirementsToml {
                 enterprise_managed: Some(Some(vec![DeliveredTomlFragment::new(

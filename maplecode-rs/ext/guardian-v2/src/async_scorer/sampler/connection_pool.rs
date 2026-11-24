@@ -11,6 +11,8 @@ use super::INITIAL_WEBSOCKET_CONNECTIONS;
 use super::LunaSamplerConfig;
 use super::LunaSamplerError;
 use super::MAX_CONCURRENT_REQUESTS;
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_api::ApiError;
 use maplecode_api::Provider;
 use maplecode_api::ReqwestTransport;
@@ -40,8 +42,6 @@ use maplecode_model_provider::ProviderAuthScope;
 use maplecode_model_provider::ResponsesConnectionKey;
 use maplecode_protocol::ThreadId;
 use maplecode_websocket_client::WebSocketConnector;
-use http::HeaderMap;
-use http::HeaderValue;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
@@ -430,7 +430,10 @@ impl ConnectionPool {
             Some(thread_id.to_owned()),
         );
         if request_kind == RequestMode::GuardianClassifier {
-            headers.insert("x-maplecode-guardian", HeaderValue::from_static("classifier"));
+            headers.insert(
+                "x-maplecode-guardian",
+                HeaderValue::from_static("classifier"),
+            );
         }
         headers.insert("x-openai-subagent", HeaderValue::from_static("guardian"));
         headers.insert(

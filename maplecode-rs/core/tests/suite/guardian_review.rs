@@ -5,6 +5,33 @@ use anyhow::Result;
 use chrono::DateTime;
 use chrono::Local;
 use chrono::Utc;
+use core_test_support::fs_wait;
+use core_test_support::responses::assert_parent_turn;
+use core_test_support::responses::assert_root_turn;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_custom_tool_call;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_failed;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::start_websocket_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::local_selections;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
 use maplecode_config::types::McpServerConfig;
 use maplecode_config::types::OtelExporterKind;
 use maplecode_core::SleepFuture;
@@ -57,33 +84,6 @@ use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::protocol::ThreadSource;
 use maplecode_protocol::protocol::TurnAbortReason;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::fs_wait;
-use core_test_support::responses::assert_parent_turn;
-use core_test_support::responses::assert_root_turn;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_custom_tool_call;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_failed;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::start_websocket_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::local_selections;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -1551,7 +1551,8 @@ async fn guardian_refreshes_missing_default_reviewer_once(
             }
         });
     if scenario == "resumed" {
-        builder = builder.with_history_mode(maplecode_protocol::protocol::ThreadHistoryMode::Paginated);
+        builder =
+            builder.with_history_mode(maplecode_protocol::protocol::ThreadHistoryMode::Paginated);
     }
     let mut test = builder.build_with_auto_env(&server).await?;
     let cache_path = test.config.maplecode_home.join("models_cache.json");
@@ -1588,7 +1589,8 @@ async fn guardian_refreshes_missing_default_reviewer_once(
         test.maplecode.ensure_rollout_materialized().await;
         // Manual resume without an opaque checkpoint must not fetch Guardian's catalog.
         test.maplecode =
-            super::guardian_checkpoint_migration::resume(&test, &test.maplecode, Vec::new()).await?;
+            super::guardian_checkpoint_migration::resume(&test, &test.maplecode, Vec::new())
+                .await?;
         assert!(recovery.received_requests().await.is_empty());
         test.config.approvals_reviewer = ApprovalsReviewer::AutoReview;
         test.maplecode =
@@ -1809,7 +1811,9 @@ async fn guardian_reviews_delayed_and_new_actions_after_catalog_refresh() -> Res
             turn_id,
             update: maplecode_protocol::protocol::TurnSettingsUpdate {
                 model: Some("guardian-parent-b".to_string()),
-                effort: Some(Some(maplecode_protocol::openai_models::ReasoningEffort::Medium)),
+                effort: Some(Some(
+                    maplecode_protocol::openai_models::ReasoningEffort::Medium,
+                )),
                 summary: Some(maplecode_protocol::config_types::ReasoningSummary::Concise),
                 ..Default::default()
             },
@@ -2765,8 +2769,10 @@ async fn guardian_timeout_rejects_tool_call_with_acting_model_instructions(
         fn decide<'a>(
             &'a self,
             input: &'a maplecode_extension_api::ApprovalDecisionInput<'_>,
-        ) -> maplecode_extension_api::ExtensionFuture<'a, Option<maplecode_extension_api::ApprovalDecision>>
-        {
+        ) -> maplecode_extension_api::ExtensionFuture<
+            'a,
+            Option<maplecode_extension_api::ApprovalDecision>,
+        > {
             assert_eq!(input.tool_call_id, Some("exec-call-timed-out"));
             Box::pin(async {
                 Some(maplecode_extension_api::ApprovalDecision::Reviewed(
@@ -2871,8 +2877,10 @@ impl maplecode_extension_api::ApprovalReviewContributor for AttemptCachedApprova
     fn decide<'a>(
         &'a self,
         _input: &'a maplecode_extension_api::ApprovalDecisionInput<'_>,
-    ) -> maplecode_extension_api::ExtensionFuture<'a, Option<maplecode_extension_api::ApprovalDecision>>
-    {
+    ) -> maplecode_extension_api::ExtensionFuture<
+        'a,
+        Option<maplecode_extension_api::ApprovalDecision>,
+    > {
         self.0
             .fetch_add(/*val*/ 1, std::sync::atomic::Ordering::SeqCst);
         Box::pin(async { Some(maplecode_extension_api::ApprovalDecision::Allow) })

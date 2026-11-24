@@ -54,6 +54,11 @@ use crate::session_state::ThreadSessionState;
 use crate::status::StatusAccountDisplay;
 use crate::status::plan_type_display_name;
 use crate::terminal_visualization_instructions::with_terminal_visualization_instructions;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
+use futures::FutureExt;
+use futures::future::Either;
+use futures::future::RemoteHandle;
 use maplecode_app_server_client::AppServerClient;
 use maplecode_app_server_client::AppServerPath;
 use maplecode_app_server_client::AppServerRequestHandle;
@@ -165,11 +170,6 @@ use maplecode_protocol::openai_models::ReasoningEffortPreset;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
-use futures::FutureExt;
-use futures::future::Either;
-use futures::future::RemoteHandle;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::path::PathBuf;
@@ -1081,7 +1081,8 @@ impl AppServerSession {
 
     pub(crate) async fn next_event(&mut self) -> Option<AppServerSessionEvent> {
         let event = self.connection_owner.as_mut()?.next_event().await?;
-        if let maplecode_app_server_client::AppServerEvent::ServerNotification(notification) = &event
+        if let maplecode_app_server_client::AppServerEvent::ServerNotification(notification) =
+            &event
             && let maplecode_app_server_protocol::ServerNotification::ThreadReadStateChanged(change) =
                 notification.as_ref()
             && let Ok(id) = ThreadId::from_string(&change.thread_id)
@@ -3693,7 +3694,8 @@ mod tests {
             ),
             async {
                 let command = commands.recv().await.expect("cloud thread start");
-                let maplecode_app_server_client::CloudOperation::Request(request) = command.operation
+                let maplecode_app_server_client::CloudOperation::Request(request) =
+                    command.operation
                 else {
                     panic!("expected cloud request")
                 };
@@ -3775,7 +3777,8 @@ mod tests {
             ),
             async {
                 let command = commands.recv().await.expect("cloud turn start");
-                let maplecode_app_server_client::CloudOperation::Request(request) = command.operation
+                let maplecode_app_server_client::CloudOperation::Request(request) =
+                    command.operation
                 else {
                     panic!("expected cloud request")
                 };
@@ -4029,12 +4032,14 @@ mod tests {
 
         assert_eq!(
             sandbox_policy,
-            Some(maplecode_app_server_protocol::SandboxPolicy::WorkspaceWrite {
-                writable_roots: Vec::new(),
-                network_access: false,
-                exclude_tmpdir_env_var: false,
-                exclude_slash_tmp: false,
-            })
+            Some(
+                maplecode_app_server_protocol::SandboxPolicy::WorkspaceWrite {
+                    writable_roots: Vec::new(),
+                    network_access: false,
+                    exclude_tmpdir_env_var: false,
+                    exclude_slash_tmp: false,
+                }
+            )
         );
         assert_eq!(permissions, None);
     }
@@ -5187,7 +5192,8 @@ mod tests {
         );
         let worker = tokio::spawn(async move {
             while let Some(command) = commands.recv().await {
-                let maplecode_app_server_client::CloudOperation::Request(request) = command.operation
+                let maplecode_app_server_client::CloudOperation::Request(request) =
+                    command.operation
                 else {
                     panic!("expected history request");
                 };
@@ -5286,8 +5292,10 @@ mod tests {
         let config = build_config(&temp_dir).await;
         let thread_id = ThreadId::new();
 
-        let history_config =
-            maplecode_message_history::HistoryConfig::new(config.maplecode_home.clone(), &config.history);
+        let history_config = maplecode_message_history::HistoryConfig::new(
+            config.maplecode_home.clone(),
+            &config.history,
+        );
 
         maplecode_message_history::append_entry("older", &thread_id, &history_config)
             .await

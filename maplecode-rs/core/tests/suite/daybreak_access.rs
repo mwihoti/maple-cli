@@ -1,20 +1,20 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use maplecode_core::TurnInputRequest;
-use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
-use maplecode_login::ExternalAuth;
-use maplecode_login::ExternalAuthFuture;
-use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::stdio_server_bin;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_mcp_server;
+use maplecode_core::TurnInputRequest;
+use maplecode_features::Feature;
+use maplecode_login::ExternalAuth;
+use maplecode_login::ExternalAuthFuture;
+use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -172,7 +172,10 @@ async fn daybreak_metadata_follows_the_actual_plugin_call(case: AccessCase) -> R
                 .expect("remote executor")
                 .is_remote()
         );
-        let (config, _) = test.maplecode.current_mcp_config_and_runtime_context().await;
+        let (config, _) = test
+            .maplecode
+            .current_mcp_config_and_runtime_context()
+            .await;
         assert_eq!(
             config.mcp_server_catalog.configured_servers()["sample"].environment_id,
             "remote"
@@ -293,7 +296,10 @@ impl ExternalAuth for SelectedAuth {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 }

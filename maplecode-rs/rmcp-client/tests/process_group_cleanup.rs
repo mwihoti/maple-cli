@@ -9,11 +9,11 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
+use futures::FutureExt as _;
 use maplecode_rmcp_client::ElicitationAction;
 use maplecode_rmcp_client::ElicitationResponse;
 use maplecode_rmcp_client::LocalStdioServerLauncher;
 use maplecode_rmcp_client::RmcpClient;
-use futures::FutureExt as _;
 use rmcp::model::ClientCapabilities;
 use rmcp::model::Implementation;
 use rmcp::model::InitializeRequestParams;
@@ -27,7 +27,8 @@ fn stdio_server_bin() -> Result<std::path::PathBuf> {
 fn init_params() -> InitializeRequestParams {
     InitializeRequestParams::new(
         ClientCapabilities::default(),
-        Implementation::new("maplecode-test", "0.0.0-test").with_title("Maple Code rmcp shutdown test"),
+        Implementation::new("maplecode-test", "0.0.0-test")
+            .with_title("Maple Code rmcp shutdown test"),
     )
     .with_protocol_version(ProtocolVersion::V_2025_06_18)
 }

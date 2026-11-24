@@ -109,7 +109,11 @@ impl PidBackend {
         }
     }
 
-    pub(crate) fn new(maplecode_bin: PathBuf, pid_file: PathBuf, remote_control_enabled: bool) -> Self {
+    pub(crate) fn new(
+        maplecode_bin: PathBuf,
+        pid_file: PathBuf,
+        remote_control_enabled: bool,
+    ) -> Self {
         let lock_file = pid_file.with_extension("pid.lock");
         Self {
             feature_overrides: BTreeMap::new(),
@@ -204,7 +208,9 @@ impl PidBackend {
                             .and_then(Path::parent)
                             .context("daemon pid path has no Maple Code home")?;
                         let socket_path =
-                            maplecode_app_server_transport::app_server_control_socket_path(maplecode_home)?;
+                            maplecode_app_server_transport::app_server_control_socket_path(
+                                maplecode_home,
+                            )?;
                         if let Err(err) =
                             crate::client::request_shutdown(socket_path.as_path(), pid).await
                         {

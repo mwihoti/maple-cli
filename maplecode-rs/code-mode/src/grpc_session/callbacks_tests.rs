@@ -6,8 +6,8 @@ use std::sync::Mutex;
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
-use maplecode_code_mode_protocol::CodeModeOutputTruncation;
 use http_body_util::Full;
+use maplecode_code_mode_protocol::CodeModeOutputTruncation;
 use pretty_assertions::assert_eq;
 use tokio::sync::Notify;
 use tokio::sync::Semaphore;

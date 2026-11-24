@@ -1,12 +1,12 @@
 use super::agent;
 use crate::memory_root;
+use core_test_support::responses::start_mock_server;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_model_provider::create_model_provider;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::permissions::FileSystemSandboxPolicy;
 use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_protocol::permissions::PROTECTED_METADATA_PATH_NAMES;
-use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use tempfile::TempDir;
@@ -21,8 +21,10 @@ async fn consolidation_rebinds_workspace_roots_to_memory_root() -> anyhow::Resul
         .with_home(home)
         .with_config(move |config| {
             config.workspace_roots.push(
-                maplecode_utils_absolute_path::AbsolutePathBuf::from_absolute_path(parent_extra_root)
-                    .expect("temporary directory is absolute"),
+                maplecode_utils_absolute_path::AbsolutePathBuf::from_absolute_path(
+                    parent_extra_root,
+                )
+                .expect("temporary directory is absolute"),
             );
             config.workspace_roots_explicit = false;
             config

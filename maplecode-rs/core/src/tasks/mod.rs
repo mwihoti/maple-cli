@@ -10,10 +10,10 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::time::Instant;
 
+use futures::future::BoxFuture;
 use maplecode_diagnostics::Gauge;
 use maplecode_exec_server::ExecutorCapabilityDiscoveryV2Cache;
 use maplecode_extension_api::ThreadIdleCause;
-use futures::future::BoxFuture;
 use tokio::select;
 use tokio::sync::Mutex;
 use tokio::sync::Notify;
@@ -28,10 +28,10 @@ use tracing::trace_span;
 use tracing::warn;
 
 use crate::agent::helper_daybreak::turn::HelperTurnAdmission;
-use crate::maplecode_thread::BackgroundTerminalInfo;
 use crate::config::Config;
 use crate::context::ContextualUserFragment;
 use crate::hook_runtime::run_turn_interrupt_hooks;
+use crate::maplecode_thread::BackgroundTerminalInfo;
 use crate::session::TurnInput;
 use crate::session::session::Session;
 use crate::session::turn::McpStartupRequirements;
@@ -64,10 +64,10 @@ use maplecode_protocol::protocol::WarningEvent;
 use maplecode_thread_store::PersistContext;
 
 pub(crate) use admission::HostTurnStarted;
+pub(crate) use compact::CompactTask;
 use maplecode_features::Feature;
 use maplecode_protocol::error::MapleCodeErrorDetails;
 use maplecode_protocol::error::Result as MapleCodeResult;
-pub(crate) use compact::CompactTask;
 pub(crate) use regular::RegularTask;
 pub(crate) use review::ReviewTask;
 pub(crate) use user_shell::UserShellCommandMode;

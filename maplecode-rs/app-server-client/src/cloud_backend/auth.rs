@@ -3,13 +3,13 @@
 use super::start_worker;
 use crate::AppServerClient;
 use crate::legacy_core::config::Config;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::bail;
+use color_eyre::eyre::eyre;
 use maplecode_app_server_protocol as protocol;
 use maplecode_cloud_client as cloud;
 use maplecode_login::token_data::parse_jwt_expiration;
 use maplecode_protocol::account::PlanType;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::bail;
-use color_eyre::eyre::eyre;
 
 const ORIGIN: &str = "https://codex-cloud-backend.chatgpt.com";
 

@@ -5,6 +5,12 @@ use std::num::NonZeroUsize;
 use std::sync::Arc;
 
 use anyhow::Result;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::config::Config;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
@@ -21,12 +27,6 @@ use maplecode_skills_extension::catalog::SkillPackageId;
 use maplecode_skills_extension::catalog::SkillResourceId;
 use maplecode_skills_extension::catalog::SkillSourceKind;
 use maplecode_skills_extension::install_with_providers;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

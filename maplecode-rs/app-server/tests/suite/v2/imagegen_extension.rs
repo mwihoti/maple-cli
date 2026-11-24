@@ -8,6 +8,8 @@ use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::write_chatgpt_auth;
 use base64::Engine;
+use core_test_support::responses;
+use core_test_support::skip_if_remote;
 use maplecode_app_server_protocol::GeneratedImageRef;
 use maplecode_app_server_protocol::ImageGenerationFailure;
 use maplecode_app_server_protocol::ImageGenerationInputImage;
@@ -28,8 +30,6 @@ use maplecode_app_server_protocol::UserInput as V2UserInput;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_features::Feature;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::responses;
-use core_test_support::skip_if_remote;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use sha2::Digest;
@@ -131,7 +131,11 @@ async fn standalone_image_generation_returns_saved_path_hint_to_model(
     .await;
 
     let maplecode_home = TempDir::new()?;
-    create_config_toml(maplecode_home.path(), &server.uri(), ImagegenTestMode::Direct)?;
+    create_config_toml(
+        maplecode_home.path(),
+        &server.uri(),
+        ImagegenTestMode::Direct,
+    )?;
     mount_analytics_capture(&server, maplecode_home.path()).await?;
 
     let mut mcp = TestAppServer::builder()
@@ -365,7 +369,11 @@ async fn transparent_image_preserves_output_metadata_and_persisted_history(
     )
     .await;
 
-    create_config_toml(maplecode_home.path(), &server.uri(), ImagegenTestMode::Direct)?;
+    create_config_toml(
+        maplecode_home.path(),
+        &server.uri(),
+        ImagegenTestMode::Direct,
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("access-chatgpt"),
@@ -493,7 +501,11 @@ async fn automatic_image_background_preserves_unknown_transparency() -> Result<(
     .await;
 
     let maplecode_home = TempDir::new()?;
-    create_config_toml(maplecode_home.path(), &server.uri(), ImagegenTestMode::Direct)?;
+    create_config_toml(
+        maplecode_home.path(),
+        &server.uri(),
+        ImagegenTestMode::Direct,
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("access-chatgpt"),
@@ -563,7 +575,11 @@ async fn invalid_transparent_background_does_not_dispatch(
     .await;
 
     let maplecode_home = TempDir::new()?;
-    create_config_toml(maplecode_home.path(), &server.uri(), ImagegenTestMode::Direct)?;
+    create_config_toml(
+        maplecode_home.path(),
+        &server.uri(),
+        ImagegenTestMode::Direct,
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("access-chatgpt"),
@@ -655,7 +671,11 @@ async fn standalone_image_generation_failure_emits_terminal_item(
     )
     .await;
 
-    create_config_toml(maplecode_home.path(), &server.uri(), ImagegenTestMode::Direct)?;
+    create_config_toml(
+        maplecode_home.path(),
+        &server.uri(),
+        ImagegenTestMode::Direct,
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("access-chatgpt"),
@@ -782,7 +802,11 @@ async fn image_generation_usage_limit_preserves_correlated_failure_metadata(
     .await;
 
     let maplecode_home = TempDir::new()?;
-    create_config_toml(maplecode_home.path(), &server.uri(), ImagegenTestMode::Direct)?;
+    create_config_toml(
+        maplecode_home.path(),
+        &server.uri(),
+        ImagegenTestMode::Direct,
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("access-chatgpt"),
@@ -1332,7 +1356,11 @@ async fn run_image_edit_test(
     )
     .await;
 
-    create_config_toml(maplecode_home.path(), &server.uri(), ImagegenTestMode::Direct)?;
+    create_config_toml(
+        maplecode_home.path(),
+        &server.uri(),
+        ImagegenTestMode::Direct,
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("access-chatgpt"),

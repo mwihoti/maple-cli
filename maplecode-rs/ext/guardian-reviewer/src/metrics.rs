@@ -348,8 +348,13 @@ mod tests {
     fn test_session_telemetry() -> SessionTelemetry {
         let exporter = InMemoryMetricExporter::default();
         let metrics = MetricsClient::new(
-            MetricsConfig::in_memory("test", "maplecode-core", env!("CARGO_PKG_VERSION"), exporter)
-                .with_runtime_reader(),
+            MetricsConfig::in_memory(
+                "test",
+                "maplecode-core",
+                env!("CARGO_PKG_VERSION"),
+                exporter,
+            )
+            .with_runtime_reader(),
         )
         .expect("in-memory metrics client");
         SessionTelemetry::new(

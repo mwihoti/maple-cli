@@ -48,7 +48,10 @@ fn managed_local_binding_does_not_allow_external_dns() {
     .expect("generated Seatbelt arguments");
     let output = Command::new(MACOS_PATH_TO_SEATBELT_EXECUTABLE)
         .args(args)
-        .env("MAPLECODE_TEST_DNS_PROXY_ADDRESS", proxy_address.to_string())
+        .env(
+            "MAPLECODE_TEST_DNS_PROXY_ADDRESS",
+            proxy_address.to_string(),
+        )
         .output()
         .expect("run managed DNS probe");
     let stderr = String::from_utf8_lossy(&output.stderr);

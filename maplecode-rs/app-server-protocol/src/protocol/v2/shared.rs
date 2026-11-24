@@ -4,8 +4,8 @@ use maplecode_experimental_api_macros::ExperimentalApi;
 use maplecode_protocol::config_types::ApprovalsReviewer as CoreApprovalsReviewer;
 use maplecode_protocol::config_types::SandboxMode as CoreSandboxMode;
 use maplecode_protocol::protocol::AskForApproval as CoreAskForApproval;
-use maplecode_protocol::protocol::MapleCodeErrorInfo as CoreMapleCodeErrorInfo;
 use maplecode_protocol::protocol::GranularApprovalConfig as CoreGranularApprovalConfig;
+use maplecode_protocol::protocol::MapleCodeErrorInfo as CoreMapleCodeErrorInfo;
 use maplecode_protocol::protocol::NonSteerableTurnKind as CoreNonSteerableTurnKind;
 #[cfg(test)]
 use schemars::r#gen::SchemaGenerator;
@@ -154,8 +154,12 @@ where
 impl From<CoreMapleCodeErrorInfo> for MapleCodeErrorInfo {
     fn from(value: CoreMapleCodeErrorInfo) -> Self {
         match value {
-            CoreMapleCodeErrorInfo::ContextWindowExceeded => MapleCodeErrorInfo::ContextWindowExceeded,
-            CoreMapleCodeErrorInfo::SessionBudgetExceeded => MapleCodeErrorInfo::SessionBudgetExceeded,
+            CoreMapleCodeErrorInfo::ContextWindowExceeded => {
+                MapleCodeErrorInfo::ContextWindowExceeded
+            }
+            CoreMapleCodeErrorInfo::SessionBudgetExceeded => {
+                MapleCodeErrorInfo::SessionBudgetExceeded
+            }
             CoreMapleCodeErrorInfo::UsageLimitExceeded => MapleCodeErrorInfo::UsageLimitExceeded,
             CoreMapleCodeErrorInfo::RateLimitExceeded => MapleCodeErrorInfo::RateLimitExceeded,
             CoreMapleCodeErrorInfo::FlexUnavailable => MapleCodeErrorInfo::FlexUnavailable,
@@ -181,7 +185,9 @@ impl From<CoreMapleCodeErrorInfo> for MapleCodeErrorInfo {
             CoreMapleCodeErrorInfo::Unauthorized => MapleCodeErrorInfo::Unauthorized,
             CoreMapleCodeErrorInfo::BadRequest => MapleCodeErrorInfo::BadRequest,
             CoreMapleCodeErrorInfo::InvalidPrompt => MapleCodeErrorInfo::Other,
-            CoreMapleCodeErrorInfo::ThreadRollbackFailed => MapleCodeErrorInfo::ThreadRollbackFailed,
+            CoreMapleCodeErrorInfo::ThreadRollbackFailed => {
+                MapleCodeErrorInfo::ThreadRollbackFailed
+            }
             CoreMapleCodeErrorInfo::SandboxError => MapleCodeErrorInfo::SandboxError,
             CoreMapleCodeErrorInfo::ResponseStreamDisconnected { http_status_code } => {
                 MapleCodeErrorInfo::ResponseStreamDisconnected { http_status_code }

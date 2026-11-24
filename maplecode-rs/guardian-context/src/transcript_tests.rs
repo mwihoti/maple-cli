@@ -889,8 +889,9 @@ fn collect_guardian_transcript_entries_includes_recent_tool_calls_and_output() {
 
     let oversized_result = "é🙂".repeat(/*n*/ 10_000);
     if let ResponseItem::FunctionCallOutput { output, .. } = &mut items[2] {
-        *output =
-            maplecode_protocol::models::FunctionCallOutputPayload::from_text(oversized_result.clone());
+        *output = maplecode_protocol::models::FunctionCallOutputPayload::from_text(
+            oversized_result.clone(),
+        );
     }
     for token_cap in [profile.transcript.entry_limits.tool_tokens, 6_000] {
         profile.transcript.entry_limits.node_repl_output_tokens = token_cap;

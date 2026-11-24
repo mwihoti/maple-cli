@@ -37,8 +37,13 @@ fn review_completion_uses_one_monotonic_duration(
     let has_client_event = action.is_some();
     let exporter = InMemoryMetricExporter::default();
     let metrics = MetricsClient::new(
-        MetricsConfig::in_memory("test", "maplecode-core", env!("CARGO_PKG_VERSION"), exporter)
-            .with_runtime_reader(),
+        MetricsConfig::in_memory(
+            "test",
+            "maplecode-core",
+            env!("CARGO_PKG_VERSION"),
+            exporter,
+        )
+        .with_runtime_reader(),
     )
     .expect("in-memory metrics client");
     let telemetry = SessionTelemetry::new(

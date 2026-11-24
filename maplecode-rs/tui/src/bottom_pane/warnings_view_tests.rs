@@ -16,8 +16,9 @@ fn entries() -> Vec<WarningEntry> {
         WarningEntry {
             id: WarningId::McpServer("example".into()),
             source: "MCP · example".into(),
-            details: "MCP example could not connect\nSign in again using maplecode mcp login example"
-                .into(),
+            details:
+                "MCP example could not connect\nSign in again using maplecode mcp login example"
+                    .into(),
         },
         WarningEntry {
             id: WarningId::Message("config".into()),

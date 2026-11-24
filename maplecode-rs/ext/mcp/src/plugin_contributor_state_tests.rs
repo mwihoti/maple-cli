@@ -129,8 +129,10 @@ fn partial_refresh_retains_entries_without_excluding_new_executor_plugins() -> a
     assert_eq!(state.cloud_catalog(), Some(&expected));
 
     state.update_executor_catalog(&[executor_snapshot("executor-a")?]);
-    let merged =
-        maplecode_core_plugins::merge_catalogs(state.executor_catalog.as_ref(), state.cloud_catalog());
+    let merged = maplecode_core_plugins::merge_catalogs(
+        state.executor_catalog.as_ref(),
+        state.cloud_catalog(),
+    );
     assert!(
         merged
             .entries

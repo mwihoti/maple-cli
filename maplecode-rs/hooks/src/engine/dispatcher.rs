@@ -350,7 +350,9 @@ pub(crate) fn hook_source_label(source: maplecode_protocol::protocol::HookSource
         maplecode_protocol::protocol::HookSource::LegacyManagedConfigFile => {
             "legacy_managed_config_file"
         }
-        maplecode_protocol::protocol::HookSource::LegacyManagedConfigMdm => "legacy_managed_config_mdm",
+        maplecode_protocol::protocol::HookSource::LegacyManagedConfigMdm => {
+            "legacy_managed_config_mdm"
+        }
         maplecode_protocol::protocol::HookSource::Unknown => "unknown",
     }
 }

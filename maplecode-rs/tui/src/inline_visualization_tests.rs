@@ -183,8 +183,11 @@ fn unavailable_artifact_has_explicit_fallback() {
         .expect("UUIDv7 thread id should provide a timestamp");
 
     assert_eq!(
-        rewrite_inline_visualizations("::maplecode-inline-vis{file=\"missing.html\"}", Some(&context),)
-            .markdown,
+        rewrite_inline_visualizations(
+            "::maplecode-inline-vis{file=\"missing.html\"}",
+            Some(&context),
+        )
+        .markdown,
         "_Visualization unavailable on this device._"
     );
 }
@@ -217,8 +220,11 @@ fn rejects_oversized_fragment() {
         .expect("enlarge fragment");
 
     assert_eq!(
-        rewrite_inline_visualizations("::maplecode-inline-vis{file=\"chart.html\"}", Some(&context),)
-            .markdown,
+        rewrite_inline_visualizations(
+            "::maplecode-inline-vis{file=\"chart.html\"}",
+            Some(&context),
+        )
+        .markdown,
         "_Visualization unavailable on this device._"
     );
 }

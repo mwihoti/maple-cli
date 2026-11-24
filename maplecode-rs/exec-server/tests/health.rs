@@ -2,6 +2,7 @@
 
 mod common;
 
+use common::exec_server::exec_server;
 use maplecode_exec_server::Environment;
 use maplecode_exec_server::EnvironmentStatus;
 use maplecode_exec_server::EnvironmentStatusKind;
@@ -9,7 +10,6 @@ use maplecode_exec_server::InitializeParams;
 use maplecode_exec_server::InitializeResponse;
 use maplecode_exec_server_protocol::JSONRPCMessage;
 use maplecode_exec_server_protocol::JSONRPCResponse;
-use common::exec_server::exec_server;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

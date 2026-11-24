@@ -1,13 +1,6 @@
 //! Mailbox scheduling preserves deferred responses and drains graceful interrupts.
 //! Queued mail reaches the next request without losing completed response items.
 
-use maplecode_core::TurnInputRequest;
-use maplecode_core::TurnInputSubmission;
-use maplecode_features::Feature;
-use maplecode_protocol::AgentPath;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::InterAgentCommunication;
-use maplecode_protocol::protocol::Op;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::context_snapshot::SnapshotEntry;
@@ -17,6 +10,13 @@ use core_test_support::streaming_sse::start_streaming_sse_server;
 use core_test_support::test_maplecode::TestMapleCode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_core::TurnInputRequest;
+use maplecode_core::TurnInputSubmission;
+use maplecode_features::Feature;
+use maplecode_protocol::AgentPath;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::InterAgentCommunication;
+use maplecode_protocol::protocol::Op;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -157,7 +157,9 @@ async fn mailbox_preemption_preserves_response_when_deferred(
     let thread_id = test.session_configured.thread_id.to_string();
     assert_eq!(
         logs.lines()
-            .filter(|line| line.contains("maplecode.mailbox_preemption") && line.contains(&thread_id))
+            .filter(
+                |line| line.contains("maplecode.mailbox_preemption") && line.contains(&thread_id)
+            )
             .count(),
         usize::from(!defer_mailbox_preemption),
     );

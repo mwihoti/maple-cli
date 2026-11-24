@@ -2,6 +2,13 @@
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::responses::*;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::config::Constrained;
 use maplecode_core::context::UserGoalUpdate;
 use maplecode_protocol::AgentPath;
@@ -13,13 +20,6 @@ use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::InterAgentCommunication;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::SandboxPolicy;
-use core_test_support::responses::*;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

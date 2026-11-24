@@ -10,11 +10,11 @@ use std::time::Duration;
 
 use super::*;
 use crate::FeedbackDiagnostic;
-use maplecode_http_client::OutboundProxyPolicy;
 use flate2::Compression;
 use flate2::read::GzDecoder;
 use flate2::write::GzEncoder;
 use http::StatusCode;
+use maplecode_http_client::OutboundProxyPolicy;
 use pretty_assertions::assert_eq;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;

@@ -3,13 +3,13 @@
 use super::*;
 use axum::Json;
 use axum::routing::get;
+use flate2::Compression;
+use flate2::write::GzEncoder;
 use maplecode_app_server_protocol::PluginInstalledResponse;
 use maplecode_app_server_protocol::PluginReconcileResponse;
 use maplecode_app_server_protocol::SkillMetadata;
 use maplecode_app_server_protocol::SkillsListParams;
 use maplecode_app_server_protocol::SkillsListResponse;
-use flate2::Compression;
-use flate2::write::GzEncoder;
 use pretty_assertions::assert_eq;
 use tokio::sync::RwLock;
 

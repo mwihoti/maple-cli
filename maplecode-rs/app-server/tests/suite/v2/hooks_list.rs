@@ -5,6 +5,8 @@ use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::create_final_assistant_message_sse_response;
 use app_test_support::create_mock_responses_server_sequence_unchecked;
+use core_test_support::skip_if_host_windows;
+use core_test_support::skip_if_remote;
 use maplecode_app_server_protocol::ConfigBatchWriteParams;
 use maplecode_app_server_protocol::ConfigEdit;
 use maplecode_app_server_protocol::HookEventName;
@@ -31,8 +33,6 @@ use maplecode_features::Feature;
 use maplecode_plugin::PluginId;
 use maplecode_protocol::config_types::TrustLevel;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::skip_if_host_windows;
-use core_test_support::skip_if_remote;
 use pretty_assertions::assert_eq;
 use serde::Serialize;
 use tempfile::TempDir;
@@ -479,7 +479,12 @@ async fn plugin_upgrade_refreshes_hook_runtime_for_loaded_session() -> Result<()
         .await?;
     let _: PluginInstallResponse =
         timeout(DEFAULT_TIMEOUT, mcp.read_response(install_id)).await??;
-    assert!(!maplecode_home.path().join("plugins/cache/test/demo/1").exists());
+    assert!(
+        !maplecode_home
+            .path()
+            .join("plugins/cache/test/demo/1")
+            .exists()
+    );
 
     let second_turn_id = mcp
         .send_turn_start_request(TurnStartParams {
@@ -542,7 +547,12 @@ async fn plugin_upgrade_refreshes_hook_runtime_for_loaded_session() -> Result<()
         .await?;
     let _: PluginInstallResponse =
         timeout(DEFAULT_TIMEOUT, mcp.read_response(install_id)).await??;
-    assert!(!maplecode_home.path().join("plugins/cache/test/demo/2").exists());
+    assert!(
+        !maplecode_home
+            .path()
+            .join("plugins/cache/test/demo/2")
+            .exists()
+    );
 
     let archive_id = mcp
         .send_thread_archive_request(ThreadArchiveParams {
@@ -1457,7 +1467,9 @@ async fn config_batch_write_updates_hook_trust_for_loaded_session() -> Result<()
     let server = create_mock_responses_server_sequence_unchecked(responses).await;
     let maplecode_home = TempDir::new()?;
     let hook_script_path = maplecode_home.path().join("user_prompt_submit_hook.py");
-    let hook_log_path = maplecode_home.path().join("user_prompt_submit_hook_log.jsonl");
+    let hook_log_path = maplecode_home
+        .path()
+        .join("user_prompt_submit_hook_log.jsonl");
     std::fs::write(
         &hook_script_path,
         format!(
@@ -1663,7 +1675,9 @@ async fn config_batch_write_disables_hook_for_loaded_session() -> Result<()> {
     let server = create_mock_responses_server_sequence_unchecked(responses).await;
     let maplecode_home = TempDir::new()?;
     let hook_script_path = maplecode_home.path().join("user_prompt_submit_hook.py");
-    let hook_log_path = maplecode_home.path().join("user_prompt_submit_hook_log.jsonl");
+    let hook_log_path = maplecode_home
+        .path()
+        .join("user_prompt_submit_hook_log.jsonl");
     std::fs::write(
         &hook_script_path,
         format!(

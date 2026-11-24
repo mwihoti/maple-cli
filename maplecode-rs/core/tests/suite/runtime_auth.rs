@@ -3,6 +3,12 @@
 use anyhow::Context;
 use anyhow::Result;
 use base64::Engine;
+use core_test_support::responses;
+use core_test_support::runtime_auth::PROBE_SERVER;
+use core_test_support::runtime_auth::run_harness_through_proxy;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::MapleCodeThread;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
@@ -23,12 +29,6 @@ use maplecode_protocol::protocol::ReviewTarget;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::runtime_auth::PROBE_SERVER;
-use core_test_support::runtime_auth::run_harness_through_proxy;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -918,7 +918,8 @@ async fn exercise_mcp_uploads() -> Result<()> {
                 .expect("enable runtime auth");
         })
         .with_workspace_setup(|cwd, fs| async move {
-            let report = core_test_support::test_maplecode::executor_path_uri(cwd.join("report.txt"))?;
+            let report =
+                core_test_support::test_maplecode::executor_path_uri(cwd.join("report.txt"))?;
             fs.write_file(
                 &report,
                 b"report".to_vec(),

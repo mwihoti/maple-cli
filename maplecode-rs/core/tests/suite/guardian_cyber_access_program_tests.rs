@@ -1,6 +1,10 @@
 //! Verifies reviewer program selection and parent-only enrollment across reviewer reuse.
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnStartOptions;
 use maplecode_core::config::Constrained;
@@ -14,10 +18,6 @@ use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::SandboxPolicy;
 use maplecode_protocol::turn_input::CyberAccessProgram;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;

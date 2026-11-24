@@ -1,7 +1,26 @@
 use anyhow::Result;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_image_generation_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_completed;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use maplecode_config::types::Personality;
-use maplecode_core::MapleCodeThread;
 use maplecode_core::ForkSnapshot;
+use maplecode_core::MapleCodeThread;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
 use maplecode_features::Feature;
@@ -39,25 +58,6 @@ use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::request_user_input::RequestUserInputAnswer;
 use maplecode_protocol::request_user_input::RequestUserInputResponse;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_image_generation_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_completed;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
@@ -65,7 +65,11 @@ use std::sync::Arc;
 use test_case::test_case;
 use wiremock::MockServer;
 
-fn read_only_user_turn(test: &TestMapleCode, items: Vec<UserInput>, model: String) -> TurnInputRequest {
+fn read_only_user_turn(
+    test: &TestMapleCode,
+    items: Vec<UserInput>,
+    model: String,
+) -> TurnInputRequest {
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::read_only(), test.cwd_path());
     TurnInputRequest::user_input(items).with_thread_settings(ThreadSettingsOverrides {
@@ -184,8 +188,8 @@ async fn first_turn_model_change_appends_model_instructions_developer_message(
     let server = MockServer::start().await;
     let resp_mock = mount_sse_once(&server, sse_completed("resp-1")).await;
 
-    let mut builder =
-        test_maplecode().with_model_info_override("gpt-5.6-terra", configure_model_switching_fixture);
+    let mut builder = test_maplecode()
+        .with_model_info_override("gpt-5.6-terra", configure_model_switching_fixture);
     let test = builder.build_with_auto_env(&server).await?;
     let next_model = "gpt-5.5";
 
@@ -305,8 +309,8 @@ async fn model_change_appends_model_instructions_developer_message() -> Result<(
     )
     .await;
 
-    let mut builder =
-        test_maplecode().with_model_info_override("gpt-5.6-terra", configure_model_switching_fixture);
+    let mut builder = test_maplecode()
+        .with_model_info_override("gpt-5.6-terra", configure_model_switching_fixture);
     let test = builder.build(&server).await?;
     let next_model = "gpt-5.5";
 
@@ -320,7 +324,10 @@ async fn model_change_appends_model_instructions_developer_message() -> Result<(
             test.session_configured.model.clone(),
         ))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &test.maplecode,
@@ -341,7 +348,10 @@ async fn model_change_appends_model_instructions_developer_message() -> Result<(
             next_model.to_string(),
         ))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let requests = resp_mock.requests();
     assert_eq!(requests.len(), 2, "expected two model requests");
@@ -435,7 +445,12 @@ async fn model_change_respects_personality_opt_out_updates(
     )
     .await?;
 
-    submit_model_turn(&test.maplecode, next_model, ThreadSettingsOverrides::default()).await?;
+    submit_model_turn(
+        &test.maplecode,
+        next_model,
+        ThreadSettingsOverrides::default(),
+    )
+    .await?;
 
     let requests = resp_mock.requests();
     assert_eq!(requests.len(), 2, "expected two model requests");
@@ -922,7 +937,10 @@ async fn model_change_projects_media_without_changing_live_or_replayed_history(
             multimodal_model_slug.to_string(),
         ))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     test.maplecode
         .start_or_steer_turn(read_only_user_turn(
@@ -934,7 +952,10 @@ async fn model_change_projects_media_without_changing_live_or_replayed_history(
             text_model_slug.to_string(),
         ))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let requests = responses.requests();
     assert_eq!(requests.len(), 2, "expected two model requests");
@@ -1103,7 +1124,10 @@ async fn generated_image_is_replayed_for_image_capable_models() -> Result<()> {
             image_model_slug.to_string(),
         ))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     test.maplecode
         .start_or_steer_turn(read_only_user_turn(
@@ -1115,7 +1139,10 @@ async fn generated_image_is_replayed_for_image_capable_models() -> Result<()> {
             image_model_slug.to_string(),
         ))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let requests = responses.requests();
     assert_eq!(requests.len(), 2, "expected two model requests");
@@ -1200,7 +1227,10 @@ async fn model_change_from_generated_image_to_text_preserves_prior_generated_ima
             image_model_slug.to_string(),
         ))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     test.maplecode
         .start_or_steer_turn(read_only_user_turn(
@@ -1212,7 +1242,10 @@ async fn model_change_from_generated_image_to_text_preserves_prior_generated_ima
             text_model_slug.to_string(),
         ))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let requests = responses.requests();
     assert_eq!(requests.len(), 2, "expected two model requests");
@@ -1402,7 +1435,10 @@ async fn model_switch_to_smaller_model_updates_token_context_window() -> Result<
             .and_then(|info| info.model_context_window),
         Some(large_effective_window)
     );
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &test.maplecode,
@@ -1460,7 +1496,10 @@ async fn model_switch_to_smaller_model_updates_token_context_window() -> Result<
         .and_then(|info| info.model_context_window);
     assert_eq!(smaller_window, Some(smaller_effective_window));
     assert_ne!(smaller_window, Some(large_effective_window));
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     Ok(())
 }

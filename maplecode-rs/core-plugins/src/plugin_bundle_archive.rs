@@ -65,7 +65,8 @@ pub(crate) fn pack_plugin_bundle_tar_gz(
     {
         return Err(PluginBundlePackError::InvalidPluginPath {
             path: plugin_path.to_path_buf(),
-            reason: "missing .maplecode-plugin/plugin.json or valid Agent Plugin manifest".to_string(),
+            reason: "missing .maplecode-plugin/plugin.json or valid Agent Plugin manifest"
+                .to_string(),
         });
     }
 

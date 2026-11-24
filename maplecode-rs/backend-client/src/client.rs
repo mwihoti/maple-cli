@@ -1,14 +1,22 @@
 use crate::types::AccountsCheckResponse;
 use crate::types::CodeTaskDetailsResponse;
+use crate::types::ConfigBundleResponse;
 use crate::types::MapleCodeUserSettingsResponse;
 use crate::types::MapleCodeWorkspaceMessagesResponse;
-use crate::types::ConfigBundleResponse;
 use crate::types::PaginatedListTaskListItem;
 use crate::types::RateLimitReachedKind as BackendRateLimitReachedKind;
 use crate::types::RateLimitStatusPayload;
 use crate::types::TokenUsageProfile;
 use crate::types::TurnAttemptsSiblingTurnsResponse;
 use anyhow::Result;
+use http::Method;
+use http::StatusCode;
+use http::header::CACHE_CONTROL;
+use http::header::CONTENT_TYPE;
+use http::header::HeaderMap;
+use http::header::HeaderName;
+use http::header::HeaderValue;
+use http::header::USER_AGENT;
 use maplecode_api::AuthError;
 use maplecode_api::SharedAuthProvider;
 use maplecode_features::RuntimeAuthMode;
@@ -29,14 +37,6 @@ use maplecode_protocol::protocol::RateLimitSnapshot;
 use maplecode_protocol::protocol::RateLimitWindow;
 use maplecode_protocol::protocol::SpendControlLimitSnapshot;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
-use http::Method;
-use http::StatusCode;
-use http::header::CACHE_CONTROL;
-use http::header::CONTENT_TYPE;
-use http::header::HeaderMap;
-use http::header::HeaderName;
-use http::header::HeaderValue;
-use http::header::USER_AGENT;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::fmt;
@@ -864,7 +864,9 @@ impl Client {
 
     fn workspace_messages_url(&self) -> String {
         match self.path_style {
-            PathStyle::MapleCodeApi => format!("{}/api/maplecode/workspace-messages", self.base_url),
+            PathStyle::MapleCodeApi => {
+                format!("{}/api/maplecode/workspace-messages", self.base_url)
+            }
             PathStyle::ChatGptApi => format!("{}/wham/workspace-messages", self.base_url),
         }
     }

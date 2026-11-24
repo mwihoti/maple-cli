@@ -1,10 +1,10 @@
 //! Verify unsent startup text survives edits, buffered pastes, and handoff.
 
 use super::*;
-use maplecode_protocol::user_input::ByteRange;
-use maplecode_protocol::user_input::TextElement;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
+use maplecode_protocol::user_input::ByteRange;
+use maplecode_protocol::user_input::TextElement;
 use pretty_assertions::assert_eq;
 
 fn snapshot(text: &str) -> ComposerDraftSnapshot {

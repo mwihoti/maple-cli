@@ -10,6 +10,10 @@ use crate::context::world_state::WorldStateUpdateContent;
 use crate::image_preparation::tests::FailingAttachmentStore;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use image::ImageBuffer;
+use image::ImageFormat;
+use image::Luma;
+use image::Rgba;
 use maplecode_attachment_store::InlineAttachmentStore;
 use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
@@ -46,10 +50,6 @@ use maplecode_protocol_test_support::ContentItemTestExt;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_output_truncation::TruncationPolicy;
 use maplecode_utils_output_truncation::truncate_text;
-use image::ImageBuffer;
-use image::ImageFormat;
-use image::Luma;
-use image::Rgba;
 use pretty_assertions::assert_eq;
 use regex_lite::Regex;
 use serde_json::from_value;
@@ -2096,17 +2096,19 @@ async fn drop_last_n_user_turns_preserves_prefix() {
         };
         history.record_items([&message], TruncationPolicy::Tokens(10_000));
         if id == "restriction" {
-            history.record_retained_context(&maplecode_history::RetainedContextEvent::VerifiedAnswer {
-                answer: maplecode_history::VerifiedAnswer {
-                    turn_id: "shared-turn".to_owned(),
-                    call_id: "ask".to_owned(),
-                    questions: vec![maplecode_history::VerifiedQuestionAnswer {
-                        question: "Publish?".to_owned(),
-                        answer: "Only privately.".to_owned(),
-                    }],
+            history.record_retained_context(
+                &maplecode_history::RetainedContextEvent::VerifiedAnswer {
+                    answer: maplecode_history::VerifiedAnswer {
+                        turn_id: "shared-turn".to_owned(),
+                        call_id: "ask".to_owned(),
+                        questions: vec![maplecode_history::VerifiedQuestionAnswer {
+                            question: "Publish?".to_owned(),
+                            answer: "Only privately.".to_owned(),
+                        }],
+                    },
+                    acceptance_order: None,
                 },
-                acceptance_order: None,
-            });
+            );
             expected = Some(history.retained_context().clone());
         }
     }

@@ -7,7 +7,10 @@ use super::MapleCodeAuth;
 use crate::token_data::decode_jwt_payload;
 use serde::Deserialize;
 
-pub(super) fn same_source(previous: Option<&MapleCodeAuth>, current: Option<&MapleCodeAuth>) -> bool {
+pub(super) fn same_source(
+    previous: Option<&MapleCodeAuth>,
+    current: Option<&MapleCodeAuth>,
+) -> bool {
     let (Some(previous), Some(current)) = (previous, current) else {
         return false;
     };

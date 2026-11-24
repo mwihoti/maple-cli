@@ -111,8 +111,14 @@ fn snapshot_capture_selects_declarations_and_environment() -> Result<()> {
 
             // Both replay paths must preserve current metadata from a full capture.
             let replay_environment = HashMap::from([
-                ("MAPLECODE_THREAD_ID".to_string(), "capture-thread".to_string()),
-                ("MAPLECODE_TOOL_CALL_ID".to_string(), "profile-call".to_string()),
+                (
+                    "MAPLECODE_THREAD_ID".to_string(),
+                    "capture-thread".to_string(),
+                ),
+                (
+                    "MAPLECODE_TOOL_CALL_ID".to_string(),
+                    "profile-call".to_string(),
+                ),
                 ("APP_SETTING".to_string(), "value".to_string()),
             ]);
             let empty = HashMap::new();
@@ -133,7 +139,10 @@ fn snapshot_capture_selects_declarations_and_environment() -> Result<()> {
                 ),
                 brokered.script,
             ] {
-                assert!(!snapshot.contains("MAPLECODE_THREAD_ID"), "{shell}: {snapshot}");
+                assert!(
+                    !snapshot.contains("MAPLECODE_THREAD_ID"),
+                    "{shell}: {snapshot}"
+                );
                 assert!(
                     !snapshot.contains("MAPLECODE_TOOL_CALL_ID"),
                     "{shell}: {snapshot}"
@@ -167,7 +176,10 @@ fn bash_snapshot_filters_invalid_exports() -> Result<()> {
         .env("BASH_ENV", "/dev/null")
         .env("VALID_NAME", "ok")
         .env("PWD", "/tmp/stale")
-        .env("NEXTEST_BIN_EXE_maplecode-write-config-schema", "/path/to/bin")
+        .env(
+            "NEXTEST_BIN_EXE_maplecode-write-config-schema",
+            "/path/to/bin",
+        )
         .env("BAD-NAME", "broken")
         .output()?;
 
@@ -2282,7 +2294,10 @@ fn rewrite_snapshot_credentials(
 fn captured_script(shell_type: ShellType, source: &str) -> Result<String> {
     let captured =
         CapturedSnapshot::parse(shell_type, source.as_bytes()).context("invalid native capture")?;
-    Ok(captured.render_script(&maplecode_protocol::config_types::ShellEnvironmentPolicy::default()))
+    Ok(
+        captured
+            .render_script(&maplecode_protocol::config_types::ShellEnvironmentPolicy::default()),
+    )
 }
 
 #[test]

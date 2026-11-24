@@ -1,6 +1,8 @@
 #![allow(clippy::expect_used)]
 //! Exercise TLS, upgrade, rejection, and post-upgrade fault evidence with local wire fixtures.
 
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_api::ApiError;
 use maplecode_api::AuthProvider;
 use maplecode_api::Provider;
@@ -10,8 +12,6 @@ use maplecode_api::RetryConfig;
 use maplecode_api::TransportError;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
-use http::HeaderMap;
-use http::HeaderValue;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use std::time::Duration;

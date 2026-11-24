@@ -1,8 +1,8 @@
 //! Environment startup failures reach the model, and transient failures can recover next turn.
 use super::*;
+use core_test_support::exec_server::ExecServerProcess;
 use maplecode_protocol::protocol::TurnEnvironmentRequest;
 use maplecode_protocol::protocol::TurnEnvironmentRequests;
-use core_test_support::exec_server::ExecServerProcess;
 use pretty_assertions::assert_eq;
 use std::sync::atomic::AtomicBool;
 use test_case::test_case;

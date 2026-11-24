@@ -1,11 +1,11 @@
 #![allow(clippy::unwrap_used)]
 use anyhow::Context;
-use maplecode_core::config::ConfigBuilder;
-use maplecode_core::init_state_db;
-use maplecode_protocol::ThreadId;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode_exec::test_maplecode_exec;
+use maplecode_core::config::ConfigBuilder;
+use maplecode_core::init_state_db;
+use maplecode_protocol::ThreadId;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::process::Stdio;

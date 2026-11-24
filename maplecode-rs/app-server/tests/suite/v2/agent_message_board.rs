@@ -3,12 +3,12 @@
 use anyhow::Context;
 use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
+use core_test_support::responses;
 use maplecode_app_server_protocol::ThreadStartParams;
 use maplecode_app_server_protocol::TurnStartParams;
 use maplecode_app_server_protocol::TurnStartResponse;
 use maplecode_app_server_protocol::UserInput;
 use maplecode_features::Feature;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

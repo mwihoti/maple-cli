@@ -16,9 +16,6 @@ use maplecode_core_api::AskForApproval;
 use maplecode_core_api::AuthKeyringBackendKind;
 use maplecode_core_api::AuthManager;
 use maplecode_core_api::AutoCompactTokenLimitScope;
-use maplecode_core_api::MapleCodeAppsToolsCache;
-use maplecode_core_api::MapleCodeHomeUserInstructionsProvider;
-use maplecode_core_api::MapleCodeThread;
 use maplecode_core_api::Config;
 use maplecode_core_api::ConfigLayerStack;
 use maplecode_core_api::ConfigLoadOptions;
@@ -33,6 +30,9 @@ use maplecode_core_api::Feature;
 use maplecode_core_api::Features;
 use maplecode_core_api::GhostSnapshotConfig;
 use maplecode_core_api::History;
+use maplecode_core_api::MapleCodeAppsToolsCache;
+use maplecode_core_api::MapleCodeHomeUserInstructionsProvider;
+use maplecode_core_api::MapleCodeThread;
 use maplecode_core_api::MemoriesConfig;
 use maplecode_core_api::ModelAvailabilityNuxConfig;
 use maplecode_core_api::ModelCatalogSettings;
@@ -150,7 +150,9 @@ async fn run_main(arg0_paths: Arg0DispatchPaths) -> anyhow::Result<()> {
         &config,
         Arc::clone(&auth_manager),
         installation_id,
-        Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+        Arc::new(ModelCatalogSettings::disk(
+            config.maplecode_home.to_path_buf(),
+        )),
     );
     let thread_manager = ThreadManager::new(
         &config,

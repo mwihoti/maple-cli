@@ -1,16 +1,16 @@
 //! Wait descriptions and parameter schemas resolve independently without changing other tools.
 
 use anyhow::Result;
-use maplecode_features::Feature;
-use maplecode_protocol::openai_models::ToolMessages;
-use maplecode_protocol::openai_models::ToolMode;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use core_test_support::responses;
 use core_test_support::responses::mount_sse_sequence;
 use core_test_support::responses::sse_completed;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
+use maplecode_features::Feature;
+use maplecode_protocol::openai_models::ToolMessages;
+use maplecode_protocol::openai_models::ToolMode;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

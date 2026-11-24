@@ -82,7 +82,10 @@ impl AuthChangeState {
     }
 }
 
-pub(super) fn same_owner(previous: Option<&MapleCodeAuth>, current: Option<&MapleCodeAuth>) -> bool {
+pub(super) fn same_owner(
+    previous: Option<&MapleCodeAuth>,
+    current: Option<&MapleCodeAuth>,
+) -> bool {
     let (Some(previous), Some(current)) = (previous, current) else {
         return false;
     };
@@ -104,7 +107,10 @@ pub(super) fn same_owner(previous: Option<&MapleCodeAuth>, current: Option<&Mapl
         && current.get_account_id().as_ref() == Some(&workspace)
 }
 
-pub(super) fn same_login(previous: Option<&MapleCodeAuth>, current: Option<&MapleCodeAuth>) -> bool {
+pub(super) fn same_login(
+    previous: Option<&MapleCodeAuth>,
+    current: Option<&MapleCodeAuth>,
+) -> bool {
     same_owner(previous, current) && login_owner_id(previous) == login_owner_id(current)
 }
 

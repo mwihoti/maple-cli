@@ -3,6 +3,8 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_agent_identity::AgentIdentityKey;
 use maplecode_agent_identity::authorization_header_for_agent_task;
 use maplecode_api::AgentIdentityTelemetry;
@@ -26,8 +28,6 @@ use maplecode_protocol::protocol::SessionSource;
 use maplecode_runtime_agent_instance::RuntimeAuth;
 use maplecode_runtime_agent_instance::RuntimeAuthError;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
-use http::HeaderMap;
-use http::HeaderValue;
 
 use crate::bearer_auth_provider::BearerAuthProvider;
 

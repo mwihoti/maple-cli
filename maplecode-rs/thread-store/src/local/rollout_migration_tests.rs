@@ -3235,9 +3235,10 @@ async fn selected_migration_prunes_unrelated_indexed_rollouts() {
     ));
     fs::copy(&legacy, &misnamed).expect("copy under a different canonical thread ID");
     let config = test_config(home.path());
-    let db = maplecode_state::StateRuntime::init(config.sqlite.clone(), "test-provider".to_string())
-        .await
-        .expect("initialize SQLite");
+    let db =
+        maplecode_state::StateRuntime::init(config.sqlite.clone(), "test-provider".to_string())
+            .await
+            .expect("initialize SQLite");
     for path in [&other, &archived_reverted, &reverted, &misnamed] {
         let mut row = maplecode_rollout::builder_from_items(&[], path)
             .expect("read indexed filename")

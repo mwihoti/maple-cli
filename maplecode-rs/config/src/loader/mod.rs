@@ -49,6 +49,7 @@ use crate::strict_config::unknown_feature_toml_value_field;
 use crate::strict_config::unknown_tui_toml_value_path;
 use crate::thread_config::ThreadConfigContext;
 use crate::thread_config::ThreadConfigLoader;
+use dunce::canonicalize as normalize_path;
 use maplecode_file_system::ExecutorFileSystem;
 use maplecode_git_utils::resolve_root_git_project_for_trust;
 use maplecode_network_proxy::is_credential_broker_provider_env_key;
@@ -59,7 +60,6 @@ use maplecode_protocol::protocol::AskForApproval;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_absolute_path::AbsolutePathBufGuard;
 use maplecode_utils_path_uri::PathUri;
-use dunce::canonicalize as normalize_path;
 use serde::Deserialize;
 use std::io;
 use std::path::Path;
@@ -190,7 +190,9 @@ pub async fn load_config_layers_state(
         let config = toml::from_str(raw_toml).map_err(|error| {
             io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("invalid embedded packaged defaults; this is a Maple Code build error: {error}"),
+                format!(
+                    "invalid embedded packaged defaults; this is a Maple Code build error: {error}"
+                ),
             )
         })?;
         ConfigLayerEntry::new_with_raw_toml(
@@ -294,7 +296,8 @@ pub async fn load_config_layers_state(
     // profile config as a second user layer on top so the profile only needs to
     // contain overrides.
     let active_user_file = overrides.user_config_path(maplecode_home)?;
-    let base_user_file = AbsolutePathBuf::resolve_path_against_base(CONFIG_TOML_FILE, maplecode_home);
+    let base_user_file =
+        AbsolutePathBuf::resolve_path_against_base(CONFIG_TOML_FILE, maplecode_home);
     let base_user_layer = load_user_config_layer(
         fs,
         &base_user_file,
@@ -1823,8 +1826,10 @@ async fn load_project_layers(
     .await?;
     let mut layers = Vec::with_capacity(discovered.layers.len());
     for layer in discovered.layers {
-        let config =
-            resolve_relative_paths_in_config_toml(layer.config, layer.dot_maplecode_folder.as_path())?;
+        let config = resolve_relative_paths_in_config_toml(
+            layer.config,
+            layer.dot_maplecode_folder.as_path(),
+        )?;
         let config = if layer.load_root_checkout_hooks {
             merge_root_checkout_project_hooks(
                 fs,
@@ -1859,8 +1864,8 @@ async fn discover_project_layers(
     strict_config: bool,
 ) -> io::Result<DiscoveredProjectLayers> {
     let maplecode_home_abs = AbsolutePathBuf::from_absolute_path(maplecode_home)?;
-    let maplecode_home_normalized =
-        normalize_path(maplecode_home_abs.as_path()).unwrap_or_else(|_| maplecode_home_abs.to_path_buf());
+    let maplecode_home_normalized = normalize_path(maplecode_home_abs.as_path())
+        .unwrap_or_else(|_| maplecode_home_abs.to_path_buf());
     let mut dirs = cwd
         .ancestors()
         .scan(false, |done, a| {
@@ -1882,7 +1887,11 @@ async fn discover_project_layers(
         let dot_maplecode_abs = dir.join(".maplecode");
         let dot_maplecode_uri = PathUri::from_abs_path(&dot_maplecode_abs);
         if !fs
-            .get_metadata(&dot_maplecode_uri, Default::default(), /*sandbox*/ None)
+            .get_metadata(
+                &dot_maplecode_uri,
+                Default::default(),
+                /*sandbox*/ None,
+            )
             .await
             .map(|metadata| metadata.is_directory)
             .unwrap_or(false)
@@ -1893,9 +1902,11 @@ async fn discover_project_layers(
         let decision = trust_context.decision_for_dir(&dir);
         let disabled_reason = trust_context.disabled_reason_for_decision(&decision);
         let hooks_config_folder_override = trust_context.root_checkout_hooks_folder_for_dir(&dir);
-        let dot_maplecode_normalized =
-            normalize_path(dot_maplecode_abs.as_path()).unwrap_or_else(|_| dot_maplecode_abs.to_path_buf());
-        if dot_maplecode_abs == maplecode_home_abs || dot_maplecode_normalized == maplecode_home_normalized {
+        let dot_maplecode_normalized = normalize_path(dot_maplecode_abs.as_path())
+            .unwrap_or_else(|_| dot_maplecode_abs.to_path_buf());
+        if dot_maplecode_abs == maplecode_home_abs
+            || dot_maplecode_normalized == maplecode_home_normalized
+        {
             continue;
         }
         let config_file = dot_maplecode_abs.join(CONFIG_TOML_FILE);

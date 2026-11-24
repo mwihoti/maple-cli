@@ -1,3 +1,15 @@
+use core_test_support::ThreadIdle;
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_maplecode::local;
+use core_test_support::test_maplecode::local_request;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use maplecode_core::NotSubmittedReason;
 use maplecode_core::PromptCacheTtl;
 use maplecode_core::RecoverTurnRequest;
@@ -38,18 +50,6 @@ use maplecode_protocol::turn_input::AnnotatedResponseItem;
 use maplecode_protocol::turn_input::ResponseItemAnnotations;
 use maplecode_protocol::turn_input::TurnAttribution;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::ThreadIdle;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::local;
-use core_test_support::test_maplecode::local_request;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::collections::BTreeMap;
@@ -592,7 +592,9 @@ async fn submit_user_message(
     maplecode: &maplecode_core::MapleCodeThread,
     text: &str,
 ) -> maplecode_protocol::error::Result<TurnInputSubmission> {
-    maplecode.start_or_steer_turn(user_message_request(text)).await
+    maplecode
+        .start_or_steer_turn(user_message_request(text))
+        .await
 }
 
 #[test_case(ModeKind::Default, ModeKind::Plan; "automatic input cannot enter Plan")]
@@ -713,7 +715,11 @@ async fn recover_turn_if_idle_preserves_id_and_resumes_plan_mode() {
         }
     );
     assert_eq!(
-        test.maplecode.config_snapshot().await.collaboration_mode.mode,
+        test.maplecode
+            .config_snapshot()
+            .await
+            .collaboration_mode
+            .mode,
         ModeKind::Plan
     );
 
@@ -1021,7 +1027,9 @@ async fn recovery_preserves_durable_turn_attribution(
     }
     let next_server = responses::start_mock_server().await;
     test = builder.restart(&next_server, &test).await?;
-    test.maplecode.restore_thread_settings(thread_settings).await?;
+    test.maplecode
+        .restore_thread_settings(thread_settings)
+        .await?;
     let response = responses::mount_sse_once(&next_server, responses::sse_completed("new")).await;
     let TurnInputSubmission::Started {
         turn_id: next_turn_id,
@@ -1261,7 +1269,9 @@ async fn turn_input_submission_reports_started_and_steered_for_concurrent_submis
         let barrier = Arc::clone(&barrier);
         async move {
             barrier.wait().await;
-            maplecode.start_or_steer_turn(annotated("first message")).await
+            maplecode
+                .start_or_steer_turn(annotated("first message"))
+                .await
         }
     });
     let second_submission = tokio::spawn({
@@ -1269,7 +1279,9 @@ async fn turn_input_submission_reports_started_and_steered_for_concurrent_submis
         let barrier = Arc::clone(&barrier);
         async move {
             barrier.wait().await;
-            maplecode.start_or_steer_turn(annotated("second message")).await
+            maplecode
+                .start_or_steer_turn(annotated("second message"))
+                .await
         }
     });
     barrier.wait().await;
@@ -1437,7 +1449,10 @@ async fn turn_input_submission_applies_thread_settings_only_after_accepted_input
     release_response
         .send(())
         .expect("response gate should remain open");
-    wait_for_event(maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let rejected_cwd = test.config.cwd.join("rejected-environment");
     let rejected = maplecode
@@ -1576,7 +1591,10 @@ async fn start_or_steer_turn_requires_matching_active_output_schema() {
     release_response
         .send(())
         .expect("response gate should remain open");
-    wait_for_event(maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let requests = server.requests().await;
     assert_eq!(requests.len(), 2);

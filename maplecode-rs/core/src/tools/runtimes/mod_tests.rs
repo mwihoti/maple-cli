@@ -5,12 +5,13 @@ use crate::sandboxing::ExecOptions;
 use crate::shell::ShellType;
 use crate::tools::sandboxing::SandboxAttempt;
 use crate::tools::sandboxing::managed_network_for_sandbox_permissions;
-#[cfg(target_os = "macos")]
-use maplecode_network_proxy::MAPLECODE_PROXY_GIT_SSH_COMMAND_MARKER;
+use core_test_support::PathBufExt;
 use maplecode_network_proxy::CUSTOM_CA_ENV_KEYS;
 use maplecode_network_proxy::ConfigReloader;
 use maplecode_network_proxy::ConfigReloaderFuture;
 use maplecode_network_proxy::ConfigState;
+#[cfg(target_os = "macos")]
+use maplecode_network_proxy::MAPLECODE_PROXY_GIT_SSH_COMMAND_MARKER;
 use maplecode_network_proxy::NetworkProxy;
 use maplecode_network_proxy::NetworkProxyConfig;
 use maplecode_network_proxy::NetworkProxyConstraints;
@@ -26,7 +27,6 @@ use maplecode_sandboxing::SandboxManager;
 use maplecode_sandboxing::SandboxType;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
 use pretty_assertions::assert_eq;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
@@ -514,8 +514,14 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_maplecode_metadata_from_env() {
             .to_string(),
     ];
     let env = HashMap::from([
-        ("MAPLECODE_THREAD_ID".to_string(), "nested-thread".to_string()),
-        ("MAPLECODE_TOOL_CALL_ID".to_string(), "nested-call".to_string()),
+        (
+            "MAPLECODE_THREAD_ID".to_string(),
+            "nested-thread".to_string(),
+        ),
+        (
+            "MAPLECODE_TOOL_CALL_ID".to_string(),
+            "nested-call".to_string(),
+        ),
         (
             "MAPLECODE_VERSION".to_string(),
             env!("CARGO_PKG_VERSION").to_string(),

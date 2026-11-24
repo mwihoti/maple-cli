@@ -1,10 +1,10 @@
 //! Framed I/O and per-instance queue admission for the plugin child.
 
+use futures::io::AllowStdIo;
 use maplecode_plugin_host::framing;
 use maplecode_plugin_host::protocol::MAX_IN_FLIGHT_TURNS;
 use maplecode_plugin_host::protocol::Packet;
 use maplecode_plugin_host::protocol::RuntimeMessage;
-use futures::io::AllowStdIo;
 use std::io;
 use std::sync::Arc;
 use std::sync::OnceLock;

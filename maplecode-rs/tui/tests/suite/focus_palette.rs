@@ -220,7 +220,9 @@ fn default_owned_screen_entry_paints_before_sync_ends_and_exit_clears_inline_dra
         .context("missing composer in first owned-screen frame")?;
     assert_eq!(
         (
-            first_contents.matches("Ask Maple Code to do anything").count(),
+            first_contents
+                .matches("Ask Maple Code to do anything")
+                .count(),
             first_frame.screen().cursor_position(),
             first_frame.screen().hide_cursor(),
         ),
@@ -315,7 +317,11 @@ impl PtyMapleCode {
         let maplecode = maplecode_utils_cargo_bin::cargo_bin("maplecode-tui")
             .or_else(|_| maplecode_utils_cargo_bin::cargo_bin("maplecode"))?;
         Self::start_binary(
-            &maplecode, repo_root, maplecode_home, extra_args, /*editor*/ None,
+            &maplecode,
+            repo_root,
+            maplecode_home,
+            extra_args,
+            /*editor*/ None,
         )
     }
 
@@ -328,7 +334,11 @@ impl PtyMapleCode {
         let maplecode = maplecode_utils_cargo_bin::cargo_bin("maplecode")
             .context("build maplecode-cli and set CARGO_BIN_EXE_maplecode to its executable")?;
         Self::start_binary(
-            &maplecode, repo_root, maplecode_home, extra_args, /*editor*/ None,
+            &maplecode,
+            repo_root,
+            maplecode_home,
+            extra_args,
+            /*editor*/ None,
         )
     }
 

@@ -6,6 +6,8 @@ use app_test_support::create_fake_paginated_rollout;
 use app_test_support::create_fake_parented_rollout_with_source;
 use app_test_support::create_fake_rollout;
 use app_test_support::rollout_path;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_client::AppServerEvent;
 use maplecode_app_server_protocol::ClientNotification;
 use maplecode_app_server_protocol::ClientRequest;
@@ -32,8 +34,6 @@ use maplecode_protocol::protocol::ItemCompletedEvent;
 use maplecode_protocol::protocol::ReviewTarget;
 use maplecode_protocol::user_input::UserInput as CoreUserInput;
 use maplecode_state::SqliteConfig;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use std::sync::Mutex;
 use tokio::net::TcpListener;
@@ -706,9 +706,11 @@ async fn conventional_steer_defers_review_and_holds_a_lost_reply() -> Result<()>
                 let message = "cannot steer a review turn";
                 let error = AppServerTurnError {
                     message: message.into(),
-                    maplecode_error_info: Some(AppServerMapleCodeErrorInfo::ActiveTurnNotSteerable {
-                        turn_kind: NonSteerableTurnKind::Review,
-                    }),
+                    maplecode_error_info: Some(
+                        AppServerMapleCodeErrorInfo::ActiveTurnNotSteerable {
+                            turn_kind: NonSteerableTurnKind::Review,
+                        },
+                    ),
                     additional_details: None,
                     misalignment: None,
                 };
@@ -2465,7 +2467,9 @@ async fn local_daemon_registers_approval_gated_mcp_tools_for_both_start_paths_sc
                 server_name: None,
                 cursor: None,
                 limit: None,
-                detail: Some(maplecode_app_server_protocol::McpServerStatusDetail::ToolsAndAuthOnly),
+                detail: Some(
+                    maplecode_app_server_protocol::McpServerStatusDetail::ToolsAndAuthOnly,
+                ),
                 thread_id: Some(thread_id.to_string()),
             },
         })
@@ -2846,7 +2850,9 @@ async fn embedded_server_dispatches_only_its_own_dynamic_tools() -> Result<()> {
     app.config.maplecode_home = maplecode_home.path().to_path_buf().abs();
     app.config.sqlite = SqliteConfig::new_for_testing(maplecode_home.path().abs());
     let app_server = crate::start_embedded_app_server_for_picker(&app.config).await?;
-    for (id, namespace, expected_success) in [(100, "maplecode_app", false), (101, "maplecode_tui", true)] {
+    for (id, namespace, expected_success) in
+        [(100, "maplecode_app", false), (101, "maplecode_tui", true)]
+    {
         app.handle_app_server_event(
             &app_server,
             maplecode_app_server_client::AppServerEvent::ServerRequest(Box::new(
@@ -3283,12 +3289,14 @@ async fn check_dynamic_tool_requests(
     assert_eq!(turn["sandboxPolicy"], source_sandbox);
     app.handle_app_server_event(
         &app_server,
-        maplecode_app_server_client::AppServerEvent::ServerRequest(Box::new(exec_approval_request(
-            created_thread_id,
-            "turn-2",
-            "item-1",
-            /*approval_id*/ None,
-        ))),
+        maplecode_app_server_client::AppServerEvent::ServerRequest(Box::new(
+            exec_approval_request(
+                created_thread_id,
+                "turn-2",
+                "item-1",
+                /*approval_id*/ None,
+            ),
+        )),
     )
     .await;
     assert_eq!(

@@ -107,13 +107,13 @@ async fn copy_file_remains_available_with_unavailable_attachment() -> Result<()>
 /// Losing a captured executor must return a model-visible transport error without copying bytes.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn copy_file_reports_disconnection_after_step_capture() -> Result<()> {
+    use core_test_support::exec_server::ExecServerProcess;
+    use core_test_support::streaming_sse::StreamingSseChunk;
+    use core_test_support::streaming_sse::start_streaming_sse_server;
     use maplecode_exec_server::EnvironmentConnectionState;
     use maplecode_protocol::protocol::ThreadSettingsOverrides;
     use maplecode_protocol::protocol::TurnEnvironmentSelection;
     use maplecode_protocol::protocol::TurnEnvironmentSelections;
-    use core_test_support::exec_server::ExecServerProcess;
-    use core_test_support::streaming_sse::StreamingSseChunk;
-    use core_test_support::streaming_sse::start_streaming_sse_server;
 
     let executor = ExecServerProcess::start().await?;
     let available = ExecServerProcess::start().await?;

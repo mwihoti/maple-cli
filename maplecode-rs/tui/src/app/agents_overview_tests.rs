@@ -2072,7 +2072,8 @@ async fn overview_selection_applies_user_permissions_only_to_unloaded_threads() 
     .await?
     .session;
     app.runtime_approvals_reviewer_override = Some(ApprovalsReviewer::AutoReview);
-    app.harness_overrides.sandbox_mode = Some(maplecode_protocol::config_types::SandboxMode::ReadOnly);
+    app.harness_overrides.sandbox_mode =
+        Some(maplecode_protocol::config_types::SandboxMode::ReadOnly);
     app.harness_overrides.approval_policy =
         Some(maplecode_protocol::protocol::AskForApproval::UnlessTrusted);
     app.config
@@ -2184,7 +2185,8 @@ async fn overview_selection_applies_user_permissions_only_to_unloaded_threads() 
     });
     // The picker must also abort when a session-only choice violates destination policy.
     std::fs::write(&requirements, "allowed_approval_policies = [\"never\"]\n")?;
-    app.harness_overrides.approval_policy = Some(maplecode_protocol::protocol::AskForApproval::Never);
+    app.harness_overrides.approval_policy =
+        Some(maplecode_protocol::protocol::AskForApproval::Never);
     let backend_id = app_server.backend_id();
     Box::pin(app.resume_target_session(
         &mut tui,

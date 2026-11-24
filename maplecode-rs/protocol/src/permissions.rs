@@ -5,14 +5,14 @@ use std::io;
 use std::path::Path;
 use std::path::PathBuf;
 
+use globset::Candidate;
+use globset::GlobBuilder;
+use globset::GlobMatcher;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_absolute_path::canonicalize_preserving_symlinks;
 use maplecode_utils_path_uri::LegacyAppPathString;
 use maplecode_utils_path_uri::PathConvention;
 use maplecode_utils_path_uri::PathUri;
-use globset::Candidate;
-use globset::GlobBuilder;
-use globset::GlobMatcher;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
@@ -877,7 +877,10 @@ impl FileSystemSandboxPolicy {
 
         append_default_read_only_project_root_subpath_if_no_explicit_rule(&mut entries, ".git");
         append_default_read_only_project_root_subpath_if_no_explicit_rule(&mut entries, ".agents");
-        append_default_read_only_project_root_subpath_if_no_explicit_rule(&mut entries, ".maplecode");
+        append_default_read_only_project_root_subpath_if_no_explicit_rule(
+            &mut entries,
+            ".maplecode",
+        );
         append_default_read_only_project_root_subpath_if_no_explicit_rule(&mut entries, ".aws");
         Self::restricted(entries)
     }

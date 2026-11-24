@@ -3,6 +3,8 @@ use std::io;
 use std::sync::Mutex;
 use tokio::sync::oneshot;
 
+use dirs::home_dir;
+use futures::StreamExt;
 use maplecode_config::ConfigLayerSource;
 use maplecode_config::ConfigLayerStack;
 use maplecode_config::default_project_root_markers;
@@ -18,8 +20,6 @@ use maplecode_skills::system_cache_root_dir;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_plugins::PluginSkillRoot;
-use dirs::home_dir;
-use futures::StreamExt;
 use toml::Value as TomlValue;
 
 use crate::loader::HostSkillRoot;

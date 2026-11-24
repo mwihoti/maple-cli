@@ -1,7 +1,7 @@
 use super::*;
 use crate::chatwidget::UserMessage;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::ErrorNotification;
+use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::ThreadGoalStatus;
 use maplecode_protocol::models::ManagedFileSystemPermissions;
 use maplecode_protocol::permissions::FileSystemAccessMode;
@@ -129,7 +129,8 @@ async fn worktree_creation_rejects_running_agent_before_allocation() -> Result<(
     let (mut app, mut events, _op_rx) = make_test_app_with_channels().await;
     let home = tempfile::tempdir()?;
     app.config.maplecode_home = home.path().to_path_buf().abs();
-    app.config.active_project.trust_level = Some(maplecode_protocol::config_types::TrustLevel::Trusted);
+    app.config.active_project.trust_level =
+        Some(maplecode_protocol::config_types::TrustLevel::Trusted);
     let primary = ThreadId::new();
     app.primary_thread_id = Some(primary);
     app.chat_widget

@@ -846,7 +846,9 @@ async fn start_listener(
     ListenerStartOutcome::Started { attached }
 }
 
-pub(super) async fn wait_for_thread_shutdown(thread: &Arc<MapleCodeThread>) -> ThreadShutdownResult {
+pub(super) async fn wait_for_thread_shutdown(
+    thread: &Arc<MapleCodeThread>,
+) -> ThreadShutdownResult {
     match tokio::time::timeout(Duration::from_secs(10), thread.shutdown_and_wait()).await {
         Ok(Ok(())) => ThreadShutdownResult::Complete,
         Ok(Err(_)) => ThreadShutdownResult::SubmitFailed,

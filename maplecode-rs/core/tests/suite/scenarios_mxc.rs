@@ -1,9 +1,6 @@
 //! Exercises resolved local MXC selection in a real thread and snapshots its permission context.
 
 use anyhow::Result;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::permissions::NetworkSandboxPolicy;
-use maplecode_protocol::sandbox::SandboxType;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::responses::ev_completed;
@@ -11,6 +8,9 @@ use core_test_support::responses::mount_sse_once;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::test_maplecode::test_maplecode;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::permissions::NetworkSandboxPolicy;
+use maplecode_protocol::sandbox::SandboxType;
 use pretty_assertions::assert_eq;
 
 #[test_case::test_case(true; "preferred")]

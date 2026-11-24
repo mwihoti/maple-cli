@@ -26,7 +26,8 @@ fn remote_loader(url: String, maplecode_home: PathBuf) -> CloudConfigBundleLoade
     let factory = transport_default_auth_route_config()
         .http_client_factory()
         .clone();
-    let source = ConfigServerSource::new(url, /*oauth*/ None, maplecode_home.clone(), factory).unwrap();
+    let source =
+        ConfigServerSource::new(url, /*oauth*/ None, maplecode_home.clone(), factory).unwrap();
     managed_config_bundle_loader_for_service(CloudConfigBundleService::from_source(
         source,
         maplecode_home,

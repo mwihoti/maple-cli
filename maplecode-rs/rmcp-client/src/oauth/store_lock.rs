@@ -204,7 +204,9 @@ pub(super) enum OAuthStoreLockFailure {
 }
 
 fn oauth_store_lock_path(maplecode_home: &Path, store: OAuthStore) -> PathBuf {
-    maplecode_home.join(OAUTH_LOCK_DIR).join(store.lock_filename())
+    maplecode_home
+        .join(OAUTH_LOCK_DIR)
+        .join(store.lock_filename())
 }
 
 #[cfg(test)]

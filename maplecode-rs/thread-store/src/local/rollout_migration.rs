@@ -333,12 +333,14 @@ impl LocalThreadStore {
         let maintenance_guard = match options.mode {
             RolloutMigrationMode::DryRun => None,
             RolloutMigrationMode::Apply => Some(
-                maplecode_rollout::try_acquire_rollout_maintenance_lock(&self.config.maplecode_home)
-                    .map_err(migration_error)?
-                    .ok_or_else(|| ThreadStoreError::Conflict {
-                        message: "rollout compression or another migration is already running"
-                            .to_string(),
-                    })?,
+                maplecode_rollout::try_acquire_rollout_maintenance_lock(
+                    &self.config.maplecode_home,
+                )
+                .map_err(migration_error)?
+                .ok_or_else(|| ThreadStoreError::Conflict {
+                    message: "rollout compression or another migration is already running"
+                        .to_string(),
+                })?,
             ),
         }
         .map(Arc::new);
@@ -371,7 +373,8 @@ impl LocalThreadStore {
             });
         }
         if options.mode == RolloutMigrationMode::Apply {
-            let pending_thread_ids = pending_migration_thread_ids(&self.config.maplecode_home).await?;
+            let pending_thread_ids =
+                pending_migration_thread_ids(&self.config.maplecode_home).await?;
             paths.sort_by_key(|path| {
                 !thread_id_from_rollout_filename(path)
                     .is_some_and(|thread_id| pending_thread_ids.contains(&thread_id))
@@ -1001,7 +1004,9 @@ impl LocalThreadStore {
             if plan.is_none()
                 && matches!(
                     &line.item,
-                    RolloutItem::EventMsg(maplecode_protocol::protocol::EventMsg::ThreadRolledBack(_))
+                    RolloutItem::EventMsg(
+                        maplecode_protocol::protocol::EventMsg::ThreadRolledBack(_)
+                    )
                 )
             {
                 return Ok(CanonicalizationAttempt::NeedsRollbackPlan);
@@ -1180,11 +1185,12 @@ impl LocalThreadStore {
         rollout_path: &Path,
         limiter: &mut RolloutMigrationRateLimiter,
     ) -> ThreadStoreResult<()> {
-        let subagent_history_start_ordinal = maplecode_rollout::read_session_meta_line(rollout_path)
-            .await
-            .map_err(migration_error)?
-            .meta
-            .subagent_history_start_ordinal;
+        let subagent_history_start_ordinal =
+            maplecode_rollout::read_session_meta_line(rollout_path)
+                .await
+                .map_err(migration_error)?
+                .meta
+                .subagent_history_start_ordinal;
         let file = File::open(rollout_path).await.map_err(migration_error)?;
         let mut reader = BufReader::with_capacity(PROJECTION_BATCH_BYTES as usize, file);
         let mut line_bytes = Vec::new();
@@ -1347,9 +1353,11 @@ async fn find_rollout_paths(root: &Path) -> ThreadStoreResult<Vec<PathBuf>> {
 }
 
 async fn find_all_rollout_paths(maplecode_home: &Path) -> ThreadStoreResult<Vec<PathBuf>> {
-    let mut paths = find_rollout_paths(&maplecode_home.join(maplecode_rollout::SESSIONS_SUBDIR)).await?;
+    let mut paths =
+        find_rollout_paths(&maplecode_home.join(maplecode_rollout::SESSIONS_SUBDIR)).await?;
     paths.extend(
-        find_rollout_paths(&maplecode_home.join(maplecode_rollout::ARCHIVED_SESSIONS_SUBDIR)).await?,
+        find_rollout_paths(&maplecode_home.join(maplecode_rollout::ARCHIVED_SESSIONS_SUBDIR))
+            .await?,
     );
     Ok(paths)
 }

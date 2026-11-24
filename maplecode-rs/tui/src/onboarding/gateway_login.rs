@@ -13,6 +13,8 @@ use crate::legacy_core::config::Config;
 use crate::should_show_login_screen;
 use crate::startup_draft::StartupCancelled;
 use crate::tui::Tui;
+use color_eyre::Result;
+use color_eyre::eyre::OptionExt;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::GatewayOAuthCancelResponse;
 use maplecode_app_server_protocol::GatewayOAuthChangedNotification;
@@ -22,8 +24,6 @@ use maplecode_app_server_protocol::GatewayOAuthReadParams;
 use maplecode_app_server_protocol::GatewayOAuthReadResponse;
 use maplecode_app_server_protocol::GatewayOAuthStatus;
 use maplecode_protocol::config_types::ForcedLoginMethod;
-use color_eyre::Result;
-use color_eyre::eyre::OptionExt;
 
 pub(crate) async fn authenticate_gateway(
     tui: &mut Tui,

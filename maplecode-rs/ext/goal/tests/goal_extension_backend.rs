@@ -503,7 +503,10 @@ async fn spawned_descendant_usage_exhausts_root_goal_budget_once() -> anyhow::Re
         .await?
         .ok_or_else(|| anyhow::anyhow!("goal should exist"))?;
     assert_eq!(62, goal.tokens_used);
-    assert_eq!(maplecode_state::ThreadGoalStatus::BudgetLimited, goal.status);
+    assert_eq!(
+        maplecode_state::ThreadGoalStatus::BudgetLimited,
+        goal.status
+    );
     Ok(())
 }
 
@@ -677,7 +680,10 @@ async fn budget_limited_goal_keeps_accruing_until_turn_stop() -> anyhow::Result<
         .await?
         .ok_or_else(|| anyhow::anyhow!("goal should exist"))?;
     assert_eq!(35, goal.tokens_used);
-    assert_eq!(maplecode_state::ThreadGoalStatus::BudgetLimited, goal.status);
+    assert_eq!(
+        maplecode_state::ThreadGoalStatus::BudgetLimited,
+        goal.status
+    );
 
     assert_eq!(
         vec![
@@ -754,7 +760,10 @@ async fn budget_limited_goal_keeps_accounting_after_later_tool_finish() -> anyho
         .await?
         .ok_or_else(|| anyhow::anyhow!("goal should exist"))?;
     assert_eq!(35, goal.tokens_used);
-    assert_eq!(maplecode_state::ThreadGoalStatus::BudgetLimited, goal.status);
+    assert_eq!(
+        maplecode_state::ThreadGoalStatus::BudgetLimited,
+        goal.status
+    );
     Ok(())
 }
 

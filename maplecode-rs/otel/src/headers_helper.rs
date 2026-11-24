@@ -3,8 +3,8 @@
 //! with an error so exports cannot silently fall back to stale or static credentials.
 
 use crate::config::OtelHeadersHelper;
-use maplecode_http_client::NetworkPolicy;
 use http::HeaderMap;
+use maplecode_http_client::NetworkPolicy;
 use std::fmt;
 use std::io;
 use std::io::Write;

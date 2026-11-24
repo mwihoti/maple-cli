@@ -3,6 +3,7 @@ use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::create_fake_rollout;
 use app_test_support::rollout_path;
+use core_test_support::test_path_buf;
 use maplecode_app_server::in_process;
 use maplecode_app_server::in_process::InProcessStartArgs;
 use maplecode_app_server_protocol::ClientInfo;
@@ -28,7 +29,6 @@ use maplecode_thread_store::InMemoryThreadStore;
 use maplecode_thread_store::ThreadPersistenceMetadata;
 use maplecode_thread_store::ThreadStore;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::test_path_buf;
 use pretty_assertions::assert_eq;
 use std::path::Path;
 use std::path::PathBuf;
@@ -209,8 +209,8 @@ async fn get_conversation_summary_by_thread_id_reads_pathless_store_thread() -> 
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn get_conversation_summary_by_relative_rollout_path_resolves_from_maplecode_home() -> Result<()>
-{
+async fn get_conversation_summary_by_relative_rollout_path_resolves_from_maplecode_home()
+-> Result<()> {
     let maplecode_home = TempDir::new()?;
     let conversation_id = create_fake_rollout(
         maplecode_home.path(),
@@ -222,7 +222,9 @@ async fn get_conversation_summary_by_relative_rollout_path_resolves_from_mapleco
     )?;
     let thread_id = ThreadId::from_string(&conversation_id)?;
     let rollout_path = rollout_path(maplecode_home.path(), FILENAME_TS, &conversation_id);
-    let relative_path = rollout_path.strip_prefix(maplecode_home.path())?.to_path_buf();
+    let relative_path = rollout_path
+        .strip_prefix(maplecode_home.path())?
+        .to_path_buf();
     let expected = expected_summary(thread_id, normalized_canonical_path(rollout_path)?);
 
     let mut mcp = TestAppServer::builder()

@@ -2,6 +2,27 @@
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_response_once_match;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_target_windows;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
 use maplecode_core::sandboxing::SandboxPermissions;
@@ -30,27 +51,6 @@ use maplecode_protocol::request_permissions::RequestPermissionsResponse;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_response_once_match;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_target_windows;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use regex_lite::Regex;
 use serde_json::Value;
@@ -1486,26 +1486,27 @@ async fn granular_write_grant_still_requires_dangerous_command_approval(
     scope: PermissionGrantScope,
 ) -> Result<()> {
     skip_if_target_windows!(Ok(()), "uses a POSIX deletion command");
-    let harness = TestMapleCodeHarness::with_auto_env_builder(test_maplecode().with_config(|config| {
-        config.permissions.approval_policy =
-            Constrained::allow_any(AskForApproval::Granular(GranularApprovalConfig {
-                sandbox_approval: false,
-                rules: false,
-                skill_approval: false,
-                request_permissions: true,
-                mcp_elicitations: true,
-            }));
-        config
-            .permissions
-            .set_permission_profile(CorePermissionProfile::read_only())
-            .unwrap();
-        config.approvals_reviewer = ApprovalsReviewer::User;
-        config
-            .features
-            .enable(Feature::RequestPermissionsTool)
-            .unwrap();
-    }))
-    .await?;
+    let harness =
+        TestMapleCodeHarness::with_auto_env_builder(test_maplecode().with_config(|config| {
+            config.permissions.approval_policy =
+                Constrained::allow_any(AskForApproval::Granular(GranularApprovalConfig {
+                    sandbox_approval: false,
+                    rules: false,
+                    skill_approval: false,
+                    request_permissions: true,
+                    mcp_elicitations: true,
+                }));
+            config
+                .permissions
+                .set_permission_profile(CorePermissionProfile::read_only())
+                .unwrap();
+            config.approvals_reviewer = ApprovalsReviewer::User;
+            config
+                .features
+                .enable(Feature::RequestPermissionsTool)
+                .unwrap();
+        }))
+        .await?;
     let test = harness.test();
     harness
         .write_file("recordings/recording.mp4", "recording")

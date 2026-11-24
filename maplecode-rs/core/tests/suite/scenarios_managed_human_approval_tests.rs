@@ -8,16 +8,16 @@ use super::super::hooks::install_allow_permission_request_hook;
 use super::super::hooks::read_permission_request_hook_inputs;
 use super::*;
 use anyhow::Context;
+#[cfg(not(target_os = "windows"))]
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::mount_sse_once;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::config::Constrained;
 use maplecode_protocol::config_types::ApprovalsReviewer;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::ReviewDecision;
-#[cfg(not(target_os = "windows"))]
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::mount_sse_once;
 #[cfg(not(target_os = "windows"))]
 use pretty_assertions::assert_eq;
 use tokio_util::sync::CancellationToken;

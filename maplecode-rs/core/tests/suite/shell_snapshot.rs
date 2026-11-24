@@ -1,4 +1,24 @@
 use anyhow::Result;
+#[cfg(unix)]
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+#[cfg(unix)]
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+#[cfg(unix)]
+use core_test_support::skip_if_remote;
+#[cfg(unix)]
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use maplecode_core::TurnInputRequest;
 #[cfg(unix)]
 use maplecode_core::config::Constrained;
@@ -40,26 +60,6 @@ use maplecode_protocol::protocol::ExecCommandEndEvent;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-#[cfg(unix)]
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-#[cfg(unix)]
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-#[cfg(unix)]
-use core_test_support::skip_if_remote;
-#[cfg(unix)]
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
@@ -614,7 +614,10 @@ async fn shell_snapshot_v2_prewarm_stops_on_shutdown() -> Result<()> {
 
     let maplecode = &harness.test().maplecode;
     maplecode.submit(Op::Shutdown {}).await?;
-    wait_for_event(maplecode, |event| matches!(event, EventMsg::ShutdownComplete)).await;
+    wait_for_event(maplecode, |event| {
+        matches!(event, EventMsg::ShutdownComplete)
+    })
+    .await;
     tokio::time::timeout(Duration::from_secs(2), async {
         while tokio::process::Command::new("/bin/kill")
             .args(["-0", &pid])
@@ -1267,7 +1270,10 @@ async fn macos_unified_exec_resolves_command_from_tied_path_snapshot(
         .join("bin");
     fs::create_dir_all(&command_dir).await?;
     let command_path = command_dir.join("snapshot-only-command");
-    maplecode_utils_cargo_bin::write_executable(&command_path, "#!/bin/sh\nprintf tied-path-command")?;
+    maplecode_utils_cargo_bin::write_executable(
+        &command_path,
+        "#!/bin/sh\nprintf tied-path-command",
+    )?;
 
     run_tool_turn_on_harness(
         &harness,

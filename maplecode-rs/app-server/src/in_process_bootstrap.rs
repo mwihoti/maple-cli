@@ -151,9 +151,12 @@ pub(super) async fn configure(
     .await
     .map_err(IoError::other)?;
     let auth_manager = if enable_maplecode_api_key_env {
-        AuthManager::shared_from_auth_config(auth_config, /*enable_maplecode_api_key_env*/ true)
-            .await
-            .map_err(IoError::other)?
+        AuthManager::shared_from_auth_config(
+            auth_config,
+            /*enable_maplecode_api_key_env*/ true,
+        )
+        .await
+        .map_err(IoError::other)?
     } else {
         policy_auth_manager.clone()
     };

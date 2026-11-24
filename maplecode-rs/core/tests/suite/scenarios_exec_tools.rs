@@ -1,11 +1,6 @@
 //! Exec tools append changed entries and refresh frozen exec sections only at compaction.
 
 use anyhow::Result;
-use maplecode_features::Feature;
-use maplecode_protocol::openai_models::IncrementalToolMessages;
-use maplecode_protocol::openai_models::ToolMode;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::responses;
@@ -14,6 +9,11 @@ use core_test_support::skip_if_wine_exec;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_mcp_server;
 use core_test_support::wait_for_successful_turn;
+use maplecode_features::Feature;
+use maplecode_protocol::openai_models::IncrementalToolMessages;
+use maplecode_protocol::openai_models::ToolMode;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;

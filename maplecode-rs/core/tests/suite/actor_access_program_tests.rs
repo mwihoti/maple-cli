@@ -1,6 +1,12 @@
 //! Header-authenticated requests forward explicit programs and preserve backend denials.
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnStartOptions;
 use maplecode_login::AuthHeaders;
@@ -8,12 +14,6 @@ use maplecode_login::MapleCodeAuth;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::turn_input::CyberAccessProgram;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use http::HeaderMap;
-use http::HeaderValue;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

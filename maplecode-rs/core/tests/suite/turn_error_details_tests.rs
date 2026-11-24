@@ -1,20 +1,20 @@
 //! Verify error hooks retain backend details without changing compaction outcomes.
 
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_extension_api::ExtensionFuture;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_extension_api::TurnErrorInput;
 use maplecode_extension_api::TurnLifecycleContributor;
 use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::RateLimitReachedType;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;

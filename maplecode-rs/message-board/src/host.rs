@@ -3,10 +3,10 @@
 use crate::PostPreview;
 use chrono::DateTime;
 use chrono::Utc;
+use futures::future::BoxFuture;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::Result;
-use futures::future::BoxFuture;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum NotificationDelivery {

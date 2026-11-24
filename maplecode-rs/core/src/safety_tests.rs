@@ -1,4 +1,5 @@
 use super::*;
+use core_test_support::PathExt;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::permissions::FileSystemSandboxPolicyContext;
 use maplecode_protocol::permissions::NetworkSandboxPolicy;
@@ -9,7 +10,6 @@ use maplecode_protocol::protocol::FileSystemSpecialPath;
 use maplecode_protocol::protocol::GranularApprovalConfig;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathExt;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 

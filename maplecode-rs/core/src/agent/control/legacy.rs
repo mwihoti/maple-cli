@@ -75,7 +75,8 @@ impl LocalAgentControl {
                 AgentInfo::Loaded { agent, config }
             }
             Err(err)
-                if known_agent && matches!(err.details(), MapleCodeErrorDetails::ThreadNotFound(_)) =>
+                if known_agent
+                    && matches!(err.details(), MapleCodeErrorDetails::ThreadNotFound(_)) =>
             {
                 if let Some(agent_graph_store) = state.agent_graph_store()
                     && let Err(err) = agent_graph_store
@@ -98,7 +99,8 @@ impl LocalAgentControl {
                 if known_agent
                     && matches!(
                         err.details(),
-                        MapleCodeErrorDetails::ThreadNotFound(_) | MapleCodeErrorDetails::InternalAgentDied
+                        MapleCodeErrorDetails::ThreadNotFound(_)
+                            | MapleCodeErrorDetails::InternalAgentDied
                     ) =>
             {
                 Ok(snapshot)
@@ -117,7 +119,8 @@ impl LocalAgentControl {
                 Err(err)
                     if matches!(
                         err.details(),
-                        MapleCodeErrorDetails::ThreadNotFound(_) | MapleCodeErrorDetails::InternalAgentDied
+                        MapleCodeErrorDetails::ThreadNotFound(_)
+                            | MapleCodeErrorDetails::InternalAgentDied
                     ) => {}
                 Err(err) => return Err(err),
             }

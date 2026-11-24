@@ -68,7 +68,8 @@ struct MissingCellCodeModeSessionProvider;
 impl maplecode_code_mode::CodeModeSessionProvider for MissingCellCodeModeSessionProvider {
     fn create_session(&self) -> maplecode_code_mode::CodeModeSessionProviderFuture<'_> {
         Box::pin(async {
-            Ok(Arc::new(MissingCellCodeModeSession) as Arc<dyn maplecode_code_mode::CodeModeSession>)
+            Ok(Arc::new(MissingCellCodeModeSession)
+                as Arc<dyn maplecode_code_mode::CodeModeSession>)
         })
     }
 }
@@ -81,7 +82,8 @@ impl maplecode_code_mode::CodeModeSession for MissingCellCodeModeSession {
         _request: maplecode_code_mode::ExecuteRequest,
         _delegate: Arc<dyn maplecode_code_mode::CodeModeSessionDelegate>,
         _preempt: Option<CancellationToken>,
-    ) -> maplecode_code_mode::CodeModeSessionResultFuture<'a, maplecode_code_mode::StartedCell> {
+    ) -> maplecode_code_mode::CodeModeSessionResultFuture<'a, maplecode_code_mode::StartedCell>
+    {
         Box::pin(async { Err("test session cannot execute cells".to_string()) })
     }
 
@@ -89,14 +91,16 @@ impl maplecode_code_mode::CodeModeSession for MissingCellCodeModeSession {
         &'a self,
         request: maplecode_code_mode::WaitRequest,
         _preempt: Option<CancellationToken>,
-    ) -> maplecode_code_mode::CodeModeSessionResultFuture<'a, maplecode_code_mode::WaitOutcome> {
+    ) -> maplecode_code_mode::CodeModeSessionResultFuture<'a, maplecode_code_mode::WaitOutcome>
+    {
         self.terminate(request.cell_id.into())
     }
 
     fn terminate<'a>(
         &'a self,
         request: maplecode_code_mode::TerminateRequest,
-    ) -> maplecode_code_mode::CodeModeSessionResultFuture<'a, maplecode_code_mode::WaitOutcome> {
+    ) -> maplecode_code_mode::CodeModeSessionResultFuture<'a, maplecode_code_mode::WaitOutcome>
+    {
         Box::pin(async move {
             let cell_id = request.cell_id;
             Ok(maplecode_code_mode::WaitOutcome::MissingCell(

@@ -7,10 +7,10 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
+use common::voice_host_command;
 use maplecode_realtime_webrtc::Message;
 use maplecode_realtime_webrtc::decode_frame;
 use maplecode_realtime_webrtc::encode_frame;
-use common::voice_host_command;
 use pretty_assertions::assert_eq;
 use tokio::io::AsyncReadExt;
 use tokio::io::AsyncWriteExt;

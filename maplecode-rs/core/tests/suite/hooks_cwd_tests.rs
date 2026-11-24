@@ -3,9 +3,9 @@
 //! Tool hooks report local command cwd and retain host cwd for remote commands.
 
 use super::*;
+use core_test_support::test_maplecode::local;
 use maplecode_exec_server::CreateDirectoryOptions;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::test_maplecode::local;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 
@@ -286,7 +286,9 @@ elif event == 'PreToolUse' and {mode:?} == 'rewrite':
     let mut environments = vec![test.executor_environment().request()];
     let hook_cwd = if test.executor_environment().environment().is_remote() {
         let cwd = AbsolutePathBuf::try_from(local_hook_directory.path())?;
-        environments.push(core_test_support::test_maplecode::local_request(cwd.clone()));
+        environments.push(core_test_support::test_maplecode::local_request(
+            cwd.clone(),
+        ));
         cwd
     } else {
         test.config.cwd.clone()

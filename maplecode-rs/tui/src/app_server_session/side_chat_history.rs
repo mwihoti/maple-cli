@@ -2,6 +2,8 @@
 
 use super::*;
 use crate::chatwidget::ChatWidget;
+use futures::StreamExt;
+use itertools::Itertools;
 use maplecode_app_server_protocol::SortDirection;
 use maplecode_app_server_protocol::ThreadItemPayload;
 use maplecode_app_server_protocol::ThreadItemsListResponse;
@@ -12,8 +14,6 @@ use maplecode_protocol::models::ContentItem;
 use maplecode_rollout::ResponseItemEnvelope;
 use maplecode_rollout::RolloutItem;
 use maplecode_rollout::read_session_meta_line;
-use futures::StreamExt;
-use itertools::Itertools;
 use std::io;
 use std::path::Path;
 
@@ -181,12 +181,13 @@ impl AppServerSession {
             .filter(|thread| thread.name.is_some())
             .filter_map(|thread| ThreadId::from_string(&thread.id).ok())
             .collect();
-        let indexed_names = maplecode_rollout::find_thread_name_entries_by_ids(maplecode_home, &named_ids)
-            .await
-            .unwrap_or_else(|err| {
-                tracing::debug!(%err, "could not read side-chat name timestamps");
-                Default::default()
-            });
+        let indexed_names =
+            maplecode_rollout::find_thread_name_entries_by_ids(maplecode_home, &named_ids)
+                .await
+                .unwrap_or_else(|err| {
+                    tracing::debug!(%err, "could not read side-chat name timestamps");
+                    Default::default()
+                });
         for thread in threads {
             let Ok(id) = ThreadId::from_string(&thread.id) else {
                 continue;

@@ -270,8 +270,9 @@ async fn daemon_menu_is_read_only_and_confirmation_can_cancel_or_handoff() {
 
     std::fs::remove_file(package.path().join("maplecode-package.json")).unwrap();
     // The full CLI can have any filename; capability comes from its entry point.
-    app.daemon_cli_executable =
-        Some(AbsolutePathBuf::from_absolute_path(package.path().join("bin/maplecode-tui")).unwrap());
+    app.daemon_cli_executable = Some(
+        AbsolutePathBuf::from_absolute_path(package.path().join("bin/maplecode-tui")).unwrap(),
+    );
     app.open_daemon_menu();
     insta::assert_snapshot!(
         "daemon_unpackaged_cli",

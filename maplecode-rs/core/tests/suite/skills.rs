@@ -1,6 +1,18 @@
 #![allow(clippy::unwrap_used)]
 
 use anyhow::Result;
+use core_test_support::create_directory_symlink;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
 use maplecode_core::StartIfIdleSubmission;
 use maplecode_core::TurnInput;
 use maplecode_core::TurnInputRequest;
@@ -26,18 +38,6 @@ use maplecode_skills_extension::SkillsExtensionConfig;
 use maplecode_skills_extension::install;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::create_directory_symlink;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -164,7 +164,10 @@ async fn user_turn_includes_skill_instructions() -> Result<()> {
         .await?;
 
     core_test_support::wait_for_event(test.maplecode.as_ref(), |event| {
-        matches!(event, maplecode_protocol::protocol::EventMsg::TurnComplete(_))
+        matches!(
+            event,
+            maplecode_protocol::protocol::EventMsg::TurnComplete(_)
+        )
     })
     .await;
 
@@ -386,7 +389,10 @@ async fn user_turn_selects_symlinked_skill_by_advertised_discovery_path() -> Res
     assert!(matches!(submission, StartIfIdleSubmission::Started { .. }));
 
     core_test_support::wait_for_event(test.maplecode.as_ref(), |event| {
-        matches!(event, maplecode_protocol::protocol::EventMsg::TurnComplete(_))
+        matches!(
+            event,
+            maplecode_protocol::protocol::EventMsg::TurnComplete(_)
+        )
     })
     .await;
 
@@ -473,7 +479,10 @@ async fn idle_user_turn_includes_skill_instructions_in_the_first_request() -> Re
     assert!(matches!(submission, StartIfIdleSubmission::Started { .. }));
 
     core_test_support::wait_for_event(test.maplecode.as_ref(), |event| {
-        matches!(event, maplecode_protocol::protocol::EventMsg::TurnComplete(_))
+        matches!(
+            event,
+            maplecode_protocol::protocol::EventMsg::TurnComplete(_)
+        )
     })
     .await;
 

@@ -114,7 +114,9 @@ pub(crate) fn thread_extensions(
     });
     let mut skill_providers = maplecode_skills_extension::SkillProviders::new()
         .with_executor_provider(executor_skill_provider)
-        .with_host_provider(Arc::new(maplecode_skills_extension::HostSkillProvider::new()));
+        .with_host_provider(Arc::new(
+            maplecode_skills_extension::HostSkillProvider::new(),
+        ));
     if let Some(provider) = cloud_skill_provider {
         skill_providers = skill_providers.with_cloud_provider(provider);
     }

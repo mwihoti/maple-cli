@@ -251,7 +251,8 @@ impl LinkPreview {
                 match byte {
                     b'[' => {
                         if self.followup_start.is_none()
-                            && let Some(prefix) = source[..index].strip_suffix(":maplecode-followup")
+                            && let Some(prefix) =
+                                source[..index].strip_suffix(":maplecode-followup")
                             && !prefix.ends_with(':')
                             && prefix
                                 .bytes()

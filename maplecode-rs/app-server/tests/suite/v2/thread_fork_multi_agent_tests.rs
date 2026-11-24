@@ -5,6 +5,7 @@ use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::create_mock_responses_server_repeating_assistant;
 use app_test_support::write_models_cache_with_models;
+use core_test_support::load_default_config_for_test;
 use maplecode_app_server_protocol::ApprovalsReviewer;
 use maplecode_app_server_protocol::AskForApproval;
 use maplecode_app_server_protocol::ClientRequest;
@@ -20,7 +21,6 @@ use maplecode_app_server_protocol::UserInput;
 use maplecode_features::Feature;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_rollout::read_session_meta_line;
-use core_test_support::load_default_config_for_test;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use tempfile::TempDir;
@@ -45,7 +45,8 @@ async fn fork_before_first_turn_preserves_model_selected_multi_agent_version(
         .disable_feature(Feature::MultiAgentV2)
         .write(maplecode_home.path())?;
     let config = load_default_config_for_test(&maplecode_home).await;
-    let mut model = maplecode_core::test_support::construct_model_info_offline("mock-model", &config);
+    let mut model =
+        maplecode_core::test_support::construct_model_info_offline("mock-model", &config);
     model.multi_agent_version = Some(MultiAgentVersion::V2);
     write_models_cache_with_models(maplecode_home.path(), vec![model]).await?;
     let mut mcp = TestAppServer::builder()

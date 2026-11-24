@@ -44,8 +44,9 @@ impl SkillCatalogState {
         &mut self,
         mcp_resources: Option<&McpResourceClient>,
     ) -> Arc<CloudSkillGeneration> {
-        let auth_cache_key = mcp_resources
-            .map(|client| client.auth_cache_key_for_server(maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME));
+        let auth_cache_key = mcp_resources.map(|client| {
+            client.auth_cache_key_for_server(maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME)
+        });
         if let Some(generation) = self
             .cloud_generation
             .as_ref()
@@ -78,9 +79,9 @@ pub(crate) struct CloudSkillGeneration {
 
 impl CloudSkillGeneration {
     pub(crate) fn current_resource_cache_key(&self) -> Option<McpResourceServerCacheKey> {
-        self.mcp_resources
-            .as_ref()
-            .and_then(|client| client.server_cache_key(maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME))
+        self.mcp_resources.as_ref().and_then(|client| {
+            client.server_cache_key(maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME)
+        })
     }
 
     pub(crate) fn is_auth_current(&self) -> bool {

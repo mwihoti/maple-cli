@@ -959,11 +959,11 @@ fn rollout_path_is_archived(store: &LocalThreadStore, path: &Path) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use futures::FutureExt;
     use maplecode_protocol::models::PermissionProfile;
     use maplecode_protocol::openai_models::ReasoningEffort;
     use maplecode_protocol::protocol::ThreadHistoryMode;
     use maplecode_utils_absolute_path::test_support::PathExt;
-    use futures::FutureExt;
     use pretty_assertions::assert_eq;
     use serde_json::Value;
     use serde_json::json;
@@ -2279,8 +2279,9 @@ mod tests {
         let child = workspace.join("child");
         std::fs::create_dir_all(child.as_path()).expect("create workspace");
         let unnormalized_cwd = child.join("..");
-        let normalized_cwd = maplecode_utils_path::normalize_for_path_comparison(workspace.as_path())
-            .expect("normalize cwd");
+        let normalized_cwd =
+            maplecode_utils_path::normalize_for_path_comparison(workspace.as_path())
+                .expect("normalize cwd");
 
         store
             .update_thread_metadata(UpdateThreadMetadataParams {

@@ -1,5 +1,23 @@
 #![allow(clippy::unwrap_used)]
 use super::model_request::BudgetCache;
+use core_test_support::TestMapleCodeResponsesRequestKind;
+use core_test_support::ThreadIdle;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses::WebSocketConnectionConfig;
+use core_test_support::responses::WebSocketTestServer;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::start_websocket_server;
+use core_test_support::responses::start_websocket_server_with_headers;
+use core_test_support::responses_metadata as test_responses_metadata;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::RecordingUserInstructionsProvider;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::tracing::install_test_tracing;
+use core_test_support::wait_for_event;
+use futures::FutureExt;
+use futures::StreamExt;
 use maplecode_api::WS_REQUEST_HEADER_TRACEPARENT_CLIENT_METADATA_KEY;
 use maplecode_api::WS_REQUEST_HEADER_TRACESTATE_CLIENT_METADATA_KEY;
 use maplecode_core::MapleCodeResponsesMetadata;
@@ -46,8 +64,8 @@ use maplecode_protocol::models::ToolResultSources;
 use maplecode_protocol::openai_models::ModelInfo;
 use maplecode_protocol::openai_models::ModelServiceTier;
 use maplecode_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::W3cTraceContext;
 use maplecode_protocol::user_input::UserInput;
@@ -56,24 +74,6 @@ use maplecode_rollout_trace::InferenceTraceContext;
 use maplecode_rollout_trace::RawTraceEventPayload;
 use maplecode_rollout_trace::TraceWriter;
 use maplecode_rollout_trace::replay_bundle;
-use core_test_support::TestMapleCodeResponsesRequestKind;
-use core_test_support::ThreadIdle;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses::WebSocketConnectionConfig;
-use core_test_support::responses::WebSocketTestServer;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::start_websocket_server;
-use core_test_support::responses::start_websocket_server_with_headers;
-use core_test_support::responses_metadata as test_responses_metadata;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::RecordingUserInstructionsProvider;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::tracing::install_test_tracing;
-use core_test_support::wait_for_event;
-use futures::FutureExt;
-use futures::StreamExt;
 use opentelemetry_sdk::metrics::InMemoryMetricExporter;
 use opentelemetry_sdk::metrics::data::ResourceMetrics;
 use pretty_assertions::assert_eq;
@@ -155,7 +155,10 @@ fn responses_metadata(
     )
 }
 
-fn turn_metadata(harness: &WebsocketTestHarness, turn_id: Option<&str>) -> MapleCodeResponsesMetadata {
+fn turn_metadata(
+    harness: &WebsocketTestHarness,
+    turn_id: Option<&str>,
+) -> MapleCodeResponsesMetadata {
     responses_metadata(harness, turn_id, TestMapleCodeResponsesRequestKind::Turn)
 }
 
@@ -776,7 +779,10 @@ async fn responses_websocket_request_prewarm_reuses_connection() {
         panic!("exhausted generation unexpectedly succeeded");
     };
     assert!(
-        matches!(error.details(), MapleCodeErrorDetails::SessionBudgetExceeded),
+        matches!(
+            error.details(),
+            MapleCodeErrorDetails::SessionBudgetExceeded
+        ),
         "{error:?}"
     );
     assert!(server.handshakes().is_empty());
@@ -1864,8 +1870,10 @@ async fn responses_websocket_usage_limit_error_emits_rate_limit_event() {
         .await
         .expect("submission should succeed while emitting usage limit error events");
 
-    let token_event =
-        wait_for_event(&test.maplecode, |msg| matches!(msg, EventMsg::TokenCount(_))).await;
+    let token_event = wait_for_event(&test.maplecode, |msg| {
+        matches!(msg, EventMsg::TokenCount(_))
+    })
+    .await;
     let EventMsg::TokenCount(event) = token_event else {
         unreachable!();
     };
@@ -1901,7 +1909,8 @@ async fn responses_websocket_usage_limit_error_emits_rate_limit_event() {
         })
     );
 
-    let error_event = wait_for_event(&test.maplecode, |msg| matches!(msg, EventMsg::Error(_))).await;
+    let error_event =
+        wait_for_event(&test.maplecode, |msg| matches!(msg, EventMsg::Error(_))).await;
     let EventMsg::Error(error_event) = error_event else {
         unreachable!();
     };
@@ -1955,7 +1964,8 @@ async fn responses_websocket_invalid_request_error_with_status_is_forwarded() {
         .await
         .expect("submission should succeed while emitting invalid request events");
 
-    let error_event = wait_for_event(&test.maplecode, |msg| matches!(msg, EventMsg::Error(_))).await;
+    let error_event =
+        wait_for_event(&test.maplecode, |msg| matches!(msg, EventMsg::Error(_))).await;
     let EventMsg::Error(error_event) = error_event else {
         unreachable!();
     };
@@ -2887,7 +2897,9 @@ async fn websocket_harness(server: &WebSocketTestServer) -> WebsocketTestHarness
     websocket_harness_with_runtime_metrics(server, /*runtime_metrics_enabled*/ false).await
 }
 
-async fn websocket_harness_for_maplecode_backend(server: &WebSocketTestServer) -> WebsocketTestHarness {
+async fn websocket_harness_for_maplecode_backend(
+    server: &WebSocketTestServer,
+) -> WebsocketTestHarness {
     let provider = ModelProviderInfo::create_openai_provider(Some(format!("{}/v1", server.uri())));
     websocket_harness_with_provider_options_and_auth(
         provider,
@@ -3008,12 +3020,19 @@ async fn websocket_harness_with_provider_factory(
         )
     });
     let auth_manager = client_auth_manager.clone().unwrap_or_else(|| {
-        maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("Test API Key"))
+        maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key(
+            "Test API Key",
+        ))
     });
     let exporter = InMemoryMetricExporter::default();
     let metrics = MetricsClient::new(
-        MetricsConfig::in_memory("test", "maplecode-core", env!("CARGO_PKG_VERSION"), exporter)
-            .with_runtime_reader(),
+        MetricsConfig::in_memory(
+            "test",
+            "maplecode-core",
+            env!("CARGO_PKG_VERSION"),
+            exporter,
+        )
+        .with_runtime_reader(),
     )
     .expect("in-memory metrics client");
     let session_telemetry = SessionTelemetry::new(
@@ -3097,7 +3116,9 @@ async fn responses_websocket_restored_history_metric(fork: bool) -> anyhow::Resu
     let warmup = vec![ev_response_created("warmup"), ev_completed("warmup")];
     let turn = vec![ev_response_created("turn"), ev_completed("turn")];
     let server = start_websocket_server(vec![vec![warmup, turn]; 2]).await;
-    let mut initial = test_maplecode().build_with_websocket_server(&server).await?;
+    let mut initial = test_maplecode()
+        .build_with_websocket_server(&server)
+        .await?;
     initial.submit_text_turn("original history marker").await?;
     let rollout_path = initial.maplecode.rollout_path().expect("persisted history");
     initial.maplecode.shutdown_and_wait().await?;
@@ -3108,7 +3129,11 @@ async fn responses_websocket_restored_history_metric(fork: bool) -> anyhow::Resu
     options.thread_extension_init.insert(metrics);
     let restored = if fork {
         manager
-            .fork_legacy_thread(maplecode_core::ForkSnapshot::Interrupted, options, rollout_path)
+            .fork_legacy_thread(
+                maplecode_core::ForkSnapshot::Interrupted,
+                options,
+                rollout_path,
+            )
             .await?
     } else {
         options.initial_history =

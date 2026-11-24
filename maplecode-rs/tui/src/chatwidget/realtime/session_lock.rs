@@ -5,10 +5,10 @@ use super::ChatWidget;
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
 use crate::session_lock::Activation;
-use maplecode_protocol::ThreadId;
 use futures::FutureExt;
 use futures::future::AbortHandle;
 use futures::future::AbortRegistration;
+use maplecode_protocol::ThreadId;
 use tokio::task::JoinHandle;
 
 #[derive(Clone, Copy, PartialEq, Eq)]

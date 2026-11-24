@@ -1,12 +1,12 @@
 use std::sync::Arc;
 use std::sync::PoisonError;
 
+use futures::StreamExt;
+use futures::stream::FuturesUnordered;
 use maplecode_code_mode_protocol::CodeModeNestedToolCall;
 use maplecode_code_mode_protocol::grpc as proto;
 use maplecode_code_mode_protocol::host::MAX_FRAME_BYTES;
 use maplecode_protocol::ToolName;
-use futures::StreamExt;
-use futures::stream::FuturesUnordered;
 use prost::Message;
 use serde_json::Value as JsonValue;
 use tokio::sync::mpsc;

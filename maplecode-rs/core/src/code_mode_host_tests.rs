@@ -5,6 +5,8 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
+#[cfg(unix)]
+use core_test_support::code_mode_host::CodeModeHostRecorder;
 use maplecode_code_mode::CodeModeProcessMetricsSample;
 use maplecode_code_mode::CodeModeSession;
 use maplecode_code_mode::CodeModeSessionProvider;
@@ -12,8 +14,6 @@ use maplecode_code_mode::ExecuteRequest;
 use maplecode_code_mode::FunctionCallOutputContentItem;
 use maplecode_code_mode::NoopCodeModeSessionDelegate;
 use maplecode_code_mode::RuntimeResponse;
-#[cfg(unix)]
-use core_test_support::code_mode_host::CodeModeHostRecorder;
 use pretty_assertions::assert_eq;
 use tokio::time::timeout;
 
@@ -135,8 +135,9 @@ async fn grpc_stdio_sessions_share_a_host_and_isolate_state() -> Result<()> {
 
 #[tokio::test]
 async fn grpc_stdio_host_exits_when_stdin_closes() -> Result<()> {
-    let mut connection =
-        HostConnection::spawn(&maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?)?;
+    let mut connection = HostConnection::spawn(&maplecode_utils_cargo_bin::cargo_bin(
+        "maplecode-code-mode-host",
+    )?)?;
     let mut child = connection.child.take().context("host process")?;
     drop(connection);
     let status = timeout(TEST_TIMEOUT, child.wait())

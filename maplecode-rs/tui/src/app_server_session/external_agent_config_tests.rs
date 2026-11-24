@@ -3,11 +3,11 @@
 use super::*;
 use crate::external_agent_config_migration::flow::ExternalAgentConfigMigrationFlowOutcome;
 use crate::external_agent_config_migration::flow::handle_external_agent_config_migration_prompt;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_client::AppServerEvent;
 use maplecode_app_server_protocol::JSONRPCMessage;
 use maplecode_app_server_protocol::ServerNotification;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tokio::net::TcpListener;

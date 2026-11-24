@@ -1,18 +1,18 @@
 //! Configured MCP servers cannot activate verification or hold a turn waiting for proof.
 
 use anyhow::Result;
-use maplecode_core::StartThreadOptions;
-use maplecode_core::TurnInputRequest;
-use maplecode_protocol::mcp::ClientMcpExtensions;
-use maplecode_protocol::mcp::OPENAI_ELICITATION_EXTENSION_ID;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_wine_exec;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_mcp_server;
+use maplecode_core::StartThreadOptions;
+use maplecode_core::TurnInputRequest;
+use maplecode_protocol::mcp::ClientMcpExtensions;
+use maplecode_protocol::mcp::OPENAI_ELICITATION_EXTENSION_ID;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

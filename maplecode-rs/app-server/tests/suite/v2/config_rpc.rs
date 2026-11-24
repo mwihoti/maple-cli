@@ -389,12 +389,14 @@ access = "deny"
     assert_eq!(
         requirements.browser_use,
         Some(BrowserUseRequirements {
-            extension: Some(maplecode_app_server_protocol::BrowserUseExtensionRequirements {
-                request_headers: Some(vec![maplecode_app_server_protocol::RequestHeader {
-                    name: "x-browser-agent".to_string(),
-                    value: "ChatGPT/{{session_id}}".to_string(),
-                }]),
-            }),
+            extension: Some(
+                maplecode_app_server_protocol::BrowserUseExtensionRequirements {
+                    request_headers: Some(vec![maplecode_app_server_protocol::RequestHeader {
+                        name: "x-browser-agent".to_string(),
+                        value: "ChatGPT/{{session_id}}".to_string(),
+                    }]),
+                }
+            ),
             allow_webmcp: None,
             allow_history_access: Some(false),
             disable_auto_review: Some(true),
@@ -1696,7 +1698,10 @@ async fn config_read_respects_managed_project_root_markers() -> Result<()> {
     let mut app_server = TestAppServer::builder()
         .with_maplecode_home(maplecode_home.path())
         .without_auto_env()
-        .with_env_overrides(&[("MAPLECODE_APP_SERVER_MANAGED_CONFIG_PATH", Some(&managed_path))])
+        .with_env_overrides(&[(
+            "MAPLECODE_APP_SERVER_MANAGED_CONFIG_PATH",
+            Some(&managed_path),
+        )])
         .build_initialized_with_timeout(DEFAULT_READ_TIMEOUT)
         .await?;
     let request_id = app_server
@@ -1720,7 +1725,10 @@ async fn config_read_respects_managed_project_root_markers() -> Result<()> {
         .expect("layers present")
         .into_iter()
         .filter_map(|layer| {
-            if let ConfigLayerSource::Project { dot_maplecode_folder } = layer.name {
+            if let ConfigLayerSource::Project {
+                dot_maplecode_folder,
+            } = layer.name
+            {
                 Some((dot_maplecode_folder, layer.config, layer.disabled_reason))
             } else {
                 None
@@ -1897,7 +1905,8 @@ model = "gpt-old"
         .await?;
     let write: ConfigWriteResponse =
         timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(write_id)).await??;
-    let expected_file_path = AbsolutePathBuf::resolve_path_against_base("config.toml", maplecode_home);
+    let expected_file_path =
+        AbsolutePathBuf::resolve_path_against_base("config.toml", maplecode_home);
 
     assert_eq!(write.status, WriteStatus::Ok);
     assert_eq!(write.file_path, expected_file_path);
@@ -2434,7 +2443,13 @@ model = "gpt-old"
 
     let write_id = mcp
         .send_config_value_write_request(ConfigValueWriteParams {
-            file_path: Some(maplecode_home.path().join("config.toml").display().to_string()),
+            file_path: Some(
+                maplecode_home
+                    .path()
+                    .join("config.toml")
+                    .display()
+                    .to_string(),
+            ),
             key_path: "model".to_string(),
             value: json!("gpt-new"),
             merge_strategy: MergeStrategy::Replace,
@@ -2496,7 +2511,8 @@ async fn config_batch_write_applies_multiple_edits() -> Result<()> {
     let batch_write: ConfigWriteResponse =
         timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(batch_id)).await??;
     assert_eq!(batch_write.status, WriteStatus::Ok);
-    let expected_file_path = AbsolutePathBuf::resolve_path_against_base("config.toml", maplecode_home);
+    let expected_file_path =
+        AbsolutePathBuf::resolve_path_against_base("config.toml", maplecode_home);
     assert_eq!(batch_write.file_path, expected_file_path);
 
     let read_id = mcp
@@ -2642,8 +2658,9 @@ access = "deny"
     );
     assert_eq!(batch_write.overridden_metadata, None);
 
-    let persisted: toml::Value =
-        toml::from_str(&std::fs::read_to_string(maplecode_home.join("config.toml"))?)?;
+    let persisted: toml::Value = toml::from_str(&std::fs::read_to_string(
+        maplecode_home.join("config.toml"),
+    )?)?;
     let expected_persisted: toml::Value = toml::from_str(
         r#"
 model = "gpt-existing"
@@ -2805,8 +2822,9 @@ model = "gpt-5.3-spark"
         "unexpected error: {err:?}"
     );
 
-    let config: toml::Value =
-        toml::from_str(&std::fs::read_to_string(maplecode_home.join("config.toml"))?)?;
+    let config: toml::Value = toml::from_str(&std::fs::read_to_string(
+        maplecode_home.join("config.toml"),
+    )?)?;
     assert_eq!(
         config["profiles"]["team.prod"]["model"].as_str(),
         Some("gpt-5.3-spark")

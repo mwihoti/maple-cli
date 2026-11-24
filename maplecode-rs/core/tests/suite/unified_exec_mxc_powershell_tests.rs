@@ -2,6 +2,9 @@
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::responses::mount_function_call_agent_response;
+use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::permissions::FileSystemAccessMode;
 use maplecode_protocol::permissions::FileSystemSandboxEntry;
@@ -9,9 +12,6 @@ use maplecode_protocol::permissions::FileSystemSandboxPolicy;
 use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_shell_command::shell_detect::DetectedShell;
 use maplecode_shell_command::shell_detect::ShellType;
-use core_test_support::responses::mount_function_call_agent_response;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::path::PathBuf;

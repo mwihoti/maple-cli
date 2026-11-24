@@ -26,7 +26,8 @@ async fn http_board_is_shared_with_children(mode: BoardMode) -> anyhow::Result<(
     let in_memory = matches!(mode, BoardMode::InMemory | BoardMode::Feature);
     let server = responses::start_mock_server().await;
     let home = Arc::new(tempfile::tempdir()?);
-    let sqlite = maplecode_state::SqliteConfig::new_for_testing(home.path().to_path_buf().try_into()?);
+    let sqlite =
+        maplecode_state::SqliteConfig::new_for_testing(home.path().to_path_buf().try_into()?);
     let mut process = None;
     let mut local = None;
     let (url, authorization) = if mode == BoardMode::Feature {
@@ -268,9 +269,9 @@ async fn http_board_is_shared_with_children(mode: BoardMode) -> anyhow::Result<(
         "root-read",
     )?;
     assert_eq!(
-        serde_json::from_value::<maplecode_message_board::Page<maplecode_message_board::PostPreview>>(
-            result
-        )?,
+        serde_json::from_value::<
+            maplecode_message_board::Page<maplecode_message_board::PostPreview>,
+        >(result)?,
         maplecode_message_board::Page {
             results: vec![maplecode_message_board::PostPreview {
                 metadata: serde_json::from_value(post.clone())?,

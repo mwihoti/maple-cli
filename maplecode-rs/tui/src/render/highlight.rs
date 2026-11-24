@@ -131,7 +131,10 @@ pub(crate) fn set_theme_override(
 
 /// Check whether a theme name resolves to a bundled theme or a custom
 /// `.tmTheme` file.  Returns a user-facing warning when it does not.
-pub(crate) fn validate_theme_name(name: Option<&str>, maplecode_home: Option<&Path>) -> Option<String> {
+pub(crate) fn validate_theme_name(
+    name: Option<&str>,
+    maplecode_home: Option<&Path>,
+) -> Option<String> {
     let name = name?;
     let custom_theme_path_display = maplecode_home
         .map(|home| custom_theme_path(name, home).display().to_string())
@@ -198,7 +201,9 @@ fn parse_theme_name(name: &str) -> Option<EmbeddedThemeName> {
 
 /// Build the expected path for a custom theme file.
 fn custom_theme_path(name: &str, maplecode_home: &Path) -> PathBuf {
-    maplecode_home.join("themes").join(format!("{name}.tmTheme"))
+    maplecode_home
+        .join("themes")
+        .join(format!("{name}.tmTheme"))
 }
 
 /// Try to load a custom `.tmTheme` file from `{maplecode_home}/themes/{name}.tmTheme`.
@@ -471,7 +476,8 @@ pub(crate) fn list_available_themes(maplecode_home: Option<&Path>) -> Vec<ThemeE
         {
             entries.push(ThemeEntry {
                 name: (*name).to_string(),
-                is_custom: maplecode_home.is_some_and(|home| custom_theme_path(name, home).exists()),
+                is_custom: maplecode_home
+                    .is_some_and(|home| custom_theme_path(name, home).exists()),
             });
         }
     }

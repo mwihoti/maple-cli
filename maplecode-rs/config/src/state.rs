@@ -227,7 +227,9 @@ impl ConfigLayerEntry {
             ConfigLayerSource::System { file } => file.parent(),
             ConfigLayerSource::EnterpriseManaged { .. } => None,
             ConfigLayerSource::User { file, .. } => file.parent(),
-            ConfigLayerSource::Project { dot_maplecode_folder } => Some(dot_maplecode_folder.clone()),
+            ConfigLayerSource::Project {
+                dot_maplecode_folder,
+            } => Some(dot_maplecode_folder.clone()),
             ConfigLayerSource::SessionFlags => None,
             ConfigLayerSource::LegacyManagedConfigTomlFromFile { .. } => None,
             ConfigLayerSource::LegacyManagedConfigTomlFromMdm => None,

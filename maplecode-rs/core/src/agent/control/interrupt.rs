@@ -43,7 +43,8 @@ impl LocalAgentControl {
             Err(err)
                 if matches!(
                     err.details(),
-                    MapleCodeErrorDetails::ThreadNotFound(_) | MapleCodeErrorDetails::InternalAgentDied
+                    MapleCodeErrorDetails::ThreadNotFound(_)
+                        | MapleCodeErrorDetails::InternalAgentDied
                 ) => {}
             Err(err) => return Err(err),
         }

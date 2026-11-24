@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::io;
 
+use futures::StreamExt;
 use maplecode_exec_server_protocol::CapabilityRootDiscoverRequest;
 use maplecode_exec_server_protocol::CapabilityRootDiscovery;
 use maplecode_exec_server_protocol::CapabilityRootsDiscoverParams;
@@ -14,7 +15,6 @@ use maplecode_file_system::FileSystemSandboxContext;
 use maplecode_file_system::WalkEntryKind;
 use maplecode_file_system::WalkOptions;
 use maplecode_utils_path_uri::PathUri;
-use futures::StreamExt;
 use serde::Deserialize;
 use serde_json::Value;
 

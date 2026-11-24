@@ -2,9 +2,9 @@
 //! Exercises skill and plugin discovery before approval, after approval, and next turn.
 
 use super::*;
-use maplecode_protocol::protocol::SKILLS_INSTRUCTIONS_OPEN_TAG;
 use core_test_support::exec_server::ExecServerProcess;
 use core_test_support::test_maplecode::TestEnv;
+use maplecode_protocol::protocol::SKILLS_INSTRUCTIONS_OPEN_TAG;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 

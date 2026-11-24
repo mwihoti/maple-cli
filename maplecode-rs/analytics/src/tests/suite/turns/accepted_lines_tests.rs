@@ -311,7 +311,11 @@ index 1111111..2222222
                 .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
-    assert!(event_types.iter().any(|event| event == "maplecode_turn_event"));
+    assert!(
+        event_types
+            .iter()
+            .any(|event| event == "maplecode_turn_event")
+    );
     assert!(
         event_types
             .iter()

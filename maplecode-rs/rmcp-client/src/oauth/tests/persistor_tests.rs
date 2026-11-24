@@ -4,14 +4,14 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
+use http::HeaderMap;
+use keyring::Error as KeyringError;
 use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_config::types::OAuthCredentialsStoreMode;
 use maplecode_exec_server::RouteAwareHttpClient;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_keyring_store::DefaultKeyringStore;
-use http::HeaderMap;
-use keyring::Error as KeyringError;
 use oauth2::AccessToken;
 use oauth2::RefreshToken;
 use oauth2::TokenResponse;

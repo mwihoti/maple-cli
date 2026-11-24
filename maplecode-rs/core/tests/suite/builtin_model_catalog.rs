@@ -2,11 +2,11 @@
 #![cfg(test)]
 
 use anyhow::Result;
-use maplecode_login::MapleCodeAuth;
-use maplecode_models_manager::bundled_models_response;
 use core_test_support::load_default_config_for_test;
 use core_test_support::responses;
 use core_test_support::test_maplecode::test_maplecode;
+use maplecode_login::MapleCodeAuth;
+use maplecode_models_manager::bundled_models_response;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use tempfile::TempDir;

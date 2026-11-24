@@ -3,10 +3,10 @@
 use crate::agent::api::AgentConfigUpdate;
 use crate::agent::host::AgentRuntimeServices;
 use crate::session::session::Session;
-use maplecode_protocol::SessionId;
 use futures::FutureExt;
 use futures::future::BoxFuture;
 use futures::future::Shared;
+use maplecode_protocol::SessionId;
 
 pub(crate) type ServiceTierAcceptance = Shared<BoxFuture<'static, Result<(), String>>>;
 

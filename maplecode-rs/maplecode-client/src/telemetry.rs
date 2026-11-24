@@ -1,5 +1,5 @@
-use maplecode_http_client::TransportError;
 use http::StatusCode;
+use maplecode_http_client::TransportError;
 use std::time::Duration;
 
 /// API specific telemetry.

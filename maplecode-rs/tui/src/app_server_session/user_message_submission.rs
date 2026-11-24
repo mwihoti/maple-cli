@@ -1,6 +1,7 @@
 //! Route composer input and distinguish admission, rejection, and uncertainty.
 //! A duplicate or an unconfirmed response must never trigger an automatic resend.
 
+use color_eyre::eyre::Report;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_client::CloudUserMessageReceipt;
 use maplecode_app_server_client::TypedRequestError;
@@ -13,7 +14,6 @@ use maplecode_protocol::ThreadId;
 use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::turn_input::CyberAccessProgram;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use color_eyre::eyre::Report;
 
 use crate::app_command::AppCommand;
 use crate::app_command::CloudSubmissionIntent;

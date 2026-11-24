@@ -3,6 +3,10 @@
 use std::sync::Arc;
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_login::AuthManager;
@@ -16,10 +20,6 @@ use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tempfile::TempDir;

@@ -3,21 +3,6 @@
 use std::time::Duration;
 
 use anyhow::Result;
-use maplecode_core::TurnInputRequest;
-use maplecode_core::config::Config;
-use maplecode_features::Feature;
-use maplecode_protocol::config_types::CollaborationMode;
-use maplecode_protocol::config_types::ModeKind;
-use maplecode_protocol::config_types::Settings;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::ReviewDecision;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::request_permissions::PermissionGrantScope;
-use maplecode_protocol::request_permissions::RequestPermissionsResponse;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses;
 use core_test_support::responses::ResponseMock;
 use core_test_support::responses::ev_assistant_message;
@@ -33,6 +18,21 @@ use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
 use core_test_support::wait_for_event_with_timeout;
+use maplecode_core::TurnInputRequest;
+use maplecode_core::config::Config;
+use maplecode_features::Feature;
+use maplecode_protocol::config_types::CollaborationMode;
+use maplecode_protocol::config_types::ModeKind;
+use maplecode_protocol::config_types::Settings;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::ReviewDecision;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::request_permissions::PermissionGrantScope;
+use maplecode_protocol::request_permissions::RequestPermissionsResponse;
+use maplecode_protocol::user_input::UserInput;
 use wiremock::MockServer;
 
 const YIELD_TIME_MS: u64 = 1_000;
@@ -52,13 +52,12 @@ impl CodeModeElicitationHarness {
         configure: impl FnOnce(&mut Config) + Send + 'static,
     ) -> Result<Self> {
         let server = responses::start_mock_server().await;
-        let mut builder =
-            test_maplecode()
-                .with_model("test-gpt-5.1-codex")
-                .with_config(move |config| {
-                    let _ = config.features.enable(Feature::CodeMode);
-                    configure(config);
-                });
+        let mut builder = test_maplecode()
+            .with_model("test-gpt-5.1-codex")
+            .with_config(move |config| {
+                let _ = config.features.enable(Feature::CodeMode);
+                configure(config);
+            });
         let test = builder.build_with_auto_env(&server).await?;
         let follow_up = mount_code_mode_responses(&server, code).await;
         let turn_id = submit_turn(&test, permission_profile).await?;
@@ -112,7 +111,10 @@ async fn mount_code_mode_responses(server: &MockServer, code: &str) -> ResponseM
     .await
 }
 
-async fn submit_turn(test: &TestMapleCode, permission_profile: PermissionProfile) -> Result<String> {
+async fn submit_turn(
+    test: &TestMapleCode,
+    permission_profile: PermissionProfile,
+) -> Result<String> {
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(permission_profile, test.config.cwd.as_path());
     test.maplecode

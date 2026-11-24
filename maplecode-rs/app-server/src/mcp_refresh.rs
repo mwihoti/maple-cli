@@ -1,6 +1,6 @@
 use crate::config_manager::ConfigManager;
-use maplecode_core::MapleCodeThread;
 use maplecode_core::ConfigRefreshOutcome;
+use maplecode_core::MapleCodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_core::config::Config;
 use std::io;
@@ -419,7 +419,9 @@ enabled = false
         );
         // Prediction forks inherit a published config and may outlive their parent.
         let parent = thread_manager
-            .start_thread(maplecode_core::StartThreadOptions::new(pending_startup.clone()))
+            .start_thread(maplecode_core::StartThreadOptions::new(
+                pending_startup.clone(),
+            ))
             .await?;
         let (inherited_fork, _) = thread_manager
             .fork_options_from_parent(parent.thread_id)
@@ -555,7 +557,8 @@ enabled = false
                         event_sink: Arc::new(NoopExtensionEventSink),
                         auth_manager: auth_manager.clone(),
                         state_db: Some(state_db.clone()),
-                        analytics_events_client: maplecode_analytics::AnalyticsEventsClient::disabled(),
+                        analytics_events_client:
+                            maplecode_analytics::AnalyticsEventsClient::disabled(),
                         thread_manager: thread_manager.clone(),
                         goal_service: Arc::new(maplecode_goal_extension::GoalService::new()),
                         environment_manager: Arc::clone(&environment_manager),

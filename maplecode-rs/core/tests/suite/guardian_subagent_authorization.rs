@@ -4,6 +4,31 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Result;
+use core_test_support::ThreadIdle;
+use core_test_support::apps_test_server::HostedMessagingServer;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_custom_tool_call;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_response_once_match;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
 use maplecode_core::GuardianRootMessage;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnInputSubmission;
@@ -33,31 +58,6 @@ use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::LoadThreadHistoryParams;
 use maplecode_tools::ToolName;
 use maplecode_tools::code_mode_name_for_tool_name;
-use core_test_support::ThreadIdle;
-use core_test_support::apps_test_server::HostedMessagingServer;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_custom_tool_call;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_response_once_match;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -360,7 +360,9 @@ async fn code_mode_messaging_fixture(
     let test = test_maplecode()
         .with_extensions(Arc::new(extensions.build()))
         .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
-        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?)
+        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
+            "maplecode-code-mode-host",
+        )?)
         .with_config(move |config| {
             for feature in [
                 Feature::Apps,
@@ -788,7 +790,9 @@ async fn run_guardian_subagent_review(
     if code_mode {
         builder = builder
             .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
-            .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?);
+            .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
+                "maplecode-code-mode-host",
+            )?);
     }
     let mut test = builder.build_with_auto_env(&server).await?;
     if matches!(root_context, RootContext::Migrating) {
@@ -808,7 +812,10 @@ async fn run_guardian_subagent_review(
         .await?;
         assert_eq!(
             maplecode_core::context::GuardianContextMode::from_history(
-                test.maplecode.conversation_history_snapshot().await.as_ref()
+                test.maplecode
+                    .conversation_history_snapshot()
+                    .await
+                    .as_ref()
             ),
             maplecode_core::context::GuardianContextMode::Legacy,
         );
@@ -1071,7 +1078,9 @@ async fn run_guardian_subagent_review(
             _ => false,
         }));
     }
-    test.maplecode.inject_response_items(root_history_items).await?;
+    test.maplecode
+        .inject_response_items(root_history_items)
+        .await?;
 
     mount_sse_once_match(
         &server,

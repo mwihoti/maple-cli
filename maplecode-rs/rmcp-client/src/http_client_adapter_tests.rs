@@ -1,9 +1,9 @@
 use std::io::ErrorKind;
 
-use maplecode_exec_server::HttpRedirectPolicy;
 use http::HeaderMap;
 use http::HeaderValue;
 use http::header::AUTHORIZATION;
+use maplecode_exec_server::HttpRedirectPolicy;
 use pretty_assertions::assert_eq;
 
 use super::HttpHeader;
@@ -315,8 +315,10 @@ impl crate::AuthProviderResolver for AsyncRequestAuth {
     fn resolve<'a>(
         &'a self,
         _headers: &'a HeaderMap,
-    ) -> futures::future::BoxFuture<'a, Result<maplecode_api::SharedAuthProvider, maplecode_api::AuthError>>
-    {
+    ) -> futures::future::BoxFuture<
+        'a,
+        Result<maplecode_api::SharedAuthProvider, maplecode_api::AuthError>,
+    > {
         Box::pin(async move {
             tokio::task::yield_now().await;
             let id = self
@@ -349,10 +351,10 @@ impl maplecode_api::AuthProvider for SelectedRequestAuth {
 
 #[tokio::test]
 async fn requests_await_auth_and_stop_assertion_redirects() -> anyhow::Result<()> {
+    use futures::StreamExt;
     use maplecode_exec_server::RouteAwareHttpClient;
     use maplecode_http_client::HttpClientFactory;
     use maplecode_http_client::OutboundProxyPolicy;
-    use futures::StreamExt;
     use rmcp::transport::streamable_http_client::StreamableHttpClient;
     use std::collections::HashMap;
     use std::sync::Arc;

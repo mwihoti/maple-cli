@@ -1,8 +1,8 @@
 //! Tests for cumulative MCP attribution restoration and checkpoint acknowledgements.
 
 use super::*;
-use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::CompactedItem;
+use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_protocol::models::ResponseItem;
 use pretty_assertions::assert_eq;

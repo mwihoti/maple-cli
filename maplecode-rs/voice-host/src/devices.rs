@@ -26,7 +26,6 @@ use std::sync::atomic::Ordering;
 use std::time::Duration;
 use std::time::Instant;
 
-use maplecode_realtime_webrtc::AudioDeviceKind;
 use cpal::FromSample;
 use cpal::Sample;
 use cpal::SampleFormat;
@@ -34,6 +33,7 @@ use cpal::SizedSample;
 use cpal::traits::DeviceTrait;
 use cpal::traits::HostTrait;
 use cpal::traits::StreamTrait;
+use maplecode_realtime_webrtc::AudioDeviceKind;
 
 use buffers::BLOCK;
 use buffers::Buffers;
@@ -151,7 +151,9 @@ impl Devices {
         self.worker.buffers.take_state()
     }
 
-    pub(super) fn open(selection: maplecode_realtime_webrtc::AudioDeviceSelection) -> io::Result<Self> {
+    pub(super) fn open(
+        selection: maplecode_realtime_webrtc::AudioDeviceSelection,
+    ) -> io::Result<Self> {
         let host = cpal::default_host();
         let input = device(
             &host,

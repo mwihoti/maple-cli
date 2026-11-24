@@ -1,10 +1,10 @@
 use super::*;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_client::RemoteAppServerClient;
 use maplecode_app_server_client::RemoteAppServerConnectArgs;
 use maplecode_app_server_client::RemoteAppServerEndpoint;
 use maplecode_app_server_protocol::JSONRPCMessage;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tokio_tungstenite::tungstenite::Message;

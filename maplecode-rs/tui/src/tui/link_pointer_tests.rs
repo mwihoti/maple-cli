@@ -64,7 +64,8 @@ fn capture_release_restores_pointer_even_after_moving_off_link() {
         screen.set_pointer_shape(&mut output, shape).unwrap();
         output.clear();
         screen.release_input(&mut output).unwrap();
-        let expected = if maplecode_terminal_detection::terminal_info().name == TerminalName::Kitty {
+        let expected = if maplecode_terminal_detection::terminal_info().name == TerminalName::Kitty
+        {
             b"\x1b]22;\x1b\\".as_slice()
         } else {
             b"\x1b]22;text\x1b\\".as_slice()

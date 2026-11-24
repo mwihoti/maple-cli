@@ -6,6 +6,15 @@ use app_test_support::create_mock_responses_server_sequence_unchecked;
 use app_test_support::to_response;
 use base64::Engine;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::sse;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use futures::SinkExt;
+use futures::StreamExt;
+use hmac::Hmac;
+use hmac::Mac;
+use http::StatusCode;
 use maplecode_app_server_protocol::ClientInfo;
 use maplecode_app_server_protocol::ConfigWarningNotification;
 use maplecode_app_server_protocol::InitializeParams;
@@ -24,15 +33,6 @@ use maplecode_http_client::HttpClient;
 use maplecode_http_client::HttpClientBuilder;
 use maplecode_http_client::HttpResponse;
 use maplecode_protocol::config_types::TrustLevel;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::sse;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use futures::SinkExt;
-use futures::StreamExt;
-use hmac::Hmac;
-use hmac::Mac;
-use http::StatusCode;
 use serde_json::json;
 use sha2::Sha256;
 use std::net::SocketAddr;
@@ -285,7 +285,8 @@ async fn websocket_transport_rejects_missing_and_invalid_capability_tokens() -> 
     ];
 
     let (mut process, bind_addr) =
-        spawn_websocket_server_with_args(maplecode_home.path(), "ws://0.0.0.0:0", &auth_args).await?;
+        spawn_websocket_server_with_args(maplecode_home.path(), "ws://0.0.0.0:0", &auth_args)
+            .await?;
 
     assert_websocket_connect_rejected(bind_addr, /*bearer_token*/ None).await?;
     assert_websocket_connect_rejected(bind_addr, Some("wrong-token")).await?;
@@ -324,7 +325,8 @@ async fn websocket_transport_verifies_signed_short_lived_bearer_tokens() -> Resu
     ];
 
     let (mut process, bind_addr) =
-        spawn_websocket_server_with_args(maplecode_home.path(), "ws://127.0.0.1:0", &auth_args).await?;
+        spawn_websocket_server_with_args(maplecode_home.path(), "ws://127.0.0.1:0", &auth_args)
+            .await?;
     let expired_token = signed_bearer_token(
         shared_secret.as_bytes(),
         json!({

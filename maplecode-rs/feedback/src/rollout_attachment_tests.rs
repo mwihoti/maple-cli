@@ -20,7 +20,8 @@ struct Fixture {
 impl Fixture {
     fn new() -> Self {
         let thread_id = ThreadId::new();
-        let directory = std::env::temp_dir().join(format!("maplecode-feedback-rollout-{thread_id}"));
+        let directory =
+            std::env::temp_dir().join(format!("maplecode-feedback-rollout-{thread_id}"));
         fs::create_dir(&directory).expect("create fixture directory");
         let plain = directory.join(format!("rollout-2026-09-09T12-00-00-{thread_id}.jsonl"));
         let compressed = plain.with_extension("jsonl.zst");
@@ -48,8 +49,8 @@ impl Drop for Fixture {
 
 #[tokio::test]
 async fn feedback_upload_archives_readable_rollouts_and_undecodable_sources() -> Result<()> {
-    use maplecode_http_client::OutboundProxyPolicy;
     use flate2::read::GzDecoder;
+    use maplecode_http_client::OutboundProxyPolicy;
     use sentry::protocol::Envelope;
     use sentry::protocol::EnvelopeItem;
     use wiremock::Mock;

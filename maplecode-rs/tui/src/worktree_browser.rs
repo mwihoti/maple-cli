@@ -123,8 +123,10 @@ pub(crate) async fn list(maplecode_home: PathBuf, cwd: PathBuf) -> anyhow::Resul
         maplecode_config::ConfigLoadOptions::default(),
     )
     .await?;
-    let settings =
-        maplecode_worktree::WorktreeSettings::for_cli(&maplecode_home, host.config_toml.desktop.as_ref())?;
+    let settings = maplecode_worktree::WorktreeSettings::for_cli(
+        &maplecode_home,
+        host.config_toml.desktop.as_ref(),
+    )?;
     // Closing the popup discards its result; an already-running blocking Git call still finishes.
     tokio::task::spawn_blocking(move || {
         let cwd = maplecode_git_utils::get_git_repo_root(&cwd).unwrap_or(cwd);
@@ -159,8 +161,10 @@ pub(crate) async fn remove(
         maplecode_config::ConfigLoadOptions::default(),
     )
     .await?;
-    let settings =
-        maplecode_worktree::WorktreeSettings::for_cli(&maplecode_home, host.config_toml.desktop.as_ref())?;
+    let settings = maplecode_worktree::WorktreeSettings::for_cli(
+        &maplecode_home,
+        host.config_toml.desktop.as_ref(),
+    )?;
     tokio::task::spawn_blocking(move || {
         maplecode_worktree::WorktreeManager::new(settings).remove(&source_cwd, &root)
     })

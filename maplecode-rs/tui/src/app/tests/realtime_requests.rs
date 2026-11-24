@@ -1791,8 +1791,12 @@ async fn delegated_final_speech_reaches_app_server_once_and_stale_speech_is_reje
     );
     assert!(ops.try_recv().is_err());
     let mut tui = crate::tui::test_support::make_test_tui()?;
-    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(speech.clone())))
-        .await?;
+    Box::pin(app.handle_event(
+        &mut tui,
+        &mut app_server,
+        AppEvent::MapleCodeOp(speech.clone()),
+    ))
+    .await?;
     assert!(!app.chat_widget.has_pending_realtime_speech(delivery_id));
     assert_eq!(
         recorded_params(&requests, "thread/realtime/appendSpeech"),
@@ -1908,7 +1912,10 @@ async fn rejected_voice_setting_preserves_current_selection() -> Result<()> {
         app.config.realtime.voice,
         app.chat_widget.config_ref().realtime.voice,
     );
-    std::fs::write(app.config.maplecode_home.join("config.toml"), "realtime = [")?;
+    std::fs::write(
+        app.config.maplecode_home.join("config.toml"),
+        "realtime = [",
+    )?;
     let mut tui = crate::tui::test_support::make_test_tui()?;
     Box::pin(app.handle_event(
         &mut tui,
@@ -1948,7 +1955,10 @@ async fn rejected_voice_setting_preserves_current_selection() -> Result<()> {
 async fn remote_voice_config_read_failure_does_not_start_with_local_voice() -> Result<()> {
     let (mut app, mut events, _ops) = make_test_app_with_channels().await;
     let (mut app_server, requests, proxy) = start_recording_remote_app_server(&app.config).await?;
-    std::fs::write(app.config.maplecode_home.join("config.toml"), "realtime = [")?;
+    std::fs::write(
+        app.config.maplecode_home.join("config.toml"),
+        "realtime = [",
+    )?;
     let thread_id = ThreadId::new();
     crate::chatwidget::start_voice_attempt_for_test(
         &mut app.chat_widget,
@@ -2260,8 +2270,11 @@ async fn overridden_voice_save_keeps_effective_voice() -> Result<()> {
             crate::app_server_session::ThreadParamsMode::Embedded,
         );
         while events.try_recv().is_ok() {}
-        app.persist_realtime_voice(&server, maplecode_protocol::protocol::RealtimeVoice::Juniper)
-            .await;
+        app.persist_realtime_voice(
+            &server,
+            maplecode_protocol::protocol::RealtimeVoice::Juniper,
+        )
+        .await;
         assert_eq!(
             (
                 app.config.realtime.voice,

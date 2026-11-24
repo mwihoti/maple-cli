@@ -5,10 +5,10 @@ use std::sync::Arc;
 use crate::McpServerSource;
 use crate::PreparedMcpCall;
 use anyhow::Context;
+use futures::future::BoxFuture;
 use maplecode_config::DEFAULT_MCP_SERVER_ENVIRONMENT_ID;
 use maplecode_config::McpServerTransportConfig;
 use maplecode_protocol::ThreadId;
-use futures::future::BoxFuture;
 use serde_json::Value;
 
 /// Supplies one MCP request metadata value for a live tool invocation. An error

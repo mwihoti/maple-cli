@@ -1,10 +1,5 @@
 #![cfg(not(target_os = "windows"))]
 
-use maplecode_core::TurnInputRequest;
-use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_response_created;
 use core_test_support::responses::mount_sse_once;
@@ -13,10 +8,16 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_core::TurnInputRequest;
+use maplecode_features::Feature;
+use maplecode_login::MapleCodeAuth;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn request_body_is_zstd_compressed_for_maplecode_backend_when_enabled() -> anyhow::Result<()> {
+async fn request_body_is_zstd_compressed_for_maplecode_backend_when_enabled() -> anyhow::Result<()>
+{
     skip_if_no_network!(Ok(()));
 
     let server = start_mock_server().await;

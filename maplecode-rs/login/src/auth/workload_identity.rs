@@ -21,10 +21,10 @@ use url::Url;
 
 use super::ApiKeyAuth;
 use super::AuthConfig;
-use super::MapleCodeAuth;
 use super::ExternalAuth;
 use super::ExternalAuthFuture;
 use super::ExternalAuthRefreshContext;
+use super::MapleCodeAuth;
 use super::RefreshTokenError;
 use super::RefreshTokenFailedError;
 use super::RefreshTokenFailedReason;
@@ -484,7 +484,10 @@ impl ExternalAuth for WorkloadIdentityExternalAuth {
         })
     }
 
-    fn refresh(&self, context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         Box::pin(async move {
             let observed_version = self.observed_token_version.load(Ordering::Acquire);
             let token = self

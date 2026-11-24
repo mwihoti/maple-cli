@@ -127,9 +127,9 @@ async fn background_voice_closes_with_its_owner_not_the_visible_thread() -> Resu
                 &mut std::collections::HashMap::new(),
                 crate::app_server_session::AppServerSessionEvent {
                     backend_id: source.backend_id(),
-                    event: maplecode_app_server_client::AppServerEvent::ServerNotification(Box::new(
-                        notification,
-                    )),
+                    event: maplecode_app_server_client::AppServerEvent::ServerNotification(
+                        Box::new(notification),
+                    ),
                 },
             )
             .await;

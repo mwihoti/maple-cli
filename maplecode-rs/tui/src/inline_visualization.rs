@@ -61,7 +61,10 @@ impl InlineVisualizationContext {
             writable_roots.iter().map(|root| root.root.as_path()),
         )?;
         let viewer_caches = [
-            config.maplecode_home.as_path().join("visualization-viewers"),
+            config
+                .maplecode_home
+                .as_path()
+                .join("visualization-viewers"),
             context.viewer_dir.parent()?.parent()?.to_path_buf(),
         ];
         for viewer_cache in viewer_caches {

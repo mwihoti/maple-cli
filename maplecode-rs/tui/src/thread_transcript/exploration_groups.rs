@@ -58,7 +58,9 @@ fn adjacent_items<'a>(
     super::computer_groups::adjacent_activity_items(&ids, turns)
 }
 
-pub(super) fn completed_group(items: &[maplecode_app_server_protocol::ThreadItem]) -> Option<ExecCell> {
+pub(super) fn completed_group(
+    items: &[maplecode_app_server_protocol::ThreadItem],
+) -> Option<ExecCell> {
     let mut group: Option<ExecCell> = None;
     for entry in items {
         let item = &entry.payload;

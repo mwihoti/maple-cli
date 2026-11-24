@@ -4,6 +4,9 @@ use crate::app_event::FeedbackDestination;
 use crate::app_event::FeedbackReceipt;
 use crate::app_server_session::fs::AppServerFileSystem;
 use crate::app_server_session::is_method_unsupported;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
+use color_eyre::eyre::eyre;
 use maplecode_app_server_client::AppServerPath;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_client::TypedRequestError;
@@ -15,9 +18,6 @@ use maplecode_app_server_protocol::FeedbackUploadResponse;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_feedback::MapleCodeFeedback;
 use maplecode_utils_path_uri::LegacyAppPathString;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
-use color_eyre::eyre::eyre;
 use std::path::PathBuf;
 use uuid::Uuid;
 
@@ -114,7 +114,9 @@ async fn save_feedback_zip(
     let id = Uuid::new_v4();
     let timestamp = chrono::Utc::now().format("%Y-%m-%dT%H-%M-%SZ");
     let suffix = id.as_fields().0;
-    let path = directory.join(format!("maplecode-diagnostics-{timestamp}-{suffix:08x}.zip"));
+    let path = directory.join(format!(
+        "maplecode-diagnostics-{timestamp}-{suffix:08x}.zip"
+    ));
     let response: FeedbackSaveResponse = fs
         .request_handle
         .request_typed(ClientRequest::FeedbackSave {

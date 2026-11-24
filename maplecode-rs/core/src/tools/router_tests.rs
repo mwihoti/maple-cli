@@ -14,6 +14,7 @@ use crate::tools::spec_plan::append_source_tools;
 use crate::tools::spec_plan::build_core_tool_registry;
 use crate::tools::spec_plan::extension_tool_executors;
 use crate::turn_diff_tracker::TurnDiffTracker;
+use core_test_support::responses::strip_response_item_ids_from_json;
 use maplecode_extension_api::ExtensionData;
 use maplecode_extension_api::ExtensionRegistry;
 use maplecode_extension_api::ExtensionRegistryBuilder;
@@ -33,7 +34,6 @@ use maplecode_tools::ResponsesApiNamespaceTool;
 use maplecode_tools::ToolName;
 use maplecode_tools::ToolSpec;
 use maplecode_tools::default_namespace_description;
-use core_test_support::responses::strip_response_item_ids_from_json;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tokio_util::sync::CancellationToken;
@@ -151,7 +151,10 @@ impl<'call> ToolExecutor<ExtensionToolCall<'call>> for ExtensionEchoExecutor {
         })
     }
 
-    fn handle<'a>(&'a self, call: ExtensionToolCall<'call>) -> maplecode_tools::ToolExecutorFuture<'a>
+    fn handle<'a>(
+        &'a self,
+        call: ExtensionToolCall<'call>,
+    ) -> maplecode_tools::ToolExecutorFuture<'a>
     where
         'call: 'a,
     {
@@ -564,7 +567,10 @@ async fn specs_filter_deferred_dynamic_tools() -> anyhow::Result<()> {
     );
     assert_eq!(
         router.deferred_tool_namespaces(),
-        BTreeMap::from([("maplecode_app".to_string(), "Maple Code app tools.".to_string())])
+        BTreeMap::from([(
+            "maplecode_app".to_string(),
+            "Maple Code app tools.".to_string()
+        )])
     );
 
     let updated_router = test_tool_router(step_context.as_ref(), Vec::new(), Vec::new(), &[]);

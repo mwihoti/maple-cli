@@ -1,3 +1,5 @@
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AuthHeaders;
@@ -6,8 +8,6 @@ use maplecode_login::MapleCodeAuth;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_utils_output_truncation::TruncationPolicy;
-use http::HeaderMap;
-use http::HeaderValue;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use wiremock::Mock;
@@ -119,8 +119,9 @@ async fn marks_encrypted_history_and_notes_arguments_without_changing_the_json_b
             .await;
     }
 
-    let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::Headers(AuthHeaders::new(HeaderMap::new())));
+    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::Headers(
+        AuthHeaders::new(HeaderMap::new()),
+    ));
     let backend = HistoryNotesBackend::new(
         create_model_provider(
             ModelProviderInfo::create_openai_provider(Some(format!(

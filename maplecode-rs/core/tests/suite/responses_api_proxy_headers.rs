@@ -3,16 +3,6 @@
 
 use anyhow::Result;
 use anyhow::anyhow;
-use maplecode_core::TurnInputRequest;
-use maplecode_features::Feature;
-use maplecode_protocol::config_types::CollaborationMode;
-use maplecode_protocol::config_types::ModeKind;
-use maplecode_protocol::config_types::Settings;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses::ResponseMock;
 use core_test_support::responses::ResponsesRequest;
 use core_test_support::responses::ev_assistant_message;
@@ -27,6 +17,16 @@ use core_test_support::test_maplecode::TestMapleCode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
+use maplecode_core::TurnInputRequest;
+use maplecode_features::Feature;
+use maplecode_protocol::config_types::CollaborationMode;
+use maplecode_protocol::config_types::ModeKind;
+use maplecode_protocol::config_types::Settings;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::time::Duration;
@@ -139,7 +139,10 @@ async fn responses_api_parent_and_subagent_requests_include_identity_headers_and
             .header("x-maplecode-turn-metadata")
             .ok_or_else(|| anyhow!("parent request missing x-maplecode-turn-metadata"))?,
     )?;
-    assert_eq!(parent_turn_metadata["maplecode_security_surface"], json!("sdk"));
+    assert_eq!(
+        parent_turn_metadata["maplecode_security_surface"],
+        json!("sdk")
+    );
     let child_turn_metadata: serde_json::Value = serde_json::from_str(
         &child
             .header("x-maplecode-turn-metadata")
@@ -150,7 +153,10 @@ async fn responses_api_parent_and_subagent_requests_include_identity_headers_and
         child_turn_metadata["parent_thread_id"].as_str(),
         Some(parent_thread_id)
     );
-    assert_eq!(child_turn_metadata["maplecode_security_surface"], json!("sdk"));
+    assert_eq!(
+        child_turn_metadata["maplecode_security_surface"],
+        json!("sdk")
+    );
 
     Ok(())
 }

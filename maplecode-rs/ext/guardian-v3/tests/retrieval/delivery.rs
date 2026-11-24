@@ -1,5 +1,10 @@
 //! Whole originals enter a real retained conversation without scheduling inference.
 
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::responses::*;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_analytics::GuardianReviewSessionKind;
 use maplecode_core::guardian_review::prepare_review_prewarm;
 use maplecode_extension_api::SessionIsolation;
@@ -16,11 +21,6 @@ use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::TruncationPolicy;
 use maplecode_protocol::turn_input::TurnInputRequest;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::responses::*;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::BTreeSet;

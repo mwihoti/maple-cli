@@ -1,5 +1,13 @@
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::apps_test_server::apps_enabled_builder;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
 use maplecode_core::config::Constrained;
@@ -21,14 +29,6 @@ use maplecode_protocol::protocol::GuardianAssessmentStatus;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::apps_test_server::apps_enabled_builder;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use opentelemetry_sdk::metrics::data::AggregatedMetrics;
 use opentelemetry_sdk::metrics::data::MetricData;
 use pretty_assertions::assert_eq;
@@ -251,8 +251,10 @@ async fn server_initiated_mcp_elicitation_can_require_synchronous_auto_review(
         fn decide<'a>(
             &'a self,
             _input: &'a maplecode_extension_api::ApprovalDecisionInput<'_>,
-        ) -> maplecode_extension_api::ExtensionFuture<'a, Option<maplecode_extension_api::ApprovalDecision>>
-        {
+        ) -> maplecode_extension_api::ExtensionFuture<
+            'a,
+            Option<maplecode_extension_api::ApprovalDecision>,
+        > {
             Box::pin(async { Some(maplecode_extension_api::ApprovalDecision::Allow) })
         }
     }

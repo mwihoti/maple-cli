@@ -2,15 +2,6 @@
 
 use super::guardian_direct_review::model_input;
 use anyhow::Result;
-use maplecode_config::types::AppToolApproval;
-use maplecode_core::config::Constrained;
-use maplecode_core::guardian_review::GuardianReviewResult;
-use maplecode_features::Feature;
-use maplecode_history::RolloutItem;
-use maplecode_protocol::config_types::ApprovalsReviewer;
-use maplecode_protocol::models::ResponseItem;
-use maplecode_protocol::models::input_text;
-use maplecode_protocol::protocol::AskForApproval;
 use core_test_support::apps_test_server::AppsTestServer;
 use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
 use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
@@ -26,6 +17,15 @@ use core_test_support::responses::ev_function_call_with_namespace;
 use core_test_support::responses::sse;
 use core_test_support::skip_if_no_network;
 use core_test_support::wait_for_mcp_server;
+use maplecode_config::types::AppToolApproval;
+use maplecode_core::config::Constrained;
+use maplecode_core::guardian_review::GuardianReviewResult;
+use maplecode_features::Feature;
+use maplecode_history::RolloutItem;
+use maplecode_protocol::config_types::ApprovalsReviewer;
+use maplecode_protocol::models::ResponseItem;
+use maplecode_protocol::models::input_text;
+use maplecode_protocol::protocol::AskForApproval;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -91,7 +91,10 @@ async fn direct_mcp_review_without_dispatch() -> Result<()> {
     test.submit_text_turn(prompt).await?;
     assert_eq!(recorded_apps_tool_calls(&server).await, Vec::<Value>::new());
     test.maplecode.flush_rollout().await?;
-    let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let history = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     let items = history
         .items
         .into_iter()

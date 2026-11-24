@@ -8,7 +8,10 @@ use pretty_assertions::assert_eq;
 #[test]
 fn map_api_error_maps_server_overloaded() {
     let err = map_api_error(ApiError::ServerOverloaded { retry_after: None });
-    assert!(matches!(err.details(), MapleCodeErrorDetails::ServerOverloaded));
+    assert!(matches!(
+        err.details(),
+        MapleCodeErrorDetails::ServerOverloaded
+    ));
 }
 
 #[tokio::test(start_paused = true)]
@@ -53,7 +56,10 @@ async fn http_policy_capacity_preserves_retry_advice_and_terminal_behavior() {
 #[test]
 fn map_api_error_preserves_content_filter_retry_and_public_error() {
     let err = map_api_error(ApiError::ContentFilter);
-    assert!(matches!(err.details(), MapleCodeErrorDetails::ContentFilter));
+    assert!(matches!(
+        err.details(),
+        MapleCodeErrorDetails::ContentFilter
+    ));
     assert_eq!(
         (
             err.retry_delay(/*retry_count*/ 1).is_some(),
@@ -174,7 +180,12 @@ fn map_http_error_classifies_provider_codes() {
             MapleCodeErrorInfo::ServerOverloaded,
             false,
         ),
-        (503, "slow_down", MapleCodeErrorInfo::RateLimitExceeded, true),
+        (
+            503,
+            "slow_down",
+            MapleCodeErrorInfo::RateLimitExceeded,
+            true,
+        ),
         (
             503,
             "unknown_error",
@@ -729,8 +740,10 @@ fn map_api_error_does_not_fallback_limit_name_to_limit_id() {
 
 #[test]
 fn map_api_error_copies_rate_limit_reached_type_to_usage_limit_snapshot() {
-    for (active_limit, expected_limit_id) in [(None, "maplecode"), (Some("maplecode_other"), "maplecode_other")]
-    {
+    for (active_limit, expected_limit_id) in [
+        (None, "maplecode"),
+        (Some("maplecode_other"), "maplecode_other"),
+    ] {
         let mut headers = HeaderMap::new();
         if let Some(active_limit) = active_limit {
             headers.insert(
@@ -863,7 +876,10 @@ fn only_an_explicit_workspace_403_stops_retries() {
             retry_after: None,
         }));
         assert_eq!(
-            matches!(err.details(), MapleCodeErrorDetails::WorkspaceAccessDenied(_)),
+            matches!(
+                err.details(),
+                MapleCodeErrorDetails::WorkspaceAccessDenied(_)
+            ),
             terminal,
             "{err}"
         );

@@ -15,6 +15,10 @@ use crate::thread_state::PendingNetworkApproval;
 use crate::thread_state::resolve_server_request_on_thread_listener;
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_analytics::AnalyticsEventsClient;
 use maplecode_app_server_protocol::ClientResponsePayload;
 use maplecode_app_server_protocol::RequestId;
@@ -30,10 +34,6 @@ use maplecode_goal_extension::GoalService;
 use maplecode_login::AuthManager;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::PersistContext;
-use core_test_support::responses;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use std::collections::HashSet;
 use test_case::test_case;
@@ -44,9 +44,11 @@ async fn test_processor(
     test: &TestMapleCode,
 ) -> Result<(ThreadRequestProcessor, mpsc::Receiver<OutgoingEnvelope>)> {
     let config = Arc::new(test.config.clone());
-    let auth =
-        AuthManager::shared_from_config(config.as_ref(), /*enable_maplecode_api_key_env*/ false)
-            .await?;
+    let auth = AuthManager::shared_from_config(
+        config.as_ref(),
+        /*enable_maplecode_api_key_env*/ false,
+    )
+    .await?;
     let config_manager =
         ConfigManager::without_managed_config_for_tests(config.maplecode_home.to_path_buf());
     let (outgoing_tx, outgoing_rx) = mpsc::channel(/*buffer*/ 16);

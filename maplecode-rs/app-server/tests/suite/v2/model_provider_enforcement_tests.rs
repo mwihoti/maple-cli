@@ -3,6 +3,9 @@
 use anyhow::Result;
 use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
+use core_test_support::responses;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
 use maplecode_app_server::in_process;
 use maplecode_app_server::in_process::InProcessServerEvent;
 use maplecode_app_server::in_process::InProcessStartArgs;
@@ -29,9 +32,6 @@ use maplecode_core::config::ConfigBuilder;
 use maplecode_exec_server::EnvironmentManager;
 use maplecode_feedback::MapleCodeFeedback;
 use maplecode_protocol::protocol::SessionSource;
-use core_test_support::responses;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;
@@ -175,7 +175,8 @@ base_url = "{}/v1"
             Some(json!({"threadId": started.thread.id})),
         )
         .await?;
-    let goal: maplecode_app_server_protocol::ThreadGoalGetResponse = server.read_response(id).await?;
+    let goal: maplecode_app_server_protocol::ThreadGoalGetResponse =
+        server.read_response(id).await?;
     assert_eq!(goal.goal.expect("existing goal").objective, "Original goal");
     let id = server
         .send_raw_request(
@@ -190,7 +191,8 @@ base_url = "{}/v1"
             Some(json!({"threadId": started.thread.id})),
         )
         .await?;
-    let _: maplecode_app_server_protocol::ThreadGoalClearResponse = server.read_response(id).await?;
+    let _: maplecode_app_server_protocol::ThreadGoalClearResponse =
+        server.read_response(id).await?;
     let id = server
         .send_raw_request(
             "thread/queue/start",
@@ -229,7 +231,8 @@ base_url = "{}/v1"
             })),
         )
         .await?;
-    let _: maplecode_app_server_protocol::ThreadQueueDeleteResponse = server.read_response(id).await?;
+    let _: maplecode_app_server_protocol::ThreadQueueDeleteResponse =
+        server.read_response(id).await?;
     release_response.send(()).expect("release active response");
     timeout(
         wait,

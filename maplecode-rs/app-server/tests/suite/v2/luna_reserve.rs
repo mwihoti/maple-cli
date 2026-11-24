@@ -119,7 +119,9 @@ async fn luna_reserve_usage_capability(
         .find(|request| request.url.path() == "/api/maplecode/usage")
         .expect("usage request");
     assert_eq!(
-        usage.headers.contains_key("x-openai-maplecode-luna-reserve"),
+        usage
+            .headers
+            .contains_key("x-openai-maplecode-luna-reserve"),
         expect_header
     );
     backend.verify().await;

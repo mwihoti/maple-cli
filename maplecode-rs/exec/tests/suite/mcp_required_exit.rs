@@ -1,7 +1,7 @@
-use maplecode_core::config::set_project_trust_level;
-use maplecode_protocol::config_types::TrustLevel;
 use core_test_support::responses;
 use core_test_support::test_maplecode_exec::test_maplecode_exec;
+use maplecode_core::config::set_project_trust_level;
+use maplecode_protocol::config_types::TrustLevel;
 use predicates::str::contains;
 use pretty_assertions::assert_eq;
 use std::fs;

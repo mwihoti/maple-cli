@@ -44,16 +44,16 @@ use crate::pager_overlay::Overlay;
 use crate::pager_overlay::TranscriptHistoryState;
 use crate::tui;
 use crate::tui::TuiEvent;
-use maplecode_app_server_protocol::ThreadItemPayload;
-use maplecode_app_server_protocol::Turn;
-use maplecode_app_server_protocol::TurnStatus;
-use maplecode_protocol::ThreadId;
-use maplecode_protocol::models::local_image_label_text;
 use color_eyre::eyre::Result;
 use color_eyre::eyre::bail;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyEventKind;
+use maplecode_app_server_protocol::ThreadItemPayload;
+use maplecode_app_server_protocol::Turn;
+use maplecode_app_server_protocol::TurnStatus;
+use maplecode_protocol::ThreadId;
+use maplecode_protocol::models::local_image_label_text;
 
 const NO_PREVIOUS_MESSAGE_TO_EDIT: &str = "No previous message to edit.";
 pub(crate) const SIDE_EDIT_PREVIOUS_UNAVAILABLE_MESSAGE: &str =

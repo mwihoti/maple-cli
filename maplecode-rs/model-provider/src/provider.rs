@@ -133,7 +133,8 @@ pub trait ModelProvider: fmt::Debug + Send + Sync {
             || url::Url::parse(&provider.base_url).ok().is_some_and(|url| {
                 url.scheme() == "https"
                     && url.host_str().is_some_and(|host| {
-                        host == "api.openai.com" || maplecode_http_client::is_allowed_chatgpt_host(host)
+                        host == "api.openai.com"
+                            || maplecode_http_client::is_allowed_chatgpt_host(host)
                     })
             })
     }
@@ -207,7 +208,8 @@ pub trait ModelProvider: fmt::Debug + Send + Sync {
     /// Attempts provider-owned authentication recovery before using the auth manager.
     fn recover_from_unauthorized(
         &self,
-    ) -> ModelProviderFuture<'_, maplecode_protocol::error::Result<ProviderUnauthorizedRecovery>> {
+    ) -> ModelProviderFuture<'_, maplecode_protocol::error::Result<ProviderUnauthorizedRecovery>>
+    {
         Box::pin(async { Ok(ProviderUnauthorizedRecovery::NotConfigured) })
     }
 
@@ -594,7 +596,8 @@ impl ModelProvider for ConfiguredModelProvider {
 
     fn recover_from_unauthorized(
         &self,
-    ) -> ModelProviderFuture<'_, maplecode_protocol::error::Result<ProviderUnauthorizedRecovery>> {
+    ) -> ModelProviderFuture<'_, maplecode_protocol::error::Result<ProviderUnauthorizedRecovery>>
+    {
         Box::pin(async {
             let Some(gateway) = self.gateway_auth_manager()? else {
                 return Ok(ProviderUnauthorizedRecovery::NotConfigured);

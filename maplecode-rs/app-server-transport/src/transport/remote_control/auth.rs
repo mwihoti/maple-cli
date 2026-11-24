@@ -36,9 +36,9 @@ impl RemoteControlAuth {
     ) -> (Self, bool) {
         loop {
             let owner = crate::ConnectionAuth::capture(&manager);
-            let authenticated = manager
-                .auth_cached()
-                .is_some_and(|auth| auth.uses_maplecode_backend() && auth.get_account_id().is_some());
+            let authenticated = manager.auth_cached().is_some_and(|auth| {
+                auth.uses_maplecode_backend() && auth.get_account_id().is_some()
+            });
             if owner.is_current() {
                 return (
                     Self {
@@ -226,7 +226,9 @@ pub(super) fn is_auth_error(error: &io::Error) -> bool {
 
 fn auth_error(error: maplecode_api::AuthError) -> io::Error {
     match error {
-        maplecode_api::AuthError::Policy(denied) => io::Error::new(ErrorKind::PermissionDenied, denied),
+        maplecode_api::AuthError::Policy(denied) => {
+            io::Error::new(ErrorKind::PermissionDenied, denied)
+        }
         error => io::Error::other(error),
     }
 }
@@ -305,7 +307,10 @@ mod tests {
     }
 
     impl AuthProvider for TestAuthProvider {
-        fn add_auth_headers(&self, headers: &mut HeaderMap) -> Result<(), maplecode_api::AuthError> {
+        fn add_auth_headers(
+            &self,
+            headers: &mut HeaderMap,
+        ) -> Result<(), maplecode_api::AuthError> {
             headers.insert(
                 axum::http::header::AUTHORIZATION,
                 HeaderValue::from_static("Bearer test-token"),
@@ -328,8 +333,9 @@ mod tests {
 
     #[tokio::test]
     async fn runtime_requests_reject_unsupported_openai_origins() -> anyhow::Result<()> {
-        let credentials =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        let credentials = AuthManager::from_auth_for_testing(
+            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        );
         for mode in [RuntimeAuthMode::DualHeader, RuntimeAuthMode::AssertionOnly] {
             let (owner, _) = RemoteControlAuth::capture(
                 Arc::clone(&credentials),
@@ -383,8 +389,9 @@ mod tests {
             .expect(/*r*/ 1)
             .mount(&server)
             .await;
-        let credentials =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        let credentials = AuthManager::from_auth_for_testing(
+            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        );
         let runtime = Arc::new(RuntimeAuthManager::new(
             Arc::clone(&credentials),
             AgentHostAuthorization::InstallationId {

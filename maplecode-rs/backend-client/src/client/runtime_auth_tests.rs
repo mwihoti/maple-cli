@@ -373,7 +373,9 @@ async fn unsupported_openai_backend_rejects_runtime_auth_before_registration() {
             panic!("unsupported OpenAI backend accepted runtime auth");
         };
         assert!(matches!(
-            error.downcast_ref::<MapleCodeErr>().map(MapleCodeErr::details),
+            error
+                .downcast_ref::<MapleCodeErr>()
+                .map(MapleCodeErr::details),
             Some(MapleCodeErrorDetails::UnsupportedOperation(_))
         ));
         assert!(server.received_requests().await.unwrap().is_empty());

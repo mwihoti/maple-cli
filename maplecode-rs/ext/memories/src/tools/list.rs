@@ -58,7 +58,10 @@ where
         )
     }
 
-    fn handle<'a>(&'a self, call: ToolCall<'call>) -> maplecode_extension_api::ToolExecutorFuture<'a>
+    fn handle<'a>(
+        &'a self,
+        call: ToolCall<'call>,
+    ) -> maplecode_extension_api::ToolExecutorFuture<'a>
     where
         'call: 'a,
     {
@@ -73,8 +76,10 @@ where
     async fn handle_call(
         &self,
         call: ToolCall<'_>,
-    ) -> Result<Box<dyn maplecode_extension_api::ToolOutput>, maplecode_extension_api::FunctionCallError>
-    {
+    ) -> Result<
+        Box<dyn maplecode_extension_api::ToolOutput>,
+        maplecode_extension_api::FunctionCallError,
+    > {
         let backend = self.backend.clone();
         let args: ListArgs = parse_args(&call)?;
         let scope = scope_from_optional_path(args.path.as_deref(), "root");

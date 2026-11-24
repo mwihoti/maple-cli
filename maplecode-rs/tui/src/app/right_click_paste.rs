@@ -8,10 +8,10 @@ use super::*;
 use crate::clipboard_copy::worker::PasteSource;
 use crate::transcript_mode::TranscriptMode;
 use crate::tui::VscodeDetection;
-use maplecode_config::types::RightClickPaste;
 use crossterm::event::MouseButton;
 use crossterm::event::MouseEvent;
 use crossterm::event::MouseEventKind;
+use maplecode_config::types::RightClickPaste;
 
 pub(super) struct PendingPaste {
     target: (Option<ThreadId>, crate::bottom_pane::ClipboardPasteTarget),

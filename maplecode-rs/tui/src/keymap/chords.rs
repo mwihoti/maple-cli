@@ -19,12 +19,12 @@ use super::parse_keybinding;
 use super::runtime_action_bindings;
 use crate::key_hint::KeyBinding;
 use crate::key_hint::ctrl;
-use maplecode_config::types::KeybindingsSpec;
-use maplecode_config::types::TuiKeymap;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyEventKind;
 use crossterm::event::KeyModifiers;
+use maplecode_config::types::KeybindingsSpec;
+use maplecode_config::types::TuiKeymap;
 use std::time::Duration;
 use tokio::time::Instant;
 

@@ -3,8 +3,8 @@
 use maplecode_client::CHATGPT_ACCOUNT_ID_HEADER;
 use std::fmt;
 
-use maplecode_http_client::validate_endpoint_url;
 use http::header::HeaderName;
+use maplecode_http_client::validate_endpoint_url;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;

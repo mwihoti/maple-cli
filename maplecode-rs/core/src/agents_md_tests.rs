@@ -6,6 +6,9 @@ use crate::environment_selection::EnvironmentConfigOrigin;
 use crate::environment_selection::TurnEnvironmentSnapshot;
 use crate::environment_selection::TurnEnvironmentState;
 use crate::session::turn_context::TurnEnvironment;
+use core_test_support::PathBufExt;
+use core_test_support::TempDirExt;
+use core_test_support::create_directory_symlink;
 use maplecode_config::ConfigLayerEntry;
 use maplecode_config::ConfigLayerStack;
 use maplecode_config::ConfigRequirements;
@@ -35,9 +38,6 @@ use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use maplecode_protocol_test_support::ContentItemTestExt;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::TempDirExt;
-use core_test_support::create_directory_symlink;
 use pretty_assertions::assert_eq;
 use std::fs;
 use std::io;
@@ -1456,7 +1456,9 @@ async fn project_layers_do_not_override_project_root_markers() {
     config.cwd = nested.abs();
     let project_layer = |dot_maplecode_folder: AbsolutePathBuf, marker: &str| {
         ConfigLayerEntry::new(
-            ConfigLayerSource::Project { dot_maplecode_folder },
+            ConfigLayerSource::Project {
+                dot_maplecode_folder,
+            },
             TomlValue::Table(
                 [(
                     "project_root_markers".to_string(),

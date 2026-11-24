@@ -84,6 +84,12 @@ use maplecode_protocol::ItemIdGenerator;
 use maplecode_protocol::ResponseItemId;
 use maplecode_protocol::auth::AuthMode;
 
+use eventsource_stream::Event;
+use eventsource_stream::EventStreamError;
+use futures::StreamExt;
+use http::HeaderMap as ApiHeaderMap;
+use http::HeaderValue;
+use http::StatusCode;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::config_types::ReasoningSummary as ReasoningSummaryConfig;
 use maplecode_protocol::config_types::Verbosity as VerbosityConfig;
@@ -102,12 +108,6 @@ use maplecode_rollout_trace::InferenceTraceContext;
 use maplecode_tools::ToolSpec;
 use maplecode_tools::create_tools_json_for_responses_lite;
 use maplecode_tools::create_tools_raw_json_for_responses_api;
-use eventsource_stream::Event;
-use eventsource_stream::EventStreamError;
-use futures::StreamExt;
-use http::HeaderMap as ApiHeaderMap;
-use http::HeaderValue;
-use http::StatusCode;
 use serde::Deserialize;
 use std::time::Duration;
 use std::time::Instant;
@@ -829,7 +829,9 @@ impl ModelClient {
                         value
                             .to_str()
                             .map(|value| (name.to_string(), value.to_string().into()))
-                            .map_err(|_| MapleCodeErr::InvalidRequest(format!("invalid {name} header")))
+                            .map_err(|_| {
+                                MapleCodeErr::InvalidRequest(format!("invalid {name} header"))
+                            })
                     })
                     .collect::<Result<_>>()?,
             );
@@ -2326,7 +2328,10 @@ impl ModelClientSession {
                 model_info.use_responses_lite,
             );
             if let Some(turn_state) = self.turn_state.get() {
-                client_metadata.insert(X_MAPLECODE_TURN_STATE_HEADER.to_string(), turn_state.clone());
+                client_metadata.insert(
+                    X_MAPLECODE_TURN_STATE_HEADER.to_string(),
+                    turn_state.clone(),
+                );
             }
             let (continuation, mode, reason, previous_item_type, current_item_type) =
                 match self.prepare_websocket_request(&request) {
@@ -2911,7 +2916,8 @@ where
                     // belong to the continuation cache or reach tool dispatch.
                     let completed_item_count = items_added.len();
                     if inference_trace_attempt.needs_output_items()
-                        && let MapleCodeErrorDetails::ResponseIncomplete(incomplete) = mapped.details()
+                        && let MapleCodeErrorDetails::ResponseIncomplete(incomplete) =
+                            mapped.details()
                     {
                         for raw in &incomplete.partial_output {
                             // Other discards unknown payloads and cannot be replayed as a trace item.

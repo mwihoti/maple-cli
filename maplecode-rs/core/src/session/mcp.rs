@@ -17,10 +17,10 @@ use maplecode_guardian_reviewer::GuardianElicitationReview;
 use maplecode_guardian_reviewer::guardian_elicitation_review_request;
 use maplecode_guardian_reviewer::mcp_elicitation_decline_without_message;
 use maplecode_guardian_reviewer::mcp_elicitation_response_from_guardian_decision;
-use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::ElicitationReviewRequest;
 use maplecode_mcp::ElicitationReviewer;
 use maplecode_mcp::ElicitationReviewerHandle;
+use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::MCP_TOOL_MAPLECODE_APPS_META_KEY;
 use maplecode_otel::auth_storage::AuthStorageOriginator;
 use maplecode_protocol::capabilities::CapabilityRootLocation;
@@ -341,9 +341,10 @@ impl Session {
             .await
             .map_err(|_| anyhow::anyhow!("MCP runtime refresh semaphore closed"))?;
         // This is forced work even when there was no pending invalidation.
-        let mut refresh_invalidation = self
-            .mcp_refresh
-            .claim_forced(self.thread_id, McpRefreshReason::HardRefreshMapleCodeAppsTools);
+        let mut refresh_invalidation = self.mcp_refresh.claim_forced(
+            self.thread_id,
+            McpRefreshReason::HardRefreshMapleCodeAppsTools,
+        );
         let auth = self.services.auth_manager.auth().await;
         let environments = self.services.turn_environments.snapshot().await;
         let environment_selections = environments.all_selections();
@@ -1013,7 +1014,9 @@ async fn review_guardian_mcp_elicitation(
         .elicitation
         .meta()
         .and_then(|meta| match request.server_name.as_str() {
-            MAPLECODE_APPS_MCP_SERVER_NAME => meta.get(MCP_TOOL_MAPLECODE_APPS_META_KEY)?.get("call_id"),
+            MAPLECODE_APPS_MCP_SERVER_NAME => {
+                meta.get(MCP_TOOL_MAPLECODE_APPS_META_KEY)?.get("call_id")
+            }
             _ => meta.get("callId"),
         })
         .and_then(Value::as_str);

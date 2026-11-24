@@ -87,9 +87,14 @@ async fn init_backend(
         // Use the validated command destination for registration as well as actor refresh.
         let mut config = config;
         config.chatgpt_base_url = base_url.clone();
-        let installation_id = maplecode_core::resolve_installation_id(&config.maplecode_home).await?;
-        maplecode_core::build_runtime_auth_manager(&config, Arc::clone(auth_manager), &installation_id)
-            .map(|runtime| (runtime, config.runtime_auth_mode))
+        let installation_id =
+            maplecode_core::resolve_installation_id(&config.maplecode_home).await?;
+        maplecode_core::build_runtime_auth_manager(
+            &config,
+            Arc::clone(auth_manager),
+            &installation_id,
+        )
+        .map(|runtime| (runtime, config.runtime_auth_mode))
     } else {
         None
     };
@@ -579,7 +584,8 @@ async fn run_status_command(
 ) -> anyhow::Result<()> {
     let task_id = parse_task_id(&args.task_id)?;
     let summary =
-        maplecode_cloud_tasks_client::CloudBackend::get_task_summary(&*ctx.backend, task_id).await?;
+        maplecode_cloud_tasks_client::CloudBackend::get_task_summary(&*ctx.backend, task_id)
+            .await?;
     let now = Utc::now();
     let colorize = supports_color::on(SupportStream::Stdout).is_some();
     for line in format_task_status_lines(&summary, now, colorize) {
@@ -819,7 +825,10 @@ fn spawn_apply(
 // (no standalone patch summarizer needed – UI displays raw diffs)
 
 /// Entry point for the `maplecode cloud` subcommand.
-pub async fn run_main(cli: Cli, _maplecode_linux_sandbox_exe: Option<PathBuf>) -> anyhow::Result<()> {
+pub async fn run_main(
+    cli: Cli,
+    _maplecode_linux_sandbox_exe: Option<PathBuf>,
+) -> anyhow::Result<()> {
     // Keep the Cloud future out of the CLI dispatcher frame while the TUI is running.
     Box::pin(run_cloud(cli)).await
 }

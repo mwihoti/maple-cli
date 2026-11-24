@@ -39,9 +39,10 @@ async fn apps_enabled(config: &Config) -> anyhow::Result<bool> {
     let auth_manager =
         AuthManager::shared_from_config(config, /*enable_maplecode_api_key_env*/ false).await?;
     let auth = auth_manager.auth().await;
-    Ok(config
-        .features
-        .apps_enabled_for_auth(auth.as_ref().is_some_and(MapleCodeAuth::uses_maplecode_backend)))
+    Ok(config.features.apps_enabled_for_auth(
+        auth.as_ref()
+            .is_some_and(MapleCodeAuth::uses_maplecode_backend),
+    ))
 }
 
 pub async fn list_connectors(config: &Config) -> anyhow::Result<Vec<AppInfo>> {
@@ -114,7 +115,8 @@ pub async fn list_all_connectors_with_options(
         return Ok(Vec::new());
     }
     let auth = auth.ok_or_else(|| anyhow::anyhow!("ChatGPT auth not available"))?;
-    let runtime = maplecode_model_provider::runtime_auth_for_url(runtime, &config.chatgpt_base_url)?;
+    let runtime =
+        maplecode_model_provider::runtime_auth_for_url(runtime, &config.chatgpt_base_url)?;
     let cache_context = connector_directory_cache_context(config, auth);
     let connectors = maplecode_connectors::list_all_connectors_with_options(
         cache_context,
@@ -165,7 +167,8 @@ pub async fn read_connector_metadata(
         "ChatGPT account ID not available, please re-run maplecode login"
     );
 
-    let runtime = maplecode_model_provider::runtime_auth_for_url(runtime, &config.chatgpt_base_url)?;
+    let runtime =
+        maplecode_model_provider::runtime_auth_for_url(runtime, &config.chatgpt_base_url)?;
     let store = ConnectorMetadataStore::new(
         config.chatgpt_base_url.clone(),
         auth.get_account_id(),

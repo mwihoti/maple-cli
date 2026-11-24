@@ -15,11 +15,11 @@ use std::time::Duration;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
-use maplecode_api::AuthError;
-use maplecode_api::AuthProvider;
 use http::HeaderMap;
 use http::HeaderValue;
 use http::header::AUTHORIZATION;
+use maplecode_api::AuthError;
+use maplecode_api::AuthProvider;
 use serde::Deserialize;
 use tokio::sync::oneshot;
 use tokio::sync::watch;

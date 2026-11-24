@@ -631,7 +631,9 @@ async fn unsupported_request_preserves_updater_schedule() {
         .join("auto-update-version");
     let previous_marker = std::fs::read(&marker).unwrap();
     std::fs::remove_file(&marker).unwrap();
-    let mut pinned = maplecode_uds::UnixStream::connect(&socket_path).await.unwrap();
+    let mut pinned = maplecode_uds::UnixStream::connect(&socket_path)
+        .await
+        .unwrap();
     pinned.write_all(b"update\n").await.unwrap();
     let mut response = Vec::new();
     pinned.read_to_end(&mut response).await.unwrap();
@@ -1150,7 +1152,8 @@ async fn check_manual_update_restart(package_directory: &str) {
         .expect("updater task")
         .expect("updater loop");
     let no_op = FakeInstallerHttp::new(InstallerResponse::Success(
-        b"#!/bin/sh\n# MAPLECODE_INSTALL_IF_LATEST MAPLECODE_INSTALL_DAEMON_ONLY\nexit 0\n".to_vec(),
+        b"#!/bin/sh\n# MAPLECODE_INSTALL_IF_LATEST MAPLECODE_INSTALL_DAEMON_ONLY\nexit 0\n"
+            .to_vec(),
     ));
     let bin = daemon
         .current_managed_maplecode_bin()

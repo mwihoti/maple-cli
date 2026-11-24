@@ -1,5 +1,7 @@
 #![allow(clippy::expect_used)]
 
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_exec_server_protocol::JSONRPCError;
 use maplecode_exec_server_protocol::JSONRPCErrorError;
 use maplecode_exec_server_protocol::JSONRPCMessage;
@@ -14,8 +16,6 @@ use maplecode_protocol::permissions::FileSystemSandboxPolicy;
 use maplecode_protocol::permissions::FileSystemSpecialPath;
 use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_utils_path_uri::PathUri;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use tokio::net::TcpListener;
 use tokio::net::TcpStream;

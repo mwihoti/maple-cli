@@ -206,13 +206,15 @@ pub fn prepare_elevated_sandbox(
                 permission_profile,
                 workspace_roots,
             )?;
-        maplecode_windows_sandbox::run_elevated_setup(maplecode_windows_sandbox::SandboxSetupRequest {
-            permissions: &permissions,
-            command_cwd,
-            env_map,
-            maplecode_home,
-            proxy_enforced: false,
-        })?;
+        maplecode_windows_sandbox::run_elevated_setup(
+            maplecode_windows_sandbox::SandboxSetupRequest {
+                permissions: &permissions,
+                command_cwd,
+                env_map,
+                maplecode_home,
+                proxy_enforced: false,
+            },
+        )?;
     }
     maplecode_windows_sandbox::run_setup_refresh(
         permission_profile,
@@ -231,10 +233,12 @@ fn provisioning_settings(
     let Some(network) = network.filter(|network| network.enabled()) else {
         return Ok(maplecode_windows_sandbox::WindowsSandboxProvisioningSettings::default());
     };
-    Ok(maplecode_windows_sandbox::WindowsSandboxProvisioningSettings {
-        proxy_ports: network.configured_proxy_ports()?,
-        allow_local_binding: network.allow_local_binding(),
-    })
+    Ok(
+        maplecode_windows_sandbox::WindowsSandboxProvisioningSettings {
+            proxy_ports: network.configured_proxy_ports()?,
+            allow_local_binding: network.allow_local_binding(),
+        },
+    )
 }
 
 #[cfg(target_os = "windows")]

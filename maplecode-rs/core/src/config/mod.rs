@@ -7,6 +7,7 @@ use crate::unified_exec::MIN_EMPTY_YIELD_TIME_MS;
 use crate::windows_sandbox::WindowsSandboxLevelExt;
 use crate::windows_sandbox::resolve_windows_sandbox_mode;
 use crate::windows_sandbox::windows_sandbox_level_for_legacy_checks;
+use http::HeaderValue;
 use maplecode_agent_roles::load_agent_roles;
 use maplecode_config::CloudConfigBundleLoader;
 use maplecode_config::ConfigLayerSource;
@@ -145,7 +146,6 @@ use maplecode_utils_absolute_path::AbsolutePathBufGuard;
 use maplecode_utils_path_uri::PathConvention;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_path_uri::Platform;
-use http::HeaderValue;
 use rmcp::model::ElicitationCapability;
 use rmcp::model::FormElicitationCapability;
 use rmcp::model::UrlElicitationCapability;
@@ -196,6 +196,7 @@ mod token_budget_startup;
 mod windows_sandbox_config;
 pub use auth_keyring::bootstrap_auth_config;
 pub use auth_keyring::resolve_bootstrap_auth_keyring_backend_kind;
+pub use managed_features::ManagedFeatures;
 pub use maplecode_agent_roles::AgentRoleConfig;
 pub use maplecode_config::ConfigLoadOptions;
 pub use maplecode_config::Constrained;
@@ -205,7 +206,6 @@ pub use maplecode_config::LoaderOverrides;
 pub use maplecode_network_proxy::NetworkProxyAuditMetadata;
 use maplecode_sandboxing::compatibility_sandbox_policy_for_permission_profile;
 pub use maplecode_sandboxing::system_bwrap_warning;
-pub use managed_features::ManagedFeatures;
 pub(crate) use metrics::emit_session_start_metrics;
 pub(crate) use metrics::legacy_multi_agent_disabled_sources;
 pub use network_config::EnvironmentNetworkConfigError;
@@ -340,7 +340,8 @@ pub(crate) async fn test_config() -> Config {
             ..Default::default()
         },
         ConfigOverrides::default(),
-        AbsolutePathBuf::from_absolute_path(maplecode_home.path()).expect("temp dir should resolve"),
+        AbsolutePathBuf::from_absolute_path(maplecode_home.path())
+            .expect("temp dir should resolve"),
     )
     .await
     .expect("load default test config")
@@ -1681,7 +1682,9 @@ async fn config_toml_from_layers(layers: &ConfigLayerStack) -> std::io::Result<C
 
 impl Config {
     /// Capture storage and sync preparation use one session-static rollout choice.
-    pub(crate) fn guardian_context_budgeting(&self) -> maplecode_guardian_context::ContextBudgeting {
+    pub(crate) fn guardian_context_budgeting(
+        &self,
+    ) -> maplecode_guardian_context::ContextBudgeting {
         if self.guardian_sync_elastic_budget.is_some() {
             maplecode_guardian_context::ContextBudgeting::Elastic
         } else {
@@ -2028,7 +2031,10 @@ impl Config {
             },
             protocol_mode: self.mcp_protocol_mode(),
             discover_local_stdio: self.features.enabled(Feature::McpConnectionSharing),
-            host_owned_apps_protocol_mode: if self.features.enabled(Feature::MapleCodeAppsMcp20260728) {
+            host_owned_apps_protocol_mode: if self
+                .features
+                .enabled(Feature::MapleCodeAppsMcp20260728)
+            {
                 McpProtocolMode::V20260728
             } else {
                 McpProtocolMode::Legacy
@@ -2226,8 +2232,13 @@ pub async fn load_config_as_toml_with_cli_and_loader_overrides(
     cli_overrides: Vec<(String, TomlValue)>,
     loader_overrides: LoaderOverrides,
 ) -> std::io::Result<ConfigToml> {
-    load_config_as_toml_with_cli_and_load_options(maplecode_home, cwd, cli_overrides, loader_overrides)
-        .await
+    load_config_as_toml_with_cli_and_load_options(
+        maplecode_home,
+        cwd,
+        cli_overrides,
+        loader_overrides,
+    )
+    .await
 }
 
 /// DEPRECATED for most callers: prefer [Config::load_with_cli_overrides()] or
@@ -2816,7 +2827,9 @@ fn resolve_update_plan_enabled(config_toml: &ConfigToml) -> bool {
         .is_some_and(|config| config.enabled)
 }
 
-fn resolve_feature_enabled(feature: Option<&maplecode_config::config_toml::FeatureToggleToml>) -> bool {
+fn resolve_feature_enabled(
+    feature: Option<&maplecode_config::config_toml::FeatureToggleToml>,
+) -> bool {
     feature.and_then(|feature| feature.enabled).unwrap_or(true)
 }
 

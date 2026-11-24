@@ -1,11 +1,11 @@
 use super::Client;
 use super::RequestError;
-use maplecode_http_client::OPENAI_ORGANIZATION_HEADER;
-use maplecode_http_client::OPENAI_PROJECT_HEADER;
 use http::HeaderMap;
 use http::Method;
 use http::header::CONTENT_TYPE;
 use http::header::HeaderValue;
+use maplecode_http_client::OPENAI_ORGANIZATION_HEADER;
+use maplecode_http_client::OPENAI_PROJECT_HEADER;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -105,11 +105,11 @@ mod tests {
     use super::ApiKeyTurnCost;
     use super::ApiKeyTurnCostStatus;
     use super::Client;
+    use http::HeaderMap;
+    use http::HeaderValue;
     use maplecode_http_client::HttpClientFactory;
     use maplecode_http_client::OutboundProxyPolicy;
     use maplecode_login::MapleCodeAuth;
-    use http::HeaderMap;
-    use http::HeaderValue;
     use pretty_assertions::assert_eq;
     use wiremock::Mock;
     use wiremock::MockServer;

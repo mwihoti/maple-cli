@@ -457,8 +457,11 @@ async fn detect_repo_still_reports_non_plugin_items_when_home_config_is_invalid(
     )
     .expect("create repo skills");
     fs::create_dir_all(&maplecode_home).expect("create maplecode home");
-    fs::write(maplecode_home.join("config.toml"), "this is not valid = [toml")
-        .expect("write invalid maplecode config");
+    fs::write(
+        maplecode_home.join("config.toml"),
+        "this is not valid = [toml",
+    )
+    .expect("write invalid maplecode config");
     fs::write(
         repo_root.join(EXTERNAL_AGENT_DIR).join("settings.json"),
         r#"{"env":{"FOO":"bar"}}"#,

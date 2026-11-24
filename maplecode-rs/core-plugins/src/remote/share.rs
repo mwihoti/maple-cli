@@ -1,11 +1,11 @@
 use super::*;
 use crate::plugin_bundle_archive::PluginBundlePackError;
 use crate::plugin_bundle_archive::pack_plugin_bundle_tar_gz;
+use http::Method;
+use http::StatusCode;
 use maplecode_http_client::RequestBuilder;
 use maplecode_login::MapleCodeAuth;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use http::Method;
-use http::StatusCode;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -288,7 +288,8 @@ pub async fn delete_remote_plugin_share(
     let url = format!("{base_url}/public/plugins/workspace/{remote_plugin_id}");
     let request = authenticated_request(config, Method::DELETE, &url, auth).await?;
     send_and_expect_status(request, &url, &[StatusCode::NO_CONTENT]).await?;
-    if let Err(err) = local_paths::remove_plugin_share_local_path(maplecode_home, remote_plugin_id) {
+    if let Err(err) = local_paths::remove_plugin_share_local_path(maplecode_home, remote_plugin_id)
+    {
         warn!(
             remote_plugin_id = %remote_plugin_id,
             "failed to remove plugin share local path mapping: {err}"

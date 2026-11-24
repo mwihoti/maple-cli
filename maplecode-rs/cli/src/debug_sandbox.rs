@@ -398,7 +398,10 @@ async fn run_command_under_sandbox(
     let env = {
         let mut env_map = env;
         if sandbox == SandboxBackend::MacosSeatbelt {
-            env_map.insert(MAPLECODE_SANDBOX_ENV_VAR.to_string(), "seatbelt".to_string());
+            env_map.insert(
+                MAPLECODE_SANDBOX_ENV_VAR.to_string(),
+                "seatbelt".to_string(),
+            );
         }
         env_map
     };

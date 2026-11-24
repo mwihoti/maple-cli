@@ -44,7 +44,10 @@ pub(super) fn run(
     capture_file: Option<PathBuf>,
 ) -> Result<()> {
     let capture_path = capture_file.unwrap_or_else(|| {
-        std::env::temp_dir().join(format!("maplecode-plugin-analytics-{}.jsonl", process::id()))
+        std::env::temp_dir().join(format!(
+            "maplecode-plugin-analytics-{}.jsonl",
+            process::id()
+        ))
     });
     prepare_capture_file(&capture_path)?;
 
@@ -63,7 +66,8 @@ pub(super) fn run(
             temporary_config.path().as_os_str().to_os_string(),
         ),
     ];
-    let mut client = MapleCodeClient::spawn_stdio_with_env(maplecode_bin, &overrides, &child_environment)?;
+    let mut client =
+        MapleCodeClient::spawn_stdio_with_env(maplecode_bin, &overrides, &child_environment)?;
     wait_until_capture_is_ready(&capture_path)?;
     client.initialize()?;
 

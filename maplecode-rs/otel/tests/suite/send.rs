@@ -44,7 +44,8 @@ fn send_builds_payload_with_tags_and_histograms() -> Result<()> {
 
     let resource_metrics = latest_metrics(&exporter);
 
-    let counter = find_metric(&resource_metrics, "maplecode.turns").expect("counter metric missing");
+    let counter =
+        find_metric(&resource_metrics, "maplecode.turns").expect("counter metric missing");
     assert_eq!(counter.description(), "Total number of Maple Code turns.");
     let counter_attributes = match counter.data() {
         opentelemetry_sdk::metrics::data::AggregatedMetrics::U64(data) => match data {
@@ -94,7 +95,10 @@ fn send_builds_payload_with_tags_and_histograms() -> Result<()> {
     assert_eq!(histogram_attrs, expected_histogram_attributes);
 
     let gauge = find_metric(&resource_metrics, "maplecode.active").expect("gauge metric missing");
-    assert_eq!(gauge.description(), "Number of active Maple Code operations.");
+    assert_eq!(
+        gauge.description(),
+        "Number of active Maple Code operations."
+    );
     let gauge_point = match gauge.data() {
         opentelemetry_sdk::metrics::data::AggregatedMetrics::I64(data) => match data {
             opentelemetry_sdk::metrics::data::MetricData::Gauge(gauge) => {
@@ -304,7 +308,8 @@ fn client_sends_enqueued_metric() -> Result<()> {
     metrics.shutdown()?;
 
     let resource_metrics = latest_metrics(&exporter);
-    let counter = find_metric(&resource_metrics, "maplecode.turns").expect("counter metric missing");
+    let counter =
+        find_metric(&resource_metrics, "maplecode.turns").expect("counter metric missing");
     let points = match counter.data() {
         opentelemetry_sdk::metrics::data::AggregatedMetrics::U64(data) => match data {
             opentelemetry_sdk::metrics::data::MetricData::Sum(sum) => {
@@ -332,7 +337,8 @@ fn shutdown_flushes_in_memory_exporter() -> Result<()> {
     metrics.shutdown()?;
 
     let resource_metrics = latest_metrics(&exporter);
-    let counter = find_metric(&resource_metrics, "maplecode.turns").expect("counter metric missing");
+    let counter =
+        find_metric(&resource_metrics, "maplecode.turns").expect("counter metric missing");
     let points = match counter.data() {
         opentelemetry_sdk::metrics::data::AggregatedMetrics::U64(data) => match data {
             opentelemetry_sdk::metrics::data::MetricData::Sum(sum) => {

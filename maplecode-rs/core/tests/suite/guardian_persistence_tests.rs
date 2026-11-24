@@ -1,5 +1,10 @@
 //! Checks Guardian persistence boundaries without blocking unrelated turn progress.
 
+use core_test_support::responses;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnInputSubmission;
 use maplecode_core::config::Constrained;
@@ -31,11 +36,6 @@ use maplecode_thread_store::ThreadPage;
 use maplecode_thread_store::ThreadStore;
 use maplecode_thread_store::ThreadStoreFuture;
 use maplecode_thread_store::UpdateThreadMetadataParams;
-use core_test_support::responses;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::any::Any;

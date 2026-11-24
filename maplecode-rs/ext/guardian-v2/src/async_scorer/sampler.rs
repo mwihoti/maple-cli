@@ -10,8 +10,8 @@ pub(super) use telemetry::SampledScore;
 
 use super::request::PreparedRequest;
 use super::score::PendingScore;
-use maplecode_login::AuthOwner;
 use connection_pool::ConnectionPool;
+use maplecode_login::AuthOwner;
 use std::sync::Arc;
 
 use maplecode_api::ApiError;

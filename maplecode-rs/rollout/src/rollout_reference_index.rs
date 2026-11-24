@@ -69,7 +69,11 @@ impl RolloutReferenceIndex {
         thread_ids: &[ThreadId],
     ) -> io::Result<Self> {
         let thread_ids = thread_ids.iter().copied().collect();
-        Self::scan_paths(vec![maplecode_home.join(SESSIONS_SUBDIR)], Some(&thread_ids)).await
+        Self::scan_paths(
+            vec![maplecode_home.join(SESSIONS_SUBDIR)],
+            Some(&thread_ids),
+        )
+        .await
     }
 
     /// Scans archived files whose canonical filenames belong to the requested threads.

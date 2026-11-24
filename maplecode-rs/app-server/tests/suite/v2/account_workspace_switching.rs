@@ -233,15 +233,20 @@ async fn workspace_switch_validates_and_preserves_managed_login(
     };
     let thread_id = if scenario == SwitchScenario::Success {
         let id = app
-            .send_thread_start_request_with_auto_env(maplecode_app_server_protocol::ThreadStartParams {
-                model: Some("mock-model".into()),
-                approval_policy: Some(maplecode_app_server_protocol::AskForApproval::OnRequest),
-                approvals_reviewer: Some(maplecode_app_server_protocol::ApprovalsReviewer::User),
-                sandbox: Some(maplecode_app_server_protocol::SandboxMode::WorkspaceWrite),
-                ..Default::default()
-            })
+            .send_thread_start_request_with_auto_env(
+                maplecode_app_server_protocol::ThreadStartParams {
+                    model: Some("mock-model".into()),
+                    approval_policy: Some(maplecode_app_server_protocol::AskForApproval::OnRequest),
+                    approvals_reviewer: Some(
+                        maplecode_app_server_protocol::ApprovalsReviewer::User,
+                    ),
+                    sandbox: Some(maplecode_app_server_protocol::SandboxMode::WorkspaceWrite),
+                    ..Default::default()
+                },
+            )
             .await?;
-        let thread: maplecode_app_server_protocol::ThreadStartResponse = app.read_response(id).await?;
+        let thread: maplecode_app_server_protocol::ThreadStartResponse =
+            app.read_response(id).await?;
         let id = app
             .send_request(
                 "turn/start",
@@ -445,7 +450,8 @@ async fn workspace_switch_validates_and_preserves_managed_login(
     let id = app
         .send_request("thread/loaded/list", Some(json!({})))
         .await?;
-    let loaded: maplecode_app_server_protocol::ThreadLoadedListResponse = app.read_response(id).await?;
+    let loaded: maplecode_app_server_protocol::ThreadLoadedListResponse =
+        app.read_response(id).await?;
     assert_eq!(loaded.data, vec![thread_id]);
     let id = app
         .send_request(

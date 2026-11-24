@@ -2,11 +2,6 @@ use std::time::Duration;
 
 use anyhow::Result;
 use anyhow::anyhow;
-use maplecode_core::PromptCacheKey;
-use maplecode_core::StartThreadOptions;
-use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
-use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_function_call_with_namespace;
@@ -17,6 +12,11 @@ use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::test_maplecode::TestMapleCode;
 use core_test_support::test_maplecode::test_maplecode;
+use maplecode_core::PromptCacheKey;
+use maplecode_core::StartThreadOptions;
+use maplecode_features::Feature;
+use maplecode_login::MapleCodeAuth;
+use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -26,7 +26,10 @@ const CHILD_TASK: &str = "inspect the repository";
 const SPAWN_CALL_ID: &str = "spawn-worker";
 const COLLABORATION_NAMESPACE: &str = "collaboration";
 
-async fn start_with_prompt_cache_key(test: &mut TestMapleCode, policy: PromptCacheKey) -> Result<()> {
+async fn start_with_prompt_cache_key(
+    test: &mut TestMapleCode,
+    policy: PromptCacheKey,
+) -> Result<()> {
     let thread = test
         .thread_manager
         .start_thread(StartThreadOptions {
@@ -229,8 +232,8 @@ async fn api_key_subagent_inherits_prompt_cache_key_policy(policy: PromptCacheKe
 
 #[tokio::test]
 async fn ephemeral_fork_shares_cache_routing_but_keeps_session_identity() -> Result<()> {
-    use maplecode_core::ForkSnapshot;
     use core_test_support::responses::mount_sse_sequence;
+    use maplecode_core::ForkSnapshot;
 
     let server = start_mock_server().await;
     let requests = mount_sse_sequence(

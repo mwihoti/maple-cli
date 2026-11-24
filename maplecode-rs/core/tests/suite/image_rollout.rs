@@ -1,6 +1,25 @@
 use anyhow::Context;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::TempDirExt;
+use core_test_support::responses;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::strip_metadata;
+use core_test_support::responses::strip_response_item_id;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use image::GenericImageView;
+use image::ImageBuffer;
+use image::Rgba;
 use maplecode_attachment_store::AttachmentMetadata;
 use maplecode_attachment_store::AttachmentStore;
 use maplecode_attachment_store::AttachmentStoreError;
@@ -34,25 +53,6 @@ use maplecode_protocol::user_input::ByteRange;
 use maplecode_protocol::user_input::TextElement;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_image::data_url_from_bytes;
-use core_test_support::TempDirExt;
-use core_test_support::responses;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::strip_metadata;
-use core_test_support::responses::strip_response_item_id;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use image::GenericImageView;
-use image::ImageBuffer;
-use image::Rgba;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -242,9 +242,15 @@ async fn copy_paste_local_image_persists_rollout_request_shape() -> anyhow::Resu
         )
         .await?;
 
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
     maplecode.submit(Op::Shutdown).await?;
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::ShutdownComplete)).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::ShutdownComplete)
+    })
+    .await;
 
     let rollout_path = maplecode.rollout_path().expect("rollout path");
     let rollout_text = read_rollout_text(&rollout_path).await?;
@@ -342,9 +348,15 @@ async fn drag_drop_image_persists_rollout_request_shape() -> anyhow::Result<()> 
         )
         .await?;
 
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
     maplecode.submit(Op::Shutdown).await?;
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::ShutdownComplete)).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::ShutdownComplete)
+    })
+    .await;
 
     let rollout_path = maplecode.rollout_path().expect("rollout path");
     let rollout_text = read_rollout_text(&rollout_path).await?;

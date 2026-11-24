@@ -2,14 +2,14 @@
 
 use super::ReplyStream;
 use crate::cloud::IdleReconnect;
+use futures::FutureExt;
+use futures::StreamExt;
+use futures::future::BoxFuture;
 use maplecode_cloud_client as cloud;
 use maplecode_http_client::NetworkPermit;
 use maplecode_login::AuthConfig;
 use maplecode_login::token_data::parse_jwt_expiration;
 use maplecode_protocol::auth::AuthMode;
-use futures::FutureExt;
-use futures::StreamExt;
-use futures::future::BoxFuture;
 use std::sync::Arc;
 use std::time::Duration;
 use std::time::SystemTime;
@@ -28,7 +28,10 @@ impl Login {
     async fn current(&self) -> bool {
         let Ok(Some(auth)) = self
             .storage
-            .load_auth_with_modes(/*enable_maplecode_api_key_env*/ false, Some(&[self.mode]))
+            .load_auth_with_modes(
+                /*enable_maplecode_api_key_env*/ false,
+                Some(&[self.mode]),
+            )
             .await
         else {
             return false;

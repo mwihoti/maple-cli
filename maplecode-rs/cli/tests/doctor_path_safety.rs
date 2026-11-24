@@ -648,7 +648,10 @@ async fn feedback_with_logs_does_not_execute_path_helpers() -> Result<()> {
             ("HOME", Some(home.as_ref())),
             ("MAPLECODE_TEST_HELPER_MARKER", Some(marker.as_ref())),
             ("MAPLECODE_MANAGED_BY_NPM", Some("1")),
-            ("MAPLECODE_MANAGED_PACKAGE_ROOT", Some(package_root.as_ref())),
+            (
+                "MAPLECODE_MANAGED_PACKAGE_ROOT",
+                Some(package_root.as_ref()),
+            ),
             ("ZELLIJ", Some("0")),
             ("ZELLIJ_VERSION", None),
             ("TMUX", None),

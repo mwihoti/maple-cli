@@ -279,6 +279,8 @@ async fn guardian_budget_rejects_both_backends_before_sending() -> Result<()> {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn decisions_startup_uses_thread_runtime_and_staging_destination() -> anyhow::Result<()> {
     use base64::Engine;
+    use core_test_support::runtime_auth::PROBE_SERVER;
+    use core_test_support::runtime_auth::run_harness_through_proxy;
     use maplecode_features::RuntimeAuthMode;
     use maplecode_history::ResponseItemEnvelope;
     use maplecode_login::AuthManager;
@@ -288,8 +290,6 @@ async fn decisions_startup_uses_thread_runtime_and_staging_destination() -> anyh
     use maplecode_runtime_agent_instance::RuntimeAuthManager;
     use maplecode_runtime_agent_instance::RuntimeRegistrationMetadata;
     use maplecode_runtime_agent_instance::RuntimeRole;
-    use core_test_support::runtime_auth::PROBE_SERVER;
-    use core_test_support::runtime_auth::run_harness_through_proxy;
     use std::collections::BTreeSet;
     use wiremock::Mock;
     use wiremock::MockServer;

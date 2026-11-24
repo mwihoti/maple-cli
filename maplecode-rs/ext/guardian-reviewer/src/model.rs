@@ -42,10 +42,9 @@ pub fn select_review_model(
     let guardian_review_model_override = model_override.map(str::to_string);
     let (guardian_model, guardian_reasoning_effort) = if let Some(model) = &reviewer {
         let reasoning_effort = preferred_reasoning_effort(
-            model
-                .supported_reasoning_levels
-                .iter()
-                .any(|effort| effort.effort == maplecode_protocol::openai_models::ReasoningEffort::Low),
+            model.supported_reasoning_levels.iter().any(|effort| {
+                effort.effort == maplecode_protocol::openai_models::ReasoningEffort::Low
+            }),
             Some(
                 model
                     .default_reasoning_level
@@ -59,7 +58,9 @@ pub fn select_review_model(
             parent_model
                 .supported_reasoning_levels
                 .iter()
-                .any(|preset| preset.effort == maplecode_protocol::openai_models::ReasoningEffort::Low),
+                .any(|preset| {
+                    preset.effort == maplecode_protocol::openai_models::ReasoningEffort::Low
+                }),
             parent_reasoning_effort
                 .or(parent_model.default_reasoning_level.as_ref())
                 .cloned(),

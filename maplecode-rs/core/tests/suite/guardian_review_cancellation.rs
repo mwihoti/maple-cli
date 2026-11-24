@@ -1,17 +1,5 @@
 use anyhow::Context;
 use anyhow::Result;
-use maplecode_core::TurnInputRequest;
-use maplecode_core::config::Constrained;
-use maplecode_features::Feature;
-use maplecode_protocol::config_types::ApprovalsReviewer;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::GuardianAssessmentStatus;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::SandboxPolicy;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -25,6 +13,18 @@ use core_test_support::skip_if_wine_exec;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_core::TurnInputRequest;
+use maplecode_core::config::Constrained;
+use maplecode_features::Feature;
+use maplecode_protocol::config_types::ApprovalsReviewer;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::GuardianAssessmentStatus;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::SandboxPolicy;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::user_input::UserInput;
 use serde_json::Value;
 use serde_json::json;
 use std::time::Duration;
@@ -88,8 +88,9 @@ async fn cancelling_tool_aborts_its_guardian_review(
             }
         });
     if !matches!(cancellation, Cancellation::DirectTool) {
-        builder = builder
-            .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?);
+        builder = builder.with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
+            "maplecode-code-mode-host",
+        )?);
     }
     let test = builder.build_with_auto_env(&server).await?;
     let output_file = test.cwd.path().join("cancelled-guardian-command.txt");

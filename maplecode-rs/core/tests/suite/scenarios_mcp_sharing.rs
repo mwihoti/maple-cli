@@ -1,6 +1,7 @@
 //! Shared MCP transports preserve each chat's model-visible tools and input responses.
 
 use super::*;
+use core_test_support::responses;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
 use maplecode_protocol::approvals::ElicitationAction;
@@ -12,7 +13,6 @@ use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::InternalSessionSource;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

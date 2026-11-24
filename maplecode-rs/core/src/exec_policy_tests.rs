@@ -42,10 +42,12 @@ use toml::Value as TomlValue;
 mod windows_tests;
 
 fn config_stack_for_dot_maplecode_folder(dot_maplecode_folder: &Path) -> ConfigLayerStack {
-    let dot_maplecode_folder =
-        AbsolutePathBuf::from_absolute_path(dot_maplecode_folder).expect("absolute dot_maplecode_folder");
+    let dot_maplecode_folder = AbsolutePathBuf::from_absolute_path(dot_maplecode_folder)
+        .expect("absolute dot_maplecode_folder");
     let layer = ConfigLayerEntry::new(
-        ConfigLayerSource::Project { dot_maplecode_folder },
+        ConfigLayerSource::Project {
+            dot_maplecode_folder,
+        },
         TomlValue::Table(Default::default()),
     );
     ConfigLayerStack::new(
@@ -354,7 +356,9 @@ async fn merges_requirements_exec_policy_network_rules() -> anyhow::Result<()> {
     };
     let dot_maplecode_folder = AbsolutePathBuf::from_absolute_path(temp_dir.path())?;
     let layer = ConfigLayerEntry::new(
-        ConfigLayerSource::Project { dot_maplecode_folder },
+        ConfigLayerSource::Project {
+            dot_maplecode_folder,
+        },
         TomlValue::Table(Default::default()),
     );
     let config_stack =
@@ -386,7 +390,9 @@ async fn malformed_custom_rules_preserve_requirements_exec_policy() -> anyhow::R
     };
     let dot_maplecode_folder = AbsolutePathBuf::from_absolute_path(temp_dir.path())?;
     let layer = ConfigLayerEntry::new(
-        ConfigLayerSource::Project { dot_maplecode_folder },
+        ConfigLayerSource::Project {
+            dot_maplecode_folder,
+        },
         TomlValue::Table(Default::default()),
     );
     let config_stack =
@@ -437,7 +443,9 @@ host_executable(name = "git", paths = ["{git_path_literal}"])
     };
     let dot_maplecode_folder = AbsolutePathBuf::from_absolute_path(temp_dir.path())?;
     let layer = ConfigLayerEntry::new(
-        ConfigLayerSource::Project { dot_maplecode_folder },
+        ConfigLayerSource::Project {
+            dot_maplecode_folder,
+        },
         TomlValue::Table(Default::default()),
     );
     let config_stack =

@@ -484,11 +484,11 @@ mod error_tests;
 mod tests {
     use std::num::NonZeroU64;
 
+    use http::HeaderValue;
     use maplecode_login::auth::BedrockAccessKeysAuth;
     use maplecode_login::auth::BedrockApiKeyAuth;
     use maplecode_model_provider_info::AwsAuthRefreshConfig;
     use maplecode_protocol::config_types::ModelProviderAuthInfo;
-    use http::HeaderValue;
     use pretty_assertions::assert_eq;
 
     use super::*;
@@ -696,9 +696,9 @@ mod tests {
     async fn openai_auth_is_not_exposed_to_bedrock() {
         let provider = AmazonBedrockModelProvider::new(
             ModelProviderInfo::create_amazon_bedrock_provider(/*aws*/ None),
-            Some(AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(
-                "openai-api-key",
-            ))),
+            Some(AuthManager::from_auth_for_testing(
+                MapleCodeAuth::from_api_key("openai-api-key"),
+            )),
         );
 
         assert!(provider.auth_manager().is_none());

@@ -1,4 +1,6 @@
 use super::agent;
+use core_test_support::responses::start_mock_server;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_config::Constrained;
 use maplecode_core::config::Permissions;
 use maplecode_model_provider::create_model_provider;
@@ -8,8 +10,6 @@ use maplecode_protocol::permissions::FileSystemPolicyProjection;
 use maplecode_protocol::permissions::FileSystemSandboxPolicy;
 use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_protocol::protocol::AskForApproval;
-use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use tempfile::TempDir;

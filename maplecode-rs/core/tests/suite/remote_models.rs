@@ -1,5 +1,26 @@
 #![cfg(not(target_os = "windows"))]
 use anyhow::Result;
+use core_test_support::TempDirExt;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_models_once_with_delay;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
@@ -33,27 +54,6 @@ use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ExecCommandSource;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::TempDirExt;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_models_once_with_delay;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;
@@ -147,7 +147,12 @@ async fn child_loads_remote_tool_search_with_thread_provider_headers(
     test.maplecode = root.thread;
     test.session_configured = root.session_configured;
     if matches!(cache, ChildCatalogCache::Cold) {
-        tokio::fs::remove_file(cache_home.path().join("models_cache.maplecode_work_cca.json")).await?;
+        tokio::fs::remove_file(
+            cache_home
+                .path()
+                .join("models_cache.maplecode_work_cca.json"),
+        )
+        .await?;
     }
     assert_child_retains_tool_search(&mut test, &server).await
 }
@@ -266,7 +271,10 @@ async fn child_preserves_parent_catalog_after_cache_write_failure() -> Result<()
     Ok(())
 }
 
-async fn assert_child_retains_tool_search(test: &mut TestMapleCode, server: &MockServer) -> Result<()> {
+async fn assert_child_retains_tool_search(
+    test: &mut TestMapleCode,
+    server: &MockServer,
+) -> Result<()> {
     let responses = mount_sse_sequence(
         server,
         vec![
@@ -709,7 +717,10 @@ async fn remote_models_long_model_slug_is_sent_with_supported_reasoning(
         }]))
         .await?;
 
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let request = response_mock.single_request();
     let body = request.body_json();
@@ -956,7 +967,10 @@ async fn remote_models_remote_model_uses_unified_exec() -> Result<()> {
 
     assert_eq!(begin_event.source, ExecCommandSource::UnifiedExecStartup);
 
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let request = response_mock
         .requests()
@@ -1218,7 +1232,10 @@ async fn remote_models_apply_legacy_instructions(auth: MapleCodeAuth) -> Result<
         )
         .await?;
 
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &maplecode,
@@ -1248,7 +1265,10 @@ async fn remote_models_apply_legacy_instructions(auth: MapleCodeAuth) -> Result<
         )
         .await?;
 
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let base_model_info = models_manager
         .get_model_info("gpt-5.2", &config.to_models_manager_config())
@@ -1780,7 +1800,8 @@ async fn model_catalog_url_supplies_conversation_model_and_instructions() -> Res
     skip_if_no_network!(Ok(()));
     let server = MockServer::start().await;
     let instructions = "Use the gateway's reviewed conversation instructions.";
-    let mut model = maplecode_models_manager::model_info::model_info_from_slug("gateway-conversation");
+    let mut model =
+        maplecode_models_manager::model_info::model_info_from_slug("gateway-conversation");
     model.visibility = ModelVisibility::List;
     model.supported_in_api = true;
     model.support_verbosity = false;

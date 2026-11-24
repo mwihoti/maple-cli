@@ -41,6 +41,8 @@ use crate::provider::OtelProvider;
 use crate::sanitize_metric_tag_value;
 use crate::tool_result::ToolResultEvent;
 use crate::tool_result::emit_tool_result;
+use eventsource_stream::Event as StreamEvent;
+use eventsource_stream::EventStreamError as StreamError;
 use maplecode_api::AgentIdentityTelemetry;
 use maplecode_api::ReasoningRemovalReason;
 use maplecode_api::ResponseEvent;
@@ -59,8 +61,6 @@ use maplecode_protocol::protocol::ReviewDecision;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::TokenUsage;
 use maplecode_protocol::user_input::UserInput;
-use eventsource_stream::Event as StreamEvent;
-use eventsource_stream::EventStreamError as StreamError;
 use opentelemetry_sdk::metrics::data::ResourceMetrics;
 use reqwest::Error;
 use reqwest::Response;
@@ -713,7 +713,8 @@ impl SessionTelemetry {
                     "maplecode.usage.reasoning_output_tokens",
                     token_usage.reasoning_output_tokens,
                 );
-                handle_responses_span.record("maplecode.usage.total_tokens", token_usage.total_tokens);
+                handle_responses_span
+                    .record("maplecode.usage.total_tokens", token_usage.total_tokens);
             }
             _ => {}
         }

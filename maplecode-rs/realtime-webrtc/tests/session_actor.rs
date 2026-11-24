@@ -3,11 +3,11 @@
 mod common;
 
 use anyhow::Result;
+use futures::future::AbortHandle;
 use maplecode_realtime_webrtc::AudioControls;
 use maplecode_realtime_webrtc::AudioDeviceKind;
 use maplecode_realtime_webrtc::AudioDeviceSelection;
 use maplecode_realtime_webrtc::RealtimeWebrtcSession;
-use futures::future::AbortHandle;
 use pretty_assertions::assert_eq;
 use std::fs;
 use std::thread;
@@ -189,7 +189,8 @@ async fn device_discovery_does_not_start_capture() -> Result<()> {
         .package_layout
         .as_ref()
         .unwrap();
-    let mut host = maplecode_realtime_webrtc::VoiceHost::connect(package, common::BUILD_COMMIT).await?;
+    let mut host =
+        maplecode_realtime_webrtc::VoiceHost::connect(package, common::BUILD_COMMIT).await?;
     assert_eq!(
         host.list_devices(AudioDeviceKind::Input).await?,
         vec![maplecode_realtime_webrtc::AudioDevice {

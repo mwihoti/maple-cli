@@ -46,6 +46,7 @@ use crate::shell_snapshot::ShellSnapshot;
 use crate::test_support::models_manager_with_provider;
 use crate::tools::format_exec_output_str;
 use crate::tools::registry::ToolRegistry;
+use core_test_support::test_maplecode::TurnInputRequest as ExternalTurnInputRequest;
 use maplecode_analytics::CompactionImplementation;
 use maplecode_analytics::CompactionPhase;
 use maplecode_analytics::CompactionReason;
@@ -63,7 +64,6 @@ use maplecode_config::types::McpServerConfig;
 use maplecode_config::types::McpServerTransportConfig;
 use maplecode_config::types::ToolSuggestDisabledTool;
 use maplecode_config::types::WindowsSandboxModeToml;
-use core_test_support::test_maplecode::TurnInputRequest as ExternalTurnInputRequest;
 
 use maplecode_features::Feature;
 use maplecode_file_system::FileSystemSandboxContext;
@@ -126,8 +126,8 @@ use std::collections::BTreeMap;
 use tracing::Span;
 
 use crate::connectors::AppInfo;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
 use crate::responses_metadata::CompactionTurnMetadata;
+use crate::responses_metadata::MapleCodeResponsesRequestKind;
 use crate::rollout::recorder::RolloutRecorder;
 use crate::session::Submission;
 use crate::state::ActiveTurn;
@@ -145,6 +145,27 @@ use crate::tools::handlers::RequestPermissionsHandler;
 use crate::tools::registry::ToolExecutor;
 use crate::tools::router::ToolCallSource;
 use crate::turn_diff_tracker::TurnDiffTracker;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::responses;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::strip_metadata_from_items;
+use core_test_support::responses::strip_response_item_ids;
+use core_test_support::responses::strip_response_item_ids_from_json;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::local;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_path_buf;
+use core_test_support::tracing::install_test_tracing;
+use core_test_support::wait_for_event;
 use maplecode_config::config_toml::ConfigToml;
 use maplecode_config::config_toml::ProjectConfig;
 use maplecode_config::permissions_toml::FilesystemPermissionToml;
@@ -155,9 +176,9 @@ use maplecode_config::permissions_toml::PermissionsToml;
 use maplecode_execpolicy::Decision;
 use maplecode_execpolicy::NetworkRuleProtocol;
 use maplecode_execpolicy::Policy;
-use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::CompactedItem;
 use maplecode_history::InitialHistory;
+use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RolloutItem;
@@ -182,12 +203,12 @@ use maplecode_protocol::models::ContentItemMetadata;
 use maplecode_protocol::models::InternalChatMessageMetadataPassthrough;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::ConversationAudioParams;
 use maplecode_protocol::protocol::CreditsSnapshot;
 use maplecode_protocol::protocol::GranularApprovalConfig;
 use maplecode_protocol::protocol::HistoryPosition;
 use maplecode_protocol::protocol::InterAgentCommunication;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::NetworkApprovalProtocol;
 use maplecode_protocol::protocol::RateLimitSnapshot;
@@ -209,27 +230,6 @@ use maplecode_protocol::protocol::TurnStartedEvent;
 use maplecode_protocol::protocol::UserMessageEvent;
 use maplecode_protocol::protocol::W3cTraceContext;
 use maplecode_rmcp_client::ElicitationAction;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::responses;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::strip_metadata_from_items;
-use core_test_support::responses::strip_response_item_ids;
-use core_test_support::responses::strip_response_item_ids_from_json;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::local;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_path_buf;
-use core_test_support::tracing::install_test_tracing;
-use core_test_support::wait_for_event;
 use opentelemetry::trace::TraceContextExt;
 use opentelemetry::trace::TraceId;
 use opentelemetry_sdk::metrics::InMemoryMetricExporter;
@@ -321,7 +321,9 @@ impl StepContext {
             environments,
             executor_hook_sources: Vec::new(),
             serving_assessment: None,
-            extension_data: Arc::new(maplecode_extension_api::ExtensionData::new(turn.sub_id.clone())),
+            extension_data: Arc::new(maplecode_extension_api::ExtensionData::new(
+                turn.sub_id.clone(),
+            )),
             mcp: Arc::new(maplecode_mcp::McpBinding::empty(mcp_config_for_test(
                 &turn.config,
             ))),
@@ -595,7 +597,8 @@ async fn world_state_extension_metrics_follow_turn_model_switch() {
         .clone()
         .with_model("startup-model", "startup-model");
     let turn_context = Arc::new(turn_context);
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.prompt_contributor(Arc::new(WorldStateMetricsRecorder));
     session.services.extensions = Arc::new(builder.build());
 
@@ -1232,13 +1235,14 @@ async fn managed_network_proxy_decider_survives_full_access_start() -> anyhow::R
     )?;
     let exec_policy = Policy::empty();
     let decider_calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
-    let network_policy_decider: Arc<dyn maplecode_network_proxy::NetworkPolicyDecider> = Arc::new({
-        let decider_calls = Arc::clone(&decider_calls);
-        move |_request| {
-            decider_calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-            async { maplecode_network_proxy::NetworkDecision::ask("not_allowed") }
-        }
-    });
+    let network_policy_decider: Arc<dyn maplecode_network_proxy::NetworkPolicyDecider> =
+        Arc::new({
+            let decider_calls = Arc::clone(&decider_calls);
+            move |_request| {
+                decider_calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                async { maplecode_network_proxy::NetworkDecision::ask("not_allowed") }
+            }
+        });
 
     let (started_proxy, _) = Session::start_managed_network_proxy(
         &spec,
@@ -1920,21 +1924,22 @@ async fn reload_user_config_layer_refreshes_hooks() -> anyhow::Result<()> {
         maplecode_protocol::protocol::HookTrustStatus::Untrusted
     );
 
-    let trusted_user_config: maplecode_config::TomlValue = serde_json::from_value(serde_json::json!({
-        "hooks": {
-            "SessionStart": [{
-                "hooks": [{
-                    "type": "command",
-                    "command": "python3 /tmp/user.py",
+    let trusted_user_config: maplecode_config::TomlValue =
+        serde_json::from_value(serde_json::json!({
+            "hooks": {
+                "SessionStart": [{
+                    "hooks": [{
+                        "type": "command",
+                        "command": "python3 /tmp/user.py",
+                    }],
                 }],
-            }],
-            "state": {
-                hook_list.hooks[0].key.clone(): {
-                    "trusted_hash": hook_list.hooks[0].current_hash.clone(),
+                "state": {
+                    hook_list.hooks[0].key.clone(): {
+                        "trusted_hash": hook_list.hooks[0].current_hash.clone(),
+                    },
                 },
             },
-        },
-    }))?;
+        }))?;
     std::fs::write(&config_toml_path, toml::to_string(&trusted_user_config)?)?;
 
     session.reload_user_config_layer().await;
@@ -1983,21 +1988,22 @@ async fn refresh_runtime_config_refreshes_hooks() -> anyhow::Result<()> {
         maplecode_config::version_for_toml(&identity)
     };
     let hook_key = format!("{}:session_start:0:0", config_toml_path.display());
-    let trusted_user_config: maplecode_config::TomlValue = serde_json::from_value(serde_json::json!({
-        "hooks": {
-            "SessionStart": [{
-                "hooks": [{
-                    "type": "command",
-                    "command": "python3 /tmp/user.py",
+    let trusted_user_config: maplecode_config::TomlValue =
+        serde_json::from_value(serde_json::json!({
+            "hooks": {
+                "SessionStart": [{
+                    "hooks": [{
+                        "type": "command",
+                        "command": "python3 /tmp/user.py",
+                    }],
                 }],
-            }],
-            "state": {
-                hook_key: {
-                    "trusted_hash": trusted_hash,
+                "state": {
+                    hook_key: {
+                        "trusted_hash": trusted_hash,
+                    },
                 },
             },
-        },
-    }))?;
+        }))?;
     std::fs::write(&config_toml_path, toml::to_string(&trusted_user_config)?)?;
 
     let request = maplecode_hooks::SessionStartRequest {
@@ -2138,7 +2144,12 @@ async fn refresh_mcp_config_replaces_managed_server_and_plugin_requirements(reje
         let mut layers: Vec<_> = config
             .config_layer_stack
             .all_layers_low_to_high()
-            .filter(|layer| !matches!(layer.name, maplecode_config::ConfigLayerSource::SessionFlags))
+            .filter(|layer| {
+                !matches!(
+                    layer.name,
+                    maplecode_config::ConfigLayerSource::SessionFlags
+                )
+            })
             .cloned()
             .collect();
         layers.push(maplecode_config::ConfigLayerEntry::new(
@@ -2937,10 +2948,11 @@ async fn annotated_history_uses_explicit_model_without_a_step(
         else {
             unreachable!("fixture is a tool output");
         };
-        output.body = FunctionCallOutputBody::Text(maplecode_utils_output_truncation::truncate_text(
-            &text,
-            maplecode_utils_output_truncation::TruncationPolicy::Tokens(expected_budget),
-        ));
+        output.body =
+            FunctionCallOutputBody::Text(maplecode_utils_output_truncation::truncate_text(
+                &text,
+                maplecode_utils_output_truncation::TruncationPolicy::Tokens(expected_budget),
+            ));
     }
     assert_eq!(session.clone_history().await.annotated_items(), &expected);
 }
@@ -3511,7 +3523,8 @@ async fn record_token_usage_info_notifies_extension_contributors(
 
     let (mut session, turn_context) = make_session_and_context().await;
     let records = Arc::new(std::sync::Mutex::new(Vec::new()));
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.token_usage_contributor(Arc::new(TokenUsageRecorder {
         records: Arc::clone(&records),
     }));
@@ -3677,7 +3690,8 @@ async fn turn_start_lifecycle_exposes_turn_metadata_and_token_baseline() {
 
     let (mut session, turn_context) = make_session_and_context().await;
     let records = Arc::new(std::sync::Mutex::new(Vec::new()));
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.turn_lifecycle_contributor(Arc::new(TurnStartRecorder {
         records: Arc::clone(&records),
     }));
@@ -3787,7 +3801,8 @@ async fn turn_error_lifecycle_exposes_error_and_stores() {
 
     let (mut session, turn_context) = make_session_and_context().await;
     let records = Arc::new(std::sync::Mutex::new(Vec::new()));
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.turn_lifecycle_contributor(Arc::new(TurnErrorRecorder {
         records: Arc::clone(&records),
     }));
@@ -3884,7 +3899,8 @@ async fn config_change_contributor_observes_effective_config_changes() {
 
     let (mut session, _turn_context) = make_session_and_context().await;
     let records = Arc::new(std::sync::Mutex::new(Vec::new()));
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.config_contributor(Arc::new(ConfigRecorder {
         records: Arc::clone(&records),
     }));
@@ -4000,16 +4016,20 @@ async fn start_new_context_window_persists_checkpoint_state(clear_tools: bool) {
         |config| config.allow_persistent_dynamic_tool_updates = true,
     )
     .await;
-    let dynamic_tools = vec![maplecode_protocol::dynamic_tools::DynamicToolSpec::Function(
-        maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec {
-            name: "check_release".into(),
-            description: "Check the release.".into(),
-            input_schema: json!({"type": "object", "properties": {}}),
-            defer_loading: false,
-        },
-    )];
+    let dynamic_tools = vec![
+        maplecode_protocol::dynamic_tools::DynamicToolSpec::Function(
+            maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec {
+                name: "check_release".into(),
+                description: "Check the release.".into(),
+                input_schema: json!({"type": "object", "properties": {}}),
+                defer_loading: false,
+            },
+        ),
+    ];
     let mut initial_tools = dynamic_tools.clone();
-    if let maplecode_protocol::dynamic_tools::DynamicToolSpec::Function(tool) = &mut initial_tools[0] {
+    if let maplecode_protocol::dynamic_tools::DynamicToolSpec::Function(tool) =
+        &mut initial_tools[0]
+    {
         tool.name = "original_tool".into();
     }
     session
@@ -4305,7 +4325,10 @@ async fn fork_startup_context_then_first_turn_diff_snapshot() -> anyhow::Result<
             },
         ]))
         .await?;
-    wait_for_event(&initial.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&initial.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
     // Forking reads the persisted rollout JSONL, so force the completed source turn to disk
     // before snapshotting from it.
     initial.maplecode.ensure_rollout_materialized().await;
@@ -5807,7 +5830,9 @@ async fn active_profile_update_rebuilds_network_proxy_config(
         ..Default::default()
     };
     std::fs::write(
-        maplecode_home.path().join(maplecode_config::CONFIG_TOML_FILE),
+        maplecode_home
+            .path()
+            .join(maplecode_config::CONFIG_TOML_FILE),
         toml::to_string(&base_config).expect("serialize config"),
     )?;
     let locked_config = Arc::new(
@@ -6881,7 +6906,8 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
     let config = build_test_config(maplecode_home.path()).await;
     let config = Arc::new(config);
     let thread_id = ThreadId::default();
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
+    let auth_manager =
+        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
     let models_manager = models_manager_with_provider(
         config.maplecode_home.to_path_buf(),
         auth_manager.clone(),
@@ -6997,7 +7023,9 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
         /*bundled_skills_enabled*/ true,
     ));
     let network_approval = Arc::new(NetworkApprovalService::default());
-    let mcp_runtime = Arc::new(maplecode_mcp::McpRuntime::empty(config.prefix_mcp_tool_names()));
+    let mcp_runtime = Arc::new(maplecode_mcp::McpRuntime::empty(
+        config.prefix_mcp_tool_names(),
+    ));
     let executed_tool_calls =
         crate::state::ExecutedToolCalls::new(&config.features, &InitialHistory::Forked(Vec::new()));
     let (hooks, async_hook_results) = Hooks::new(
@@ -7223,7 +7251,8 @@ async fn make_session_with_config_and_rx(
     let mut config = build_test_config(maplecode_home.path()).await;
     mutator(&mut config);
     let config = Arc::new(config);
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
+    let auth_manager =
+        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
     let models_manager = models_manager_with_provider(
         config.maplecode_home.to_path_buf(),
         auth_manager.clone(),
@@ -7362,7 +7391,8 @@ async fn make_session_with_history_source_and_agent_control_and_rx(
     let mut config = build_test_config(maplecode_home.path()).await;
     config.ephemeral = true;
     let config = Arc::new(config);
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
+    let auth_manager =
+        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
     let models_manager = models_manager_with_provider(
         config.maplecode_home.to_path_buf(),
         auth_manager.clone(),
@@ -8796,7 +8826,8 @@ async fn spawn_task_turn_span_inherits_dispatch_trace_context() {
         .expect("turn task should capture the current span trace context");
     let submission_context =
         maplecode_otel::context_from_w3c_trace_context(&submission_trace).expect("submission");
-    let task_context = maplecode_otel::context_from_w3c_trace_context(&task_trace).expect("task trace");
+    let task_context =
+        maplecode_otel::context_from_w3c_trace_context(&task_trace).expect("task trace");
 
     assert_eq!(
         task_context.span().span_context().trace_id(),
@@ -8915,7 +8946,9 @@ async fn submission_loop_channel_close_runs_full_thread_teardown() -> anyhow::Re
         expected_thread_id: ThreadId,
     }
 
-    impl maplecode_extension_api::ThreadLifecycleContributor<crate::config::Config> for ThreadStopRecorder {
+    impl maplecode_extension_api::ThreadLifecycleContributor<crate::config::Config>
+        for ThreadStopRecorder
+    {
         fn on_thread_stop<'a>(
             &'a self,
             input: maplecode_extension_api::ThreadStopInput<'a>,
@@ -8993,7 +9026,8 @@ async fn submission_loop_channel_close_runs_full_thread_teardown() -> anyhow::Re
     session.services.thread_store = thread_store;
     session.services.live_thread = Some(live_thread);
     let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.thread_lifecycle_contributor(Arc::new(ThreadStopRecorder {
         calls: Arc::clone(&calls),
         expected_thread_id: session.thread_id,
@@ -9040,7 +9074,9 @@ async fn submission_loop_channel_close_aborts_active_turn_before_thread_stop_lif
         expected_turn_id: String,
     }
 
-    impl maplecode_extension_api::ThreadLifecycleContributor<crate::config::Config> for LifecycleRecorder {
+    impl maplecode_extension_api::ThreadLifecycleContributor<crate::config::Config>
+        for LifecycleRecorder
+    {
         fn on_thread_stop<'a>(
             &'a self,
             input: maplecode_extension_api::ThreadStopInput<'a>,
@@ -9085,7 +9121,8 @@ async fn submission_loop_channel_close_aborts_active_turn_before_thread_stop_lif
         expected_thread_id: session.thread_id,
         expected_turn_id: turn_context.sub_id.clone(),
     });
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.thread_lifecycle_contributor(recorder.clone());
     builder.turn_lifecycle_contributor(recorder);
     session.services.extensions = Arc::new(builder.build());
@@ -9226,7 +9263,8 @@ where
     let state_db = None;
     let config = Arc::new(config);
     let thread_id = ThreadId::default();
-    let auth_manager = AuthManager::from_auth_for_testing_with_home(auth, maplecode_home.to_path_buf());
+    let auth_manager =
+        AuthManager::from_auth_for_testing_with_home(auth, maplecode_home.to_path_buf());
     let models_manager = models_manager_with_provider(
         config.maplecode_home.to_path_buf(),
         auth_manager.clone(),
@@ -9341,7 +9379,9 @@ where
         /*bundled_skills_enabled*/ true,
     ));
     let network_approval = Arc::new(NetworkApprovalService::default());
-    let mcp_runtime = Arc::new(maplecode_mcp::McpRuntime::empty(config.prefix_mcp_tool_names()));
+    let mcp_runtime = Arc::new(maplecode_mcp::McpRuntime::empty(
+        config.prefix_mcp_tool_names(),
+    ));
     let executed_tool_calls =
         crate::state::ExecutedToolCalls::new(&config.features, &InitialHistory::Forked(Vec::new()));
     let (hooks, async_hook_results) = Hooks::new(
@@ -9678,7 +9718,10 @@ async fn cancelled_step_capture_finishes_warning_delivery() {
     let Err(error) = capture.await else {
         panic!("cancelled step cannot be published");
     };
-    assert!(matches!(error.details(), MapleCodeErrorDetails::TurnAborted));
+    assert!(matches!(
+        error.details(),
+        MapleCodeErrorDetails::TurnAborted
+    ));
     assert_eq!(
         warning_fields(
             rx.try_recv()
@@ -9763,7 +9806,8 @@ async fn refresh_mcp_servers_uses_latest_state_for_existing_turns() {
         "an already-bound step must keep its captured config"
     );
     assert!(
-        maplecode_mcp::configured_mcp_servers(rematerialized_old.config()).contains_key("refreshed"),
+        maplecode_mcp::configured_mcp_servers(rematerialized_old.config())
+            .contains_key("refreshed"),
         "an older turn should resolve the latest MCP state"
     );
     let current = session
@@ -9932,8 +9976,14 @@ async fn mcp_elicitation_reviewer_uses_active_reviewer_and_latest_runtime_policy
             rmcp::model::ElicitRequestParams::FormElicitationParams {
                 meta: Some(rmcp::model::RequestMetaObject::from(
                     serde_json::Map::from_iter([
-                        ("maplecode_approval_kind".to_string(), json!("mcp_tool_call")),
-                        ("maplecode_request_type".to_string(), json!("approval_request")),
+                        (
+                            "maplecode_approval_kind".to_string(),
+                            json!("mcp_tool_call"),
+                        ),
+                        (
+                            "maplecode_request_type".to_string(),
+                            json!("approval_request"),
+                        ),
                         ("tool_name".to_string(), json!("access_browser_origin")),
                     ]),
                 )),
@@ -10236,14 +10286,15 @@ async fn capability_roots_require_turn_environment_selection() {
 #[tokio::test]
 async fn conflicting_ready_environment_root_ids_keep_first_location() {
     let (session, turn_context) = make_session_and_context().await;
-    let selected_root =
-        |environment_id: &str, path: &str| maplecode_protocol::capabilities::SelectedCapabilityRoot {
+    let selected_root = |environment_id: &str, path: &str| {
+        maplecode_protocol::capabilities::SelectedCapabilityRoot {
             id: "shared-root".to_string(),
             location: maplecode_protocol::capabilities::CapabilityRootLocation::Environment {
                 environment_id: environment_id.to_string(),
                 path: PathUri::parse(path).expect("root URI"),
             },
-        };
+        }
+    };
     let selected_roots = [
         selected_root("executor-a", "file:///plugins/a"),
         selected_root("executor-b", "file:///plugins/b"),
@@ -10985,7 +11036,11 @@ impl maplecode_extension_api::ContextContributor for PromptExtensionTestContribu
         _session_store: &'a maplecode_extension_api::ExtensionData,
         thread_store: &'a maplecode_extension_api::ExtensionData,
     ) -> std::pin::Pin<
-        Box<dyn std::future::Future<Output = Vec<maplecode_extension_api::PromptFragment>> + Send + 'a>,
+        Box<
+            dyn std::future::Future<Output = Vec<maplecode_extension_api::PromptFragment>>
+                + Send
+                + 'a,
+        >,
     > {
         Box::pin(async move {
             thread_store
@@ -10994,7 +11049,9 @@ impl maplecode_extension_api::ContextContributor for PromptExtensionTestContribu
                 .then(|| {
                     maplecode_extension_api::PromptFragment::developer_policy(
                         "prompt extension enabled",
-                        maplecode_extension_api::ContentItemKind("test.prompt_extension".to_string()),
+                        maplecode_extension_api::ContentItemKind(
+                            "test.prompt_extension".to_string(),
+                        ),
                     )
                 })
                 .into_iter()
@@ -11015,7 +11072,11 @@ impl maplecode_extension_api::ContextContributor for TurnContextExtensionTestCon
         &'a self,
         input: maplecode_extension_api::TurnContextContributionInput<'a>,
     ) -> std::pin::Pin<
-        Box<dyn std::future::Future<Output = Vec<maplecode_extension_api::PromptFragment>> + Send + 'a>,
+        Box<
+            dyn std::future::Future<Output = Vec<maplecode_extension_api::PromptFragment>>
+                + Send
+                + 'a,
+        >,
     > {
         Box::pin(async move {
             let Some(state) = input.turn_store.get::<TurnContextExtensionTestState>() else {
@@ -11622,10 +11683,11 @@ async fn build_initial_context_uses_retained_step_after_model_change() {
         let messages = model_info.model_messages.as_mut().unwrap();
         messages.instructions_template = Some("A instructions".to_string());
     });
-    session.state.lock().await.base_instructions_provenance =
-        Some(maplecode_protocol::models::BaseInstructionsProvenance::Model {
+    session.state.lock().await.base_instructions_provenance = Some(
+        maplecode_protocol::models::BaseInstructionsProvenance::Model {
             model: "base-model".to_string(),
-        });
+        },
+    );
     session
         .set_previous_turn_settings(Some(PreviousTurnSettings {
             model: "base-model".to_string(),
@@ -12438,7 +12500,9 @@ async fn interrupting_compaction_fallback_retains_last_known_step_context() {
 async fn extension_interrupt_emits_thread_idle() {
     struct ThreadIdleRecorder(async_channel::Sender<()>);
 
-    impl maplecode_extension_api::ThreadLifecycleContributor<crate::config::Config> for ThreadIdleRecorder {
+    impl maplecode_extension_api::ThreadLifecycleContributor<crate::config::Config>
+        for ThreadIdleRecorder
+    {
         fn on_thread_idle<'a>(
             &'a self,
             _input: maplecode_extension_api::ThreadIdleInput<'a>,
@@ -12451,7 +12515,8 @@ async fn extension_interrupt_emits_thread_idle() {
 
     let (mut session, turn_context) = make_session_and_context().await;
     let (idle_tx, idle_rx) = async_channel::bounded(1);
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.thread_lifecycle_contributor(Arc::new(ThreadIdleRecorder(idle_tx)));
     session.services.extensions = Arc::new(builder.build());
 
@@ -12873,7 +12938,9 @@ async fn task_finish_emits_thread_idle_lifecycle_after_active_turn_clears() {
         expected_thread_id: ThreadId,
     }
 
-    impl maplecode_extension_api::ThreadLifecycleContributor<crate::config::Config> for ThreadIdleRecorder {
+    impl maplecode_extension_api::ThreadLifecycleContributor<crate::config::Config>
+        for ThreadIdleRecorder
+    {
         fn on_thread_idle<'a>(
             &'a self,
             input: maplecode_extension_api::ThreadIdleInput<'a>,
@@ -12892,7 +12959,8 @@ async fn task_finish_emits_thread_idle_lifecycle_after_active_turn_clears() {
     let (mut session, turn_context) = make_session_and_context().await;
     let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
     let (idle_tx, idle_rx) = async_channel::bounded(1);
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.thread_lifecycle_contributor(Arc::new(ThreadIdleRecorder {
         calls: Arc::clone(&calls),
         idle_tx,
@@ -12919,7 +12987,9 @@ async fn thread_idle_lifecycle_waits_for_trigger_turn_mailbox_work() {
         calls: Arc<std::sync::atomic::AtomicUsize>,
     }
 
-    impl maplecode_extension_api::ThreadLifecycleContributor<crate::config::Config> for ThreadIdleRecorder {
+    impl maplecode_extension_api::ThreadLifecycleContributor<crate::config::Config>
+        for ThreadIdleRecorder
+    {
         fn on_thread_idle<'a>(
             &'a self,
             _input: maplecode_extension_api::ThreadIdleInput<'a>,
@@ -12932,7 +13002,8 @@ async fn thread_idle_lifecycle_waits_for_trigger_turn_mailbox_work() {
 
     let (mut session, _turn_context) = make_session_and_context().await;
     let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.thread_lifecycle_contributor(Arc::new(ThreadIdleRecorder {
         calls: Arc::clone(&calls),
     }));
@@ -13320,7 +13391,9 @@ async fn tool_calls_reopen_mailbox_delivery_for_current_turn() {
     let mut ctx = HandleOutputCtx {
         sess: Arc::clone(&sess),
         step_context: StepContext::for_test(Arc::clone(&tc)),
-        turn_store: Arc::new(maplecode_extension_api::ExtensionData::new(tc.sub_id.clone())),
+        turn_store: Arc::new(maplecode_extension_api::ExtensionData::new(
+            tc.sub_id.clone(),
+        )),
         tool_runtime: test_tool_runtime(Arc::clone(&sess), Arc::clone(&tc)).await,
         defer_tool_dispatch: false,
         cancellation_token: CancellationToken::new(),
@@ -13743,7 +13816,10 @@ async fn mcp_refresh_rejects_clearing_apps_that_exposes_invalid_user_config() ->
         };
         config.config_layer_stack = config
             .config_layer_stack
-            .with_user_config(&config.maplecode_home.join(CONFIG_TOML_FILE), user_apps.into())
+            .with_user_config(
+                &config.maplecode_home.join(CONFIG_TOML_FILE),
+                user_apps.into(),
+            )
             .unwrap()
             .with_session_apps(toml::toml! { calendar.enabled = false }.into())
             .unwrap();

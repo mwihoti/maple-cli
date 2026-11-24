@@ -2,6 +2,8 @@
 
 use std::error::Error;
 
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_client::AppServerEvent;
 use maplecode_app_server_client::RemoteAppServerClient;
 use maplecode_app_server_client::RemoteAppServerConnectArgs;
@@ -14,8 +16,6 @@ use maplecode_app_server_transport::ZstdDecoder;
 use maplecode_app_server_transport::ZstdEncoder;
 use maplecode_uds::UnixListener;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

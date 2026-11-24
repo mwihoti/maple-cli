@@ -705,7 +705,9 @@ mod tests {
     async fn debug_config_output_lists_agents_fields() {
         let maplecode_home = tempfile::tempdir().expect("create temp dir");
         std::fs::write(
-            maplecode_home.path().join(maplecode_config::CONFIG_TOML_FILE),
+            maplecode_home
+                .path()
+                .join(maplecode_config::CONFIG_TOML_FILE),
             r#"[agents]
 enabled = false
 max_concurrent_threads_per_session = 7

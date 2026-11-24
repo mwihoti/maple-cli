@@ -7,6 +7,14 @@ use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
 
+use core_test_support::ThreadIdle;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use futures::future::BoxFuture;
 use maplecode_core::AgentConfigUpdate;
 use maplecode_core::AgentControl;
 use maplecode_core::AgentExecutionGuard;
@@ -61,14 +69,6 @@ use maplecode_protocol::protocol::TokenUsage;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_rollout_trace::ThreadTraceContext;
 use maplecode_thread_store::LoadThreadHistoryParams;
-use core_test_support::ThreadIdle;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
@@ -115,7 +115,9 @@ impl maplecode_core::AgentSessionReader for HostSessionReader {
                 .lock()
                 .expect("host roster")
                 .clone()
-                .ok_or_else(|| MapleCodeErr::InvalidRequest("host agent session unavailable".into()))
+                .ok_or_else(|| {
+                    MapleCodeErr::InvalidRequest("host agent session unavailable".into())
+                })
         })
     }
 }
@@ -131,7 +133,9 @@ pub(super) fn install_host_runtime(data: &maplecode_extension_api::ExtensionData
     data.get_or_init(|| Arc::new(HostRuntime) as Arc<dyn maplecode_core::AgentTurnAdmission>);
 }
 
-impl maplecode_extension_api::ThreadLifecycleContributor<maplecode_core::config::Config> for HostRuntime {
+impl maplecode_extension_api::ThreadLifecycleContributor<maplecode_core::config::Config>
+    for HostRuntime
+{
     fn on_thread_start<'a>(
         &'a self,
         input: maplecode_extension_api::ThreadStartInput<'a, maplecode_core::config::Config>,
@@ -187,12 +191,20 @@ impl AgentControl for TestAgentControl {
         request: SpawnRequest,
     ) -> BoxFuture<'_, MapleCodeResult<(LiveAgent, ThreadConfigSnapshot)>> {
         assert_eq!(request.caller, self.thread_id);
-        Box::pin(async { Err(MapleCodeErr::InvalidRequest("host spawn rejection".to_string())) })
+        Box::pin(async {
+            Err(MapleCodeErr::InvalidRequest(
+                "host spawn rejection".to_string(),
+            ))
+        })
     }
 
     fn send(&self, request: SendRequest) -> BoxFuture<'_, MapleCodeResult<DeliveryReceipt>> {
         assert_eq!(request.caller, self.thread_id);
-        Box::pin(async { Err(MapleCodeErr::InvalidRequest("host send rejection".to_string())) })
+        Box::pin(async {
+            Err(MapleCodeErr::InvalidRequest(
+                "host send rejection".to_string(),
+            ))
+        })
     }
 
     fn take_mailbox(&self, _agent: ThreadId) -> Vec<PendingAgentMessage> {
@@ -235,7 +247,11 @@ impl AgentControl for TestAgentControl {
         _path_prefix: Option<&'a str>,
     ) -> BoxFuture<'a, MapleCodeResult<Vec<LiveAgent>>> {
         assert_eq!(caller, self.thread_id);
-        Box::pin(async { Err(MapleCodeErr::InvalidRequest("host list rejection".to_string())) })
+        Box::pin(async {
+            Err(MapleCodeErr::InvalidRequest(
+                "host list rejection".to_string(),
+            ))
+        })
     }
 
     fn child_agent_paths(&self, _parent: ThreadId) -> BoxFuture<'_, Vec<AgentPath>> {
@@ -542,7 +558,10 @@ async fn host_factory_follows_thread_lifecycle() -> anyhow::Result<()> {
     assert_eq!(internal.thread.agent_tree_id(), root_tree_id);
     test.maplecode.ensure_rollout_materialized().await;
     test.maplecode.flush_rollout().await?;
-    let saved = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let saved = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     let history = InitialHistory::Resumed(ResumedHistory {
         history_revision: None,
         conversation_id: root_id,

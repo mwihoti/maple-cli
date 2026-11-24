@@ -16,6 +16,43 @@ mod worktree;
 pub use cli::Cli;
 pub use cli::Command;
 pub use cli::ReviewArgs;
+use event_processor_with_human_output::EventProcessorWithHumanOutput;
+pub use event_processor_with_jsonl_output::CollectedThreadEvents;
+pub use event_processor_with_jsonl_output::EventProcessorWithJsonOutput;
+pub use event_processor_with_jsonl_output::MapleCodeStatus;
+pub use exec_events::AgentMessageItem;
+pub use exec_events::CollabAgentState;
+pub use exec_events::CollabAgentStatus;
+pub use exec_events::CollabTool;
+pub use exec_events::CollabToolCallItem;
+pub use exec_events::CollabToolCallStatus;
+pub use exec_events::CommandExecutionItem;
+pub use exec_events::CommandExecutionStatus;
+pub use exec_events::ErrorItem;
+pub use exec_events::FileChangeItem;
+pub use exec_events::FileUpdateChange;
+pub use exec_events::ItemCompletedEvent;
+pub use exec_events::ItemStartedEvent;
+pub use exec_events::ItemUpdatedEvent;
+pub use exec_events::McpToolCallItem;
+pub use exec_events::McpToolCallItemError;
+pub use exec_events::McpToolCallItemResult;
+pub use exec_events::McpToolCallStatus;
+pub use exec_events::PatchApplyStatus;
+pub use exec_events::PatchChangeKind;
+pub use exec_events::ReasoningItem;
+pub use exec_events::ThreadErrorEvent;
+pub use exec_events::ThreadEvent;
+pub use exec_events::ThreadItem as ExecThreadItem;
+pub use exec_events::ThreadItemDetails;
+pub use exec_events::ThreadStartedEvent;
+pub use exec_events::TodoItem;
+pub use exec_events::TodoListItem;
+pub use exec_events::TurnCompletedEvent;
+pub use exec_events::TurnFailedEvent;
+pub use exec_events::TurnStartedEvent;
+pub use exec_events::Usage;
+pub use exec_events::WebSearchItem;
 use maplecode_app_server_client::DEFAULT_IN_PROCESS_CHANNEL_CAPACITY;
 use maplecode_app_server_client::EnvironmentManager;
 use maplecode_app_server_client::ExecServerRuntimeOptions;
@@ -122,43 +159,6 @@ use maplecode_utils_oss::get_default_model_for_oss_provider;
 use maplecode_worktree::CreateWorktree;
 use maplecode_worktree::WorktreeManager;
 use maplecode_worktree::WorktreeSettings;
-use event_processor_with_human_output::EventProcessorWithHumanOutput;
-pub use event_processor_with_jsonl_output::MapleCodeStatus;
-pub use event_processor_with_jsonl_output::CollectedThreadEvents;
-pub use event_processor_with_jsonl_output::EventProcessorWithJsonOutput;
-pub use exec_events::AgentMessageItem;
-pub use exec_events::CollabAgentState;
-pub use exec_events::CollabAgentStatus;
-pub use exec_events::CollabTool;
-pub use exec_events::CollabToolCallItem;
-pub use exec_events::CollabToolCallStatus;
-pub use exec_events::CommandExecutionItem;
-pub use exec_events::CommandExecutionStatus;
-pub use exec_events::ErrorItem;
-pub use exec_events::FileChangeItem;
-pub use exec_events::FileUpdateChange;
-pub use exec_events::ItemCompletedEvent;
-pub use exec_events::ItemStartedEvent;
-pub use exec_events::ItemUpdatedEvent;
-pub use exec_events::McpToolCallItem;
-pub use exec_events::McpToolCallItemError;
-pub use exec_events::McpToolCallItemResult;
-pub use exec_events::McpToolCallStatus;
-pub use exec_events::PatchApplyStatus;
-pub use exec_events::PatchChangeKind;
-pub use exec_events::ReasoningItem;
-pub use exec_events::ThreadErrorEvent;
-pub use exec_events::ThreadEvent;
-pub use exec_events::ThreadItem as ExecThreadItem;
-pub use exec_events::ThreadItemDetails;
-pub use exec_events::ThreadStartedEvent;
-pub use exec_events::TodoItem;
-pub use exec_events::TodoListItem;
-pub use exec_events::TurnCompletedEvent;
-pub use exec_events::TurnFailedEvent;
-pub use exec_events::TurnStartedEvent;
-pub use exec_events::Usage;
-pub use exec_events::WebSearchItem;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -277,7 +277,10 @@ pub async fn run_main(cli: Cli, arg0_paths: Arg0DispatchPaths) -> anyhow::Result
         );
     }
     if let Err(err) = set_default_originator("maplecode_exec".to_string()) {
-        tracing::warn!(?err, "Failed to set maplecode exec originator override {err:?}");
+        tracing::warn!(
+            ?err,
+            "Failed to set maplecode exec originator override {err:?}"
+        );
     }
 
     let Cli {
@@ -301,7 +304,9 @@ pub async fn run_main(cli: Cli, arg0_paths: Arg0DispatchPaths) -> anyhow::Result
     if cyber_access_program.is_some() {
         match command.as_ref() {
             Some(ExecCommand::Review(_)) => {
-                anyhow::bail!("--cyber-access-program is not supported with `maplecode exec review`");
+                anyhow::bail!(
+                    "--cyber-access-program is not supported with `maplecode exec review`"
+                );
             }
             Some(ExecCommand::Fork(args)) if args.prompt.is_none() && prompt.is_none() => {
                 anyhow::bail!("Forking with --cyber-access-program requires a prompt");
@@ -676,8 +681,10 @@ pub async fn run_main(cli: Cli, arg0_paths: Arg0DispatchPaths) -> anyhow::Result
         .config_layer_stack
         .all_layers_low_to_high()
         .any(|layer| {
-            matches!(layer.name, maplecode_config::ConfigLayerSource::Project { .. })
-                && layer.disabled_reason.is_some()
+            matches!(
+                layer.name,
+                maplecode_config::ConfigLayerSource::Project { .. }
+            ) && layer.disabled_reason.is_some()
         })
     {
         eprintln!(
@@ -765,7 +772,10 @@ pub async fn run_main(cli: Cli, arg0_paths: Arg0DispatchPaths) -> anyhow::Result
     )?;
     #[cfg(target_os = "macos")]
     let local_runtime_paths = local_runtime_paths.with_allowed_symlinked_maplecode_home(
-        maplecode_config::allowed_symlinked_maplecode_home(&config.config_layer_stack, &config.maplecode_home),
+        maplecode_config::allowed_symlinked_maplecode_home(
+            &config.config_layer_stack,
+            &config.maplecode_home,
+        ),
     );
     let state_db = maplecode_core::init_state_db(&config).await;
     let environment_manager = if loader_overrides.ignore_user_config {
@@ -1923,7 +1933,8 @@ fn should_backfill_turn_completed_items(
         return false;
     };
 
-    !thread_ephemeral && payload.turn.items_view != maplecode_app_server_protocol::TurnItemsView::Full
+    !thread_ephemeral
+        && payload.turn.items_view != maplecode_app_server_protocol::TurnItemsView::Full
 }
 
 fn turn_items_for_thread(
@@ -2081,9 +2092,12 @@ async fn resolve_resume_thread_id(
         if let Some(thread) = resolved {
             return Ok(Some(thread.id.to_string()));
         }
-        if let Some((_, session_meta)) =
-            find_thread_meta_by_name_str(&config.maplecode_home, session_id, Some(state_db.as_ref()))
-                .await?
+        if let Some((_, session_meta)) = find_thread_meta_by_name_str(
+            &config.maplecode_home,
+            session_id,
+            Some(state_db.as_ref()),
+        )
+        .await?
             && (args.all || cwds_match(config.cwd.as_path(), &session_meta.meta.cwd))
         {
             return Ok(Some(session_meta.meta.id.to_string()));

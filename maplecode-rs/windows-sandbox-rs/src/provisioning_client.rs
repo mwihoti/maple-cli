@@ -149,7 +149,12 @@ pub fn provision_windows_sandbox_via_service(
     {
         return service_unavailable();
     }
-    provision(maplecode_home, settings, listeners, ProvisioningIntent::Setup)
+    provision(
+        maplecode_home,
+        settings,
+        listeners,
+        ProvisioningIntent::Setup,
+    )
 }
 
 fn provision(

@@ -50,7 +50,9 @@ impl CodeModeSessionDelegate for RecordingDelegate {
         Box::pin(async move {
             self.release.notified().await;
             self.contexts
-                .send(maplecode_otel::current_span_w3c_trace_context().expect("context after await"))
+                .send(
+                    maplecode_otel::current_span_w3c_trace_context().expect("context after await"),
+                )
                 .expect("context receiver remains open");
             Ok(serde_json::json!("ready"))
         })

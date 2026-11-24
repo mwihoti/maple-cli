@@ -4,12 +4,12 @@ use super::*;
 use crate::app::backend_sessions::BackendSessions;
 use crate::app_server_session::ThreadParamsMode;
 use crate::backend_id::BackendId;
+use futures::FutureExt;
 use maplecode_app_server_client::AppServerClient;
 use maplecode_app_server_client::AppServerEvent;
 use maplecode_app_server_client::CloudClient;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::ThreadSettingsUpdateResponse;
-use futures::FutureExt;
 use pretty_assertions::assert_eq;
 
 fn approval_request(thread_id: ThreadId, request_id: i64) -> ServerRequest {

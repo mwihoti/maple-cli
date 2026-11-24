@@ -38,7 +38,10 @@ fn legacy_lookup() -> PathBuf {
     PathBuf::from(COMMAND_RUNNER_EXE)
 }
 
-pub(crate) fn resolve_command_runner(maplecode_home: &Path, log_dir: Option<&Path>) -> Result<PathBuf> {
+pub(crate) fn resolve_command_runner(
+    maplecode_home: &Path,
+    log_dir: Option<&Path>,
+) -> Result<PathBuf> {
     if registered_core_requested() {
         let exe = std::env::current_exe().context("resolve registered Core helper source")?;
         let direct_path = exe.with_file_name(COMMAND_RUNNER_EXE);
@@ -307,9 +310,11 @@ mod tests {
         fs::write(&exe, b"maplecode").expect("write exe");
         fs::write(&helper, b"runner").expect("write helper");
 
-        let resolved =
-            bundled_executable_path_for_exe(&exe, /*file_name*/ "maplecode-command-runner.exe")
-                .expect("helper path");
+        let resolved = bundled_executable_path_for_exe(
+            &exe,
+            /*file_name*/ "maplecode-command-runner.exe",
+        )
+        .expect("helper path");
 
         assert_eq!(resolved, helper);
     }
@@ -327,9 +332,11 @@ mod tests {
         fs::write(&exe, b"maplecode").expect("write exe");
         fs::write(&helper, b"runner").expect("write helper");
 
-        let resolved =
-            bundled_executable_path_for_exe(&exe, /*file_name*/ "maplecode-command-runner.exe")
-                .expect("helper path");
+        let resolved = bundled_executable_path_for_exe(
+            &exe,
+            /*file_name*/ "maplecode-command-runner.exe",
+        )
+        .expect("helper path");
 
         assert_eq!(resolved, helper);
     }
@@ -382,9 +389,11 @@ mod tests {
         fs::write(&package_helper, b"package runner").expect("write package helper");
         fs::write(&bin_helper, b"bin runner").expect("write bin helper");
 
-        let resolved =
-            bundled_executable_path_for_exe(&exe, /*file_name*/ "maplecode-command-runner.exe")
-                .expect("helper path");
+        let resolved = bundled_executable_path_for_exe(
+            &exe,
+            /*file_name*/ "maplecode-command-runner.exe",
+        )
+        .expect("helper path");
 
         assert_eq!(resolved, package_helper);
     }
@@ -402,9 +411,11 @@ mod tests {
         fs::write(&sibling_helper, b"sibling runner").expect("write sibling helper");
         fs::write(&resource_helper, b"resource runner").expect("write resource helper");
 
-        let resolved =
-            bundled_executable_path_for_exe(&exe, /*file_name*/ "maplecode-command-runner.exe")
-                .expect("helper path");
+        let resolved = bundled_executable_path_for_exe(
+            &exe,
+            /*file_name*/ "maplecode-command-runner.exe",
+        )
+        .expect("helper path");
 
         assert_eq!(resolved, sibling_helper);
     }

@@ -86,8 +86,8 @@ use crate::plugin_cmd::PluginCli;
 use crate::plugin_cmd::PluginSubcommand;
 use crate::queue_cmd::QueueCommand;
 use crate::remote_control_cmd::RemoteControlCommand;
-use maplecode_exec_server_cli::ExecServerCommand;
 use doctor::DoctorCommand;
+use maplecode_exec_server_cli::ExecServerCommand;
 use state_db_recovery as local_state_db;
 
 use maplecode_config::LoaderOverrides;
@@ -962,8 +962,13 @@ async fn run_debug_app_server_command(cmd: DebugAppServerCommand) -> anyhow::Res
     match cmd.subcommand {
         DebugAppServerSubcommand::SendMessageV2(cmd) => {
             let maplecode_bin = std::env::current_exe()?;
-            maplecode_app_server_test_client::send_message_v2(&maplecode_bin, &[], cmd.user_message, &None)
-                .await
+            maplecode_app_server_test_client::send_message_v2(
+                &maplecode_bin,
+                &[],
+                cmd.user_message,
+                &None,
+            )
+            .await
         }
     }
 }
@@ -1804,8 +1809,11 @@ async fn dispatch_cli(
                 &mut cloud_cli.config_overrides,
                 root_config_overrides.clone(),
             );
-            maplecode_cloud_tasks::run_main(cloud_cli, arg0_paths.maplecode_linux_sandbox_exe.clone())
-                .await?;
+            maplecode_cloud_tasks::run_main(
+                cloud_cli,
+                arg0_paths.maplecode_linux_sandbox_exe.clone(),
+            )
+            .await?;
         }
         Some(Subcommand::Sandbox(SandboxCommand {
             host: mut sandbox_cli,
@@ -2264,7 +2272,8 @@ async fn run_debug_models_command(
                 .features
                 .enabled(maplecode_features::Feature::RuntimeAgentInstances)
         {
-            let installation_id = maplecode_core::resolve_installation_id(&config.maplecode_home).await?;
+            let installation_id =
+                maplecode_core::resolve_installation_id(&config.maplecode_home).await?;
             maplecode_core::build_runtime_auth_manager(
                 &config,
                 Arc::clone(&auth_manager),
@@ -3140,7 +3149,10 @@ enabled = true
 
         assert_eq!(
             overrides.user_config_path,
-            Some(resolve_profile_v2_config_path(maplecode_home.path(), &profile))
+            Some(resolve_profile_v2_config_path(
+                maplecode_home.path(),
+                &profile
+            ))
         );
         assert_eq!(overrides.user_config_profile, Some(profile));
         Ok(())
@@ -3148,7 +3160,9 @@ enabled = true
 
     #[test]
     fn profile_v2_is_rejected_for_config_management_subcommands() {
-        assert!(profile_v2_for_args(&["maplecode", "--profile", "work", "features", "list"]).is_err());
+        assert!(
+            profile_v2_for_args(&["maplecode", "--profile", "work", "features", "list"]).is_err()
+        );
     }
 
     #[test]
@@ -3190,7 +3204,8 @@ enabled = true
     #[test]
     fn profile_v2_rejects_non_plain_names_at_parse_time() {
         assert!(
-            MultitoolCli::try_parse_from(["maplecode", "--profile", "nested/work", "resume"]).is_err()
+            MultitoolCli::try_parse_from(["maplecode", "--profile", "nested/work", "resume"])
+                .is_err()
         );
     }
 
@@ -3265,9 +3280,15 @@ enabled = true
 
     #[test]
     fn exec_resume_last_accepts_prompt_positional() {
-        let cli =
-            MultitoolCli::try_parse_from(["maplecode", "exec", "--json", "resume", "--last", "2+2"])
-                .expect("parse should succeed");
+        let cli = MultitoolCli::try_parse_from([
+            "maplecode",
+            "exec",
+            "--json",
+            "resume",
+            "--last",
+            "2+2",
+        ])
+        .expect("parse should succeed");
 
         let Some(Subcommand::Exec(exec)) = cli.subcommand else {
             panic!("expected exec subcommand");
@@ -3374,7 +3395,10 @@ enabled = true
 
     #[test]
     fn not_so_yolo_alias_is_hidden_from_help() {
-        for args in [&["maplecode", "--help"][..], &["maplecode", "exec", "--help"][..]] {
+        for args in [
+            &["maplecode", "--help"][..],
+            &["maplecode", "exec", "--help"][..],
+        ] {
             let help = help_from_args(args);
 
             assert!(!help.contains("--not-so-yolo"), "{help}");
@@ -3544,8 +3568,8 @@ enabled = true
 
     #[test]
     fn debug_models_parses_bundled_flag() {
-        let cli =
-            MultitoolCli::try_parse_from(["maplecode", "debug", "models", "--bundled"]).expect("parse");
+        let cli = MultitoolCli::try_parse_from(["maplecode", "debug", "models", "--bundled"])
+            .expect("parse");
 
         let Some(Subcommand::Debug(DebugCommand {
             subcommand: DebugSubcommand::Models(cmd),
@@ -3634,25 +3658,36 @@ enabled = true
             ("upgrade", "Usage: maplecode plugin marketplace upgrade"),
             ("remove", "Usage: maplecode plugin marketplace remove"),
         ] {
-            let help = help_from_args(&["maplecode", "plugin", "marketplace", subcommand, "--help"]);
+            let help =
+                help_from_args(&["maplecode", "plugin", "marketplace", subcommand, "--help"]);
             assert!(help.contains(usage), "{help}");
         }
     }
 
     #[test]
     fn plugin_marketplace_add_parses_under_plugin() {
-        let cli =
-            MultitoolCli::try_parse_from(["maplecode", "plugin", "marketplace", "add", "owner/repo"])
-                .expect("parse");
+        let cli = MultitoolCli::try_parse_from([
+            "maplecode",
+            "plugin",
+            "marketplace",
+            "add",
+            "owner/repo",
+        ])
+        .expect("parse");
 
         assert!(matches!(cli.subcommand, Some(Subcommand::Plugin(_))));
     }
 
     #[test]
     fn plugin_marketplace_upgrade_parses_under_plugin() {
-        let cli =
-            MultitoolCli::try_parse_from(["maplecode", "plugin", "marketplace", "upgrade", "debug"])
-                .expect("parse");
+        let cli = MultitoolCli::try_parse_from([
+            "maplecode",
+            "plugin",
+            "marketplace",
+            "upgrade",
+            "debug",
+        ])
+        .expect("parse");
 
         assert!(matches!(cli.subcommand, Some(Subcommand::Plugin(_))));
     }
@@ -3751,7 +3786,8 @@ enabled = true
 
     #[test]
     fn sandbox_uninstall_respects_command_separator() {
-        let cli = MultitoolCli::try_parse_from(["maplecode", "sandbox", "uninstall"]).expect("parse");
+        let cli =
+            MultitoolCli::try_parse_from(["maplecode", "sandbox", "uninstall"]).expect("parse");
         assert!(matches!(
             cli.subcommand,
             Some(Subcommand::Sandbox(SandboxCommand {
@@ -3834,9 +3870,15 @@ enabled = true
     #[cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))]
     #[test]
     fn sandbox_parses_permissions_profile_short_alias() {
-        let cli =
-            MultitoolCli::try_parse_from(["maplecode", "sandbox", "-P", ":workspace", "--", "echo"])
-                .expect("parse");
+        let cli = MultitoolCli::try_parse_from([
+            "maplecode",
+            "sandbox",
+            "-P",
+            ":workspace",
+            "--",
+            "echo",
+        ])
+        .expect("parse");
 
         let Some(Subcommand::Sandbox(SandboxCommand { host: command, .. })) = cli.subcommand else {
             panic!("expected sandbox command");
@@ -3849,9 +3891,15 @@ enabled = true
     #[cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))]
     #[test]
     fn sandbox_parses_config_profile() {
-        let cli =
-            MultitoolCli::try_parse_from(["maplecode", "sandbox", "--profile", "work", "--", "echo"])
-                .expect("parse");
+        let cli = MultitoolCli::try_parse_from([
+            "maplecode",
+            "sandbox",
+            "--profile",
+            "work",
+            "--",
+            "echo",
+        ])
+        .expect("parse");
 
         let Some(Subcommand::Sandbox(SandboxCommand { host: command, .. })) = cli.subcommand else {
             panic!("expected sandbox command");
@@ -4150,9 +4198,14 @@ enabled = true
 
     #[test]
     fn resume_last_rejects_explicit_session_and_prompt() {
-        let err =
-            MultitoolCli::try_parse_from(["maplecode", "resume", "--last", "1234", "continue here"])
-                .expect_err("--last with an explicit session and prompt should be rejected");
+        let err = MultitoolCli::try_parse_from([
+            "maplecode",
+            "resume",
+            "--last",
+            "1234",
+            "continue here",
+        ])
+        .expect_err("--last with an explicit session and prompt should be rejected");
 
         assert_eq!(err.kind(), clap::error::ErrorKind::ArgumentConflict);
     }
@@ -4186,8 +4239,9 @@ enabled = true
 
     #[test]
     fn resume_include_non_interactive_flag_sets_source_filter_override() {
-        let interactive =
-            finalize_resume_from_args(["maplecode", "resume", "--include-non-interactive"].as_ref());
+        let interactive = finalize_resume_from_args(
+            ["maplecode", "resume", "--include-non-interactive"].as_ref(),
+        );
 
         assert!(interactive.resume_picker);
         assert!(interactive.resume_include_non_interactive);
@@ -4298,8 +4352,9 @@ enabled = true
 
     #[test]
     fn fork_last_accepts_prompt_positional() {
-        let interactive =
-            finalize_fork_from_args(["maplecode", "fork", "--last", "/compact focus on auth"].as_ref());
+        let interactive = finalize_fork_from_args(
+            ["maplecode", "fork", "--last", "/compact focus on auth"].as_ref(),
+        );
 
         assert!(!interactive.fork_picker);
         assert!(interactive.fork_last);
@@ -4359,14 +4414,16 @@ enabled = true
 
     #[test]
     fn app_server_remote_control_startup_flag_enables_remote_control() {
-        let enabled = app_server_from_args(["maplecode", "app-server", "--remote-control"].as_ref());
+        let enabled =
+            app_server_from_args(["maplecode", "app-server", "--remote-control"].as_ref());
         assert!(enabled.remote_control);
     }
 
     #[test]
     fn app_server_analytics_default_enabled_with_flag() {
-        let app_server =
-            app_server_from_args(["maplecode", "app-server", "--analytics-default-enabled"].as_ref());
+        let app_server = app_server_from_args(
+            ["maplecode", "app-server", "--analytics-default-enabled"].as_ref(),
+        );
         assert!(app_server.analytics_default_enabled);
     }
 
@@ -4514,8 +4571,9 @@ enabled = true
 
     #[test]
     fn reject_remote_flag_for_remote_control() {
-        let cli = MultitoolCli::try_parse_from(["maplecode", "--remote", "unix://", "remote-control"])
-            .expect("parse");
+        let cli =
+            MultitoolCli::try_parse_from(["maplecode", "--remote", "unix://", "remote-control"])
+                .expect("parse");
         let Some(Subcommand::RemoteControl(remote_control)) = &cli.subcommand else {
             panic!("expected remote-control subcommand");
         };
@@ -4533,7 +4591,8 @@ enabled = true
 
     #[test]
     fn remote_control_pair_parses() {
-        let cli = MultitoolCli::try_parse_from(["maplecode", "remote-control", "pair"]).expect("parse");
+        let cli =
+            MultitoolCli::try_parse_from(["maplecode", "remote-control", "pair"]).expect("parse");
         let Some(Subcommand::RemoteControl(remote_control)) = &cli.subcommand else {
             panic!("expected remote-control subcommand");
         };
@@ -4565,9 +4624,13 @@ enabled = true
 
     #[test]
     fn remote_flag_parses_for_resume_subcommand() {
-        let cli =
-            MultitoolCli::try_parse_from(["maplecode", "resume", "--remote", "unix://maplecode.sock"])
-                .expect("parse");
+        let cli = MultitoolCli::try_parse_from([
+            "maplecode",
+            "resume",
+            "--remote",
+            "unix://maplecode.sock",
+        ])
+        .expect("parse");
         let Subcommand::Resume(ResumeCommand { remote, .. }) =
             cli.subcommand.expect("resume present")
         else {
@@ -4717,9 +4780,13 @@ enabled = true
             "https://alice:secret@example.test",
             "http://example.test/?token=secret",
         ] {
-            let error =
-                MultitoolCli::try_parse_from(["maplecode", "app-server", "--code-mode-host", endpoint])
-                    .expect_err("invalid code-mode host endpoint should fail argument parsing");
+            let error = MultitoolCli::try_parse_from([
+                "maplecode",
+                "app-server",
+                "--code-mode-host",
+                endpoint,
+            ])
+            .expect_err("invalid code-mode host endpoint should fail argument parsing");
 
             assert_eq!(error.kind(), clap::error::ErrorKind::ValueValidation);
             let rendered_error = error.to_string();
@@ -4785,7 +4852,13 @@ enabled = true
     #[test]
     fn app_server_listen_unix_socket_path_parses() {
         let app_server = app_server_from_args(
-            ["maplecode", "app-server", "--listen", "unix:///tmp/maplecode.sock"].as_ref(),
+            [
+                "maplecode",
+                "app-server",
+                "--listen",
+                "unix:///tmp/maplecode.sock",
+            ]
+            .as_ref(),
         );
         assert_eq!(
             app_server.listen,
@@ -4798,8 +4871,12 @@ enabled = true
 
     #[test]
     fn app_server_listen_off_parses() {
-        let app_server = app_server_from_args(["maplecode", "app-server", "--listen", "off"].as_ref());
-        assert_eq!(app_server.listen, maplecode_app_server::AppServerTransport::Off);
+        let app_server =
+            app_server_from_args(["maplecode", "app-server", "--listen", "off"].as_ref());
+        assert_eq!(
+            app_server.listen,
+            maplecode_app_server::AppServerTransport::Off
+        );
     }
 
     #[test]
@@ -4841,13 +4918,15 @@ enabled = true
             }))
         ));
         assert!(matches!(
-            app_server_from_args(["maplecode", "app-server", "daemon", "start"].as_ref()).subcommand,
+            app_server_from_args(["maplecode", "app-server", "daemon", "start"].as_ref())
+                .subcommand,
             Some(AppServerSubcommand::Daemon(AppServerDaemonCommand {
                 subcommand: AppServerDaemonSubcommand::Start
             }))
         ));
         assert!(matches!(
-            app_server_from_args(["maplecode", "app-server", "daemon", "restart"].as_ref()).subcommand,
+            app_server_from_args(["maplecode", "app-server", "daemon", "restart"].as_ref())
+                .subcommand,
             Some(AppServerSubcommand::Daemon(AppServerDaemonCommand {
                 subcommand: AppServerDaemonSubcommand::Restart
             }))
@@ -4863,7 +4942,13 @@ enabled = true
         ));
         assert!(matches!(
             app_server_from_args(
-                ["maplecode", "app-server", "daemon", "disable-remote-control"].as_ref()
+                [
+                    "maplecode",
+                    "app-server",
+                    "daemon",
+                    "disable-remote-control"
+                ]
+                .as_ref()
             )
             .subcommand,
             Some(AppServerSubcommand::Daemon(AppServerDaemonCommand {
@@ -4877,7 +4962,8 @@ enabled = true
             }))
         ));
         assert!(matches!(
-            app_server_from_args(["maplecode", "app-server", "daemon", "version"].as_ref()).subcommand,
+            app_server_from_args(["maplecode", "app-server", "daemon", "version"].as_ref())
+                .subcommand,
             Some(AppServerSubcommand::Daemon(AppServerDaemonCommand {
                 subcommand: AppServerDaemonSubcommand::Version
             }))
@@ -4886,8 +4972,16 @@ enabled = true
 
     #[test]
     fn app_server_proxy_sock_path_parses() {
-        let app_server =
-            app_server_from_args(["maplecode", "app-server", "proxy", "--sock", "maplecode.sock"].as_ref());
+        let app_server = app_server_from_args(
+            [
+                "maplecode",
+                "app-server",
+                "proxy",
+                "--sock",
+                "maplecode.sock",
+            ]
+            .as_ref(),
+        );
         let Some(AppServerSubcommand::Proxy(proxy)) = app_server.subcommand else {
             panic!("expected proxy subcommand");
         };

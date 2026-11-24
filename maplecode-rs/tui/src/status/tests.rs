@@ -28,6 +28,7 @@ use chrono::Duration as ChronoDuration;
 use chrono::Local;
 use chrono::TimeZone;
 use chrono::Utc;
+use insta::assert_snapshot;
 use maplecode_app_server_protocol::AskForApproval;
 use maplecode_app_server_protocol::CreditsSnapshot;
 use maplecode_app_server_protocol::RateLimitSnapshot;
@@ -54,7 +55,6 @@ use maplecode_protocol::permissions::FileSystemSpecialPath;
 use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use insta::assert_snapshot;
 use pretty_assertions::assert_eq;
 use ratatui::prelude::*;
 use std::sync::Arc;
@@ -1507,7 +1507,8 @@ async fn status_card_token_usage_excludes_cached_tokens() {
 async fn status_wraps_long_paths_and_session_ids_without_losing_text() {
     let temp_home = TempDir::new().expect("temp home");
     let mut config = test_config(&temp_home).await;
-    let directory = test_path_buf("/workspace/projects/界界/ｶﾞﾞ/a-very-long-directory-name/maplecode");
+    let directory =
+        test_path_buf("/workspace/projects/界界/ｶﾞﾞ/a-very-long-directory-name/maplecode");
     set_workspace_cwd(&mut config, directory.abs());
     let session =
         ThreadId::from_string("00000000-0000-0000-0000-000000000123").expect("session id");

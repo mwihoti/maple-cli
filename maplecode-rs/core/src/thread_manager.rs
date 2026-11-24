@@ -19,13 +19,13 @@ use crate::agent::host::InheritedSessionId;
 use crate::agent::host::ServiceTierAcceptance;
 use crate::agents_md_manager::SessionInstructions;
 use crate::attestation::AttestationProvider;
-use crate::maplecode_thread::MapleCodeThread;
 use crate::config::Config;
 use crate::current_time::TimeProvider;
 use crate::environment_selection::TurnEnvironmentSnapshot;
 use crate::environment_selection::default_thread_environment_requests;
 use crate::exec_policy::ExecPolicyManager;
 use crate::exec_policy::InheritedExecPolicy;
+use crate::maplecode_thread::MapleCodeThread;
 use crate::mcp::McpManager;
 use crate::rollout::truncation;
 use crate::session::ForkPersistence;
@@ -40,6 +40,9 @@ use crate::session::startup::SessionStartupGuard;
 use crate::tasks::InterruptedTurnHistoryMarker;
 use crate::tasks::interrupted_turn_history_marker;
 use crate::thread_startup_metadata::ThreadStartupMetadata;
+use futures::StreamExt;
+use futures::future::BoxFuture;
+use futures::stream::FuturesUnordered;
 use maplecode_agent_graph_store::AgentGraphStore;
 use maplecode_agent_graph_store::LocalAgentGraphStore;
 use maplecode_analytics::AnalyticsEventsClient;
@@ -120,9 +123,6 @@ use maplecode_thread_store::ThreadStoreResumePreparation;
 use maplecode_thread_store::UpdateThreadMetadataParams;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_git_discovery::GitRootDiscovery;
-use futures::StreamExt;
-use futures::future::BoxFuture;
-use futures::stream::FuturesUnordered;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::future::Future;
@@ -148,8 +148,9 @@ static FORCE_TEST_THREAD_MANAGER_BEHAVIOR: AtomicBool = AtomicBool::new(false);
 type CapturedOps = Vec<(ThreadId, Op)>;
 type SharedCapturedOps = Arc<std::sync::Mutex<CapturedOps>>;
 pub(crate) type ThreadIdGenerator = Arc<dyn Fn() -> ThreadId + Send + Sync>;
-type AgentControlFactory =
-    Arc<dyn Fn(ThreadId) -> BoxFuture<'static, MapleCodeResult<Arc<dyn AgentControl>>> + Send + Sync>;
+type AgentControlFactory = Arc<
+    dyn Fn(ThreadId) -> BoxFuture<'static, MapleCodeResult<Arc<dyn AgentControl>>> + Send + Sync,
+>;
 
 // `Op` is intentionally not `Clone`. Thread-manager tests only snapshot the
 // small subset of ops they inspect.
@@ -832,7 +833,9 @@ impl ThreadManager {
             maplecode_home.clone(),
             Arc::new(EnvironmentManager::default_for_tests()),
         );
-        manager._test_maplecode_home_guard = Some(TempMapleCodeHomeGuard { path: maplecode_home });
+        manager._test_maplecode_home_guard = Some(TempMapleCodeHomeGuard {
+            path: maplecode_home,
+        });
         manager
     }
 
@@ -863,10 +866,11 @@ impl ThreadManager {
         set_thread_manager_test_mode_for_tests(/*enabled*/ true);
         let auth_manager = AuthManager::from_auth_for_testing(auth);
         let installation_id = uuid::Uuid::new_v4().to_string();
-        let absolute_maplecode_home = match AbsolutePathBuf::from_absolute_path_checked(&maplecode_home) {
-            Ok(maplecode_home) => maplecode_home,
-            Err(err) => panic!("test maplecode_home should be absolute: {err}"),
-        };
+        let absolute_maplecode_home =
+            match AbsolutePathBuf::from_absolute_path_checked(&maplecode_home) {
+                Ok(maplecode_home) => maplecode_home,
+                Err(err) => panic!("test maplecode_home should be absolute: {err}"),
+            };
         let (thread_created_tx, _) = broadcast::channel(THREAD_CREATED_CHANNEL_CAPACITY);
         let restriction_product = SessionSource::Exec.restriction_product();
         let skills_service = Arc::new(HostSkillsService::new_with_restriction_product(
@@ -905,9 +909,11 @@ impl ThreadManager {
                 model_catalog: model_catalog::ThreadModelCatalog::new(
                     provider,
                     /*catalog*/ None,
-                    Arc::new(maplecode_models_manager::manager::ModelCatalogSettings::disk(
-                        maplecode_home,
-                    )),
+                    Arc::new(
+                        maplecode_models_manager::manager::ModelCatalogSettings::disk(
+                            maplecode_home,
+                        ),
+                    ),
                     /*api_key_model_discovery_default*/ false,
                     maplecode_model_provider::ProviderAuthContext {
                         credentials: Arc::clone(&auth_manager),
@@ -958,7 +964,8 @@ impl ThreadManager {
     pub fn runtime_auth_for_config(
         &self,
         config: &Config,
-    ) -> std::io::Result<Option<(Arc<RuntimeAuthManager>, maplecode_features::RuntimeAuthMode)>> {
+    ) -> std::io::Result<Option<(Arc<RuntimeAuthManager>, maplecode_features::RuntimeAuthMode)>>
+    {
         if config
             .features
             .enabled(maplecode_features::Feature::RuntimeAgentInstances)
@@ -983,7 +990,8 @@ impl ThreadManager {
         &self,
         config: &Config,
         mcp_manager: &McpManager,
-    ) -> std::io::Result<Option<(Arc<RuntimeAuthManager>, maplecode_features::RuntimeAuthMode)>> {
+    ) -> std::io::Result<Option<(Arc<RuntimeAuthManager>, maplecode_features::RuntimeAuthMode)>>
+    {
         Ok(crate::runtime_auth::runtime_for_config(
             &mcp_manager.plugins_manager().runtime_auth_slot(),
             config,
@@ -2050,7 +2058,10 @@ impl ThreadManagerState {
     }
 
     /// Fetch a thread by ID or return ThreadNotFound.
-    pub(crate) async fn get_thread(&self, thread_id: ThreadId) -> MapleCodeResult<Arc<MapleCodeThread>> {
+    pub(crate) async fn get_thread(
+        &self,
+        thread_id: ThreadId,
+    ) -> MapleCodeResult<Arc<MapleCodeThread>> {
         let threads = self.threads.read().await;
         match threads.get(&thread_id) {
             Some(thread) if !thread.session_source.is_internal() => Ok(thread.clone()),
@@ -2333,7 +2344,9 @@ impl ThreadManagerState {
         inheritance: crate::agent::host::PreparedChildInheritance,
     ) -> MapleCodeResult<NewThread> {
         options.reserved_thread_id.ok_or_else(|| {
-            MapleCodeErr::InvalidRequest("prepared child startup requires a reserved thread ID".into())
+            MapleCodeErr::InvalidRequest(
+                "prepared child startup requires a reserved thread ID".into(),
+            )
         })?;
         let (auth_manager, runtime_auth) = self.inherited_child_auth(Some(parent_thread_id)).await;
         let mut request = ThreadSpawnRequest::new(options, auth_manager, agent_control);

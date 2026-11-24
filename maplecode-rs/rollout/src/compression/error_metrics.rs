@@ -20,7 +20,11 @@ impl FailureMetric {
             Self::File(trigger) => (metrics::FILE_COUNTER, "outcome", Some(trigger)),
             Self::Materialize => (metrics::MATERIALIZE_COUNTER, "outcome", None),
             Self::Run(trigger) => (metrics::RUN_COUNTER, "status", Some(trigger)),
-            Self::Scan(trigger) => ("maplecode.rollout_compression.scan", "outcome", Some(trigger)),
+            Self::Scan(trigger) => (
+                "maplecode.rollout_compression.scan",
+                "outcome",
+                Some(trigger),
+            ),
             Self::TempCleanup(trigger) => (metrics::TEMP_CLEANUP_COUNTER, "outcome", Some(trigger)),
         };
         let Some(metrics) = maplecode_otel::global() else {

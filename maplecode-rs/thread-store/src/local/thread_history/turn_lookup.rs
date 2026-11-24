@@ -1,9 +1,9 @@
+use futures::TryStreamExt;
 use maplecode_app_server_protocol::ThreadItemPayload;
 use maplecode_app_server_protocol::UserInput;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::items::UserMessageItem;
 use maplecode_protocol::protocol::user_message_preview;
-use futures::TryStreamExt;
 use sqlx::Row;
 
 use super::super::LocalThreadStore;

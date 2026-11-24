@@ -1460,12 +1460,12 @@ mod tests {
     use crate::app::test_support::make_test_app;
     use crate::legacy_core::config::edit::ConfigEdit;
     use crate::test_support::PathBufExt;
+    use crossterm::event::KeyCode;
+    use crossterm::event::KeyEvent;
     use maplecode_config::ConfigLayerEntry;
     use maplecode_config::ConfigLayerStack;
     use maplecode_protocol::models::PermissionProfile;
     use maplecode_protocol::openai_models::ReasoningEffortPreset;
-    use crossterm::event::KeyCode;
-    use crossterm::event::KeyEvent;
     use pretty_assertions::assert_eq;
     use tempfile::tempdir;
 
@@ -1994,7 +1994,8 @@ enabled = false
         expected_widget_settings.tui.terminal_resize_reflow_max_rows = Some(9000);
         expected_widget_settings.tui.session_picker_view =
             Some(maplecode_config::types::SessionPickerViewMode::Comfortable);
-        expected_widget_settings.tui.resume_cwd = Some(maplecode_config::types::ResumeCwdMode::Current);
+        expected_widget_settings.tui.resume_cwd =
+            Some(maplecode_config::types::ResumeCwdMode::Current);
         let maplecode_home = tempdir()?;
         app.config.maplecode_home = maplecode_home.path().to_path_buf().abs();
         std::fs::write(

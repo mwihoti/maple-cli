@@ -94,12 +94,12 @@ impl ConnectionDriver {
                 ..
             } => {
                 let cell_id = match request {
-                    maplecode_code_mode_protocol::host::DelegateRequest::InvokeTool { invocation } => {
-                        &invocation.cell_id
-                    }
-                    maplecode_code_mode_protocol::host::DelegateRequest::Notify { cell_id, .. } => {
-                        cell_id
-                    }
+                    maplecode_code_mode_protocol::host::DelegateRequest::InvokeTool {
+                        invocation,
+                    } => &invocation.cell_id,
+                    maplecode_code_mode_protocol::host::DelegateRequest::Notify {
+                        cell_id, ..
+                    } => cell_id,
                 };
                 !self.sessions.contains_cell(session_id, cell_id)
                     && self.requests.has_pending_execute_for_session(session_id)

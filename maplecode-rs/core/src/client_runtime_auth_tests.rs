@@ -70,13 +70,14 @@ async fn selected_runtime_transport_stays_revoked(mode: RuntimeAuthMode) {
     ));
     let mut client = test_model_client(SessionSource::Exec);
     client.http_client_factory = factory;
-    Arc::get_mut(&mut client.state).unwrap().provider = maplecode_model_provider::ProviderAuthContext {
-        credentials: manager,
-        runtime_auth: Some((runtime, mode)),
-    }
-    .model_provider(ModelProviderInfo::create_openai_provider(
-        /*base_url*/ None,
-    ));
+    Arc::get_mut(&mut client.state).unwrap().provider =
+        maplecode_model_provider::ProviderAuthContext {
+            credentials: manager,
+            runtime_auth: Some((runtime, mode)),
+        }
+        .model_provider(ModelProviderInfo::create_openai_provider(
+            /*base_url*/ None,
+        ));
     let mut setup = client
         .current_client_setup(ClientRouting::Workspace)
         .await

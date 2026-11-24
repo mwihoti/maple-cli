@@ -5,11 +5,11 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::process::Stdio;
 
+use futures::future::join_all;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::strip_user_message_prefix;
-use futures::future::join_all;
 use regex::Regex;
 use regex::RegexBuilder;
 use tokio::process::Command;

@@ -339,7 +339,11 @@ args = ["login", "--profile", "maplecode-bedrock"]
             }),
             auth_refresh: Some(AwsAuthRefreshConfig {
                 command: "aws".to_string(),
-                args: vec!["login".into(), "--profile".into(), "maplecode-bedrock".into()],
+                args: vec![
+                    "login".into(),
+                    "--profile".into(),
+                    "maplecode-bedrock".into()
+                ],
                 timeout_ms: NonZeroU64::new(300_000).expect("timeout should be non-zero"),
             }),
         })
@@ -536,7 +540,11 @@ fn test_merge_configured_model_providers_applies_amazon_bedrock_aws_override() {
     };
     let auth_refresh = AwsAuthRefreshConfig {
         command: "aws".to_string(),
-        args: vec!["login".into(), "--profile".into(), "maplecode-bedrock".into()],
+        args: vec![
+            "login".into(),
+            "--profile".into(),
+            "maplecode-bedrock".into(),
+        ],
         timeout_ms: NonZeroU64::new(10_000).expect("timeout should be non-zero"),
     };
     let configured_model_providers = std::collections::HashMap::from([(

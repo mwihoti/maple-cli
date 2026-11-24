@@ -42,10 +42,10 @@ impl AppsRequestProcessor {
             .thread_manager
             .runtime_auth_for_mcp_manager(&config, &mcp_manager)
             .map_err(|error| internal_error(error.to_string()))?;
-        if !config
-            .features
-            .apps_enabled_for_auth(auth.as_ref().is_some_and(MapleCodeAuth::uses_maplecode_backend))
-        {
+        if !config.features.apps_enabled_for_auth(
+            auth.as_ref()
+                .is_some_and(MapleCodeAuth::uses_maplecode_backend),
+        ) {
             let response = AppsReadResponse {
                 apps: Vec::new(),
                 missing_app_ids: app_ids,

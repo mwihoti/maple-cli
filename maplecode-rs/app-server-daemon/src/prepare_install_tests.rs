@@ -30,16 +30,23 @@ fn package(root: &Path, version: &str) -> PathBuf {
         std::fs::create_dir_all(root.join(dir)).expect("package directory");
     }
     let bin = root.join("bin/maplecode");
-    maplecode_utils_cargo_bin::write_executable(&bin, &format!("#!/bin/sh\necho 'maplecode {version}'\n"))
-        .expect("maplecode executable");
+    maplecode_utils_cargo_bin::write_executable(
+        &bin,
+        &format!("#!/bin/sh\necho 'maplecode {version}'\n"),
+    )
+    .expect("maplecode executable");
     for file in ["bin/maplecode-code-mode-host", "maplecode-path/rg"] {
         maplecode_utils_cargo_bin::write_executable(&root.join(file), "runtime")
             .expect("executable helper");
     }
-    std::fs::write(root.join("maplecode-resources/nested/runtime"), b"runtime").expect("package file");
+    std::fs::write(root.join("maplecode-resources/nested/runtime"), b"runtime")
+        .expect("package file");
     if cfg!(target_os = "linux") {
-        maplecode_utils_cargo_bin::write_executable(&root.join("maplecode-resources/bwrap"), "runtime")
-            .expect("executable bwrap");
+        maplecode_utils_cargo_bin::write_executable(
+            &root.join("maplecode-resources/bwrap"),
+            "runtime",
+        )
+        .expect("executable bwrap");
     }
     std::fs::write(
         root.join("maplecode-package.json"),
@@ -123,7 +130,11 @@ async fn seeds_full_package() {
     let result = release_pruning::prune(&daemon, &root, &settings).await;
     assert!(!old.exists(), "release was not retired: {result:#?}");
     for retained in [&selected, &previous, &outside, &linked] {
-        assert!(retained.join("maplecode-resources/nested/runtime").is_file());
+        assert!(
+            retained
+                .join("maplecode-resources/nested/runtime")
+                .is_file()
+        );
     }
 
     // Reinstall after a partial deletion, and verify that leftovers are not retried.
@@ -408,7 +419,10 @@ async fn explicit_selection_requires_unchanged_cli_and_pins_all_versions() {
                 std::fs::read(selected.join("bin/maplecode")).unwrap(),
                 std::fs::read(&bin).unwrap()
             );
-            assert_eq!(std::fs::read(previous.join("bin/maplecode")).unwrap(), before);
+            assert_eq!(
+                std::fs::read(previous.join("bin/maplecode")).unwrap(),
+                before
+            );
             // Different resources, even at the same version: retain last two selections.
             for entry in std::fs::read_dir(root.join("releases")).unwrap() {
                 let path = entry.unwrap().path().canonicalize().unwrap();

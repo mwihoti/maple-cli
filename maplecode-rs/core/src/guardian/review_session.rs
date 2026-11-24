@@ -23,6 +23,7 @@ use std::sync::atomic::Ordering;
 #[cfg(test)]
 use std::time::Duration;
 
+use futures::future::BoxFuture;
 use maplecode_analytics::GuardianReviewAnalyticsResult;
 use maplecode_analytics::GuardianReviewSessionAnalyticsParams;
 use maplecode_analytics::GuardianReviewSessionKind;
@@ -47,13 +48,12 @@ use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::GuardianScope;
 use maplecode_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::Event;
 #[cfg(test)]
 use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::SubAgentSource;
-use futures::future::BoxFuture;
 use serde_json::Value;
 use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;

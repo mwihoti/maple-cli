@@ -11,8 +11,8 @@ use pretty_assertions::assert_eq;
 use serde_json::json;
 use tempfile::tempdir;
 
-use maplecode_keyring_store::tests::MockKeyringStore;
 use keyring::Error as KeyringError;
+use maplecode_keyring_store::tests::MockKeyringStore;
 
 #[cfg(unix)]
 #[test]

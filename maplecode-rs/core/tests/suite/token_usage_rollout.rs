@@ -1,9 +1,6 @@
 //! Verifies observed Responses API usage is durably recorded in rollout history.
 
 use anyhow::Result;
-use maplecode_history::RolloutItem;
-use maplecode_protocol::SessionId;
-use maplecode_protocol::protocol::TokenUsageRecord;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed_with_tokens;
 use core_test_support::responses::ev_function_call;
@@ -13,6 +10,9 @@ use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
+use maplecode_history::RolloutItem;
+use maplecode_protocol::SessionId;
+use maplecode_protocol::protocol::TokenUsageRecord;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

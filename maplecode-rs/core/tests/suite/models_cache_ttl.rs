@@ -1,6 +1,6 @@
+use core_test_support::test_maplecode::local_requests;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
-use core_test_support::test_maplecode::local_requests;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -8,6 +8,18 @@ use anyhow::Result;
 use chrono::DateTime;
 use chrono::TimeZone;
 use chrono::Utc;
+use core_test_support::responses;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
 use maplecode_core::config::Constrained;
 use maplecode_login::MapleCodeAuth;
 use maplecode_models_manager::client_version_to_whole;
@@ -34,18 +46,6 @@ use maplecode_protocol::protocol::InternalSessionSource;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde::Deserialize;
 use serde::Serialize;
@@ -227,7 +227,8 @@ async fn renews_cache_ttl_on_matching_models_etag() -> Result<()> {
     )
     .await;
 
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+    let mut builder =
+        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
     builder = builder.with_config(|config| {
         config.model = Some("gpt-5.2".to_string());
         config.model_provider.request_max_retries = Some(0);
@@ -289,7 +290,10 @@ async fn renews_cache_ttl_on_matching_models_etag() -> Result<()> {
         )
         .await?;
 
-    let _ = wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    let _ = wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let refreshed_cache = read_cache(&cache_path).await?;
     assert!(
@@ -332,7 +336,8 @@ async fn matching_models_etag_does_not_rewrite_recent_cache() -> Result<()> {
     )
     .await;
 
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+    let mut builder =
+        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
     builder = builder.with_config(|config| {
         config.model = Some("gpt-5.2".to_string());
         config.model_provider.request_max_retries = Some(0);
@@ -392,7 +397,8 @@ async fn matching_models_etag_renews_cache_after_half_its_lifetime() -> Result<(
     )
     .await;
 
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+    let mut builder =
+        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
     builder = builder.with_config(|config| {
         config.model = Some("gpt-5.2".to_string());
         config.model_provider.request_max_retries = Some(0);
@@ -452,7 +458,8 @@ async fn uses_cache_when_version_matches() -> Result<()> {
     )
     .await;
 
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+    let mut builder =
+        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
     let identity = maplecode_model_provider::test_support::models_cache_entry(
         &maplecode_model_provider_info::ModelProviderInfo::create_openai_provider(Some(format!(
             "{}/v1",
@@ -527,7 +534,8 @@ async fn refreshes_when_cache_version_missing() -> Result<()> {
     )
     .await;
 
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+    let mut builder =
+        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
     let identity = maplecode_model_provider::test_support::models_cache_entry(
         &maplecode_model_provider_info::ModelProviderInfo::create_openai_provider(Some(format!(
             "{}/v1",
@@ -587,7 +595,8 @@ async fn refreshes_when_cache_version_differs() -> Result<()> {
         models_mocks.push(responses::mount_models_once(&server, models_response.clone()).await);
     }
 
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+    let mut builder =
+        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
     let identity = maplecode_model_provider::test_support::models_cache_entry(
         &maplecode_model_provider_info::ModelProviderInfo::create_openai_provider(Some(format!(
             "{}/v1",

@@ -1,5 +1,25 @@
 use anyhow::Result;
 use anyhow::anyhow;
+use core_test_support::PathBufExt;
+use core_test_support::create_directory_symlink;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_no_remote_env;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_target_windows;
+use core_test_support::test_maplecode::RecordingUserInstructionsProvider;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::executor_path_uri;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
 use maplecode_core::ForkSnapshot;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
@@ -40,26 +60,6 @@ use maplecode_thread_store::PrepareForkParams;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_string::approx_bytes_for_tokens;
-use core_test_support::PathBufExt;
-use core_test_support::create_directory_symlink;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_no_remote_env;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_target_windows;
-use core_test_support::test_maplecode::RecordingUserInstructionsProvider;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::executor_path_uri;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
@@ -1177,7 +1177,13 @@ async fn thread_provider_composes_and_clears_only_its_instructions() -> Result<(
     .await;
     insta::assert_snapshot!(warning, @"Combined user instructions use 86 bytes, above the 20-byte `project_doc_max_bytes` setting. The total includes global and thread instructions. The limit applies only to project files.");
     let sources = vec![
-        PathUri::from_abs_path(&fixture.test.config.maplecode_home.join(GLOBAL_AGENTS_FILENAME)),
+        PathUri::from_abs_path(
+            &fixture
+                .test
+                .config
+                .maplecode_home
+                .join(GLOBAL_AGENTS_FILENAME),
+        ),
         fixture.test.workspace_path_uri(GLOBAL_AGENTS_FILENAME)?,
     ];
     assert_eq!(fixture.thread.instruction_sources().await, sources);
@@ -1336,7 +1342,8 @@ async fn isolated_guardian_keeps_applied_thread_instructions() -> Result<()> {
             config.permissions.approval_policy = maplecode_core::config::Constrained::allow_any(
                 maplecode_protocol::protocol::AskForApproval::OnRequest,
             );
-            config.approvals_reviewer = maplecode_protocol::config_types::ApprovalsReviewer::AutoReview;
+            config.approvals_reviewer =
+                maplecode_protocol::config_types::ApprovalsReviewer::AutoReview;
         })
         .build_with_auto_env(&server)
         .await?;

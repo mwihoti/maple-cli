@@ -8,6 +8,7 @@ use app_test_support::TestAppServer;
 use app_test_support::create_mock_responses_server_repeating_assistant;
 use app_test_support::start_analytics_events_server;
 use app_test_support::write_chatgpt_auth;
+use core_test_support::responses;
 #[cfg(unix)]
 use maplecode_app_server_protocol::ConfigReadParams;
 #[cfg(unix)]
@@ -48,7 +49,6 @@ use maplecode_app_server_protocol::UserInput;
 use maplecode_app_server_protocol::WriteStatus;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_protocol::MemoryVersion;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use std::path::Path;
 use std::path::PathBuf;
@@ -1157,7 +1157,9 @@ async fn external_agent_config_detects_and_imports_project_memory_files(
         imported_resources_root.join("project-a/scope.json"),
     )?)?;
     assert_eq!(imported_scope, serde_json::json!({ "cwd": project_cwd }));
-    let memory_root = maplecode_home.path().join(MemoryVersion::V2.directory_name());
+    let memory_root = maplecode_home
+        .path()
+        .join(MemoryVersion::V2.directory_name());
     let memory_diff = maplecode_git_utils::diff_since_latest_init(&memory_root).await?;
     for relative_path in [
         "extensions/external_agent_import/resources/project-a/MEMORY.md",
@@ -1193,7 +1195,10 @@ async fn external_agent_config_detects_and_imports_project_memory_files(
         let maplecode_state::Phase2JobClaimOutcome::Claimed {
             input_watermark, ..
         } = store
-            .try_claim_global_phase2_job(maplecode_protocol::ThreadId::new(), /*lease_seconds*/ 60)
+            .try_claim_global_phase2_job(
+                maplecode_protocol::ThreadId::new(),
+                /*lease_seconds*/ 60,
+            )
             .await?
         else {
             anyhow::bail!("claim imported memory consolidation");

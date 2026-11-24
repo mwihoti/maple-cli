@@ -10,8 +10,8 @@ use super::RuntimeChordBinding;
 use super::RuntimeKeymap;
 use super::normalize_chord_binding;
 use super::runtime_action_bindings;
-use maplecode_config::types::TuiKeymap;
 use crossterm::event::KeyCode;
+use maplecode_config::types::TuiKeymap;
 
 pub(in crate::keymap) fn register(
     keymap: &TuiKeymap,

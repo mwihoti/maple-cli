@@ -12,8 +12,8 @@ pub(crate) async fn create_attachment_dir(
     app_server: &mut AppServerSession,
     maplecode_home: Option<&AppServerPath>,
 ) -> Result<AppServerPath> {
-    let maplecode_home =
-        maplecode_home.context("App server did not report $MAPLECODE_HOME; cannot create attachment")?;
+    let maplecode_home = maplecode_home
+        .context("App server did not report $MAPLECODE_HOME; cannot create attachment")?;
     let path = maplecode_home
         .join(ATTACHMENT_DIR)
         .join(Uuid::new_v4().to_string());

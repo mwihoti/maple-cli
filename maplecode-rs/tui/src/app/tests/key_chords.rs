@@ -19,6 +19,10 @@ use crate::keymap::KeymapContext;
 #[cfg(unix)]
 use crate::pager_overlay::TranscriptHistoryState;
 use crate::tui::Tui;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use maplecode_app_server_protocol::ThreadHistoryMode;
 use maplecode_app_server_protocol::ToolRequestUserInputOption;
 use maplecode_app_server_protocol::ToolRequestUserInputParams;
@@ -27,10 +31,6 @@ use maplecode_app_server_protocol::TurnStatus;
 use maplecode_config::types::KeybindingSpec;
 use maplecode_config::types::KeybindingsSpec;
 use maplecode_config::types::TuiKeymap;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use pretty_assertions::assert_eq;
 
 async fn chord_app() -> Result<(Box<App>, Tui, AppServerSession)> {

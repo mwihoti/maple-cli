@@ -1,9 +1,9 @@
 //! Verify bundled bubblewrap discovery and executable digest validation.
 
 use super::*;
-use maplecode_install_context::MapleCodePackageLayout;
 use maplecode_install_context::InstallContext;
 use maplecode_install_context::InstallMethod;
+use maplecode_install_context::MapleCodePackageLayout;
 use pretty_assertions::assert_eq;
 use std::fs;
 use tempfile::NamedTempFile;

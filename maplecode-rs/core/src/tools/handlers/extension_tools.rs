@@ -73,7 +73,9 @@ impl ToolExecutor<ToolInvocation> for ExtensionToolAdapter {
                     &step.extension_data,
                     &invocation.session.services.thread_extension_data,
                 )
-                .map_err(|err| maplecode_tools::FunctionCallError::RespondToModel(err.to_string()))?
+                .map_err(|err| {
+                    maplecode_tools::FunctionCallError::RespondToModel(err.to_string())
+                })?
             } else {
                 None
             };
@@ -272,6 +274,8 @@ async fn to_extension_call<'a>(
 mod tests {
     use std::sync::Arc;
 
+    use core_test_support::responses::strip_response_item_id;
+    use core_test_support::responses::strip_response_item_ids;
     use maplecode_extension_items::ExtensionItem;
     use maplecode_extension_items::image_generation::GeneratedImageRef;
     use maplecode_extension_items::image_generation::ImageGenerationItem;
@@ -287,8 +291,6 @@ mod tests {
     use maplecode_utils_absolute_path::test_support::PathExt;
     use maplecode_utils_absolute_path::test_support::test_path_buf;
     use maplecode_utils_path_uri::PathUri;
-    use core_test_support::responses::strip_response_item_id;
-    use core_test_support::responses::strip_response_item_ids;
     use pretty_assertions::assert_eq;
     use serde_json::json;
     use tokio::sync::Mutex;
@@ -387,7 +389,8 @@ mod tests {
         async fn handle_call(
             &self,
             call: maplecode_tools::ToolCall<'_>,
-        ) -> Result<Box<dyn maplecode_tools::ToolOutput>, maplecode_tools::FunctionCallError> {
+        ) -> Result<Box<dyn maplecode_tools::ToolOutput>, maplecode_tools::FunctionCallError>
+        {
             call.turn_item_emitter
                 .emit_started(ExtensionTurnItem {
                     item: ExtensionItem::WebSearch(WebSearchItem {

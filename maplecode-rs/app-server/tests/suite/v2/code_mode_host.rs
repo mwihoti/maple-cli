@@ -5,6 +5,7 @@ use anyhow::Context;
 use anyhow::Result;
 use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
+use core_test_support::responses;
 use maplecode_app_server_protocol::ThreadDecrementElicitationParams;
 use maplecode_app_server_protocol::ThreadDecrementElicitationResponse;
 use maplecode_app_server_protocol::ThreadGoalSetResponse;
@@ -19,7 +20,6 @@ use maplecode_app_server_protocol::TurnStartResponse;
 use maplecode_app_server_protocol::TurnStatus;
 use maplecode_app_server_protocol::UserInput;
 use maplecode_features::Feature;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tempfile::TempDir;
@@ -58,13 +58,15 @@ async fn code_mode_model_output_uses_structured_host_timing(
     let experimental_show_cell_overhead = matches!(timing_output, TimingOutput::WithOverhead);
     let mut host = match transport {
         "grpc" => Some(
-            Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?)
-                .args(["--listen", "grpc://127.0.0.1:0"])
-                .stdin(Stdio::null())
-                .stdout(Stdio::piped())
-                .stderr(Stdio::inherit())
-                .kill_on_drop(/*kill_on_drop*/ true)
-                .spawn()?,
+            Command::new(maplecode_utils_cargo_bin::cargo_bin(
+                "maplecode-code-mode-host",
+            )?)
+            .args(["--listen", "grpc://127.0.0.1:0"])
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::inherit())
+            .kill_on_drop(/*kill_on_drop*/ true)
+            .spawn()?,
         ),
         "stdio" => None,
         _ => anyhow::bail!("unknown host transport: {transport}"),

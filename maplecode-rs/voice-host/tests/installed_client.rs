@@ -11,13 +11,13 @@ use std::time::Instant;
 
 use anyhow::Context;
 use anyhow::Result;
-use maplecode_install_context::MapleCodePackageLayout;
+use common::voice_host_command;
+use futures::future::BoxFuture;
 use maplecode_install_context::InstallContext;
+use maplecode_install_context::MapleCodePackageLayout;
 use maplecode_realtime_webrtc::SessionDescription;
 use maplecode_realtime_webrtc::VoiceHost;
 use maplecode_utils_cargo_bin::cargo_bin;
-use common::voice_host_command;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 use tokio::sync::Notify;
 use tokio::sync::mpsc;
@@ -94,7 +94,11 @@ fn install_helper(root: &Path) -> Result<MapleCodePackageLayout> {
     fs::create_dir_all(&bin)?;
     fs::create_dir_all(&helper_dir)?;
     fs::write(root.join("maplecode-package.json"), "{}")?;
-    let app = bin.join(if cfg!(windows) { "maplecode.exe" } else { "maplecode" });
+    let app = bin.join(if cfg!(windows) {
+        "maplecode.exe"
+    } else {
+        "maplecode"
+    });
     fs::write(&app, [])?;
     let source = cargo_bin("maplecode-voice-host")?;
     let helper = helper_dir.join(source.file_name().context("helper binary file name")?);
@@ -167,7 +171,10 @@ async fn installed_client_accepts_non_utf8_package_path() -> Result<()> {
     let app = bin.join("maplecode");
     fs::write(&app, [])?;
     let source = cargo_bin("maplecode-voice-host")?;
-    maplecode_utils_cargo_bin::copy_executable(&source, &helper_dir.join(source.file_name().unwrap()))?;
+    maplecode_utils_cargo_bin::copy_executable(
+        &source,
+        &helper_dir.join(source.file_name().unwrap()),
+    )?;
     install_startup_libraries(helper_dir.parent().unwrap())?;
     let package = InstallContext::from_exe(
         /*is_macos*/ cfg!(target_os = "macos"),

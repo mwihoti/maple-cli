@@ -6,6 +6,8 @@ use anyhow::Result;
 use app_test_support::ChatGptAuthFixture;
 use app_test_support::TestAppServer;
 use app_test_support::write_chatgpt_auth;
+use flate2::Compression;
+use flate2::write::GzEncoder;
 use maplecode_app_server_protocol::JSONRPCError;
 use maplecode_app_server_protocol::PluginAuthPolicy;
 use maplecode_app_server_protocol::PluginInstallPolicy;
@@ -28,8 +30,6 @@ use maplecode_app_server_protocol::PluginSummary;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use flate2::Compression;
-use flate2::write::GzEncoder;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tempfile::TempDir;
@@ -53,7 +53,10 @@ async fn plugin_share_save_uploads_local_plugin() -> Result<()> {
     let plugin_root = TempDir::new()?;
     let plugin_path = write_test_plugin(plugin_root.path(), "demo-plugin")?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -197,7 +200,10 @@ async fn plugin_share_save_forwards_access_policy() -> Result<()> {
     let plugin_root = TempDir::new()?;
     let plugin_path = write_test_plugin(plugin_root.path(), "demo-plugin")?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -295,7 +301,10 @@ async fn plugin_share_save_rejects_listed_discoverability() -> Result<()> {
     let plugin_root = TempDir::new()?;
     let plugin_path = write_test_plugin(plugin_root.path(), "demo-plugin")?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -401,7 +410,10 @@ async fn plugin_share_rejects_workspace_targets_from_client() -> Result<()> {
     let plugin_root = TempDir::new()?;
     let plugin_path = write_test_plugin(plugin_root.path(), "demo-plugin")?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -482,7 +494,10 @@ async fn plugin_share_save_rejects_access_policy_for_existing_plugin() -> Result
     let plugin_root = TempDir::new()?;
     let plugin_path = write_test_plugin(plugin_root.path(), "demo-plugin")?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -533,7 +548,10 @@ async fn plugin_share_save_rejects_access_policy_for_existing_plugin() -> Result
 async fn plugin_share_list_returns_created_workspace_plugins() -> Result<()> {
     let maplecode_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -617,7 +635,10 @@ async fn plugin_share_checkout_adds_personal_marketplace_entry() -> Result<()> {
     let maplecode_home = TempDir::new()?;
     let home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -774,7 +795,10 @@ async fn plugin_share_checkout_rejects_non_share_remote_plugin() -> Result<()> {
     let maplecode_home = TempDir::new()?;
     let home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -838,7 +862,10 @@ async fn plugin_share_checkout_cleans_up_path_when_marketplace_update_fails() ->
     let maplecode_home = TempDir::new()?;
     let home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -934,7 +961,10 @@ async fn plugin_share_checkout_cleans_up_path_when_marketplace_update_fails() ->
 async fn plugin_share_update_targets_updates_share_targets() -> Result<()> {
     let maplecode_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -1048,7 +1078,10 @@ async fn plugin_share_update_targets_updates_share_targets() -> Result<()> {
 async fn plugin_share_update_targets_publishes_workspace_plugin() -> Result<()> {
     let maplecode_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -1172,7 +1205,10 @@ plugin_sharing = false
 async fn plugin_share_delete_removes_created_workspace_plugin() -> Result<()> {
     let maplecode_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_config(maplecode_home.path(), &format!("{}/backend-api", server.uri()))?;
+    write_remote_plugin_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api", server.uri()),
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -1182,7 +1218,11 @@ async fn plugin_share_delete_removes_created_workspace_plugin() -> Result<()> {
         AuthCredentialsStoreMode::File,
     )?;
     let local_plugin_path = AbsolutePathBuf::try_from(maplecode_home.path().join("local-plugin"))?;
-    write_plugin_share_local_path_mapping(maplecode_home.path(), "plugins_123", &local_plugin_path)?;
+    write_plugin_share_local_path_mapping(
+        maplecode_home.path(),
+        "plugins_123",
+        &local_plugin_path,
+    )?;
 
     Mock::given(method("DELETE"))
         .and(path("/backend-api/public/plugins/workspace/plugins_123"))

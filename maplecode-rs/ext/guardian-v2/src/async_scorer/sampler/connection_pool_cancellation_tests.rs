@@ -9,13 +9,13 @@ use crate::async_scorer::sampler::tests::proxy_websocket_servers;
 use crate::async_scorer::sampler::tests::sample_request;
 use crate::async_scorer::sampler::tests::sampler_config;
 use anyhow::Result;
-use maplecode_api::ResponseEvent;
-use maplecode_api::ResponseInterrupt;
 use core_test_support::responses;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_completed_with_tokens;
 use core_test_support::skip_if_no_network;
+use maplecode_api::ResponseEvent;
+use maplecode_api::ResponseInterrupt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

@@ -51,7 +51,10 @@ impl App {
         thread_id: ThreadId,
         thread: &maplecode_app_server_protocol::Thread,
     ) -> Option<AppServerStartedThread> {
-        if !matches!(thread.status, maplecode_app_server_protocol::ThreadStatus::Idle) {
+        if !matches!(
+            thread.status,
+            maplecode_app_server_protocol::ThreadStatus::Idle
+        ) {
             return None;
         }
         let mut blank = self.agents_overview.blank_sessions.get(&thread_id)?.clone();
@@ -83,7 +86,10 @@ impl App {
             {
                 Ok(thread) => {
                     thread.turns.is_empty()
-                        && matches!(thread.status, maplecode_app_server_protocol::ThreadStatus::Idle)
+                        && matches!(
+                            thread.status,
+                            maplecode_app_server_protocol::ThreadStatus::Idle
+                        )
                 }
                 Err(error) => Self::can_fallback_from_include_turns_error(&error),
             },

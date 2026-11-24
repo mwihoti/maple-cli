@@ -9,12 +9,12 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::time::Duration;
 
+use http::Method;
 use maplecode_core::config::Config;
 use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_install_context::InstallContext;
 use maplecode_install_context::InstallMethod;
-use http::Method;
 use serde::Deserialize;
 #[cfg(target_os = "macos")]
 use url::Url;

@@ -69,7 +69,9 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
         .init();
     if let Some(trace_transport) = trace_transport.as_ref() {
         let listen_addr = trace_transport.listen_addr();
-        tracing::info!("maplecode-code-mode-host OTEL trace websocket listening on ws://{listen_addr}");
+        tracing::info!(
+            "maplecode-code-mode-host OTEL trace websocket listening on ws://{listen_addr}"
+        );
     }
     tracing::info_span!(
         "code_mode_host.startup",

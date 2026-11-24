@@ -3,10 +3,10 @@
 use super::*;
 use crate::app::provider::rpc::list_providers;
 use crate::app::provider::rpc::write_provider;
-use maplecode_app_server_protocol::CustomGatewaySettingsParams;
-use maplecode_app_server_protocol::ProviderSettingsPatch;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyModifiers;
+use maplecode_app_server_protocol::CustomGatewaySettingsParams;
+use maplecode_app_server_protocol::ProviderSettingsPatch;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

@@ -3,6 +3,7 @@ use std::ffi::OsString;
 use std::sync::Arc;
 use std::time::Duration;
 
+use futures::FutureExt;
 use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_config::types::OAuthCredentialsStoreMode;
 use maplecode_exec_server::Environment;
@@ -13,7 +14,6 @@ use maplecode_rmcp_client::LocalStdioServerLauncher;
 use maplecode_rmcp_client::McpProtocolMode;
 use maplecode_rmcp_client::RmcpClient;
 use maplecode_rmcp_client::StdioServerLauncher;
-use futures::FutureExt;
 use rmcp::model::ClientCapabilities;
 use rmcp::model::Implementation;
 use rmcp::model::InitializeRequestParams;

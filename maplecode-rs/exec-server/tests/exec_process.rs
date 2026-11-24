@@ -114,8 +114,8 @@ async fn create_process_context(use_remote: bool) -> Result<ProcessContext> {
 #[cfg(target_os = "macos")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn maplecode_home_symlink_opt_out_respects_host_config_and_scope() -> Result<()> {
-    use maplecode_exec_server::WriteFileOptions;
     use common::exec_server::exec_server_with_env;
+    use maplecode_exec_server::WriteFileOptions;
     use std::os::unix::fs::symlink;
 
     let workspace = TempDir::new()?;
@@ -419,7 +419,8 @@ async fn exec_metadata_overrides_policy_and_cached_snapshot(
         ]),
         include_only: Vec::new(),
     };
-    let thread_id = maplecode_protocol::ThreadId::from_string("019d25f0-6728-7ce2-908f-c3c187323e5b")?;
+    let thread_id =
+        maplecode_protocol::ThreadId::from_string("019d25f0-6728-7ce2-908f-c3c187323e5b")?;
     let later_thread_id =
         maplecode_protocol::ThreadId::from_string("019d25f0-6728-7ce2-908f-c3c187323e5c")?;
 
@@ -1205,7 +1206,8 @@ async fn remote_sandboxed_process_preserves_custom_arg0() -> Result<()> {
 
 async fn assert_exec_process_starts_and_exits(use_remote: bool) -> Result<()> {
     let context = create_process_context(use_remote).await?;
-    let thread_id = maplecode_protocol::ThreadId::from_string("019d25f0-6728-7ce2-908f-c3c187323e5b")?;
+    let thread_id =
+        maplecode_protocol::ThreadId::from_string("019d25f0-6728-7ce2-908f-c3c187323e5b")?;
     let call_id = "call-λ-'\";$()";
     #[cfg(unix)]
     let argv = vec![

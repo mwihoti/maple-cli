@@ -11,13 +11,13 @@ use std::time::Duration;
 
 use arc_swap::ArcSwap;
 use arc_swap::ArcSwapOption;
+use futures::FutureExt;
+use futures::future::BoxFuture;
 use maplecode_exec_server_protocol::JSONRPCNotification;
 use maplecode_network_proxy::NetworkPolicyDecider;
 use maplecode_network_proxy::NetworkProxyAuditMetadata;
 use maplecode_network_proxy::NetworkRequestCancellation;
 use maplecode_network_proxy::NetworkRequestCancellationReason;
-use futures::FutureExt;
-use futures::future::BoxFuture;
 use serde_json::Value;
 use tokio::sync::Mutex;
 use tokio::sync::OnceCell;
@@ -2001,6 +2001,9 @@ async fn handle_server_notification(
 
 #[cfg(test)]
 mod tests {
+    use futures::SinkExt;
+    use futures::StreamExt;
+    use http::HeaderMap;
     use maplecode_exec_server_protocol::JSONRPCMessage;
     use maplecode_exec_server_protocol::JSONRPCNotification;
     use maplecode_exec_server_protocol::JSONRPCResponse;
@@ -2008,9 +2011,6 @@ mod tests {
     use maplecode_http_client::OutboundProxyPolicy;
     use maplecode_protocol::models::PermissionProfile;
     use maplecode_utils_path_uri::PathUri;
-    use futures::SinkExt;
-    use futures::StreamExt;
-    use http::HeaderMap;
     use opentelemetry::trace::TracerProvider as _;
     use opentelemetry_sdk::trace::SdkTracerProvider;
     use pretty_assertions::assert_eq;

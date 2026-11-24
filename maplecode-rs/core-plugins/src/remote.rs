@@ -10,6 +10,9 @@ use crate::store::PLUGINS_CACHE_DIR;
 use crate::store::PluginStore;
 use chrono::DateTime;
 use chrono::Utc;
+use http::HeaderMap;
+use http::Method;
+use http::StatusCode;
 use maplecode_app_server_protocol::JSONRPCErrorError;
 use maplecode_app_server_protocol::PluginAuthPolicy;
 use maplecode_app_server_protocol::PluginAvailability;
@@ -35,9 +38,6 @@ use maplecode_plugin::app_connector_ids_from_declarations;
 use maplecode_plugin::prompt_safe_plugin_description;
 use maplecode_runtime_agent_instance::RuntimeAuthSlot;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use http::HeaderMap;
-use http::Method;
-use http::StatusCode;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
@@ -240,8 +240,10 @@ impl RemotePluginServiceConfig {
     > {
         Box::pin(async move {
             if self.runtime_auth.is_some() {
-                maplecode_model_provider::validate_runtime_destination(Some(&self.chatgpt_base_url))
-                    .map_err(|error| maplecode_api::AuthError::Build(error.to_string()))?;
+                maplecode_model_provider::validate_runtime_destination(Some(
+                    &self.chatgpt_base_url,
+                ))
+                .map_err(|error| maplecode_api::AuthError::Build(error.to_string()))?;
             }
             let runtime = self
                 .runtime_auth
@@ -1109,7 +1111,12 @@ pub(crate) async fn fetch_and_cache_remote_plugin_catalog(
     let auth = ensure_chatgpt_auth(auth)?;
     let plugins = fetch_directory_plugins_for_scope(config, auth, scope).await?;
     catalog_cache::write_cached_directory_plugins(
-        maplecode_home, config, auth, scope, /*collection*/ None, &plugins,
+        maplecode_home,
+        config,
+        auth,
+        scope,
+        /*collection*/ None,
+        &plugins,
     );
     Ok(())
 }
@@ -1119,7 +1126,8 @@ pub async fn fetch_and_cache_global_remote_plugin_catalog(
     config: &RemotePluginServiceConfig,
     auth: Option<&MapleCodeAuth>,
 ) -> Result<(), RemotePluginCatalogError> {
-    fetch_and_cache_remote_plugin_catalog(maplecode_home, config, auth, RemotePluginScope::Global).await
+    fetch_and_cache_remote_plugin_catalog(maplecode_home, config, auth, RemotePluginScope::Global)
+        .await
 }
 
 pub fn invalidate_cached_remote_plugin_catalog_scopes(
@@ -1133,7 +1141,11 @@ pub fn invalidate_cached_remote_plugin_catalog_scopes(
     };
     for scope in scopes {
         catalog_cache::remove_cached_directory_plugins(
-            maplecode_home, config, auth, *scope, /*collection*/ None,
+            maplecode_home,
+            config,
+            auth,
+            *scope,
+            /*collection*/ None,
         );
         if *scope == RemotePluginScope::Global {
             catalog_cache::remove_cached_directory_plugins(
@@ -1849,7 +1861,12 @@ pub async fn uninstall_remote_plugin(
 
     let legacy_plugin_id = response.id;
     tokio::task::spawn_blocking(move || {
-        remove_remote_plugin_cache(maplecode_home, marketplace_name, plugin_name, legacy_plugin_id)
+        remove_remote_plugin_cache(
+            maplecode_home,
+            marketplace_name,
+            plugin_name,
+            legacy_plugin_id,
+        )
     })
     .await
     .map_err(|err| {
@@ -2175,7 +2192,12 @@ async fn fetch_directory_plugins_for_scope_with_cache(
 ) -> Result<DirectoryPluginsFetchOutcome, RemotePluginCatalogError> {
     if let Some(maplecode_home) = maplecode_home
         && let Some(cached) = catalog_cache::load_cached_directory_plugins(
-            maplecode_home, config, auth, scope, collection, cache_mode,
+            maplecode_home,
+            config,
+            auth,
+            scope,
+            collection,
+            cache_mode,
         )
     {
         return Ok(DirectoryPluginsFetchOutcome {
@@ -2193,7 +2215,12 @@ async fn fetch_directory_plugins_for_scope_with_cache(
             .await?;
     if let Some(maplecode_home) = maplecode_home {
         catalog_cache::write_cached_directory_plugins(
-            maplecode_home, config, auth, scope, collection, &plugins,
+            maplecode_home,
+            config,
+            auth,
+            scope,
+            collection,
+            &plugins,
         );
     }
     Ok(DirectoryPluginsFetchOutcome {
@@ -2452,7 +2479,9 @@ fn remote_plugin_skill_detail_url(
     Ok(url.to_string())
 }
 
-fn ensure_chatgpt_auth(auth: Option<&MapleCodeAuth>) -> Result<&MapleCodeAuth, RemotePluginCatalogError> {
+fn ensure_chatgpt_auth(
+    auth: Option<&MapleCodeAuth>,
+) -> Result<&MapleCodeAuth, RemotePluginCatalogError> {
     let Some(auth) = auth else {
         return Err(RemotePluginCatalogError::AuthRequired);
     };

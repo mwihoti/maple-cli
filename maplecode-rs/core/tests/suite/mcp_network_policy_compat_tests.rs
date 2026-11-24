@@ -1,12 +1,12 @@
 //! Compatibility for trusted MCP servers that predate network policy negotiation.
 
 use anyhow::Context;
-use maplecode_config::test_support::CloudConfigBundleFixture;
-use maplecode_mcp::MCP_NETWORK_POLICY_META_CAPABILITY;
 use core_test_support::network_policy_mcp::NetworkPolicyMcp;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
+use maplecode_config::test_support::CloudConfigBundleFixture;
+use maplecode_mcp::MCP_NETWORK_POLICY_META_CAPABILITY;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

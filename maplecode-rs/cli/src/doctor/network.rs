@@ -4,6 +4,8 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::time::Instant;
 
+use http::HeaderMap;
+use http::Method;
 use maplecode_arg0::Arg0DispatchPaths;
 use maplecode_core::config::Config;
 #[cfg(target_os = "macos")]
@@ -16,8 +18,6 @@ use maplecode_http_client::macos_system_proxy_configuration;
 use maplecode_login::default_client::create_client_without_request_logging;
 use maplecode_tui::Cli as TuiCli;
 use maplecode_utils_cli::CliConfigOverrides;
-use http::HeaderMap;
-use http::Method;
 
 use super::CheckStatus;
 use super::DoctorCheck;

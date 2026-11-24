@@ -8,6 +8,8 @@ use crate::store::PluginStore;
 use crate::store::PluginStoreError;
 use crate::store::error_context_sub_error_type;
 use crate::store::validate_plugin_version_segment;
+use http::Method;
+use http::StatusCode;
 use maplecode_http_client::HttpResponse;
 use maplecode_http_client::RouteAwareRequestError;
 use maplecode_plugin::PluginId;
@@ -17,8 +19,6 @@ use maplecode_utils_plugins::AGENT_PLUGIN_MANIFEST_RELATIVE_PATH;
 use maplecode_utils_plugins::AgentPluginSchemaStatus;
 use maplecode_utils_plugins::agent_plugin_schema_status;
 use maplecode_utils_plugins::find_plugin_manifest_path;
-use http::Method;
-use http::StatusCode;
 use serde_json::Value as JsonValue;
 use std::fs;
 use std::io;
@@ -988,7 +988,8 @@ mod tests {
     fn find_extracted_plugin_root_rejects_nested_plugin_root() {
         let extraction_root = tempdir().expect("tempdir");
         let plugin_root = extraction_root.path().join("linear");
-        std::fs::create_dir_all(plugin_root.join(".maplecode-plugin")).expect("create manifest dir");
+        std::fs::create_dir_all(plugin_root.join(".maplecode-plugin"))
+            .expect("create manifest dir");
         std::fs::write(
             plugin_root.join(".maplecode-plugin/plugin.json"),
             r#"{"name":"linear"}"#,

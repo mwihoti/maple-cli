@@ -28,6 +28,7 @@ use tracing_subscriber::Layer;
 use tracing_subscriber::filter::filter_fn;
 use tracing_subscriber::layer::SubscriberExt;
 
+use eventsource_stream::Event as StreamEvent;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::ToolName;
@@ -50,7 +51,6 @@ use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::protocol::TokenUsage;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use eventsource_stream::Event as StreamEvent;
 
 fn log_attributes(record: &SdkLogRecord) -> BTreeMap<String, String> {
     record
@@ -119,7 +119,8 @@ fn auth_env_metadata() -> AuthEnvTelemetryMetadata {
 }
 
 #[test]
-fn suppressing_sse_delta_logs_preserves_errors_completions_and_metrics() -> maplecode_otel::Result<()> {
+fn suppressing_sse_delta_logs_preserves_errors_completions_and_metrics()
+-> maplecode_otel::Result<()> {
     for log_sse_deltas in [true, false] {
         let log_exporter = InMemoryLogExporter::default();
         let logger_provider = SdkLoggerProvider::builder()
@@ -595,14 +596,22 @@ fn otel_export_routing_policy_routes_tool_result_log_and_trace_events() {
     let tool_logs: Vec<_> = logs
         .iter()
         .map(|log| log_attributes(&log.record))
-        .filter(|attrs| attrs.get("event.name").map(String::as_str) == Some("maplecode.tool_result"))
+        .filter(|attrs| {
+            attrs.get("event.name").map(String::as_str) == Some("maplecode.tool_result")
+        })
         .collect();
     assert_eq!(
         tool_logs
             .iter()
             .map(|attrs| attrs.get("product_sku").map(String::as_str))
             .collect::<Vec<_>>(),
-        vec![Some("maplecode"), Some("other"), Some("maplecode"), None, None],
+        vec![
+            Some("maplecode"),
+            Some("other"),
+            Some("maplecode"),
+            None,
+            None
+        ],
     );
     assert_eq!(
         tool_logs
@@ -1242,7 +1251,8 @@ fn otel_export_routing_policy_routes_websocket_connect_auth_observability() {
     assert_eq!(point.value(), 1);
     assert_eq!(attributes_to_map(point.attributes()), expected_labels);
 
-    let duration = find_metric(&exported, maplecode_otel::WEBSOCKET_CONNECT_DURATION_METRIC).unwrap();
+    let duration =
+        find_metric(&exported, maplecode_otel::WEBSOCKET_CONNECT_DURATION_METRIC).unwrap();
     let AggregatedMetrics::F64(MetricData::Histogram(histogram)) = duration.data() else {
         panic!("expected connect duration histogram");
     };

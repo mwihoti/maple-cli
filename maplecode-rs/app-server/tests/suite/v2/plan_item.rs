@@ -4,6 +4,8 @@ use anyhow::bail;
 use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::create_mock_responses_server_sequence_unchecked;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ItemCompletedNotification;
 use maplecode_app_server_protocol::ItemStartedNotification;
@@ -20,8 +22,6 @@ use maplecode_features::Feature;
 use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::config_types::Settings;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use tokio::time::sleep;
@@ -130,7 +130,9 @@ async fn plan_mode_without_proposed_plan_does_not_emit_plan_item() -> Result<()>
     Ok(())
 }
 
-async fn start_plan_mode_turn(mcp: &mut TestAppServer) -> Result<maplecode_app_server_protocol::Turn> {
+async fn start_plan_mode_turn(
+    mcp: &mut TestAppServer,
+) -> Result<maplecode_app_server_protocol::Turn> {
     let thread = mcp
         .start_thread(ThreadStartParams {
             model: Some("mock-model".to_string()),

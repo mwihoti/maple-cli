@@ -128,8 +128,8 @@ impl ConfigServerSource {
         maplecode_home: PathBuf,
         factory: HttpClientFactory,
     ) -> Result<Self, CloudConfigBundleLoadError> {
-        let auth =
-            oauth_session_manager(oauth.as_ref(), maplecode_home, &factory).map_err(auth_io_error)?;
+        let auth = oauth_session_manager(oauth.as_ref(), maplecode_home, &factory)
+            .map_err(auth_io_error)?;
         let client = BackendClient::for_config_endpoint(base_url, factory);
         // Reuse the OAuth session's issuer/client/audience/scope identity; the endpoint
         // additionally separates policy authorities that share one OAuth grant.

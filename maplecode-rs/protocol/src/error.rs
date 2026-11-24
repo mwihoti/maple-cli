@@ -5,8 +5,8 @@ pub use crate::auth::RefreshTokenFailedError;
 pub use crate::auth::RefreshTokenFailedReason;
 use crate::exec_output::ExecToolCallOutput;
 use crate::network_policy::NetworkPolicyDecisionPayload;
-use crate::protocol::MapleCodeErrorInfo;
 use crate::protocol::ErrorEvent;
+use crate::protocol::MapleCodeErrorInfo;
 use crate::protocol::MisalignmentErrorDetails;
 use crate::protocol::RateLimitReachedType;
 use crate::protocol::RateLimitSnapshot;
@@ -16,13 +16,13 @@ use chrono::DateTime;
 use chrono::Datelike;
 use chrono::Local;
 use chrono::Utc;
+use http::StatusCode;
 use maplecode_async_utils::CancelErr;
 use maplecode_async_utils::backoff;
 use maplecode_http_client::HttpError;
 use maplecode_http_client::RetryAfter;
 use maplecode_utils_string::truncate_middle_chars;
 use maplecode_utils_string::truncate_middle_with_token_budget;
-use http::StatusCode;
 use serde_json;
 use std::fmt;
 use std::io;
@@ -530,9 +530,8 @@ impl MapleCodeErr {
             | MapleCodeErrorDetails::Json(_)
             | MapleCodeErrorDetails::TokioJoin(_) => RetryPolicy::Backoff,
             #[cfg(target_os = "linux")]
-            MapleCodeErrorDetails::LandlockRuleset(_) | MapleCodeErrorDetails::LandlockPathFd(_) => {
-                RetryPolicy::Never
-            }
+            MapleCodeErrorDetails::LandlockRuleset(_)
+            | MapleCodeErrorDetails::LandlockPathFd(_) => RetryPolicy::Never,
         }
     }
 
@@ -563,8 +562,12 @@ impl MapleCodeErr {
     /// Translate core error to client-facing protocol error.
     pub fn to_maplecode_protocol_error(&self) -> MapleCodeErrorInfo {
         match &self.details {
-            MapleCodeErrorDetails::ContextWindowExceeded => MapleCodeErrorInfo::ContextWindowExceeded,
-            MapleCodeErrorDetails::SessionBudgetExceeded => MapleCodeErrorInfo::SessionBudgetExceeded,
+            MapleCodeErrorDetails::ContextWindowExceeded => {
+                MapleCodeErrorInfo::ContextWindowExceeded
+            }
+            MapleCodeErrorDetails::SessionBudgetExceeded => {
+                MapleCodeErrorInfo::SessionBudgetExceeded
+            }
             MapleCodeErrorDetails::RateLimitExceeded(_) => MapleCodeErrorInfo::RateLimitExceeded,
             MapleCodeErrorDetails::UsageLimitReached(_)
             | MapleCodeErrorDetails::QuotaExceeded
@@ -574,24 +577,32 @@ impl MapleCodeErr {
                 MapleCodeErrorInfo::PolicyCapacityUnavailable
             }
             MapleCodeErrorDetails::FlexUnavailable => MapleCodeErrorInfo::FlexUnavailable,
-            MapleCodeErrorDetails::InferenceHookDenied { .. } => MapleCodeErrorInfo::InferenceHookDenied,
+            MapleCodeErrorDetails::InferenceHookDenied { .. } => {
+                MapleCodeErrorInfo::InferenceHookDenied
+            }
             MapleCodeErrorDetails::CyberPolicy { .. } => MapleCodeErrorInfo::CyberPolicy,
             MapleCodeErrorDetails::BioPolicy { .. } => MapleCodeErrorInfo::BioPolicy,
             MapleCodeErrorDetails::ModelNotFound { .. } => MapleCodeErrorInfo::ModelNotFound,
             MapleCodeErrorDetails::InvalidPrompt { .. }
-            | MapleCodeErrorDetails::ContentPolicyViolation { .. } => MapleCodeErrorInfo::InvalidPrompt,
+            | MapleCodeErrorDetails::ContentPolicyViolation { .. } => {
+                MapleCodeErrorInfo::InvalidPrompt
+            }
             MapleCodeErrorDetails::MisalignmentPolicyViolation { .. } => {
                 MapleCodeErrorInfo::MisalignmentPolicyViolation
             }
-            MapleCodeErrorDetails::RetryLimit(_) => MapleCodeErrorInfo::ResponseTooManyFailedAttempts {
-                http_status_code: self.http_status_code_value(),
-            },
+            MapleCodeErrorDetails::RetryLimit(_) => {
+                MapleCodeErrorInfo::ResponseTooManyFailedAttempts {
+                    http_status_code: self.http_status_code_value(),
+                }
+            }
             MapleCodeErrorDetails::ConnectionFailed(_)
             | MapleCodeErrorDetails::WorkspaceAccessDenied(_)
             | MapleCodeErrorDetails::AccessProgramNotEnabled(_)
-            | MapleCodeErrorDetails::UnexpectedStatus(_) => MapleCodeErrorInfo::HttpConnectionFailed {
-                http_status_code: self.http_status_code_value(),
-            },
+            | MapleCodeErrorDetails::UnexpectedStatus(_) => {
+                MapleCodeErrorInfo::HttpConnectionFailed {
+                    http_status_code: self.http_status_code_value(),
+                }
+            }
             MapleCodeErrorDetails::ResponseStreamFailed(_) => {
                 MapleCodeErrorInfo::ResponseStreamConnectionFailed {
                     http_status_code: self.http_status_code_value(),

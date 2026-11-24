@@ -7,6 +7,8 @@ mod tls_proxy;
 use std::ffi::OsString;
 use std::fs;
 
+use common::exec_server::ExecServerHarness;
+use common::exec_server::exec_server_with_env;
 use maplecode_exec_server::HttpRedirectPolicy;
 use maplecode_exec_server::HttpRequestParams;
 use maplecode_exec_server::HttpRequestResponse;
@@ -14,8 +16,6 @@ use maplecode_exec_server::InitializeParams;
 use maplecode_exec_server_protocol::JSONRPCMessage;
 use maplecode_exec_server_protocol::JSONRPCResponse;
 use maplecode_exec_server_protocol::RequestId;
-use common::exec_server::ExecServerHarness;
-use common::exec_server::exec_server_with_env;
 use pretty_assertions::assert_eq;
 use serde::de::DeserializeOwned;
 use serde_json::Value;

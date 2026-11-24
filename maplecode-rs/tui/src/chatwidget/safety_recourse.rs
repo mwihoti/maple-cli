@@ -54,7 +54,9 @@ fn matches_turn(chat: &ChatWidget, thread_id: &str, turn_id: &str) -> bool {
 fn matches_error(domain: Domain, error: &TurnError) -> bool {
     match domain {
         Domain::Bio => super::turn_runtime::is_bio_policy_error(&error.message),
-        Domain::Cyber => error.maplecode_error_info == Some(AppServerMapleCodeErrorInfo::CyberPolicy),
+        Domain::Cyber => {
+            error.maplecode_error_info == Some(AppServerMapleCodeErrorInfo::CyberPolicy)
+        }
     }
 }
 

@@ -240,7 +240,11 @@ pub(crate) fn path_digest(path: &Path) -> [u8; 32] {
 }
 
 fn managed_maplecode_file_name() -> &'static str {
-    if cfg!(windows) { "maplecode.exe" } else { "maplecode" }
+    if cfg!(windows) {
+        "maplecode.exe"
+    } else {
+        "maplecode"
+    }
 }
 
 fn parse_maplecode_version(output: &str) -> Result<String> {

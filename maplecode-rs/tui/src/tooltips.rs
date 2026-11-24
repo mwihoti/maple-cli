@@ -1,10 +1,10 @@
 use crate::keymap::RuntimeKeymap;
 use crate::keymap::keymap_action_id;
 use crate::terminal_hyperlinks::HyperlinkLine;
+use lazy_static::lazy_static;
 use maplecode_config::types::TuiKeymap;
 use maplecode_features::FEATURES;
 use maplecode_protocol::account::PlanType;
-use lazy_static::lazy_static;
 use rand::Rng;
 use rand::seq::IteratorRandom;
 use std::path::Path;

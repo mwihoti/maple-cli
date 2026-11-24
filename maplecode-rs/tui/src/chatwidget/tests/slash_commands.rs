@@ -2275,9 +2275,10 @@ async fn assert_daybreak_catalog_and_account_gates(provider_id: &str) {
     assert!(!chat.daybreak_account_eligible());
     chat.config.model_provider_id = provider_id.into();
     let mut model = crate::test_support::TEST_MODEL_PRESETS[0].clone();
-    model.available_access_programs = Some(maplecode_protocol::openai_models::ModelAccessPrograms {
-        cyber: vec![maplecode_protocol::turn_input::CyberAccessProgram::Standard],
-    });
+    model.available_access_programs =
+        Some(maplecode_protocol::openai_models::ModelAccessPrograms {
+            cyber: vec![maplecode_protocol::turn_input::CyberAccessProgram::Standard],
+        });
     chat.model_catalog = std::sync::Arc::new(ModelCatalog::new(vec![model.clone()]));
 
     chat.set_daybreak_enabled(/*enabled*/ false);

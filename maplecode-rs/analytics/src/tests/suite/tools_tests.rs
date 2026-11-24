@@ -1,12 +1,12 @@
 //! Tool item, Code Mode correlation, and artifact event tests.
 
 use crate::events::AppServerRpcTransport;
+use crate::events::FinalApprovalOutcome;
 use crate::events::MapleCodeAppServerClientMetadata;
 use crate::events::MapleCodeCommandExecutionEventParams;
 use crate::events::MapleCodeCommandExecutionEventRequest;
 use crate::events::MapleCodeRuntimeMetadata;
 use crate::events::MapleCodeToolItemEventBase;
-use crate::events::FinalApprovalOutcome;
 use crate::events::ToolEventType;
 use crate::events::ToolItemTerminalStatus;
 use crate::events::TrackEventRequest;
@@ -410,7 +410,10 @@ async fn item_lifecycle_notifications_publish_command_execution_event() {
     assert_eq!(payload[0]["event_params"]["model_slug"], "invoking-model");
     assert_eq!(payload[0]["event_params"]["sandbox_backend"], "windows_mxc");
     assert_eq!(payload[0]["event_params"]["reasoning_effort"], "max");
-    assert_eq!(payload[0]["event_type"], "maplecode_command_execution_event");
+    assert_eq!(
+        payload[0]["event_type"],
+        "maplecode_command_execution_event"
+    );
     assert_eq!(payload[0]["event_params"]["thread_id"], "thread-1");
     assert_eq!(payload[0]["event_params"]["session_id"], "session-thread-1");
     assert_eq!(payload[0]["event_params"]["turn_id"], "turn-1");

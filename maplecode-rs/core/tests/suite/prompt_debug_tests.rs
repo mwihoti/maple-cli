@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
 use anyhow::Result;
+use core_test_support::responses::strip_metadata;
+use core_test_support::responses::strip_response_item_id;
+use core_test_support::responses::user_message_item;
 use maplecode_core::build_prompt_input;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_core::config::ConfigOverrides;
@@ -15,9 +18,6 @@ use maplecode_home::MapleCodeHomeUserInstructionsProvider;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses::strip_metadata;
-use core_test_support::responses::strip_response_item_id;
-use core_test_support::responses::user_message_item;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 

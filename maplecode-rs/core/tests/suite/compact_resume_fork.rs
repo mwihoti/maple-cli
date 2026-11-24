@@ -9,6 +9,16 @@ use super::compact::FIRST_REPLY;
 use super::compact::SUMMARY_TEXT;
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::ThreadIdle;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::MapleCodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_core::TurnInputRequest;
@@ -24,16 +34,6 @@ use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::ThreadIdle;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -615,7 +615,12 @@ async fn mount_second_compact_sequence(server: &MockServer) -> ResponseMock {
 async fn start_test_conversation(
     server: &MockServer,
     model: Option<&str>,
-) -> (Arc<TempDir>, Config, Arc<ThreadManager>, Arc<MapleCodeThread>) {
+) -> (
+    Arc<TempDir>,
+    Config,
+    Arc<ThreadManager>,
+    Arc<MapleCodeThread>,
+) {
     let base_url = format!("{}/v1", server.uri());
     let model = model.map(str::to_string);
     let mut extensions = ExtensionRegistryBuilder::new();

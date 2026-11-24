@@ -167,7 +167,9 @@ pub(super) async fn unsupported(daemon: &Daemon) -> Result<UpdateOutput> {
     let managed_maplecode_path = daemon.current_managed_maplecode_bin()?;
     Ok(UpdateOutput {
         status: UpdateStatus::Unsupported,
-        installed_version: managed_maplecode_version(&managed_maplecode_path).await.ok(),
+        installed_version: managed_maplecode_version(&managed_maplecode_path)
+            .await
+            .ok(),
         running_version: client::probe(&daemon.socket_path)
             .await
             .ok()

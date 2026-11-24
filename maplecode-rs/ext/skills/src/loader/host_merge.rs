@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::Arc;
 
+use futures::FutureExt;
+use futures::StreamExt;
 use maplecode_exec_server::EnvironmentAccessKey;
 use maplecode_protocol::protocol::Product;
 use maplecode_protocol::protocol::SkillScope;
@@ -10,8 +12,6 @@ use maplecode_skills::SkillRootSnapshots;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_plugins::PluginSkillRoot;
 use maplecode_utils_plugins::migrated_command_skills_root;
-use futures::FutureExt;
-use futures::StreamExt;
 use tokio::sync::OnceCell;
 use tokio::sync::Semaphore;
 

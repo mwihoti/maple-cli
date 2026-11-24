@@ -1,5 +1,20 @@
 use anyhow::Result;
 use anyhow::anyhow;
+use core_test_support::PathBufExt;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses;
+use core_test_support::responses::ev_reasoning_item;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::strip_response_item_ids_from_json;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::test_path_buf;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::compact::SUMMARIZATION_PROMPT;
 use maplecode_core::compact::SUMMARY_PREFIX;
@@ -25,12 +40,12 @@ use maplecode_protocol::openai_models::ModelServiceTier;
 use maplecode_protocol::openai_models::ModelsResponse;
 use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::HookEventName;
 use maplecode_protocol::protocol::HookRunStatus;
 use maplecode_protocol::protocol::ItemCompletedEvent;
 use maplecode_protocol::protocol::ItemStartedEvent;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::request_user_input::RequestUserInputAnswer;
@@ -38,21 +53,6 @@ use maplecode_protocol::request_user_input::RequestUserInputResponse;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses;
-use core_test_support::responses::ev_reasoning_item;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::strip_response_item_ids_from_json;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::test_path_buf;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use std::path::PathBuf;
 
 use core_test_support::responses::ev_assistant_message;
@@ -449,7 +449,9 @@ fn assert_pre_sampling_switch_compaction_requests(
     );
 }
 
-async fn assert_compaction_uses_turn_lifecycle_id(maplecode: &std::sync::Arc<maplecode_core::MapleCodeThread>) {
+async fn assert_compaction_uses_turn_lifecycle_id(
+    maplecode: &std::sync::Arc<maplecode_core::MapleCodeThread>,
+) {
     let mut turn_started_id = None;
     let mut turn_completed_id = None;
     let mut compact_started_id = None;
@@ -821,7 +823,10 @@ async fn manual_pre_compact_block_decision_does_not_block_compaction() {
         .expect("submit first user turn");
     wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
-    maplecode.submit(Op::Compact).await.expect("trigger compact");
+    maplecode
+        .submit(Op::Compact)
+        .await
+        .expect("trigger compact");
 
     let completed = wait_for_event_match(&maplecode, |ev| match ev {
         EventMsg::HookCompleted(completed)
@@ -842,7 +847,11 @@ async fn manual_pre_compact_block_decision_does_not_block_compaction() {
         "unsupported PreCompact block output should not prevent the compact request"
     );
 
-    let hook_inputs = read_hook_inputs(&test.maplecode_home_path().join("pre_compact_block_log.jsonl"));
+    let hook_inputs = read_hook_inputs(
+        &test
+            .maplecode_home_path()
+            .join("pre_compact_block_log.jsonl"),
+    );
     assert_eq!(hook_inputs.len(), 1);
     let input = &hook_inputs[0];
     assert_eq!(input["hook_event_name"], "PreCompact");
@@ -887,7 +896,10 @@ async fn compact_hooks_respect_matchers_and_post_runs_after_compaction() {
         .expect("submit first user turn");
     wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
-    maplecode.submit(Op::Compact).await.expect("trigger compact");
+    maplecode
+        .submit(Op::Compact)
+        .await
+        .expect("trigger compact");
     wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(request_log.requests().len(), 2);
@@ -899,8 +911,11 @@ async fn compact_hooks_respect_matchers_and_post_runs_after_compaction() {
         "auto matcher should not run for manual compaction"
     );
 
-    let hook_inputs =
-        read_hook_inputs(&test.maplecode_home_path().join("post_compact_manual_log.jsonl"));
+    let hook_inputs = read_hook_inputs(
+        &test
+            .maplecode_home_path()
+            .join("post_compact_manual_log.jsonl"),
+    );
     assert_eq!(hook_inputs.len(), 1);
     let input = &hook_inputs[0];
     assert_eq!(input["hook_event_name"], "PostCompact");
@@ -950,7 +965,10 @@ async fn manual_compact_uses_custom_prompt() {
         .expect("submit first user turn");
     wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
-    maplecode.submit(Op::Compact).await.expect("trigger compact");
+    maplecode
+        .submit(Op::Compact)
+        .await
+        .expect("trigger compact");
     wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let requests = request_log.requests();
@@ -1429,7 +1447,11 @@ async fn failed_compaction_preserves_history_after_restart() -> Result<()> {
     let test = builder.build_with_auto_env(&server).await?;
     test.submit_turn("inspect the original state").await?;
     assert_eq!(initial.requests().len(), 2);
-    let original_usage = test.maplecode.token_usage_info().await.expect("original usage");
+    let original_usage = test
+        .maplecode
+        .token_usage_info()
+        .await
+        .expect("original usage");
 
     let failed_compaction = mount_sse_once(
         &server,
@@ -1452,7 +1474,10 @@ async fn failed_compaction_preserves_history_after_restart() -> Result<()> {
         errors,
         vec!["stream disconnected before completion: stream closed before response.completed"]
     );
-    assert_eq!(test.maplecode.token_usage_info().await, Some(original_usage));
+    assert_eq!(
+        test.maplecode.token_usage_info().await,
+        Some(original_usage)
+    );
 
     let original_request = failed_compaction.single_request();
     let original_items = original_request
@@ -1648,7 +1673,10 @@ async fn manual_compact_emits_context_compaction_items() {
         }]))
         .await
         .unwrap();
-    wait_for_event(maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let compact_turn_id = maplecode.submit(Op::Compact).await.unwrap();
     for item in &mut expected_raw_items {
@@ -1703,8 +1731,8 @@ async fn manual_compact_emits_context_compaction_items() {
         Some(expected_raw_items.clone())
     );
 
-    let rollout =
-        fs::read_to_string(test.maplecode.rollout_path().expect("rollout path")).expect("read rollout");
+    let rollout = fs::read_to_string(test.maplecode.rollout_path().expect("rollout path"))
+        .expect("read rollout");
     let persisted_output = rollout
         .lines()
         .map(|line| {
@@ -1847,7 +1875,10 @@ async fn multiple_auto_compact_per_task_runs_after_token_limit_hit() {
         ))
         .await
         .expect("submit user input");
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     // collect the requests payloads from the model
     let requests_payloads = request_log.requests();
@@ -3660,7 +3691,10 @@ async fn manual_remote_compact_advice_respects_retry_limit(max_retries: u64) {
         .await
         .expect("build maplecode");
 
-    test.maplecode.submit(Op::Compact).await.expect("run /compact");
+    test.maplecode
+        .submit(Op::Compact)
+        .await
+        .expect("run /compact");
     let mut errors = Vec::new();
     let mut reconnect_messages = Vec::new();
     loop {
@@ -4645,7 +4679,10 @@ async fn manual_compact_non_context_failure_retries_then_emits_task_error() {
         .expect("submit user input");
     wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
-    maplecode.submit(Op::Compact).await.expect("trigger compact");
+    maplecode
+        .submit(Op::Compact)
+        .await
+        .expect("trigger compact");
 
     let reconnect_message = wait_for_event_match(&maplecode, |event| match event {
         EventMsg::StreamError(stream_error) => Some(stream_error.message.clone()),
@@ -5264,7 +5301,11 @@ async fn snapshot_request_shape_mid_turn_continuation_compaction() {
         config.model_context_window = Some(context_window);
         config.model_auto_compact_token_limit = Some(limit);
     });
-    let maplecode = builder.build_with_auto_env(&server).await.unwrap().maplecode;
+    let maplecode = builder
+        .build_with_auto_env(&server)
+        .await
+        .unwrap()
+        .maplecode;
     let continuation = r#"{"review_target":"RB._~:-opaque"}"#;
 
     maplecode
@@ -5381,7 +5422,10 @@ async fn auto_compact_clamps_config_limit_to_context_window() {
     let maplecode = builder.build(&server).await.unwrap();
 
     maplecode.submit_turn("OVER_LIMIT_TURN").await.unwrap();
-    maplecode.submit_turn("FOLLOW_UP_AFTER_CLAMP").await.unwrap();
+    maplecode
+        .submit_turn("FOLLOW_UP_AFTER_CLAMP")
+        .await
+        .unwrap();
 
     assert!(
         first_turn_mock.single_request().input().iter().any(|item| {
@@ -5720,7 +5764,10 @@ async fn auto_compact_accounts_for_encrypted_reasoning(continuation: ContinueThr
                 .clone()
                 .expect("rollout path");
             let options = test.start_thread_options().await;
-            test.maplecode.shutdown_and_wait().await.expect("flush rollout");
+            test.maplecode
+                .shutdown_and_wait()
+                .await
+                .expect("flush rollout");
             test.maplecode = test
                 .thread_manager
                 .fork_legacy_thread(usize::MAX, options, path)

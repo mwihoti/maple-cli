@@ -11,9 +11,9 @@ use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
 use maplecode_login::TokenData;
 use maplecode_protocol::auth::AuthMode;
 use maplecode_protocol::error::MapleCodeErr;
@@ -80,7 +80,9 @@ async fn explicit_catalog_read_does_not_return_stale_success_after_refresh_failu
     let endpoint = TestModelsEndpoint::with_command_auth(vec![
         Ok(models.clone()),
         Err(MapleCodeErr::RequestTimeout),
-        Err(MapleCodeErr::InvalidRequest("fixture malformed catalog".into())),
+        Err(MapleCodeErr::InvalidRequest(
+            "fixture malformed catalog".into(),
+        )),
     ]);
     let manager =
         OpenAiModelsManager::new_without_cache(endpoint.clone(), None).with_provider_catalog();
@@ -93,7 +95,10 @@ async fn explicit_catalog_read_does_not_return_stale_success_after_refresh_failu
         .try_raw_model_catalog(RefreshStrategy::Online, DEFAULT_HTTP_CLIENT_FACTORY)
         .await
         .expect_err("explicit command must report timeout instead of stale data");
-    assert!(matches!(error.details(), MapleCodeErrorDetails::RequestTimeout));
+    assert!(matches!(
+        error.details(),
+        MapleCodeErrorDetails::RequestTimeout
+    ));
     // Existing best-effort conversation reads keep the last successful snapshot.
     assert_eq!(
         manager
@@ -399,7 +404,10 @@ where
     F: FnOnce(&mut ModelsCacheEntry),
 {
     let client_version = crate::client_version_to_whole();
-    let cache = FileModelsCache::new(maplecode_home.join(MODEL_CACHE_FILE), DEFAULT_MODEL_CACHE_TTL);
+    let cache = FileModelsCache::new(
+        maplecode_home.join(MODEL_CACHE_FILE),
+        DEFAULT_MODEL_CACHE_TTL,
+    );
     let mut entry = cache
         .load(&client_version)
         .await
@@ -678,9 +686,9 @@ async fn injected_cache_ttl_refresh_preserves_cached_payload() {
     let manager = OpenAiModelsManager::new_with_cache(
         cache.clone(),
         TestModelsEndpoint::new(Vec::new()),
-        Some(AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(
-            "test-api-key",
-        ))),
+        Some(AuthManager::from_auth_for_testing(
+            MapleCodeAuth::from_api_key("test-api-key"),
+        )),
     );
     manager.set_api_key_model_discovery_enabled(/*enabled*/ true);
 
@@ -1191,9 +1199,9 @@ async fn refresh_available_models_keeps_merging_for_custom_api_auth() {
     let manager = openai_manager_for_tests_with_auth(
         maplecode_home.path().to_path_buf(),
         endpoint.clone(),
-        Some(AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(
-            "test-api-key",
-        ))),
+        Some(AuthManager::from_auth_for_testing(
+            MapleCodeAuth::from_api_key("test-api-key"),
+        )),
     );
     let mut expected = load_remote_models_from_file().expect("bundled models should parse");
     expected.extend(remote_models);
@@ -1329,7 +1337,9 @@ async fn authoritative_catalog_refresh_failure_preserves_snapshot_and_freshness(
         catalog_http_error(/*status*/ 503),
         catalog_http_error(/*status*/ 404),
         MapleCodeErr::InvalidRequest("malformed catalog".to_string()),
-        MapleCodeErr::InvalidRequest(maplecode_login::GatewayAuthError::LoginInProgress.to_string()),
+        MapleCodeErr::InvalidRequest(
+            maplecode_login::GatewayAuthError::LoginInProgress.to_string(),
+        ),
     ] {
         let cache = Arc::new(TestModelsCache::default());
         let mut model = remote_model("provider-model", "Provider Model", /*priority*/ 0);

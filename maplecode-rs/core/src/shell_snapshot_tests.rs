@@ -9,6 +9,8 @@ use crate::tools::runtimes::RuntimePathPrepends;
 use crate::tools::runtimes::maybe_wrap_shell_lc_with_snapshot;
 #[cfg(unix)]
 use crate::tools::runtimes::prepare_brokered_shell_snapshot_env;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
 #[cfg(unix)]
 use maplecode_network_proxy::CredentialProviderConfig;
 #[cfg(unix)]
@@ -19,8 +21,6 @@ use maplecode_protocol::config_types::EnvironmentVariablePattern;
 use maplecode_protocol::models::PermissionProfile;
 #[cfg(unix)]
 use maplecode_protocol::sandbox::SandboxOverride;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
 use pretty_assertions::assert_eq;
 #[cfg(unix)]
 use std::os::unix::ffi::OsStrExt;
@@ -467,7 +467,10 @@ async fn inactive_profiles_keep_snapshots_but_active_brokers_require_sandbox() -
     .await?;
     config.shell_environment_policy.r#set.insert(
         "BASH_ENV".into(),
-        dir.path().join(".maplecode/startup.sh").display().to_string(),
+        dir.path()
+            .join(".maplecode/startup.sh")
+            .display()
+            .to_string(),
     );
     environments.set_snapshot_credential_broker(SnapshotCredentialBrokerState::Ready(
         started_proxy.proxy(),

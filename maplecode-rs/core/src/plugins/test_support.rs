@@ -87,7 +87,10 @@ pub(crate) fn write_curated_plugin_sha(maplecode_home: &Path) {
 }
 
 pub(crate) fn write_curated_plugin_sha_with(maplecode_home: &Path, sha: &str) {
-    write_file(&maplecode_home.join(".tmp/plugins.sha"), &format!("{sha}\n"));
+    write_file(
+        &maplecode_home.join(".tmp/plugins.sha"),
+        &format!("{sha}\n"),
+    );
 }
 
 pub(crate) fn write_plugins_feature_config(maplecode_home: &Path) {

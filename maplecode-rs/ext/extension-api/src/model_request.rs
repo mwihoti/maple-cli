@@ -1,9 +1,9 @@
 //! Request-scoped interception of model response streams.
 use crate::ExtensionFuture;
+use futures::stream::BoxStream;
 pub use maplecode_api::ApiError as ModelResponseError;
 pub use maplecode_api::GuardianAssessment;
 pub use maplecode_api::ResponseEvent;
-use futures::stream::BoxStream;
 use std::collections::HashMap;
 
 /// Model response events owned by an interceptor or its downstream consumer.

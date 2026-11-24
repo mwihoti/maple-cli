@@ -160,9 +160,11 @@ pub(crate) fn prepare(
         None
     } else {
         Some(
-            maplecode_windows_sandbox::string_from_sid_bytes(&maplecode_windows_sandbox::resolve_sid(
-                maplecode_windows_sandbox::SANDBOX_USERS_GROUP,
-            )?)
+            maplecode_windows_sandbox::string_from_sid_bytes(
+                &maplecode_windows_sandbox::resolve_sid(
+                    maplecode_windows_sandbox::SANDBOX_USERS_GROUP,
+                )?,
+            )
             .map_err(anyhow::Error::msg)?,
         )
     };

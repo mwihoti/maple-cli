@@ -4,6 +4,7 @@ use app_test_support::TestAppServer;
 use app_test_support::create_fake_paginated_rollout;
 use app_test_support::create_fake_rollout;
 use app_test_support::create_mock_responses_server_repeating_assistant;
+use core_test_support::responses;
 use maplecode_app_server_protocol::ClientInfo;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::JSONRPCError;
@@ -37,7 +38,6 @@ use maplecode_protocol::ThreadId;
 use maplecode_state::DirectionalThreadSpawnEdgeStatus;
 use maplecode_state::StateRuntime;
 use maplecode_utils_absolute_path::test_support::PathExt;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -319,9 +319,13 @@ async fn thread_archive_without_turns(history_mode: ThreadHistoryMode) -> Result
         rollout_path.display()
     );
     assert!(
-        find_thread_path_by_id_str(maplecode_home.path(), &thread.id, /*state_db_ctx*/ None)
-            .await?
-            .is_none(),
+        find_thread_path_by_id_str(
+            maplecode_home.path(),
+            &thread.id,
+            /*state_db_ctx*/ None
+        )
+        .await?
+        .is_none(),
         "thread id should not be discoverable before rollout materialization"
     );
 
@@ -825,9 +829,13 @@ async fn thread_archive_succeeds_when_spawned_descendant_is_missing() -> Result<
     assert_eq!(archived_notification.thread_id, parent_id);
 
     assert!(
-        find_thread_path_by_id_str(maplecode_home.path(), &parent_id, /*state_db_ctx*/ None)
-            .await?
-            .is_none(),
+        find_thread_path_by_id_str(
+            maplecode_home.path(),
+            &parent_id,
+            /*state_db_ctx*/ None
+        )
+        .await?
+        .is_none(),
         "parent should be archived even when a descendant is missing"
     );
     assert!(

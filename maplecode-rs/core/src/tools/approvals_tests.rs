@@ -117,7 +117,10 @@ async fn non_utf8_cwd_preserves_approval_routing(
     let (mut session, turn, events) = make_session_and_context_with_rx().await;
     let mut extensions = maplecode_extension_api::ExtensionRegistryBuilder::new();
     extensions.approval_review_contributor(Arc::new(Contributor {
-        cwd: maplecode_utils_path_uri::LegacyAppPathString::from_path_uri(&cwd, PathConvention::Posix)?,
+        cwd: maplecode_utils_path_uri::LegacyAppPathString::from_path_uri(
+            &cwd,
+            PathConvention::Posix,
+        )?,
         decision,
     }));
     Arc::get_mut(&mut session)

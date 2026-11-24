@@ -293,7 +293,10 @@ fn render_markdown_transcript(cells: &[Arc<dyn HistoryCell>]) -> Result<String, 
         }
     }
     if markdown
-        != crate::history_cell::branded("# Maple Code conversation\n", "# Maple Code conversation\n")
+        != crate::history_cell::branded(
+            "# Maple Code conversation\n",
+            "# Maple Code conversation\n",
+        )
     {
         Ok(markdown)
     } else {

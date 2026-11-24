@@ -5,6 +5,9 @@ use std::time::Duration;
 
 use anyhow::Result;
 use bytes::Bytes;
+use http::HeaderMap;
+use http::HeaderValue;
+use http::StatusCode;
 use maplecode_api::ApiError;
 use maplecode_api::AuthError;
 use maplecode_api::AuthProvider;
@@ -24,9 +27,6 @@ use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
-use http::HeaderMap;
-use http::HeaderValue;
-use http::StatusCode;
 use pretty_assertions::assert_eq;
 use serde_json::value::RawValue;
 

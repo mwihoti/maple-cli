@@ -157,7 +157,8 @@ pub struct SandboxTransformRequest<'a> {
 pub struct SandboxDirectSpawnTransformRequest<'a> {
     pub transform: SandboxTransformRequest<'a>,
     pub workspace_roots: &'a [AbsolutePathBuf],
-    pub windows_sandbox_proxy_settings_mode: maplecode_windows_sandbox::WindowsSandboxProxySettingsMode,
+    pub windows_sandbox_proxy_settings_mode:
+        maplecode_windows_sandbox::WindowsSandboxProxySettingsMode,
 }
 
 // TODO(anp): Revisit this preparation type once this module's PathUri migration is complete.
@@ -686,7 +687,9 @@ impl SandboxManager {
     ) -> Result<SandboxExecRequest, SandboxTransformError> {
         #[cfg(windows)]
         {
-            self.transform_for_direct_spawn_with_maplecode_home(request, /*maplecode_home*/ None)
+            self.transform_for_direct_spawn_with_maplecode_home(
+                request, /*maplecode_home*/ None,
+            )
         }
         #[cfg(not(windows))]
         {

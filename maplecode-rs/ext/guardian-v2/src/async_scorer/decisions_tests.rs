@@ -125,7 +125,8 @@ async fn decisions_key_lookup_honors_override_or_reloaded_login() {
     let mut config = core_test_support::load_default_config_for_test(&home).await;
     config.features.enable(RuntimeAgentInstances).unwrap();
     let runtime =
-        maplecode_core::build_runtime_auth_manager(&config, manager.clone(), "installation").unwrap();
+        maplecode_core::build_runtime_auth_manager(&config, manager.clone(), "installation")
+            .unwrap();
     let mut context = ProviderAuthContext {
         credentials: manager.clone(),
         runtime_auth: Some((runtime, config.runtime_auth_mode)),
@@ -367,7 +368,8 @@ async fn decisions_admits_newest_request_by_cancelling_oldest() {
     let stale = sampler.start_conversation_comparison(&input);
     let store = maplecode_login::AuthCredentialsStoreMode::File;
     let keyring = maplecode_login::AuthKeyringBackendKind::default();
-    let login = |key| maplecode_login::login_with_api_key(home.path(), key, store, keyring).unwrap();
+    let login =
+        |key| maplecode_login::login_with_api_key(home.path(), key, store, keyring).unwrap();
     login("replacement-key");
     manager.reload().await;
     let mut remaining = (2..MAX_CONCURRENT_REQUESTS)
@@ -494,20 +496,21 @@ async fn cancelling_a_decisions_request_releases_thread_capacity() {
 async fn decisions_reuses_saved_runtime_and_isolates_an_identical_explicit_key()
 -> anyhow::Result<()> {
     use base64::Engine;
+    use core_test_support::runtime_auth::PROBE_SERVER;
+    use core_test_support::runtime_auth::run_harness_through_proxy;
     use maplecode_features::RuntimeAuthMode;
     use maplecode_model_provider::ProviderAuthContext;
     use maplecode_runtime_agent_instance::AgentHostAuthorization;
     use maplecode_runtime_agent_instance::RuntimeAuthManager;
     use maplecode_runtime_agent_instance::RuntimeRegistrationMetadata;
     use maplecode_runtime_agent_instance::RuntimeRole;
-    use core_test_support::runtime_auth::PROBE_SERVER;
-    use core_test_support::runtime_auth::run_harness_through_proxy;
     use std::sync::atomic::AtomicUsize;
     use std::sync::atomic::Ordering;
 
     core_test_support::skip_if_no_network!(Ok(()));
     if std::env::var_os(PROBE_SERVER).is_some() {
-        let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("same-key"));
+        let credentials =
+            AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("same-key"));
         let runtime = Arc::new(RuntimeAuthManager::new(
             Arc::clone(&credentials),
             AgentHostAuthorization::InstallationId {
@@ -634,6 +637,8 @@ async fn decisions_reuses_saved_runtime_and_isolates_an_identical_explicit_key()
 #[tokio::test]
 async fn decisions_preserves_platform_wif_credentials() -> anyhow::Result<()> {
     use base64::Engine;
+    use core_test_support::runtime_auth::PROBE_SERVER;
+    use core_test_support::runtime_auth::run_harness_through_proxy_with_env;
     use maplecode_features::RuntimeAuthMode;
     use maplecode_login::AuthConfig;
     use maplecode_login::AuthCredentialsStoreMode;
@@ -643,8 +648,6 @@ async fn decisions_preserves_platform_wif_credentials() -> anyhow::Result<()> {
     use maplecode_runtime_agent_instance::RuntimeAuthManager;
     use maplecode_runtime_agent_instance::RuntimeRegistrationMetadata;
     use maplecode_runtime_agent_instance::RuntimeRole;
-    use core_test_support::runtime_auth::PROBE_SERVER;
-    use core_test_support::runtime_auth::run_harness_through_proxy_with_env;
 
     core_test_support::skip_if_no_network!(Ok(()));
     if std::env::var_os(PROBE_SERVER).is_some() {

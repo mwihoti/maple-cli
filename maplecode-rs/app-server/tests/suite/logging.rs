@@ -10,6 +10,10 @@ use app_test_support::create_final_assistant_message_sse_response;
 use app_test_support::create_mock_responses_server_sequence;
 use app_test_support::encode_id_token;
 use app_test_support::write_models_cache;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
 use maplecode_app_server_protocol::ApprovalsReviewer;
 use maplecode_app_server_protocol::AskForApproval;
 use maplecode_app_server_protocol::ClientInfo;
@@ -32,10 +36,6 @@ use maplecode_app_server_protocol::UserInput;
 use maplecode_features::Feature;
 use maplecode_state::LogQuery;
 use maplecode_state::StateRuntime;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -479,7 +479,8 @@ async fn sqlite_log_metrics_exports_do_not_create_log_cycles() -> Result<()> {
             loop {
                 let requests = collector.received_requests().await.unwrap_or_default();
                 if requests.iter().any(|request| {
-                    String::from_utf8_lossy(&request.body).contains(maplecode_state::LOG_WRITE_METRIC)
+                    String::from_utf8_lossy(&request.body)
+                        .contains(maplecode_state::LOG_WRITE_METRIC)
                 }) {
                     break requests.len();
                 }
@@ -509,7 +510,10 @@ async fn sqlite_log_metrics_exports_do_not_create_log_cycles() -> Result<()> {
             (maplecode_state::LOG_WRITE_DURATION_METRIC, "histogram"),
             (maplecode_state::LOG_WRITE_BYTES_METRIC, "histogram"),
             (maplecode_state::LOG_WRITE_ENTRIES_METRIC, "histogram"),
-            (maplecode_state::LOG_WRITE_MAX_ENTRY_BYTES_METRIC, "histogram"),
+            (
+                maplecode_state::LOG_WRITE_MAX_ENTRY_BYTES_METRIC,
+                "histogram",
+            ),
         ];
         let payloads = requests
             .iter()
@@ -596,7 +600,9 @@ async fn sqlite_log_metrics_exports_do_not_create_log_cycles() -> Result<()> {
             "test-provider".to_string(),
         )
         .await?;
-        let persisted_logs = state.query_logs(&maplecode_state::LogQuery::default()).await?;
+        let persisted_logs = state
+            .query_logs(&maplecode_state::LogQuery::default())
+            .await?;
         assert_eq!(
             observed_metrics[maplecode_state::LOG_WRITE_ENTRIES_METRIC].1,
             persisted_logs.len() as f64,

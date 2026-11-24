@@ -11,12 +11,12 @@ use maplecode_core_plugin_common::plugin_id;
 mod provider;
 
 pub use bundled_hooks::is_allowlisted_bundled_cleanup_hook;
-use maplecode_config::HookEventsToml;
-use maplecode_utils_absolute_path::AbsolutePathBuf;
-use maplecode_utils_path_uri::PathUri;
 pub use load_outcome::LoadedPlugin;
 pub use load_outcome::PluginLoadOutcome;
 pub use load_outcome::prompt_safe_plugin_description;
+use maplecode_config::HookEventsToml;
+use maplecode_utils_absolute_path::AbsolutePathBuf;
+use maplecode_utils_path_uri::PathUri;
 pub use plugin_id::PluginId;
 pub use plugin_id::PluginIdError;
 pub use plugin_id::validate_plugin_segment;

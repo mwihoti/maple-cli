@@ -14,11 +14,11 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Result;
+use futures::FutureExt as _;
 use maplecode_rmcp_client::ElicitationAction;
 use maplecode_rmcp_client::ElicitationResponse;
 use maplecode_rmcp_client::LocalStdioServerLauncher;
 use maplecode_rmcp_client::RmcpClient;
-use futures::FutureExt as _;
 use pretty_assertions::assert_eq;
 use rmcp::model::ClientCapabilities;
 use rmcp::model::Implementation;
@@ -168,7 +168,10 @@ async fn local_stdio_preserves_exec_failure_reporting() -> Result<()> {
     let temporary = tempfile::tempdir()?;
     let script = temporary.path().join("missing-interpreter");
     let interpreter = temporary.path().join("does-not-exist");
-    maplecode_utils_cargo_bin::write_executable(&script, &format!("#!{}\n", interpreter.display()))?;
+    maplecode_utils_cargo_bin::write_executable(
+        &script,
+        &format!("#!{}\n", interpreter.display()),
+    )?;
 
     // Program resolution succeeds, but exec fails. Descriptor cleanup must
     // preserve the internal error pipe so launch reports the failure directly.

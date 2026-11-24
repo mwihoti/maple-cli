@@ -107,7 +107,8 @@ fn freshness_probe_defers_plugin_validation_until_full_read() {
     let key = RemotePluginCatalogCacheKey::new(&config, &auth, scope, /*collection*/ None)
         .expect("global cache key");
     let path = cache_path(maplecode_home.path(), &key);
-    let probe = |mode| has_cached_directory_plugins(maplecode_home.path(), &config, &auth, scope, mode);
+    let probe =
+        |mode| has_cached_directory_plugins(maplecode_home.path(), &config, &auth, scope, mode);
     let version = REMOTE_PLUGIN_CATALOG_DISK_CACHE_SCHEMA_VERSION;
     let now = serde_json::to_string(&Utc::now()).expect("serialize timestamp");
     let expired_at = "2000-01-01T00:00:00Z";
@@ -155,7 +156,8 @@ fn freshness_probe_defers_plugin_validation_until_full_read() {
         "fetched_at": Utc::now(),
         "plugins": [{}],
     });
-    maplecode_utils_path::write_atomically(&path, &contents.to_string()).expect("write invalid plugin");
+    maplecode_utils_path::write_atomically(&path, &contents.to_string())
+        .expect("write invalid plugin");
     assert!(probe(RemotePluginCatalogCacheMode::PreferFreshCache));
     assert!(
         load_cached_directory_plugins::<RemotePluginDirectoryItem>(

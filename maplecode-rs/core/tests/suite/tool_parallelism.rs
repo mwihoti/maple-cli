@@ -1,21 +1,13 @@
 #![cfg(not(target_os = "windows"))]
 #![allow(clippy::unwrap_used)]
 
+use core_test_support::test_maplecode::local_requests;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
-use core_test_support::test_maplecode::local_requests;
 use std::fs;
 use std::time::Duration;
 use std::time::Instant;
 
-use maplecode_protocol::config_types::CollaborationMode;
-use maplecode_protocol::config_types::ModeKind;
-use maplecode_protocol::config_types::Settings;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_exec_command_call_with_args;
@@ -32,6 +24,14 @@ use core_test_support::test_maplecode::TestMapleCode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
+use maplecode_protocol::config_types::CollaborationMode;
+use maplecode_protocol::config_types::ModeKind;
+use maplecode_protocol::config_types::Settings;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -66,12 +66,17 @@ async fn run_turn(test: &TestMapleCode, prompt: &str) -> anyhow::Result<()> {
         )
         .await?;
 
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     Ok(())
 }
 
-async fn build_maplecode_with_test_tool(server: &wiremock::MockServer) -> anyhow::Result<TestMapleCode> {
+async fn build_maplecode_with_test_tool(
+    server: &wiremock::MockServer,
+) -> anyhow::Result<TestMapleCode> {
     let mut builder = test_maplecode().with_model("test-gpt-5.1-codex");
     builder.build(server).await
 }
@@ -402,7 +407,10 @@ async fn shell_tools_start_before_response_completed_when_stream_delayed() -> an
     .await??;
 
     let _ = completion_gate_tx.send(());
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let mut completion_iter = completion_receivers.into_iter();
     let completed_at = completion_iter

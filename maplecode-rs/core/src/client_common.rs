@@ -1,3 +1,4 @@
+use futures::Stream;
 pub use maplecode_api::ResponseEvent;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::models::BaseInstructions;
@@ -8,7 +9,6 @@ use maplecode_protocol::models::ImageDetail;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ModelInfo;
 use maplecode_tools::ToolSpec;
-use futures::Stream;
 use serde_json::Value;
 use std::pin::Pin;
 use std::sync::Arc;

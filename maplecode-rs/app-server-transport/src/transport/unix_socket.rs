@@ -10,11 +10,11 @@ use crate::transport::websocket::run_websocket_connection;
 use crate::websocket_compression::WEBSOCKET_COMPRESSION_HEADER;
 use crate::websocket_compression::WebSocketCompression;
 use crate::websocket_compression::ZSTD_STREAM_PROTOCOL;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_uds::UnixListener;
 use maplecode_uds::UnixStream;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use futures::SinkExt;
-use futures::StreamExt;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
 use tokio::time::Duration;
@@ -331,7 +331,8 @@ pub fn verified_local_daemon_socket(socket_path: &Path) -> IoResult<Option<Absol
         if std::fs::read_link(socket_path).ok().as_deref() != Some(protected.as_path()) {
             return Ok(None);
         }
-        let directory = std::fs::symlink_metadata(maplecode_uds::shared_daemon_socket_directory()?)?;
+        let directory =
+            std::fs::symlink_metadata(maplecode_uds::shared_daemon_socket_directory()?)?;
         // Match the daemon's bind-time check without creating or repairing the directory.
         if directory.is_dir()
             && directory.uid() == unsafe { libc::geteuid() }

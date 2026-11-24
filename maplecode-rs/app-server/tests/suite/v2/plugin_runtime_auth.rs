@@ -3,10 +3,10 @@
 use super::*;
 use anyhow::Context;
 use base64::Engine;
-use maplecode_app_server_protocol::PluginUninstallParams;
-use maplecode_app_server_protocol::PluginUninstallResponse;
 use core_test_support::runtime_auth::PROBE_SERVER;
 use core_test_support::runtime_auth::run_harness_through_proxy;
+use maplecode_app_server_protocol::PluginUninstallParams;
+use maplecode_app_server_protocol::PluginUninstallResponse;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 

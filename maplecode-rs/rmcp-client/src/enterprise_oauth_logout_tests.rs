@@ -3,12 +3,12 @@
 use std::fs;
 use std::path::PathBuf;
 
+use futures::FutureExt;
+use futures::future::BoxFuture;
 use maplecode_exec_server::ExecServerError;
 use maplecode_exec_server::HttpRequestParams;
 use maplecode_exec_server::HttpRequestResponse;
 use maplecode_exec_server::HttpResponseBodyStream;
-use futures::FutureExt;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 use sha2::Digest;
 use sha2::Sha256;

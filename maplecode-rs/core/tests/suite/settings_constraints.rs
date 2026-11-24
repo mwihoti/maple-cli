@@ -1,4 +1,8 @@
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::MapleCodeThread;
 use maplecode_core::TurnInputRequest;
@@ -20,18 +24,14 @@ use maplecode_protocol::permissions::FileSystemSandboxPolicy;
 use maplecode_protocol::permissions::FileSystemSpecialPath;
 use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::protocol::ThreadSettingsSnapshot;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use std::time::Duration;
 use test_case::test_case;
@@ -277,7 +277,10 @@ impl SettingsOperation {
                 match event.msg {
                     EventMsg::ThreadSettingsApplied(applied) => return Ok(applied.thread_settings),
                     EventMsg::Error(error) => {
-                        assert_eq!(error.maplecode_error_info, Some(MapleCodeErrorInfo::BadRequest));
+                        assert_eq!(
+                            error.maplecode_error_info,
+                            Some(MapleCodeErrorInfo::BadRequest)
+                        );
                         anyhow::bail!(error.message);
                     }
                     _ => {}

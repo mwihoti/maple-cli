@@ -6,8 +6,8 @@ use maplecode_config::ScopedSkillsConfig;
 use crate::ExecServerError;
 use crate::client_api::DEFAULT_REMOTE_EXEC_SERVER_CONNECT_TIMEOUT;
 use crate::client_api::ExecServerTransportParams;
-use crate::environment::MAPLECODE_EXEC_SERVER_URL_ENV_VAR;
 use crate::environment::LOCAL_ENVIRONMENT_ID;
+use crate::environment::MAPLECODE_EXEC_SERVER_URL_ENV_VAR;
 use crate::environment::REMOTE_ENVIRONMENT_ID;
 
 /// Lists the remote environment transports available to Maple Code.

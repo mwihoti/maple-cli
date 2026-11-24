@@ -3,6 +3,34 @@ use std::path::Path;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::TestTargetOs;
+use core_test_support::fs_wait;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_custom_tool_call;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_message_item_added;
+use core_test_support::responses::ev_output_text_delta;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_host_windows;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::test_target_os;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
 use maplecode_config::HookStateToml;
 use maplecode_config::McpServerConfig;
 use maplecode_config::test_support::CloudConfigBundleFixture;
@@ -45,34 +73,6 @@ use maplecode_protocol::request_user_input::RequestUserInputAnswer;
 use maplecode_protocol::request_user_input::RequestUserInputResponse;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::InMemoryThreadStore;
-use core_test_support::TestTargetOs;
-use core_test_support::fs_wait;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_custom_tool_call;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_message_item_added;
-use core_test_support::responses::ev_output_text_delta;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_host_windows;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::test_target_os;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -1138,7 +1138,8 @@ fn rollout_hook_prompt_texts(text: &str) -> Result<Vec<String>> {
         if trimmed.is_empty() {
             continue;
         }
-        let rollout = maplecode_rollout::parse_rollout_line(trimmed).context("parse rollout line")?;
+        let rollout =
+            maplecode_rollout::parse_rollout_line(trimmed).context("parse rollout line")?;
         if let RolloutItem::ResponseItem(envelope) = rollout.item
             && let ResponseItem::Message { role, content, .. } = envelope.item
             && role == "user"
@@ -6137,9 +6138,18 @@ async fn model_request_hooks_report_failures_and_retries_but_cannot_veto() -> Re
                 .contains("ignored-observer-control")
         );
     }
-    let pre = wait_for_hook_inputs(test.maplecode_home_path(), "PreModelRequest", /*count*/ 2).await?;
-    let post =
-        wait_for_hook_inputs(test.maplecode_home_path(), "PostModelRequest", /*count*/ 2).await?;
+    let pre = wait_for_hook_inputs(
+        test.maplecode_home_path(),
+        "PreModelRequest",
+        /*count*/ 2,
+    )
+    .await?;
+    let post = wait_for_hook_inputs(
+        test.maplecode_home_path(),
+        "PostModelRequest",
+        /*count*/ 2,
+    )
+    .await?;
     assert_eq!(pre.len(), 2);
     assert_eq!(post.len(), 2);
     assert_eq!(post[0]["status"], "failed");
@@ -6206,8 +6216,12 @@ async fn model_request_observer_reports_cancellation() -> Result<()> {
     test.maplecode
         .submit(maplecode_protocol::protocol::Op::Interrupt)
         .await?;
-    let post =
-        wait_for_hook_inputs(test.maplecode_home_path(), "PostModelRequest", /*count*/ 1).await?;
+    let post = wait_for_hook_inputs(
+        test.maplecode_home_path(),
+        "PostModelRequest",
+        /*count*/ 1,
+    )
+    .await?;
     assert_eq!(post.len(), 1);
     assert_eq!(post[0]["status"], "cancelled");
     assert_eq!(post[0]["token_usage"], Value::Null);

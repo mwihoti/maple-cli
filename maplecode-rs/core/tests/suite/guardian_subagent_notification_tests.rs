@@ -1,6 +1,11 @@
 //! Guardian circuit breakers notify the parent without changing the child's interrupted state.
 
 use super::*;
+use core_test_support::ThreadIdle;
+use core_test_support::responses::received_responses_requests;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use futures::future::BoxFuture;
 use maplecode_config::config_toml::CircuitBreakAction;
 use maplecode_core::AgentTurnOutcome;
 use maplecode_core::AgentTurnOutcomeReporter;
@@ -11,15 +16,10 @@ use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_extension_api::ThreadLifecycleContributor;
 use maplecode_extension_api::ThreadStartInput;
 use maplecode_protocol::config_types::ApprovalsReviewer;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::ErrorEvent;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::TurnAbortReason;
-use core_test_support::ThreadIdle;
-use core_test_support::responses::received_responses_requests;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -190,7 +190,10 @@ async fn guardian_circuit_breaker_notifies_parent(action: CircuitBreakAction) ->
     test.submit_text_turn("Spawn a worker to run the checks.")
         .await?;
     ThreadIdle::wait(&test.maplecode).await;
-    let worker_id = test.maplecode.resolve_agent_reference("/root/worker").await?;
+    let worker_id = test
+        .maplecode
+        .resolve_agent_reference("/root/worker")
+        .await?;
     let worker = test.thread_manager.get_thread(worker_id).await?;
     let warning = wait_for_event_match(&worker, |event| match event {
         EventMsg::GuardianWarning(warning) if warning.message.contains("3 consecutive") => {

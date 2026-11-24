@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 use std::time::Duration;
 
-use maplecode_config::ScopedSkillsConfig;
-use maplecode_http_client::HttpClientFactory;
-use maplecode_http_client::OutboundProxyPolicy;
 use futures::SinkExt;
 use futures::StreamExt;
 use http::HeaderValue;
+use maplecode_config::ScopedSkillsConfig;
+use maplecode_http_client::HttpClientFactory;
+use maplecode_http_client::OutboundProxyPolicy;
 use pretty_assertions::assert_eq;
 use tokio::net::TcpListener;
 use tokio::net::TcpStream;

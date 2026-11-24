@@ -10,6 +10,13 @@ use anyhow::Context;
 use app_test_support::MockResponsesConfig;
 use base64::Engine;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use keyring::credential::Credential;
+use keyring::credential::CredentialApi;
+use keyring::credential::CredentialBuilderApi;
+use keyring::credential::CredentialPersistence;
+use keyring::mock::MockCredential;
 use maplecode_app_server::in_process;
 use maplecode_app_server::in_process::InProcessClientHandle;
 use maplecode_app_server::in_process::InProcessServerEvent;
@@ -31,13 +38,6 @@ use maplecode_feedback::MapleCodeFeedback;
 use maplecode_login::MAPLECODE_ACCESS_TOKEN_ENV_VAR;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_rmcp_client::stored_oauth_credentials;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use keyring::credential::Credential;
-use keyring::credential::CredentialApi;
-use keyring::credential::CredentialBuilderApi;
-use keyring::credential::CredentialPersistence;
-use keyring::mock::MockCredential;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use test_case::test_case;
@@ -111,7 +111,10 @@ client_id = "enterprise-client""#
     // Keep the real platform keyring out of this API test. Enterprise cleanup
     // failure must still permit revocation and removal of the selected account.
     if !policy_load_failure {
-        std::fs::write(maplecode_home.path().join("mcp-oauth-locks"), "not a directory")?;
+        std::fs::write(
+            maplecode_home.path().join("mcp-oauth-locks"),
+            "not a directory",
+        )?;
     }
     let refresh_url = format!("{}/oauth/token", server.uri());
     let mut app = TestAppServer::builder()
@@ -963,8 +966,9 @@ oauth = {{ client_id = "mcp-client", client_secret = "resource-secret", token_en
     );
 
     // Rejected and missing grants need sign-in; administrator configuration errors do not.
-    let reauthentication =
-        Some(maplecode_app_server_protocol::McpServerStartupFailureReason::ReauthenticationRequired);
+    let reauthentication = Some(
+        maplecode_app_server_protocol::McpServerStartupFailureReason::ReauthenticationRequired,
+    );
     for (error, reason) in [
         (Some("invalid_client"), None),
         (Some("invalid_scope"), None),

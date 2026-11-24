@@ -412,7 +412,10 @@ impl McpRuntime {
         let ema_auth = (input.config.xaa_enabled
             && input.mcp_servers.values().any(|server| {
                 server.config().enabled
-                    && matches!(server.config().auth, maplecode_config::McpServerAuth::EmaAuth)
+                    && matches!(
+                        server.config().auth,
+                        maplecode_config::McpServerAuth::EmaAuth
+                    )
             }))
         .then(|| {
             self.ema_auth
@@ -472,7 +475,8 @@ impl McpRuntime {
             ))
             .await,
         );
-        let hosted_event_server_retained = connections.contains_server(MAPLECODE_APPS_MCP_SERVER_NAME)
+        let hosted_event_server_retained = connections
+            .contains_server(MAPLECODE_APPS_MCP_SERVER_NAME)
             && config
                 .mcp_server_catalog
                 .server(&McpServerKey::unscoped(MAPLECODE_APPS_MCP_SERVER_NAME))
@@ -1364,7 +1368,9 @@ mod tests {
         .expect("cached initial binding");
         assert!(Arc::ptr_eq(&before, &repeated));
 
-        connections.refresh_maplecode_apps_tools_for_discovery().await?;
+        connections
+            .refresh_maplecode_apps_tools_for_discovery()
+            .await?;
 
         let refreshed = McpRuntime::binding_from_published_runtime(
             Arc::clone(&published),

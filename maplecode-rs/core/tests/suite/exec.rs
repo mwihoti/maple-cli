@@ -1,5 +1,6 @@
 #![cfg(target_os = "macos")]
 
+use core_test_support::PathExt;
 use maplecode_core::exec::ExecCapturePolicy;
 use maplecode_core::exec::ExecParams;
 use maplecode_core::exec::process_exec_tool_call;
@@ -11,7 +12,6 @@ use maplecode_protocol::exec_output::ExecToolCallOutput;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_sandboxing::SandboxType;
 use maplecode_sandboxing::get_platform_sandbox;
-use core_test_support::PathExt;
 use std::collections::HashMap;
 use tempfile::TempDir;
 

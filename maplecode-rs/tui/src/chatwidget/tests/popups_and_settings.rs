@@ -4366,11 +4366,13 @@ async fn feedback_upload_consent_popup_snapshot() {
         Some("auto-review-rollout-thread-1.jsonl".to_string()),
         /*include_windows_sandbox_log*/ true,
         /*can_save*/ true,
-        &maplecode_feedback::FeedbackDiagnostics::new(vec![maplecode_feedback::FeedbackDiagnostic {
-            headline: "Proxy environment variables are set and may affect connectivity."
-                .to_string(),
-            details: vec!["HTTPS_PROXY = hello".to_string()],
-        }]),
+        &maplecode_feedback::FeedbackDiagnostics::new(vec![
+            maplecode_feedback::FeedbackDiagnostic {
+                headline: "Proxy environment variables are set and may affect connectivity."
+                    .to_string(),
+                details: vec!["HTTPS_PROXY = hello".to_string()],
+            },
+        ]),
     ));
 
     let popup = render_bottom_popup(&chat, /*width*/ 80);
@@ -4388,11 +4390,13 @@ async fn feedback_good_result_consent_popup_includes_connectivity_diagnostics_fi
         Some("auto-review-rollout-thread-1.jsonl".to_string()),
         /*include_windows_sandbox_log*/ false,
         /*can_save*/ true,
-        &maplecode_feedback::FeedbackDiagnostics::new(vec![maplecode_feedback::FeedbackDiagnostic {
-            headline: "Proxy environment variables are set and may affect connectivity."
-                .to_string(),
-            details: vec!["HTTPS_PROXY = hello".to_string()],
-        }]),
+        &maplecode_feedback::FeedbackDiagnostics::new(vec![
+            maplecode_feedback::FeedbackDiagnostic {
+                headline: "Proxy environment variables are set and may affect connectivity."
+                    .to_string(),
+                details: vec!["HTTPS_PROXY = hello".to_string()],
+            },
+        ]),
     ));
 
     let popup = render_bottom_popup(&chat, /*width*/ 80);

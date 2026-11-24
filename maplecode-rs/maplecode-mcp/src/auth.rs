@@ -2,6 +2,8 @@
 
 use std::sync::Arc;
 
+use futures::future::BoxFuture;
+use http::HeaderMap;
 use maplecode_api::AuthError;
 use maplecode_api::SharedAuthProvider;
 use maplecode_exec_server::RouteAwareHttpClient;
@@ -11,8 +13,6 @@ use maplecode_login::MapleCodeAuth;
 use maplecode_model_provider::ClientAuth;
 use maplecode_rmcp_client::AuthProviderResolver;
 use maplecode_runtime_agent_instance::RuntimeAuthSlot;
-use futures::future::BoxFuture;
-use http::HeaderMap;
 use tokio::sync::OnceCell;
 
 use crate::McpRuntimeContext;

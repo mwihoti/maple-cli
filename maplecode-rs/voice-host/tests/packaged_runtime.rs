@@ -8,10 +8,10 @@ use std::time::Duration;
 use anyhow::Context;
 use anyhow::Result;
 use anyhow::ensure;
+use common::voice_host_command;
 use maplecode_install_context::InstallContext;
 use maplecode_realtime_webrtc::VoiceHost;
 use maplecode_utils_cargo_bin::cargo_bin;
-use common::voice_host_command;
 use tokio::time::timeout;
 
 const DEADLINE: Duration = Duration::from_secs(/*secs*/ 10);
@@ -52,7 +52,11 @@ async fn relocated_runtime_initializes_closes_and_rejects_duplicate_initializati
     fs::create_dir_all(runtime.join("bin"))?;
     maplecode_utils_cargo_bin::copy_executable(&helper_source, &runtime.join("bin").join(name))?;
     fs::create_dir(root.join("bin"))?;
-    let app_name = if cfg!(windows) { "maplecode.exe" } else { "maplecode" };
+    let app_name = if cfg!(windows) {
+        "maplecode.exe"
+    } else {
+        "maplecode"
+    };
     fs::write(root.join("bin").join(app_name), [])?;
     fs::write(root.join("maplecode-package.json"), "{}")?;
     let moved = directory.path().join("relocated package");

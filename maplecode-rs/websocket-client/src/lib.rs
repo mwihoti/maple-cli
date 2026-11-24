@@ -10,17 +10,17 @@ use std::sync::Arc;
 use std::task::Context;
 use std::task::Poll;
 
+use futures::FutureExt;
+use futures::Sink;
+use futures::Stream;
+use futures::future::BoxFuture;
+use futures::future::Either;
 use maplecode_http_client::BuildCustomCaTransportError;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::NetworkPermit;
 use maplecode_http_client::NetworkPolicyDenied;
 use maplecode_http_client::OutboundProxyRoute;
 use maplecode_http_client::build_rustls_client_config_with_custom_ca;
-use futures::FutureExt;
-use futures::Sink;
-use futures::Stream;
-use futures::future::BoxFuture;
-use futures::future::Either;
 use rustls::ClientConfig;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
@@ -113,7 +113,10 @@ impl WebSocketConnector {
     }
 
     /// Reuse the TLS/proxy configuration with a captured credential's account policy.
-    pub fn with_account_binding(&self, policy: &maplecode_http_client::NetworkPolicy) -> Option<Self> {
+    pub fn with_account_binding(
+        &self,
+        policy: &maplecode_http_client::NetworkPolicy,
+    ) -> Option<Self> {
         let policy = self
             .http_client_factory
             .network_policy()

@@ -1,20 +1,10 @@
 #![cfg(not(target_os = "windows"))]
 
-use maplecode_core::TurnInputRequest;
 use core_test_support::test_maplecode::local_requests;
+use maplecode_core::TurnInputRequest;
 use std::fs;
 
 use assert_matches::assert_matches;
-use maplecode_protocol::config_types::CollaborationMode;
-use maplecode_protocol::config_types::ModeKind;
-use maplecode_protocol::config_types::Settings;
-use maplecode_protocol::items::TurnItem;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::plan_tool::StepStatus;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::TempDirExt;
 use core_test_support::assert_regex_match;
 use core_test_support::responses;
@@ -31,6 +21,16 @@ use core_test_support::test_maplecode::TestMapleCode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
+use maplecode_protocol::config_types::CollaborationMode;
+use maplecode_protocol::config_types::ModeKind;
+use maplecode_protocol::config_types::Settings;
+use maplecode_protocol::items::TurnItem;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::plan_tool::StepStatus;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::user_input::UserInput;
 use serde_json::Value;
 use serde_json::json;
 fn call_output(req: &ResponsesRequest, call_id: &str) -> (String, Option<bool>) {
@@ -123,7 +123,10 @@ async fn exec_command_tool_executes_command_and_streams_output() -> anyhow::Resu
         )
         .await?;
 
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let req = second_mock.single_request();
     let (output_text, _) = call_output(&req, call_id);
@@ -522,7 +525,10 @@ async fn apply_patch_reports_parse_diagnostics() -> anyhow::Result<()> {
         )
         .await?;
 
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let req = second_mock.single_request();
     let (output_text, success_flag) = custom_call_output(&req, call_id);

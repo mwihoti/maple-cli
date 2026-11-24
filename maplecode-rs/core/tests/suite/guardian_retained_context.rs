@@ -7,8 +7,27 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
-use maplecode_core::MapleCodeThread;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_message_item_added;
+use core_test_support::responses::ev_output_text_delta;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::user_message_item;
+use core_test_support::skip_if_no_network;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use maplecode_core::ForkSnapshot;
+use maplecode_core::MapleCodeThread;
 use maplecode_core::RestrictRootCapabilities;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
@@ -23,9 +42,9 @@ use maplecode_extension_api::ToolLifecycleContributor;
 use maplecode_extension_api::ToolLifecycleFuture;
 use maplecode_extension_api::ToolStartInput;
 use maplecode_features::Feature;
-use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::GuardianHistoryCheckpoint;
 use maplecode_history::InitialHistory;
+use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RetainedContext;
@@ -53,25 +72,6 @@ use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::ForkBoundary;
 use maplecode_thread_store::LoadThreadHistoryParams;
 use maplecode_thread_store::PrepareForkParams;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_message_item_added;
-use core_test_support::responses::ev_output_text_delta;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::user_message_item;
-use core_test_support::skip_if_no_network;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
@@ -1007,7 +1007,9 @@ async fn standalone_fork_retains_inherited_user_instructions(
     assert_eq!(
         (answers.fragments, answers.complete),
         (
-            vec![maplecode_guardian_context::GuardianRootMessage::IncompleteVerifiedAnswers.render()],
+            vec![
+                maplecode_guardian_context::GuardianRootMessage::IncompleteVerifiedAnswers.render()
+            ],
             false
         ),
     );
@@ -1025,7 +1027,10 @@ async fn standalone_fork_retains_inherited_user_instructions(
         vec![
             (inherited_text, !compacted),
             (
-                maplecode_guardian_context::truncate_text(&local_instruction, /*max_tokens*/ 900),
+                maplecode_guardian_context::truncate_text(
+                    &local_instruction,
+                    /*max_tokens*/ 900
+                ),
                 !compacted,
             ),
         ],

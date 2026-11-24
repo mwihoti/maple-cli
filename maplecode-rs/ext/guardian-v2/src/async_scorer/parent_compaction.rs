@@ -79,8 +79,10 @@ fn encrypted_parent_compaction(
     let item = checkpoint.item;
     let serialized = serde_json::to_vec(item).map_err(|_| ParentCompactionError::Serialization)?;
     if serialized.len() > max_compaction_bytes
-        || maplecode_guardian_context::estimate_input_tokens_from_serialized_len(item, serialized.len())
-            > max_parent_compaction_tokens
+        || maplecode_guardian_context::estimate_input_tokens_from_serialized_len(
+            item,
+            serialized.len(),
+        ) > max_parent_compaction_tokens
     {
         return Err(ParentCompactionError::Oversized);
     }

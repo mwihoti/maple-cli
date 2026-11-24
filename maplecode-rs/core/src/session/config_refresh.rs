@@ -102,7 +102,10 @@ impl Session {
                     Feature::DaybreakProgramPropagation,
                     "Daybreak helper propagation",
                 ),
-                (Feature::MapleCodeAppsMcp20260728, "Maple Code Apps MCP protocol"),
+                (
+                    Feature::MapleCodeAppsMcp20260728,
+                    "Maple Code Apps MCP protocol",
+                ),
             ] {
                 if let Err(err) = config
                     .features

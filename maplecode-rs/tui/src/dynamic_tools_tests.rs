@@ -5,10 +5,10 @@ use crate::legacy_core::config::ConfigBuilder;
 use app_test_support::create_fake_paginated_rollout;
 use app_test_support::create_fake_rollout;
 use app_test_support::rollout_path;
+use core_test_support::responses;
 use maplecode_app_server_client::AppServerEvent;
 use maplecode_app_server_protocol::ServerNotification;
 use maplecode_protocol::ThreadId;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 
@@ -758,7 +758,9 @@ async fn task_creation_and_followup_start_background_turns() -> color_eyre::Resu
 
     let inherited_sandbox = maplecode_app_server_protocol::SandboxPolicy::WorkspaceWrite {
         writable_roots: vec![
-            maplecode_utils_absolute_path::AbsolutePathBuf::from_absolute_path(maplecode_home.path())?,
+            maplecode_utils_absolute_path::AbsolutePathBuf::from_absolute_path(
+                maplecode_home.path(),
+            )?,
         ],
         network_access: true,
         exclude_tmpdir_env_var: true,

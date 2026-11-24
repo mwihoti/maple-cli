@@ -131,7 +131,8 @@ fn agents_reject_inputs_that_cannot_be_applied() -> Result<()> {
 #[test]
 fn app_server_emits_json_info_events() -> Result<()> {
     let maplecode_home = TempDir::new()?;
-    let event = app_server_json_shutdown_event("maplecode", &["app-server"], maplecode_home.path())?;
+    let event =
+        app_server_json_shutdown_event("maplecode", &["app-server"], maplecode_home.path())?;
 
     assert_eq!(
         event,

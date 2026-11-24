@@ -1,6 +1,7 @@
 //! Authentication for clients that reuse a connection across requests.
 
 use crate::ResolvedProviderAuth;
+use http::HeaderMap;
 use maplecode_api::AuthError;
 use maplecode_api::SharedAuthProvider;
 use maplecode_features::RuntimeAuthMode;
@@ -9,7 +10,6 @@ use maplecode_login::MapleCodeAuth;
 use maplecode_protocol::error::Result as MapleCodeResult;
 use maplecode_runtime_agent_instance::RuntimeAuthBinding;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
-use http::HeaderMap;
 use std::sync::Arc;
 
 /// Keeps a reusable client's credential source fixed while allowing token refresh.

@@ -1407,8 +1407,9 @@ mod tests {
         fs::create_dir_all(&workspace).expect("create workspace");
         fs::create_dir_all(&other_root).expect("create other root");
 
-        let workspace_sid = workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &workspace)
-            .expect("workspace sid");
+        let workspace_sid =
+            workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &workspace)
+                .expect("workspace sid");
         let other_sid = workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &other_root)
             .expect("other root sid");
         let workspace_psid =
@@ -1503,10 +1504,12 @@ mod tests {
 
         let stale_sid = workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &stale_root)
             .expect("stale sid");
-        let active_sid = workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &active_root)
-            .expect("active sid");
-        let workspace_sid = workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &workspace)
-            .expect("workspace sid");
+        let active_sid =
+            workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &active_root)
+                .expect("active sid");
+        let workspace_sid =
+            workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &workspace)
+                .expect("workspace sid");
         let caps = load_or_create_cap_sids(&maplecode_home).expect("load caps");
 
         let deny_sids = workspace_write_cap_sids_for_path(
@@ -1539,10 +1542,12 @@ mod tests {
 
         let stale_sid = workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &stale_root)
             .expect("stale sid");
-        let active_sid = workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &active_root)
-            .expect("active sid");
-        let workspace_sid = workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &workspace)
-            .expect("workspace sid");
+        let active_sid =
+            workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &active_root)
+                .expect("active sid");
+        let workspace_sid =
+            workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &workspace)
+                .expect("workspace sid");
         let caps = load_or_create_cap_sids(&maplecode_home).expect("load caps");
 
         let deny_sids = workspace_write_cap_sids_for_path(
@@ -1571,10 +1576,12 @@ mod tests {
         fs::create_dir_all(&workspace).expect("create workspace");
         fs::create_dir_all(&nested_root).expect("create nested root");
 
-        let workspace_sid = workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &workspace)
-            .expect("workspace sid");
-        let nested_sid = workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &nested_root)
-            .expect("nested sid");
+        let workspace_sid =
+            workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &workspace)
+                .expect("workspace sid");
+        let nested_sid =
+            workspace_write_cap_sid_for_root(&maplecode_home, &workspace, &nested_root)
+                .expect("nested sid");
 
         let deny_sids = workspace_write_cap_sids_for_path(
             &maplecode_home,

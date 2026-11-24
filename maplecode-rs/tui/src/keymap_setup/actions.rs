@@ -11,9 +11,9 @@
 
 use std::collections::BTreeSet;
 
+use crossterm::event::KeyEvent;
 use maplecode_config::types::KeybindingsSpec;
 use maplecode_config::types::TuiKeymap;
-use crossterm::event::KeyEvent;
 
 use crate::keymap::RuntimeKeymap;
 use crate::keymap::bindings_for_action;

@@ -1,6 +1,6 @@
 use super::*;
-use crate::MapleCodeFeedback;
 use crate::FeedbackUploadOptions;
+use crate::MapleCodeFeedback;
 use pretty_assertions::assert_eq;
 use std::fs::File;
 use std::io::Read;

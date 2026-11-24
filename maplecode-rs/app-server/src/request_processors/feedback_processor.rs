@@ -6,10 +6,10 @@ use maplecode_app_server_protocol::FeedbackSaveResponse;
 use maplecode_connectors::ConnectorDirectoryCacheContext;
 use maplecode_connectors::ConnectorDirectoryCacheKey;
 use maplecode_connectors::connector_runtime_cache_path;
-use maplecode_feedback::MAPLECODE_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME;
-use maplecode_feedback::MAPLECODE_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME;
 use maplecode_feedback::FeedbackAttachment;
 use maplecode_feedback::FeedbackSnapshot;
+use maplecode_feedback::MAPLECODE_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME;
+use maplecode_feedback::MAPLECODE_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME;
 #[cfg(target_os = "windows")]
 use maplecode_feedback::WINDOWS_SANDBOX_LOG_ATTACHMENT_FILENAME;
 use maplecode_feedback::guardian_review_failures;
@@ -334,8 +334,9 @@ impl FeedbackRequestProcessor {
             // Cancelling the RPC waiter must not release a still-running upload's slot.
             let _permit = permit;
             if include_logs {
-                extra_attachments
-                    .extend(maplecode_feedback::daemon_log_attachments(maplecode_home.as_path()));
+                extra_attachments.extend(maplecode_feedback::daemon_log_attachments(
+                    maplecode_home.as_path(),
+                ));
             }
             let tags = (!upload_tags.is_empty()).then_some(&upload_tags);
             let options = FeedbackUploadOptions {
@@ -545,7 +546,8 @@ fn auto_review_rollout_filename(thread_id: ThreadId) -> String {
 
 #[cfg(target_os = "windows")]
 fn windows_sandbox_log_attachment(maplecode_home: &Path) -> Option<FeedbackAttachmentPath> {
-    let sandbox_log_path = maplecode_windows_sandbox::current_log_file_path_for_maplecode_home(maplecode_home);
+    let sandbox_log_path =
+        maplecode_windows_sandbox::current_log_file_path_for_maplecode_home(maplecode_home);
     sandbox_log_path
         .is_file()
         .then_some(FeedbackAttachmentPath {
@@ -622,11 +624,11 @@ async fn collect_feedback_logs(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use maplecode_protocol::protocol::TurnContextItem;
-    use maplecode_rollout::RolloutLine;
     use core_test_support::responses::start_mock_server;
     use core_test_support::test_maplecode::test_maplecode;
     use http::HeaderMap;
+    use maplecode_protocol::protocol::TurnContextItem;
+    use maplecode_rollout::RolloutLine;
     use pretty_assertions::assert_eq;
 
     #[tokio::test]
@@ -978,8 +980,9 @@ mod tests {
         let maplecode_home = tempfile::tempdir().expect("create tempdir");
         let sandbox_dir = maplecode_windows_sandbox::sandbox_dir(maplecode_home.path());
         std::fs::create_dir_all(&sandbox_dir).expect("create sandbox dir");
-        let sandbox_log_path =
-            maplecode_windows_sandbox::current_log_file_path_for_maplecode_home(maplecode_home.path());
+        let sandbox_log_path = maplecode_windows_sandbox::current_log_file_path_for_maplecode_home(
+            maplecode_home.path(),
+        );
         std::fs::write(&sandbox_log_path, "sandbox log").expect("write sandbox log");
 
         let attachment = windows_sandbox_log_attachment(maplecode_home.path())

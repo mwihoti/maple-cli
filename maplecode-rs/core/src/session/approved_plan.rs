@@ -2,6 +2,7 @@
 
 use std::time::Duration;
 
+use futures::StreamExt;
 use maplecode_file_system::EnvironmentAccess;
 use maplecode_file_system::GetMetadataOptions;
 use maplecode_protocol::error::MapleCodeErr;
@@ -12,7 +13,6 @@ use maplecode_utils_output_truncation::TruncationPolicy;
 use maplecode_utils_output_truncation::approx_bytes_for_tokens;
 use maplecode_utils_path_uri::LegacyAppPathString;
 use maplecode_utils_path_uri::PathUri;
-use futures::StreamExt;
 
 use super::session::Session;
 use super::turn_context::TurnContext;

@@ -36,6 +36,11 @@ use crate::wrapping::RtOptions;
 use crate::wrapping::adaptive_wrap_lines;
 use chrono::DateTime;
 use chrono::Utc;
+use color_eyre::eyre::Result;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::RequestId;
@@ -51,11 +56,6 @@ use maplecode_app_server_protocol::ThreadUnarchiveResponse;
 use maplecode_config::types::SessionPickerViewMode;
 use maplecode_protocol::ThreadId;
 use maplecode_utils_path as path_utils;
-use color_eyre::eyre::Result;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use ratatui::layout::Rect;
 use ratatui::layout::Size;
 use ratatui::style::Color;
@@ -632,7 +632,8 @@ async fn run_resume_picker_with_launch_context(
     let options = SessionPickerRunOptions {
         backend_id: app_server.session.backend_id(),
         use_theme_colors: local_settings.tui.status_line_use_colors,
-        copy_on_select: local_settings.copy_on_select(&maplecode_terminal_detection::terminal_info()),
+        copy_on_select: local_settings
+            .copy_on_select(&maplecode_terminal_detection::terminal_info()),
         copy_on_select_clear_selection: local_settings.tui.copy_on_select_clear_selection,
         mouse_scroll_speed: local_settings.tui.mouse_scroll_speed.unwrap_or(1.0),
         show_all,
@@ -686,7 +687,8 @@ pub async fn run_fork_picker_with_app_server(
     let options = SessionPickerRunOptions {
         backend_id: app_server.backend_id(),
         use_theme_colors: local_settings.tui.status_line_use_colors,
-        copy_on_select: local_settings.copy_on_select(&maplecode_terminal_detection::terminal_info()),
+        copy_on_select: local_settings
+            .copy_on_select(&maplecode_terminal_detection::terminal_info()),
         copy_on_select_clear_selection: local_settings.tui.copy_on_select_clear_selection,
         mouse_scroll_speed: local_settings.tui.mouse_scroll_speed.unwrap_or(1.0),
         show_all,
@@ -5101,7 +5103,9 @@ mod tests {
         local_page.read_states.insert(
             unread_id.to_string(),
             maplecode_app_server_protocol::ThreadReadState {
-                first_unread: Some(maplecode_app_server_protocol::ThreadUnreadPosition::ThreadStart),
+                first_unread: Some(
+                    maplecode_app_server_protocol::ThreadUnreadPosition::ThreadStart,
+                ),
                 revision: "revision".into(),
             },
         );

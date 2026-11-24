@@ -1,8 +1,8 @@
 use super::*;
 use crate::thread_manager::default_thread_id_generator;
+use futures::future;
 use maplecode_protocol::error::MapleCodeErrorDetails;
 use maplecode_thread_store::ThreadStoreError;
-use futures::future;
 use pretty_assertions::assert_eq;
 use tokio::sync::Barrier;
 use tokio::sync::oneshot;

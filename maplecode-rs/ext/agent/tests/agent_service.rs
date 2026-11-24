@@ -1,11 +1,11 @@
 use anyhow::Result;
-use maplecode_agent_extension::AgentInvocation;
-use maplecode_agent_extension::AgentRunner;
-use maplecode_protocol::protocol::EventMsg;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_agent_extension::AgentInvocation;
+use maplecode_agent_extension::AgentRunner;
+use maplecode_protocol::protocol::EventMsg;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

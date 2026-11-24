@@ -5,11 +5,11 @@ use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
 
-use maplecode_api::AuthProvider;
 use http::HeaderMap;
 use http::HeaderValue;
 use http::Method;
 use http::header::AUTHORIZATION;
+use maplecode_api::AuthProvider;
 use pretty_assertions::assert_eq;
 use wiremock::Mock;
 use wiremock::MockServer;
@@ -73,7 +73,10 @@ impl AuthProvider for RotatingAuth {
         })
     }
 
-    fn refresh_after_unauthorized(&self, rejected: HeaderMap) -> maplecode_api::AuthRefreshFuture<'_> {
+    fn refresh_after_unauthorized(
+        &self,
+        rejected: HeaderMap,
+    ) -> maplecode_api::AuthRefreshFuture<'_> {
         assert!(rejected.contains_key(AUTHORIZATION));
         Box::pin(async {
             self.stall_at(AuthStage::Refresh).await;

@@ -1,6 +1,6 @@
 use super::*;
-use maplecode_protocol::sandbox::SandboxOverride;
 use core_test_support::PathExt;
+use maplecode_protocol::sandbox::SandboxOverride;
 use pretty_assertions::assert_eq;
 use tempfile::tempdir;
 use test_case::test_case;

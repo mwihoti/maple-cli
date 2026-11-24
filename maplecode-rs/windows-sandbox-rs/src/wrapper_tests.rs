@@ -7,12 +7,12 @@ use maplecode_protocol::models::PermissionProfile;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use pretty_assertions::assert_eq;
 
-use super::MAPLECODE_HOME_FLAG;
-use super::MAPLECODE_WINDOWS_SANDBOX_ARG1;
 use super::COMMAND_CWD_FLAG;
 use super::DENY_READ_PATHS_JSON_FLAG;
 use super::DENY_WRITE_PATHS_JSON_FLAG;
 use super::ENV_JSON_FLAG;
+use super::MAPLECODE_HOME_FLAG;
+use super::MAPLECODE_WINDOWS_SANDBOX_ARG1;
 use super::NETWORK_PROXY_RESTRICTING_SID_FLAG;
 use super::PERMISSION_PROFILE_FLAG;
 use super::PRESERVE_PROXY_SETTINGS_FLAG;
@@ -64,7 +64,10 @@ fn large_deny_list_uses_environment_without_changing_the_request() {
     .unwrap();
     assert_eq!(
         args,
-        vec![MAPLECODE_WINDOWS_SANDBOX_ARG1, crate::launch_environment::ARG]
+        vec![
+            MAPLECODE_WINDOWS_SANDBOX_ARG1,
+            crate::launch_environment::ARG
+        ]
     );
     let decoded = crate::environment_transport::decode(env).unwrap();
     let parsed =

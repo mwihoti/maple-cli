@@ -803,7 +803,8 @@ fn mixed_catalogs_alias_all_skill_sources_under_budget_pressure() {
     let executor_root =
         "skill://executor-environment-with-a-long-shared-root/workspaces/project/.agents/skills";
     let cloud_root = "skill://plugin_connector_1p_2330815c823c8191941e5dc465bb899f";
-    let host_root = "/Users/test/.maplecode/plugins/cache/openai-curated/example/hash1234567890/skills";
+    let host_root =
+        "/Users/test/.maplecode/plugins/cache/openai-curated/example/hash1234567890/skills";
     let catalog =
         |source: SkillSourceKind, authority: &str, root: &str, prefix: &str| SkillCatalog {
             is_partial: false,
@@ -836,7 +837,12 @@ fn mixed_catalogs_alias_all_skill_sources_under_budget_pressure() {
         executor_root,
         "executor",
     );
-    let cloud_catalog = catalog(SkillSourceKind::Cloud, "maplecode_apps", cloud_root, "cloud");
+    let cloud_catalog = catalog(
+        SkillSourceKind::Cloud,
+        "maplecode_apps",
+        cloud_root,
+        "cloud",
+    );
     let host_catalog = catalog(SkillSourceKind::Host, "host", host_root, "host");
 
     let rendered = render_combined_available_skills(

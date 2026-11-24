@@ -16,6 +16,7 @@ use std::time::Duration;
 
 use anyhow::Context as _;
 use anyhow::Result;
+use futures::TryStreamExt;
 use maplecode_exec_server::CreateDirectoryOptions;
 use maplecode_exec_server::FileSystemSandboxContext;
 use maplecode_exec_server::GetMetadataOptions;
@@ -33,7 +34,6 @@ use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_sandboxing::SandboxType;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_windows_sandbox_test_support::WindowsSandboxAccountTestGuard;
-use futures::TryStreamExt;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 use tokio::net::windows::named_pipe::ServerOptions;
@@ -486,7 +486,10 @@ async fn file_system_elevated_relative_read_denial_uses_policy_cwd(
     {
         return Err(error).context("create Windows sandbox test resources");
     }
-    for name in ["maplecode-windows-sandbox-setup", "maplecode-command-runner"] {
+    for name in [
+        "maplecode-windows-sandbox-setup",
+        "maplecode-command-runner",
+    ] {
         let source = maplecode_utils_cargo_bin::cargo_bin(name)?;
         let destination = resources.join(Path::new(name).with_extension("exe"));
         if let Err(error) = maplecode_utils_cargo_bin::copy_executable(&source, &destination)

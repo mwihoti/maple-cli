@@ -625,14 +625,17 @@ pub(super) async fn run_main_inner(
                 // Daemon startup needs no terminal input. Keep the composer visible and
                 // responsive while it checks the running server or prepares an installation.
                 // Preserve saved daemon settings until any mismatch is confirmed in recovery.
-                let result =
-                    maplecode_app_server_daemon::start_with_features_classified(&Default::default())
-                        .await;
+                let result = maplecode_app_server_daemon::start_with_features_classified(
+                    &Default::default(),
+                )
+                .await;
                 daemon_telemetry::record_start(&config, &result).await;
                 match result.map_err(|err| err.error) {
                     Ok(output) => Ok(Some(output)),
                     #[cfg(windows)]
-                    Err(err) if err.is::<maplecode_app_server_daemon::DetachedLaunchRestricted>() => {
+                    Err(err)
+                        if err.is::<maplecode_app_server_daemon::DetachedLaunchRestricted>() =>
+                    {
                         Ok(None)
                     }
                     Err(err) => Err(std::io::Error::other(format!(
@@ -684,7 +687,10 @@ pub(super) async fn run_main_inner(
         });
     #[cfg(target_os = "macos")]
     let local_runtime_paths = local_runtime_paths.with_allowed_symlinked_maplecode_home(
-        maplecode_config::allowed_symlinked_maplecode_home(&config.config_layer_stack, &config.maplecode_home),
+        maplecode_config::allowed_symlinked_maplecode_home(
+            &config.config_layer_stack,
+            &config.maplecode_home,
+        ),
     );
     let environment_manager = Arc::new(
         prepared_environment_manager
@@ -1043,7 +1049,9 @@ pub(super) async fn run_main_inner(
     // The TUI owns this request's consent. The child is silent; installation remains unconfirmed.
     if let Ok(exit) = &app_result
         && let Some(UpdateAction::Daemon(source)) = exit.update_action
-        && let Some(metrics) = otel.as_ref().and_then(maplecode_otel::OtelProvider::metrics)
+        && let Some(metrics) = otel
+            .as_ref()
+            .and_then(maplecode_otel::OtelProvider::metrics)
     {
         let mut tags = daemon_settings.to_vec();
         tags.extend([

@@ -79,7 +79,10 @@ impl Pet {
     /// has already been materialized into MAPLECODE_HOME; if callers skip the
     /// asset-fetch step, they will get a missing-spritesheet error here on
     /// first use.
-    pub(super) fn load_with_maplecode_home(value: &str, maplecode_home: Option<&Path>) -> Result<Self> {
+    pub(super) fn load_with_maplecode_home(
+        value: &str,
+        maplecode_home: Option<&Path>,
+    ) -> Result<Self> {
         if path_like(value) {
             return load_pet_path(value);
         }
@@ -649,11 +652,13 @@ mod tests {
     }
 
     fn load_pet_from_dir(dir: &tempfile::TempDir) -> Pet {
-        Pet::load_with_maplecode_home(dir.path().to_str().unwrap(), /*maplecode_home*/ None).unwrap()
+        Pet::load_with_maplecode_home(dir.path().to_str().unwrap(), /*maplecode_home*/ None)
+            .unwrap()
     }
 
     fn load_pet_error_from_dir(dir: &tempfile::TempDir) -> anyhow::Error {
-        Pet::load_with_maplecode_home(dir.path().to_str().unwrap(), /*maplecode_home*/ None).unwrap_err()
+        Pet::load_with_maplecode_home(dir.path().to_str().unwrap(), /*maplecode_home*/ None)
+            .unwrap_err()
     }
 
     #[test]
@@ -661,15 +666,21 @@ mod tests {
         let maplecode_home = tempfile::tempdir().unwrap();
         super::super::asset_pack::write_test_pack(maplecode_home.path());
 
-        let pet =
-            Pet::load_with_maplecode_home("dewey", /*maplecode_home*/ Some(maplecode_home.path())).unwrap();
+        let pet = Pet::load_with_maplecode_home(
+            "dewey",
+            /*maplecode_home*/ Some(maplecode_home.path()),
+        )
+        .unwrap();
 
         assert_eq!(pet.id, "dewey");
         assert_eq!(pet.display_name, "Dewey");
         assert_eq!(pet.description, "A tidy duck for calm workspace days");
         assert_eq!(
             pet.spritesheet_path,
-            super::super::builtin_spritesheet_path(maplecode_home.path(), "dewey-spritesheet-v4.webp")
+            super::super::builtin_spritesheet_path(
+                maplecode_home.path(),
+                "dewey-spritesheet-v4.webp"
+            )
         );
         assert_eq!(pet.frame_width, 192);
         assert_eq!(pet.frame_height, 208);

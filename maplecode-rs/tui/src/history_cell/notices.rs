@@ -77,7 +77,10 @@ impl HistoryCell for UpdateAvailableHistoryCell {
         };
         vec![
             Line::from("Update available!"),
-            Line::from(format!("{MAPLECODE_CLI_VERSION} -> {}", self.latest_version)),
+            Line::from(format!(
+                "{MAPLECODE_CLI_VERSION} -> {}",
+                self.latest_version
+            )),
             Line::from(update_instruction),
             Line::from(""),
             Line::from("See full release notes:"),

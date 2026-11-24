@@ -5,13 +5,13 @@ use super::spawn_response_stream;
 use crate::api_bridge::map_api_error;
 use crate::common::ResponseEvent;
 use bytes::Bytes;
-use maplecode_client::StreamResponse;
-use maplecode_http_client::RetryAfter;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use futures::StreamExt;
 use futures::stream;
 use http::HeaderMap;
 use http::StatusCode;
+use maplecode_client::StreamResponse;
+use maplecode_http_client::RetryAfter;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::time::Duration;
@@ -115,14 +115,20 @@ async fn terminal_failure_with_retry_header_ends_stream_immediately() {
     for (code, expected) in [
         ("flex_unavailable", MapleCodeErrorInfo::FlexUnavailable),
         ("budget_reached", MapleCodeErrorInfo::SessionBudgetExceeded),
-        ("inference_hook_denied", MapleCodeErrorInfo::InferenceHookDenied),
+        (
+            "inference_hook_denied",
+            MapleCodeErrorInfo::InferenceHookDenied,
+        ),
         (
             "context_length_exceeded",
             MapleCodeErrorInfo::ContextWindowExceeded,
         ),
         ("invalid_access_program", MapleCodeErrorInfo::Other),
         ("unsupported_access_program", MapleCodeErrorInfo::Other),
-        ("content_policy_violation", MapleCodeErrorInfo::InvalidPrompt),
+        (
+            "content_policy_violation",
+            MapleCodeErrorInfo::InvalidPrompt,
+        ),
         (
             "access_program_not_enabled",
             MapleCodeErrorInfo::HttpConnectionFailed {

@@ -45,9 +45,12 @@ impl McpRuntime {
             .map(|value| (server.to_owned(), value))
             .collect::<std::collections::HashMap<_, _>>();
         if config.xaa_enabled
-            && servers
-                .values()
-                .any(|server| matches!(server.config().auth, maplecode_config::McpServerAuth::EmaAuth))
+            && servers.values().any(|server| {
+                matches!(
+                    server.config().auth,
+                    maplecode_config::McpServerAuth::EmaAuth
+                )
+            })
         {
             // Finish selected startup and any rejected-grant cleanup before reading auth.
             current

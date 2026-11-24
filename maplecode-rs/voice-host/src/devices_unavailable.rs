@@ -27,7 +27,10 @@ impl Devices {
         ))
     }
 
-    pub(super) fn set_controls(&self, _: maplecode_realtime_webrtc::AudioControls) -> io::Result<()> {
+    pub(super) fn set_controls(
+        &self,
+        _: maplecode_realtime_webrtc::AudioControls,
+    ) -> io::Result<()> {
         Self::open(Default::default()).map(|_| ())
     }
 

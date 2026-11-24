@@ -4,6 +4,9 @@ use std::sync::Arc;
 
 use crate::GatewayAuthManager;
 use crate::auth::ResolvedProviderAuth;
+use http::HeaderMap;
+use http::HeaderName;
+use http::HeaderValue;
 use maplecode_api::AuthError;
 use maplecode_api::AuthHeaderTelemetry;
 use maplecode_api::AuthHeadersFuture;
@@ -14,9 +17,6 @@ use maplecode_model_provider_info::GatewayOAuthDelivery;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_protocol::error::MapleCodeErr;
 use maplecode_protocol::error::Result;
-use http::HeaderMap;
-use http::HeaderName;
-use http::HeaderValue;
 
 pub(crate) async fn compose_auth(
     provider: &ModelProviderInfo,

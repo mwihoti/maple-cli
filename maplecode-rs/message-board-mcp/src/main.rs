@@ -55,8 +55,11 @@ async fn main() -> anyhow::Result<()> {
     // All sessions share one SQLite file. Retain a board between calls so the
     // weak pool registry reuses its connections instead of initializing again.
     let pool_owner = Arc::new(Mutex::new(None));
-    let serving =
-        maplecode_message_board_mcp::serve_http(listener, token, http, move |caller, session_id| {
+    let serving = maplecode_message_board_mcp::serve_http(
+        listener,
+        token,
+        http,
+        move |caller, session_id| {
             let pool_owner = Arc::clone(&pool_owner);
             let sqlite = sqlite.clone();
             let host = Arc::new(persisted::PersistedHost {
@@ -87,7 +90,8 @@ async fn main() -> anyhow::Result<()> {
                     path,
                 ))
             }
-        });
+        },
+    );
     tokio::pin!(serving);
     tokio::select! {
         result = &mut serving => result,

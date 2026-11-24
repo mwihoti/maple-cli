@@ -125,14 +125,14 @@ pub(super) async fn sampler_config(
     } else {
         None
     };
-    let max_input_tokens =
-        luna_model
-            .as_ref()
-            .map_or(maplecode_guardian_context::DEFAULT_MAX_INPUT_TOKENS, |model| {
-                maplecode_guardian_context::effective_input_token_limit(
-                    model, /*configured_window*/ None,
-                )
-            });
+    let max_input_tokens = luna_model.as_ref().map_or(
+        maplecode_guardian_context::DEFAULT_MAX_INPUT_TOKENS,
+        |model| {
+            maplecode_guardian_context::effective_input_token_limit(
+                model, /*configured_window*/ None,
+            )
+        },
+    );
     let luna_compaction_hash = luna_model.and_then(|model| model.comp_hash.clone());
     #[expect(clippy::expect_used, reason = "Required thread startup invariant")]
     let auth = input

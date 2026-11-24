@@ -197,13 +197,13 @@ mod thread_processor_behavior_tests {
             defer_loading,
         };
         match namespace {
-            Some(namespace) => {
-                DynamicToolSpec::Namespace(maplecode_app_server_protocol::DynamicToolNamespaceSpec {
+            Some(namespace) => DynamicToolSpec::Namespace(
+                maplecode_app_server_protocol::DynamicToolNamespaceSpec {
                     name: namespace.to_string(),
                     description: "test namespace".to_string(),
                     tools: vec![DynamicToolNamespaceTool::Function(function)],
-                })
-            }
+                },
+            ),
             None => DynamicToolSpec::Function(function),
         }
     }

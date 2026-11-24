@@ -18,9 +18,9 @@ use crate::environment_selection::ThreadEnvironments;
 use crate::environment_selection::TurnEnvironmentSnapshot;
 use crate::hook_mcp_executor::CoreHookMcpExecutor;
 use crate::mcp_tool_call::McpToolApprovalContext;
+use crate::responses_metadata::CompactionTurnMetadata;
 use crate::responses_metadata::MapleCodeResponsesMetadata;
 use crate::responses_metadata::MapleCodeResponsesRequestKind;
-use crate::responses_metadata::CompactionTurnMetadata;
 use crate::runtime_auth::RuntimeAuthSlot;
 use crate::shell_snapshot::ShellSnapshot;
 use crate::shell_snapshot::SnapshotCredentialBrokerState;
@@ -1169,8 +1169,12 @@ impl Session {
                         let auth = persistence_auth.await;
                         let params = CreateThreadParams {
                             attached_thread,
-                            creator_user_id: auth.as_ref().and_then(MapleCodeAuth::get_chatgpt_user_id),
-                            creator_account_id: auth.as_ref().and_then(MapleCodeAuth::get_account_id),
+                            creator_user_id: auth
+                                .as_ref()
+                                .and_then(MapleCodeAuth::get_chatgpt_user_id),
+                            creator_account_id: auth
+                                .as_ref()
+                                .and_then(MapleCodeAuth::get_account_id),
                             session_id,
                             thread_id,
                             extra_config: config.extra_config.clone(),

@@ -2,10 +2,10 @@ use super::*;
 use crate::history_cell::HistoryCell;
 use crate::legacy_core::config::ConfigBuilder;
 use crate::legacy_core::config::ConfigOverrides;
+use color_eyre::eyre::WrapErr;
 use maplecode_app_server_client::AppServerClient;
 use maplecode_app_server_protocol::ThreadStartParams;
 use maplecode_app_server_protocol::ThreadStartResponse;
-use color_eyre::eyre::WrapErr;
 use pretty_assertions::assert_eq;
 use std::path::Path;
 
@@ -97,8 +97,9 @@ async fn remote_project_trust_guards_thread_start_and_preserves_repository_decis
     );
 
     write_trusted_project(app_server.request_handle(), &project_root).await?;
-    let persisted_config: toml::Value =
-        toml::from_str(&std::fs::read_to_string(maplecode_home.join("config.toml"))?)?;
+    let persisted_config: toml::Value = toml::from_str(&std::fs::read_to_string(
+        maplecode_home.join("config.toml"),
+    )?)?;
     assert_eq!(
         persisted_config["projects"][project_trust_key(&project_root)]["trust_level"].as_str(),
         Some("trusted")

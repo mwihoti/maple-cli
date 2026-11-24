@@ -3,6 +3,8 @@ use crate::session::tests::make_session_and_context_with_auth_and_config_and_rx;
 use crate::tools::context::ToolCallSource;
 use crate::tools::context::ToolPayload;
 use crate::tools::router::ToolCall;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
 use maplecode_code_mode::CellId;
 use maplecode_features::Feature;
 use maplecode_history::MapleCodeHarnessMetadata;
@@ -18,8 +20,6 @@ use maplecode_protocol::models::FunctionCallOutputPayload;
 use maplecode_protocol::models::ImageReference;
 use maplecode_protocol::models::InternalChatMessageMetadataPassthrough;
 use maplecode_tools::ToolName;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
@@ -647,7 +647,10 @@ fn build_token_limited_compacted_history_truncates_overlong_user_messages(
     };
     assert_eq!(summary_text, "SUMMARY");
     assert_eq!(history[0].id(), original.id());
-    assert_eq!(history[0].metadata, Some(MapleCodeHarnessMetadata::default()));
+    assert_eq!(
+        history[0].metadata,
+        Some(MapleCodeHarnessMetadata::default())
+    );
     assert_eq!(history[1].metadata, None);
 }
 

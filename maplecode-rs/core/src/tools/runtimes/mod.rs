@@ -17,10 +17,10 @@ use maplecode_core_plugins::PLUGIN_METRICS_OUTPUT_ENV_VAR;
 use maplecode_file_system::WindowsSandboxSelection;
 #[cfg(unix)]
 use maplecode_install_context::InstallContext;
-#[cfg(target_os = "macos")]
-use maplecode_network_proxy::MAPLECODE_PROXY_GIT_SSH_COMMAND_MARKER;
 use maplecode_network_proxy::CREDENTIAL_BROKER_ACTIVE_ENV_KEY;
 use maplecode_network_proxy::CUSTOM_CA_ENV_KEYS;
+#[cfg(target_os = "macos")]
+use maplecode_network_proxy::MAPLECODE_PROXY_GIT_SSH_COMMAND_MARKER;
 use maplecode_network_proxy::PROXY_ACTIVE_ENV_KEY;
 use maplecode_network_proxy::PROXY_ENV_KEYS;
 #[cfg(target_os = "macos")]
@@ -39,8 +39,10 @@ use std::path::Path;
 pub(crate) mod apply_patch;
 pub(crate) mod unified_exec;
 
-const SNAPSHOT_ORIGINAL_BASH_ENV_ENV_KEY: &str = "MAPLECODE_NETWORK_PROXY_SNAPSHOT_ORIGINAL_BASH_ENV";
-const SNAPSHOT_ORIGINAL_POSIX_ENV_ENV_KEY: &str = "MAPLECODE_NETWORK_PROXY_SNAPSHOT_ORIGINAL_POSIX_ENV";
+const SNAPSHOT_ORIGINAL_BASH_ENV_ENV_KEY: &str =
+    "MAPLECODE_NETWORK_PROXY_SNAPSHOT_ORIGINAL_BASH_ENV";
+const SNAPSHOT_ORIGINAL_POSIX_ENV_ENV_KEY: &str =
+    "MAPLECODE_NETWORK_PROXY_SNAPSHOT_ORIGINAL_POSIX_ENV";
 const SNAPSHOT_ORIGINAL_ZDOTDIR_ENV_KEY: &str = "MAPLECODE_NETWORK_PROXY_SNAPSHOT_ORIGINAL_ZDOTDIR";
 
 pub(crate) fn exec_env_for_sandbox_permissions(

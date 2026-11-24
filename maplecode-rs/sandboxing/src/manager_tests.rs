@@ -8,6 +8,7 @@ use super::SandboxType;
 use super::SandboxablePreference;
 use super::get_platform_sandbox;
 use super::with_managed_mitm_ca_readable_root;
+use dunce::canonicalize;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
 use maplecode_protocol::models::AdditionalPermissionProfile;
 use maplecode_protocol::models::FileSystemPermissions;
@@ -21,7 +22,6 @@ use maplecode_protocol::permissions::FileSystemSpecialPath;
 use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use dunce::canonicalize;
 use pretty_assertions::assert_eq;
 use std::collections::HashMap;
 use tempfile::TempDir;
@@ -503,7 +503,8 @@ fn wsl1_allows_non_bubblewrap_linux_paths() {
 fn transform_linux_seccomp_preserves_helper_path_in_arg0_when_available() {
     let maplecode_linux_sandbox_exe = std::path::PathBuf::from("/tmp/maplecode-linux-sandbox");
     let exec_request =
-        transform_linux_seccomp_request(&maplecode_linux_sandbox_exe, SandboxManager::new()).request;
+        transform_linux_seccomp_request(&maplecode_linux_sandbox_exe, SandboxManager::new())
+            .request;
 
     assert_eq!(
         exec_request.arg0,
@@ -530,7 +531,10 @@ fn transform_linux_seccomp_uses_helper_alias_when_launcher_is_not_helper_path() 
             SandboxManager::new().with_linux_sandbox_pid_namespace(mode),
         )
         .request;
-        assert_eq!(exec_request.arg0, Some("maplecode-linux-sandbox".to_string()));
+        assert_eq!(
+            exec_request.arg0,
+            Some("maplecode-linux-sandbox".to_string())
+        );
         assert_eq!(exec_request.command[1], first_helper_arg);
     }
 }

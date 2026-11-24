@@ -4,12 +4,13 @@ use maplecode_protocol::items::FunctionCallOutputItem;
 
 /// Extract the task text from a delegated input, ignoring unrelated tool outputs.
 pub fn delegated_output_preview(output: &FunctionCallOutputItem) -> Option<String> {
-    if !matches!(output.namespace.as_deref(), Some("maplecode_app" | "maplecode_tui"))
-        || !matches!(
-            output.name.as_str(),
-            "create_thread" | "send_message_to_thread"
-        )
-    {
+    if !matches!(
+        output.namespace.as_deref(),
+        Some("maplecode_app" | "maplecode_tui")
+    ) || !matches!(
+        output.name.as_str(),
+        "create_thread" | "send_message_to_thread"
+    ) {
         return None;
     }
     let text = output.output.to_text()?;

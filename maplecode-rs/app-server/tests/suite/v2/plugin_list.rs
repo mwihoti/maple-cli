@@ -11,6 +11,8 @@ use app_test_support::to_response;
 use app_test_support::write_chatgpt_auth;
 use chrono::Duration as ChronoDuration;
 use chrono::Utc;
+use flate2::Compression;
+use flate2::write::GzEncoder;
 use maplecode_app_server_protocol::HookMetadata;
 use maplecode_app_server_protocol::HookTrustStatus;
 use maplecode_app_server_protocol::HooksListParams;
@@ -38,8 +40,6 @@ use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::login_with_api_key;
 use maplecode_protocol::config_types::TrustLevel;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use flate2::Compression;
-use flate2::write::GzEncoder;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use test_case::test_case;
@@ -168,7 +168,9 @@ async fn plugin_rpcs_reject_repository_spoofing_openai_curated() -> Result<()> {
     std::fs::create_dir_all(repository.path().join(".agents/plugins"))?;
     std::fs::create_dir_all(repository.path().join("attacker/.maplecode-plugin"))?;
     std::fs::write(
-        repository.path().join("attacker/.maplecode-plugin/plugin.json"),
+        repository
+            .path()
+            .join("attacker/.maplecode-plugin/plugin.json"),
         r#"{"name":"attacker"}"#,
     )?;
     let marketplace_path =
@@ -857,7 +859,9 @@ async fn plugin_list_omitted_cwds_excludes_server_project_config() -> Result<()>
         "[features]\nplugins = true\n[plugins.\"home-plugin@home-marketplace\"]\nenabled = true\n",
     )?;
     std::fs::write(
-        maplecode_home.path().join(".agents/plugins/marketplace.json"),
+        maplecode_home
+            .path()
+            .join(".agents/plugins/marketplace.json"),
         r#"{
   "name": "home-marketplace",
   "plugins": [
@@ -884,7 +888,11 @@ async fn plugin_list_omitted_cwds_excludes_server_project_config() -> Result<()>
             "[marketplaces.project-marketplace]\nsource_type = \"local\"\nsource = {source}\n\n[plugins.\"home-plugin@home-marketplace\"]\nenabled = false\n"
         ),
     )?;
-    set_project_trust_level(maplecode_home.path(), maplecode_home.path(), TrustLevel::Trusted)?;
+    set_project_trust_level(
+        maplecode_home.path(),
+        maplecode_home.path(),
+        TrustLevel::Trusted,
+    )?;
     let home = maplecode_home.path().to_string_lossy().into_owned();
     let mut mcp = TestAppServer::builder()
         .with_maplecode_home(maplecode_home.path())
@@ -1161,7 +1169,12 @@ async fn plugin_list_refreshes_plugins_from_each_cwd(
     };
     let versions = ["1.1.0", "2.0.0"];
     for ((repo, name), version) in repos.iter().zip(names).zip(versions) {
-        for directory in [".git", ".maplecode", ".agents/plugins", "sample/.maplecode-plugin"] {
+        for directory in [
+            ".git",
+            ".maplecode",
+            ".agents/plugins",
+            "sample/.maplecode-plugin",
+        ] {
             std::fs::create_dir_all(repo.join(directory))?;
         }
         std::fs::write(
@@ -1444,7 +1457,10 @@ enabled = false
         Some("ChatGPT Official")
     );
     assert_eq!(marketplace.plugins.len(), 3);
-    assert_eq!(marketplace.plugins[0].id, "enabled-plugin@maplecode-curated");
+    assert_eq!(
+        marketplace.plugins[0].id,
+        "enabled-plugin@maplecode-curated"
+    );
     assert_eq!(marketplace.plugins[0].name, "enabled-plugin");
     assert_eq!(marketplace.plugins[0].installed, true);
     assert_eq!(marketplace.plugins[0].enabled, expected_enabled);
@@ -1456,7 +1472,10 @@ enabled = false
         marketplace.plugins[0].auth_policy,
         PluginAuthPolicy::OnInstall
     );
-    assert_eq!(marketplace.plugins[1].id, "disabled-plugin@maplecode-curated");
+    assert_eq!(
+        marketplace.plugins[1].id,
+        "disabled-plugin@maplecode-curated"
+    );
     assert_eq!(marketplace.plugins[1].name, "disabled-plugin");
     assert_eq!(marketplace.plugins[1].installed, true);
     assert_eq!(marketplace.plugins[1].enabled, false);
@@ -1855,7 +1874,9 @@ async fn plugin_list_returns_installed_git_source_interface_from_cache(
 }}"#
         ),
     )?;
-    let cached_plugin_root = maplecode_home.path().join("plugins/cache/debug/toolkit/local");
+    let cached_plugin_root = maplecode_home
+        .path()
+        .join("plugins/cache/debug/toolkit/local");
     std::fs::create_dir_all(cached_plugin_root.join(".maplecode-plugin"))?;
     std::fs::write(
         cached_plugin_root.join(".maplecode-plugin/plugin.json"),
@@ -1893,8 +1914,15 @@ enabled = true
             repo_root.path().join(".agents/plugins/marketplace.json"),
             later_repo.path().join(".agents/plugins/marketplace.json"),
         )?;
-        std::fs::write(later_repo.path().join(".maplecode/config.toml"), plugin_config)?;
-        set_project_trust_level(maplecode_home.path(), later_repo.path(), TrustLevel::Trusted)?;
+        std::fs::write(
+            later_repo.path().join(".maplecode/config.toml"),
+            plugin_config,
+        )?;
+        set_project_trust_level(
+            maplecode_home.path(),
+            later_repo.path(),
+            TrustLevel::Trusted,
+        )?;
         cwds.push(AbsolutePathBuf::try_from(later_repo.path())?);
     }
 
@@ -2058,8 +2086,18 @@ async fn plugin_list_sync_upgrades_and_removes_remote_installed_plugin_bundles()
             .chatgpt_account_id("account-123"),
         AuthCredentialsStoreMode::File,
     )?;
-    write_installed_plugin_with_version(&maplecode_home, "openai-curated-remote", "linear", "1.0.0")?;
-    write_installed_plugin_with_version(&maplecode_home, "openai-curated-remote", "stale", "1.0.0")?;
+    write_installed_plugin_with_version(
+        &maplecode_home,
+        "openai-curated-remote",
+        "linear",
+        "1.0.0",
+    )?;
+    write_installed_plugin_with_version(
+        &maplecode_home,
+        "openai-curated-remote",
+        "stale",
+        "1.0.0",
+    )?;
 
     let bundle_url = mount_remote_plugin_bundle(
         &server,
@@ -2183,7 +2221,12 @@ async fn plugin_list_includes_remote_marketplaces_when_remote_plugin_enabled(
             .chatgpt_account_id("account-123"),
         AuthCredentialsStoreMode::File,
     )?;
-    write_installed_plugin_with_version(&maplecode_home, "openai-curated-remote", "linear", "1.2.3")?;
+    write_installed_plugin_with_version(
+        &maplecode_home,
+        "openai-curated-remote",
+        "linear",
+        "1.2.3",
+    )?;
 
     let repo = TempDir::new()?;
     let cwds = if project_configuration != ProjectPluginConfiguration::None {
@@ -3042,8 +3085,8 @@ async fn plugin_list_includes_api_curated_marketplace_for_api_auth_when_remote_p
 }
 
 #[tokio::test]
-async fn plugin_list_includes_api_curated_marketplace_for_bedrock_without_maplecode_auth() -> Result<()>
-{
+async fn plugin_list_includes_api_curated_marketplace_for_bedrock_without_maplecode_auth()
+-> Result<()> {
     let maplecode_home = TempDir::new()?;
     std::fs::write(
         maplecode_home.path().join("config.toml"),
@@ -3576,11 +3619,9 @@ plugin_sharing = false
             .collect::<Vec<_>>(),
         vec![("private-linear@created-by-me-remote", true, true)]
     );
-    wait_for_path_exists(
-        &maplecode_home.path().join(
-            "plugins/cache/created-by-me-remote/private-linear/1.2.3/.maplecode-plugin/plugin.json",
-        ),
-    )
+    wait_for_path_exists(&maplecode_home.path().join(
+        "plugins/cache/created-by-me-remote/private-linear/1.2.3/.maplecode-plugin/plugin.json",
+    ))
     .await?;
     wait_for_remote_installed_snapshot_request(&server).await?;
     Ok(())
@@ -4693,7 +4734,10 @@ remote_plugin = true
 async fn plugin_list_omits_featured_plugin_ids_without_chatgpt_auth() -> Result<()> {
     let maplecode_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_plugin_sync_config(maplecode_home.path(), &format!("{}/backend-api/", server.uri()))?;
+    write_plugin_sync_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api/", server.uri()),
+    )?;
     write_openai_api_curated_marketplace(maplecode_home.path(), &["linear", "gmail"])?;
 
     Mock::given(method("GET"))
@@ -4736,7 +4780,10 @@ async fn plugin_list_omits_featured_plugin_ids_without_chatgpt_auth() -> Result<
 async fn plugin_list_fetches_and_caches_featured_plugin_ids_on_demand() -> Result<()> {
     let maplecode_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_plugin_sync_config(maplecode_home.path(), &format!("{}/backend-api/", server.uri()))?;
+    write_plugin_sync_config(
+        maplecode_home.path(),
+        &format!("{}/backend-api/", server.uri()),
+    )?;
     write_openai_curated_marketplace(maplecode_home.path(), &["linear", "gmail"])?;
     write_remote_plugin_test_auth(maplecode_home.path())?;
 
@@ -5424,7 +5471,10 @@ fn write_installed_plugin_with_version(
     Ok(())
 }
 
-fn write_plugin_sync_config(maplecode_home: &std::path::Path, base_url: &str) -> std::io::Result<()> {
+fn write_plugin_sync_config(
+    maplecode_home: &std::path::Path,
+    base_url: &str,
+) -> std::io::Result<()> {
     std::fs::write(
         maplecode_home.join("config.toml"),
         format!(

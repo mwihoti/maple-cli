@@ -1,5 +1,8 @@
 //! Verifies connector-scoped exposure, server restrictions, and MCP dispatch.
 
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::search_capable_apps_builder;
+use core_test_support::responses;
 use maplecode_core::config::Config;
 use maplecode_extension_api::ExtensionFuture;
 use maplecode_extension_api::ExtensionRegistryBuilder;
@@ -9,9 +12,6 @@ use maplecode_extension_api::McpServerContributor;
 use maplecode_features::Feature;
 use maplecode_protocol::config_types::ToolExposureSurface;
 use maplecode_protocol::openai_models::ToolMode;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::search_capable_apps_builder;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;
@@ -177,7 +177,9 @@ pub(super) async fn connector_exposure_requests(
         case.server_omissions
     ))?)));
     let mut builder = search_capable_apps_builder(server.uri())
-        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?)
+        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
+            "maplecode-code-mode-host",
+        )?)
         .with_pre_build_hook(move |home| {
             std::fs::write(
                 home.join("config.toml"),

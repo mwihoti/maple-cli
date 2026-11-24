@@ -80,7 +80,8 @@ mod tests {
 
     #[tokio::test]
     async fn version_check_reuses_existing_ollama_client() {
-        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+        if std::env::var(maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
+        {
             tracing::info!(
                 "{} set; skipping version_check_reuses_existing_ollama_client",
                 maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR

@@ -3,6 +3,8 @@ use std::sync::Mutex;
 
 use anyhow::Context;
 use anyhow::Result;
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_api::AuthProvider;
 use maplecode_exec_server::ExecServerClient;
 use maplecode_exec_server::NoiseChannelIdentity;
@@ -11,8 +13,6 @@ use maplecode_exec_server::NoiseRendezvousConnectBundle;
 use maplecode_exec_server::RemoteEnvironmentConfig;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
-use http::HeaderMap;
-use http::HeaderValue;
 use tokio::net::TcpListener;
 use tokio::time::timeout;
 use tokio_util::task::AbortOnDropHandle;

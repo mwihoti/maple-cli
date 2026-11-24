@@ -1,9 +1,9 @@
 //! Read-only host agent session membership for native context construction.
 
+use futures::future::BoxFuture;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::Result;
-use futures::future::BoxFuture;
 
 /// An agent's identity in the selected owner's agent session.
 #[derive(Clone, Debug, PartialEq, Eq)]

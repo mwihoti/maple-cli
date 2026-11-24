@@ -13,8 +13,8 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::ptr;
 
-use maplecode_realtime_webrtc::RUNTIME_ENVIRONMENT;
 use libloading::Library;
+use maplecode_realtime_webrtc::RUNTIME_ENVIRONMENT;
 
 type Init = unsafe extern "C" fn(*mut i32, *mut *mut *mut c_char, *mut *mut c_void) -> i32;
 type LoadPlugin = unsafe extern "C" fn(*const c_char, *mut *mut c_void) -> *mut c_void;

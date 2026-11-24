@@ -2,6 +2,21 @@ use anyhow::Context;
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::managed_network_requirements_loader;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::startup::STARTUP_TIMEOUT;
+use core_test_support::startup::expect_startup;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::TurnInputRequest;
 use maplecode_exec_server::ExecParams;
@@ -31,21 +46,6 @@ use maplecode_protocol::protocol::TurnEnvironmentRequest;
 use maplecode_protocol::protocol::TurnEnvironmentRequests;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::managed_network_requirements_loader;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::startup::STARTUP_TIMEOUT;
-use core_test_support::startup::expect_startup;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -1160,7 +1160,10 @@ timeout = 900
                 .enable(Feature::LoginShellPackagePath)
                 .expect("enable login shell package PATH");
         }
-        if matches!(scenario, PushedExecScenario::MapleCodePathWithExplicitOverride) {
+        if matches!(
+            scenario,
+            PushedExecScenario::MapleCodePathWithExplicitOverride
+        ) {
             config
                 .permissions
                 .shell_environment_policy
@@ -1284,7 +1287,8 @@ timeout = 900
                     TurnEnvironmentRequests::new(
                         test.config.cwd.clone(),
                         vec![TurnEnvironmentRequest {
-                            environment_id: maplecode_exec_server::REMOTE_ENVIRONMENT_ID.to_string(),
+                            environment_id: maplecode_exec_server::REMOTE_ENVIRONMENT_ID
+                                .to_string(),
                             cwd,
                             workspace_roots,
                             config: EnvironmentConfigState::FromThread,
@@ -1700,7 +1704,10 @@ timeout = 900
             exec_command_begin_command,
             Some(expected.into_iter().map(str::to_string).collect())
         );
-        if matches!(scenario, PushedExecScenario::MapleCodePathWithExplicitOverride) {
+        if matches!(
+            scenario,
+            PushedExecScenario::MapleCodePathWithExplicitOverride
+        ) {
             assert_eq!(params["envPolicy"]["set"]["PATH"], explicit_path);
         }
     } else if matches!(scenario, PushedExecScenario::Complete)

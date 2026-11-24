@@ -11,11 +11,48 @@ use anyhow::Context;
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
+use core_test_support::TestTargetOs;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_no_remote_env;
+use core_test_support::skip_if_target_windows;
+use core_test_support::startup::expect_startup;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_docker_container_name;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::environment_config_for_selection;
+use core_test_support::test_maplecode::local;
+use core_test_support::test_maplecode::local_request;
+use core_test_support::test_maplecode::test_env;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::test_target_os;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use futures::SinkExt;
+use futures::StreamExt;
+use futures::future::BoxFuture;
+use http::HeaderMap;
 use maplecode_api::AuthProvider;
 use maplecode_config::types::ApprovalsReviewer;
-use maplecode_core::MapleCodeThreadSettingsOverrides;
 use maplecode_core::EnvironmentConfig;
 use maplecode_core::EnvironmentNetworkPolicy;
+use maplecode_core::MapleCodeThreadSettingsOverrides;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnInputSubmission;
@@ -97,43 +134,6 @@ use maplecode_protocol::request_user_input::RequestUserInputResponse;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
-use core_test_support::TestTargetOs;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_no_remote_env;
-use core_test_support::skip_if_target_windows;
-use core_test_support::startup::expect_startup;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::environment_config_for_selection;
-use core_test_support::test_maplecode::local;
-use core_test_support::test_maplecode::local_request;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::test_env;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::test_docker_container_name;
-use core_test_support::test_target_os;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use futures::SinkExt;
-use futures::StreamExt;
-use futures::future::BoxFuture;
-use http::HeaderMap;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -678,7 +678,10 @@ async fn environment_permissions_follow_configuration_ownership() -> Result<()> 
     test.maplecode
         .restore_thread_settings(test.maplecode.restorable_thread_settings().await)
         .await?;
-    let (mcp_config, _) = test.maplecode.current_mcp_config_and_runtime_context().await;
+    let (mcp_config, _) = test
+        .maplecode
+        .current_mcp_config_and_runtime_context()
+        .await;
     assert_eq!(
         mcp_config.permission_profile,
         PermissionProfile::workspace_write()
@@ -1828,7 +1831,9 @@ async fn shared_executor_keeps_ready_capability_roots_scoped_to_each_attachment(
     }
 
     assert_eq!(
-        test.maplecode.inspect_selected_capability_roots().ready_roots,
+        test.maplecode
+            .inspect_selected_capability_roots()
+            .ready_roots,
         vec![root("first-updated-root")]
     );
     let requests = response_mock.requests();
@@ -3510,7 +3515,10 @@ async fn deferred_executor_loads_agents_md_when_environment_becomes_ready() -> R
     assert_eq!(environment_instructions_occurrences(&requests[0]), 1);
     assert_eq!(environment_instructions_occurrences(&requests[1]), 1);
     assert_eq!(environment_instructions_occurrences(&requests[2]), 1);
-    assert_eq!(test.maplecode.instruction_sources().await, vec![agents_path]);
+    assert_eq!(
+        test.maplecode.instruction_sources().await,
+        vec![agents_path]
+    );
 
     Ok(())
 }
@@ -4681,7 +4689,10 @@ async fn remote_test_env_sandboxed_read_allows_readable_root() -> Result<()> {
     let test_env = test_env().await?;
     let file_system = test_env.environment().get_filesystem();
 
-    let allowed_dir = PathBuf::from(format!("/tmp/maplecode-remote-readable-{}", std::process::id()));
+    let allowed_dir = PathBuf::from(format!(
+        "/tmp/maplecode-remote-readable-{}",
+        std::process::id()
+    ));
     let file_path = allowed_dir.join("note.txt");
     let allowed_dir_uri = PathUri::from_host_native_path(&allowed_dir)?;
     let file_path_uri = PathUri::from_host_native_path(&file_path)?;
@@ -4734,7 +4745,10 @@ async fn remote_test_env_sandboxed_read_rejects_symlink_parent_dotdot_escape() -
     let test_env = test_env().await?;
     let file_system = test_env.environment().get_filesystem();
 
-    let root = PathBuf::from(format!("/tmp/maplecode-remote-dotdot-{}", std::process::id()));
+    let root = PathBuf::from(format!(
+        "/tmp/maplecode-remote-dotdot-{}",
+        std::process::id()
+    ));
     let allowed_dir = root.join("allowed");
     let outside_dir = root.join("outside");
     let secret_path = root.join("secret.txt");

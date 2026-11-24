@@ -335,18 +335,20 @@ async fn turn_profile_and_duration_share_a_completion_instant() {
     let (_, duration_ms, profile) = result;
     assert_eq!(
         profile.critical_path,
-        maplecode_analytics::TurnCriticalPath::Complete(maplecode_analytics::TurnCriticalPathDurations {
-            duration_ms: duration_ms.unwrap() as u64,
-            inference_ms: 0,
-            sampling_ms: 0,
-            compaction_ms: 0,
-            auto_review_ms: 0,
-            auto_review_overhead_ms: Some(0),
-            user_wait_ms: 0,
-            tools_ms: 0,
-            overhead_ms: duration_ms.unwrap() as u64,
-            unknown_ms: 0,
-        })
+        maplecode_analytics::TurnCriticalPath::Complete(
+            maplecode_analytics::TurnCriticalPathDurations {
+                duration_ms: duration_ms.unwrap() as u64,
+                inference_ms: 0,
+                sampling_ms: 0,
+                compaction_ms: 0,
+                auto_review_ms: 0,
+                auto_review_overhead_ms: Some(0),
+                user_wait_ms: 0,
+                tools_ms: 0,
+                overhead_ms: duration_ms.unwrap() as u64,
+                unknown_ms: 0,
+            }
+        )
     );
     let classified_ms = profile.before_first_sampling_ms
         + profile.sampling_ms
@@ -391,18 +393,20 @@ fn capture_preserves_phases_and_freezes_missing_dependencies() {
     );
     assert_eq!(
         profile.critical_path,
-        maplecode_analytics::TurnCriticalPath::Complete(maplecode_analytics::TurnCriticalPathDurations {
-            duration_ms: 60,
-            inference_ms: 10,
-            sampling_ms: 10,
-            compaction_ms: 0,
-            auto_review_ms: 0,
-            auto_review_overhead_ms: None,
-            user_wait_ms: 0,
-            tools_ms: 0,
-            overhead_ms: 20,
-            unknown_ms: 30,
-        })
+        maplecode_analytics::TurnCriticalPath::Complete(
+            maplecode_analytics::TurnCriticalPathDurations {
+                duration_ms: 60,
+                inference_ms: 10,
+                sampling_ms: 10,
+                compaction_ms: 0,
+                auto_review_ms: 0,
+                auto_review_overhead_ms: None,
+                user_wait_ms: 0,
+                tools_ms: 0,
+                overhead_ms: 20,
+                unknown_ms: 30,
+            }
+        )
     );
     let frozen_path = state.path.clone();
     state.end_phase(time_after_turn_start(70), TurnProfilePhase::ToolBlocking);
@@ -489,18 +493,20 @@ fn critical_path_report_retains_fractional_millisecond_rounding_and_compaction()
     let profile = state.complete(end);
     assert_eq!(
         profile.critical_path,
-        maplecode_analytics::TurnCriticalPath::Complete(maplecode_analytics::TurnCriticalPathDurations {
-            duration_ms: 1,
-            inference_ms: 1,
-            sampling_ms: 0,
-            compaction_ms: 1,
-            auto_review_ms: 0,
-            auto_review_overhead_ms: Some(0),
-            user_wait_ms: 0,
-            tools_ms: 0,
-            overhead_ms: 0,
-            unknown_ms: 0,
-        })
+        maplecode_analytics::TurnCriticalPath::Complete(
+            maplecode_analytics::TurnCriticalPathDurations {
+                duration_ms: 1,
+                inference_ms: 1,
+                sampling_ms: 0,
+                compaction_ms: 1,
+                auto_review_ms: 0,
+                auto_review_overhead_ms: Some(0),
+                user_wait_ms: 0,
+                tools_ms: 0,
+                overhead_ms: 0,
+                unknown_ms: 0,
+            }
+        )
     );
 }
 

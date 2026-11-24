@@ -5,6 +5,7 @@ use std::time::Duration;
 use anyhow::Context;
 use anyhow::Result;
 use app_test_support::TestAppServer;
+use core_test_support::fs_wait::wait_for_path_exists;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::MarketplaceUpgradeParams;
 use maplecode_app_server_protocol::MarketplaceUpgradeResponse;
@@ -17,7 +18,6 @@ use maplecode_app_server_protocol::RequestId;
 use maplecode_config::MarketplaceConfigUpdate;
 use maplecode_config::record_user_marketplace;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::fs_wait::wait_for_path_exists;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use test_case::test_case;
@@ -124,7 +124,10 @@ fn marketplace_install_root(maplecode_home: &Path) -> std::path::PathBuf {
     maplecode_home.join(INSTALLED_MARKETPLACES_DIR)
 }
 
-fn expected_installed_root(maplecode_home: &Path, marketplace_name: &str) -> Result<AbsolutePathBuf> {
+fn expected_installed_root(
+    maplecode_home: &Path,
+    marketplace_name: &str,
+) -> Result<AbsolutePathBuf> {
     AbsolutePathBuf::try_from(
         marketplace_install_root(&maplecode_home.canonicalize()?).join(marketplace_name),
     )
@@ -215,7 +218,10 @@ fn write_plugin_release(root: &Path, name: &str, version: &str, instructions: &s
     std::fs::create_dir_all(root.join(".maplecode-plugin"))?;
     std::fs::create_dir_all(root.join("skills/deploy"))?;
     let manifest = serde_json::json!({ "name": name, "version": version });
-    std::fs::write(root.join(".maplecode-plugin/plugin.json"), manifest.to_string())?;
+    std::fs::write(
+        root.join(".maplecode-plugin/plugin.json"),
+        manifest.to_string(),
+    )?;
     std::fs::write(root.join("skills/deploy/SKILL.md"), instructions)?;
     Ok(())
 }
@@ -373,7 +379,13 @@ async fn automatic_upgrade_isolates_git_while_explicit_install_preserves_configu
             maplecode_home.path(),
             &["config", "--add", &rewrite_key, untrusted_source],
         )?;
-        assert!(run_git(maplecode_home.path(), &["ls-remote", untrusted_source, "HEAD"]).is_err());
+        assert!(
+            run_git(
+                maplecode_home.path(),
+                &["ls-remote", untrusted_source, "HEAD"]
+            )
+            .is_err()
+        );
     }
 
     let manual_plugin_alias = "https://manual.example/plugin.git";

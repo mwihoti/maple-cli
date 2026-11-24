@@ -1,4 +1,10 @@
 use anyhow::Result;
+use core_test_support::TempDirExt;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::config::Constrained;
 use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
@@ -6,12 +12,6 @@ use maplecode_protocol::config_types::Settings;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::Op;
-use core_test_support::TempDirExt;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use tempfile::TempDir;
 
 fn collab_mode_with_instructions(instructions: Option<&str>) -> CollaborationMode {
@@ -46,7 +46,10 @@ async fn thread_settings_update_without_user_turn_does_not_record_permissions_up
     .await?;
 
     test.maplecode.submit(Op::Shutdown).await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::ShutdownComplete)).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::ShutdownComplete)
+    })
+    .await;
 
     let rollout_path = test.maplecode.rollout_path().expect("rollout path");
     assert!(
@@ -76,7 +79,10 @@ async fn thread_settings_update_without_user_turn_does_not_record_environment_up
     .await?;
 
     test.maplecode.submit(Op::Shutdown).await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::ShutdownComplete)).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::ShutdownComplete)
+    })
+    .await;
 
     let rollout_path = test.maplecode.rollout_path().expect("rollout path");
     assert!(
@@ -107,7 +113,10 @@ async fn thread_settings_update_without_user_turn_does_not_record_collaboration_
     .await?;
 
     test.maplecode.submit(Op::Shutdown).await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::ShutdownComplete)).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::ShutdownComplete)
+    })
+    .await;
 
     let rollout_path = test.maplecode.rollout_path().expect("rollout path");
     assert!(

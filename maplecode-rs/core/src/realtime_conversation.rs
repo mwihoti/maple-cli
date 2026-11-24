@@ -12,6 +12,9 @@ use async_channel::Sender;
 use async_channel::TrySendError;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use http::HeaderMap;
+use http::HeaderValue;
+use http::header::AUTHORIZATION;
 use maplecode_api::ApiError;
 use maplecode_api::Provider as ApiProvider;
 use maplecode_api::RealtimeAudioFrame;
@@ -43,8 +46,6 @@ use maplecode_protocol::auth::AuthMode;
 use maplecode_protocol::error::MapleCodeErr;
 use maplecode_protocol::error::Result as MapleCodeResult;
 use maplecode_protocol::models::MessagePhase;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
-use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
 use maplecode_protocol::protocol::ConversationAudioParams;
 use maplecode_protocol::protocol::ConversationSpeechParams;
 use maplecode_protocol::protocol::ConversationStartParams;
@@ -54,6 +55,8 @@ use maplecode_protocol::protocol::ConversationTextRole;
 use maplecode_protocol::protocol::ErrorEvent;
 use maplecode_protocol::protocol::Event;
 use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
 use maplecode_protocol::protocol::RealtimeAttachmentOptions;
 use maplecode_protocol::protocol::RealtimeConversationClosedEvent;
 use maplecode_protocol::protocol::RealtimeConversationRealtimeEvent;
@@ -67,9 +70,6 @@ use maplecode_protocol::protocol::RealtimeVoicesList;
 use maplecode_utils_output_truncation::approx_bytes_for_tokens;
 use maplecode_utils_string::approx_token_count;
 use maplecode_utils_string::take_bytes_at_char_boundary;
-use http::HeaderMap;
-use http::HeaderValue;
-use http::header::AUTHORIZATION;
 use serde_json::json;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
@@ -1487,7 +1487,9 @@ async fn prepare_realtime_start(
         credentials: Arc::clone(&auth_manager),
         runtime_auth: if config.features.enabled(Feature::RuntimeAgentInstances) {
             let runtime = sess.services.runtime_auth.get().ok_or_else(|| {
-                MapleCodeErr::InvalidRequest("runtime authentication is not initialized".to_string())
+                MapleCodeErr::InvalidRequest(
+                    "runtime authentication is not initialized".to_string(),
+                )
             })?;
             Some((Arc::clone(runtime), config.runtime_auth_mode))
         } else {
@@ -1664,7 +1666,8 @@ async fn prepare_realtime_start(
         maplecode_response_item_prefix: params.maplecode_response_item_prefix,
         maplecode_response_handoff_mode: params.maplecode_response_handoff_mode,
         backend_reasoning_status: params.backend_reasoning_status,
-        maplecode_response_handoff_channel_prefixes: params.maplecode_response_handoff_channel_prefixes,
+        maplecode_response_handoff_channel_prefixes: params
+            .maplecode_response_handoff_channel_prefixes,
         realtime_start_instructions: params.realtime_start_instructions,
         realtime_end_instructions: params.realtime_end_instructions,
         realtime_call_api_provider,
@@ -1846,7 +1849,10 @@ fn realtime_backend_item(text: String, prefix: Option<&str>) -> String {
     truncate_realtime_text_to_token_budget(&text, REALTIME_ASSISTANT_OUTPUT_TOKEN_BUDGET)
 }
 
-fn validate_realtime_voice(version: RealtimeWsVersion, voice: RealtimeVoice) -> MapleCodeResult<()> {
+fn validate_realtime_voice(
+    version: RealtimeWsVersion,
+    voice: RealtimeVoice,
+) -> MapleCodeResult<()> {
     let voices = RealtimeVoicesList::builtin();
     let allowed = match version {
         RealtimeWsVersion::V1 => &voices.v1,
@@ -2082,8 +2088,13 @@ pub(crate) async fn handle_audio(
         if sess.conversation.running_state().await.is_some() {
             warn!("realtime audio input failed while the session was already ending");
         } else {
-            send_conversation_error(sess, sub_id, err.to_string(), MapleCodeErrorInfo::BadRequest)
-                .await;
+            send_conversation_error(
+                sess,
+                sub_id,
+                err.to_string(),
+                MapleCodeErrorInfo::BadRequest,
+            )
+            .await;
         }
     }
 }
@@ -2132,7 +2143,10 @@ fn wrap_realtime_delegation_input(
         .unwrap_or_default()
 }
 
-fn realtime_api_key(auth: Option<&MapleCodeAuth>, provider: &ModelProviderInfo) -> MapleCodeResult<String> {
+fn realtime_api_key(
+    auth: Option<&MapleCodeAuth>,
+    provider: &ModelProviderInfo,
+) -> MapleCodeResult<String> {
     if let Some(api_key) = provider.api_key()? {
         return Ok(api_key);
     }
@@ -2215,8 +2229,13 @@ pub(crate) async fn handle_text(
         if sess.conversation.running_state().await.is_some() {
             warn!("realtime text input failed while the session was already ending");
         } else {
-            send_conversation_error(sess, sub_id, err.to_string(), MapleCodeErrorInfo::BadRequest)
-                .await;
+            send_conversation_error(
+                sess,
+                sub_id,
+                err.to_string(),
+                MapleCodeErrorInfo::BadRequest,
+            )
+            .await;
         }
     }
 }
@@ -2232,8 +2251,13 @@ pub(crate) async fn handle_speech(
         if sess.conversation.running_state().await.is_some() {
             warn!("realtime speech append failed while the session was already ending");
         } else {
-            send_conversation_error(sess, sub_id, err.to_string(), MapleCodeErrorInfo::BadRequest)
-                .await;
+            send_conversation_error(
+                sess,
+                sub_id,
+                err.to_string(),
+                MapleCodeErrorInfo::BadRequest,
+            )
+            .await;
         }
     }
 }

@@ -398,8 +398,9 @@ printf 'legacy proc fallback\n'
             "MAPLECODE_TEST_PROTECTED_FILE".to_string(),
             protected_file.display().to_string(),
         );
-        let mut command =
-            Command::new(cargo_bin("maplecode-linux-sandbox").expect("sandbox helper should exist"));
+        let mut command = Command::new(
+            cargo_bin("maplecode-linux-sandbox").expect("sandbox helper should exist"),
+        );
         command
             .arg("--sandbox-policy-cwd")
             .arg(std::env::current_dir().expect("current directory should exist"))
@@ -1016,7 +1017,10 @@ async fn handoff_isolates_concurrent_endpoints_and_closes_privileged_descriptors
             PROXY_ATTRIBUTION_TOKEN_ENV_KEY.to_string(),
             format!("handoff-{label}"),
         );
-        env.insert("MAPLECODE_TEST_HANDOFF_LABEL".to_string(), label.to_string());
+        env.insert(
+            "MAPLECODE_TEST_HANDOFF_LABEL".to_string(),
+            label.to_string(),
+        );
         env.insert("MAPLECODE_TEST_HANDOFF_PEER".to_string(), peer.to_string());
         env.insert(
             "MAPLECODE_TEST_HANDOFF_SHARED".to_string(),

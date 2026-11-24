@@ -1,9 +1,9 @@
 //! Connects host-owned turn capacity to Core task lifetimes.
 
 use crate::agent::types::AgentExecutionGuard;
+use futures::future::BoxFuture;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::Result;
-use futures::future::BoxFuture;
 
 /// Identifies the execution for which Core requests host capacity.
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -115,12 +115,13 @@ fn changing_retained_context_and_attestations_preserves_history_before_the_curre
                     &uuid_v7_item_id_generator_for_test(),
                 );
             }
-            let reviews =
-                PreviousReviews::try_from_fragments(vec![maplecode_guardian_context::PreviousReview {
+            let reviews = PreviousReviews::try_from_fragments(vec![
+                maplecode_guardian_context::PreviousReview {
                     id: uuid_v7_item_id_generator_for_test()("review"),
                     fragment: format!("Host-attested decision {generation}: denied."),
-                }])
-                .unwrap();
+                },
+            ])
+            .unwrap();
             let tool = TrustedTool {
                 server: format!("server-{generation}"),
                 connector_id: None,

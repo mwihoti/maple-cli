@@ -6,8 +6,8 @@ use super::runtime::AgentTreeMembership;
 use crate::agent::AgentStatus;
 use crate::agent::host::AgentRuntimeServices;
 use crate::agent::registry::EvictedEnvironments;
-use crate::maplecode_thread::MapleCodeThread;
 use crate::config::Config;
+use crate::maplecode_thread::MapleCodeThread;
 use crate::thread_manager::ThreadManagerState;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::AgentErrorContext;
@@ -62,7 +62,8 @@ impl ThreadManagerState {
             let _residency_guard = residency_guard;
             thread.ensure_rollout_materialized().await;
             if let Err(err) = thread.shutdown_and_wait().await {
-                teardown.record_shutdown_failure("stop_resident", MapleCodeErrKind::from(&err).into());
+                teardown
+                    .record_shutdown_failure("stop_resident", MapleCodeErrKind::from(&err).into());
                 teardown.complete();
                 return Err(err);
             }

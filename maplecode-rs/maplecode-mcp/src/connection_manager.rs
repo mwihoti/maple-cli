@@ -72,6 +72,8 @@ use anyhow::Context;
 use anyhow::Result;
 use anyhow::anyhow;
 use anyhow::bail;
+use futures::FutureExt;
+use futures::future::join_all;
 use maplecode_config::McpServerTransportConfig;
 use maplecode_config::McpStartupReadiness;
 use maplecode_diagnostics::Gauge;
@@ -89,8 +91,6 @@ use maplecode_protocol::protocol::McpStartupFailureReason;
 use maplecode_protocol::protocol::McpStartupStatus;
 use maplecode_protocol::protocol::McpStartupUpdateEvent;
 use maplecode_rmcp_client::determine_streamable_http_auth_status_from_credentials;
-use futures::FutureExt;
-use futures::future::join_all;
 use tokio::sync::watch;
 use tokio::task::JoinSet;
 use tracing::warn;
@@ -519,12 +519,13 @@ impl McpConnectionSet {
             .filter(|auth| auth.uses_maplecode_backend())
             .map(maplecode_model_provider::auth_provider_from_auth);
         let maplecode_apps_auth_provider = auth_manager.as_ref().and_then(|auth_manager| {
-            auth.filter(|auth| auth.uses_maplecode_backend()).map(|auth| {
-                maplecode_model_provider::auth_provider_from_auth_manager(
-                    Arc::clone(auth_manager),
-                    auth,
-                )
-            })
+            auth.filter(|auth| auth.uses_maplecode_backend())
+                .map(|auth| {
+                    maplecode_model_provider::auth_provider_from_auth_manager(
+                        Arc::clone(auth_manager),
+                        auth,
+                    )
+                })
         });
         for (server_key, server) in mcp_servers
             .into_iter()
@@ -629,7 +630,10 @@ impl McpConnectionSet {
             let openai_runtime = runtime_auth.as_ref().filter(|_| {
                 !uses_env_bearer_token
                     && configured_config.is_local_environment()
-                    && matches!(configured_config.auth, maplecode_config::McpServerAuth::ChatGpt)
+                    && matches!(
+                        configured_config.auth,
+                        maplecode_config::McpServerAuth::ChatGpt
+                    )
                     && auth.is_some_and(maplecode_login::MapleCodeAuth::uses_maplecode_backend)
                     && matches!(&configured_config.transport,
                         McpServerTransportConfig::StreamableHttp { url, .. }
@@ -662,7 +666,10 @@ impl McpConnectionSet {
                 ]);
                 scope.sort_all_objects();
                 maplecode_apps_tools_cache
-                    .context(maplecode_home.clone(), maplecode_apps_tools_cache_key.clone())
+                    .context(
+                        maplecode_home.clone(),
+                        maplecode_apps_tools_cache_key.clone(),
+                    )
                     .with_live_scope(scope.to_string())
             });
             // The reserved Maple Code Apps registration follows the shared
@@ -725,8 +732,12 @@ impl McpConnectionSet {
                 runtime_auth_provider.as_ref(),
                 runtime_auth_mode,
                 auth,
-                eligible_for_apps_cache
-                    .then(|| (maplecode_home.clone(), maplecode_apps_tools_cache_key.clone())),
+                eligible_for_apps_cache.then(|| {
+                    (
+                        maplecode_home.clone(),
+                        maplecode_apps_tools_cache_key.clone(),
+                    )
+                }),
                 client_elicitation_capability.clone(),
                 client_mcp_extensions.clone(),
                 previous

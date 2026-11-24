@@ -4,6 +4,7 @@
 use crate::session::session::Session;
 use crate::tools::context::ToolInvocation;
 use crate::tools::registry::CoreToolRuntime;
+use futures::future::BoxFuture;
 use maplecode_tools::JsonSchema;
 use maplecode_tools::ResponsesApiNamespace;
 use maplecode_tools::ResponsesApiNamespaceTool;
@@ -12,7 +13,6 @@ use maplecode_tools::ToolExposure;
 use maplecode_tools::ToolName;
 use maplecode_tools::ToolSearchInfo;
 use maplecode_tools::ToolSpec;
-use futures::future::BoxFuture;
 use std::sync::Arc;
 
 /// Shared namespace description for native tools and host extensions.

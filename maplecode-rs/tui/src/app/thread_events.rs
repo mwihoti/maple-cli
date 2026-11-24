@@ -14,7 +14,8 @@ pub(super) struct ThreadEventSnapshot {
     pub(super) delegated_turns: Vec<String>,
     pub(super) turns: Vec<Turn>,
     pub(super) events: Vec<ThreadBufferedEvent>,
-    pub(super) active_reasoning_item: Option<maplecode_app_server_protocol::ItemStartedNotification>,
+    pub(super) active_reasoning_item:
+        Option<maplecode_app_server_protocol::ItemStartedNotification>,
     pub(super) input_state: Option<ThreadInputState>,
 }
 
@@ -105,7 +106,8 @@ pub(super) struct ThreadEventStore {
     // Replay still needs the current turn's start after it falls out of the event buffer.
     pub(super) evicted_active_turn: Option<Box<Turn>>,
     // Retain the active item even if its start falls out of the bounded replay buffer.
-    pub(super) active_reasoning_item: Option<maplecode_app_server_protocol::ItemStartedNotification>,
+    pub(super) active_reasoning_item:
+        Option<maplecode_app_server_protocol::ItemStartedNotification>,
     // Lifecycle identity must survive bounded replay-buffer eviction.
     pub(super) latest_turn_id: Option<String>,
     pub(super) pending_interrupt_turn_id: Option<String>,

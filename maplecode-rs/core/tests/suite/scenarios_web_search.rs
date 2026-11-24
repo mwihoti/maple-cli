@@ -2,13 +2,13 @@
 
 use super::*;
 use anyhow::Context;
-use maplecode_protocol::config_types::WebSearchMode;
-use maplecode_protocol::openai_models::WebSearchProvider;
 use core_test_support::apps_test_server::AppsTestServer;
 use core_test_support::apps_test_server::apps_enabled_builder;
 use core_test_support::responses::ev_function_call;
 use core_test_support::responses::ev_tool_search_call;
 use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use maplecode_protocol::config_types::WebSearchMode;
+use maplecode_protocol::openai_models::WebSearchProvider;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::sync::Mutex;
@@ -61,7 +61,8 @@ async fn literature_search_and_open() -> Result<()> {
     )
     .await;
 
-    let auth = maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("dummy"));
+    let auth =
+        maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("dummy"));
     let mut extensions = ExtensionRegistryBuilder::new();
     maplecode_web_search_extension::install(&mut extensions, Arc::clone(&auth));
     let test = test_maplecode()
@@ -324,7 +325,10 @@ async fn model_selected_search_preserves_discovery_and_call_history() -> Result<
             ),
         )
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
     let requests = responses.requests();
     assert_eq!(requests.len(), 8);
     assert!(

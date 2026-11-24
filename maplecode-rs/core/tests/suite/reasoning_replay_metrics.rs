@@ -1,13 +1,13 @@
 //! Verifies reported CoT removals through both sampling transports and the metrics exporter.
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_otel::MetricsClient;
 use maplecode_otel::MetricsConfig;
 use maplecode_otel::REASONING_ITEMS_REMOVED_METRIC;
 use maplecode_otel::REASONING_REPLAY_COUNT_METRIC;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
 use opentelemetry_sdk::metrics::InMemoryMetricExporter;
 use opentelemetry_sdk::metrics::data::AggregatedMetrics;
 use opentelemetry_sdk::metrics::data::MetricData;

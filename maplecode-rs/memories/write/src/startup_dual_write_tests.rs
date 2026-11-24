@@ -1,8 +1,8 @@
 //! Exercises dual-write and v2 cutover through model requests and committed versioned state.
 
 use super::*;
-use maplecode_protocol::MemoryVersion;
 use core_test_support::responses::sse_response;
+use maplecode_protocol::MemoryVersion;
 use pretty_assertions::assert_eq;
 use wiremock::Mock;
 use wiremock::matchers::method;

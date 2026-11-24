@@ -100,7 +100,8 @@ fn finalizer_preserves_utf8_plan_and_requires_commit_and_stdin_eof() -> Result<(
          [Console]::Out.WriteLine('waiting');\n{}\n[Console]::Out.WriteLine('released')",
         &script[start..end]
     );
-    let mut plan = serde_json::to_vec(&serde_json::json!({ "record": { "maplecode_home": home } }))?;
+    let mut plan =
+        serde_json::to_vec(&serde_json::json!({ "record": { "maplecode_home": home } }))?;
     plan.push(b'\n');
     for (input, expected) in [
         ("", ""),

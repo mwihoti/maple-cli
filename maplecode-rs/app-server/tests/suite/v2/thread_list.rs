@@ -11,6 +11,7 @@ use app_test_support::rollout_path;
 use app_test_support::test_absolute_path;
 use chrono::DateTime;
 use chrono::Utc;
+use core_test_support::responses;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::GitInfo as ApiGitInfo;
 use maplecode_app_server_protocol::JSONRPCError;
@@ -48,7 +49,6 @@ use maplecode_rollout::append_rollout_item_to_path;
 use maplecode_rollout::read_session_meta_line;
 use maplecode_state::DirectionalThreadSpawnEdgeStatus;
 use maplecode_utils_absolute_path::test_support::PathExt;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::cmp::Reverse;
@@ -581,7 +581,10 @@ approval_policy = "never"
     )
 }
 
-fn create_runtime_config(maplecode_home: &std::path::Path, server_uri: &str) -> std::io::Result<()> {
+fn create_runtime_config(
+    maplecode_home: &std::path::Path,
+    server_uri: &str,
+) -> std::io::Result<()> {
     MockResponsesConfig::new(server_uri).write(maplecode_home)
 }
 
@@ -765,7 +768,12 @@ async fn thread_list_respects_cwd_filters() -> Result<()> {
     fs::create_dir_all(&first_target_cwd)?;
     fs::create_dir_all(&second_target_cwd)?;
     set_rollout_cwd(
-        rollout_path(maplecode_home.path(), "2025-01-02T10-00-00", &first_filtered_id).as_path(),
+        rollout_path(
+            maplecode_home.path(),
+            "2025-01-02T10-00-00",
+            &first_filtered_id,
+        )
+        .as_path(),
         &first_target_cwd,
     )?;
     set_rollout_cwd(
@@ -2383,7 +2391,11 @@ async fn thread_list_sanitizes_git_info_from_existing_rollouts() -> Result<()> {
         Some("mock_provider"),
         Some(git_info),
     )?;
-    let path = rollout_path(maplecode_home.path(), "2025-02-01T09-00-00", &conversation_id);
+    let path = rollout_path(
+        maplecode_home.path(),
+        "2025-02-01T09-00-00",
+        &conversation_id,
+    );
     let rollout = fs::read_to_string(&path)?;
     fs::write(
         path,
@@ -3359,7 +3371,8 @@ async fn current_account_history_refills_list_and_search() -> Result<()> {
     let request = server
         .send_login_account_api_key_request("sk-test-key")
         .await?;
-    let _: maplecode_app_server_protocol::LoginAccountResponse = server.read_response(request).await?;
+    let _: maplecode_app_server_protocol::LoginAccountResponse =
+        server.read_response(request).await?;
     let request = server
         .send_raw_request("thread/list", Some(json!({"currentAccountOnly": true})))
         .await?;

@@ -7,11 +7,11 @@ use app_test_support::create_mock_responses_server_repeating_assistant;
 use app_test_support::rollout_path;
 use app_test_support::test_absolute_path;
 use app_test_support::to_response;
+use core_test_support::responses;
 use maplecode_app_server::in_process;
 use maplecode_app_server::in_process::InProcessStartArgs;
 use maplecode_app_server_protocol::ClientInfo;
 use maplecode_app_server_protocol::ClientRequest;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::DeprecationNoticeNotification;
 use maplecode_app_server_protocol::ErrorNotification;
 use maplecode_app_server_protocol::ImageReference;
@@ -19,6 +19,7 @@ use maplecode_app_server_protocol::InitializeCapabilities;
 use maplecode_app_server_protocol::InitializeParams;
 use maplecode_app_server_protocol::JSONRPCError;
 use maplecode_app_server_protocol::JSONRPCResponse;
+use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::SessionSource;
 use maplecode_app_server_protocol::SortDirection;
@@ -95,7 +96,6 @@ use maplecode_thread_store::ThreadPersistenceMetadata;
 use maplecode_thread_store::ThreadStore;
 use maplecode_thread_store::UpdateThreadMetadataParams;
 use maplecode_utils_absolute_path::test_support::PathExt;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -933,7 +933,8 @@ async fn thread_search_occurrences_reads_paginated_projection() -> Result<()> {
 #[tokio::test]
 async fn thread_turns_list_reads_store_history_without_rollout_path() -> Result<()> {
     let maplecode_home = TempDir::new()?;
-    let thread_id = maplecode_protocol::ThreadId::from_string("00000000-0000-4000-8000-000000000123")?;
+    let thread_id =
+        maplecode_protocol::ThreadId::from_string("00000000-0000-4000-8000-000000000123")?;
     let store_id = Uuid::new_v4().to_string();
     MockResponsesConfig::new("http://127.0.0.1:1")
         .with_root_config(&format!(
@@ -1133,7 +1134,8 @@ async fn thread_read_loaded_include_turns_reads_store_history_without_rollout_pa
 #[tokio::test]
 async fn thread_list_includes_store_thread_without_rollout_path() -> Result<()> {
     let maplecode_home = TempDir::new()?;
-    let thread_id = maplecode_protocol::ThreadId::from_string("00000000-0000-4000-8000-000000000124")?;
+    let thread_id =
+        maplecode_protocol::ThreadId::from_string("00000000-0000-4000-8000-000000000124")?;
     let store_id = Uuid::new_v4().to_string();
     MockResponsesConfig::new("http://127.0.0.1:1")
         .with_root_config(&format!(
@@ -1431,7 +1433,9 @@ async fn thread_resume_initial_turns_page_matches_requested_turns_list_page() ->
     assert!(thread.turns.is_empty());
     assert_eq!(
         initial_turns_page,
-        Some(maplecode_app_server_protocol::TurnsPage::from(expected_page))
+        Some(maplecode_app_server_protocol::TurnsPage::from(
+            expected_page
+        ))
     );
 
     Ok(())

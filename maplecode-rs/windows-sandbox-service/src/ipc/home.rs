@@ -41,7 +41,9 @@ pub(super) fn prepare_maplecode_home(
     if unsafe { filesystem::GetDriveTypeW(to_wide(requested_root.as_os_str()).as_ptr()) }
         != DRIVE_FIXED
     {
-        return Err(ServiceUnavailable("Maple Code home must be located on a fixed local drive").into());
+        return Err(
+            ServiceUnavailable("Maple Code home must be located on a fixed local drive").into(),
+        );
     }
     let parent = requested
         .parent()
@@ -61,7 +63,9 @@ pub(super) fn prepare_maplecode_home(
         .last()
         .context("find the root of the requested Maple Code home")?;
     if unsafe { filesystem::GetDriveTypeW(to_wide(root.as_os_str()).as_ptr()) } != DRIVE_FIXED {
-        return Err(ServiceUnavailable("Maple Code home must be located on a fixed local drive").into());
+        return Err(
+            ServiceUnavailable("Maple Code home must be located on a fixed local drive").into(),
+        );
     }
     if home != requested {
         pin_existing_ancestors(&home, &mut handles)?;

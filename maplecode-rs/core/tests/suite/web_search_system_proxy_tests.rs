@@ -1,6 +1,11 @@
 //! Standalone web search must resolve the configured route for every redirect destination.
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use http::HeaderMap;
+use http::StatusCode;
 use maplecode_core::config::Config;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
@@ -9,11 +14,6 @@ use maplecode_login::MapleCodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_protocol::config_types::WebSearchMode;
 use maplecode_web_search_extension::install as install_web_search_extension;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use http::HeaderMap;
-use http::StatusCode;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;

@@ -22,6 +22,12 @@ use axum::http::header;
 use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::routing::post;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses;
+use core_test_support::responses::WebSocketConnectionConfig;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_wine_exec;
 use maplecode_app_server_protocol::ApprovalsReviewer;
 use maplecode_app_server_protocol::AskForApproval;
 use maplecode_app_server_protocol::ClientRequest;
@@ -52,12 +58,6 @@ use maplecode_app_server_protocol::UserInput;
 use maplecode_features::Feature;
 use maplecode_state::StateRuntime;
 use maplecode_utils_absolute_path::test_support::PathExt;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses;
-use core_test_support::responses::WebSocketConnectionConfig;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_wine_exec;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -955,7 +955,8 @@ async fn guardian_v2_routes_scoped_tool_approvals(
     mock_config.write(maplecode_home.path())?;
     if node_repl_review_required {
         let config = load_default_config_for_test(&maplecode_home).await;
-        let mut model_info = maplecode_core::test_support::construct_model_info_offline(MODEL, &config);
+        let mut model_info =
+            maplecode_core::test_support::construct_model_info_offline(MODEL, &config);
         model_info.node_repl_auto_review_required = true;
         write_models_cache_with_models(maplecode_home.path(), vec![model_info]).await?;
     }
@@ -1390,7 +1391,9 @@ async fn guardian_v2_routes_scoped_tool_approvals(
                 .collect::<Vec<_>>();
             let action_start = action_texts
                 .iter()
-                .position(|text| *text == "The Maple Code agent has requested the following action:\n")
+                .position(|text| {
+                    *text == "The Maple Code agent has requested the following action:\n"
+                })
                 .expect("current action follows any new retained instructions");
             assert_eq!(
                 &action_texts[action_start..action_start + 2],

@@ -6,9 +6,6 @@ use maplecode_history::RolloutItem;
 use std::sync::Arc;
 use std::time::Duration;
 
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_function_call;
 use core_test_support::responses::ev_function_call_with_namespace;
@@ -21,6 +18,9 @@ use core_test_support::responses::sse_response;
 use core_test_support::responses::start_mock_server;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use regex_lite::Regex;
 use serde_json::json;
@@ -68,7 +68,10 @@ async fn interrupt_long_running_tool_emits_turn_aborted() {
 
     // Expect TurnAborted soon after.
     wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::TurnAborted(_))).await;
-    maplecode.submit(Op::CleanBackgroundTerminals).await.unwrap();
+    maplecode
+        .submit(Op::CleanBackgroundTerminals)
+        .await
+        .unwrap();
 }
 
 /// Suspending a root preserves its unfinished turn and initiates child shutdown. The host
@@ -157,10 +160,12 @@ async fn root_turn_suspension_preserves_unfinished_turn_history(fail_child_write
             .await
             .expect("close the child writer before shutdown to inject a persistence failure");
     }
-    let suspension =
-        tokio::time::timeout(Duration::from_secs(10), maplecode.suspend_turn_and_shutdown())
-            .await
-            .expect("suspension must not wait for the child turn to finish naturally");
+    let suspension = tokio::time::timeout(
+        Duration::from_secs(10),
+        maplecode.suspend_turn_and_shutdown(),
+    )
+    .await
+    .expect("suspension must not wait for the child turn to finish naturally");
     assert_eq!(
         suspension.expect("suspend the root independently of child cleanup"),
         SuspendTurnOutcome::Suspended {
@@ -361,7 +366,10 @@ async fn interrupt_tool_records_history_entries() {
         secs >= 0.1,
         "expected at least one tenth of a second of elapsed time, got {secs}"
     );
-    maplecode.submit(Op::CleanBackgroundTerminals).await.unwrap();
+    maplecode
+        .submit(Op::CleanBackgroundTerminals)
+        .await
+        .unwrap();
 }
 
 /// After an interrupt we persist a model-visible `<turn_aborted>` marker in the conversation
@@ -432,5 +440,8 @@ async fn interrupt_persists_turn_aborted_marker_in_next_request() {
             .any(|text| text.contains("<turn_aborted>")),
         "expected <turn_aborted> marker in follow-up request"
     );
-    maplecode.submit(Op::CleanBackgroundTerminals).await.unwrap();
+    maplecode
+        .submit(Op::CleanBackgroundTerminals)
+        .await
+        .unwrap();
 }

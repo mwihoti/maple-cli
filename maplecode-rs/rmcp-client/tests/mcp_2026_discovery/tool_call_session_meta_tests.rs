@@ -33,7 +33,8 @@ async fn recovered_tool_calls_use_current_session_capabilities() -> anyhow::Resu
                         };
                         let mut capabilities = json!({"tools": {}});
                         if supports_policy {
-                            capabilities["experimental"] = json!({"maplecode/network-policy-meta": {}});
+                            capabilities["experimental"] =
+                                json!({"maplecode/network-policy-meta": {}});
                         }
                         let mut result = if body["method"] == "server/discover" {
                             modern_discover_result(&body)

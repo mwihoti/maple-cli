@@ -248,33 +248,35 @@ async fn render_catalogs_for_step(
             environment_ids: ["env-1".to_string()].into(),
         });
     }
-    let provider = |kind: SkillSourceKind| -> Result<_, maplecode_utils_path_uri::PathUriParseError> {
-        let mut entries = Vec::new();
-        for &(name, description) in skills {
-            let (environment, name) = name.split_once('/').unwrap_or(("env-1", name));
-            let name = format!("{kind}-{name}");
-            let path = format!("/skills/{name}/SKILL.md");
-            let mut entry = test_entry(kind.clone(), "skills", &format!("{kind}/{name}"), &path);
-            if kind == SkillSourceKind::Executor {
-                entry.main_prompt = SkillResourceId::environment(
-                    &path,
-                    environment,
-                    PathUri::parse(&format!("file://{path}"))?,
-                );
+    let provider =
+        |kind: SkillSourceKind| -> Result<_, maplecode_utils_path_uri::PathUriParseError> {
+            let mut entries = Vec::new();
+            for &(name, description) in skills {
+                let (environment, name) = name.split_once('/').unwrap_or(("env-1", name));
+                let name = format!("{kind}-{name}");
+                let path = format!("/skills/{name}/SKILL.md");
+                let mut entry =
+                    test_entry(kind.clone(), "skills", &format!("{kind}/{name}"), &path);
+                if kind == SkillSourceKind::Executor {
+                    entry.main_prompt = SkillResourceId::environment(
+                        &path,
+                        environment,
+                        PathUri::parse(&format!("file://{path}"))?,
+                    );
+                }
+                entry.description = description.to_string();
+                entries.push(entry.with_display_path(path));
             }
-            entry.description = description.to_string();
-            entries.push(entry.with_display_path(path));
-        }
-        Ok(Arc::new(StaticSkillProvider {
-            catalog: SkillCatalog {
-                entries,
-                ..Default::default()
-            },
-            read_requests: Arc::new(Mutex::new(Vec::new())),
-            list_calls: None,
-            fail_first_list: false,
-        }))
-    };
+            Ok(Arc::new(StaticSkillProvider {
+                catalog: SkillCatalog {
+                    entries,
+                    ..Default::default()
+                },
+                read_requests: Arc::new(Mutex::new(Vec::new())),
+                list_calls: None,
+                fail_first_list: false,
+            }))
+        };
     let providers = SkillProviders::new()
         .with_executor_provider(provider(SkillSourceKind::Executor)?)
         .with_cloud_provider(provider(SkillSourceKind::Cloud)?)

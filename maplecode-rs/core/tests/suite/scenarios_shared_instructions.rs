@@ -6,6 +6,8 @@ use super::super::agents_md::instruction_fragments;
 use super::super::agents_md::persisted_resume_history;
 use super::super::agents_md::submit_thread_turn;
 use super::*;
+use core_test_support::responses;
+use core_test_support::responses::mount_sse_once;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::config::Constrained;
 use maplecode_extension_api::Instructions;
@@ -17,8 +19,6 @@ use maplecode_protocol::config_types::ApprovalsReviewer;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
-use core_test_support::responses;
-use core_test_support::responses::mount_sse_once;
 use pretty_assertions::assert_eq;
 
 const INITIAL: &str = "Ask before sending email.";

@@ -75,7 +75,10 @@ impl Client {
             .request(Method::GET, &url)
             .headers(self.headers().await?);
         if supports_luna_reserve {
-            req = req.header("x-openai-maplecode-luna-reserve", HeaderValue::from_static("1"));
+            req = req.header(
+                "x-openai-maplecode-luna-reserve",
+                HeaderValue::from_static("1"),
+            );
         }
         let (body, ct) = self.exec_request(req, "GET", &url).await?;
         self.decode_json(&url, &ct, &body)

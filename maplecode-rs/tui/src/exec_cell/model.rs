@@ -13,9 +13,9 @@ use std::time::Instant;
 
 use super::live_output::LiveCommandOutput;
 use crate::history_cell::ActivityGroup;
+use itertools::Either;
 use maplecode_app_server_protocol::CommandExecutionSource as ExecCommandSource;
 use maplecode_protocol::parse_command::ParsedCommand;
-use itertools::Either;
 
 #[derive(Debug, Default)]
 pub(crate) struct CommandOutput {
@@ -33,11 +33,12 @@ impl CommandOutput {
         source: ExecCommandSource,
         output: Option<String>,
     ) -> Self {
-        let exit_code = if status == maplecode_app_server_protocol::CommandExecutionStatus::Completed {
-            exit_code.unwrap_or_default()
-        } else {
-            exit_code.filter(|code| *code != 0).unwrap_or(1)
-        };
+        let exit_code =
+            if status == maplecode_app_server_protocol::CommandExecutionStatus::Completed {
+                exit_code.unwrap_or_default()
+            } else {
+                exit_code.filter(|code| *code != 0).unwrap_or(1)
+            };
         let output = if source == ExecCommandSource::UnifiedExecInteraction {
             String::new()
         } else {

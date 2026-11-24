@@ -1,5 +1,32 @@
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::TestTargetOs;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::apps_enabled_builder;
+use core_test_support::apps_test_server::recorded_apps_tool_calls;
+use core_test_support::exec_server::ExecServerProcess;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_response_once;
+use core_test_support::responses::mount_response_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::environment_config_for_selection;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_target_os;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
 use maplecode_config::McpServerConfig;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::EnvironmentConfig;
@@ -32,33 +59,6 @@ use maplecode_protocol::request_user_input::RequestUserInputResponse;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_path_uri::LegacyAppPathString;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::TestTargetOs;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::apps_enabled_builder;
-use core_test_support::apps_test_server::recorded_apps_tool_calls;
-use core_test_support::exec_server::ExecServerProcess;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_response_once;
-use core_test_support::responses::mount_response_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::environment_config_for_selection;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_target_os;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -1195,7 +1195,10 @@ async fn executor_interrupt_hook_runs_after_attachment() -> Result<()> {
             "turn_id": turn_id,
         })
     );
-    assert_eq!(call["_meta"]["x-maplecode-turn-metadata"]["turn_id"], *turn_id);
+    assert_eq!(
+        call["_meta"]["x-maplecode-turn-metadata"]["turn_id"],
+        *turn_id
+    );
     Ok(())
 }
 

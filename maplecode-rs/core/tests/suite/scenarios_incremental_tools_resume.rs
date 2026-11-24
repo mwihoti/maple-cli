@@ -1,6 +1,14 @@
 //! Request-history coverage for incremental tool modes across resume, fork, and window rebuilds.
 
 use anyhow::Result;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_successful_turn;
 use maplecode_core::ForkSnapshot;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
@@ -10,14 +18,6 @@ use maplecode_protocol::openai_models::ToolMode;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_successful_turn;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;

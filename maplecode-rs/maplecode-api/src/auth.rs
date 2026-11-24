@@ -1,7 +1,7 @@
+use http::HeaderMap;
 use maplecode_client::Request;
 use maplecode_client::TransportError;
 use maplecode_http_client::NetworkPolicyDenied;
-use http::HeaderMap;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;

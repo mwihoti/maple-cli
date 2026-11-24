@@ -266,13 +266,14 @@ impl ServerHandler for DynamicToolMcpHandler {
         context: RequestContext<RoleServer>,
     ) -> Result<rmcp::model::CallToolResponse, McpError> {
         let metadata = &context.meta.0.0;
-        let turn_metadata = metadata
-            .get("x-maplecode-turn-metadata")
-            .and_then(|value| match value {
-                Value::Object(_) => Some(value.clone()),
-                Value::String(value) => serde_json::from_str(value).ok(),
-                _ => None,
-            });
+        let turn_metadata =
+            metadata
+                .get("x-maplecode-turn-metadata")
+                .and_then(|value| match value {
+                    Value::Object(_) => Some(value.clone()),
+                    Value::String(value) => serde_json::from_str(value).ok(),
+                    _ => None,
+                });
         let thread_id = metadata
             .get("threadId")
             .and_then(Value::as_str)

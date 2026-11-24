@@ -5,6 +5,14 @@ use app_test_support::TestAppServer;
 use app_test_support::create_command_execution_sse_response;
 use app_test_support::create_final_assistant_message_sse_response;
 use app_test_support::create_mock_responses_server_sequence_unchecked;
+use core_test_support::responses;
+use core_test_support::responses::WebSocketConnectionConfig;
+use core_test_support::responses::WebSocketRequest;
+use core_test_support::responses::WebSocketTestServer;
+use core_test_support::responses::start_websocket_server;
+use core_test_support::responses::start_websocket_server_with_headers;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
 use maplecode_app_server_protocol::CommandExecutionStatus;
 use maplecode_app_server_protocol::ItemCompletedNotification;
 use maplecode_app_server_protocol::ItemStartedNotification;
@@ -66,20 +74,12 @@ use maplecode_app_server_protocol::TurnSteerParams;
 use maplecode_app_server_protocol::TurnSteerResponse;
 use maplecode_app_server_protocol::UserInput as V2UserInput;
 use maplecode_login::default_client::RESIDENCY_HEADER_NAME;
-use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
 use maplecode_protocol::protocol::ConversationTextRole;
+use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
 use maplecode_protocol::protocol::RealtimeConversationVersion;
 use maplecode_protocol::protocol::RealtimeOutputModality;
 use maplecode_protocol::protocol::RealtimeVoice;
 use maplecode_protocol::protocol::RealtimeVoicesList;
-use core_test_support::responses;
-use core_test_support::responses::WebSocketConnectionConfig;
-use core_test_support::responses::WebSocketRequest;
-use core_test_support::responses::WebSocketTestServer;
-use core_test_support::responses::start_websocket_server;
-use core_test_support::responses::start_websocket_server_with_headers;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
 use pretty_assertions::assert_eq;
 use serde::de::DeserializeOwned;
 use serde_json::Value;
@@ -4686,7 +4686,8 @@ async fn realtime_requests_use_runtime_auth(transport: &str, mode: &str) -> Resu
                 read_notification(&mut app, "thread/realtime/started").await?;
             if sideband {
                 // The parent acknowledges the second handshake, caused by a server disconnect.
-                let client = maplecode_login::default_client::create_client_without_request_logging();
+                let client =
+                    maplecode_login::default_client::create_client_without_request_logging();
                 timeout(DEFAULT_TIMEOUT, async {
                     loop {
                         if client

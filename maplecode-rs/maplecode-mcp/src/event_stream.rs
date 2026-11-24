@@ -19,8 +19,8 @@ use serde_json::Map;
 use serde_json::Value;
 use tokio::sync::watch;
 
-use crate::MAPLECODE_APPS_MCP_SERVER_NAME;
 use crate::EffectiveMcpServer;
+use crate::MAPLECODE_APPS_MCP_SERVER_NAME;
 use crate::McpEventStream;
 use crate::McpProtocolMode;
 use crate::McpRuntimeContext;
@@ -140,12 +140,12 @@ impl McpEventStreamOpener {
 
     fn matches_auth(&self, current: Option<&MapleCodeAuth>) -> bool {
         match (self.connection.auth.as_ref(), current) {
-            (Some(MapleCodeAuth::AgentIdentity(expected)), Some(MapleCodeAuth::AgentIdentity(current))) => {
-                expected.record() == current.record()
-            }
-            (Some(MapleCodeAuth::AgentIdentity(_)), _) | (_, Some(MapleCodeAuth::AgentIdentity(_))) => {
-                false
-            }
+            (
+                Some(MapleCodeAuth::AgentIdentity(expected)),
+                Some(MapleCodeAuth::AgentIdentity(current)),
+            ) => expected.record() == current.record(),
+            (Some(MapleCodeAuth::AgentIdentity(_)), _)
+            | (_, Some(MapleCodeAuth::AgentIdentity(_))) => false,
             (Some(expected), Some(current)) => {
                 expected.get_account_id() == current.get_account_id()
                     && expected.get_chatgpt_user_id() == current.get_chatgpt_user_id()

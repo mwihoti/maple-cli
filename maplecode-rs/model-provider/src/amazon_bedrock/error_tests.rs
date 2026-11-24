@@ -1,6 +1,9 @@
 use std::num::NonZeroU64;
 use std::time::Duration;
 
+use http::HeaderMap;
+use http::HeaderValue;
+use http::StatusCode;
 use maplecode_api::ApiError;
 use maplecode_api::TransportError;
 use maplecode_http_client::RetryAfter;
@@ -8,9 +11,6 @@ use maplecode_model_provider_info::AwsCredentialExportConfig;
 use maplecode_model_provider_info::ModelProviderAwsAuthInfo;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_protocol::error::MapleCodeErrorDetails;
-use http::HeaderMap;
-use http::HeaderValue;
-use http::StatusCode;
 use pretty_assertions::assert_eq;
 
 use super::AmazonBedrockModelProvider;

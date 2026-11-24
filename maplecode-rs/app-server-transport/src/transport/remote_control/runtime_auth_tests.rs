@@ -9,6 +9,8 @@ use super::protocol::normalize_remote_control_url;
 use super::server_api::enroll_remote_control_server;
 use super::server_api::refresh_remote_control_server;
 use base64::Engine;
+use core_test_support::runtime_auth::PROBE_SERVER;
+use core_test_support::runtime_auth::run_harness_through_proxy;
 use maplecode_app_server_protocol::RemoteControlClientsListParams;
 use maplecode_app_server_protocol::RemoteControlClientsRevokeParams;
 use maplecode_features::RuntimeAuthMode;
@@ -27,8 +29,6 @@ use maplecode_runtime_agent_instance::RuntimeAuthManager;
 use maplecode_runtime_agent_instance::RuntimeAuthSlot;
 use maplecode_runtime_agent_instance::RuntimeRegistrationMetadata;
 use maplecode_runtime_agent_instance::RuntimeRole;
-use core_test_support::runtime_auth::PROBE_SERVER;
-use core_test_support::runtime_auth::run_harness_through_proxy;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashSet;
@@ -246,7 +246,10 @@ async fn actor_requests_share_runtime_and_pairing_keeps_its_server_token() -> an
     }) {
         let authorization = request.headers["authorization"].to_str()?;
         if !request.url.path().ends_with("/pair") {
-            assert_eq!(request.headers["x-openai-internal-maplecode-residency"], "us");
+            assert_eq!(
+                request.headers["x-openai-internal-maplecode-residency"],
+                "us"
+            );
         }
         if request.url.path().ends_with("/pair") {
             assert_eq!(authorization, "Bearer relay-capability");

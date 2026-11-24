@@ -2,6 +2,8 @@
 
 use super::super::skills_extension::CatalogSkillProvider;
 use super::*;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::test_maplecode::test_env;
 use maplecode_config::ScopedSkillsConfig;
 use maplecode_exec_server::RemoteEnvironmentOptions;
 use maplecode_features::Feature;
@@ -14,8 +16,6 @@ use maplecode_skills_extension::catalog::SkillPackageId;
 use maplecode_skills_extension::catalog::SkillResourceId;
 use maplecode_skills_extension::catalog::SkillSourceKind;
 use maplecode_skills_extension::install_with_providers;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::test_maplecode::test_env;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 use tokio_util::task::AbortOnDropHandle;

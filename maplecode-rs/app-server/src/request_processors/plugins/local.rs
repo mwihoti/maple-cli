@@ -1,9 +1,9 @@
 use super::*;
+use futures::StreamExt;
 use maplecode_core::config::ConfigOverrides;
 use maplecode_core_plugins::PluginMarketplaceContext;
 use maplecode_core_plugins::PluginMarketplaceScope;
 use maplecode_core_plugins::marketplace::MarketplaceListError;
-use futures::StreamExt;
 
 const CONFIG_LOAD_CONCURRENCY: usize = 5;
 

@@ -91,7 +91,8 @@ pub(crate) async fn standalone_auth(
     let runtime = if config.features.enabled(Feature::RuntimeAgentInstances)
         && maplecode_runtime_agent_instance::is_openai_api_url(&config.chatgpt_base_url)
     {
-        let installation_id = maplecode_core::resolve_installation_id(&config.maplecode_home).await?;
+        let installation_id =
+            maplecode_core::resolve_installation_id(&config.maplecode_home).await?;
         maplecode_core::build_runtime_auth_manager(config, auth_manager.clone(), &installation_id)
             .map(|runtime| (runtime, config.runtime_auth_mode))
     } else {

@@ -11,13 +11,13 @@ use crate::async_scorer::sampler::tests::sample_request;
 use crate::async_scorer::sampler::tests::sampler_config;
 use crate::async_scorer::score::PendingScore;
 use crate::async_scorer::transcript::ContextInput;
-use maplecode_extension_api::ThreadStopInput;
-use maplecode_guardian_context::ContextTarget;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::context_snapshot::SnapshotEntry;
 use core_test_support::context_snapshot::format_context_snapshot;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
+use maplecode_extension_api::ThreadStopInput;
+use maplecode_guardian_context::ContextTarget;
 use pretty_assertions::assert_eq;
 
 async fn pending_request(

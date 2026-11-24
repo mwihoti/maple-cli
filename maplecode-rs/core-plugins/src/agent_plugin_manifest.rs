@@ -182,7 +182,12 @@ pub(super) fn parse_agent_plugin_manifest_uri(
     )?;
 
     if let Some(extension) = maplecode_extension.as_deref() {
-        apply_maplecode_agent_plugin_extension(&mut resolved, plugin_root, manifest_path, extension)?;
+        apply_maplecode_agent_plugin_extension(
+            &mut resolved,
+            plugin_root,
+            manifest_path,
+            extension,
+        )?;
         resolved.paths.onboarding_skill = onboarding_skill;
     } else if let Some((overlay_path, overlay_contents)) = overlay {
         apply_maplecode_agent_plugin_extension(

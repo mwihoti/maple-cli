@@ -209,8 +209,11 @@ impl SectionHistory for SnapshotHistory<'_> {
 
     fn items_with_sources(
         &self,
-    ) -> Box<dyn Iterator<Item = (&ResponseItem, Option<&maplecode_history::RetainedSource>)> + Send + '_>
-    {
+    ) -> Box<
+        dyn Iterator<Item = (&ResponseItem, Option<&maplecode_history::RetainedSource>)>
+            + Send
+            + '_,
+    > {
         self.0.review_items_with_sources()
     }
 

@@ -1,3 +1,30 @@
+use core_test_support::TestMapleCodeResponsesRequestKind;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_message_item_added;
+use core_test_support::responses::ev_output_text_delta;
+use core_test_support::responses::ev_reasoning_item;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_failed;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::strip_metadata_from_json;
+use core_test_support::responses::strip_response_item_ids_from_json;
+use core_test_support::responses_metadata as test_responses_metadata;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use futures::StreamExt;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_core::ModelClient;
@@ -63,33 +90,6 @@ use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_protocol_test_support::uuid_v7_item_id_generator_for_test;
-use core_test_support::TestMapleCodeResponsesRequestKind;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_message_item_added;
-use core_test_support::responses::ev_output_text_delta;
-use core_test_support::responses::ev_reasoning_item;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_failed;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::strip_metadata_from_json;
-use core_test_support::responses::strip_response_item_ids_from_json;
-use core_test_support::responses_metadata as test_responses_metadata;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::io::Write;
@@ -128,11 +128,12 @@ async fn responses_request_enforces_independent_speed_requirements(
             let test = test_maplecode()
                 .with_model("gpt-5.4")
                 .with_model_info_override("gpt-5.4", move |model| {
-                    model.service_tiers = vec![maplecode_protocol::openai_models::ModelServiceTier {
-                        id: tier.to_string(),
-                        name: tier.to_string(),
-                        description: String::new(),
-                    }];
+                    model.service_tiers =
+                        vec![maplecode_protocol::openai_models::ModelServiceTier {
+                            id: tier.to_string(),
+                            name: tier.to_string(),
+                            description: String::new(),
+                        }];
                 })
                 .with_config(move |config| {
                     config
@@ -573,7 +574,10 @@ async fn non_openai_responses_requests_include_item_ids_without_passthrough_meta
         }]))
         .await
         .unwrap();
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let body = response_mock
         .requests()
@@ -629,7 +633,10 @@ async fn sends_audio_urls_to_responses() {
         }]))
         .await
         .unwrap();
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let request = response_mock.single_request();
     assert!(request.has_content_kinds(&["user.audio"]));
@@ -674,7 +681,10 @@ async fn sends_local_audio_to_responses() -> anyhow::Result<()> {
             path: audio_path.clone(),
         }]))
         .await?;
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let request = response_mock.single_request();
     assert!(request.has_content_kinds(&["user.text", "user.audio", "user.text"]));
@@ -834,7 +844,9 @@ async fn synthetic_call_output_id_is_stable_across_resumes() -> anyhow::Result<(
         "prompt-only repair should not be persisted to the rollout"
     );
 
-    let second = builder.resume(&server, maplecode_home, session_path).await?;
+    let second = builder
+        .resume(&server, maplecode_home, session_path)
+        .await?;
     second.submit_turn("second resume").await?;
 
     let requests = response_mock.requests();
@@ -1919,9 +1931,9 @@ async fn send_request_with_provider(provider: ModelProviderInfo) {
     let client = ModelClient::new(
         maplecode_model_provider::create_model_provider(
             provider,
-            Some(AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(
-                "unused-api-key",
-            ))),
+            Some(AuthManager::from_auth_for_testing(
+                MapleCodeAuth::from_api_key("unused-api-key"),
+            )),
         ),
         AgentIdentityAuthPolicy::JwtOnly,
         thread_id,
@@ -2175,7 +2187,9 @@ async fn prefers_apikey_when_config_prefers_apikey_even_with_chatgpt_tokens() {
             &config,
             auth_manager.clone(),
             installation_id,
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         maplecode_core::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -2189,7 +2203,9 @@ async fn prefers_apikey_when_config_prefers_apikey_even_with_chatgpt_tokens() {
         /*attestation_provider*/ None,
         /*external_time_provider*/ None,
     );
-    let NewThread { thread: maplecode, .. } = thread_manager
+    let NewThread {
+        thread: maplecode, ..
+    } = thread_manager
         .start_thread(StartThreadOptions::new(config.clone()))
         .await
         .expect("create new conversation");
@@ -2684,7 +2700,10 @@ async fn includes_default_reasoning_effort_in_request_when_defined_by_model_info
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode { maplecode, .. } = test_maplecode().with_model("gpt-5.5").build(&server).await?;
+    let TestMapleCode { maplecode, .. } = test_maplecode()
+        .with_model("gpt-5.5")
+        .build(&server)
+        .await?;
 
     maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
@@ -2720,7 +2739,12 @@ async fn user_turn_collaboration_mode_overrides_model_and_effort() -> anyhow::Re
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode { maplecode, config, .. } = test_maplecode().with_model("gpt-5.4").build(&server).await?;
+    let TestMapleCode {
+        maplecode, config, ..
+    } = test_maplecode()
+        .with_model("gpt-5.4")
+        .build(&server)
+        .await?;
 
     let collaboration_mode = CollaborationMode {
         mode: ModeKind::Default,
@@ -3129,7 +3153,10 @@ async fn includes_default_verbosity_in_request() -> anyhow::Result<()> {
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode { maplecode, .. } = test_maplecode().with_model("gpt-5.5").build(&server).await?;
+    let TestMapleCode { maplecode, .. } = test_maplecode()
+        .with_model("gpt-5.5")
+        .build(&server)
+        .await?;
 
     maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
@@ -3413,8 +3440,9 @@ async fn azure_responses_request_does_not_store_and_preserves_prefixed_item_ids(
     let model_info =
         maplecode_core::test_support::construct_model_info_offline(model.as_str(), &config);
     let thread_id = ThreadId::new();
-    let auth_manager =
-        maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("Test API Key"));
+    let auth_manager = maplecode_core::test_support::auth_manager_from_auth(
+        MapleCodeAuth::from_api_key("Test API Key"),
+    );
     let session_telemetry = SessionTelemetry::new(
         thread_id,
         model.as_str(),
@@ -3429,7 +3457,10 @@ async fn azure_responses_request_does_not_store_and_preserves_prefixed_item_ids(
     );
 
     let client = ModelClient::new(
-        maplecode_model_provider::create_model_provider(provider.clone(), /*auth_manager*/ None),
+        maplecode_model_provider::create_model_provider(
+            provider.clone(),
+            /*auth_manager*/ None,
+        ),
         AgentIdentityAuthPolicy::JwtOnly,
         thread_id,
         uuid_v7_item_id_generator_for_test(),
@@ -3799,7 +3830,8 @@ async fn usage_limit_error_emits_rate_limit_event() -> anyhow::Result<()> {
         .await
         .expect("submission should succeed while emitting usage limit error events");
 
-    let token_event = wait_for_event(&maplecode, |msg| matches!(msg, EventMsg::TokenCount(_))).await;
+    let token_event =
+        wait_for_event(&maplecode, |msg| matches!(msg, EventMsg::TokenCount(_))).await;
     let EventMsg::TokenCount(event) = token_event else {
         unreachable!();
     };

@@ -505,7 +505,8 @@ fn v2_hooks_preserve_admission_policy_and_environment_routing() {
     let manifest = cleanup_hook_manifest();
     let files = DiscoveredPluginFiles {
         manifest: CapabilityTextFile {
-            path: PathUri::parse("file:///plugins/computer-use/.maplecode-plugin/plugin.json").unwrap(),
+            path: PathUri::parse("file:///plugins/computer-use/.maplecode-plugin/plugin.json")
+                .unwrap(),
             contents: manifest.to_string(),
         },
         mcp_config: None,

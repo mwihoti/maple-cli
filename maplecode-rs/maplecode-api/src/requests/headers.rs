@@ -1,8 +1,8 @@
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::ThreadSource;
 use maplecode_utils_string::to_ascii_json_string;
-use http::HeaderMap;
-use http::HeaderValue;
 
 /// Correlate both the media call and its observer with the same thread and session tree.
 pub fn build_realtime_thread_headers(

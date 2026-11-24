@@ -1519,7 +1519,9 @@ async fn load_default_config_preserves_managed_requirements_and_selected_user_co
             .requirements()
             .managed_auth_policy(),
         maplecode_config::ManagedAuthPolicy {
-            allowed_login_methods: Some(vec![maplecode_protocol::config_types::ForcedLoginMethod::Api]),
+            allowed_login_methods: Some(vec![
+                maplecode_protocol::config_types::ForcedLoginMethod::Api
+            ]),
             allowed_chatgpt_workspaces: Some(vec!["managed-workspace".to_string()]),
         }
     );
@@ -1559,7 +1561,8 @@ async fn managed_auth_policy_survives_unusable_requirements_file_changes() -> Re
         assert_eq!(refreshed.forced_chatgpt_workspace_id, None);
     }
     assert!(
-        auth_manager.is_login_method_allowed(maplecode_protocol::config_types::ForcedLoginMethod::Api)
+        auth_manager
+            .is_login_method_allowed(maplecode_protocol::config_types::ForcedLoginMethod::Api)
     );
     assert!(
         !auth_manager

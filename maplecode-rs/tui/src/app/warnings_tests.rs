@@ -314,12 +314,13 @@ async fn warnings_keep_remapped_copy_keys_out_of_composer_handlers() {
     let cells: Vec<Arc<dyn HistoryCell>> =
         vec![Arc::new(history_cell::new_warning_event(diagnostic.into()))];
     for key in ['r', 'u'] {
-        let config: maplecode_config::types::TuiKeymap = serde_json::from_value(serde_json::json!({
-            "global": {"copy": format!("ctrl-{key}")},
-            "composer": {"history_search_previous": []},
-            "editor": {"kill_line_start": []}
-        }))
-        .expect("copy binding");
+        let config: maplecode_config::types::TuiKeymap =
+            serde_json::from_value(serde_json::json!({
+                "global": {"copy": format!("ctrl-{key}")},
+                "composer": {"history_search_previous": []},
+                "editor": {"kill_line_start": []}
+            }))
+            .expect("copy binding");
         let runtime = crate::keymap::RuntimeKeymap::from_config(&config).expect("valid remap");
         widget.apply_keymap_update(config, &runtime);
         widget.open_warnings(&cells);

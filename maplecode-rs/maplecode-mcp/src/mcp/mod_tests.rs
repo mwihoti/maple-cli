@@ -8,6 +8,7 @@ use crate::mcp::auth::McpAuthStatusEntry;
 use crate::rmcp_client::StartupOutcomeError;
 use crate::server::McpCredentialPolicy;
 use anyhow::Context;
+use futures::FutureExt;
 use maplecode_config::Constrained;
 use maplecode_config::DEFAULT_MCP_SERVER_ENVIRONMENT_ID;
 use maplecode_config::types::AppToolApproval;
@@ -24,7 +25,6 @@ use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::GranularApprovalConfig;
 use maplecode_rmcp_client::McpAuthState;
-use futures::FutureExt;
 use pretty_assertions::assert_eq;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -638,7 +638,9 @@ fn maplecode_apps_server_config_forwards_thread_originator_header() {
 
 #[test]
 fn maplecode_apps_server_config_sets_product_sku_header() {
-    for (configured_product_sku, expected_product_sku) in [(None, "maplecode"), (Some("tpp"), "tpp")] {
+    for (configured_product_sku, expected_product_sku) in
+        [(None, "maplecode"), (Some("tpp"), "tpp")]
+    {
         let config = maplecode_apps_mcp_server_config(
             "https://chatgpt.com",
             configured_product_sku,

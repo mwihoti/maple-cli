@@ -68,8 +68,8 @@ use crate::marketplace_upgrade::ConfigLayerReload;
 use crate::marketplace_upgrade::ConfiguredMarketplaceUpgradeError;
 use crate::marketplace_upgrade::ConfiguredMarketplaceUpgradeOutcome;
 use crate::marketplace_upgrade::upgrade_configured_git_marketplaces_with_mode;
-use crate::remote::MAPLECODE_PRODUCT_SKU;
 use crate::remote::InstalledPluginDisplayAssets;
+use crate::remote::MAPLECODE_PRODUCT_SKU;
 use crate::remote::REMOTE_GLOBAL_MARKETPLACE_NAME;
 use crate::remote::RecommendedPluginsMode;
 use crate::remote::RemoteInstalledPlugin;
@@ -421,8 +421,14 @@ impl RemoteCatalogCacheRefreshRequest {
         self.service_config == other.service_config
             && self.auth.as_ref().and_then(MapleCodeAuth::get_account_id)
                 == other.auth.as_ref().and_then(MapleCodeAuth::get_account_id)
-            && self.auth.as_ref().and_then(MapleCodeAuth::get_chatgpt_user_id)
-                == other.auth.as_ref().and_then(MapleCodeAuth::get_chatgpt_user_id)
+            && self
+                .auth
+                .as_ref()
+                .and_then(MapleCodeAuth::get_chatgpt_user_id)
+                == other
+                    .auth
+                    .as_ref()
+                    .and_then(MapleCodeAuth::get_chatgpt_user_id)
             && self.auth.as_ref().map(MapleCodeAuth::is_workspace_account)
                 == other.auth.as_ref().map(MapleCodeAuth::is_workspace_account)
     }
@@ -869,7 +875,10 @@ impl PluginsManager {
     }
 
     fn remote_global_catalog_active(&self, config: &PluginsConfigInput) -> bool {
-        config.remote_plugin_enabled && self.auth_mode().is_some_and(AuthMode::uses_maplecode_backend)
+        config.remote_plugin_enabled
+            && self
+                .auth_mode()
+                .is_some_and(AuthMode::uses_maplecode_backend)
     }
 
     /// Starts the local curated marketplace sync when the remote catalog is unavailable.
@@ -1543,7 +1552,10 @@ impl PluginsManager {
         Some(generation)
     }
 
-    fn begin_remote_installed_plugins_reconcile(&self, auth: Option<&MapleCodeAuth>) -> Option<u64> {
+    fn begin_remote_installed_plugins_reconcile(
+        &self,
+        auth: Option<&MapleCodeAuth>,
+    ) -> Option<u64> {
         let generation = self.prepare_remote_installed_plugins_cache_generation(auth)?;
         let auth_identity = RemoteInstalledPluginsAuthIdentity::from_auth(auth);
         let mut cache = match self.remote_installed_plugins_cache.write() {
@@ -2453,8 +2465,8 @@ impl PluginsManager {
         let auth_policy = resolved.policy.authentication;
         let plugin_version =
             if is_openai_curated_marketplace_name(&resolved.plugin_id.marketplace_name) {
-                let curated_plugin_version = read_curated_plugins_sha(self.maplecode_home.as_path())
-                    .ok_or_else(|| {
+                let curated_plugin_version =
+                    read_curated_plugins_sha(self.maplecode_home.as_path()).ok_or_else(|| {
                         PluginStoreError::Invalid(
                             "local curated marketplace sha is not available".to_string(),
                         )
@@ -2884,22 +2896,25 @@ impl PluginsManager {
                 "path does not exist or is not a directory".to_string(),
             ));
         }
-        let loaded_manifest =
-            if maplecode_utils_plugins::find_plugin_manifest_path(source_path.as_path()).is_some() {
-                self.store.manifest_cache.load(source_path.as_path())
-            } else {
-                plugin
-                    .manifest_fallback
-                    .as_ref()
-                    .and_then(|fallback| fallback.parse_for_plugin_root(source_path.as_path()))
-                    .map(|manifest| crate::manifest::LoadedPluginManifest {
-                        manifest,
-                        format: PluginManifestFormat::Legacy,
-                    })
-            }
-            .ok_or_else(|| {
-                MarketplaceError::InvalidPlugin("missing or invalid plugin.json".to_string())
-            })?;
+        let loaded_manifest = if maplecode_utils_plugins::find_plugin_manifest_path(
+            source_path.as_path(),
+        )
+        .is_some()
+        {
+            self.store.manifest_cache.load(source_path.as_path())
+        } else {
+            plugin
+                .manifest_fallback
+                .as_ref()
+                .and_then(|fallback| fallback.parse_for_plugin_root(source_path.as_path()))
+                .map(|manifest| crate::manifest::LoadedPluginManifest {
+                    manifest,
+                    format: PluginManifestFormat::Legacy,
+                })
+        }
+        .ok_or_else(|| {
+            MarketplaceError::InvalidPlugin("missing or invalid plugin.json".to_string())
+        })?;
         let manifest_format = loaded_manifest.format;
         let manifest = loaded_manifest.manifest;
         let description = manifest.description.clone();
@@ -3078,8 +3093,9 @@ impl PluginsManager {
                             }
                             Err(err) => {
                                 warn!("failed to auto-upgrade configured marketplaces: {err}");
-                                let _ = task_warnings
-                                    .send(format!("Maple Code could not update marketplaces: {err}"));
+                                let _ = task_warnings.send(format!(
+                                    "Maple Code could not update marketplaces: {err}"
+                                ));
                             }
                         }
 
@@ -3096,8 +3112,9 @@ impl PluginsManager {
                     };
                     state.in_flight = false;
                     warn!("failed to start configured marketplace auto-upgrade task: {err}");
-                    let _ = upgrade_warnings
-                        .send(format!("Maple Code could not start marketplace updates: {err}"));
+                    let _ = upgrade_warnings.send(format!(
+                        "Maple Code could not start marketplace updates: {err}"
+                    ));
                 }
             }
             let config_for_remote_sync = config.clone();
@@ -3472,7 +3489,9 @@ impl PluginsManager {
                 match sync_openai_plugins_repo(maplecode_home.as_path(), http_client_factory) {
                     Ok(curated_plugin_version) => {
                         let configured_curated_plugin_ids =
-                            configured_curated_plugin_ids_from_maplecode_home(maplecode_home.as_path());
+                            configured_curated_plugin_ids_from_maplecode_home(
+                                maplecode_home.as_path(),
+                            );
                         match refresh_curated_plugin_cache(
                             maplecode_home.as_path(),
                             &curated_plugin_version,
@@ -3732,8 +3751,10 @@ impl PluginsManager {
     }
 
     fn configured_plugin_states(&self, config: &PluginsConfigInput) -> ConfiguredPluginStates {
-        let configured_plugins =
-            configured_plugins_from_stack(&config.config_layer_stack, self.maplecode_home.as_path());
+        let configured_plugins = configured_plugins_from_stack(
+            &config.config_layer_stack,
+            self.maplecode_home.as_path(),
+        );
         let installed = configured_plugins
             .keys()
             .filter(|plugin_key| {
@@ -3769,7 +3790,8 @@ impl PluginsManager {
         let curated_marketplace_path = if include_openai_curated {
             match target_curated_marketplace(self.auth_mode()) {
                 TargetCuratedMarketplace::OpenAi | TargetCuratedMarketplace::OpenAiWithRemote => {
-                    let curated_repo_root = curated_plugins_repo_path(self.maplecode_home.as_path());
+                    let curated_repo_root =
+                        curated_plugins_repo_path(self.maplecode_home.as_path());
                     curated_repo_root.is_dir().then_some(curated_repo_root)
                 }
                 TargetCuratedMarketplace::OpenAiApi => {

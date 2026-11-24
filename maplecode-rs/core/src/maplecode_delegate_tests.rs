@@ -1,5 +1,6 @@
 use super::*;
 use async_channel::bounded;
+use futures::FutureExt;
 use maplecode_extension_api::ExtensionFuture;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_extension_api::ThreadLifecycleContributor;
@@ -17,7 +18,6 @@ use maplecode_protocol::protocol::RawResponseItemEvent;
 use maplecode_protocol::protocol::TurnAbortReason;
 use maplecode_protocol::protocol::TurnAbortedEvent;
 use maplecode_protocol::protocol::TurnEnvironmentSelection;
-use futures::FutureExt;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
@@ -262,7 +262,10 @@ async fn delegate_start_analytics_honors_child_opt_out_with_enabled_parent() {
         .services
         .analytics_events_client = client.clone();
     parent_session
-        .set_app_server_client_info(Some("maplecode-test".to_string()), Some("1.0.0".to_string()))
+        .set_app_server_client_info(
+            Some("maplecode-test".to_string()),
+            Some("1.0.0".to_string()),
+        )
         .await
         .expect("set parent client metadata");
 

@@ -1,9 +1,9 @@
 use crate::StartThreadOptions;
 use crate::ThreadManager;
 use crate::agent::LocalAgentControl;
-use crate::maplecode_thread::MapleCodeThread;
 use crate::config::Config;
 use crate::config::test_config;
+use crate::maplecode_thread::MapleCodeThread;
 use crate::thread_manager::ThreadManagerState;
 use maplecode_features::Feature;
 use maplecode_login::MapleCodeAuth;
@@ -96,7 +96,9 @@ async fn residency_slot_reservation_unloads_oldest_idle_v2_agent() {
         .expect("second resident slot should evict the first idle agent");
     match manager.get_thread(first.thread_id).await {
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::ThreadNotFound(thread_id) => assert_eq!(*thread_id, first.thread_id),
+            MapleCodeErrorDetails::ThreadNotFound(thread_id) => {
+                assert_eq!(*thread_id, first.thread_id)
+            }
             _ => panic!("expected evicted thread to be missing, got {err:?}"),
         },
         Ok(_) => panic!("expected evicted thread to be missing"),
@@ -166,7 +168,9 @@ async fn interrupted_v2_agent_is_lost_after_residency_eviction() {
         .expect("second resident slot should evict the first interrupted idle agent");
     match manager.get_thread(first.thread_id).await {
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::ThreadNotFound(thread_id) => assert_eq!(*thread_id, first.thread_id),
+            MapleCodeErrorDetails::ThreadNotFound(thread_id) => {
+                assert_eq!(*thread_id, first.thread_id)
+            }
             _ => panic!("expected evicted thread to be missing, got {err:?}"),
         },
         Ok(_) => panic!("expected evicted thread to be missing"),
@@ -189,7 +193,9 @@ async fn interrupted_v2_agent_is_lost_after_residency_eviction() {
     assert!(manager.get_thread(second.thread_id).await.is_ok());
     match manager.get_thread(first.thread_id).await {
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::ThreadNotFound(thread_id) => assert_eq!(*thread_id, first.thread_id),
+            MapleCodeErrorDetails::ThreadNotFound(thread_id) => {
+                assert_eq!(*thread_id, first.thread_id)
+            }
             _ => panic!("expected evicted thread to be missing, got {err:?}"),
         },
         Ok(_) => panic!("expected evicted thread to be missing"),

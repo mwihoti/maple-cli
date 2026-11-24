@@ -2,8 +2,30 @@ use core_test_support::test_maplecode::local_requests;
 use std::sync::Arc;
 use std::time::Duration;
 
-use maplecode_core::MapleCodeThread;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::context_snapshot::SnapshotEntry;
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_custom_tool_call;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_message_item_added;
+use core_test_support::responses::ev_output_text_delta;
+use core_test_support::responses::ev_reasoning_item;
+use core_test_support::responses::ev_reasoning_item_added;
+use core_test_support::responses::ev_response_created;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::StreamingSseServer;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_successful_turn;
 use maplecode_core::InputWaitOutcome;
+use maplecode_core::MapleCodeThread;
 use maplecode_core::StartIfIdleSubmission;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInput;
@@ -31,36 +53,14 @@ use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::InterAgentCommunication;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::turn_input::CyberAccessProgram;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::context_snapshot::SnapshotEntry;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_custom_tool_call;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_message_item_added;
-use core_test_support::responses::ev_output_text_delta;
-use core_test_support::responses::ev_reasoning_item;
-use core_test_support::responses::ev_reasoning_item_added;
-use core_test_support::responses::ev_response_created;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::StreamingSseServer;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_successful_turn;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::from_slice;
@@ -440,7 +440,10 @@ async fn wait_for_agent_message(maplecode: &MapleCodeThread, text: &str) {
 }
 
 async fn wait_for_turn_complete(maplecode: &MapleCodeThread) {
-    wait_for_event(maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 }
 
 async fn wait_for_sleep_item_started(maplecode: &MapleCodeThread, call_id: &str, duration_ms: u64) {
@@ -470,7 +473,11 @@ async fn wait_for_sleep_item_started(maplecode: &MapleCodeThread, call_id: &str,
     );
 }
 
-async fn wait_for_sleep_item_completed(maplecode: &MapleCodeThread, call_id: &str, duration_ms: u64) {
+async fn wait_for_sleep_item_completed(
+    maplecode: &MapleCodeThread,
+    call_id: &str,
+    duration_ms: u64,
+) {
     let event = wait_for_event(maplecode, |event| {
         matches!(
             event,
@@ -603,7 +610,9 @@ async fn queue_only_agent_mail_wakes_sleeping_root_with_previous_turn_context(
         .skip(1)
         .map(|request| {
             serde_json::from_str::<Value>(
-                &request.header("x-maplecode-turn-metadata").expect("metadata"),
+                &request
+                    .header("x-maplecode-turn-metadata")
+                    .expect("metadata"),
             )
         })
         .collect::<Result<Vec<_>, _>>()?;
@@ -1168,8 +1177,14 @@ async fn any_new_input_interrupts_sleep(input: WaitInput) {
     let third: Value = from_slice(&requests[2]).expect("parse third request");
     assert_interrupted_sleep_output(function_call_output_text(&third, SECOND_SLEEP_CALL_ID));
 
-    maplecode.submit(Op::Shutdown).await.expect("shutdown session");
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::ShutdownComplete)).await;
+    maplecode
+        .submit(Op::Shutdown)
+        .await
+        .expect("shutdown session");
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::ShutdownComplete)
+    })
+    .await;
 
     let rollout_path = maplecode.rollout_path().expect("rollout path");
     let rollout = tokio::fs::read_to_string(rollout_path)
@@ -1295,7 +1310,10 @@ async fn injected_user_input_triggers_follow_up_request_with_deltas() {
 
     let _ = gate_completed_tx.send(());
 
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let requests = server.requests().await;
     assert_eq!(requests.len(), 2);
@@ -2820,7 +2838,10 @@ async fn terminal_compaction_error_does_not_retry_pending_input(
     // The failed turn must not poison a later explicit retry once compaction can succeed.
     submit_user_input(maplecode, "retry after quota resets").await;
     wait_for_agent_message(maplecode, "recovered answer").await;
-    let completed = wait_for_event(maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    let completed = wait_for_event(maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
     let EventMsg::TurnComplete(completed) = completed else {
         unreachable!("expected turn completion");
     };
@@ -3098,7 +3119,10 @@ async fn steered_user_input_waits_when_tool_output_triggers_compact_before_next_
     let maplecode = test.maplecode.clone();
 
     submit_danger_full_access_user_turn(&test, "first prompt").await;
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnStarted(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnStarted(_))
+    })
+    .await;
     steer_user_input(&maplecode, "second prompt").await;
     let _ = gate_first_completed_tx.send(());
 

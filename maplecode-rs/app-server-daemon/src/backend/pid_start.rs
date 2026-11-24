@@ -96,7 +96,8 @@ impl PidBackend {
             } else {
                 None
             };
-        let mut command = Command::from(maplecode_utils_process::background_command(&maplecode_bin));
+        let mut command =
+            Command::from(maplecode_utils_process::background_command(&maplecode_bin));
         let stderr_log = match self.open_stderr_log().await {
             Ok(stderr_log) => stderr_log,
             Err(err) => {
@@ -138,7 +139,8 @@ impl PidBackend {
                 .parent()
                 .and_then(std::path::Path::parent)
                 .context("daemon pid path has no Maple Code home")?;
-            let recovery_file = maplecode_app_server_transport::daemon_recovery_file_path(maplecode_home);
+            let recovery_file =
+                maplecode_app_server_transport::daemon_recovery_file_path(maplecode_home);
             match fs::remove_file(&recovery_file).await {
                 Ok(()) => {}
                 Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
@@ -191,7 +193,10 @@ impl PidBackend {
             }
             match self.command_kind {
                 PidCommandKind::AppServer { .. } => {
-                    command.env(maplecode_app_server_transport::DAEMON_SHUTDOWN_SOCKET_ENV, "1");
+                    command.env(
+                        maplecode_app_server_transport::DAEMON_SHUTDOWN_SOCKET_ENV,
+                        "1",
+                    );
                 }
                 PidCommandKind::UpdateLoop { .. } => {
                     let shutdown_file = self.pid_file.with_extension("shutdown");

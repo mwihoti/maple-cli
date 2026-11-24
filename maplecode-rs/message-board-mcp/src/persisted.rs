@@ -3,6 +3,7 @@
 
 use chrono::DateTime;
 use chrono::Utc;
+use futures::future::BoxFuture;
 use maplecode_message_board::MessageBoardHost;
 use maplecode_message_board::NotificationDelivery;
 use maplecode_message_board::PostPreview;
@@ -10,7 +11,6 @@ use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::MapleCodeErr;
 use maplecode_protocol::error::Result;
-use futures::future::BoxFuture;
 use sqlx::SqlitePool;
 
 pub(super) struct PersistedHost {

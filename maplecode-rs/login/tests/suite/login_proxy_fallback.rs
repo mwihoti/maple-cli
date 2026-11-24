@@ -7,6 +7,7 @@ use std::time::Duration;
 
 use anyhow::Result;
 use base64::Engine;
+use core_test_support::skip_if_no_network;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_http_client::HttpClientBuilder;
 use maplecode_http_client::HttpClientFactory;
@@ -16,7 +17,6 @@ use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::AuthRouteConfig;
 use maplecode_login::ServerOptions;
 use maplecode_login::run_login_server;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use tempfile::tempdir;
 use wiremock::Mock;

@@ -10,10 +10,11 @@ use crate::agent::types::AgentMetadata;
 use crate::agent::types::LiveAgent;
 use crate::agent::types::MessageDeliveryMode;
 use crate::agent::types::SpawnAgentOptions;
+use crate::config::Config;
 use crate::maplecode_thread::GuardianRootSnapshot;
 use crate::maplecode_thread::ThreadConfigSnapshot;
-use crate::config::Config;
 use crate::rollout_budget::RolloutBudgetReminder;
+use futures::future::BoxFuture;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
@@ -26,7 +27,6 @@ use maplecode_protocol::protocol::TokenUsage;
 use maplecode_protocol::turn_input::TurnStartOptions;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_rollout_trace::ThreadTraceContext;
-use futures::future::BoxFuture;
 
 // Keep dynamic dispatch a compile-time property of the contract.
 const _: Option<&dyn AgentControl> = None;

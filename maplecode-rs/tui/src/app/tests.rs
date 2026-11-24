@@ -172,6 +172,8 @@ use crate::diff_model::FileChange;
 use crate::legacy_core::config::ConfigBuilder;
 use crate::legacy_core::config::ConfigOverrides;
 use crate::legacy_core::config::PermissionProfileSnapshot;
+use crossterm::event::KeyModifiers;
+use insta::assert_snapshot;
 use maplecode_app_server_client::AppServerPath;
 use maplecode_app_server_protocol::AdditionalFileSystemPermissions;
 use maplecode_app_server_protocol::AdditionalNetworkPermissions;
@@ -246,8 +248,6 @@ use maplecode_protocol::protocol::TurnStartedEvent;
 use maplecode_protocol::request_permissions::RequestPermissionProfile;
 use maplecode_protocol::user_input::TextElement;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use crossterm::event::KeyModifiers;
-use insta::assert_snapshot;
 use pretty_assertions::assert_eq;
 use ratatui::buffer::Buffer;
 use ratatui::prelude::Line;
@@ -5941,7 +5941,8 @@ fn update_memory_settings_updates_current_thread_memory_mode() -> Result<()> {
         let (mut app, _app_event_rx, _op_rx) = Box::pin(make_test_app_with_channels()).await;
         let maplecode_home = tempdir()?;
         app.config.maplecode_home = maplecode_home.path().to_path_buf().abs();
-        app.config.sqlite = maplecode_state::SqliteConfig::new_for_testing(maplecode_home.path().abs());
+        app.config.sqlite =
+            maplecode_state::SqliteConfig::new_for_testing(maplecode_home.path().abs());
         // Seed the previous setting so this test exercises the thread-mode update path.
         app.config.memories.generate_memories = true;
 
@@ -5981,7 +5982,8 @@ async fn reset_memories_clears_local_memory_directories() -> Result<()> {
         let (mut app, _app_event_rx, _op_rx) = Box::pin(make_test_app_with_channels()).await;
         let maplecode_home = tempdir()?;
         app.config.maplecode_home = maplecode_home.path().to_path_buf().abs();
-        app.config.sqlite = maplecode_state::SqliteConfig::new_for_testing(maplecode_home.path().abs());
+        app.config.sqlite =
+            maplecode_state::SqliteConfig::new_for_testing(maplecode_home.path().abs());
 
         let memory_root = maplecode_home.path().join("memories");
         let extensions_root = memory_root.join("extensions");
@@ -8646,12 +8648,9 @@ async fn background_side_cleanup_removes_local_state_and_ignores_late_events() -
 
     app.handle_app_server_event(
         &app_server,
-        maplecode_app_server_client::AppServerEvent::ServerRequest(Box::new(exec_approval_request(
-            side_thread_id,
-            "turn-1",
-            "item-1",
-            Some("approval-1"),
-        ))),
+        maplecode_app_server_client::AppServerEvent::ServerRequest(Box::new(
+            exec_approval_request(side_thread_id, "turn-1", "item-1", Some("approval-1")),
+        )),
     )
     .await;
     let resolution = app
@@ -9344,9 +9343,13 @@ async fn set_thread_goal_draft_materializes_long_objective_and_confirms_before_p
         .expect("maplecode home");
     assert!(goal_files::objective_file_path(&goal.objective, Some(&maplecode_home)).is_some());
     assert_eq!(
-        goal_files::objective_text_for_edit(&mut app_server, Some(&maplecode_home), &goal.objective)
-            .await
-            .expect("managed goal file should be readable"),
+        goal_files::objective_text_for_edit(
+            &mut app_server,
+            Some(&maplecode_home),
+            &goal.objective
+        )
+        .await
+        .expect("managed goal file should be readable"),
         objective
     );
     let is_managed = |home: &AppServerPath, path: &str| {
@@ -9368,7 +9371,11 @@ async fn set_thread_goal_draft_materializes_long_objective_and_confirms_before_p
     ));
     let unix_path = AppServerPath::from_app_server("/tmp/maplecode\\").join("a");
     assert_eq!(unix_path.as_str(), "/tmp/maplecode\\/a");
-    let attachments_dir = app.chat_widget.config_ref().maplecode_home.join("attachments");
+    let attachments_dir = app
+        .chat_widget
+        .config_ref()
+        .maplecode_home
+        .join("attachments");
     let attachment_count = std::fs::read_dir(&attachments_dir)?.count();
     let placeholder = "[Pasted Content 5 chars]";
     let paste_draft = crate::goal_files::GoalDraft {
@@ -9579,14 +9586,14 @@ async fn owned_stream_reflows_at_allocated_width_without_reporting_activity() ->
             );
         }
         let delta = |text: &str| match kind {
-            "plan" => {
-                ServerNotification::PlanDelta(maplecode_app_server_protocol::PlanDeltaNotification {
+            "plan" => ServerNotification::PlanDelta(
+                maplecode_app_server_protocol::PlanDeltaNotification {
                     thread_id: id.to_string(),
                     turn_id: kind.into(),
                     item_id: kind.into(),
                     delta: text.into(),
-                })
-            }
+                },
+            ),
             _ => agent_message_delta_notification(id, kind, kind, text),
         };
         let mut tui = crate::tui::test_support::make_test_tui()?;
@@ -11581,8 +11588,11 @@ async fn prompt_edit_reverts_earlier_and_first_visible_prompts_in_place_scenario
         /*git_info*/ None,
     )
     .expect("materialized rollout should be created");
-    let source_path =
-        app_test_support::rollout_path(config.maplecode_home.as_path(), filename_ts, &source_thread_id);
+    let source_path = app_test_support::rollout_path(
+        config.maplecode_home.as_path(),
+        filename_ts,
+        &source_thread_id,
+    );
     let session_meta = std::fs::read_to_string(&source_path)?
         .lines()
         .next()
@@ -12825,13 +12835,15 @@ async fn selecting_cyber_model_respects_auto_review_requirements() {
             allowed_approval_policies: Some(vec![AskForApproval::UnlessTrusted.to_core()]),
             ..Default::default()
         };
-        let mut requirements_with_sources = maplecode_config::ConfigRequirementsWithSources::default();
+        let mut requirements_with_sources =
+            maplecode_config::ConfigRequirementsWithSources::default();
         requirements_with_sources.merge_unset_fields(
             maplecode_config::RequirementSource::Unknown,
             requirements_toml.clone(),
         );
-        let requirements = maplecode_config::ConfigRequirements::try_from(requirements_with_sources)
-            .expect("reviewer requirements");
+        let requirements =
+            maplecode_config::ConfigRequirements::try_from(requirements_with_sources)
+                .expect("reviewer requirements");
         app.config.config_layer_stack =
             maplecode_config::ConfigLayerStack::new(Vec::new(), requirements, requirements_toml)
                 .expect("auto-review requirements stack");

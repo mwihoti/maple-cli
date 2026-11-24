@@ -12,10 +12,10 @@ use crate::ReadThreadRequest;
 use crate::ThreadPage;
 use crate::ThreadQuery;
 use crate::ThreadSummary;
+use futures::future::BoxFuture;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::Result;
-use futures::future::BoxFuture;
 use std::sync::Arc;
 
 /// A read-only capture of one board. All handles share its namespace, catalog and post cutoff.

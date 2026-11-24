@@ -1,5 +1,6 @@
 //! Consumer task queries preserve missing amounts and require complete descendant groups.
 use super::client::Live;
+use futures::StreamExt;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::RequestId;
@@ -8,7 +9,6 @@ use maplecode_app_server_protocol::ThreadListParams;
 use maplecode_app_server_protocol::ThreadListResponse;
 use maplecode_backend_client::TaskUsage;
 use maplecode_backend_client::TaskUsageThread;
-use futures::StreamExt;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::Arc;

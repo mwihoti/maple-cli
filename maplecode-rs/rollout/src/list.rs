@@ -1050,7 +1050,8 @@ async fn read_head_summary(path: &Path, head_limit: usize) -> io::Result<HeadTai
 
                     if maplecode_state::is_guardian_review_source(&session_meta_line.meta.source) {
                         // The synthetic prompt is not needed for the thread summary.
-                        summary.preview = Some(maplecode_state::GUARDIAN_THREAD_PREVIEW.to_string());
+                        summary.preview =
+                            Some(maplecode_state::GUARDIAN_THREAD_PREVIEW.to_string());
                         break;
                     }
                 }
@@ -1550,7 +1551,8 @@ pub async fn find_thread_path_by_id_str(
     id_str: &str,
     state_db_ctx: Option<&maplecode_state::StateRuntime>,
 ) -> io::Result<Option<PathBuf>> {
-    find_thread_path_by_id_str_in_subdir(maplecode_home, SESSIONS_SUBDIR, id_str, state_db_ctx).await
+    find_thread_path_by_id_str_in_subdir(maplecode_home, SESSIONS_SUBDIR, id_str, state_db_ctx)
+        .await
 }
 
 /// Locate the newest archived rollout file owned by a thread ID.
@@ -1559,8 +1561,13 @@ pub async fn find_archived_thread_path_by_id_str(
     id_str: &str,
     state_db_ctx: Option<&maplecode_state::StateRuntime>,
 ) -> io::Result<Option<PathBuf>> {
-    find_thread_path_by_id_str_in_subdir(maplecode_home, ARCHIVED_SESSIONS_SUBDIR, id_str, state_db_ctx)
-        .await
+    find_thread_path_by_id_str_in_subdir(
+        maplecode_home,
+        ARCHIVED_SESSIONS_SUBDIR,
+        id_str,
+        state_db_ctx,
+    )
+    .await
 }
 
 /// Locate one immutable rollout file by its rollout ID across unarchived and archived storage.
@@ -1572,7 +1579,9 @@ pub async fn find_rollout_path_by_rollout_id(
     rollout_id: RolloutId,
 ) -> io::Result<Option<PathBuf>> {
     find_rollout_path_by_rollout_id_excluding(
-        maplecode_home, rollout_id, /*excluded_canonical_path*/ None,
+        maplecode_home,
+        rollout_id,
+        /*excluded_canonical_path*/ None,
     )
     .await
 }

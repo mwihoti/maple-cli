@@ -2,9 +2,9 @@
 
 use anyhow::Context as _;
 use anyhow::ensure;
+use ctor::ctor;
 use maplecode_arg0::Arg0PathEntryGuard;
 use maplecode_utils_cargo_bin::CargoBinError;
-use ctor::ctor;
 use std::sync::OnceLock;
 use tempfile::TempDir;
 
@@ -38,9 +38,9 @@ pub mod responses;
 pub mod runtime_auth;
 pub mod startup;
 pub mod streaming_sse;
+mod test_environment;
 pub mod test_maplecode;
 pub mod test_maplecode_exec;
-mod test_environment;
 pub mod tracing;
 
 pub(crate) use test_environment::TestEnvironment;
@@ -245,7 +245,8 @@ allow_local_binding = true
 fn default_test_overrides() -> ConfigOverrides {
     ConfigOverrides {
         maplecode_linux_sandbox_exe: Some(
-            find_maplecode_linux_sandbox_exe().expect("should find binary for maplecode-linux-sandbox"),
+            find_maplecode_linux_sandbox_exe()
+                .expect("should find binary for maplecode-linux-sandbox"),
         ),
         ..ConfigOverrides::default()
     }
@@ -287,7 +288,10 @@ where
 pub async fn wait_for_successful_turn(maplecode: &MapleCodeThread) {
     use maplecode_protocol::protocol::EventMsg;
 
-    let event = wait_for_event(maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    let event = wait_for_event(maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
     assert!(
         matches!(&event, EventMsg::TurnComplete(completed) if completed.error.is_none()),
         "turn failed: {event:?}"
@@ -295,7 +299,10 @@ pub async fn wait_for_successful_turn(maplecode: &MapleCodeThread) {
 }
 
 /// Waits for a configured MCP server to finish startup and requires it to be ready.
-pub async fn wait_for_mcp_server(maplecode: &MapleCodeThread, server_name: &str) -> anyhow::Result<()> {
+pub async fn wait_for_mcp_server(
+    maplecode: &MapleCodeThread,
+    server_name: &str,
+) -> anyhow::Result<()> {
     use maplecode_protocol::protocol::EventMsg;
 
     // Wait for the startup summary regardless of outcome, then interpret the
@@ -411,10 +418,13 @@ where
     use tokio::time::timeout;
     loop {
         // Allow a bit more time to accommodate async startup work (e.g. config IO, tool discovery)
-        let ev = timeout(wait_time.max(Duration::from_secs(10)), maplecode.next_event())
-            .await
-            .expect("timeout waiting for event")
-            .expect("stream ended unexpectedly");
+        let ev = timeout(
+            wait_time.max(Duration::from_secs(10)),
+            maplecode.next_event(),
+        )
+        .await
+        .expect("timeout waiting for event")
+        .expect("stream ended unexpectedly");
         if predicate(&ev.msg) {
             return ev.msg;
         }
@@ -430,7 +440,8 @@ pub fn sandbox_network_env_var() -> &'static str {
 }
 
 pub fn format_with_current_shell(command: &str) -> Vec<String> {
-    maplecode_core::shell::default_user_shell().derive_exec_args(command, /*use_login_shell*/ true)
+    maplecode_core::shell::default_user_shell()
+        .derive_exec_args(command, /*use_login_shell*/ true)
 }
 
 pub fn format_with_current_shell_display(command: &str) -> String {
@@ -450,7 +461,8 @@ pub fn format_with_current_shell_display_non_login(command: &str) -> String {
 }
 
 pub fn stdio_server_bin() -> Result<String, CargoBinError> {
-    maplecode_utils_cargo_bin::cargo_bin("test_stdio_server").map(|p| p.to_string_lossy().to_string())
+    maplecode_utils_cargo_bin::cargo_bin("test_stdio_server")
+        .map(|p| p.to_string_lossy().to_string())
 }
 
 pub mod fs_wait {

@@ -8,6 +8,7 @@ use app_test_support::ChatGptAuthFixture;
 use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::write_chatgpt_auth;
+use core_test_support::responses;
 use maplecode_app_server_protocol::ThreadStartParams;
 use maplecode_app_server_protocol::TurnStartParams;
 use maplecode_app_server_protocol::TurnStatus;
@@ -15,7 +16,6 @@ use maplecode_app_server_protocol::UserInput;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_features::Feature;
 use maplecode_protocol::ThreadId;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tempfile::TempDir;
@@ -219,7 +219,10 @@ async fn standalone_web_search_uses_workspace_routing(
         let search = search_request(&routed, SEARCH_PATH).await?;
         assert_eq!(search.headers["authorization"], "Bearer access-chatgpt");
         assert_eq!(search.headers["chatgpt-account-id"], "selected");
-        assert_eq!(search.headers["x-openai-internal-maplecode-residency"], "us");
+        assert_eq!(
+            search.headers["x-openai-internal-maplecode-residency"],
+            "us"
+        );
         assert_eq!(
             search
                 .headers

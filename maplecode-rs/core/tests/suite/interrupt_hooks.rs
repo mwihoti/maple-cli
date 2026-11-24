@@ -4,15 +4,6 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
-use maplecode_core::TurnInputRequest;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::HookEventName;
-use maplecode_protocol::protocol::HookOutputEntry;
-use maplecode_protocol::protocol::HookOutputEntryKind;
-use maplecode_protocol::protocol::HookRunStatus;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::TurnAbortReason;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::fs_wait;
 use core_test_support::hooks::trust_discovered_hooks;
 use core_test_support::responses::ev_completed;
@@ -26,6 +17,15 @@ use core_test_support::skip_if_wine_exec;
 use core_test_support::test_maplecode::TestMapleCode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event_match;
+use maplecode_core::TurnInputRequest;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::HookEventName;
+use maplecode_protocol::protocol::HookOutputEntry;
+use maplecode_protocol::protocol::HookOutputEntryKind;
+use maplecode_protocol::protocol::HookRunStatus;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::TurnAbortReason;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -347,7 +347,10 @@ async fn async_interrupt_hook_runs_without_delaying_turn_aborted() -> Result<()>
     )
     .await
     .context("async interrupt hook should finish after the turn abort")?;
-    assert_eq!(read_interrupt_hook_inputs(test.maplecode_home_path())?.len(), 1);
+    assert_eq!(
+        read_interrupt_hook_inputs(test.maplecode_home_path())?.len(),
+        1
+    );
 
     Ok(())
 }
@@ -414,7 +417,10 @@ async fn self_aborted_turn_runs_interrupt_hook_before_turn_aborted() -> Result<(
         _ => None,
     })
     .await;
-    assert_eq!(read_interrupt_hook_inputs(test.maplecode_home_path())?.len(), 1);
+    assert_eq!(
+        read_interrupt_hook_inputs(test.maplecode_home_path())?.len(),
+        1
+    );
 
     Ok(())
 }

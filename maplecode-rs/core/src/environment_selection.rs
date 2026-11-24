@@ -8,6 +8,11 @@ use std::sync::PoisonError;
 
 use async_channel::Receiver;
 use async_channel::Sender;
+use futures::FutureExt;
+use futures::StreamExt;
+use futures::future::BoxFuture;
+use futures::future::Shared;
+use futures::stream::BoxStream;
 use maplecode_exec_server::Environment;
 use maplecode_exec_server::EnvironmentInfo;
 use maplecode_exec_server::EnvironmentManager;
@@ -28,11 +33,6 @@ use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use maplecode_skills_extension::EnvironmentSkillRequirements;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use futures::FutureExt;
-use futures::StreamExt;
-use futures::future::BoxFuture;
-use futures::future::Shared;
-use futures::stream::BoxStream;
 use tokio::sync::watch;
 use tokio_util::sync::CancellationToken;
 use tokio_util::sync::DropGuard;
@@ -158,7 +158,9 @@ pub fn validate_environment_ids_and_cwds<'a>(
         environment_manager
             .get_environment(environment_id)
             .ok_or_else(|| {
-                MapleCodeErr::InvalidRequest(format!("unknown turn environment id `{environment_id}`"))
+                MapleCodeErr::InvalidRequest(format!(
+                    "unknown turn environment id `{environment_id}`"
+                ))
             })?;
     }
     Ok(())
@@ -1519,6 +1521,8 @@ mod tests {
     use std::time::Duration;
 
     use crate::config::PermissionProfileSnapshot;
+    use futures::SinkExt;
+    use futures::StreamExt;
     use maplecode_exec_server::Environment;
     use maplecode_exec_server::ExecServerRuntimeOptions;
     use maplecode_exec_server::LOCAL_ENVIRONMENT_ID;
@@ -1537,8 +1541,6 @@ mod tests {
     use maplecode_protocol::sandbox::SandboxType;
     use maplecode_utils_absolute_path::AbsolutePathBuf;
     use maplecode_utils_path_uri::PathUri;
-    use futures::SinkExt;
-    use futures::StreamExt;
     use pretty_assertions::assert_eq;
     use serde_json::Value;
     use tokio::net::TcpListener;

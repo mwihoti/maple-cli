@@ -3,6 +3,7 @@
 use super::*;
 use crate::suite::settings_commits::COMMITTED_MODEL;
 use crate::suite::settings_commits::PauseAfterCommit;
+use core_test_support::ThreadIdle;
 use maplecode_core::config::Config;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_extension_api::MessageLifecycleContributor;
@@ -10,7 +11,6 @@ use maplecode_extension_api::MessageLifecycleInput;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::protocol::AgentStatus;
 use maplecode_protocol::protocol::Op;
-use core_test_support::ThreadIdle;
 use pretty_assertions::assert_eq;
 use std::collections::HashSet;
 use std::sync::Arc;

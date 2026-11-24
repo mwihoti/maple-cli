@@ -1,18 +1,6 @@
 //! Direct review preserves live action rendering without executing commands or applying patches.
 
 use anyhow::Result;
-use maplecode_core::config::Constrained;
-use maplecode_core::guardian_review::GuardianReviewResult;
-use maplecode_features::Feature;
-use maplecode_history::RolloutItem;
-use maplecode_protocol::ThreadId;
-use maplecode_protocol::config_types::ApprovalsReviewer;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::models::ResponseItem;
-use maplecode_protocol::models::input_text;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::protocol::TurnEnvironmentRequests;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::responses;
@@ -26,6 +14,18 @@ use core_test_support::responses::sse;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::TestMapleCodeHarness;
 use core_test_support::test_maplecode::test_maplecode;
+use maplecode_core::config::Constrained;
+use maplecode_core::guardian_review::GuardianReviewResult;
+use maplecode_features::Feature;
+use maplecode_history::RolloutItem;
+use maplecode_protocol::ThreadId;
+use maplecode_protocol::config_types::ApprovalsReviewer;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::models::ResponseItem;
+use maplecode_protocol::models::input_text;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::protocol::TurnEnvironmentRequests;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tokio_util::sync::CancellationToken;
@@ -33,18 +33,20 @@ use tokio_util::sync::CancellationToken;
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn direct_exec_review_matches_live_action_without_execution() -> Result<()> {
     skip_if_no_network!(Ok(()));
-    let builder = test_maplecode().with_model("gpt-5.5").with_config(|config| {
-        super::configure_scenario_catalog(config);
-        config.approvals_reviewer = ApprovalsReviewer::AutoReview;
-        config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
-        let rules = config.maplecode_home.join("rules");
-        std::fs::create_dir_all(&rules).expect("create rules directory");
-        std::fs::write(
-            rules.join("approved.rules"),
-            r#"prefix_rule(pattern=["git", "init", "guardian-skipped"], decision="allow")"#,
-        )
-        .expect("write approved command");
-    });
+    let builder = test_maplecode()
+        .with_model("gpt-5.5")
+        .with_config(|config| {
+            super::configure_scenario_catalog(config);
+            config.approvals_reviewer = ApprovalsReviewer::AutoReview;
+            config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
+            let rules = config.maplecode_home.join("rules");
+            std::fs::create_dir_all(&rules).expect("create rules directory");
+            std::fs::write(
+                rules.join("approved.rules"),
+                r#"prefix_rule(pattern=["git", "init", "guardian-skipped"], decision="allow")"#,
+            )
+            .expect("write approved command");
+        });
     let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
 
@@ -88,7 +90,10 @@ async fn direct_exec_review_matches_live_action_without_execution() -> Result<()
     .await;
     // Replay the recorded items, including the provenance attached to the user message.
     test.maplecode.flush_rollout().await?;
-    let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let history = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     let items = history
         .items
         .into_iter()
@@ -267,15 +272,17 @@ async fn direct_patch_review_matches_live_action_without_writes(
     snapshot_name: &str,
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
-    let builder = test_maplecode().with_model("gpt-5.5").with_config(|config| {
-        super::configure_scenario_catalog(config);
-        config.approvals_reviewer = ApprovalsReviewer::AutoReview;
-        config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
-        config
-            .permissions
-            .set_permission_profile(PermissionProfile::read_only())
-            .expect("read-only permissions");
-    });
+    let builder = test_maplecode()
+        .with_model("gpt-5.5")
+        .with_config(|config| {
+            super::configure_scenario_catalog(config);
+            config.approvals_reviewer = ApprovalsReviewer::AutoReview;
+            config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
+            config
+                .permissions
+                .set_permission_profile(PermissionProfile::read_only())
+                .expect("read-only permissions");
+        });
     let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
     harness
@@ -326,7 +333,10 @@ async fn direct_patch_review_matches_live_action_without_writes(
     // 2. Replay the recorded user message and patch call through the direct-review API.
     // Its mocked allow verdict must assess the patch without applying it.
     test.maplecode.flush_rollout().await?;
-    let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let history = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     let items = history
         .items
         .into_iter()
@@ -406,19 +416,21 @@ async fn direct_patch_review_matches_live_action_without_writes(
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn direct_permissions_review_matches_live_action() -> Result<()> {
     skip_if_no_network!(Ok(()));
-    let builder = test_maplecode().with_model("gpt-5.5").with_config(|config| {
-        super::configure_scenario_catalog(config);
-        config
-            .features
-            .enable(Feature::RequestPermissionsTool)
-            .expect("enable permission requests");
-        config.approvals_reviewer = ApprovalsReviewer::AutoReview;
-        config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
-        config
-            .permissions
-            .set_permission_profile(PermissionProfile::read_only())
-            .expect("read-only permissions");
-    });
+    let builder = test_maplecode()
+        .with_model("gpt-5.5")
+        .with_config(|config| {
+            super::configure_scenario_catalog(config);
+            config
+                .features
+                .enable(Feature::RequestPermissionsTool)
+                .expect("enable permission requests");
+            config.approvals_reviewer = ApprovalsReviewer::AutoReview;
+            config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
+            config
+                .permissions
+                .set_permission_profile(PermissionProfile::read_only())
+                .expect("read-only permissions");
+        });
     let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
 
@@ -460,7 +472,10 @@ async fn direct_permissions_review_matches_live_action() -> Result<()> {
 
     // 2. Review the same recorded permission request in isolation.
     test.maplecode.flush_rollout().await?;
-    let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let history = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     let items = history
         .items
         .into_iter()
@@ -543,18 +558,20 @@ async fn direct_permissions_review_matches_live_action() -> Result<()> {
 #[tokio::test]
 async fn direct_patch_review_skips_writable_file_without_writes() -> Result<()> {
     skip_if_no_network!(Ok(()));
-    let builder = test_maplecode().with_model("gpt-5.5").with_config(|config| {
-        super::configure_scenario_catalog(config);
-        config.approvals_reviewer = ApprovalsReviewer::AutoReview;
-        config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
-        // Writable patches can bypass review only when a sandbox is available.
-        config.permissions.windows_sandbox_mode =
-            Some(maplecode_config::types::WindowsSandboxModeToml::Unelevated);
-        config
-            .permissions
-            .set_permission_profile(PermissionProfile::workspace_write())
-            .expect("workspace-write permissions");
-    });
+    let builder = test_maplecode()
+        .with_model("gpt-5.5")
+        .with_config(|config| {
+            super::configure_scenario_catalog(config);
+            config.approvals_reviewer = ApprovalsReviewer::AutoReview;
+            config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
+            // Writable patches can bypass review only when a sandbox is available.
+            config.permissions.windows_sandbox_mode =
+                Some(maplecode_config::types::WindowsSandboxModeToml::Unelevated);
+            config
+                .permissions
+                .set_permission_profile(PermissionProfile::workspace_write())
+                .expect("workspace-write permissions");
+        });
     let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
     harness
@@ -764,8 +781,8 @@ prefix_rule(pattern=["git", "init", "guardian-rewritten"], decision="prompt")
 #[cfg(not(target_os = "windows"))]
 #[tokio::test]
 async fn direct_exec_review_honors_hook_denial_before_policy_skip() -> Result<()> {
-    use maplecode_protocol::protocol::EventMsg;
     use core_test_support::wait_for_event;
+    use maplecode_protocol::protocol::EventMsg;
 
     skip_if_no_network!(Ok(()));
 
@@ -826,7 +843,10 @@ async fn direct_exec_review_honors_hook_denial_before_policy_skip() -> Result<()
     .await;
 
     test.maplecode.flush_rollout().await?;
-    let history = test.maplecode.load_history(/*include_archived*/ false).await?;
+    let history = test
+        .maplecode
+        .load_history(/*include_archived*/ false)
+        .await?;
     assert!(history.items.iter().any(|entry| {
         matches!(entry, RolloutItem::ResponseItem(item)
             if matches!(&item.item, ResponseItem::Message { role, content, .. }

@@ -3,6 +3,8 @@
 use std::path::Path;
 
 use crate::app_server_session::AppServerSession;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
 use maplecode_app_server_client::TypedRequestError;
 use maplecode_app_server_protocol::Thread;
 use maplecode_app_server_protocol::ThreadHistoryMode;
@@ -10,8 +12,6 @@ use maplecode_app_server_protocol::ThreadListParams;
 use maplecode_app_server_protocol::ThreadSortKey;
 use maplecode_app_server_protocol::ThreadSourceKind;
 use maplecode_protocol::ThreadId;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
 
 #[derive(Clone, Copy)]
 pub(super) enum SessionCollection {
@@ -99,11 +99,15 @@ pub(super) async fn lookup(
                     {
                         let expected_root = maplecode_home.join(match collection {
                             SessionCollection::Active => maplecode_rollout::SESSIONS_SUBDIR,
-                            SessionCollection::Archived => maplecode_rollout::ARCHIVED_SESSIONS_SUBDIR,
+                            SessionCollection::Archived => {
+                                maplecode_rollout::ARCHIVED_SESSIONS_SUBDIR
+                            }
                         });
                         if !path.starts_with(expected_root)
                             || (thread.history_mode == ThreadHistoryMode::Legacy
-                                && maplecode_rollout::existing_rollout_path(path).await.is_none())
+                                && maplecode_rollout::existing_rollout_path(path)
+                                    .await
+                                    .is_none())
                         {
                             continue;
                         }

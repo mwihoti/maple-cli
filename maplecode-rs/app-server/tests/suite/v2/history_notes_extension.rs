@@ -3,11 +3,11 @@ use std::time::Duration;
 use anyhow::Result;
 use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses;
 use maplecode_app_server_protocol::ThreadStartParams;
 use maplecode_app_server_protocol::TurnStartParams;
 use maplecode_app_server_protocol::UserInput;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -116,7 +116,8 @@ async fn app_server_uses_configured_notes_backend_for_context_window_hints(
 
     let maplecode_home = TempDir::new()?;
     let config = load_default_config_for_test(&maplecode_home).await;
-    let mut model = maplecode_core::test_support::construct_model_info_offline("mock-model", &config);
+    let mut model =
+        maplecode_core::test_support::construct_model_info_offline("mock-model", &config);
     model.supports_experimental_context = supports_experimental_context;
     let catalog_path = maplecode_home.path().join("models.json");
     std::fs::write(
@@ -340,7 +341,8 @@ async fn history_notes_and_async_message_emit_control_tool_analytics() -> Result
 
     let maplecode_home = TempDir::new()?;
     let config = load_default_config_for_test(&maplecode_home).await;
-    let mut model = maplecode_core::test_support::construct_model_info_offline("mock-model", &config);
+    let mut model =
+        maplecode_core::test_support::construct_model_info_offline("mock-model", &config);
     model.supports_experimental_context = true;
     model
         .experimental_supported_tools

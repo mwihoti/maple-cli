@@ -847,21 +847,20 @@ pub(crate) fn configured_marketplace_plugins(
         })?;
     let mut marketplace_plugins = BTreeMap::new();
     for marketplace in marketplaces.marketplaces {
-        let plugins = marketplace
-            .plugins
-            .into_iter()
-            .filter(|plugin| {
-                plugin.policy.installation != MarketplacePluginInstallPolicy::NotAvailable
-            })
-            .filter(|plugin| {
-                plugin
-                    .policy
-                    .products
-                    .as_deref()
-                    .is_none_or(|products| Product::MapleCode.matches_product_restriction(products))
-            })
-            .map(|plugin| plugin.name)
-            .collect::<HashSet<_>>();
+        let plugins =
+            marketplace
+                .plugins
+                .into_iter()
+                .filter(|plugin| {
+                    plugin.policy.installation != MarketplacePluginInstallPolicy::NotAvailable
+                })
+                .filter(|plugin| {
+                    plugin.policy.products.as_deref().is_none_or(|products| {
+                        Product::MapleCode.matches_product_restriction(products)
+                    })
+                })
+                .map(|plugin| plugin.name)
+                .collect::<HashSet<_>>();
         marketplace_plugins.insert(marketplace.name, plugins);
     }
     Ok(marketplace_plugins)

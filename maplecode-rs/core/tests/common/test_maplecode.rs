@@ -15,6 +15,7 @@ use std::time::Duration;
 use anyhow::Context;
 use anyhow::Result;
 use anyhow::anyhow;
+use futures::future::BoxFuture;
 use maplecode_agent_graph_store::AgentGraphStore;
 use maplecode_analytics::AnalyticsEventsClient;
 use maplecode_attachment_store::AttachmentStore;
@@ -77,7 +78,6 @@ use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::LegacyAppPathString;
 use maplecode_utils_path_uri::PathConvention;
 use maplecode_utils_path_uri::PathUri;
-use futures::future::BoxFuture;
 use serde_json::Value;
 use tempfile::TempDir;
 use wiremock::MockServer;
@@ -878,13 +878,12 @@ impl TestMapleCodeBuilder {
             .code_mode_host_program
             .take()
             .or_else(|| maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host").ok());
-        let factory =
-            match &self.models_manager {
-                Some(models) => maplecode_core::test_support::fixed_model_catalog(Arc::clone(models)),
-                None => Arc::new(self.model_catalog_settings.clone().unwrap_or_else(|| {
-                    ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())
-                })),
-            };
+        let factory = match &self.models_manager {
+            Some(models) => maplecode_core::test_support::fixed_model_catalog(Arc::clone(models)),
+            None => Arc::new(self.model_catalog_settings.clone().unwrap_or_else(|| {
+                ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())
+            })),
+        };
         let startup = maplecode_core::build_startup_models(
             &config,
             Arc::clone(&auth_manager),
@@ -898,7 +897,11 @@ impl TestMapleCodeBuilder {
                 manager.clone(),
             );
             if config.features.enabled(Feature::GuardianV2) {
-                maplecode_guardian_v2::install(&mut extensions, auth_manager.clone(), manager.clone());
+                maplecode_guardian_v2::install(
+                    &mut extensions,
+                    auth_manager.clone(),
+                    manager.clone(),
+                );
             } else {
                 maplecode_guardian_v2::install_reviewer(&mut extensions, manager.clone());
             }
@@ -1172,7 +1175,10 @@ impl TestMapleCode {
             }]))
             .await?;
 
-        wait_for_event(&self.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+        wait_for_event(&self.maplecode, |ev| {
+            matches!(ev, EventMsg::TurnComplete(_))
+        })
+        .await;
         Ok(())
     }
 

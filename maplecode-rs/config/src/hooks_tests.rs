@@ -37,7 +37,9 @@ fn hooks_file_deserializes_existing_json_shape() {
     assert_eq!(
         parsed,
         HooksFile {
-            description: Some("Optional stop-time review gate for Maple Code Companion.".to_string()),
+            description: Some(
+                "Optional stop-time review gate for Maple Code Companion.".to_string()
+            ),
             hooks: HookEventsToml {
                 pre_tool_use: vec![MatcherGroup {
                     matcher: Some("^Bash$".to_string()),

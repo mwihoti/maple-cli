@@ -67,9 +67,9 @@ fn daemon_launch_telemetry_records_once_on_connection_update_or_early_return() {
 #[tokio::test]
 async fn daemon_feature_compatibility_respects_required_and_optional_attachment()
 -> color_eyre::Result<()> {
-    use maplecode_app_server_protocol::JSONRPCMessage;
     use futures::SinkExt;
     use futures::StreamExt;
+    use maplecode_app_server_protocol::JSONRPCMessage;
     use serde_json::json;
     use tokio_tungstenite::tungstenite::Message;
 

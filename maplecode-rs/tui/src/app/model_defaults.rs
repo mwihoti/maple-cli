@@ -8,6 +8,7 @@ use crate::app_server_session::AppServerSession;
 use crate::app_server_session::ThreadParamsMode;
 use crate::app_server_session::ThreadSettingsOwner;
 use crate::service_tier_resolution;
+use color_eyre::eyre::Result;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_protocol::ConfigEdit;
 use maplecode_app_server_protocol::WriteStatus;
@@ -16,7 +17,6 @@ use maplecode_protocol::config_types::SERVICE_TIER_DEFAULT_REQUEST_VALUE;
 use maplecode_protocol::config_types::ServiceTier;
 use maplecode_protocol::openai_models::MODEL_SPECIALTY_CYBER;
 use maplecode_protocol::openai_models::ReasoningEffort;
-use color_eyre::eyre::Result;
 
 impl App {
     pub(super) async fn apply_default_model_selection(

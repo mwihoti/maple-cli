@@ -1,11 +1,11 @@
 //! Provider commands stay separate from later product branding.
 
 use clap::{Parser, Subcommand};
+use crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers, read};
 use maplecode_core::config::ConfigBuilder;
 use maplecode_keyring_store::DefaultKeyringStore;
 use maplecode_model_provider_info::maple_credentials;
 use maplecode_utils_cli::CliConfigOverrides;
-use crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers, read};
 use std::io::{IsTerminal, Write};
 use std::sync::Arc;
 use zeroize::Zeroizing;

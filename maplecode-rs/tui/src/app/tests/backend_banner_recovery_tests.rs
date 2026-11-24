@@ -3,9 +3,9 @@ use crate::app::rate_limit_refresh::RateLimitReadStatus;
 use crate::app::rate_limit_refresh::RateLimitRefreshOutcome;
 use app_test_support::ChatGptAuthFixture;
 use app_test_support::write_chatgpt_auth;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::ErrorNotification;
 use maplecode_app_server_protocol::GetAccountRateLimitsResponse;
+use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use pretty_assertions::assert_eq;
 use serde_json::json;
@@ -114,7 +114,11 @@ async fn luna_reserve_periodic_refresh_adapts_without_an_experiment_banner() -> 
             .iter()
             .find(|request| request.url.path() == "/api/maplecode/usage")
             .unwrap();
-        assert!(usage.headers.contains_key("x-openai-maplecode-luna-reserve"));
+        assert!(
+            usage
+                .headers
+                .contains_key("x-openai-maplecode-luna-reserve")
+        );
         backend.verify().await;
     }
     session.shutdown().await?;
@@ -455,11 +459,12 @@ async fn backend_banner_reset_redemption_rejects_pre_reset_content() -> Result<(
     .await?;
     let mut recovered = banner.clone();
     recovered.rate_limit_upsell = None;
-    recovered.rate_limit_reset_credits =
-        Some(maplecode_app_server_protocol::RateLimitResetCreditsSummary {
+    recovered.rate_limit_reset_credits = Some(
+        maplecode_app_server_protocol::RateLimitResetCreditsSummary {
             available_count: 0,
             credits: None,
-        });
+        },
+    );
     app.handle_event(
         &mut tui,
         &mut session,

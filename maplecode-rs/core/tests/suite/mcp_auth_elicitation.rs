@@ -1,6 +1,17 @@
 //! Verify MCP prompts and elicitation analytics through actual turns.
 
 use anyhow::Result;
+use core_test_support::PathExt;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
+use core_test_support::apps_test_server::recorded_apps_tool_call_by_call_id;
+use core_test_support::apps_test_server::recorded_apps_tool_calls;
+use core_test_support::apps_test_server::search_capable_apps_builder;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use maplecode_analytics::AnalyticsEventsClient;
 use maplecode_analytics::AppServerRpcTransport;
 use maplecode_app_server_protocol as app;
@@ -31,17 +42,6 @@ use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::PathExt;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
-use core_test_support::apps_test_server::recorded_apps_tool_call_by_call_id;
-use core_test_support::apps_test_server::recorded_apps_tool_calls;
-use core_test_support::apps_test_server::search_capable_apps_builder;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -584,7 +584,10 @@ approvals_reviewer = "user"
             .expect("apps config");
             config.config_layer_stack = config
                 .config_layer_stack
-                .with_user_config(&config.maplecode_home.join("config.toml").abs(), user_config)
+                .with_user_config(
+                    &config.maplecode_home.join("config.toml").abs(),
+                    user_config,
+                )
                 .expect("apply apps config");
         })
         .build_with_auto_env(&server)

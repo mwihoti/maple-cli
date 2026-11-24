@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::io;
 
+use futures::StreamExt;
 use maplecode_exec_server::CapabilityRootDiscovery;
 use maplecode_exec_server::EnvironmentAccess;
 use maplecode_exec_server::EnvironmentAccessExt;
@@ -14,7 +15,6 @@ use maplecode_skills::SkillPolicy;
 use maplecode_skills::parse_skill_frontmatter_metadata;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_plugins::SkillDiscoveryMode;
-use futures::StreamExt;
 
 use super::MAX_QUALIFIED_NAME_LEN;
 use super::discovery::DirectorySymlinkPolicy;

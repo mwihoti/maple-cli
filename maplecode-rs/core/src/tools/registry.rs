@@ -28,6 +28,9 @@ use crate::tools::lifecycle::notify_tool_start;
 use crate::tools::router::tool_log_payload;
 use crate::tools::tool_dispatch_trace::ToolDispatchTrace;
 use crate::util::error_or_panic;
+use futures::future::BoxFuture;
+use indexmap::IndexMap;
+use indexmap::map::Entry;
 use maplecode_analytics::ControlToolCallStatus;
 use maplecode_extension_api::ToolCallOutcome;
 use maplecode_extension_api::ToolPolicy;
@@ -44,9 +47,6 @@ use maplecode_tools::ToolName;
 use maplecode_tools::ToolSearchInfo;
 use maplecode_tools::ToolSpec;
 use maplecode_utils_path_uri::PathUri;
-use futures::future::BoxFuture;
-use indexmap::IndexMap;
-use indexmap::map::Entry;
 use serde_json::Value;
 
 pub(crate) type LiveEnvironmentResolver =
@@ -118,7 +118,8 @@ pub(crate) trait CoreToolRuntime: ToolExecutor<ToolInvocation> {
 
     /// Returns the owning server only for MCP-backed tool runtimes.
     fn mcp_server_name(&self) -> Option<&str> {
-        self.mcp_tool_info().map(maplecode_mcp::ToolInfo::server_name)
+        self.mcp_tool_info()
+            .map(maplecode_mcp::ToolInfo::server_name)
     }
 
     fn matches_kind(&self, payload: &ToolPayload) -> bool {

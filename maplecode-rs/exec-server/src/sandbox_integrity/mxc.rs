@@ -25,6 +25,11 @@ pub(super) fn prepare_policy(
     cwd: &AbsolutePathBuf,
 ) -> io::Result<FileSystemSandboxPolicy> {
     let command_cwd = request.cwd.to_abs_path()?;
-    maplecode_mxc_sandbox::prepare_file_system_policy(policy, &request.env, cwd, command_cwd.as_path())
-        .map_err(io::Error::other)
+    maplecode_mxc_sandbox::prepare_file_system_policy(
+        policy,
+        &request.env,
+        cwd,
+        command_cwd.as_path(),
+    )
+    .map_err(io::Error::other)
 }

@@ -44,7 +44,10 @@ where
         }
         TestBinaryDispatchMode::Skip => None,
         TestBinaryDispatchMode::InstallAliases => {
-            let maplecode_home = match tempfile::Builder::new().prefix(maplecode_home_prefix).tempdir() {
+            let maplecode_home = match tempfile::Builder::new()
+                .prefix(maplecode_home_prefix)
+                .tempdir()
+            {
                 Ok(maplecode_home) => maplecode_home,
                 Err(error) => panic!("failed to create test MAPLECODE_HOME: {error}"),
             };

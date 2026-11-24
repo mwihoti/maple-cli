@@ -1632,8 +1632,12 @@ impl ThreadRequestProcessor {
                 initial_history: match session_start_source
                     .unwrap_or(maplecode_app_server_protocol::ThreadStartSource::Startup)
                 {
-                    maplecode_app_server_protocol::ThreadStartSource::Startup => InitialHistory::New,
-                    maplecode_app_server_protocol::ThreadStartSource::Clear => InitialHistory::Cleared,
+                    maplecode_app_server_protocol::ThreadStartSource::Startup => {
+                        InitialHistory::New
+                    }
+                    maplecode_app_server_protocol::ThreadStartSource::Clear => {
+                        InitialHistory::Cleared
+                    }
                 },
                 history_mode,
                 thread_source,
@@ -1665,7 +1669,9 @@ impl ThreadRequestProcessor {
                     .await;
                 remove_pending_thread_metadata(thread_store.as_ref(), reserved_thread_id).await;
                 return Err(match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                        invalid_request(message.clone())
+                    }
                     MapleCodeErrorDetails::UnsupportedOperation(message) => {
                         method_not_found(message.clone())
                     }
@@ -4403,8 +4409,12 @@ impl ThreadRequestProcessor {
                             .await;
                     }
                     let state = self.thread_state_manager.thread_state(thread_id).await;
-                    self.ensure_listener_task_running(thread_id, Arc::clone(&maplecode_thread), state)
-                        .await?;
+                    self.ensure_listener_task_running(
+                        thread_id,
+                        Arc::clone(&maplecode_thread),
+                        state,
+                    )
+                    .await?;
                     return Ok(ControlFlow::Break(()));
                 };
                 let request_id = request_id.clone();
@@ -4618,7 +4628,9 @@ impl ThreadRequestProcessor {
             }
             Err(err) => {
                 let error = match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                        invalid_request(message.clone())
+                    }
                     _ => internal_error(format!("error resuming thread: {err}")),
                 };
                 return Err(error);
@@ -5788,7 +5800,9 @@ impl ThreadRequestProcessor {
                     MapleCodeErrorDetails::Io(_) | MapleCodeErrorDetails::Json(_) => {
                         invalid_request(format!("failed to load thread {source_thread_id}: {err}"))
                     }
-                    MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                        invalid_request(message.clone())
+                    }
                     _ => internal_error(format!("error forking thread: {err}")),
                 });
             }

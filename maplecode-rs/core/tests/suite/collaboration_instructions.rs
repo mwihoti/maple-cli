@@ -1,4 +1,17 @@
 use anyhow::Result;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_models_once_with_etag;
+use core_test_support::responses::mount_response_once;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
@@ -15,19 +28,6 @@ use maplecode_protocol::protocol::COLLABORATION_MODE_OPEN_TAG;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_models_once_with_etag;
-use core_test_support::responses::mount_response_once;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -136,7 +136,10 @@ async fn no_collaboration_instructions_by_default() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req.single_request().input();
     let dev_texts = developer_texts(&input);
@@ -512,7 +515,10 @@ async fn user_input_includes_collaboration_instructions_after_override() -> Resu
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req.single_request().input();
     let dev_texts = developer_texts(&input);
@@ -557,7 +563,10 @@ async fn collaboration_instructions_added_on_user_turn() -> Result<()> {
             }),
         )
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req.single_request().input();
     let dev_texts = developer_texts(&input);
@@ -604,7 +613,10 @@ async fn collaboration_instructions_omitted_when_disabled() -> Result<()> {
             }),
         )
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req.single_request().input();
     let dev_texts = developer_texts(&input);
@@ -662,7 +674,10 @@ async fn user_turn_overrides_collaboration_instructions_after_override() -> Resu
             }),
         )
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req.single_request().input();
     let dev_texts = developer_texts(&input);
@@ -709,7 +724,10 @@ async fn collaboration_mode_update_appends_instruction_changes_within_same_mode(
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &test.maplecode,
@@ -726,7 +744,10 @@ async fn collaboration_mode_update_appends_instruction_changes_within_same_mode(
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req2.single_request().input();
     let dev_texts = developer_texts(&input);
@@ -772,7 +793,10 @@ async fn collaboration_mode_update_noop_does_not_append() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &test.maplecode,
@@ -789,7 +813,10 @@ async fn collaboration_mode_update_noop_does_not_append() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req2.single_request().input();
     let dev_texts = developer_texts(&input);
@@ -837,7 +864,10 @@ async fn collaboration_mode_update_emits_new_instruction_message_when_mode_chang
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &test.maplecode,
@@ -857,7 +887,10 @@ async fn collaboration_mode_update_emits_new_instruction_message_when_mode_chang
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req2.single_request().input();
     let dev_texts = developer_texts(&input);
@@ -906,7 +939,10 @@ async fn collaboration_mode_update_noop_does_not_append_when_mode_is_unchanged()
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &test.maplecode,
@@ -926,7 +962,10 @@ async fn collaboration_mode_update_noop_does_not_append_when_mode_is_unchanged()
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req2.single_request().input();
     let dev_texts = developer_texts(&input);
@@ -973,7 +1012,10 @@ async fn resume_replays_collaboration_instructions() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&initial.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&initial.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let resumed = builder.restart(&server, &initial).await?;
     assert_eq!(
@@ -992,7 +1034,10 @@ async fn resume_replays_collaboration_instructions() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&resumed.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&resumed.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req2.single_request().input();
     let dev_texts = developer_texts(&input);
@@ -1016,11 +1061,13 @@ async fn cold_resume_refreshes_legacy_collaboration_snapshot_once(
     let builder_with_instructions = |instructions: &str| {
         let model =
             model_with_collaboration_messages(MODEL, Some(instructions), /*plan*/ None);
-        test_maplecode().with_model(MODEL).with_config(move |config| {
-            config.model_catalog = Some(ModelsResponse {
-                models: vec![model],
-            });
-        })
+        test_maplecode()
+            .with_model(MODEL)
+            .with_config(move |config| {
+                config.model_catalog = Some(ModelsResponse {
+                    models: vec![model],
+                });
+            })
     };
     let server = start_mock_server().await;
     let initial_response = mount_sse_once(
@@ -1136,7 +1183,10 @@ async fn empty_collaboration_instructions_are_ignored() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let input = req.single_request().input();
     let dev_texts = developer_texts(&input);

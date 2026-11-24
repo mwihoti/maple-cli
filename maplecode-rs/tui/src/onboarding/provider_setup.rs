@@ -3,10 +3,10 @@
 use super::auth::AuthModeWidget;
 use super::auth::SignInState;
 use crate::bottom_pane::TextArea;
-use maplecode_app_server_protocol::RequestId;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyModifiers;
+use maplecode_app_server_protocol::RequestId;
 use ratatui::style::Stylize;
 use ratatui::text::Line;
 use ratatui::text::Span;

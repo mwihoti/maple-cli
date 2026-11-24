@@ -12,6 +12,7 @@ use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::write_chatgpt_auth;
 use app_test_support::write_models_cache;
+use core_test_support::responses;
 use maplecode_app_server_protocol::ClientInfo;
 use maplecode_app_server_protocol::ThreadStartParams;
 use maplecode_app_server_protocol::ThreadStartResponse;
@@ -22,7 +23,6 @@ use maplecode_app_server_protocol::TurnStatus;
 use maplecode_app_server_protocol::UserInput;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::REFRESH_TOKEN_URL_OVERRIDE_ENV_VAR;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -130,7 +130,11 @@ async fn concurrent_connections_export_their_own_storage_originator() -> Result<
     let collector = configure_collector(maplecode_home.path()).await?;
     let (_process, address) = spawn_websocket_server(maplecode_home.path()).await?;
     let mut clients = Vec::new();
-    for name in ["Maple Code Desktop", "maplecode_vscode", "private-client-name"] {
+    for name in [
+        "Maple Code Desktop",
+        "maplecode_vscode",
+        "private-client-name",
+    ] {
         let mut client = connect_websocket(address).await?;
         send_initialize_request(&mut client, /*id*/ 1, name).await?;
         read_response_for_id(&mut client, /*id*/ 1).await?;
@@ -150,7 +154,11 @@ async fn concurrent_connections_export_their_own_storage_originator() -> Result<
         let response = read_response_for_id(client, /*id*/ 2).await?;
         assert_eq!(response.result, json!({"type": "apiKey"}));
     }
-    assert_saved_originators(&collector, &["maplecode_desktop", "maplecode_vscode", "other"]).await
+    assert_saved_originators(
+        &collector,
+        &["maplecode_desktop", "maplecode_vscode", "other"],
+    )
+    .await
 }
 
 #[tokio::test]

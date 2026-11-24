@@ -174,8 +174,8 @@ impl ReviewHost for super::super::runtime::ReviewRuntime {
             .as_ref()
             .map(PluginCommandAttribution::serialized_fields)
             .unzip();
-        let report =
-            maplecode_guardian_reviewer::ReviewReport::new(maplecode_guardian_reviewer::ReviewMetadata {
+        let report = maplecode_guardian_reviewer::ReviewReport::new(
+            maplecode_guardian_reviewer::ReviewMetadata {
                 thread_id: session.thread_id.to_string(),
                 turn_id: assessment_turn_id,
                 review_id: review_id.to_owned(),
@@ -188,7 +188,8 @@ impl ReviewHost for super::super::runtime::ReviewRuntime {
                 review_reason,
                 model_context,
                 timeout: turn.config.guardian_review_timeout,
-            });
+            },
+        );
         let root_history = session
             .services
             .agent_control

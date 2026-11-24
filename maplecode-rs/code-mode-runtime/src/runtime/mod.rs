@@ -16,14 +16,14 @@ use std::thread;
 use crate::TaskFailureHandler;
 use crate::session_runtime::OutputItem;
 use crate::v8_init::ensure_v8_initialized;
+pub(crate) use event_channel::RuntimeEventReceiver;
+pub(crate) use event_channel::RuntimeEventSender;
+pub(crate) use event_channel::runtime_event_channel;
 use maplecode_code_mode_protocol::CodeModeToolKind;
 use maplecode_code_mode_protocol::EnabledToolMetadata;
 use maplecode_code_mode_protocol::ExecuteRequest;
 use maplecode_code_mode_protocol::normalize_code_mode_identifier;
 use maplecode_protocol::ToolName;
-pub(crate) use event_channel::RuntimeEventReceiver;
-pub(crate) use event_channel::RuntimeEventSender;
-pub(crate) use event_channel::runtime_event_channel;
 use serde_json::Value as JsonValue;
 
 #[derive(Debug)]

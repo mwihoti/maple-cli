@@ -56,7 +56,10 @@ fn provider_info_with_command_auth() -> ModelProviderInfo {
 }
 
 fn test_maplecode_home() -> std::path::PathBuf {
-    std::env::temp_dir().join(format!("maplecode-model-provider-test-{}", std::process::id()))
+    std::env::temp_dir().join(format!(
+        "maplecode-model-provider-test-{}",
+        std::process::id()
+    ))
 }
 
 fn provider_for(base_url: String) -> ModelProviderInfo {
@@ -207,9 +210,9 @@ fn configured_provider_uses_default_approval_review_preferred_model() {
 fn configured_provider_uses_luna_for_approval_review_with_api_key_auth() {
     let provider = create_model_provider(
         ModelProviderInfo::create_openai_provider(/*base_url*/ None),
-        Some(AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(
-            "openai-api-key",
-        ))),
+        Some(AuthManager::from_auth_for_testing(
+            MapleCodeAuth::from_api_key("openai-api-key"),
+        )),
     );
 
     assert_eq!(provider.approval_review_preferred_model(), "gpt-5.6-luna");
@@ -375,9 +378,9 @@ fn create_model_provider_does_not_use_openai_auth_manager_for_amazon_bedrock_pro
             credential_export: None,
             auth_refresh: None,
         })),
-        Some(AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(
-            "openai-api-key",
-        ))),
+        Some(AuthManager::from_auth_for_testing(
+            MapleCodeAuth::from_api_key("openai-api-key"),
+        )),
     );
 
     assert!(provider.auth_manager().is_none());
@@ -452,9 +455,9 @@ async fn shared_bedrock_auth_refresh_is_reused_only_for_matching_configuration()
 
     let first = create_model_provider(
         provider_info.clone(),
-        Some(AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(
-            "openai-api-key",
-        ))),
+        Some(AuthManager::from_auth_for_testing(
+            MapleCodeAuth::from_api_key("openai-api-key"),
+        )),
     );
     let second = create_model_provider(provider_info.clone(), /*auth_manager*/ None);
     let shared_state = process_shared_state();
@@ -648,9 +651,9 @@ fn openai_provider_returns_unauthenticated_openai_account_state() {
 fn openai_provider_returns_api_key_account_state() {
     let provider = create_model_provider(
         ModelProviderInfo::create_openai_provider(/*base_url*/ None),
-        Some(AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(
-            "openai-api-key",
-        ))),
+        Some(AuthManager::from_auth_for_testing(
+            MapleCodeAuth::from_api_key("openai-api-key"),
+        )),
     );
 
     assert_eq!(
@@ -742,7 +745,8 @@ async fn amazon_bedrock_provider_creates_static_models_manager() {
         ModelProviderInfo::create_amazon_bedrock_provider(/*aws*/ None),
         /*auth_manager*/ None,
     );
-    let manager = provider.models_manager(test_maplecode_home(), /*config_model_catalog*/ None);
+    let manager =
+        provider.models_manager(test_maplecode_home(), /*config_model_catalog*/ None);
     let uncached_manager =
         provider.models_manager_without_cache(/*config_model_catalog*/ None);
 

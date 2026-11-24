@@ -8,19 +8,19 @@
 //! API provider construction applies the process-wide managed residency policy also
 //! used by default HTTP headers.
 
+use http::HeaderMap;
+use http::header::HeaderName;
+use http::header::HeaderValue;
 use maplecode_client::OPENAI_ORGANIZATION_HEADER;
 use maplecode_client::OPENAI_PROJECT_HEADER;
 use maplecode_client::Provider as ApiProvider;
 use maplecode_client::RetryConfig as ApiRetryConfig;
 use maplecode_protocol::auth::AuthMode;
 use maplecode_protocol::config_types::ModelProviderAuthInfo;
-use maplecode_protocol::error::MapleCodeErr;
 use maplecode_protocol::error::EnvVarError;
+use maplecode_protocol::error::MapleCodeErr;
 use maplecode_protocol::error::Result as MapleCodeResult;
 use maplecode_utils_redacted_string::RedactedString;
-use http::HeaderMap;
-use http::header::HeaderName;
-use http::header::HeaderValue;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
@@ -504,8 +504,9 @@ other non-default provider fields are not supported"
             .unwrap_or_else(|| default_base_url.to_string());
 
         if self.name == MAPLE_PROVIDER_NAME {
-            let endpoint = maplecode_http_client::validate_endpoint_url(&base_url, "Maple base_url")
-                .map_err(MapleCodeErr::InvalidRequest)?;
+            let endpoint =
+                maplecode_http_client::validate_endpoint_url(&base_url, "Maple base_url")
+                    .map_err(MapleCodeErr::InvalidRequest)?;
             if endpoint.query().is_some() {
                 return Err(MapleCodeErr::InvalidRequest(
                     "Maple base_url must not contain query parameters".into(),
@@ -559,8 +560,9 @@ other non-default provider fields are not supported"
                 .base_url
                 .as_deref()
                 .ok_or_else(|| MapleCodeErr::InvalidRequest("Maple base_url is required".into()))?;
-            let key = maple_credentials::load(&maplecode_keyring_store::DefaultKeyringStore, base_url)
-                .map_err(MapleCodeErr::InvalidRequest)?;
+            let key =
+                maple_credentials::load(&maplecode_keyring_store::DefaultKeyringStore, base_url)
+                    .map_err(MapleCodeErr::InvalidRequest)?;
             return key.map(Some).ok_or_else(|| {
                 MapleCodeErr::EnvVar(EnvVarError {
                     var: "MAPLE_API_KEY".into(),
@@ -870,7 +872,9 @@ pub fn merge_configured_model_providers(
                 let allowed = catalog_url.parse::<http::Uri>().ok().is_some_and(|uri| {
                     uri.scheme_str() == Some("https")
                         && uri.host().is_some_and(|host| {
-                            maplecode_http_client::is_allowed_chatgpt_host(&host.to_ascii_lowercase())
+                            maplecode_http_client::is_allowed_chatgpt_host(
+                                &host.to_ascii_lowercase(),
+                            )
                         })
                         && uri
                             .authority()

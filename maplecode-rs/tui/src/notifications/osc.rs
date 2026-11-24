@@ -4,10 +4,10 @@ use std::fmt;
 use std::io;
 use std::io::stdout;
 
+use crossterm::Command;
 use maplecode_terminal_detection::Multiplexer;
 use maplecode_terminal_detection::TerminalName;
 use maplecode_terminal_detection::terminal_info;
-use crossterm::Command;
 use ratatui::crossterm::execute;
 
 // Ghostty copies the parsed notification body into a 255-byte buffer.
@@ -99,8 +99,8 @@ impl Command for PostNotification<'_> {
 
 #[cfg(test)]
 mod tests {
-    use maplecode_terminal_detection::TerminalName;
     use crossterm::Command;
+    use maplecode_terminal_detection::TerminalName;
     use pretty_assertions::assert_eq;
 
     use super::OscProtocol;

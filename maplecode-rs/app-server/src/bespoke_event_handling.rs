@@ -12,7 +12,6 @@ use crate::thread_status::ThreadWatchManager;
 use maplecode_app_server_protocol::AccountRateLimitsUpdatedNotification;
 use maplecode_app_server_protocol::AdditionalPermissionProfile as V2AdditionalPermissionProfile;
 use maplecode_app_server_protocol::AuthRecoveryNotification;
-use maplecode_app_server_protocol::MapleCodeErrorInfo as V2MapleCodeErrorInfo;
 use maplecode_app_server_protocol::CommandAction as V2ParsedCommand;
 use maplecode_app_server_protocol::CommandExecutionApprovalDecision;
 use maplecode_app_server_protocol::CommandExecutionPresentation;
@@ -34,6 +33,7 @@ use maplecode_app_server_protocol::HookCompletedNotification;
 use maplecode_app_server_protocol::HookStartedNotification;
 use maplecode_app_server_protocol::ItemCompletedNotification;
 use maplecode_app_server_protocol::ItemStartedNotification;
+use maplecode_app_server_protocol::MapleCodeErrorInfo as V2MapleCodeErrorInfo;
 use maplecode_app_server_protocol::McpServerElicitationAction;
 use maplecode_app_server_protocol::McpServerElicitationRequestParams;
 use maplecode_app_server_protocol::McpServerElicitationRequestResponse;
@@ -2216,6 +2216,7 @@ mod tests {
     use anyhow::Result;
     use anyhow::anyhow;
     use anyhow::bail;
+    use core_test_support::load_default_config_for_test;
     use maplecode_app_server_protocol::AutoReviewDecisionSource;
     use maplecode_app_server_protocol::GuardianApprovalReviewStatus;
     use maplecode_app_server_protocol::JSONRPCErrorError;
@@ -2248,7 +2249,6 @@ mod tests {
     use maplecode_utils_absolute_path::AbsolutePathBuf;
     use maplecode_utils_absolute_path::test_support::PathBufExt;
     use maplecode_utils_absolute_path::test_support::test_path_buf;
-    use core_test_support::load_default_config_for_test;
     use pretty_assertions::assert_eq;
     use serde_json::json;
     use tempfile::TempDir;
@@ -2476,7 +2476,9 @@ mod tests {
                 completed_at_ms: Some(1_042),
                 status: maplecode_protocol::protocol::GuardianAssessmentStatus::Denied,
                 risk_level: Some(maplecode_protocol::protocol::GuardianRiskLevel::High),
-                user_authorization: Some(maplecode_protocol::protocol::GuardianUserAuthorization::Low),
+                user_authorization: Some(
+                    maplecode_protocol::protocol::GuardianUserAuthorization::Low,
+                ),
                 rationale: Some("too risky".to_string()),
                 decision_source: Some(
                     maplecode_protocol::protocol::GuardianAssessmentDecisionSource::Agent,

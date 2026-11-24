@@ -435,7 +435,10 @@ async fn schedule_startup_prewarm_inner(
     );
     // Tool discovery may have updated Responses Lite metadata since the eager handshake.
     let responses_metadata = session
-        .responses_metadata(step_context.as_ref(), MapleCodeResponsesRequestKind::Prewarm)
+        .responses_metadata(
+            step_context.as_ref(),
+            MapleCodeResponsesRequestKind::Prewarm,
+        )
         .await;
     let websocket_warmup_started_at = Instant::now();
     // Prewarm establishes the request baseline before the first turn can change effort.

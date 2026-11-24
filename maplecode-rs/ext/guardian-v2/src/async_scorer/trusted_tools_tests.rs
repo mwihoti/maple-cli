@@ -1,15 +1,15 @@
 use std::path::Path;
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_extension_api::McpToolInfo;
 use maplecode_extension_api::McpToolSource;
 use maplecode_features::Feature;
 use maplecode_guardian_context::TrustedTool;
 use maplecode_guardian_context::TrustedToolSource;
 use maplecode_login::MapleCodeAuth;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

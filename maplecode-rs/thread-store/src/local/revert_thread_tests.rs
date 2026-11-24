@@ -90,10 +90,11 @@ async fn revert_keeps_thread_id_and_hides_suffix_across_repeated_reverts() {
         maplecode_rollout::rollout_id_from_path(first_replacement_path.as_path()),
         Some(thread_id)
     );
-    let replacement_meta = maplecode_rollout::read_session_meta_line(first_replacement_path.as_path())
-        .await
-        .expect("read replacement metadata")
-        .meta;
+    let replacement_meta =
+        maplecode_rollout::read_session_meta_line(first_replacement_path.as_path())
+            .await
+            .expect("read replacement metadata")
+            .meta;
     assert_eq!(replacement_meta.id, thread_id);
     assert_eq!(
         (
@@ -369,7 +370,9 @@ async fn create_paginated_thread(store: &LocalThreadStore, thread_id: ThreadId) 
             history_base: None,
             subagent_history_start_ordinal: None,
             initial_window_id: maplecode_protocol::ContextWindowId::new_uuid_v7(),
-            runtime_workspace_roots: Some(vec![store.config.maplecode_home.join("workspace").abs()]),
+            runtime_workspace_roots: Some(vec![
+                store.config.maplecode_home.join("workspace").abs(),
+            ]),
             metadata: ThreadPersistenceMetadata {
                 cwd: Some(std::env::current_dir().expect("cwd")),
                 model_provider: "test-provider".to_string(),

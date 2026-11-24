@@ -530,7 +530,12 @@ async fn gateway_credentials_use_a_dedicated_encrypted_file_and_reload_large_tok
             .join("secrets/gateway_oauth.age")
             .is_file()
     );
-    assert!(!maplecode_home.path().join("secrets/maplecode_auth.age").exists());
+    assert!(
+        !maplecode_home
+            .path()
+            .join("secrets/maplecode_auth.age")
+            .exists()
+    );
 
     let reloaded = OAuthSessionManager::new(
         config,

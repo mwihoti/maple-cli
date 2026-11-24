@@ -10,6 +10,15 @@ use std::sync::atomic::Ordering;
 use anyhow::Result;
 use base64::Engine;
 use chrono::Utc;
+use core_test_support::responses;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AuthManager;
 use maplecode_login::MapleCodeAuth;
@@ -34,15 +43,6 @@ use maplecode_protocol::openai_models::ModelsResponse;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use test_case::test_case;
@@ -255,7 +255,12 @@ async fn run_agent_with_model(models_manager: SharedModelsManager, model_slug: &
         response_mock.single_request().body_json()["model"],
         model_slug
     );
-    assert!(!test.maplecode_home_path().join("models_cache.json").exists());
+    assert!(
+        !test
+            .maplecode_home_path()
+            .join("models_cache.json")
+            .exists()
+    );
     Ok(())
 }
 
@@ -420,7 +425,12 @@ async fn threads_follow_provider_changes_and_preserve_host_cache_policy(
             .is_empty(),
         use_cache
     );
-    assert!(!test.maplecode_home_path().join("models_cache.json").exists());
+    assert!(
+        !test
+            .maplecode_home_path()
+            .join("models_cache.json")
+            .exists()
+    );
     Ok(())
 }
 

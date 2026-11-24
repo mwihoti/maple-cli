@@ -101,8 +101,9 @@ fn rewrites_inner_command_path_when_bwrap_lacks_argv0() {
 
     assert!(!argv.iter().any(|arg| arg == "--argv0"));
     assert!(
-        argv.windows(2)
-            .any(|window| { window == ["--", "/tmp/maplecode-arg0-session/maplecode-linux-sandbox"] })
+        argv.windows(2).any(|window| {
+            window == ["--", "/tmp/maplecode-arg0-session/maplecode-linux-sandbox"]
+        })
     );
 }
 

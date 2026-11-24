@@ -156,7 +156,9 @@ fn maplecode_new_thread_url(workspace: &Path) -> String {
     format!("maplecode://threads/new?{query}")
 }
 
-async fn download_and_install_maplecode_to_user_applications(dmg_url: &str) -> anyhow::Result<PathBuf> {
+async fn download_and_install_maplecode_to_user_applications(
+    dmg_url: &str,
+) -> anyhow::Result<PathBuf> {
     let temp_dir = Builder::new()
         .prefix("maplecode-app-installer-")
         .tempdir()
@@ -351,8 +353,8 @@ fn parse_hdiutil_attach_mount_point(output: &str) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::maplecode_new_thread_url;
     use super::find_existing_maplecode_app_path;
+    use super::maplecode_new_thread_url;
     use super::open_maplecode_app;
     use super::parse_hdiutil_attach_mount_point;
     use super::verify_maplecode_app_bundle;
@@ -492,8 +494,10 @@ mod tests {
 
     #[test]
     fn maplecode_new_thread_url_encodes_workspace_path() {
-        let url = url::Url::parse(&maplecode_new_thread_url(Path::new("/tmp/maplecode workspace/#1")))
-            .expect("deep link should parse");
+        let url = url::Url::parse(&maplecode_new_thread_url(Path::new(
+            "/tmp/maplecode workspace/#1",
+        )))
+        .expect("deep link should parse");
 
         assert_eq!(
             (
@@ -506,7 +510,10 @@ mod tests {
                 "maplecode".to_string(),
                 Some("threads".to_string()),
                 "/new".to_string(),
-                vec![("path".to_string(), "/tmp/maplecode workspace/#1".to_string())],
+                vec![(
+                    "path".to_string(),
+                    "/tmp/maplecode workspace/#1".to_string()
+                )],
             )
         );
     }

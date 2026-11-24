@@ -2,6 +2,10 @@
 
 #![allow(clippy::expect_used)]
 
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::responses::*;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_analytics::GuardianReviewSessionKind;
 use maplecode_core::guardian_review::prepare_review_prewarm;
 use maplecode_extension_api::SessionIsolation;
@@ -32,10 +36,6 @@ use maplecode_protocol::protocol::ThreadHistoryMode;
 use maplecode_state::SqliteConfig;
 use maplecode_thread_store::AppendThreadItemsParams;
 use maplecode_thread_store::PersistContext;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::responses::*;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::num::NonZeroU32;

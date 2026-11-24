@@ -1,4 +1,5 @@
 use crate::error::ApiError;
+use http::StatusCode;
 use maplecode_client::Request;
 use maplecode_client::RequestTelemetry;
 use maplecode_client::Response;
@@ -6,7 +7,6 @@ use maplecode_client::RetryPolicy;
 use maplecode_client::StreamResponse;
 use maplecode_client::TransportError;
 use maplecode_client::run_with_retry;
-use http::StatusCode;
 use std::future::Future;
 use std::sync::Arc;
 use std::time::Duration;

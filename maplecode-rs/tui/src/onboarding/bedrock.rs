@@ -9,6 +9,9 @@ use super::provider_setup::ProviderInput;
 use super::provider_setup::move_provider_field;
 use crate::key_hint::KeyBindingListExt;
 use crate::wrapping::word_wrap_lines;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_protocol::AwsCredentialType;
 use maplecode_app_server_protocol::BedrockAwsProfile;
@@ -23,9 +26,6 @@ use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::LoginAccountParams;
 use maplecode_app_server_protocol::LoginAccountResponse;
 use maplecode_app_server_protocol::RequestId;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::prelude::Widget;
@@ -358,7 +358,10 @@ impl BedrockState {
         let mut footer = Vec::new();
         match &self.view {
             BedrockView::GovCloudWarning(_) => {
-                lines = vec!["Using Maple Code with AWS GovCloud".bold().into(), "".into()];
+                lines = vec![
+                    "Using Maple Code with AWS GovCloud".bold().into(),
+                    "".into(),
+                ];
                 lines.push(Line::from(vec![
                     "You are using Maple Code with AWS GovCloud. Please ensure you or your administrator have read the ".into(),
                     "application configuration and security guidance"
@@ -449,7 +452,8 @@ impl BedrockState {
             }
             BedrockView::EnvironmentInstructions => {
                 lines.push(
-                    "  Export AWS credentials, then run `maplecode --no-daemon` in that shell.".into(),
+                    "  Export AWS credentials, then run `maplecode --no-daemon` in that shell."
+                        .into(),
                 );
                 lines.push("".into());
                 lines.push(Line::from(vec![

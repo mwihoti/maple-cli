@@ -16,6 +16,7 @@ use axum::Json;
 use axum::Router;
 use axum::extract::State;
 use axum::routing::get;
+use core_test_support::responses;
 use maplecode_app_server_protocol::AppsInstalledParams;
 use maplecode_app_server_protocol::AppsInstalledResponse;
 use maplecode_app_server_protocol::AppsListParams;
@@ -30,7 +31,6 @@ use maplecode_app_server_protocol::TurnStatus;
 use maplecode_app_server_protocol::UserInput;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_features::Feature;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use rmcp::handler::server::ServerHandler;
 use rmcp::model::CallToolRequestParams;
@@ -547,7 +547,10 @@ impl InstalledAppsFixture {
             .as_mut()
             .expect("connector tool should have metadata")
             .0
-            .insert("_maplecode_apps".to_string(), json!({ "synthetic_link": true }));
+            .insert(
+                "_maplecode_apps".to_string(),
+                json!({ "synthetic_link": true }),
+            );
         let state = Arc::new(InstalledAppsServerState {
             tools: Mutex::new(vec![
                 connector_tool("alpha", "Alpha Tool Name")?,

@@ -1,12 +1,12 @@
 use super::*;
 use crate::model_catalog::ModelCatalog;
+use futures::StreamExt;
 use maplecode_config::ConfigPathContext;
 use maplecode_core::config::permission_profile_catalog;
 use maplecode_hooks::HookListEntryHandler;
 use maplecode_utils_absolute_path::AbsolutePathBufGuard;
 use maplecode_utils_path_uri::PathConvention;
 use maplecode_utils_path_uri::PathUri;
-use futures::StreamExt;
 
 #[derive(Clone)]
 pub(crate) struct CatalogRequestProcessor {
@@ -730,9 +730,10 @@ impl CatalogRequestProcessor {
                 plugin_hook_load_warnings: plugin_hooks.hook_load_warnings,
                 ..Default::default()
             };
-            let hooks = tokio::task::spawn_blocking(move || maplecode_hooks::list_hooks(hooks_config))
-                .await
-                .map_err(|err| internal_error(format!("hook discovery task failed: {err}")))?;
+            let hooks =
+                tokio::task::spawn_blocking(move || maplecode_hooks::list_hooks(hooks_config))
+                    .await
+                    .map_err(|err| internal_error(format!("hook discovery task failed: {err}")))?;
             data.push(maplecode_app_server_protocol::HooksListEntry {
                 cwd,
                 hooks: hooks_to_info(&hooks.hooks),

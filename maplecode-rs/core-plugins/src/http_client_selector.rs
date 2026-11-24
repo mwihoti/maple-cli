@@ -1,8 +1,8 @@
+use http::Method;
 use maplecode_http_client::NetworkPolicy;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_http_client::RequestBuilder;
 use maplecode_http_client::RouteAwareClientPool;
-use http::Method;
 use std::fmt::Debug;
 use std::sync::Arc;
 

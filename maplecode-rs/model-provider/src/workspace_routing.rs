@@ -1,9 +1,9 @@
 //! Applies discovered routing and keeps requests within the selected ChatGPT backend.
 
+use http::HeaderValue;
 use maplecode_login::WorkspaceRouting;
 use maplecode_login::WorkspaceRoutingSession;
 use maplecode_login::default_client::ClientRedirectPolicy;
-use http::HeaderValue;
 use std::io;
 use std::sync::Arc;
 use tokio::sync::Mutex;

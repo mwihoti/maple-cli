@@ -1,6 +1,13 @@
 //! Base instructions stay fixed within a context window and refresh when a new window opens.
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::responses::ResponsesRequest as Request;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::ForkSnapshot;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
@@ -16,13 +23,6 @@ use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadHistoryMode;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::ResponsesRequest as Request;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
@@ -46,7 +46,12 @@ fn managed_model(slug: &str, instructions: &str) -> ModelInfo {
     model
 }
 
-async fn refresh_catalog(test: &TestMapleCode, server: &MockServer, model: &str, instructions: &str) {
+async fn refresh_catalog(
+    test: &TestMapleCode,
+    server: &MockServer,
+    model: &str,
+    instructions: &str,
+) {
     let etag = format!("\"{model}-{}\"", instructions.len());
     let models = vec![managed_model(model, instructions)];
     responses::mount_models_once_with_etag(server, ModelsResponse { models }, &etag).await;
@@ -272,19 +277,21 @@ async fn model_switches_refresh_the_window_base_across_compaction_and_restart() 
     const SAME_PROMPT_MODEL: &str = "gpt-5.1";
     let server = MockServer::start().await;
     let builder = || {
-        test_maplecode().with_model(MODEL).with_config(move |config| {
-            config
-                .features
-                .enable(Feature::IncrementalTools)
-                .expect("enable incremental tools");
-            config.model_catalog = Some(ModelsResponse {
-                models: vec![
-                    managed_model(MODEL, ORIGINAL),
-                    managed_model(SWITCHED_MODEL, SWITCHED),
-                    managed_model(SAME_PROMPT_MODEL, SWITCHED),
-                ],
-            });
-        })
+        test_maplecode()
+            .with_model(MODEL)
+            .with_config(move |config| {
+                config
+                    .features
+                    .enable(Feature::IncrementalTools)
+                    .expect("enable incremental tools");
+                config.model_catalog = Some(ModelsResponse {
+                    models: vec![
+                        managed_model(MODEL, ORIGINAL),
+                        managed_model(SWITCHED_MODEL, SWITCHED),
+                        managed_model(SAME_PROMPT_MODEL, SWITCHED),
+                    ],
+                });
+            })
     };
     let test = builder().build_with_auto_env(&server).await?;
     let first_request = send_turn(&test, &server, "first turn").await?;

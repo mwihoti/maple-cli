@@ -1,9 +1,9 @@
 use std::borrow::Cow;
 
-use super::MapleCodeHarnessMetadata;
 use super::CompactedItem;
 use super::EventMsg;
 use super::InterAgentCommunication;
+use super::MapleCodeHarnessMetadata;
 use super::McpResourceOriginCheckpoint;
 use super::RealtimeItem;
 use super::ResponseItem;

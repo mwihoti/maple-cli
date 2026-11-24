@@ -30,13 +30,14 @@ use serde::Serialize;
 use serde::de::DeserializeOwned;
 use tokio::sync::watch;
 
-use self::persistence::load_cached_maplecode_apps_server_info;
 use self::persistence::load_cached_connector_runtime_for_identity;
+use self::persistence::load_cached_maplecode_apps_server_info;
 use self::persistence::persist_maplecode_apps_cache;
 use self::persistence::server_info_cache_path;
 use self::persistence::tools_cache_path;
 
-const MCP_TOOLS_CACHE_PUBLISH_DURATION_METRIC: &str = "maplecode.mcp.tools.cache_publish.duration_ms";
+const MCP_TOOLS_CACHE_PUBLISH_DURATION_METRIC: &str =
+    "maplecode.mcp.tools.cache_publish.duration_ms";
 
 /// The current immutable tools for matching discovery inputs.
 struct CatalogProvider<T> {
@@ -92,7 +93,10 @@ pub fn connector_runtime_context_key(auth: Option<&MapleCodeAuth>) -> ConnectorR
 }
 
 /// Returns the persisted connector runtime tools cache path for the active auth identity.
-pub fn connector_runtime_cache_path(maplecode_home: &Path, auth: Option<&MapleCodeAuth>) -> PathBuf {
+pub fn connector_runtime_cache_path(
+    maplecode_home: &Path,
+    auth: Option<&MapleCodeAuth>,
+) -> PathBuf {
     let identity = ConnectorRuntimeIdentity {
         maplecode_home: maplecode_home.to_path_buf(),
         key: connector_runtime_context_key(auth),
@@ -209,7 +213,10 @@ impl<T: ConnectorRuntimePayload> ConnectorRuntimeManager<T> {
         maplecode_home: PathBuf,
         key: ConnectorRuntimeContextKey,
     ) -> ConnectorRuntimeContext<T> {
-        let identity = ConnectorRuntimeIdentity { maplecode_home, key };
+        let identity = ConnectorRuntimeIdentity {
+            maplecode_home,
+            key,
+        };
         let Some(entries) = &self.entries else {
             return ConnectorRuntimeContext {
                 entry: Arc::new(ConnectorRuntimeEntry::new(identity, self.disk_cache)),

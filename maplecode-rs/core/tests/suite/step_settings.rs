@@ -1,9 +1,36 @@
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::recorded_apps_tool_calls;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_custom_tool_call;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_response_sequence;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::namespace_child_tool;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_completed;
+use core_test_support::responses::sse_response;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
+use image::GenericImageView;
 use maplecode_config::McpServerConfig;
-use maplecode_core::MapleCodeThread;
 use maplecode_core::ForkSnapshot;
+use maplecode_core::MapleCodeThread;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
@@ -79,33 +106,6 @@ use maplecode_tools::ToolSpec;
 use maplecode_utils_image::data_url_from_bytes;
 use maplecode_utils_output_truncation::TruncationPolicy;
 use maplecode_utils_output_truncation::truncate_text;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::recorded_apps_tool_calls;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_custom_tool_call;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_response_sequence;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::namespace_child_tool;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_completed;
-use core_test_support::responses::sse_response;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
-use image::GenericImageView;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -147,26 +147,28 @@ fn step_settings_models() -> Vec<ModelInfo> {
 }
 
 fn step_settings_test() -> TestMapleCodeBuilder {
-    test_maplecode().with_model(MODEL_A).with_config(move |config| {
-        for feature in [
-            Feature::StepModelSwitching,
-            Feature::DefaultModeRequestUserInput,
-            Feature::FastMode,
-        ] {
-            config
-                .features
-                .enable(feature)
-                .expect("test config should allow feature update");
-        }
-        config.model_catalog = Some(ModelsResponse {
-            models: step_settings_models(),
-        });
-        config.model_reasoning_effort = Some(ReasoningEffort::Low);
-        config.model_reasoning_summary = Some(ReasoningSummary::Concise);
-        config.service_tier = None;
-        config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
-        config.approvals_reviewer = ApprovalsReviewer::User;
-    })
+    test_maplecode()
+        .with_model(MODEL_A)
+        .with_config(move |config| {
+            for feature in [
+                Feature::StepModelSwitching,
+                Feature::DefaultModeRequestUserInput,
+                Feature::FastMode,
+            ] {
+                config
+                    .features
+                    .enable(feature)
+                    .expect("test config should allow feature update");
+            }
+            config.model_catalog = Some(ModelsResponse {
+                models: step_settings_models(),
+            });
+            config.model_reasoning_effort = Some(ReasoningEffort::Low);
+            config.model_reasoning_summary = Some(ReasoningSummary::Concise);
+            config.service_tier = None;
+            config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
+            config.approvals_reviewer = ApprovalsReviewer::User;
+        })
 }
 
 fn direct_tool_settings_test() -> TestMapleCodeBuilder {
@@ -579,7 +581,9 @@ async fn tool_result_history_keeps_originating_model_across_switch_and_replay() 
             .resume_legacy_thread_from_rollout(
                 replay_config.clone(),
                 rollout_path.clone(),
-                maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("dummy")),
+                maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key(
+                    "dummy",
+                )),
                 /*parent_trace*/ None,
                 ClientMcpExtensions::default(),
             )
@@ -713,7 +717,9 @@ async fn custom_tool_output_replay_preserves_originating_budget() -> Result<()> 
         .resume_legacy_thread_from_rollout(
             replay_config.clone(),
             rollout_path.clone(),
-            maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("dummy")),
+            maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key(
+                "dummy",
+            )),
             /*parent_trace*/ None,
             ClientMcpExtensions::default(),
         )
@@ -1742,7 +1748,8 @@ async fn captured_model_enables_and_executes_code_mode() -> Result<()> {
                 .set_permission_profile(PermissionProfile::Disabled)
                 .expect("test permissions");
             for model in &mut config.model_catalog.as_mut().expect("models").models {
-                model.input_modalities = vec![maplecode_protocol::openai_models::InputModality::Text];
+                model.input_modalities =
+                    vec![maplecode_protocol::openai_models::InputModality::Text];
                 model.supports_image_detail_original = false;
                 if model.slug == MODEL_B {
                     model
@@ -2008,7 +2015,10 @@ async fn sparse_updates_preserve_divergent_active_and_future_models() -> Result<
         matches!(event, EventMsg::TurnComplete(_))
     })
     .await;
-    assert_eq!(test.maplecode.current_turn_model(&request.turn_id).await, None);
+    assert_eq!(
+        test.maplecode.current_turn_model(&request.turn_id).await,
+        None
+    );
     test.submit_text_turn("start the next turn").await?;
 
     let requests = response_mock.requests();
@@ -2747,14 +2757,15 @@ async fn captured_step_controls_exec_completion_and_write_stdin_output() -> Resu
                 .expect("test permissions");
             for model in &mut config.model_catalog.as_mut().expect("models").models {
                 model.shell_type = ConfigShellToolType::UnifiedExec;
-                model.truncation_policy = maplecode_protocol::openai_models::TruncationPolicyConfig {
-                    mode: maplecode_protocol::openai_models::TruncationMode::Bytes,
-                    limit: match model.slug.as_str() {
-                        MODEL_B => 400,
-                        MODEL_C => 800,
-                        _ => 8_000,
-                    },
-                };
+                model.truncation_policy =
+                    maplecode_protocol::openai_models::TruncationPolicyConfig {
+                        mode: maplecode_protocol::openai_models::TruncationMode::Bytes,
+                        limit: match model.slug.as_str() {
+                            MODEL_B => 400,
+                            MODEL_C => 800,
+                            _ => 8_000,
+                        },
+                    };
             }
         })
         .build_with_auto_env(&server)
@@ -2875,16 +2886,18 @@ async fn captured_step_controls_mcp_output_limit(supports_images: bool) -> Resul
         .with_config(move |config| {
             for model in &mut config.model_catalog.as_mut().expect("models").models {
                 model.supports_image_detail_original = model.slug != MODEL_B;
-                model.input_modalities = vec![maplecode_protocol::openai_models::InputModality::Text];
+                model.input_modalities =
+                    vec![maplecode_protocol::openai_models::InputModality::Text];
                 if model.slug != MODEL_B || supports_images {
                     model
                         .input_modalities
                         .push(maplecode_protocol::openai_models::InputModality::Image);
                 }
-                model.truncation_policy = maplecode_protocol::openai_models::TruncationPolicyConfig {
-                    mode: maplecode_protocol::openai_models::TruncationMode::Bytes,
-                    limit: if model.slug == MODEL_B { 80 } else { 8_000 },
-                };
+                model.truncation_policy =
+                    maplecode_protocol::openai_models::TruncationPolicyConfig {
+                        mode: maplecode_protocol::openai_models::TruncationMode::Bytes,
+                        limit: if model.slug == MODEL_B { 80 } else { 8_000 },
+                    };
             }
             config
                 .mcp_servers

@@ -34,9 +34,10 @@ async fn configured_pet_loads_are_scoped_across_widget_replacements() {
         crate::chatwidget::tests::make_chatwidget_manual_with_sender().await;
     let maplecode_home = tempfile::tempdir().unwrap();
     replaced_chat.local_settings.maplecode_home =
-        AbsolutePathBuf::from_absolute_path(maplecode_home.path()).expect("absolute temporary path");
-    chat.local_settings.maplecode_home =
-        AbsolutePathBuf::from_absolute_path(maplecode_home.path()).expect("absolute temporary path");
+        AbsolutePathBuf::from_absolute_path(maplecode_home.path())
+            .expect("absolute temporary path");
+    chat.local_settings.maplecode_home = AbsolutePathBuf::from_absolute_path(maplecode_home.path())
+        .expect("absolute temporary path");
     let pet_id = "missing-custom-pet".to_string();
 
     replaced_chat.set_tui_pet(/*pet*/ Some(pet_id.clone()));
@@ -99,7 +100,8 @@ async fn shared_pet_load_uses_cached_builtin_assets() {
 
     crate::pets::load_pet_with_assets(
         crate::pets::DEFAULT_PET_ID.to_string(),
-        AbsolutePathBuf::from_absolute_path(maplecode_home.path()).expect("absolute temporary path"),
+        AbsolutePathBuf::from_absolute_path(maplecode_home.path())
+            .expect("absolute temporary path"),
         chat.frame_requester.clone(),
         /*animations_enabled*/ false,
         &chat.pet_http_client,

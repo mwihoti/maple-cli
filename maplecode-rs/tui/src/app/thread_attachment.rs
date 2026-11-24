@@ -3,9 +3,9 @@
 use super::*;
 use crate::app_server_session::ResumeModelSettings;
 use crate::backend_id::BackendId;
+use futures::future::BoxFuture;
 use maplecode_app_server_protocol::Thread;
 use maplecode_app_server_protocol::ThreadStatus;
-use futures::future::BoxFuture;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct Target {
@@ -170,14 +170,14 @@ pub(super) async fn prepare_saved(
         prepare(&mut view, settings, config, child, mode).await
     }
     .await
-    .map_err(
-        |err| match err.downcast_ref::<maplecode_app_server_client::TypedRequestError>() {
+    .map_err(|err| {
+        match err.downcast_ref::<maplecode_app_server_client::TypedRequestError>() {
             Some(maplecode_app_server_client::TypedRequestError::Server { source, .. }) => {
                 source.message.clone()
             }
             _ => err.to_string(),
-        },
-    );
+        }
+    });
     let metadata = view.take_attachment_metadata(child);
     Prepared {
         result,

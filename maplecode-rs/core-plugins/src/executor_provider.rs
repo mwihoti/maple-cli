@@ -3,6 +3,8 @@
 
 use crate::PluginProvider;
 use crate::manifest::parse_plugin_manifest_uri;
+use futures::StreamExt;
+use futures::TryStreamExt;
 use maplecode_exec_server::CapabilityRootDiscovery;
 use maplecode_exec_server::EnvironmentManager;
 use maplecode_exec_server::ExecutorFileSystem;
@@ -16,8 +18,6 @@ use maplecode_protocol::capabilities::SelectedCapabilityRoot;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_path_uri::PathUriParseError;
 use maplecode_utils_plugins::DISCOVERABLE_PLUGIN_MANIFEST_PATHS;
-use futures::StreamExt;
-use futures::TryStreamExt;
 use std::io;
 use std::sync::Arc;
 use thiserror::Error;

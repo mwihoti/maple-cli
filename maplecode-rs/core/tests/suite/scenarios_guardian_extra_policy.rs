@@ -1,6 +1,11 @@
 //! Managed policies and explicit user goals reach Guardian through their distinct trusted sources.
 
 use anyhow::Context;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::config::Constrained;
 use maplecode_core::context::UserGoalUpdate;
@@ -8,11 +13,6 @@ use maplecode_prompts::ResolvedModelMessages;
 use maplecode_protocol::config_types::ApprovalsReviewer;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::protocol::AskForApproval;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;

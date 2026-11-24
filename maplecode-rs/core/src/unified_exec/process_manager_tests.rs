@@ -2,9 +2,9 @@ use super::*;
 use crate::tools::handlers::unified_exec::preparation::ExecCommandLifetime;
 use crate::tools::handlers::unified_exec::preparation::ParsedExecCommand;
 use crate::unified_exec::clamp_yield_time;
+use core_test_support::assert_regex_match;
 use maplecode_exec_server::ExecOutputStream;
 use maplecode_network_proxy::ManagedNetworkSandboxContext;
-use core_test_support::assert_regex_match;
 use pretty_assertions::assert_eq;
 use tokio::sync::Notify;
 use tokio::time::Duration;
@@ -118,7 +118,8 @@ fn env_overlay_for_exec_server_keeps_runtime_changes_only() {
                 "current-profile".to_string(),
             ),
             (
-                maplecode_apply_patch::MAPLECODE_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR.to_string(),
+                maplecode_apply_patch::MAPLECODE_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR
+                    .to_string(),
                 "1".to_string(),
             ),
             (
@@ -163,7 +164,8 @@ fn exec_env_policy_excludes_non_inheritable_and_runtime_variables() {
             exclude: vec![
                 MAPLECODE_PERMISSION_PROFILE_ENV_VAR.to_string(),
                 MAPLECODE_VERSION_ENV_VAR.to_string(),
-                maplecode_apply_patch::MAPLECODE_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR.to_string(),
+                maplecode_apply_patch::MAPLECODE_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR
+                    .to_string(),
                 PLUGIN_METRICS_OUTPUT_ENV_VAR.to_string(),
             ],
             r#set: HashMap::from([("KEEP".to_string(), "value".to_string())]),
@@ -195,7 +197,10 @@ fn exec_server_params_use_path_uri_and_env_policy_overlay_contract() {
                 "HTTP_PROXY".to_string(),
                 "http://127.0.0.1:43123".to_string(),
             ),
-            ("MAPLECODE_NETWORK_PROXY_ACTIVE".to_string(), "1".to_string()),
+            (
+                "MAPLECODE_NETWORK_PROXY_ACTIVE".to_string(),
+                "1".to_string(),
+            ),
             (
                 "SSL_CERT_FILE".to_string(),
                 "/client/custom-ca.pem".to_string(),
@@ -216,7 +221,10 @@ fn exec_server_params_use_path_uri_and_env_policy_overlay_contract() {
                     "HTTP_PROXY".to_string(),
                     "http://127.0.0.1:43123".to_string(),
                 ),
-                ("MAPLECODE_NETWORK_PROXY_ACTIVE".to_string(), "1".to_string()),
+                (
+                    "MAPLECODE_NETWORK_PROXY_ACTIVE".to_string(),
+                    "1".to_string(),
+                ),
                 (
                     "SSL_CERT_FILE".to_string(),
                     "/client/custom-ca.pem".to_string(),
@@ -272,7 +280,10 @@ fn exec_server_params_use_path_uri_and_env_policy_overlay_contract() {
                 "HTTP_PROXY".to_string(),
                 "http://127.0.0.1:43123".to_string(),
             ),
-            ("MAPLECODE_NETWORK_PROXY_ACTIVE".to_string(), "1".to_string(),),
+            (
+                "MAPLECODE_NETWORK_PROXY_ACTIVE".to_string(),
+                "1".to_string(),
+            ),
         ])
     );
     request.exec_server_shell_snapshot = Some(maplecode_exec_server::ShellSnapshotRequest {

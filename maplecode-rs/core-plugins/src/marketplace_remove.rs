@@ -57,7 +57,8 @@ fn remove_marketplace_sync(
 
     // Removing a user override must not delete a snapshot still referenced by
     // another enabled layer, including a lower-precedence layer it shadows.
-    let user_config_file = AbsolutePathBuf::resolve_path_against_base(CONFIG_TOML_FILE, maplecode_home);
+    let user_config_file =
+        AbsolutePathBuf::resolve_path_against_base(CONFIG_TOML_FILE, maplecode_home);
     if let Some(layer) = config_layer_stack.layers_high_to_low().find(|layer| {
         !matches!(
             &layer.name,
@@ -79,8 +80,8 @@ fn remove_marketplace_sync(
     }
 
     let destination = marketplace_install_root(maplecode_home).join(&marketplace_name);
-    let config_outcome =
-        remove_user_marketplace_config(maplecode_home, &marketplace_name).map_err(|err| {
+    let config_outcome = remove_user_marketplace_config(maplecode_home, &marketplace_name)
+        .map_err(|err| {
             MarketplaceRemoveError::Internal(format!(
                 "failed to remove marketplace '{marketplace_name}' from user config.toml: {err}"
             ))
@@ -182,8 +183,12 @@ mod tests {
             outcome.removed_installed_root,
             Some(AbsolutePathBuf::try_from(installed_root.clone()).unwrap())
         );
-        let config =
-            fs::read_to_string(maplecode_home.path().join(maplecode_config::CONFIG_TOML_FILE)).unwrap();
+        let config = fs::read_to_string(
+            maplecode_home
+                .path()
+                .join(maplecode_config::CONFIG_TOML_FILE),
+        )
+        .unwrap();
         assert!(!config.contains("[marketplaces.debug]"));
         assert!(!installed_root.exists());
     }
@@ -294,8 +299,12 @@ mod tests {
             "marketplace `Debug` does not match configured marketplace `debug` exactly"
         );
         assert!(installed_root.exists());
-        let config =
-            fs::read_to_string(maplecode_home.path().join(maplecode_config::CONFIG_TOML_FILE)).unwrap();
+        let config = fs::read_to_string(
+            maplecode_home
+                .path()
+                .join(maplecode_config::CONFIG_TOML_FILE),
+        )
+        .unwrap();
         assert!(config.contains("[marketplaces.debug]"));
     }
 
@@ -303,7 +312,9 @@ mod tests {
     fn remove_marketplace_sync_keeps_installed_root_when_config_removal_fails() {
         let maplecode_home = TempDir::new().unwrap();
         fs::write(
-            maplecode_home.path().join(maplecode_config::CONFIG_TOML_FILE),
+            maplecode_home
+                .path()
+                .join(maplecode_config::CONFIG_TOML_FILE),
             "[marketplaces.debug\n",
         )
         .unwrap();
@@ -363,8 +374,12 @@ mod tests {
             }
         );
         assert!(!installed_root.exists());
-        let config =
-            fs::read_to_string(maplecode_home.path().join(maplecode_config::CONFIG_TOML_FILE)).unwrap();
+        let config = fs::read_to_string(
+            maplecode_home
+                .path()
+                .join(maplecode_config::CONFIG_TOML_FILE),
+        )
+        .unwrap();
         assert!(!config.contains("[marketplaces.debug]"));
     }
 
@@ -372,7 +387,9 @@ mod tests {
     fn remove_marketplace_sync_removes_inline_config_entry() {
         let maplecode_home = TempDir::new().unwrap();
         fs::write(
-            maplecode_home.path().join(maplecode_config::CONFIG_TOML_FILE),
+            maplecode_home
+                .path()
+                .join(maplecode_config::CONFIG_TOML_FILE),
             r#"
 marketplaces = { debug = { source_type = "git", source = "https://github.com/owner/repo.git" } }
 "#,
@@ -396,8 +413,12 @@ marketplaces = { debug = { source_type = "git", source = "https://github.com/own
             Some(AbsolutePathBuf::try_from(installed_root.clone()).unwrap())
         );
         assert!(!installed_root.exists());
-        let config =
-            fs::read_to_string(maplecode_home.path().join(maplecode_config::CONFIG_TOML_FILE)).unwrap();
+        let config = fs::read_to_string(
+            maplecode_home
+                .path()
+                .join(maplecode_config::CONFIG_TOML_FILE),
+        )
+        .unwrap();
         assert!(!config.contains("debug"));
     }
 }

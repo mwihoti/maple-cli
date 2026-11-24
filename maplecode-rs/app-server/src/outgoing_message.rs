@@ -1486,8 +1486,10 @@ mod tests {
             vec![ConnectionId(1), ConnectionId(2)],
         ] {
             let (tx, mut rx) = mpsc::channel::<OutgoingEnvelope>(2);
-            let outgoing =
-                OutgoingMessageSender::new(tx, maplecode_analytics::AnalyticsEventsClient::disabled());
+            let outgoing = OutgoingMessageSender::new(
+                tx,
+                maplecode_analytics::AnalyticsEventsClient::disabled(),
+            );
             let notification = ServerNotification::ConfigWarning(ConfigWarningNotification {
                 summary: "test".to_string(),
                 details: None,

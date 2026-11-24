@@ -54,7 +54,9 @@ fn startup_delays_composer_for_homes_without_authentication_state() -> std::io::
         &maplecode_home,
         Ok(system_config_path.clone()),
         || Ok(false),
-        |name| { (name == maplecode_login::MAPLECODE_ACCESS_TOKEN_ENV_VAR).then(|| "access-token".into()) },
+        |name| {
+            (name == maplecode_login::MAPLECODE_ACCESS_TOKEN_ENV_VAR).then(|| "access-token".into())
+        },
     ));
     for disabled_credential in [
         maplecode_login::OPENAI_API_KEY_ENV_VAR,

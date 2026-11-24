@@ -97,7 +97,8 @@ async fn marketplace_upgrade_json_prints_upgrade_outcome() -> Result<()> {
     );
     assert!(!maplecode_home.path().join("config.toml").exists());
     assert_eq!(
-        std::fs::read_dir(marketplace_install_root(maplecode_home.path()).join(".staging"))?.count(),
+        std::fs::read_dir(marketplace_install_root(maplecode_home.path()).join(".staging"))?
+            .count(),
         0
     );
 

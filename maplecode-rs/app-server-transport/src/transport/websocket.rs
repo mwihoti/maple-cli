@@ -30,11 +30,11 @@ use axum::response::IntoResponse;
 use axum::response::Response;
 use axum::routing::any;
 use axum::routing::get;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_websocket_auth::WebsocketAuthPolicy;
 use maplecode_websocket_auth::authorize_upgrade;
 use maplecode_websocket_auth::is_unauthenticated_non_loopback_listener;
-use futures::SinkExt;
-use futures::StreamExt;
 use owo_colors::OwoColorize;
 use owo_colors::Stream;
 use owo_colors::Style;
@@ -64,7 +64,10 @@ fn colorize(text: &str, style: Style) -> String {
 
 #[allow(clippy::print_stderr)]
 fn print_websocket_startup_banner(addr: SocketAddr) {
-    let title = colorize("maplecode app-server (WebSockets)", Style::new().bold().cyan());
+    let title = colorize(
+        "maplecode app-server (WebSockets)",
+        Style::new().bold().cyan(),
+    );
     let listening_label = colorize("listening on:", Style::new().dimmed());
     let listen_url = colorize(&format!("ws://{addr}"), Style::new().green());
     let ready_label = colorize("readyz:", Style::new().dimmed());

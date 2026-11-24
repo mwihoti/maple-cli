@@ -362,8 +362,9 @@ fn prepare_fixed_content<'a>(
         TranscriptContent::Record(record) => record.text(),
         TranscriptContent::NativeMessage(message) => {
             // Native ciphertext stays whole, or leaves an omission at the same position.
-            let limit = maplecode_protocol::protocol::TruncationPolicy::Tokens(limits.message_tokens)
-                .byte_budget();
+            let limit =
+                maplecode_protocol::protocol::TruncationPolicy::Tokens(limits.message_tokens)
+                    .byte_budget();
             let tool_call_too_large =
                 matches!(entry.kind, ConversationTranscriptEntryKind::ToolCall(_))
                     && crate::estimate_input_tokens(message)

@@ -5,6 +5,17 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_successful_turn;
+use futures::future::BoxFuture;
 use maplecode_core::AgentExecutionGuard;
 use maplecode_core::AgentRef;
 use maplecode_core::AgentSessionReader;
@@ -32,17 +43,6 @@ use maplecode_protocol::protocol::ReviewRequest;
 use maplecode_protocol::protocol::ReviewTarget;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::LoadThreadHistoryParams;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_successful_turn;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tokio::sync::Notify;
@@ -189,7 +189,10 @@ async fn root_denial_and_interruption_retain_input_and_grants_span_execution() -
 
     // Retry on the first visible error, while the failed turn may still be finishing.
     let (retry_id, pending) = start(&test, &mut attempts, "Interrupted before admission.").await?;
-    assert_denied(&wait_for_event(&test.maplecode, is_terminal).await, &turn_id);
+    assert_denied(
+        &wait_for_event(&test.maplecode, is_terminal).await,
+        &turn_id,
+    );
     test.maplecode.submit(Op::Interrupt).await?;
     let event = wait_for_event(&test.maplecode, is_terminal).await;
     assert!(

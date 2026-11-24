@@ -1,14 +1,14 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 
+use futures::FutureExt;
+use futures::future::BoxFuture;
 use maplecode_exec_server::ExecServerError;
 use maplecode_exec_server::HttpClient;
 use maplecode_exec_server::HttpRedirectPolicy;
 use maplecode_exec_server::HttpRequestParams;
 use maplecode_exec_server::HttpRequestResponse;
 use maplecode_exec_server::HttpResponseBodyStream;
-use futures::FutureExt;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 
 use super::OPENAI_DEVELOPER_DOCS_MCP_MAPLECODE_URL;

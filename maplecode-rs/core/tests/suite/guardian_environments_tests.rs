@@ -1,6 +1,9 @@
 //! Reviews bind each action to its captured target policy while reusing the reviewer context.
 
 use super::*;
+use core_test_support::exec_server::ExecServerProcess;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
 use maplecode_core::context::UserGoalUpdate;
 use maplecode_history::RolloutItem;
 use maplecode_protocol::permissions::FileSystemSpecialPath;
@@ -8,9 +11,6 @@ use maplecode_protocol::protocol::GuardianAssessmentStatus;
 use maplecode_protocol::protocol::TurnEnvironmentRequests;
 use maplecode_utils_cargo_bin::cargo_bin;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::exec_server::ExecServerProcess;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 use tokio_util::task::AbortOnDropHandle;
@@ -120,7 +120,9 @@ async fn direct_mcp_approval_uses_the_server_owners_denied_paths() -> Result<()>
     // The step didn't see the deny rule. MCP receives it before preparing the call.
     tokio::try_join!(test.submit_text_turn("Call the files tool."), async {
         parent.wait_for_request_count(/*count*/ 1).await;
-        test.maplecode.environment_ready(&owner, owner_config).await?;
+        test.maplecode
+            .environment_ready(&owner, owner_config)
+            .await?;
         release.send(()).expect("let the model call the tool");
         Ok(())
     })?;

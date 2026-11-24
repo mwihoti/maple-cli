@@ -1,6 +1,8 @@
 //! App-server signaling for TUI-owned realtime WebRTC sessions.
 
 use super::AppServerSession;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ThreadRealtimeAppendSpeechParams;
 use maplecode_app_server_protocol::ThreadRealtimeAppendSpeechResponse;
@@ -12,8 +14,6 @@ use maplecode_app_server_protocol::ThreadRealtimeStopResponse;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::protocol::RealtimeConversationVersion;
 use maplecode_protocol::protocol::RealtimeOutputModality;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
 
 impl AppServerSession {
     pub(crate) async fn thread_realtime_start(

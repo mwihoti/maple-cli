@@ -311,9 +311,11 @@ impl GoalRuntimeHandle {
         }
 
         let (event_name, status, expected_goal_id) = match reason {
-            ActiveGoalStopReason::TurnError => {
-                ("turn-error", maplecode_state::ThreadGoalStatus::Blocked, None)
-            }
+            ActiveGoalStopReason::TurnError => (
+                "turn-error",
+                maplecode_state::ThreadGoalStatus::Blocked,
+                None,
+            ),
             ActiveGoalStopReason::UsageLimit => (
                 "usage-limit",
                 maplecode_state::ThreadGoalStatus::UsageLimited,

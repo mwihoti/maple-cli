@@ -4,6 +4,7 @@ use std::fmt;
 use std::io;
 use std::sync::Arc;
 
+use futures::StreamExt;
 use maplecode_exec_server::EnvironmentAccess;
 use maplecode_exec_server::EnvironmentAccessExt;
 use maplecode_exec_server::EnvironmentAccessKey;
@@ -15,7 +16,6 @@ use maplecode_skills::SkillError;
 use maplecode_skills::SkillMetadata;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use futures::StreamExt;
 
 use crate::loader::MAX_CONCURRENT_SKILL_LOADS;
 use crate::loader::canonicalize_for_skill_identity;

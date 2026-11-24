@@ -2,13 +2,13 @@
 
 use crate::RuntimeRegistration;
 use crate::RuntimeRegistrationResponse;
+use http::StatusCode;
 use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::HttpError;
 use maplecode_http_client::NetworkPolicyDenied;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_http_client::RouteAwareRequestError;
-use http::StatusCode;
 use serde::Deserialize;
 use std::time::Duration;
 use url::Url;

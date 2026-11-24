@@ -58,10 +58,10 @@ pub(crate) use approval_request::GuardianMcpAnnotations;
 pub(crate) use approval_request::GuardianNetworkAccessTrigger;
 #[cfg(test)]
 pub(crate) use approval_request::guardian_approval_request_to_json;
-pub(crate) use maplecode_guardian_reviewer::guardian_truncate_text;
-pub(crate) use maplecode_guardian_reviewer::is_basic_session_source;
 pub(crate) use decision::decide_approval;
 pub(crate) use decision::spawn_approval_decision;
+pub(crate) use maplecode_guardian_reviewer::guardian_truncate_text;
+pub(crate) use maplecode_guardian_reviewer::is_basic_session_source;
 pub(crate) use review::GuardianReviewOptions;
 pub(crate) use review::new_guardian_review_id;
 pub(crate) use review::routes_approval_policy_to_guardian;

@@ -445,7 +445,12 @@ async fn run_add(config: &Config, add_args: AddArgs) -> Result<()> {
 
     let mut servers = load_global_mcp_servers(maplecode_home)
         .await
-        .with_context(|| format!("failed to load MCP servers from {}", maplecode_home.display()))?;
+        .with_context(|| {
+            format!(
+                "failed to load MCP servers from {}",
+                maplecode_home.display()
+            )
+        })?;
     let credential_name = new_entry.oauth_credential_name(&name);
     servers.insert(name.clone(), new_entry);
 
@@ -453,7 +458,12 @@ async fn run_add(config: &Config, add_args: AddArgs) -> Result<()> {
         .replace_mcp_servers(&servers)
         .apply()
         .await
-        .with_context(|| format!("failed to write MCP servers to {}", maplecode_home.display()))?;
+        .with_context(|| {
+            format!(
+                "failed to write MCP servers to {}",
+                maplecode_home.display()
+            )
+        })?;
 
     println!("Added global MCP server '{name}'.");
     if let Some(callback_url) = &callback_url {
@@ -510,7 +520,12 @@ async fn run_remove(config_overrides: &CliConfigOverrides, remove_args: RemoveAr
     let maplecode_home = find_maplecode_home().context("failed to resolve MAPLECODE_HOME")?;
     let mut servers = load_global_mcp_servers(&maplecode_home)
         .await
-        .with_context(|| format!("failed to load MCP servers from {}", maplecode_home.display()))?;
+        .with_context(|| {
+            format!(
+                "failed to load MCP servers from {}",
+                maplecode_home.display()
+            )
+        })?;
 
     let removed = servers.remove(&name).is_some();
 
@@ -519,7 +534,12 @@ async fn run_remove(config_overrides: &CliConfigOverrides, remove_args: RemoveAr
             .replace_mcp_servers(&servers)
             .apply()
             .await
-            .with_context(|| format!("failed to write MCP servers to {}", maplecode_home.display()))?;
+            .with_context(|| {
+                format!(
+                    "failed to write MCP servers to {}",
+                    maplecode_home.display()
+                )
+            })?;
     }
 
     if removed {
@@ -638,8 +658,9 @@ async fn run_logout(config: &Config, logout_args: LogoutArgs) -> Result<()> {
         let auth_manager =
             AuthManager::shared_from_config(config, /*enable_maplecode_api_key_env*/ true).await?;
         let auth = auth_manager.auth().await;
-        let scope = ema_auth_scope(auth.as_ref())
-            .context("Sign in to your Maple Code account before removing enterprise authorization")?;
+        let scope = ema_auth_scope(auth.as_ref()).context(
+            "Sign in to your Maple Code account before removing enterprise authorization",
+        )?;
         // Cleanup must remain available even when this server is no longer eligible
         // for EMA (for example, after disabling the feature or changing its transport).
         let profile = config
@@ -693,7 +714,8 @@ async fn run_list(config: &Config, list_args: ListArgs) -> Result<()> {
     let auth = auth_manager.auth().await;
     let mcp_servers = mcp_manager.configured_servers(config).await;
     let runtime_config = mcp_manager.runtime_config(config).await;
-    let effective_mcp_servers = maplecode_mcp::effective_mcp_servers(&runtime_config, auth.as_ref());
+    let effective_mcp_servers =
+        maplecode_mcp::effective_mcp_servers(&runtime_config, auth.as_ref());
 
     let mut entries: Vec<_> = mcp_servers.iter().collect();
     entries.sort_by_key(|(name, _)| *name);

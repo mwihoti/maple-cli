@@ -27,7 +27,8 @@ use agent_plugin_manifest::parse_agent_plugin_manifest_uri;
 
 pub type PluginManifest = maplecode_plugin::manifest::PluginManifest<AbsolutePathBuf>;
 pub type PluginManifestHooks = maplecode_plugin::manifest::PluginManifestHooks<AbsolutePathBuf>;
-pub type PluginManifestInterface = maplecode_plugin::manifest::PluginManifestInterface<AbsolutePathBuf>;
+pub type PluginManifestInterface =
+    maplecode_plugin::manifest::PluginManifestInterface<AbsolutePathBuf>;
 pub type PluginManifestMcpServers =
     maplecode_plugin::manifest::PluginManifestMcpServers<AbsolutePathBuf>;
 pub type PluginManifestPaths = maplecode_plugin::manifest::PluginManifestPaths<AbsolutePathBuf>;
@@ -418,15 +419,16 @@ fn resolve_manifest_hooks(
                 .iter()
                 .filter_map(|path| resolve_manifest_path(plugin_root, "hooks", Some(path)))
                 .collect::<Vec<_>>();
-            (!hooks.is_empty()).then_some(maplecode_plugin::manifest::PluginManifestHooks::Paths(hooks))
+            (!hooks.is_empty()).then_some(maplecode_plugin::manifest::PluginManifestHooks::Paths(
+                hooks,
+            ))
         }
-        RawPluginManifestHooks::Inline(hooks) => {
-            Some(maplecode_plugin::manifest::PluginManifestHooks::Inline(vec![
-                *hooks,
-            ]))
-        }
-        RawPluginManifestHooks::InlineList(hooks) => (!hooks.is_empty())
-            .then_some(maplecode_plugin::manifest::PluginManifestHooks::Inline(hooks)),
+        RawPluginManifestHooks::Inline(hooks) => Some(
+            maplecode_plugin::manifest::PluginManifestHooks::Inline(vec![*hooks]),
+        ),
+        RawPluginManifestHooks::InlineList(hooks) => (!hooks.is_empty()).then_some(
+            maplecode_plugin::manifest::PluginManifestHooks::Inline(hooks),
+        ),
         RawPluginManifestHooks::Invalid(value) => {
             tracing::warn!(
                 "ignoring hooks: expected a string, string array, object, or object array; found {}",
@@ -447,9 +449,9 @@ fn resolve_manifest_mcp_servers(
                 .map(maplecode_plugin::manifest::PluginManifestMcpServers::Path)
         }
         RawPluginManifestMcpServers::Object(servers) => match serde_json::to_string(&servers) {
-            Ok(servers) => Some(maplecode_plugin::manifest::PluginManifestMcpServers::Object(
-                servers,
-            )),
+            Ok(servers) => {
+                Some(maplecode_plugin::manifest::PluginManifestMcpServers::Object(servers))
+            }
             Err(err) => {
                 tracing::warn!("ignoring mcpServers: failed to serialize object: {err}");
                 None
@@ -958,7 +960,8 @@ mod tests {
             .join(".maplecode-plugin/plugin.json")
             .expect("manifest URI");
         let manifest_contents =
-            fs::read_to_string(plugin_root.join(".maplecode-plugin/plugin.json")).expect("manifest");
+            fs::read_to_string(plugin_root.join(".maplecode-plugin/plugin.json"))
+                .expect("manifest");
         let expected_manifest =
             super::parse_plugin_manifest_uri(&plugin_root_uri, &manifest_path, &manifest_contents)
                 .expect("URI manifest");

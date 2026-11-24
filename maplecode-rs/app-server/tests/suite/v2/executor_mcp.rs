@@ -8,6 +8,10 @@ use axum::body::Bytes;
 use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::routing::post;
+use core_test_support::responses;
+use core_test_support::stdio_server_bin;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_protocol::CapabilityRootLocation;
 use maplecode_app_server_protocol::ListMcpServerStatusParams;
 use maplecode_app_server_protocol::ListMcpServerStatusResponse;
@@ -26,10 +30,6 @@ use maplecode_app_server_protocol::UserInput;
 use maplecode_features::Feature;
 use maplecode_http_client::HttpClientBuilder;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::responses;
-use core_test_support::stdio_server_bin;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use rmcp::handler::server::ServerHandler;
 use rmcp::model::CallToolRequestParams;
@@ -1067,10 +1067,11 @@ async fn selected_executor_plugin_exposes_its_mcps_only_to_that_thread() -> Resu
         .with_root_config(&root_config)
         .with_provider_config("supports_websockets = false")
         .write(maplecode_home.path())?;
-    let executor_config: maplecode_config::types::McpServerConfig = serde_json::from_value(json!({
-        "url": EXECUTOR_OAUTH_MCP_URL,
-        "environment_id": EXECUTOR_ID,
-    }))?;
+    let executor_config: maplecode_config::types::McpServerConfig =
+        serde_json::from_value(json!({
+            "url": EXECUTOR_OAUTH_MCP_URL,
+            "environment_id": EXECUTOR_ID,
+        }))?;
     let host_oauth_credential = json!({
         "server_name": executor_config.oauth_credential_name(OAUTH_MCP_SERVER_NAME),
         "server_url": EXECUTOR_OAUTH_MCP_URL,

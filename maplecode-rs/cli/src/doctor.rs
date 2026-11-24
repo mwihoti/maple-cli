@@ -28,6 +28,9 @@ use std::time::Instant;
 
 use anyhow::Context;
 use clap::Parser;
+use http::HeaderMap;
+use http::HeaderValue;
+use http::Method;
 use maplecode_api::ApiError;
 use maplecode_api::ResponsesWebsocketClient;
 use maplecode_api::TransportError;
@@ -46,9 +49,9 @@ use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_http_client::RouteAwareClientPool;
-use maplecode_install_context::MapleCodePackageLayout;
 use maplecode_install_context::InstallContext;
 use maplecode_install_context::InstallMethod;
+use maplecode_install_context::MapleCodePackageLayout;
 use maplecode_install_context::StandalonePlatform;
 use maplecode_login::AuthDotJson;
 use maplecode_login::AuthManager;
@@ -68,9 +71,6 @@ use maplecode_terminal_detection::TerminalName;
 use maplecode_terminal_detection::terminal_info;
 use maplecode_tui::Cli as TuiCli;
 use maplecode_utils_cli::CliConfigOverrides;
-use http::HeaderMap;
-use http::HeaderValue;
-use http::Method;
 use serde::Serialize;
 use supports_color::Stream;
 
@@ -411,7 +411,8 @@ async fn build_report(
             )
             .await;
             let auth_manager_result =
-                AuthManager::shared_from_config(config, /*enable_maplecode_api_key_env*/ true).await;
+                AuthManager::shared_from_config(config, /*enable_maplecode_api_key_env*/ true)
+                    .await;
             let auth_manager = auth_manager_result.as_ref().ok().cloned();
             let reachability_plan = provider_reachability_plan(config);
             #[cfg(target_os = "macos")]
@@ -1124,7 +1125,10 @@ fn config_check(config: &Config) -> DoctorCheck {
     details
         .push("configuration scope: invocation config, including cloud-managed policy".to_string());
     details.push("active thread overrides: not inspected".to_string());
-    details.push(format!("MAPLECODE_HOME: {}", config.maplecode_home.display()));
+    details.push(format!(
+        "MAPLECODE_HOME: {}",
+        config.maplecode_home.display()
+    ));
     details.push(format!("cwd: {}", config.cwd.display()));
     details.push(format!(
         "model: {}",
@@ -1212,7 +1216,9 @@ fn feature_flag_details(config: &Config, details: &mut Vec<String>) {
 }
 
 fn config_toml_details(config: &Config, details: &mut Vec<String>) {
-    let config_path = config.maplecode_home.join(maplecode_config::CONFIG_TOML_FILE);
+    let config_path = config
+        .maplecode_home
+        .join(maplecode_config::CONFIG_TOML_FILE);
     details.push(format!("config.toml: {}", config_path.display()));
     match std::fs::read_to_string(&config_path) {
         Ok(contents) => match toml::from_str::<toml::Value>(&contents) {
@@ -1298,8 +1304,8 @@ fn auth_check(config: &Config) -> DoctorCheck {
             let mut check =
                 DoctorCheck::new("auth.credentials", "auth", status, summary).details(details);
             if status == CheckStatus::Fail {
-                check =
-                    check.remediation("Run maplecode login again or provide a supported auth env var.");
+                check = check
+                    .remediation("Run maplecode login again or provide a supported auth env var.");
             }
             check
         }
@@ -1425,8 +1431,8 @@ fn stored_auth_issues(
                 .openai_api_key
                 .as_deref()
                 .is_some_and(|key| !key.trim().is_empty());
-            let env_key_present =
-                env_var_present(OPENAI_API_KEY_ENV_VAR) || env_var_present(MAPLECODE_API_KEY_ENV_VAR);
+            let env_key_present = env_var_present(OPENAI_API_KEY_ENV_VAR)
+                || env_var_present(MAPLECODE_API_KEY_ENV_VAR);
             if !stored_key_present && !env_key_present {
                 issues.push("API key auth is missing an API key");
             }
@@ -2206,15 +2212,15 @@ async fn sqlite_integrity_detail(
         return CheckStatus::Ok;
     }
 
-    let (rows, timed_out) = match maplecode_state::sqlite_integrity_check(sqlite, path, deadline).await
-    {
-        Ok(maplecode_state::SqliteIntegrityCheck::Complete(rows)) => (rows, false),
-        Ok(maplecode_state::SqliteIntegrityCheck::TimedOut(rows)) => (rows, true),
-        Err(err) => {
-            details.push(format!("{label} integrity: {err}"));
-            return CheckStatus::Fail;
-        }
-    };
+    let (rows, timed_out) =
+        match maplecode_state::sqlite_integrity_check(sqlite, path, deadline).await {
+            Ok(maplecode_state::SqliteIntegrityCheck::Complete(rows)) => (rows, false),
+            Ok(maplecode_state::SqliteIntegrityCheck::TimedOut(rows)) => (rows, true),
+            Err(err) => {
+                details.push(format!("{label} integrity: {err}"));
+                return CheckStatus::Fail;
+            }
+        };
     if timed_out {
         details.push(format!(
             "{label} integrity: incomplete (1 second time limit)"
@@ -2348,7 +2354,8 @@ async fn websocket_reachability_check(
         let runtime_auth = if config.features.enabled(Feature::RuntimeAgentInstances)
             && let Some(credentials) = &auth_manager
         {
-            let installation_id = maplecode_core::resolve_installation_id(&config.maplecode_home).await?;
+            let installation_id =
+                maplecode_core::resolve_installation_id(&config.maplecode_home).await?;
             maplecode_core::build_runtime_auth_manager(
                 config,
                 Arc::clone(credentials),
@@ -2763,7 +2770,11 @@ fn provider_reachability_plan_from_parts(
         }],
         (ProviderAuthReachabilityMode::Chatgpt, None) => vec![ReachabilityEndpoint {
             label: "ChatGPT".to_string(),
-            url: provider_url_for_path(chatgpt_base_url, "maplecode/responses", provider_query_params),
+            url: provider_url_for_path(
+                chatgpt_base_url,
+                "maplecode/responses",
+                provider_query_params,
+            ),
             required: true,
             route_probe_url: None,
         }],

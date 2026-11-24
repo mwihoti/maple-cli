@@ -564,8 +564,8 @@ impl RolloutRecorder {
             ThreadListArchiveFilter::Active => false,
             ThreadListArchiveFilter::Archived => true,
         };
-        let relation_filter =
-            include_attached_threads.then_some(maplecode_state::ThreadRelationFilter::IncludeAttached);
+        let relation_filter = include_attached_threads
+            .then_some(maplecode_state::ThreadRelationFilter::IncludeAttached);
         if matches!(repair_mode, ThreadListRepairMode::StateDbOnly) {
             return state_db::list_threads_db(
                 state_db_ctx.as_deref(),
@@ -808,7 +808,11 @@ impl RolloutRecorder {
         // If SQLite listing still fails, return the filesystem page rather than failing the list.
         tracing::error!("Falling back on rollout system");
         tracing::warn!("state db discrepancy during list_threads_with_db_fallback: falling_back");
-        maplecode_state::record_fallback("list_threads", "db_error", /*telemetry_override*/ None);
+        maplecode_state::record_fallback(
+            "list_threads",
+            "db_error",
+            /*telemetry_override*/ None,
+        );
         Ok(page_from_filesystem_scan(
             fs_page,
             sort_direction,
@@ -1561,7 +1565,8 @@ async fn list_threads_from_files_desc(
         });
     }
 
-    list_threads_from_files_desc_unfiltered(maplecode_home, page_size, cursor, sort_key, config).await
+    list_threads_from_files_desc_unfiltered(maplecode_home, page_size, cursor, sort_key, config)
+        .await
 }
 
 async fn list_threads_from_files_desc_unfiltered(

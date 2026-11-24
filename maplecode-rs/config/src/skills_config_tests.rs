@@ -199,7 +199,10 @@ fn path_rule_disables_selected_path() {
 #[test]
 fn later_name_rule_reenables_path_disabled_skill() {
     let maplecode_home = TempDir::new().expect("temp dir");
-    let path = maplecode_home.path().join("reenable-by-name/SKILL.md").abs();
+    let path = maplecode_home
+        .path()
+        .join("reenable-by-name/SKILL.md")
+        .abs();
     let rules = SkillConfigRules {
         entries: vec![
             SkillConfigRule {

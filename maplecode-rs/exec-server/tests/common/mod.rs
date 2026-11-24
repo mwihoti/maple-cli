@@ -6,10 +6,11 @@ use std::process::Command;
 use std::process::Stdio;
 use std::time::Duration;
 
-use maplecode_exec_server::MAPLECODE_ARG0_EXEC_HELPER_ARG1;
-use maplecode_exec_server::MAPLECODE_FS_HELPER_ARG1;
+use ctor::ctor;
 use maplecode_exec_server::ExecServerRuntimeOptions;
 use maplecode_exec_server::ExecServerTelemetry;
+use maplecode_exec_server::MAPLECODE_ARG0_EXEC_HELPER_ARG1;
+use maplecode_exec_server::MAPLECODE_FS_HELPER_ARG1;
 use maplecode_exec_server::RequestDispatchMode;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
@@ -17,7 +18,6 @@ use maplecode_sandboxing::landlock::MAPLECODE_LINUX_SANDBOX_ARG0;
 use maplecode_test_binary_support::TestBinaryDispatchGuard;
 use maplecode_test_binary_support::TestBinaryDispatchMode;
 use maplecode_test_binary_support::configure_test_binary_dispatch;
-use ctor::ctor;
 
 pub(crate) mod exec_server;
 
@@ -30,7 +30,8 @@ pub(crate) const SYSTEM_PROXY_REQUEST_URL_ENV: &str =
 pub(crate) const SYSTEM_PROXY_URL_ENV: &str = "MAPLECODE_EXEC_SERVER_TEST_SYSTEM_PROXY_URL";
 
 const MAPLECODE_WINDOWS_SANDBOX_ARG1: &str = "--run-as-windows-sandbox";
-const DELAYED_OUTPUT_AFTER_EXIT_CHILD_ARG: &str = "--maplecode-test-delayed-output-after-exit-child";
+const DELAYED_OUTPUT_AFTER_EXIT_CHILD_ARG: &str =
+    "--maplecode-test-delayed-output-after-exit-child";
 
 #[macro_export]
 macro_rules! skip_if_mxc_unavailable {
@@ -224,14 +225,15 @@ fn maybe_run_exec_server_from_test_binary(guard: Option<&TestBinaryDispatchGuard
             std::process::exit(1);
         }
     };
-    runtime_paths.prefer_mxc = env::var("MAPLECODE_EXEC_SERVER_TEST_PREFER_MXC")
-        .ok()
-        .map(|value| {
-            value.parse().unwrap_or_else(|error| {
-                eprintln!("invalid test MXC preference: {error}");
-                std::process::exit(1);
-            })
-        });
+    runtime_paths.prefer_mxc =
+        env::var("MAPLECODE_EXEC_SERVER_TEST_PREFER_MXC")
+            .ok()
+            .map(|value| {
+                value.parse().unwrap_or_else(|error| {
+                    eprintln!("invalid test MXC preference: {error}");
+                    std::process::exit(1);
+                })
+            });
     let runtime = match tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()

@@ -139,7 +139,9 @@ where
         let marketplace_name = validate_marketplace_source_root(path)?;
         validate_marketplace_name_for_add(managed_marketplace_name, &marketplace_name)
             .map_err(MarketplaceAddError::InvalidRequest)?;
-        if find_marketplace_root_by_name(maplecode_home, &install_root, &marketplace_name)?.is_some() {
+        if find_marketplace_root_by_name(maplecode_home, &install_root, &marketplace_name)?
+            .is_some()
+        {
             return Err(MarketplaceAddError::InvalidRequest(format!(
                 "marketplace '{marketplace_name}' is already added from a different source; remove it before adding this source"
             )));
@@ -261,7 +263,11 @@ mod tests {
                 .is_file()
         );
 
-        let config = fs::read_to_string(maplecode_home.path().join(maplecode_config::CONFIG_TOML_FILE))?;
+        let config = fs::read_to_string(
+            maplecode_home
+                .path()
+                .join(maplecode_config::CONFIG_TOML_FILE),
+        )?;
         assert!(config.contains("[marketplaces.debug]"));
         assert!(config.contains("source_type = \"git\""));
         assert!(config.contains("source = \"https://github.com/owner/repo.git\""));
@@ -356,7 +362,11 @@ host_pattern = '^allowed\.test$'
                 .exists()
         );
 
-        let config = fs::read_to_string(maplecode_home.path().join(maplecode_config::CONFIG_TOML_FILE))?;
+        let config = fs::read_to_string(
+            maplecode_home
+                .path()
+                .join(maplecode_config::CONFIG_TOML_FILE),
+        )?;
         let config: toml::Value = toml::from_str(&config)?;
         assert_eq!(
             config["marketplaces"]["debug"]["source_type"].as_str(),

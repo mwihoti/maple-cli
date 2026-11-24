@@ -5,6 +5,7 @@ use app_test_support::create_fake_paginated_rollout;
 use app_test_support::create_fake_rollout;
 use app_test_support::create_mock_responses_server_repeating_assistant;
 use app_test_support::create_mock_responses_server_sequence;
+use core_test_support::responses;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::JSONRPCError;
 use maplecode_app_server_protocol::RequestId;
@@ -33,7 +34,6 @@ use maplecode_state::DirectionalThreadSpawnEdgeStatus;
 use maplecode_state::SqliteConfig;
 use maplecode_state::StateRuntime;
 use maplecode_utils_absolute_path::test_support::PathExt;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::path::Path;
@@ -103,7 +103,9 @@ async fn thread_delete_rejects_paginated_writer_owned_by_another_process() -> Re
 async fn thread_delete_deletes_spawned_descendants() -> Result<()> {
     let maplecode_home = TempDir::new()?;
     // Guardian is disabled by default, so even an invalid storage path must be untouched.
-    let guardian_database = maplecode_home.path().join("message_board_guardian_1.sqlite");
+    let guardian_database = maplecode_home
+        .path()
+        .join("message_board_guardian_1.sqlite");
     #[cfg(unix)]
     std::os::unix::fs::symlink(&guardian_database, &guardian_database)?;
     #[cfg(not(unix))]
@@ -198,7 +200,8 @@ async fn thread_delete_preflights_external_fork_references_for_spawned_subtrees(
 
     let parent_id = create_delete_test_rollout(maplecode_home.path(), /*minute*/ 0, "parent")?;
     let child_id = create_delete_test_rollout(maplecode_home.path(), /*minute*/ 1, "child")?;
-    let external_id = create_delete_test_rollout(maplecode_home.path(), /*minute*/ 2, "external")?;
+    let external_id =
+        create_delete_test_rollout(maplecode_home.path(), /*minute*/ 2, "external")?;
     let parent_thread_id = ThreadId::from_string(&parent_id)?;
     let child_thread_id = ThreadId::from_string(&child_id)?;
     let external_thread_id = ThreadId::from_string(&external_id)?;

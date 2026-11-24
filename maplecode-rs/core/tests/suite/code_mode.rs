@@ -11,6 +11,46 @@ use anyhow::Context;
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::AppsTestToolLoading;
+use core_test_support::apps_test_server::DIRECT_CALENDAR_APP_ONLY_TOOL;
+use core_test_support::apps_test_server::recorded_apps_tool_calls;
+use core_test_support::apps_test_server::search_capable_apps_builder;
+use core_test_support::assert_regex_match;
+#[cfg(unix)]
+use core_test_support::code_mode_host::CodeModeHostRecorder;
+use core_test_support::responses;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_custom_tool_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::namespace_child_tool;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::stdio_server_bin;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
+use image::DynamicImage;
+use image::GenericImageView;
+use image::ImageBuffer;
+use image::ImageDecoder;
+use image::ImageEncoder;
+use image::ImageFormat;
+use image::ImageReader;
+use image::Rgba;
+use image::codecs::png::PngEncoder;
+use image::metadata::Orientation;
 use maplecode_analytics::AnalyticsEventsClient;
 use maplecode_config::types::McpServerConfig;
 use maplecode_config::types::McpServerTransportConfig;
@@ -79,46 +119,6 @@ use maplecode_tools::ToolOutput;
 use maplecode_tools::ToolPayload;
 use maplecode_tools::ToolSpec;
 use maplecode_web_search_extension::install as install_web_search_extension;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::AppsTestToolLoading;
-use core_test_support::apps_test_server::DIRECT_CALENDAR_APP_ONLY_TOOL;
-use core_test_support::apps_test_server::recorded_apps_tool_calls;
-use core_test_support::apps_test_server::search_capable_apps_builder;
-use core_test_support::assert_regex_match;
-#[cfg(unix)]
-use core_test_support::code_mode_host::CodeModeHostRecorder;
-use core_test_support::responses;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_custom_tool_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::namespace_child_tool;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::stdio_server_bin;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
-use image::DynamicImage;
-use image::GenericImageView;
-use image::ImageBuffer;
-use image::ImageDecoder;
-use image::ImageEncoder;
-use image::ImageFormat;
-use image::ImageReader;
-use image::Rgba;
-use image::codecs::png::PngEncoder;
-use image::metadata::Orientation;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::collections::BTreeSet;
@@ -270,11 +270,13 @@ async fn run_code_mode_turn_with_model_and_config(
     model: &'static str,
     configure: impl FnOnce(&mut Config) + Send + 'static,
 ) -> Result<(TestMapleCode, ResponseMock)> {
-    let builder = test_maplecode().with_model(model).with_config(move |config| {
-        let _ = config.features.enable(Feature::CodeMode);
-        let _ = config.features.enable(Feature::ExecutedToolCallMetadata);
-        configure(config);
-    });
+    let builder = test_maplecode()
+        .with_model(model)
+        .with_config(move |config| {
+            let _ = config.features.enable(Feature::CodeMode);
+            let _ = config.features.enable(Feature::ExecutedToolCallMetadata);
+            configure(config);
+        });
     run_code_mode_turn_with_builder(server, prompt, code, builder).await
 }
 
@@ -726,55 +728,57 @@ async fn run_code_mode_turn_with_rmcp_config(
     non_prefixed_mcp_tool_names: bool,
 ) -> Result<(TestMapleCode, ResponseMock)> {
     let rmcp_test_server_bin = stdio_server_bin()?;
-    let mut builder = test_maplecode().with_model(model).with_config(move |config| {
-        let _ = if code_mode_only {
-            config.features.enable(Feature::CodeModeOnly)
-        } else {
-            config.features.enable(Feature::CodeMode)
-        };
-        if non_prefixed_mcp_tool_names {
-            let _ = config.features.enable(Feature::NonPrefixedMcpToolNames);
-        }
+    let mut builder = test_maplecode()
+        .with_model(model)
+        .with_config(move |config| {
+            let _ = if code_mode_only {
+                config.features.enable(Feature::CodeModeOnly)
+            } else {
+                config.features.enable(Feature::CodeMode)
+            };
+            if non_prefixed_mcp_tool_names {
+                let _ = config.features.enable(Feature::NonPrefixedMcpToolNames);
+            }
 
-        let mut servers = config.mcp_servers.get().clone();
-        servers.insert(
-            "rmcp".to_string(),
-            McpServerConfig {
-                auth: Default::default(),
-                transport: McpServerTransportConfig::Stdio {
-                    command: rmcp_test_server_bin,
-                    args: Vec::new(),
-                    env: Some(HashMap::from([(
-                        "MCP_TEST_VALUE".to_string(),
-                        "propagated-env".to_string(),
-                    )])),
-                    env_vars: Vec::new(),
-                    cwd: None,
+            let mut servers = config.mcp_servers.get().clone();
+            servers.insert(
+                "rmcp".to_string(),
+                McpServerConfig {
+                    auth: Default::default(),
+                    transport: McpServerTransportConfig::Stdio {
+                        command: rmcp_test_server_bin,
+                        args: Vec::new(),
+                        env: Some(HashMap::from([(
+                            "MCP_TEST_VALUE".to_string(),
+                            "propagated-env".to_string(),
+                        )])),
+                        env_vars: Vec::new(),
+                        cwd: None,
+                    },
+                    environment_id: "local".to_string(),
+                    enabled: true,
+                    required: false,
+                    startup_readiness: Default::default(),
+                    supports_parallel_tool_calls: false,
+                    tool_input_schema_max_bytes: None,
+                    omit_tools_from: None,
+                    disabled_reason: None,
+                    startup_timeout_sec: Some(Duration::from_secs(10)),
+                    tool_timeout_sec: None,
+                    default_tools_approval_mode: None,
+                    enabled_tools: None,
+                    disabled_tools: None,
+                    scopes: None,
+                    oauth: None,
+                    oauth_resource: None,
+                    tools: HashMap::new(),
                 },
-                environment_id: "local".to_string(),
-                enabled: true,
-                required: false,
-                startup_readiness: Default::default(),
-                supports_parallel_tool_calls: false,
-                tool_input_schema_max_bytes: None,
-                omit_tools_from: None,
-                disabled_reason: None,
-                startup_timeout_sec: Some(Duration::from_secs(10)),
-                tool_timeout_sec: None,
-                default_tools_approval_mode: None,
-                enabled_tools: None,
-                disabled_tools: None,
-                scopes: None,
-                oauth: None,
-                oauth_resource: None,
-                tools: HashMap::new(),
-            },
-        );
-        config
-            .mcp_servers
-            .set(servers)
-            .expect("test mcp servers should accept any configuration");
-    });
+            );
+            config
+                .mcp_servers
+                .set(servers)
+                .expect("test mcp servers should accept any configuration");
+        });
     let test = builder.build(server).await?;
     wait_for_mcp_server(&test.maplecode, "rmcp").await?;
 
@@ -872,11 +876,15 @@ async fn code_mode_exec_holds_captured_result_during_elicitation() -> Result<()>
     .await;
 
     assert_eq!(
-        test.maplecode.increment_out_of_band_elicitation_count().await?,
+        test.maplecode
+            .increment_out_of_band_elicitation_count()
+            .await?,
         1
     );
     assert_eq!(
-        test.maplecode.increment_out_of_band_elicitation_count().await?,
+        test.maplecode
+            .increment_out_of_band_elicitation_count()
+            .await?,
         2
     );
     let release_elicitation = async {
@@ -893,7 +901,9 @@ async fn code_mode_exec_holds_captured_result_during_elicitation() -> Result<()>
             "captured exec result should not return during an elicitation"
         );
         assert_eq!(
-            test.maplecode.decrement_out_of_band_elicitation_count().await?,
+            test.maplecode
+                .decrement_out_of_band_elicitation_count()
+                .await?,
             1
         );
         tokio::time::sleep(Duration::from_millis(100)).await;
@@ -902,7 +912,9 @@ async fn code_mode_exec_holds_captured_result_during_elicitation() -> Result<()>
             "captured exec result should wait for every elicitation"
         );
         assert_eq!(
-            test.maplecode.decrement_out_of_band_elicitation_count().await?,
+            test.maplecode
+                .decrement_out_of_band_elicitation_count()
+                .await?,
             0
         );
         Ok::<(), anyhow::Error>(())
@@ -2516,7 +2528,8 @@ async fn result_metadata_preserves_results_within_request_budget(
             ]),
         );
     }
-    let captured = maplecode_core::test_support::history_with_tool_call_metadata(&test.maplecode).await;
+    let captured =
+        maplecode_core::test_support::history_with_tool_call_metadata(&test.maplecode).await;
     if direct {
         for item in &captured {
             if let ResponseItem::FunctionCallOutput { output, .. } = item {
@@ -2680,7 +2693,10 @@ async fn result_metadata_follows_call_binding(
         );
         run_code_mode_turn_with_builder(&server, "Search a connected app", &code, builder).await?
     };
-    assert_eq!(test.maplecode.analytics_enabled(), effective_analytics_enabled);
+    assert_eq!(
+        test.maplecode.analytics_enabled(),
+        effective_analytics_enabled
+    );
     let request = follow_up.single_request();
     assert_eq!(recorded_apps_tool_calls(&server).await.len(), 1);
     let output = if direct {
@@ -2711,7 +2727,8 @@ async fn result_metadata_follows_call_binding(
         result_metadata_fixture_calls(&request.input()).count(),
         usize::from(metadata_enabled),
     );
-    let captured = maplecode_core::test_support::history_with_tool_call_metadata(&test.maplecode).await;
+    let captured =
+        maplecode_core::test_support::history_with_tool_call_metadata(&test.maplecode).await;
     if direct {
         let result = captured
             .iter()
@@ -2843,7 +2860,8 @@ async fn code_mode_result_metadata_follows_runtime_recording_enablement() -> Res
         }
     }
     assert_eq!(recorded_apps_tool_calls(&server).await.len(), 2);
-    let captured = maplecode_core::test_support::history_with_tool_call_metadata(&test.maplecode).await;
+    let captured =
+        maplecode_core::test_support::history_with_tool_call_metadata(&test.maplecode).await;
     let captured = serde_json::to_value(captured)?;
     let captured_output = captured
         .as_array()
@@ -2987,7 +3005,8 @@ async fn code_mode_result_metadata_keeps_prepared_call_binding_across_runtime_re
         2,
         "late results must not duplicate the call"
     );
-    let captured = maplecode_core::test_support::history_with_tool_call_metadata(&test.maplecode).await;
+    let captured =
+        maplecode_core::test_support::history_with_tool_call_metadata(&test.maplecode).await;
     let captured = serde_json::to_value(captured)?;
     // A's accepted result must update the output that first reported it, not the final wait.
     let expected_metadata = Some(original_metadata);
@@ -3044,7 +3063,9 @@ async fn code_mode_late_result_metadata_with_large_arguments_survives_waits() ->
     extensions.tool_lifecycle_contributor(control);
     let builder = result_metadata_apps_builder(apps_server.chatgpt_base_url, "user@example.com")
         .with_extensions(Arc::new(extensions.build()))
-        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?)
+        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
+            "maplecode-code-mode-host",
+        )?)
         .with_config(|config| {
             config.features.enable(Feature::CodeModeHost).unwrap();
             config.code_mode.disable_in_process_fallback = true;
@@ -3127,7 +3148,8 @@ async fn code_mode_late_result_metadata_with_large_arguments_survives_waits() ->
     // The custom inference endpoint strips raw result metadata. Inspect both the actual
     // request inventory and the recorder's unfiltered capture, including after another wait.
     for phase in 0..2 {
-        let captured = maplecode_core::test_support::history_with_tool_call_metadata(&test.maplecode).await;
+        let captured =
+            maplecode_core::test_support::history_with_tool_call_metadata(&test.maplecode).await;
         let captured = serde_json::to_value(captured)?;
         let captured_output = captured
             .as_array()
@@ -6184,7 +6206,8 @@ struct InterruptedNestedToolObserver {
 impl ToolLifecycleContributor for InterruptedNestedToolObserver {
     fn on_tool_start<'a>(&'a self, input: ToolStartInput<'a>) -> ToolLifecycleFuture<'a> {
         Box::pin(async move {
-            let maplecode_extension_api::ToolCallSource::CodeMode { cell_id, .. } = input.source else {
+            let maplecode_extension_api::ToolCallSource::CodeMode { cell_id, .. } = input.source
+            else {
                 return;
             };
             if input.tool_name.name != "test_sync_tool" {
@@ -9297,7 +9320,9 @@ async fn code_mode_can_store_and_load_values_across_turns_after_rejection() -> R
 
     let server = responses::start_mock_server().await;
     let mut builder = test_maplecode()
-        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?)
+        .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
+            "maplecode-code-mode-host",
+        )?)
         .with_config(|config| {
             let _ = config.features.enable(Feature::CodeMode);
             let _ = config.features.enable(Feature::CodeModeHost);

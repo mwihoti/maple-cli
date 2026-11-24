@@ -7,6 +7,7 @@ use app_test_support::create_command_execution_sse_response;
 use app_test_support::create_mock_responses_server_sequence;
 use app_test_support::create_mock_responses_server_sequence_unchecked;
 use app_test_support::write_mock_responses_config_toml_with_chatgpt_base_url;
+use core_test_support::skip_if_remote;
 use maplecode_app_server::INPUT_TOO_LARGE_ERROR_CODE;
 use maplecode_app_server::INVALID_PARAMS_ERROR_CODE;
 use maplecode_app_server_protocol::AdditionalContextEntry;
@@ -25,7 +26,6 @@ use maplecode_app_server_protocol::TurnSteerParams;
 use maplecode_app_server_protocol::TurnSteerResponse;
 use maplecode_app_server_protocol::UserInput as V2UserInput;
 use maplecode_protocol::user_input::MAX_USER_INPUT_TEXT_CHARS;
-use core_test_support::skip_if_remote;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -86,7 +86,8 @@ async fn turn_steer_requires_active_turn() -> Result<()> {
     assert_eq!(steer_err.error.code, -32600);
 
     let event =
-        wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_steer_event").await?;
+        wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_steer_event")
+            .await?;
     assert_eq!(event["event_params"]["thread_id"], thread.id);
     assert_eq!(event["event_params"]["result"], "rejected");
     assert_eq!(event["event_params"]["num_input_images"], 0);
@@ -388,7 +389,8 @@ async fn turn_steer_returns_active_turn_id(tool_outputs: bool) -> Result<()> {
     .await??;
 
     let event =
-        wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_steer_event").await?;
+        wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_steer_event")
+            .await?;
     assert_eq!(event["event_params"]["thread_id"], thread.id);
     assert_eq!(event["event_params"]["session_id"], thread.session_id);
     assert_eq!(event["event_params"]["result"], "accepted");

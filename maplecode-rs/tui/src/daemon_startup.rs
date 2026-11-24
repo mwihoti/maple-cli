@@ -139,20 +139,23 @@ pub(super) async fn compatibility_warning(
     };
     // File settings and defaults belong to the daemon until it restarts.
     // Only explicit invocation flags can request a shared-service restart.
-    let mut requested: BTreeMap<_, _> = maplecode_config::build_cli_overrides_layer(cli_kv_overrides)
-        .get("features")
-        .and_then(toml::Value::as_table)
-        .into_iter()
-        .flatten()
-        .filter_map(|(name, value)| {
-            let name = match maplecode_features::feature_for_key(name) {
-                Some(feature) if feature.stage() == maplecode_features::Stage::Removed => return None,
-                Some(feature) => feature.key(),
-                None => name,
-            };
-            Some((name.to_string(), value.as_bool()?))
-        })
-        .collect();
+    let mut requested: BTreeMap<_, _> =
+        maplecode_config::build_cli_overrides_layer(cli_kv_overrides)
+            .get("features")
+            .and_then(toml::Value::as_table)
+            .into_iter()
+            .flatten()
+            .filter_map(|(name, value)| {
+                let name = match maplecode_features::feature_for_key(name) {
+                    Some(feature) if feature.stage() == maplecode_features::Stage::Removed => {
+                        return None;
+                    }
+                    Some(feature) => feature.key(),
+                    None => name,
+                };
+                Some((name.to_string(), value.as_bool()?))
+            })
+            .collect();
     let mut restart_features = None;
     let check = async {
         // Connect even without overrides so startup can recover from an unreachable daemon.

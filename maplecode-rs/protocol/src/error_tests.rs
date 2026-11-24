@@ -5,9 +5,9 @@ use chrono::DateTime;
 use chrono::Duration as ChronoDuration;
 use chrono::TimeZone;
 use chrono::Utc;
-use maplecode_http_client::HttpResponse;
 use http::Response as RawHttpResponse;
 use http::StatusCode;
+use maplecode_http_client::HttpResponse;
 use pretty_assertions::assert_eq;
 use std::time::Duration;
 
@@ -40,9 +40,14 @@ async fn maplecode_err_debug_preserves_legacy_shape() {
 fn retryability_preserves_error_details_distinctions() {
     let errors = [
         (MapleCodeErr::ServerOverloaded, false),
-        (MapleCodeErr::new(MapleCodeErrorDetails::ContentFilter), true),
         (
-            MapleCodeErr::new(MapleCodeErrorDetails::RateLimitExceeded("retry later".into())),
+            MapleCodeErr::new(MapleCodeErrorDetails::ContentFilter),
+            true,
+        ),
+        (
+            MapleCodeErr::new(MapleCodeErrorDetails::RateLimitExceeded(
+                "retry later".into(),
+            )),
             true,
         ),
         (

@@ -28,10 +28,10 @@ use crate::UpsertChannelRequest;
 use base64::Engine;
 use base64::prelude::BASE64_URL_SAFE_NO_PAD;
 use caseless::default_case_fold_str;
+use futures::future::BoxFuture;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::Result;
-use futures::future::BoxFuture;
 use std::cmp::Reverse;
 
 impl AgentMessageBoard for InMemoryAgentMessageBoard {

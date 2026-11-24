@@ -4,13 +4,13 @@
 
 use super::*;
 use anyhow::Context;
+use futures::FutureExt;
 use maplecode_config::McpEmaRegistration;
 use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_mcp::ema_auth_scope;
 use maplecode_rmcp_client::EmaErrorDetail;
 use maplecode_rmcp_client::EnterpriseOAuthLoginRequest;
 use maplecode_rmcp_client::perform_enterprise_oauth_login_return_url;
-use futures::FutureExt;
 use tokio::sync::watch;
 
 pub(crate) struct EnterpriseLoginTarget {
@@ -202,7 +202,9 @@ impl EnterpriseLoginState {
             .auth_manager
             .auth_cached()
             .filter(|auth| ema_auth_scope(Some(auth)).as_ref() == Some(&scope))
-            .ok_or_else(|| internal_error("Maple Code account changed during enterprise sign-in"))?;
+            .ok_or_else(|| {
+                internal_error("Maple Code account changed during enterprise sign-in")
+            })?;
         if !self
             .auth_manager
             .account_login_is_current(&account)

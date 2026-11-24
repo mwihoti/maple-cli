@@ -68,7 +68,10 @@ struct DirectorySizes {
     archived_sessions: u64,
 }
 
-fn directory_sizes(maplecode_home: &Path, shutdown: &CancellationToken) -> io::Result<DirectorySizes> {
+fn directory_sizes(
+    maplecode_home: &Path,
+    shutdown: &CancellationToken,
+) -> io::Result<DirectorySizes> {
     let sessions = maplecode_home.join(SESSIONS_SUBDIR);
     let archived_sessions = maplecode_home.join(ARCHIVED_SESSIONS_SUBDIR);
     let mut sizes = DirectorySizes::default();

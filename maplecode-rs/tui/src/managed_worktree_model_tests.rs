@@ -3,11 +3,11 @@
 
 use super::*;
 use crate::legacy_core::config::Config;
-use maplecode_app_server_client::AppServerEvent;
-use maplecode_app_server_protocol::*;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::responses;
+use maplecode_app_server_client::AppServerEvent;
+use maplecode_app_server_protocol::*;
 use pretty_assertions::assert_eq;
 
 async fn model_call(

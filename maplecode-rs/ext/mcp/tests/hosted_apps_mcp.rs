@@ -59,7 +59,10 @@ async fn runtime_overlay_preserves_disabled_server() -> TestResult {
                 "mcp_servers.maplecode_apps.url".to_string(),
                 "https://example.com/mcp".into(),
             ),
-            ("mcp_servers.maplecode_apps.enabled".to_string(), false.into()),
+            (
+                "mcp_servers.maplecode_apps.enabled".to_string(),
+                false.into(),
+            ),
         ])
         .cloud_config_bundle(
             CloudConfigBundleFixture::loader_with_enterprise_requirement("[mcp_servers]"),

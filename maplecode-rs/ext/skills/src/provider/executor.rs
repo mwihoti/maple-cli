@@ -4,6 +4,7 @@ use std::collections::HashSet;
 use maplecode_exec_server::EnvironmentAccess;
 mod discovery_v2;
 
+use futures::StreamExt;
 use maplecode_extension_api::SelectedPluginSnapshot;
 use maplecode_protocol::capabilities::CapabilityRootLocation;
 use maplecode_protocol::protocol::Product;
@@ -11,7 +12,6 @@ use maplecode_protocol::protocol::SkillScope;
 use maplecode_skills::EnvironmentSkillMetadata;
 use maplecode_utils_path_uri::PathConvention;
 use maplecode_utils_path_uri::PathUri;
-use futures::StreamExt;
 
 use crate::catalog::SkillAuthority;
 use crate::catalog::SkillCatalog;

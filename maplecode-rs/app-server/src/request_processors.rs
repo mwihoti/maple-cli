@@ -46,7 +46,6 @@ use maplecode_app_server_protocol::CancelLoginAccountStatus;
 use maplecode_app_server_protocol::ClientInfo;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ClientResponsePayload;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::CollaborationModeListParams;
 use maplecode_app_server_protocol::CollaborationModeListResponse;
 use maplecode_app_server_protocol::CommandExecParams;
@@ -105,6 +104,7 @@ use maplecode_app_server_protocol::LoginAccountResponse;
 use maplecode_app_server_protocol::LoginApiKeyParams;
 use maplecode_app_server_protocol::LoginAppBrand;
 use maplecode_app_server_protocol::LogoutAccountResponse;
+use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::MarketplaceAddParams;
 use maplecode_app_server_protocol::MarketplaceAddResponse;
 use maplecode_app_server_protocol::MarketplaceInterface;
@@ -320,10 +320,10 @@ use maplecode_app_server_protocol::WorkspaceMessageType;
 use maplecode_arg0::Arg0DispatchPaths;
 use maplecode_backend_client::AddCreditsNudgeCreditType as BackendAddCreditsNudgeCreditType;
 use maplecode_backend_client::Client as BackendClient;
+use maplecode_backend_client::ConsumeRateLimitResetCreditCode as BackendConsumeRateLimitResetCreditCode;
 use maplecode_backend_client::MapleCodeWorkspaceMessage as BackendWorkspaceMessage;
 use maplecode_backend_client::MapleCodeWorkspaceMessageType as BackendWorkspaceMessageType;
 use maplecode_backend_client::MapleCodeWorkspaceMessagesResponse as BackendWorkspaceMessagesResponse;
-use maplecode_backend_client::ConsumeRateLimitResetCreditCode as BackendConsumeRateLimitResetCreditCode;
 use maplecode_backend_client::RateLimitResetCreditDetails as BackendRateLimitResetCreditDetails;
 use maplecode_backend_client::RateLimitResetCreditsDetails as BackendRateLimitResetCreditsDetails;
 use maplecode_backend_client::RequestError as BackendRequestError;
@@ -335,9 +335,9 @@ use maplecode_config::ConfigLayerStack;
 use maplecode_config::loader::project_trust_key;
 use maplecode_config::types::McpServerTransportConfig;
 use maplecode_connectors::AppInfo;
+use maplecode_core::ForkSnapshot;
 use maplecode_core::MapleCodeThread;
 use maplecode_core::MapleCodeThreadSettingsOverrides;
-use maplecode_core::ForkSnapshot;
 use maplecode_core::McpManager;
 use maplecode_core::NewThread;
 use maplecode_core::NotSubmittedReason;
@@ -402,16 +402,16 @@ use maplecode_exec_server::LOCAL_FS;
 use maplecode_features::FEATURES;
 use maplecode_features::Feature;
 use maplecode_features::Stage;
-use maplecode_feedback::MapleCodeFeedback;
 use maplecode_feedback::FeedbackAttachmentPath;
 use maplecode_feedback::FeedbackUploadOptions;
+use maplecode_feedback::MapleCodeFeedback;
 use maplecode_git_utils::git_diff_to_remote;
 use maplecode_git_utils::resolve_root_git_project_for_trust;
 use maplecode_login::AuthManager;
-use maplecode_login::MAPLECODE_OPEN_APP_URL;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::LoginSuccessPage;
 use maplecode_login::LoginSuccessPageBrand;
+use maplecode_login::MAPLECODE_OPEN_APP_URL;
+use maplecode_login::MapleCodeAuth;
 use maplecode_login::ServerOptions as LoginServerOptions;
 use maplecode_login::ShutdownHandle;
 use maplecode_login::complete_device_code_login;
@@ -750,9 +750,10 @@ pub(crate) use self::thread_summary::thread_settings_from_config_snapshot;
 pub(crate) fn build_legacy_api_turns_from_rollout_items(items: &[RolloutItem]) -> Vec<Turn> {
     let mut builder = ThreadHistoryBuilder::new();
     for item in items {
-        if let Some(item) =
-            persisted_rollout_item(item, maplecode_protocol::protocol::ThreadHistoryMode::Legacy)
-        {
+        if let Some(item) = persisted_rollout_item(
+            item,
+            maplecode_protocol::protocol::ThreadHistoryMode::Legacy,
+        ) {
             builder.handle_rollout_item(item.as_ref());
         }
     }

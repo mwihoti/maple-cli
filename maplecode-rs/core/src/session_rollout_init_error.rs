@@ -12,7 +12,9 @@ pub(crate) fn map_session_init_error(err: &anyhow::Error, maplecode_home: &Path)
     {
         match store_error {
             ThreadStoreError::Unsupported { operation } => {
-                return MapleCodeErr::UnsupportedOperation(format!("{operation} is not supported yet"));
+                return MapleCodeErr::UnsupportedOperation(format!(
+                    "{operation} is not supported yet"
+                ));
             }
             ThreadStoreError::Conflict { message } => {
                 return MapleCodeErr::InvalidRequest(message.clone());

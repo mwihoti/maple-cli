@@ -1,10 +1,10 @@
 use super::*;
 use crate::session::session::Session;
 use crate::session::step_context::StepContext;
+use futures::future::BoxFuture;
 use maplecode_protocol::DEFAULT_FUNCTION_NAMESPACE;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_utils_output_truncation::TruncationPolicy;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
@@ -126,8 +126,10 @@ impl maplecode_extension_api::ApprovalReviewContributor for LifecycleTestHandler
     fn decide<'a>(
         &'a self,
         _input: &'a maplecode_extension_api::ApprovalDecisionInput<'_>,
-    ) -> maplecode_extension_api::ExtensionFuture<'a, Option<maplecode_extension_api::ApprovalDecision>>
-    {
+    ) -> maplecode_extension_api::ExtensionFuture<
+        'a,
+        Option<maplecode_extension_api::ApprovalDecision>,
+    > {
         Box::pin(async {
             Some(maplecode_extension_api::ApprovalDecision::Reviewed(
                 maplecode_protocol::protocol::ReviewDecision::denied("review denied"),
@@ -258,7 +260,8 @@ fn handler_normalizes_only_the_default_namespace() {
 #[test]
 fn registry_rejects_default_namespace_alias_collisions() {
     let plain_name = maplecode_tools::ToolName::plain("lookup");
-    let namespaced_name = maplecode_tools::ToolName::namespaced(DEFAULT_FUNCTION_NAMESPACE, "lookup");
+    let namespaced_name =
+        maplecode_tools::ToolName::namespaced(DEFAULT_FUNCTION_NAMESPACE, "lookup");
 
     for [first_name, duplicate_name] in [
         [plain_name.clone(), namespaced_name.clone()],
@@ -446,7 +449,10 @@ async fn readiness_selects_exact_tool_with_registry_owned_exposure() {
 
     assert!(
         registry
-            .tool(&maplecode_tools::ToolName::namespaced("mcp__missing__", "echo"))
+            .tool(&maplecode_tools::ToolName::namespaced(
+                "mcp__missing__",
+                "echo"
+            ))
             .is_none()
     );
     assert_eq!(
@@ -752,7 +758,8 @@ async fn dispatch_uses_canonical_tool_names_for_lifecycle_contributors() -> anyh
     turn.turn_metadata_state
         .set_root_turn_id("root-turn".to_string());
     let records = Arc::new(std::sync::Mutex::new(Vec::new()));
-    let mut builder = maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
+    let mut builder =
+        maplecode_extension_api::ExtensionRegistryBuilder::<crate::config::Config>::new();
     builder.tool_lifecycle_contributor(Arc::new(ToolLifecycleRecorder {
         records: Arc::clone(&records),
     }));

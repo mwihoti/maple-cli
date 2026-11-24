@@ -5,8 +5,8 @@ use crate::key_hint::KeyBinding;
 use crate::keymap::KeymapContextSet;
 use crate::render::renderable::Renderable;
 use crate::terminal_program_status::ProgramStatusKind;
-use maplecode_app_server_protocol::ToolRequestUserInputParams;
 use crossterm::event::KeyEvent;
+use maplecode_app_server_protocol::ToolRequestUserInputParams;
 use std::time::Instant;
 
 use super::CancellationEvent;

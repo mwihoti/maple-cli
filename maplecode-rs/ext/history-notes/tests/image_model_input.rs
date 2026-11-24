@@ -3,6 +3,11 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::responses;
+use core_test_support::test_maplecode::test_maplecode;
+use http::HeaderMap;
 use maplecode_core::config::Config;
 use maplecode_core::config::TokenBudgetConfig;
 use maplecode_extension_api::ExtensionRegistryBuilder;
@@ -10,11 +15,6 @@ use maplecode_history_notes_extension::install;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthManager;
 use maplecode_login::MapleCodeAuth;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::responses;
-use core_test_support::test_maplecode::test_maplecode;
-use http::HeaderMap;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use wiremock::Mock;

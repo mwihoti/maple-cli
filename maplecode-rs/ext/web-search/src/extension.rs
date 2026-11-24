@@ -124,7 +124,11 @@ impl ToolContributor for WebSearchExtension {
         thread_store: &ExtensionData,
         step_store: &ExtensionData,
     ) -> Vec<
-        Arc<dyn for<'call> maplecode_extension_api::ToolExecutor<maplecode_extension_api::ToolCall<'call>>>,
+        Arc<
+            dyn for<'call> maplecode_extension_api::ToolExecutor<
+                    maplecode_extension_api::ToolCall<'call>,
+                >,
+        >,
     > {
         let (Some(config), Some(workspace_routing), Some(mode)) = (
             thread_store.get::<WebSearchExtensionConfig>(),

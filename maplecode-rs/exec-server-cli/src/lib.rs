@@ -15,7 +15,11 @@ mod exec_server_telemetry;
 pub use command::ExecServerCommand;
 
 #[derive(Debug, Parser)]
-#[command(name = "maplecode-exec-server", bin_name = "maplecode-exec-server", version)]
+#[command(
+    name = "maplecode-exec-server",
+    bin_name = "maplecode-exec-server",
+    version
+)]
 struct ExecServerCli {
     #[command(flatten)]
     config_overrides: CliConfigOverrides,

@@ -1,6 +1,12 @@
 //! Exercises managed provider routing and conflict diagnostics through real turns.
 
 use anyhow::Result;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_config::LoaderOverrides;
 use maplecode_config::config_toml::ConfigToml;
 use maplecode_config::test_support::CloudConfigBundleFixture;
@@ -9,20 +15,14 @@ use maplecode_core::config::ConfigBuilder;
 use maplecode_core::config::ConfigOverrides;
 use maplecode_login::MapleCodeAuth;
 use maplecode_models_manager::bundled_models_response;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 use tempfile::tempdir;
 use test_case::test_case;
 use wiremock::MockServer;
 
 #[tokio::test]
-async fn cloud_provider_auth_merges_before_parsing_and_resolves_cwd_from_maplecode_home() -> Result<()>
-{
+async fn cloud_provider_auth_merges_before_parsing_and_resolves_cwd_from_maplecode_home()
+-> Result<()> {
     let home = tempdir()?;
     std::fs::write(
         home.path().join("config.toml"),

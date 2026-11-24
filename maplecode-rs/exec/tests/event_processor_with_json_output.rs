@@ -41,7 +41,6 @@ use pretty_assertions::assert_eq;
 use serde_json::json;
 
 use maplecode_exec::AgentMessageItem;
-use maplecode_exec::MapleCodeStatus;
 use maplecode_exec::CollabAgentState;
 use maplecode_exec::CollabAgentStatus;
 use maplecode_exec::CollabTool;
@@ -58,6 +57,7 @@ use maplecode_exec::FileUpdateChange as ExecFileUpdateChange;
 use maplecode_exec::ItemCompletedEvent;
 use maplecode_exec::ItemStartedEvent;
 use maplecode_exec::ItemUpdatedEvent;
+use maplecode_exec::MapleCodeStatus;
 use maplecode_exec::McpToolCallItem;
 use maplecode_exec::McpToolCallItemError;
 use maplecode_exec::McpToolCallItemResult;

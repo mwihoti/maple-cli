@@ -1,11 +1,11 @@
 //! Maple's Chat Completions wire protocol, below the agent/tool permission layer.
 
 use crate::error::ApiError;
-use maplecode_client::ByteStream;
-use maplecode_client::TransportError;
 use futures::StreamExt;
 use maple_protocol::request::Tool;
 use maple_protocol::stream::Decoder;
+use maplecode_client::ByteStream;
+use maplecode_client::TransportError;
 use std::collections::BTreeMap;
 
 pub(crate) fn invalid(error: maple_protocol::Error) -> ApiError {

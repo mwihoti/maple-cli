@@ -1,4 +1,29 @@
 use anyhow::Result;
+use core_test_support::PathBufExt;
+use core_test_support::assert_regex_match;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_exec_command_call;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::namespace_child_tool;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_completed;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::stdio_server_bin;
+use core_test_support::test_maplecode::local;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
 use maplecode_config::types::McpServerConfig;
 use maplecode_config::types::McpServerTransportConfig;
 use maplecode_core::StartThreadOptions;
@@ -30,31 +55,6 @@ use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_skills_extension::SkillsExtensionConfig;
 use maplecode_skills_extension::install;
-use core_test_support::PathBufExt;
-use core_test_support::assert_regex_match;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_exec_command_call;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::namespace_child_tool;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_completed;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::stdio_server_bin;
-use core_test_support::test_maplecode::local;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -169,7 +169,9 @@ fn write_token_budget_compact_hooks(home: &Path) {
     std::fs::write(home.join("hooks.json"), hooks.to_string()).expect("write hooks.json");
 }
 
-async fn assert_context_compaction_item_lifecycle(maplecode: &std::sync::Arc<maplecode_core::MapleCodeThread>) {
+async fn assert_context_compaction_item_lifecycle(
+    maplecode: &std::sync::Arc<maplecode_core::MapleCodeThread>,
+) {
     let mut saw_compaction_started = false;
     let mut saw_compaction_completed = false;
 
@@ -839,7 +841,10 @@ async fn token_budget_context_injects_plain_thread_hint_text(cached_subagent: bo
         );
         (subagent.thread, subagent.thread_id)
     } else {
-        (Arc::clone(&test.maplecode), test.session_configured.thread_id)
+        (
+            Arc::clone(&test.maplecode),
+            test.session_configured.thread_id,
+        )
     };
     let responses = mount_sse_once(
         &server,

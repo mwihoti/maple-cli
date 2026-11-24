@@ -21,12 +21,13 @@ impl IntoProtocol<FunctionCallOutputContentItem>
             maplecode_code_mode::FunctionCallOutputContentItem::InputText { text } => {
                 FunctionCallOutputContentItem::InputText { text }
             }
-            maplecode_code_mode::FunctionCallOutputContentItem::InputImage { image_url, detail } => {
-                FunctionCallOutputContentItem::InputImage {
-                    image: ImageReference::Inline { image_url },
-                    detail: detail.or(Some(DEFAULT_IMAGE_DETAIL)),
-                }
-            }
+            maplecode_code_mode::FunctionCallOutputContentItem::InputImage {
+                image_url,
+                detail,
+            } => FunctionCallOutputContentItem::InputImage {
+                image: ImageReference::Inline { image_url },
+                detail: detail.or(Some(DEFAULT_IMAGE_DETAIL)),
+            },
             maplecode_code_mode::FunctionCallOutputContentItem::InputAudio { audio_url } => {
                 FunctionCallOutputContentItem::inline_audio(audio_url)
             }

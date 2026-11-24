@@ -26,6 +26,8 @@ use std::time::Instant;
 
 use anyhow::Context;
 use anyhow::Result;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_exec_server::EnvironmentInfo;
 use maplecode_exec_server::ExecParams;
 use maplecode_exec_server::ExecServerClient;
@@ -38,8 +40,6 @@ use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_utils_cargo_bin::copy_executable;
 use maplecode_utils_path_uri::PathUri;
-use futures::SinkExt;
-use futures::StreamExt;
 use predicates::prelude::PredicateBooleanExt;
 use predicates::str::contains;
 use pretty_assertions::assert_eq;
@@ -94,7 +94,10 @@ foo = "bar"
 #[test]
 fn local_exec_server_ignores_invalid_config_without_strict_config() -> Result<()> {
     let maplecode_home = TempDir::new()?;
-    std::fs::write(maplecode_home.path().join("config.toml"), "not valid toml = [")?;
+    std::fs::write(
+        maplecode_home.path().join("config.toml"),
+        "not valid toml = [",
+    )?;
 
     let mut cmd = maplecode_command(maplecode_home.path())?;
     cmd.args(["exec-server", "--listen", "stdio"])
@@ -111,21 +114,22 @@ async fn local_exec_server_projects_global_mxc_preference() -> Result<()> {
     let home = TempDir::new()?;
     let cwd = url::Url::from_directory_path(home.path())
         .map_err(|()| anyhow::anyhow!("could not convert home to file URL"))?;
-    let mut child = tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?)
-        .env("MAPLECODE_HOME", home.path())
-        .args([
-            "-c",
-            "features.prefer_mxc=true",
-            "-c",
-            "model='private-startup-model'",
-            "exec-server",
-            "--listen",
-            "stdio",
-        ])
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .kill_on_drop(true)
-        .spawn()?;
+    let mut child =
+        tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?)
+            .env("MAPLECODE_HOME", home.path())
+            .args([
+                "-c",
+                "features.prefer_mxc=true",
+                "-c",
+                "model='private-startup-model'",
+                "exec-server",
+                "--listen",
+                "stdio",
+            ])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .kill_on_drop(true)
+            .spawn()?;
     let mut stdin = child.stdin.take().context("exec-server stdin")?;
     let mut stdout = BufReader::new(child.stdout.take().context("exec-server stdout")?);
     let result = tokio::time::timeout(Duration::from_secs(30), async {
@@ -368,7 +372,8 @@ async fn assert_pat_registry_reload(change: PatCredentialChange) -> Result<()> {
         .mount(&registry)
         .await;
 
-    let mut command = tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?);
+    let mut command =
+        tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?);
     command
         .current_dir(home.path())
         .env("MAPLECODE_HOME", home.path())
@@ -509,7 +514,10 @@ metrics_exporter = {{ otlp-http = {{ endpoint = "{collector_url}/v1/metrics", pr
     let bin_dir = package.path().join("bin");
     std::fs::create_dir(&bin_dir)?;
     let executable = bin_dir.join(format!("maplecode{}", std::env::consts::EXE_SUFFIX));
-    copy_executable(&maplecode_utils_cargo_bin::cargo_bin("maplecode")?, &executable)?;
+    copy_executable(
+        &maplecode_utils_cargo_bin::cargo_bin("maplecode")?,
+        &executable,
+    )?;
     let maplecode_path_dir = package.path().join("maplecode-path");
     std::fs::create_dir(&maplecode_path_dir)?;
     let manifest = package.path().join("maplecode-package.json");
@@ -816,7 +824,8 @@ metrics_exporter = {{ otlp-http = {{ endpoint = "{}/v1/metrics", protocol = "jso
         home.path().join("auth.json"),
         r#"{"OPENAI_API_KEY":"general-file-token"}"#,
     )?;
-    let mut command = tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?);
+    let mut command =
+        tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?);
     command
         .env("MAPLECODE_HOME", home.path())
         .env_remove(maplecode_exec_server::MAPLECODE_EXEC_SERVER_EXIT_ON_STDIN_CLOSE_ENV_VAR)
@@ -991,7 +1000,8 @@ async fn remote_exec_server_scoped_credentials_never_fall_back_for_another_envir
         home.path().join("auth.json"),
         r#"{"OPENAI_API_KEY":"general-file-token"}"#,
     )?;
-    let mut command = tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?);
+    let mut command =
+        tokio::process::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?);
     let mut child = command
         .env("MAPLECODE_HOME", home.path())
         .env("MAPLECODE_API_KEY", "general-api-key")

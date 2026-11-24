@@ -2035,7 +2035,9 @@ impl App {
         };
 
         match &params.request {
-            maplecode_app_server_protocol::McpServerElicitationRequest::UserVerification { .. } => true,
+            maplecode_app_server_protocol::McpServerElicitationRequest::UserVerification {
+                ..
+            } => true,
             maplecode_app_server_protocol::McpServerElicitationRequest::Form { .. } => true,
             maplecode_app_server_protocol::McpServerElicitationRequest::OpenAiForm { .. }
             | maplecode_app_server_protocol::McpServerElicitationRequest::OpenAiElicitationForm {

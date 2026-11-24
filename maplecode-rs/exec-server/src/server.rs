@@ -112,7 +112,9 @@ mod tests {
         provider.force_flush().expect("flush traces");
         let spans = exporter.get_finished_spans().expect("span export");
         assert!(
-            spans.iter().any(|span| span.name == "maplecode.exec_server"),
+            spans
+                .iter()
+                .any(|span| span.name == "maplecode.exec_server"),
             "root exec-server span missing: {spans:?}"
         );
     }

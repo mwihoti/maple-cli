@@ -2,19 +2,19 @@
 
 use anyhow::Context;
 use anyhow::Result;
-use maplecode_config::config_toml::RealtimeWsVersion;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
-use maplecode_protocol::protocol::ConversationStartParams;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::RealtimeConversationRealtimeEvent;
-use maplecode_protocol::protocol::RealtimeEvent;
-use maplecode_protocol::protocol::RealtimeOutputModality;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event_match;
 use futures::SinkExt;
+use maplecode_config::config_toml::RealtimeWsVersion;
+use maplecode_protocol::protocol::ConversationStartParams;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::RealtimeConversationRealtimeEvent;
+use maplecode_protocol::protocol::RealtimeEvent;
+use maplecode_protocol::protocol::RealtimeOutputModality;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::time::Duration;
@@ -116,7 +116,8 @@ async fn misalignment_retires_late_voice_handoff_before_it_starts_a_turn() -> Re
 
     wait_for_event_match(&test.maplecode, |event| match event {
         EventMsg::Error(error)
-            if error.maplecode_error_info == Some(MapleCodeErrorInfo::MisalignmentPolicyViolation) =>
+            if error.maplecode_error_info
+                == Some(MapleCodeErrorInfo::MisalignmentPolicyViolation) =>
         {
             Some(())
         }

@@ -1,12 +1,12 @@
 //! Exercises the child protocol without the parent supervisor or session APIs.
 
 use anyhow::Context;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_plugin_host::PluginProcess;
 use maplecode_plugin_host::protocol::MAX_PENDING_PROMISES;
 use maplecode_plugin_host::protocol::MAX_SCRIPT_ERROR_BYTES;
 use maplecode_plugin_host::protocol::Packet;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

@@ -15,6 +15,9 @@ use axum::http::StatusCode;
 use axum::http::Uri;
 use axum::http::header::AUTHORIZATION;
 use axum::routing::get;
+use core_test_support::assert_regex_match;
+use core_test_support::responses;
+use core_test_support::responses::ResponseMock;
 use maplecode_app_server_protocol::ApprovalsReviewer;
 use maplecode_app_server_protocol::AskForApproval;
 use maplecode_app_server_protocol::ClientInfo;
@@ -43,9 +46,6 @@ use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_mcp::MCP_TOOL_MAPLECODE_APPS_META_KEY;
 use maplecode_protocol::mcp::OPENAI_STANDARD_FORM_INPUT_EXTENSION_ID;
 use maplecode_protocol::mcp_approval_meta as approval_meta;
-use core_test_support::assert_regex_match;
-use core_test_support::responses;
-use core_test_support::responses::ResponseMock;
 use pretty_assertions::assert_eq;
 use rmcp::handler::server::ServerHandler;
 use rmcp::model::BooleanSchema;
@@ -346,7 +346,11 @@ async fn openai_form_capability_follows_the_turn_starting_connection() -> Result
     let (responses_server, response_mock, apps_server_url, apps_server_handle) =
         start_elicitation_services(ElicitationScenario::OpenAiForm).await?;
     let maplecode_home = TempDir::new()?;
-    write_config_toml(maplecode_home.path(), &responses_server.uri(), &apps_server_url)?;
+    write_config_toml(
+        maplecode_home.path(),
+        &responses_server.uri(),
+        &apps_server_url,
+    )?;
     write_chatgpt_auth(
         maplecode_home.path(),
         ChatGptAuthFixture::new("chatgpt-token")
@@ -676,7 +680,11 @@ impl ElicitationRoundTripFixture {
         let (responses_server, response_mock, apps_server_url, apps_server_handle) =
             start_elicitation_services(scenario).await?;
         let maplecode_home = TempDir::new()?;
-        write_config_toml(maplecode_home.path(), &responses_server.uri(), &apps_server_url)?;
+        write_config_toml(
+            maplecode_home.path(),
+            &responses_server.uri(),
+            &apps_server_url,
+        )?;
         let strict = if let ElicitationScenario::Strict(strict) = scenario {
             Some(strict)
         } else {
@@ -688,7 +696,10 @@ impl ElicitationRoundTripFixture {
             _ => "",
         };
         if !requirements.is_empty() {
-            std::fs::write(maplecode_home.path().join("requirements.toml"), requirements)?;
+            std::fs::write(
+                maplecode_home.path().join("requirements.toml"),
+                requirements,
+            )?;
         }
         write_chatgpt_auth(
             maplecode_home.path(),

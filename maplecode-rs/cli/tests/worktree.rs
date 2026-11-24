@@ -281,7 +281,11 @@ trust_level = "trusted"
     let _daemon = if backend == "daemon" {
         let bin = home.join("packages/app-server-daemon/current/bin");
         fs::create_dir_all(&bin)?;
-        let managed = bin.join(if cfg!(windows) { "maplecode.exe" } else { "maplecode" });
+        let managed = bin.join(if cfg!(windows) {
+            "maplecode.exe"
+        } else {
+            "maplecode"
+        });
         // Hard links change the executable's ctime and invalidate Rosetta's translation cache.
         #[cfg(unix)]
         std::os::unix::fs::symlink(program.canonicalize()?, &managed)?;
@@ -408,7 +412,10 @@ trust_level = "trusted"
             args.extend(["--cd".into(), source.display().to_string()]);
         }
         if explicit_cd {
-            args.extend(["--cd".into(), source.join(".maplecode").display().to_string()]);
+            args.extend([
+                "--cd".into(),
+                source.join(".maplecode").display().to_string(),
+            ]);
         }
         if analytics {
             args.extend([

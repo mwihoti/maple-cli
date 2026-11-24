@@ -82,14 +82,16 @@ foo = "bar"
 "#,
     )?;
 
-    let output = Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode-app-server")?)
-        .env("MAPLECODE_HOME", maplecode_home.path())
-        .env(
-            "MAPLECODE_APP_SERVER_MANAGED_CONFIG_PATH",
-            maplecode_home.path().join("managed_config.toml"),
-        )
-        .args(["--strict-config", "--listen", "off"])
-        .output()?;
+    let output = Command::new(maplecode_utils_cargo_bin::cargo_bin(
+        "maplecode-app-server",
+    )?)
+    .env("MAPLECODE_HOME", maplecode_home.path())
+    .env(
+        "MAPLECODE_APP_SERVER_MANAGED_CONFIG_PATH",
+        maplecode_home.path().join("managed_config.toml"),
+    )
+    .args(["--strict-config", "--listen", "off"])
+    .output()?;
 
     assert!(!output.status.success());
     let stderr = String::from_utf8(output.stderr)?;
@@ -119,17 +121,22 @@ fn managed_auth_requirements_fail_closed_for_standalone_app_server() -> Result<(
         ),
     ] {
         let maplecode_home = TempDir::new()?;
-        std::fs::write(maplecode_home.path().join("requirements.toml"), requirements)?;
+        std::fs::write(
+            maplecode_home.path().join("requirements.toml"),
+            requirements,
+        )?;
         std::fs::write(maplecode_home.path().join("config.toml"), config)?;
 
-        let output = Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode-app-server")?)
-            .env("MAPLECODE_HOME", maplecode_home.path())
-            .env(
-                "MAPLECODE_APP_SERVER_MANAGED_CONFIG_PATH",
-                maplecode_home.path().join("managed_config.toml"),
-            )
-            .args(["--listen", "off"])
-            .output()?;
+        let output = Command::new(maplecode_utils_cargo_bin::cargo_bin(
+            "maplecode-app-server",
+        )?)
+        .env("MAPLECODE_HOME", maplecode_home.path())
+        .env(
+            "MAPLECODE_APP_SERVER_MANAGED_CONFIG_PATH",
+            maplecode_home.path().join("managed_config.toml"),
+        )
+        .args(["--listen", "off"])
+        .output()?;
 
         assert!(!output.status.success());
         let stderr = String::from_utf8(output.stderr)?;

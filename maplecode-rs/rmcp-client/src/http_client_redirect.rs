@@ -8,6 +8,10 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::time::Instant;
 
+use futures::FutureExt;
+use futures::future::BoxFuture;
+use http::HeaderValue;
+use http::StatusCode;
 use maplecode_exec_server::ExecServerError;
 use maplecode_exec_server::HttpClient;
 use maplecode_exec_server::HttpHeader;
@@ -15,10 +19,6 @@ use maplecode_exec_server::HttpRedirectPolicy;
 use maplecode_exec_server::HttpRequestParams;
 use maplecode_exec_server::HttpRequestResponse;
 use maplecode_exec_server::HttpResponseBodyStream;
-use futures::FutureExt;
-use futures::future::BoxFuture;
-use http::HeaderValue;
-use http::StatusCode;
 use url::Url;
 
 const MAX_REDIRECTS: usize = 10;

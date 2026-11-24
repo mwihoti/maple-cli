@@ -21,11 +21,11 @@ use std::sync::Weak;
 
 use anyhow::Context;
 use anyhow::Result;
+use futures::future::BoxFuture;
 use maplecode_config::McpServerOAuthConfig;
 use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_keyring_store::DefaultKeyringStore;
 use maplecode_keyring_store::KeyringStore;
-use futures::future::BoxFuture;
 use oauth2::Scope;
 use oauth2::TokenResponse;
 use rmcp::transport::auth::AuthError;

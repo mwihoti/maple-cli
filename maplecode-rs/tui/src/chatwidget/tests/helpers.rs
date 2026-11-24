@@ -263,7 +263,8 @@ pub(super) async fn make_chatwidget_manual_with_auth(
         terminal_title_invalid_items_warned: Arc::new(AtomicBool::new(false)),
         session_telemetry,
     };
-    let mut widget = ChatWidget::new_with_op_target(common, super::MapleCodeOpTarget::Direct(op_tx));
+    let mut widget =
+        ChatWidget::new_with_op_target(common, super::MapleCodeOpTarget::Direct(op_tx));
     widget.test_maplecode_home = Some(maplecode_home);
     widget.clock_format = crate::clock_format::ClockFormat::TwentyFourHour;
     widget.windows_sandbox_host = crate::app::WindowsSandboxHost::Local;

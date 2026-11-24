@@ -20,6 +20,10 @@ use crate::session::tests::make_session_and_context;
 use crate::tasks::InterruptedTurnHistoryMarker;
 use crate::tasks::interrupted_turn_history_marker;
 use crate::windows_sandbox::WindowsSandboxLevelExt;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::strip_response_item_ids_from_json;
 use maplecode_config::ConfigLayerStack;
 use maplecode_execpolicy::Decision;
 use maplecode_execpolicy::NetworkRuleProtocol;
@@ -60,10 +64,6 @@ use maplecode_protocol::protocol::UserMessageEvent;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::InMemoryThreadStore;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::strip_response_item_ids_from_json;
 use pretty_assertions::assert_eq;
 use std::time::Duration;
 use tempfile::tempdir;
@@ -445,10 +445,12 @@ async fn resumed_analytics_validates_openai_destination(
     expected_requests: usize,
 ) {
     let proxy = MockServer::start().await;
-    wiremock::Mock::given(wiremock::matchers::path("/maplecode/analytics-events/events"))
-        .respond_with(wiremock::ResponseTemplate::new(200))
-        .mount(&proxy)
-        .await;
+    wiremock::Mock::given(wiremock::matchers::path(
+        "/maplecode/analytics-events/events",
+    ))
+    .respond_with(wiremock::ResponseTemplate::new(200))
+    .mount(&proxy)
+    .await;
     let home = tempdir().expect("tempdir");
     let mut config = test_config().await;
     config.maplecode_home = home.path().abs();
@@ -471,7 +473,10 @@ async fn resumed_analytics_validates_openai_destination(
             .unwrap();
     }
     maplecode_http_client::cache_system_proxy_route_for_test(
-        &format!("{}/maplecode/analytics-events/events", config.chatgpt_base_url),
+        &format!(
+            "{}/maplecode/analytics-events/events",
+            config.chatgpt_base_url
+        ),
         proxy.uri(),
     );
     maplecode_login::login_with_api_key(
@@ -538,7 +543,9 @@ async fn resumed_analytics_validates_openai_destination(
             product_client_id: "maplecode_work_cca".to_string(),
         },
         maplecode_plugin::PluginTelemetryMetadata {
-            plugin_id: Some(maplecode_plugin::PluginId::parse("test@local").expect("valid plugin ID")),
+            plugin_id: Some(
+                maplecode_plugin::PluginId::parse("test@local").expect("valid plugin ID"),
+            ),
             remote_plugin_id: None,
             capability_summary: None,
         },
@@ -565,7 +572,9 @@ async fn resumed_analytics_validates_openai_destination(
 async fn thread_analytics_opt_out_overrides_shared_client() {
     let server = MockServer::start().await;
     wiremock::Mock::given(wiremock::matchers::method("POST"))
-        .and(wiremock::matchers::path("/maplecode/analytics-events/events"))
+        .and(wiremock::matchers::path(
+            "/maplecode/analytics-events/events",
+        ))
         .respond_with(wiremock::ResponseTemplate::new(200))
         .mount(&server)
         .await;
@@ -1558,8 +1567,10 @@ async fn mcp_invalidation_refreshes_threads_that_are_still_starting() {
         fn contribute<'a>(
             &'a self,
             _context: maplecode_extension_api::McpServerContributionContext<'a, Config>,
-        ) -> maplecode_extension_api::ExtensionFuture<'a, Vec<maplecode_extension_api::McpServerContribution>>
-        {
+        ) -> maplecode_extension_api::ExtensionFuture<
+            'a,
+            Vec<maplecode_extension_api::McpServerContribution>,
+        > {
             Box::pin(async move {
                 if self.projections.fetch_add(1, Ordering::AcqRel) != 0 {
                     self.refreshed.notify_one();
@@ -1573,7 +1584,8 @@ async fn mcp_invalidation_refreshes_threads_that_are_still_starting() {
     let mut config = test_config().await;
     // Resolve the model locally before waiting for the MCP lifecycle hook.
     config.model_catalog = Some(
-        maplecode_models_manager::bundled_models_response().expect("bundled model catalog should load"),
+        maplecode_models_manager::bundled_models_response()
+            .expect("bundled model catalog should load"),
     );
     config.maplecode_home = temp_dir.path().join("maplecode-home").abs();
     config.cwd = config.maplecode_home.abs();
@@ -1595,7 +1607,9 @@ async fn mcp_invalidation_refreshes_threads_that_are_still_starting() {
             &config,
             Arc::clone(&auth_manager),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -1808,8 +1822,10 @@ async fn spawn_internal_session_preserves_parent_lineage_without_forking_history
         fn contribute<'a>(
             &'a self,
             context: maplecode_extension_api::McpServerContributionContext<'a, Config>,
-        ) -> maplecode_extension_api::ExtensionFuture<'a, Vec<maplecode_extension_api::McpServerContribution>>
-        {
+        ) -> maplecode_extension_api::ExtensionFuture<
+            'a,
+            Vec<maplecode_extension_api::McpServerContribution>,
+        > {
             Box::pin(async move {
                 if let Some(session_source) = context.session_source() {
                     self.observed_mcp_sources
@@ -1837,7 +1853,10 @@ async fn spawn_internal_session_preserves_parent_lineage_without_forking_history
 
     let mut managed_exec_policy = maplecode_execpolicy::Policy::empty();
     managed_exec_policy
-        .add_prefix_rule(&["rm".to_string()], maplecode_execpolicy::Decision::Forbidden)
+        .add_prefix_rule(
+            &["rm".to_string()],
+            maplecode_execpolicy::Decision::Forbidden,
+        )
         .expect("add managed execution restriction");
     let mut requirements = config.config_layer_stack.requirements().clone();
     requirements.exec_policy = Some(maplecode_config::Sourced::new(
@@ -2165,8 +2184,10 @@ async fn start_thread_seeds_extension_data_for_mcp_and_lifecycle_contributors() 
         fn contribute<'a>(
             &'a self,
             _context: maplecode_extension_api::McpServerContributionContext<'a, Config>,
-        ) -> maplecode_extension_api::ExtensionFuture<'a, Vec<maplecode_extension_api::McpServerContribution>>
-        {
+        ) -> maplecode_extension_api::ExtensionFuture<
+            'a,
+            Vec<maplecode_extension_api::McpServerContribution>,
+        > {
             Box::pin(async { Vec::new() })
         }
 
@@ -2174,8 +2195,10 @@ async fn start_thread_seeds_extension_data_for_mcp_and_lifecycle_contributors() 
             &'a self,
             context: maplecode_extension_api::McpServerContributionContext<'a, Config>,
             _plugins_config: &'a maplecode_config::types::PluginsConfigToml,
-        ) -> maplecode_extension_api::ExtensionFuture<'a, Vec<maplecode_extension_api::SelectedPlugin<'a>>>
-        {
+        ) -> maplecode_extension_api::ExtensionFuture<
+            'a,
+            Vec<maplecode_extension_api::SelectedPlugin<'a>>,
+        > {
             Box::pin(async move {
                 assert_eq!(
                     context.selected_environments(),
@@ -2268,7 +2291,9 @@ async fn start_thread_seeds_extension_data_for_mcp_and_lifecycle_contributors() 
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -2422,7 +2447,9 @@ async fn start_thread_seeds_extension_data_for_mcp_and_lifecycle_contributors() 
         .remove(maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME)
         .expect("Maple Code Apps server should be configured");
     let maplecode_apps_headers = match maplecode_apps_server.transport {
-        maplecode_config::McpServerTransportConfig::StreamableHttp { http_headers, .. } => http_headers,
+        maplecode_config::McpServerTransportConfig::StreamableHttp { http_headers, .. } => {
+            http_headers
+        }
         maplecode_config::McpServerTransportConfig::Stdio { .. } => {
             panic!("Maple Code Apps server should use streamable HTTP")
         }
@@ -2719,7 +2746,9 @@ async fn resume_and_fork_do_not_restore_thread_environments_from_rollout() {
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -2882,7 +2911,9 @@ async fn explicit_installation_id_skips_maplecode_home_file() {
             &config,
             auth_manager.clone(),
             installation_id.clone(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -2929,7 +2960,9 @@ async fn resume_active_thread_from_rollout_returns_running_thread() {
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -2998,7 +3031,9 @@ async fn resume_stopped_thread_from_rollout_spawns_new_thread() {
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -3074,7 +3109,9 @@ async fn resume_stopped_thread_from_rollout_preserves_thread_source() {
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -3164,7 +3201,9 @@ async fn subtree_listing_uses_injected_graph_store_without_state_db() {
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -3215,7 +3254,9 @@ async fn rollout_path_resume_and_fork_read_history_through_thread_store() {
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -3328,7 +3369,9 @@ async fn metadata_update_without_result_reads_only_when_the_caller_needs_the_thr
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -3905,7 +3948,9 @@ async fn interrupted_fork_snapshot_does_not_synthesize_turn_id_for_legacy_histor
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -4020,7 +4065,9 @@ async fn interrupted_fork_snapshot_preserves_explicit_turn_id() {
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,
@@ -4128,7 +4175,9 @@ async fn interrupted_fork_snapshot_uses_persisted_mid_turn_history_without_live_
             &config,
             auth_manager.clone(),
             TEST_INSTALLATION_ID.to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,

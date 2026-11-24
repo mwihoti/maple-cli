@@ -3,6 +3,7 @@
 use anyhow::Context;
 use anyhow::Result;
 use app_test_support::TestAppServer;
+use core_test_support::oauth::mount_device_code_grant;
 use maplecode_app_server_protocol::ClientInfo;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::GatewayOAuthCancelResponse;
@@ -20,7 +21,6 @@ use maplecode_app_server_protocol::TurnStartParams;
 use maplecode_app_server_protocol::TurnStartResponse;
 use maplecode_app_server_protocol::TurnStatus;
 use maplecode_app_server_protocol::UserInput;
-use core_test_support::oauth::mount_device_code_grant;
 use pretty_assertions::assert_eq;
 use std::time::Duration;
 use tempfile::TempDir;

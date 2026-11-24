@@ -19,16 +19,16 @@ use crate::sse::ResponsesStreamEvent;
 use crate::sse::process_responses_event;
 use crate::telemetry::WebsocketTelemetry;
 use bytes::Bytes;
-use maplecode_client::TransportError;
-use maplecode_http_client::HttpClientFactory;
-use maplecode_http_client::RetryAfter;
-use maplecode_websocket_client::WebSocketConnection;
-use maplecode_websocket_client::WebSocketConnector;
 use futures::FutureExt;
 use futures::SinkExt;
 use futures::StreamExt;
 use http::HeaderMap;
 use http::StatusCode;
+use maplecode_client::TransportError;
+use maplecode_http_client::HttpClientFactory;
+use maplecode_http_client::RetryAfter;
+use maplecode_websocket_client::WebSocketConnection;
+use maplecode_websocket_client::WebSocketConnector;
 use serde::Deserialize;
 use serde_json::Value;
 use serde_json::map::Map as JsonMap;
@@ -206,7 +206,8 @@ impl Drop for WsStream {
 }
 
 const X_MAPLECODE_TURN_STATE_HEADER: &str = "x-maplecode-turn-state";
-const X_MAPLECODE_WEBSOCKET_MAX_MESSAGE_BYTES_HEADER: &str = "x-maplecode-websocket-max-message-bytes";
+const X_MAPLECODE_WEBSOCKET_MAX_MESSAGE_BYTES_HEADER: &str =
+    "x-maplecode-websocket-max-message-bytes";
 const X_MODELS_ETAG_HEADER: &str = "x-models-etag";
 const X_REASONING_INCLUDED_HEADER: &str = "x-reasoning-included";
 const OPENAI_MODEL_HEADER: &str = "openai-model";
@@ -220,7 +221,8 @@ const RESPONSES_WEBSOCKET_TIMING_EVENT_TARGET: &str = "maplecode_api::responses_
 const SESSION_ID_CLIENT_METADATA_KEY: &str = "session_id";
 const THREAD_ID_CLIENT_METADATA_KEY: &str = "thread_id";
 const TURN_ID_CLIENT_METADATA_KEY: &str = "turn_id";
-const WS_STREAM_REQUEST_START_MS_CLIENT_METADATA_KEY: &str = "x-maplecode-ws-stream-request-start-ms";
+const WS_STREAM_REQUEST_START_MS_CLIENT_METADATA_KEY: &str =
+    "x-maplecode-ws-stream-request-start-ms";
 
 struct ResponsesWebsocketTimingLogContext {
     model: String,
@@ -1147,10 +1149,10 @@ mod tests {
     use super::*;
     use crate::common::ResponseCreateWsRequest;
     use crate::common::ResponsesApiRequest;
+    use http::HeaderValue;
     use maplecode_protocol::ResponseItemId;
     use maplecode_protocol::models::ContentItem;
     use maplecode_protocol::models::ResponseItem;
-    use http::HeaderValue;
     use pretty_assertions::assert_eq;
     use serde_json::json;
     use serde_json::value::RawValue;

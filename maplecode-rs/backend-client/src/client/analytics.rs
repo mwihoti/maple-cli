@@ -3,8 +3,8 @@
 use super::Client;
 use super::PathStyle;
 use super::RequestError;
-use maplecode_backend_openapi_models::models::analytics as models;
 use http::Method;
+use maplecode_backend_openapi_models::models::analytics as models;
 
 /// The bounded set of reports used by consumer and workspace Analytics views.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

@@ -22,6 +22,9 @@ use axum::http::Uri;
 use axum::http::header::AUTHORIZATION;
 use axum::routing::get;
 use axum::routing::post;
+use core_test_support::stdio_server_bin;
+use flate2::Compression;
+use flate2::write::GzEncoder;
 use maplecode_app_server_protocol::AppInfo;
 use maplecode_app_server_protocol::AppSummary;
 use maplecode_app_server_protocol::AppsListParams;
@@ -44,9 +47,6 @@ use maplecode_http_client::HttpClientBuilder;
 use maplecode_rmcp_client::McpOAuthCallbackMode;
 use maplecode_rmcp_client::resolve_mcp_oauth_callback_url;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::stdio_server_bin;
-use flate2::Compression;
-use flate2::write::GzEncoder;
 use pretty_assertions::assert_eq;
 use rmcp::handler::server::ServerHandler;
 use rmcp::model::JsonObject;
@@ -296,7 +296,11 @@ async fn plugin_install_writes_remote_plugin_to_cloud_and_cache() -> Result<()> 
         /*expected_count*/ 1,
     )
     .await?;
-    assert!(installed_path.join(".maplecode-plugin/plugin.json").is_file());
+    assert!(
+        installed_path
+            .join(".maplecode-plugin/plugin.json")
+            .is_file()
+    );
     let installed_plugin_manifest: serde_json::Value = serde_json::from_str(
         &std::fs::read_to_string(installed_path.join(".maplecode-plugin/plugin.json"))?,
     )?;
@@ -541,7 +545,10 @@ async fn plugin_install_rejects_invalid_remote_release_version() -> Result<()> {
 #[tokio::test]
 async fn plugin_install_rejects_invalid_remote_plugin_name() -> Result<()> {
     let maplecode_home = TempDir::new()?;
-    write_remote_plugin_catalog_config(maplecode_home.path(), "https://example.invalid/backend-api/")?;
+    write_remote_plugin_catalog_config(
+        maplecode_home.path(),
+        "https://example.invalid/backend-api/",
+    )?;
     let mut mcp = TestAppServer::builder()
         .with_maplecode_home(maplecode_home.path())
         .build_initialized_with_timeout(DEFAULT_TIMEOUT)
@@ -590,7 +597,8 @@ async fn plugin_install_tracks_analytics_when_remote_detail_fetch_fails() -> Res
     assert_eq!(err.error.code, -32600);
     assert!(err.error.message.contains("failed with status 404"));
 
-    let payload = wait_for_plugin_analytics_payload(&server, "maplecode_plugin_install_failed").await?;
+    let payload =
+        wait_for_plugin_analytics_payload(&server, "maplecode_plugin_install_failed").await?;
     let event_params = &payload["events"][0]["event_params"];
     assert_eq!(
         payload["events"][0]["event_type"],
@@ -662,7 +670,8 @@ async fn plugin_install_tracks_analytics_when_remote_install_is_rate_limited() -
         /*expected_count*/ 1,
     )
     .await?;
-    let payload = wait_for_plugin_analytics_payload(&server, "maplecode_plugin_install_failed").await?;
+    let payload =
+        wait_for_plugin_analytics_payload(&server, "maplecode_plugin_install_failed").await?;
     let event_params = &payload["events"][0]["event_params"];
     assert_eq!(
         payload["events"][0]["event_type"],
@@ -737,7 +746,8 @@ async fn plugin_install_rejects_remote_plugin_disabled_by_admin_before_download(
             .join("plugins/cache/openai-curated-remote/linear")
             .exists()
     );
-    let payload = wait_for_plugin_analytics_payload(&server, "maplecode_plugin_install_failed").await?;
+    let payload =
+        wait_for_plugin_analytics_payload(&server, "maplecode_plugin_install_failed").await?;
     let event_params = &payload["events"][0]["event_params"];
     assert_eq!(
         payload["events"][0]["event_type"],
@@ -786,7 +796,8 @@ async fn plugin_install_rejects_remote_plugin_not_available() -> Result<()> {
         /*expected_count*/ 0,
     )
     .await?;
-    let payload = wait_for_plugin_analytics_payload(&server, "maplecode_plugin_install_failed").await?;
+    let payload =
+        wait_for_plugin_analytics_payload(&server, "maplecode_plugin_install_failed").await?;
     let event_params = &payload["events"][0]["event_params"];
     assert_eq!(
         payload["events"][0]["event_type"],
@@ -876,7 +887,8 @@ async fn plugin_install_tracks_analytics_when_marketplace_file_cannot_be_read() 
     );
 
     let payload =
-        wait_for_plugin_analytics_payload(&analytics_server, "maplecode_plugin_install_failed").await?;
+        wait_for_plugin_analytics_payload(&analytics_server, "maplecode_plugin_install_failed")
+            .await?;
     let event_params = &payload["events"][0]["event_params"];
     assert_eq!(
         payload["events"][0]["event_type"],
@@ -1100,7 +1112,8 @@ async fn plugin_install_failure_tracks_analytics_event() -> Result<()> {
     assert_eq!(err.error.code, -32600);
 
     let payload =
-        wait_for_plugin_analytics_payload(&analytics_server, "maplecode_plugin_install_failed").await?;
+        wait_for_plugin_analytics_payload(&analytics_server, "maplecode_plugin_install_failed")
+            .await?;
     let event_params = &payload["events"][0]["event_params"];
     assert_eq!(
         payload["events"][0]["event_type"],
@@ -1237,7 +1250,8 @@ async fn plugin_install_preserves_status_when_remote_bundle_error_body_is_too_la
         /*expected_count*/ 0,
     )
     .await?;
-    let payload = wait_for_plugin_analytics_payload(&server, "maplecode_plugin_install_failed").await?;
+    let payload =
+        wait_for_plugin_analytics_payload(&server, "maplecode_plugin_install_failed").await?;
     let event_params = &payload["events"][0]["event_params"];
     assert_eq!(
         payload["events"][0]["event_type"],
@@ -2849,7 +2863,10 @@ fn connector_tool(connector_id: &str, connector_name: &str) -> Result<Tool> {
     Ok(tool)
 }
 
-fn write_connectors_config(maplecode_home: &std::path::Path, base_url: &str) -> std::io::Result<()> {
+fn write_connectors_config(
+    maplecode_home: &std::path::Path,
+    base_url: &str,
+) -> std::io::Result<()> {
     std::fs::write(
         maplecode_home.join("config.toml"),
         format!(
@@ -2969,7 +2986,10 @@ plugins = true
     )
 }
 
-fn configure_remote_plugin_test(maplecode_home: &std::path::Path, server: &MockServer) -> Result<()> {
+fn configure_remote_plugin_test(
+    maplecode_home: &std::path::Path,
+    server: &MockServer,
+) -> Result<()> {
     write_remote_plugin_catalog_config(maplecode_home, &format!("{}/backend-api/", server.uri()))?;
     write_chatgpt_auth(
         maplecode_home,

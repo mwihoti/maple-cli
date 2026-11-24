@@ -41,10 +41,10 @@ use maplecode_protocol::permissions::FileSystemSandboxEntry as CoreFileSystemSan
 use maplecode_protocol::permissions::FileSystemSpecialPath as CoreFileSystemSpecialPath;
 use maplecode_protocol::protocol::AgentStatus as CoreAgentStatus;
 use maplecode_protocol::protocol::AskForApproval as CoreAskForApproval;
-use maplecode_protocol::protocol::MapleCodeErrorInfo as CoreMapleCodeErrorInfo;
 use maplecode_protocol::protocol::ConversationTextRole;
 use maplecode_protocol::protocol::ExecCommandSource as CoreExecCommandSource;
 use maplecode_protocol::protocol::GranularApprovalConfig as CoreGranularApprovalConfig;
+use maplecode_protocol::protocol::MapleCodeErrorInfo as CoreMapleCodeErrorInfo;
 use maplecode_protocol::protocol::NetworkAccess as CoreNetworkAccess;
 use maplecode_protocol::protocol::SubAgentActivityKind as CoreSubAgentActivityKind;
 use maplecode_protocol::request_permissions::RequestPermissionProfile as CoreRequestPermissionProfile;
@@ -2897,9 +2897,10 @@ fn sandbox_policy_round_trips_workspace_write_access() {
         }
     );
 
-    let profile = maplecode_protocol::models::PermissionProfile::from_legacy_sandbox_policy_template(
-        &v2_policy.to_core(),
-    );
+    let profile =
+        maplecode_protocol::models::PermissionProfile::from_legacy_sandbox_policy_template(
+            &v2_policy.to_core(),
+        );
     assert!(
         !profile
             .file_system_sandbox_policy()

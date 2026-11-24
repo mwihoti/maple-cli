@@ -24,7 +24,9 @@ pub(super) async fn route(
         return Ok(ElicitationResponse {
             action: ElicitationAction::Cancel,
             content: None,
-            meta: Some(maplecode_rmcp_client::UserVerificationReason::ApprovalUnavailable.into_meta()),
+            meta: Some(
+                maplecode_rmcp_client::UserVerificationReason::ApprovalUnavailable.into_meta(),
+            ),
         });
     };
     router

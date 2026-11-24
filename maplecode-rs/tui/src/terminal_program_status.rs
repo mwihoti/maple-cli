@@ -12,11 +12,11 @@ use std::io::stdout;
 use std::sync::Mutex;
 use std::sync::OnceLock;
 
+use crossterm::Command;
 use maplecode_terminal_detection::TerminalBackend;
 use maplecode_terminal_detection::TerminalInfo;
 use maplecode_terminal_detection::TerminalName;
 use maplecode_terminal_detection::terminal_info;
-use crossterm::Command;
 use ratatui::crossterm::execute;
 
 static SESSION_STATUS_STATE: SessionStatusState = SessionStatusState::new();

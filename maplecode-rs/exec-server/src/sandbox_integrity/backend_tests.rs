@@ -80,7 +80,11 @@ fn dependency_inventory_uses_launcher_location_and_command_path() -> io::Result<
     fs::create_dir(&cwd)?;
     fs::create_dir(&tools)?;
     fs::create_dir(tools.join("maplecode-resources"))?;
-    for path in [tools.join("bwrap"), tools.join("maplecode"), bundled.clone()] {
+    for path in [
+        tools.join("bwrap"),
+        tools.join("maplecode"),
+        bundled.clone(),
+    ] {
         fs::write(&path, "fixture")?;
         fs::set_permissions(&path, fs::Permissions::from_mode(/*mode*/ 0o755))?;
     }

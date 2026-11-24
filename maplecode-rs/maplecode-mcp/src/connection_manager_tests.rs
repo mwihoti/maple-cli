@@ -15,9 +15,9 @@ use crate::elicitation::elicitation_is_rejected_by_policy;
 use crate::mcp::tests::test_elicitation_config;
 use crate::rmcp_client::AsyncManagedClient;
 use crate::rmcp_client::MAPLECODE_APPS_RECONNECT_INITIAL_BACKOFF;
-use crate::rmcp_client::MapleCodeAppsStartupReconnect;
 use crate::rmcp_client::ManagedClient;
 use crate::rmcp_client::ManagedClientFuture;
+use crate::rmcp_client::MapleCodeAppsStartupReconnect;
 use crate::rmcp_client::StartupOutcomeError;
 use crate::rmcp_client::list_tools_for_client_uncached;
 use crate::runtime::McpRuntimeContext;
@@ -30,6 +30,8 @@ use crate::tools::ToolInfo;
 use crate::tools::filter_tools;
 use crate::tools::normalize_tools_for_model_with_prefix;
 use assert_matches::assert_matches;
+use futures::FutureExt;
+use futures::future::BoxFuture;
 use maplecode_config::AppToolApproval;
 use maplecode_config::Constrained;
 use maplecode_config::McpServerAuth;
@@ -66,8 +68,6 @@ use maplecode_rmcp_client::McpLoginRequirement;
 use maplecode_rmcp_client::McpOAuthRefreshMode;
 use maplecode_rmcp_client::RmcpClient;
 use maplecode_utils_path_uri::PathUri;
-use futures::FutureExt;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 use rmcp::ErrorData as McpError;
 use rmcp::RoleServer;
@@ -534,7 +534,8 @@ async fn create_test_managed_client(tools: Vec<ToolInfo>) -> ManagedClient {
 #[tokio::test(start_paused = true)]
 async fn prepared_call_timeout_includes_trusted_access_lookup() {
     let mut tool = create_test_tool("docs", "access");
-    let key = McpServerKey::in_environment(maplecode_config::DEFAULT_MCP_SERVER_ENVIRONMENT_ID, "docs");
+    let key =
+        McpServerKey::in_environment(maplecode_config::DEFAULT_MCP_SERVER_ENVIRONMENT_ID, "docs");
     tool.server_key = key.clone();
     tool.tool.annotations = Some(rmcp::model::ToolAnnotations::new().read_only(true));
     let mut tool_meta = rmcp::model::MetaObject::new();
@@ -975,7 +976,9 @@ fn create_test_manager_with_failed_apps_startup(
             tool_catalog_cache_context: None,
             startup_complete: Arc::new(std::sync::atomic::AtomicBool::new(true)),
             connection_slot: None,
-            startup_reconnect: Some(Arc::new(MapleCodeAppsStartupReconnect::new(reconnect_factory))),
+            startup_reconnect: Some(Arc::new(MapleCodeAppsStartupReconnect::new(
+                reconnect_factory,
+            ))),
             cancel_token: CancellationToken::new(),
         },
     );
@@ -2705,7 +2708,8 @@ async fn hard_refresh_keeps_client_catalog_local_when_shared_cache_loses_race() 
         Some("shared-account".to_string()),
         Some("shared-user".to_string()),
     );
-    let cache_context_a = shared_cache.context(maplecode_home.path().to_path_buf(), cache_key.clone());
+    let cache_context_a =
+        shared_cache.context(maplecode_home.path().to_path_buf(), cache_key.clone());
     let cache_context_b = shared_cache.context(maplecode_home.path().to_path_buf(), cache_key);
     let list_started = Arc::new(Notify::new());
     let release_list = Arc::new(Notify::new());
@@ -2731,7 +2735,9 @@ async fn hard_refresh_keeps_client_catalog_local_when_shared_cache_loses_race() 
             .await
     });
     list_started.notified().await;
-    let tools_b = manager_b.refresh_maplecode_apps_tools_for_discovery().await?;
+    let tools_b = manager_b
+        .refresh_maplecode_apps_tools_for_discovery()
+        .await?;
     release_list.notify_one();
     let tools_a = refresh_a.await??;
 
@@ -2790,7 +2796,9 @@ async fn hard_refresh_keeps_client_catalog_local_when_shared_cache_loses_race() 
             .await
     });
     list_started.notified().await;
-    manager_b.refresh_maplecode_apps_tools_for_discovery().await?;
+    manager_b
+        .refresh_maplecode_apps_tools_for_discovery()
+        .await?;
     release_list.notify_one();
     let snapshot_a = refresh_a.await??.expect("Apps catalog was published");
     assert_eq!(
@@ -3936,7 +3944,9 @@ async fn capture_binding_resolves_concurrently_and_rechecks_cached_clients() {
     .await
     .expect("both uncached servers should start before either is released");
 
-    release_apps.send(()).expect("release Maple Code Apps startup");
+    release_apps
+        .send(())
+        .expect("release Maple Code Apps startup");
     assert!(startup.await.expect("Maple Code Apps startup task"));
     release_first.send(()).expect("release first server");
     release_second.send(()).expect("release second server");
@@ -4187,7 +4197,10 @@ async fn list_all_tools_resolves_server_catalogs_concurrently() {
 async fn catalog_listing_preserves_legacy_apps_tools_during_failed_startup() {
     for startup_complete in [false, true] {
         let mut manager = create_test_manager_with_failed_apps_startup(
-            vec![create_test_tool(MAPLECODE_APPS_MCP_SERVER_NAME, "drive_search")],
+            vec![create_test_tool(
+                MAPLECODE_APPS_MCP_SERVER_NAME,
+                "drive_search",
+            )],
             Arc::new(|| futures::future::pending().boxed().shared()),
         );
         let connection = Arc::get_mut(
@@ -4739,7 +4752,10 @@ async fn tool_lists_do_not_block_and_share_maplecode_apps_startup_reconnect() {
         .shared()
     });
     let mut manager = create_test_manager_with_failed_apps_startup(
-        vec![create_test_tool(MAPLECODE_APPS_MCP_SERVER_NAME, "drive_search")],
+        vec![create_test_tool(
+            MAPLECODE_APPS_MCP_SERVER_NAME,
+            "drive_search",
+        )],
         reconnect_factory,
     );
     manager.set_test_server_metadata(
@@ -5116,7 +5132,9 @@ async fn executor_owned_chatgpt_mcp_accepts_only_safe_explicit_authorization() -
         assert!(
             chatgpt_auth_provider_for_server(
                 remote_server,
-                Some(maplecode_model_provider::auth_provider_from_auth(&hosted_auth)),
+                Some(maplecode_model_provider::auth_provider_from_auth(
+                    &hosted_auth
+                )),
             )
             .is_none(),
             "{case}: executor-owned servers must never receive hosted actor credentials"
@@ -5811,7 +5829,8 @@ async fn read_only_policy_does_not_reuse_a_writable_connection() {
     )
     .await;
     for read_only in [false, true] {
-        let mut mcp_config = crate::mcp::tests::test_mcp_config(maplecode_home.path().to_path_buf());
+        let mut mcp_config =
+            crate::mcp::tests::test_mcp_config(maplecode_home.path().to_path_buf());
         mcp_config.requires_read_only_mcp_tools = read_only;
         let reconciled = reconcile_reusable_server_with_mcp_config(
             &previous,
@@ -6053,7 +6072,9 @@ async fn refreshed_catalog_follows_reused_client_without_mutating_old_bindings()
         .prepare_call(&McpServerKey::unscoped("docs"), "unrelated")
         .expect("unrelated call");
 
-    previous.refresh_maplecode_apps_tools_for_discovery().await?;
+    previous
+        .refresh_maplecode_apps_tools_for_discovery()
+        .await?;
     let republished = Arc::new(
         reconcile_reusable_server_with_mcp_config(
             &previous,
@@ -6580,7 +6601,10 @@ fn connection_identity_tracks_only_oauth_credentials_when_oauth_is_active() {
 #[test]
 fn connection_identity_uses_effective_authorization_headers() {
     let runtime_context = reusable_server_runtime_context();
-    let missing_env_var = format!("MAPLECODE_TEST_UNSET_MCP_AUTHORIZATION_{}", std::process::id());
+    let missing_env_var = format!(
+        "MAPLECODE_TEST_UNSET_MCP_AUTHORIZATION_{}",
+        std::process::id()
+    );
     assert!(std::env::var_os(&missing_env_var).is_none());
 
     for (static_header, environment_header, has_authorization) in [

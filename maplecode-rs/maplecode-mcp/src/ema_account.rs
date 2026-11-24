@@ -101,7 +101,9 @@ pub(crate) fn account_configuration_issue(
             .is_some_and(|provenance| provenance.issuer == idp.issuer)
             || account_oidc_issuer_hint(&tokens.id_token.raw_jwt, &idp.issuer))
     {
-        return Some("Sign in to your Maple Code account again to enable this enterprise MCP server");
+        return Some(
+            "Sign in to your Maple Code account again to enable this enterprise MCP server",
+        );
     }
     if tokens.oauth_provenance.as_ref().is_some_and(|provenance| {
         provenance.issuer != idp.issuer

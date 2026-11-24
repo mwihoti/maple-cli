@@ -19,15 +19,15 @@ use super::transport::Transport;
 use super::transport::blocking_reader;
 use super::transport::blocking_writer;
 use super::watchdog::IsolateExecutionWatchdog;
+use futures::SinkExt;
+use futures::StreamExt;
+use futures::executor::block_on;
 use maplecode_plugin_host::MAX_INSTANCES;
 use maplecode_plugin_host::protocol::ErrorCode;
 use maplecode_plugin_host::protocol::HostMessage;
 use maplecode_plugin_host::protocol::MAX_IN_FLIGHT_TURNS;
 use maplecode_plugin_host::protocol::Packet;
 use maplecode_plugin_host::protocol::RuntimeMessage;
-use futures::SinkExt;
-use futures::StreamExt;
-use futures::executor::block_on;
 use tokio::sync::OwnedSemaphorePermit;
 use tokio::sync::Semaphore;
 
@@ -51,7 +51,8 @@ pub(super) fn run() -> io::Result<()> {
         .name("ui-plugin-output".into())
         .spawn(move || {
             let mut writer = blocking_writer(io::stdout().lock());
-            if let Err(error) = block_on(writer.send(maplecode_plugin_host::READY.to_vec().into())) {
+            if let Err(error) = block_on(writer.send(maplecode_plugin_host::READY.to_vec().into()))
+            {
                 fatal(error);
             }
             for output in outgoing_rx {

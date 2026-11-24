@@ -3,6 +3,7 @@
 use super::*;
 use crate::suite::settings_commits::COMMITTED_MODEL;
 use crate::suite::settings_commits::PauseAfterCommit;
+use core_test_support::ThreadIdle;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
 use maplecode_extension_api::ExtensionFuture;
@@ -14,7 +15,6 @@ use maplecode_extension_api::ToolLifecycleFuture;
 use maplecode_extension_api::ToolStartInput;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::ThreadIdle;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use std::sync::Mutex;

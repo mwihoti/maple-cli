@@ -100,7 +100,9 @@ fn assert_discovery(
         sources
             .into_iter()
             .filter_map(|source| match source {
-                ConfigLayerSource::Project { dot_maplecode_folder } => Some(dot_maplecode_folder.clone()),
+                ConfigLayerSource::Project {
+                    dot_maplecode_folder,
+                } => Some(dot_maplecode_folder.clone()),
                 _ => None,
             })
             .collect::<Vec<_>>()

@@ -225,7 +225,10 @@ fn unfinished_links_flush_on_newline_or_completion() {
             "See [documentation](https://example.com/a/very/long/path",
             "See [documentation]",
         ),
-        ("See :maplecode-followup[Inspect]{prompt=\"unfinished", "See"),
+        (
+            "See :maplecode-followup[Inspect]{prompt=\"unfinished",
+            "See",
+        ),
     ] {
         for ending in ["", "\n"] {
             let mut controller = StreamController::new(Some(24), &cwd, HistoryRenderMode::Rich);

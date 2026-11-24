@@ -1,4 +1,6 @@
 use super::*;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::permissions::FileSystemAccessMode;
@@ -9,8 +11,6 @@ use maplecode_protocol::sandbox::SandboxOverride;
 use maplecode_sandboxing::FileContentsChecker;
 use maplecode_sandboxing::SandboxExecRequest;
 use maplecode_sandboxing::SandboxType;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
 use pretty_assertions::assert_eq;
 use std::collections::HashMap;
 use std::time::Duration;
@@ -1002,9 +1002,9 @@ fn windows_workspace_defaults_do_not_hide_explicit_metadata_carveouts() {
             .entries
             .push(maplecode_protocol::permissions::FileSystemSandboxEntry {
                 path: maplecode_protocol::permissions::FileSystemPath::Special {
-                    value: maplecode_protocol::permissions::FileSystemSpecialPath::project_roots(Some(
-                        (*name).into(),
-                    )),
+                    value: maplecode_protocol::permissions::FileSystemSpecialPath::project_roots(
+                        Some((*name).into()),
+                    ),
                 },
                 access: maplecode_protocol::permissions::FileSystemAccessMode::Read,
                 missing_path_behavior: None,
@@ -1080,8 +1080,10 @@ fn windows_elevated_supports_unreadable_split_carveouts() {
                 .expect("absolute blocked"),
             ],
             additional_deny_write_paths: vec![
-                maplecode_utils_absolute_path::AbsolutePathBuf::from_absolute_path(expected_blocked)
-                    .expect("absolute blocked"),
+                maplecode_utils_absolute_path::AbsolutePathBuf::from_absolute_path(
+                    expected_blocked
+                )
+                .expect("absolute blocked"),
             ],
         }))
     );
@@ -1203,8 +1205,9 @@ fn windows_elevated_rejects_reopened_writable_descendants() {
 
 #[test]
 fn process_exec_tool_call_uses_platform_sandbox_for_network_only_restrictions() {
-    let expected = maplecode_sandboxing::get_platform_sandbox(/*windows_sandbox_enabled*/ false)
-        .unwrap_or(SandboxType::None);
+    let expected =
+        maplecode_sandboxing::get_platform_sandbox(/*windows_sandbox_enabled*/ false)
+            .unwrap_or(SandboxType::None);
 
     assert_eq!(
         select_process_exec_tool_sandbox_type(

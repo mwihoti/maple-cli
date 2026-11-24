@@ -15,10 +15,10 @@ use super::TraceReducer;
 use super::tool::spawn_edge_id;
 use crate::model::AgentOrigin;
 use crate::model::AgentThread;
-use crate::model::MapleCodeTurn;
-use crate::model::MapleCodeTurnId;
 use crate::model::ExecutionStatus;
 use crate::model::ExecutionWindow;
+use crate::model::MapleCodeTurn;
+use crate::model::MapleCodeTurnId;
 use crate::model::RolloutStatus;
 use crate::payload::RawPayloadRef;
 use crate::raw_event::RawEventSeq;
@@ -155,7 +155,11 @@ impl TraceReducer {
         maplecode_turn_id: MapleCodeTurnId,
         thread_id: String,
     ) -> Result<()> {
-        if self.rollout.maplecode_turns.contains_key(&maplecode_turn_id) {
+        if self
+            .rollout
+            .maplecode_turns
+            .contains_key(&maplecode_turn_id)
+        {
             bail!("duplicate maplecode turn start for {maplecode_turn_id}");
         }
 

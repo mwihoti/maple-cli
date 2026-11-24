@@ -150,8 +150,11 @@ async fn standalone_initializes_reports_version_and_runs_helpers() -> anyhow::Re
     #[cfg(unix)]
     let sandboxes = {
         let mut sandboxes = vec![None];
-        if maplecode_sandboxing::system_bwrap_warning(&PermissionProfile::read_only(), directory.path())
-            .is_none()
+        if maplecode_sandboxing::system_bwrap_warning(
+            &PermissionProfile::read_only(),
+            directory.path(),
+        )
+        .is_none()
         {
             // Restrict reads as well, so fs/readFile must dispatch the filesystem helper.
             let hidden = directory.path().join("hidden.txt");

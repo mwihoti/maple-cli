@@ -19,11 +19,11 @@ use uuid::Uuid;
 
 use crate::AgentThreadId;
 use crate::CodeCellTraceContext;
-use crate::MapleCodeTurnId;
 use crate::CompactionId;
 use crate::CompactionTraceContext;
 use crate::ExecutionStatus;
 use crate::InferenceTraceContext;
+use crate::MapleCodeTurnId;
 use crate::McpCallTraceContext;
 use crate::RawPayloadKind;
 use crate::RawPayloadRef;
@@ -243,7 +243,11 @@ impl ThreadTraceContext {
     /// These events are runtime observations on an already-dispatched tool. The
     /// dispatch trace records the caller-facing boundary; these payloads explain
     /// what Maple Code did while executing that boundary.
-    pub fn record_tool_call_event(&self, maplecode_turn_id: impl Into<MapleCodeTurnId>, event: &EventMsg) {
+    pub fn record_tool_call_event(
+        &self,
+        maplecode_turn_id: impl Into<MapleCodeTurnId>,
+        event: &EventMsg,
+    ) {
         let ThreadTraceContextState::Enabled(context) = &self.state else {
             return;
         };

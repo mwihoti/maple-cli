@@ -4,6 +4,27 @@ use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::apps_enabled_builder;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_websocket_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_target_windows;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::environment_config_for_selection;
+use core_test_support::test_maplecode::test_env;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use maplecode_config::ConfigLayerEntry;
 use maplecode_config::ConfigLayerSource;
 use maplecode_config::ConfigLayerStack;
@@ -94,27 +115,6 @@ use maplecode_thread_store::LoadThreadHistoryParams;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_string::approx_token_count;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::apps_enabled_builder;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_websocket_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_target_windows;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
-use core_test_support::test_maplecode::environment_config_for_selection;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::test_env;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use opentelemetry_sdk::metrics::data::AggregatedMetrics;
 use opentelemetry_sdk::metrics::data::MetricData;
 use pretty_assertions::assert_eq;
@@ -634,7 +634,9 @@ async fn capability_sections_render_in_order_with_host_repo_and_plugin_skills(
         ),
     )?;
     let host_skill_path = dunce::canonicalize(host_skill_path)?;
-    let plugin_root = maplecode_home.path().join("plugins/cache/test/sample/local");
+    let plugin_root = maplecode_home
+        .path()
+        .join("plugins/cache/test/sample/local");
     std::fs::create_dir_all(plugin_root.join(".maplecode-plugin"))?;
     std::fs::write(
         plugin_root.join(".maplecode-plugin/plugin.json"),
@@ -1410,7 +1412,9 @@ async fn explicit_skill_prompt_precedes_plugin_instructions() -> Result<()> {
     .await;
 
     let maplecode_home = Arc::new(TempDir::new()?);
-    let plugin_root = maplecode_home.path().join("plugins/cache/test/sample/local");
+    let plugin_root = maplecode_home
+        .path()
+        .join("plugins/cache/test/sample/local");
     let skill_dir = plugin_root.join("skills/sample-search");
     std::fs::create_dir_all(plugin_root.join(".maplecode-plugin"))?;
     std::fs::create_dir_all(&skill_dir)?;
@@ -3262,8 +3266,12 @@ async fn production_turn_uses_provider_host_catalog_and_core_snapshot_injection(
     let user_text = request.message_input_texts("user").join("\n");
     assert!(user_text.contains(&snapshot_contents));
     assert!(!user_text.contains(provider_contents));
-    let app_mentioned_events =
-        wait_for_analytics_events(&server, "maplecode_app_mentioned", /*expected_count*/ 1).await;
+    let app_mentioned_events = wait_for_analytics_events(
+        &server,
+        "maplecode_app_mentioned",
+        /*expected_count*/ 1,
+    )
+    .await;
     let app_mentioned_event = &app_mentioned_events[0];
     assert_eq!(
         app_mentioned_event["event_params"]["connector_id"],

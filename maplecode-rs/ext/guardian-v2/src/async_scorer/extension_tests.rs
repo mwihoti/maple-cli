@@ -4,6 +4,16 @@ use std::sync::Mutex;
 use std::time::Duration;
 
 use anyhow::Result;
+use core_test_support::ThreadIdle;
+use core_test_support::apps_test_server::HostedMessagingServer;
+use core_test_support::responses;
+use core_test_support::responses::WebSocketConnectionConfig;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::config::Config;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_core::config::LoaderOverrides;
@@ -26,10 +36,10 @@ use maplecode_features::Feature;
 use maplecode_guardian_context::truncate_text as truncate_entry;
 use maplecode_history::RolloutItem;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_prompts::ResolvedModelMessages;
 use maplecode_protocol::ResponseItemId;
@@ -58,16 +68,6 @@ use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::TruncationPolicy;
 use maplecode_protocol::security_risk::SecurityRiskScore;
 use maplecode_protocol_test_support::uuid_v7_item_id_generator_for_test;
-use core_test_support::ThreadIdle;
-use core_test_support::apps_test_server::HostedMessagingServer;
-use core_test_support::responses;
-use core_test_support::responses::WebSocketConnectionConfig;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -180,9 +180,10 @@ async fn json_transcript_mode_reaches_classifier_instructions_and_evidence() -> 
             .iter()
             .filter(|item| item["role"] == "developer")
             .flat_map(|item| item["content"].as_array().into_iter().flatten())
-            .any(|part| part["text"].as_str().is_some_and(
-                |text| text.starts_with(maplecode_guardian_context::TRANSCRIPT_JSON_INSTRUCTIONS)
-            ))
+            .any(|part| part["text"]
+                .as_str()
+                .is_some_and(|text| text
+                    .starts_with(maplecode_guardian_context::TRANSCRIPT_JSON_INSTRUCTIONS)))
     );
     let record = input
         .iter()
@@ -219,7 +220,8 @@ async fn installed_extension_warms_connections_without_blocking_thread_start() -
     ];
     connections[0].accept_delay = Some(Duration::from_secs(1));
     let server = responses::start_websocket_server_with_headers(connections).await;
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
+    let auth_manager =
+        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
     let mut config = test.config.clone();
     config.model_provider = ModelProviderInfo::create_openai_provider(Some(format!(
         "http://{}/v1",
@@ -735,7 +737,8 @@ async fn computer_use_only_scores_cannot_approve_other_actions() -> Result<()> {
         .get::<GuardianV2ScoreProgress>()
         .expect("Guardian v2 should track score progress per thread");
     // The seeded low score belongs to the model selected above.
-    let authorization = ScoreAuthorization::current(&fixture.test.maplecode, &Default::default()).await;
+    let authorization =
+        ScoreAuthorization::current(&fixture.test.maplecode, &Default::default()).await;
     seed_cached_score(&progress, thread_store, /*index*/ 1, authorization);
     let cached = progress.inspect(/*call_id*/ None);
     let turn_store = ExtensionData::new("turn-1");
@@ -1033,8 +1036,9 @@ async fn sample_configured_conversation_history_with_delivery(
         builder
     };
     let mut builder = if code_mode {
-        builder
-            .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin("maplecode-code-mode-host")?)
+        builder.with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
+            "maplecode-code-mode-host",
+        )?)
     } else {
         builder
     };
@@ -1074,7 +1078,8 @@ async fn sample_configured_conversation_history_with_delivery(
         "http://{}/v1",
         server.uri().trim_start_matches("ws://")
     )));
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
+    let auth_manager =
+        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
     // Capture policy independently of the newer live thread configuration.
     let mut config = test.config.clone();
     config.guardian_policy_config = guardian_policy;
@@ -1227,7 +1232,8 @@ async fn unscored_tools_invalidate_cached_scores() -> Result<()> {
         assert_eq!(progress.inspect(/*call_id*/ None), expected);
     }
     // A classifier started before these actions may still publish, but cannot approve later CUA.
-    let authorization = ScoreAuthorization::current(&fixture.test.maplecode, &Default::default()).await;
+    let authorization =
+        ScoreAuthorization::current(&fixture.test.maplecode, &Default::default()).await;
     seed_cached_score(&progress, thread_store, /*index*/ 0, authorization);
     assert!(progress.inspect(/*call_id*/ None).has_unscored_failure);
     assert_eq!(
@@ -2036,7 +2042,9 @@ async fn contributor_uses_model_defaults_and_preserves_local_overrides() -> Resu
     skip_if_no_network!(Ok(()));
 
     let model_defaults = GuardianV2ModelConfig {
-        async_classifier_mode: Some(maplecode_protocol::openai_models::AsyncClassifierMode::Snapshot),
+        async_classifier_mode: Some(
+            maplecode_protocol::openai_models::AsyncClassifierMode::Snapshot,
+        ),
         async_classifier_conversation_token_limit: None,
         classifier_instructions: Some("Use the experimental model-owned prompt.".to_owned()),
         review_threshold_basis_points: Some(6_000),
@@ -2560,7 +2568,8 @@ async fn contributor_skips_required_models_in_standard_scope() -> Result<()> {
         "http://{}/v1",
         server.uri().trim_start_matches("ws://")
     )));
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
+    let auth_manager =
+        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
     let mut config = test.config.clone();
     config.model_provider = provider_info;
     let mut builder = ExtensionRegistryBuilder::new();
@@ -2689,7 +2698,8 @@ async fn contributor_skips_required_models_in_standard_scope() -> Result<()> {
     };
     fixture.score_tool(ToolName::plain("read_file")).await;
     let store = fixture.test.maplecode.thread_extension_data();
-    let authorization = ScoreAuthorization::current(&fixture.test.maplecode, &Default::default()).await;
+    let authorization =
+        ScoreAuthorization::current(&fixture.test.maplecode, &Default::default()).await;
     seed_cached_score(&progress, store, /*index*/ 0, authorization);
     assert!(progress.inspect(/*call_id*/ None).has_unscored_failure);
 
@@ -2870,7 +2880,11 @@ async fn incompatible_compaction_blocks_cached_score_and_initial_cua_allowance()
         .await,
         Some(ReviewDecision::Approved)
     );
-    let authorization = fixture.test.maplecode.guardian_authorization_version().await;
+    let authorization = fixture
+        .test
+        .maplecode
+        .guardian_authorization_version()
+        .await;
     fixture
         .test
         .maplecode
@@ -2890,7 +2904,11 @@ async fn incompatible_compaction_blocks_cached_score_and_initial_cua_allowance()
     model.node_repl_auto_review_required = true;
     thread_store.insert(model);
     assert_eq!(
-        fixture.test.maplecode.guardian_authorization_version().await,
+        fixture
+            .test
+            .maplecode
+            .guardian_authorization_version()
+            .await,
         authorization
     );
     let score_authorization =
@@ -3451,7 +3469,8 @@ async fn assert_parent_compaction_reuse(parent_context_for_review: bool) -> Resu
         "http://{}/v1",
         server.uri().trim_start_matches("ws://")
     )));
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
+    let auth_manager =
+        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
     let mut config = test.config.clone();
     config.model_provider = provider_info;
     config.features.enable(Feature::GuardianV2)?;
@@ -3528,7 +3547,8 @@ async fn assert_parent_compaction_reuse(parent_context_for_review: bool) -> Resu
         retained,
         current: conversation_history,
         compaction_model_hash: parent_model.comp_hash.clone(),
-        retained_context: parent_context_for_review.then(maplecode_history::RetainedContext::default),
+        retained_context: parent_context_for_review
+            .then(maplecode_history::RetainedContext::default),
         review_context_revision,
     };
     thread_store.insert_arc(parent_model.model);
@@ -3976,7 +3996,8 @@ async fn cached_score_publication_rejects_delayed_results_without_changing_cover
     let fixture = GuardianFailureFixture::new().await?;
     let store = fixture.test.maplecode.thread_extension_data();
     let progress = store.get::<GuardianV2ScoreProgress>().unwrap();
-    let authorization = ScoreAuthorization::current(&fixture.test.maplecode, &Default::default()).await;
+    let authorization =
+        ScoreAuthorization::current(&fixture.test.maplecode, &Default::default()).await;
     seed_cached_score(&progress, store, /*index*/ 1, authorization.clone());
     let score = cached_score(store).unwrap();
     observe_unscored_call(&progress, store);

@@ -1,10 +1,10 @@
 //! Test fixture for plugin process startup, framing, and lifecycle failures.
 
-use maplecode_plugin_host::framing;
 use futures::SinkExt;
 use futures::StreamExt;
 use futures::executor::block_on;
 use futures::io::AllowStdIo;
+use maplecode_plugin_host::framing;
 use std::io::Write;
 use tokio_util::codec::FramedRead;
 use tokio_util::codec::FramedWrite;

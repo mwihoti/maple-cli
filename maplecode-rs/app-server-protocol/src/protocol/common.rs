@@ -2210,8 +2210,8 @@ mod tests {
     use maplecode_protocol::config_types::MultiAgentMode;
     use maplecode_protocol::models::BUILT_IN_PERMISSION_PROFILE_READ_ONLY;
     use maplecode_protocol::parse_command::ParsedCommand;
-    use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
     use maplecode_protocol::protocol::ConversationTextRole;
+    use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
     use maplecode_protocol::protocol::RealtimeConversationVersion;
     use maplecode_protocol::protocol::RealtimeOutputModality;
     use maplecode_protocol::protocol::RealtimeVoice;
@@ -4172,14 +4172,16 @@ mod tests {
                 maplecode_response_item_prefix: None,
                 maplecode_response_handoff_mode: Some(MapleCodeResponseHandoffMode::BemTags),
                 backend_reasoning_status: false,
-                maplecode_response_handoff_channel_prefixes: Some(std::collections::BTreeMap::from([
-                    ("analysis".to_string(), vec!["[THINKING]".to_string()]),
-                    (
-                        "commentary".to_string(),
-                        vec!["[PROGRESS]".to_string(), "[UPDATE]".to_string()],
-                    ),
-                    ("final".to_string(), vec!["[DONE]".to_string()]),
-                ])),
+                maplecode_response_handoff_channel_prefixes: Some(
+                    std::collections::BTreeMap::from([
+                        ("analysis".to_string(), vec!["[THINKING]".to_string()]),
+                        (
+                            "commentary".to_string(),
+                            vec!["[PROGRESS]".to_string(), "[UPDATE]".to_string()],
+                        ),
+                        ("final".to_string(), vec!["[DONE]".to_string()]),
+                    ]),
+                ),
                 thread_id: "thr_123".to_string(),
                 model: Some("realtime-treatment-model".to_string()),
                 output_modality: RealtimeOutputModality::Audio,

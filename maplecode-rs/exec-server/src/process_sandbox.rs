@@ -30,9 +30,9 @@ use maplecode_shell_command::shell_detect::fallback_powershell_shell_for_windows
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
 
+use crate::ExecServerRuntimeOptions;
 #[cfg(unix)]
 use crate::MAPLECODE_ARG0_EXEC_HELPER_ARG1;
-use crate::ExecServerRuntimeOptions;
 use crate::process_telemetry::trace_process_id;
 use crate::protocol::ExecParams;
 use crate::rpc::internal_error;
@@ -174,8 +174,9 @@ pub(crate) async fn prepare_exec_request_with_telemetry(
     let sandbox_manager = SandboxManager::new()
         .with_linux_sandbox_pid_namespace(runtime_paths.linux_sandbox_pid_namespace);
     #[cfg(target_os = "macos")]
-    let sandbox_manager = sandbox_manager
-        .with_allowed_symlinked_maplecode_home(runtime_paths.allowed_symlinked_maplecode_home.clone());
+    let sandbox_manager = sandbox_manager.with_allowed_symlinked_maplecode_home(
+        runtime_paths.allowed_symlinked_maplecode_home.clone(),
+    );
     let (selection, windows_sandbox_level) = sandbox_selection(sandbox_context);
     let (program, args) = params
         .argv
@@ -361,10 +362,12 @@ async fn prepare_managed_network(
         executor_identity: telemetry
             .executor_registration
             .as_ref()
-            .map(|registration| maplecode_network_proxy::ExecutorLogIdentity {
-                environment_id: registration.environment_id.clone(),
-                registration_id: registration.executor_registration_id.clone(),
-            }),
+            .map(
+                |registration| maplecode_network_proxy::ExecutorLogIdentity {
+                    environment_id: registration.environment_id.clone(),
+                    registration_id: registration.executor_registration_id.clone(),
+                },
+            ),
     });
     let mut builder = NetworkProxy::builder()
         .state(Arc::new(state))

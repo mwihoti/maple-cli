@@ -1,7 +1,7 @@
-use super::manager::MapleCodeAuth;
 use super::manager::ExternalAuth;
 use super::manager::ExternalAuthFuture;
 use super::manager::ExternalAuthRefreshContext;
+use super::manager::MapleCodeAuth;
 use maplecode_protocol::config_types::ModelProviderAuthInfo;
 use std::collections::HashMap;
 use std::ffi::OsString;
@@ -41,7 +41,9 @@ impl BearerTokenRefresher {
                     None => true,
                 };
                 if should_use_cached_token {
-                    return Ok(MapleCodeAuth::from_api_key(cached_token.access_token.as_str()));
+                    return Ok(MapleCodeAuth::from_api_key(
+                        cached_token.access_token.as_str(),
+                    ));
                 }
             }
 
@@ -72,7 +74,10 @@ impl ExternalAuth for BearerTokenRefresher {
         Box::pin(BearerTokenRefresher::resolve(self))
     }
 
-    fn refresh(&self, context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         Box::pin(BearerTokenRefresher::refresh(self, context))
     }
 }

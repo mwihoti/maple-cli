@@ -3,11 +3,11 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Result;
-use maplecode_exec_server::HttpClient;
-use maplecode_protocol::protocol::McpAuthStatus;
 use futures::FutureExt;
 use http::HeaderMap;
 use http::header::AUTHORIZATION;
+use maplecode_exec_server::HttpClient;
+use maplecode_protocol::protocol::McpAuthStatus;
 use rmcp::transport::AuthorizationManager;
 use rmcp::transport::auth::AuthError;
 use tracing::debug;
@@ -312,6 +312,7 @@ mod tests {
     use axum::http::StatusCode;
     use axum::http::header::WWW_AUTHENTICATE;
     use axum::routing::get;
+    use futures::future::BoxFuture;
     use maplecode_exec_server::ExecServerError;
     use maplecode_exec_server::HttpRedirectPolicy;
     use maplecode_exec_server::HttpRequestParams;
@@ -320,7 +321,6 @@ mod tests {
     use maplecode_exec_server::RouteAwareHttpClient;
     use maplecode_http_client::HttpClientFactory;
     use maplecode_http_client::OutboundProxyPolicy;
-    use futures::future::BoxFuture;
     use pretty_assertions::assert_eq;
     use serial_test::serial;
     use std::collections::HashMap;
@@ -507,7 +507,10 @@ mod tests {
     #[tokio::test]
     #[serial(auth_status_env)]
     async fn determine_auth_status_uses_bearer_token_when_env_authorization_header_present() {
-        let _guard = EnvVarGuard::set("MAPLECODE_RMCP_CLIENT_AUTH_STATUS_TEST_TOKEN", "Bearer token");
+        let _guard = EnvVarGuard::set(
+            "MAPLECODE_RMCP_CLIENT_AUTH_STATUS_TEST_TOKEN",
+            "Bearer token",
+        );
         let status = determine_streamable_http_auth_status(
             "server",
             "not-a-url",

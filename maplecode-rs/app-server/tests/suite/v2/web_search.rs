@@ -7,6 +7,8 @@ use app_test_support::ChatGptAuthFixture;
 use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::write_chatgpt_auth;
+use core_test_support::responses;
+use core_test_support::responses::strip_response_item_ids_from_json;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ItemCompletedNotification;
 use maplecode_app_server_protocol::ItemStartedNotification;
@@ -29,8 +31,6 @@ use maplecode_features::Feature;
 use maplecode_models_manager::model_info::model_info_from_slug;
 use maplecode_protocol::config_types::WebSearchMode;
 use maplecode_protocol::models::BUILT_IN_PERMISSION_PROFILE_DANGER_FULL_ACCESS;
-use core_test_support::responses;
-use core_test_support::responses::strip_response_item_ids_from_json;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -939,7 +939,9 @@ async fn model_lab_search_provider(
         .iter()
         .filter(|r| r["method"] == "tools/list")
         .filter_map(|r| {
-            r.pointer("/params/_meta/x-maplecode-turn-metadata/mcp_request_meta/openai~1search_context")
+            r.pointer(
+                "/params/_meta/x-maplecode-turn-metadata/mcp_request_meta/openai~1search_context",
+            )
         })
         .filter(|ctx| ctx["model_supported_tools"] == json!(supported_tools))
         .count();

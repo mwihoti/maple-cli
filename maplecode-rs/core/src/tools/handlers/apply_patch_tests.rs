@@ -1,4 +1,6 @@
 use super::*;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
 use maplecode_apply_patch::MaybeApplyPatchVerified;
 use maplecode_exec_server::LOCAL_FS;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
@@ -8,8 +10,6 @@ use maplecode_protocol::permissions::FileSystemSandboxPolicy;
 use maplecode_protocol::permissions::FileSystemSandboxPolicyContext;
 use maplecode_protocol::protocol::FileChange;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;

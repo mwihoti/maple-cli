@@ -3,10 +3,10 @@
 use super::focus_palette::PtyMapleCode;
 use super::focus_palette::write_test_config;
 use anyhow::Result;
-use maplecode_app_server_protocol::JSONRPCMessage;
-use maplecode_app_server_protocol::RequestId;
 use futures::SinkExt;
 use futures::StreamExt;
+use maplecode_app_server_protocol::JSONRPCMessage;
+use maplecode_app_server_protocol::RequestId;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;
@@ -33,7 +33,8 @@ async fn connected_trust_cancellation_and_acceptance_control_task_creation() -> 
             config_path,
             format!("{config}\n[tui]\nresume_cwd = \"current\"\n"),
         )?;
-        let socket = maplecode_app_server_client::app_server_control_socket_path(maplecode_home.path())?;
+        let socket =
+            maplecode_app_server_client::app_server_control_socket_path(maplecode_home.path())?;
         std::fs::create_dir_all(socket.parent().unwrap())?;
         let listener = UnixListener::bind(socket.as_path())?;
         let cwd = repo_root.clone();

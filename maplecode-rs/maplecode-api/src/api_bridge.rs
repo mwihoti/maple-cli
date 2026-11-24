@@ -7,16 +7,16 @@ use crate::rate_limits::parse_rate_limit_reached_type;
 use base64::Engine;
 use chrono::DateTime;
 use chrono::Utc;
+use http::HeaderMap;
 use maplecode_protocol::auth::PlanType;
+use maplecode_protocol::error::ConnectionFailedError;
 use maplecode_protocol::error::MapleCodeErr;
 use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::ConnectionFailedError;
 use maplecode_protocol::error::ProviderRejection;
 use maplecode_protocol::error::RetryLimitReachedError;
 use maplecode_protocol::error::UnexpectedResponseError;
 use maplecode_protocol::error::UsageLimitReachedError;
 use maplecode_protocol::protocol::MisalignmentErrorDetails;
-use http::HeaderMap;
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -95,7 +95,8 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
         }
         ApiError::InvalidRequest { message } => MapleCodeErr::InvalidRequest(message),
         ApiError::AccessProgramNotEnabled { message } => {
-            MapleCodeErrorDetails::AccessProgramNotEnabled(ProviderRejection::Stream(message)).into()
+            MapleCodeErrorDetails::AccessProgramNotEnabled(ProviderRejection::Stream(message))
+                .into()
         }
         ApiError::InvalidAudioInput {
             message,
@@ -119,7 +120,9 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
         ApiError::CyberPolicy { message } => {
             MapleCodeErr::new(MapleCodeErrorDetails::CyberPolicy { message })
         }
-        ApiError::BioPolicy { message } => MapleCodeErr::new(MapleCodeErrorDetails::BioPolicy { message }),
+        ApiError::BioPolicy { message } => {
+            MapleCodeErr::new(MapleCodeErrorDetails::BioPolicy { message })
+        }
         ApiError::MisalignmentPolicyViolation {
             message,
             misalignment,
@@ -147,7 +150,9 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
                 {
                     match error.get("code").and_then(Value::as_str) {
                         Some("policy_capacity_unavailable") => {
-                            return MapleCodeErr::new(MapleCodeErrorDetails::PolicyCapacityUnavailable);
+                            return MapleCodeErr::new(
+                                MapleCodeErrorDetails::PolicyCapacityUnavailable,
+                            );
                         }
                         Some("server_is_overloaded") => return MapleCodeErr::ServerOverloaded,
                         Some("slow_down") => {
@@ -300,7 +305,9 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
                     match (status, code) {
                         (
                             http::StatusCode::FORBIDDEN,
-                            Some("invalid_workspace_selected" | "maplecode_workspace_access_denied"),
+                            Some(
+                                "invalid_workspace_selected" | "maplecode_workspace_access_denied",
+                            ),
                         ) => MapleCodeErrorDetails::WorkspaceAccessDenied(response).into(),
                         (http::StatusCode::FORBIDDEN, Some("access_program_not_enabled")) => {
                             MapleCodeErrorDetails::AccessProgramNotEnabled(ProviderRejection::Http(

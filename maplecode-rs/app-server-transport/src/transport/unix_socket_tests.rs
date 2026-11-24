@@ -10,13 +10,13 @@ use super::unix_socket::acquire_removable_app_server_startup_lock;
 #[cfg(unix)]
 use super::unix_socket::try_acquire_removable_app_server_startup_lock;
 use crate::websocket_compression::WebSocketCompression;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_protocol::JSONRPCMessage;
 use maplecode_app_server_protocol::JSONRPCNotification;
 use maplecode_core::config::find_maplecode_home;
 use maplecode_uds::UnixStream;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use std::io::Result as IoResult;
 use std::path::Path;

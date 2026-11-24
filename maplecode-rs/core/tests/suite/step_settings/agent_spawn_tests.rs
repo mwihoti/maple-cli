@@ -1,12 +1,12 @@
 //! Children inherit captured model settings and persistent environment attachments.
 
 use super::*;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_maplecode::environment_config_for_selection;
 use maplecode_exec_server::CreateDirectoryOptions;
 use maplecode_protocol::protocol::EnvironmentConfigState;
 use maplecode_protocol::protocol::TurnEnvironmentRequests;
 use maplecode_protocol::protocol::TurnEnvironmentSelection;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::environment_config_for_selection;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
 

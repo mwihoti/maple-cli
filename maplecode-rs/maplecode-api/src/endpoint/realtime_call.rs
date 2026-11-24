@@ -6,15 +6,15 @@ use crate::endpoint::session::EndpointSession;
 use crate::error::ApiError;
 use crate::provider::Provider;
 use bytes::Bytes;
-use maplecode_client::HttpTransport;
-use maplecode_client::Request;
-use maplecode_client::RequestBody;
-use maplecode_client::RequestTelemetry;
 use http::HeaderMap;
 use http::HeaderValue;
 use http::Method;
 use http::header::CONTENT_TYPE;
 use http::header::LOCATION;
+use maplecode_client::HttpTransport;
+use maplecode_client::Request;
+use maplecode_client::RequestBody;
+use maplecode_client::RequestTelemetry;
 use serde::Serialize;
 use serde_json::Value;
 use serde_json::to_string;
@@ -24,7 +24,8 @@ use tracing::instrument;
 use tracing::trace;
 
 const MULTIPART_BOUNDARY: &str = "maplecode-realtime-call-boundary";
-const MULTIPART_CONTENT_TYPE: &str = "multipart/form-data; boundary=maplecode-realtime-call-boundary";
+const MULTIPART_CONTENT_TYPE: &str =
+    "multipart/form-data; boundary=maplecode-realtime-call-boundary";
 
 pub struct RealtimeCallClient<T: HttpTransport> {
     session: EndpointSession<T>,
@@ -301,6 +302,7 @@ mod tests {
     use crate::endpoint::realtime_websocket::RealtimeOutputModality;
     use crate::endpoint::realtime_websocket::RealtimeSessionMode;
     use crate::provider::RetryConfig;
+    use http::StatusCode;
     use maplecode_client::Request;
     use maplecode_client::Response;
     use maplecode_client::StreamResponse;
@@ -308,7 +310,6 @@ mod tests {
     use maplecode_protocol::protocol::ConversationTextParams;
     use maplecode_protocol::protocol::ConversationTextRole;
     use maplecode_protocol::protocol::RealtimeVoice;
-    use http::StatusCode;
     use pretty_assertions::assert_eq;
     use std::sync::Mutex;
     use std::time::Duration;

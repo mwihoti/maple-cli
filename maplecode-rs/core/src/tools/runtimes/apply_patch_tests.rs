@@ -2,6 +2,7 @@ use super::*;
 use crate::config::PermissionProfileSnapshot;
 use crate::environment_selection::EnvironmentConfigOrigin;
 use crate::tools::sandboxing::SandboxAttempt;
+use core_test_support::PathBufExt;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
 use maplecode_protocol::models::AdditionalPermissionProfile;
 use maplecode_protocol::models::FileSystemPermissions;
@@ -17,7 +18,6 @@ use maplecode_sandboxing::SandboxType;
 use maplecode_sandboxing::policy_transforms::effective_file_system_sandbox_policy;
 use maplecode_sandboxing::policy_transforms::effective_network_sandbox_policy;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
 use pretty_assertions::assert_eq;
 use std::collections::HashMap;
 fn test_turn_environment(environment_id: &str) -> crate::session::turn_context::TurnEnvironment {
@@ -352,7 +352,8 @@ async fn file_system_sandbox_context_respects_sandbox_request() {
             workspace_roots: vec![cwd],
             user_home_dir: Some(user_home_dir),
             temporary_directories: None,
-            windows_sandbox_selection: maplecode_file_system::WindowsSandboxSelection::RestrictedToken,
+            windows_sandbox_selection:
+                maplecode_file_system::WindowsSandboxSelection::RestrictedToken,
             windows_sandbox_proxy_settings_mode: None,
             use_legacy_landlock: false,
         })

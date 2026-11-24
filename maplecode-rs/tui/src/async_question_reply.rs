@@ -1,10 +1,10 @@
 //! Recognize the desktop's existing async-question reply envelope for display and dismissal.
 //! Only complete envelopes, optionally following the standard IDE context prefix, are interpreted.
 
+use itertools::Itertools;
 use maplecode_app_server_protocol::UserInput;
 use maplecode_context_fragments::AnsweredQuestion;
 use maplecode_context_fragments::ContextualUserFragment;
-use itertools::Itertools;
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
@@ -25,7 +25,9 @@ pub(crate) fn parse(text: &str) -> Option<Vec<AsyncQuestionReply>> {
     let text = text.trim();
     // JSON strings escape newlines, so this cannot match a delimiter inside an answer.
     let text = if text.starts_with("# Context from my IDE setup:\n") {
-        text.rsplit_once("\n## My request for MapleCode:\n")?.1.trim()
+        text.rsplit_once("\n## My request for MapleCode:\n")?
+            .1
+            .trim()
     } else {
         text
     };

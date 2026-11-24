@@ -1,4 +1,14 @@
 use anyhow::Result;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::executor_path_uri;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_config::ConfigLayerStack;
 use maplecode_core::ForkSnapshot;
 use maplecode_core::TurnInputRequest;
@@ -21,16 +31,6 @@ use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::executor_path_uri;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashSet;
@@ -121,7 +121,10 @@ async fn submit_text_turn(
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
     Ok(())
 }
 
@@ -546,7 +549,10 @@ async fn permissions_message_sent_once_on_start() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     assert_eq!(permissions_texts(&req.single_request()).len(), 1);
 
@@ -580,7 +586,10 @@ async fn permissions_message_added_on_override_change() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &test.maplecode,
@@ -597,7 +606,10 @@ async fn permissions_message_added_on_override_change() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let permissions_1 = permissions_texts(&req1.single_request());
     let permissions_2 = permissions_texts(&req2.single_request());
@@ -637,7 +649,10 @@ async fn permissions_message_not_added_when_no_change() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     test.maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
@@ -645,7 +660,10 @@ async fn permissions_message_not_added_when_no_change() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let permissions_1 = permissions_texts(&req1.single_request());
     let permissions_2 = permissions_texts(&req2.single_request());
@@ -685,7 +703,10 @@ async fn permissions_message_omitted_when_disabled() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &test.maplecode,
@@ -702,7 +723,10 @@ async fn permissions_message_omitted_when_disabled() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&test.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     assert_eq!(
         permissions_texts(&req1.single_request()),
@@ -749,7 +773,10 @@ async fn resume_replays_permissions_messages() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&initial.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&initial.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &initial.maplecode,
@@ -767,7 +794,10 @@ async fn resume_replays_permissions_messages() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&initial.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&initial.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let resumed = builder.restart(&server, &initial).await?;
     resumed
@@ -777,7 +807,10 @@ async fn resume_replays_permissions_messages() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&resumed.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&resumed.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let permissions = permissions_texts(&req3.single_request());
     assert_eq!(permissions.len(), 3);
@@ -830,7 +863,10 @@ async fn resume_and_fork_append_permissions_messages() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&initial.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&initial.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     core_test_support::submit_thread_settings(
         &initial.maplecode,
@@ -848,7 +884,10 @@ async fn resume_and_fork_append_permissions_messages() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&initial.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&initial.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let permissions_base = permissions_texts(&req2.single_request());
     assert_eq!(permissions_base.len(), 2);
@@ -864,7 +903,10 @@ async fn resume_and_fork_append_permissions_messages() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&resumed.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&resumed.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let permissions_resume = permissions_texts(&req3.single_request());
     assert_eq!(permissions_resume.len(), permissions_base.len() + 1);

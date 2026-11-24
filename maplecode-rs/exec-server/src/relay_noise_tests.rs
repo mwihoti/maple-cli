@@ -7,11 +7,11 @@ use std::sync::atomic::Ordering;
 use std::time::Duration;
 
 use anyhow::Result;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_exec_server_protocol::JSONRPCMessage;
 use maplecode_exec_server_protocol::JSONRPCResponse;
 use maplecode_exec_server_protocol::RequestId;
-use futures::SinkExt;
-use futures::StreamExt;
 use opentelemetry::trace::SpanId;
 use opentelemetry::trace::TracerProvider as _;
 use opentelemetry_sdk::trace::InMemorySpanExporter;

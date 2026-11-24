@@ -3,13 +3,13 @@ use super::*;
 use crate::responses_metadata::ANALYTICS_ENABLED_KEY;
 use crate::responses_metadata::AUTO_REVIEW_ENABLED_KEY;
 use crate::responses_metadata::CONTEXT_WINDOW_ID_KEY;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
 use crate::responses_metadata::CompactionTurnMetadata;
 use crate::responses_metadata::FORKED_FROM_ORDINAL_EXCLUSIVE_KEY;
 use crate::responses_metadata::INSTALLATION_ID_KEY;
 use crate::responses_metadata::LEGACY_CODE_MODE_TOOL_NAMES_KEY;
 use crate::responses_metadata::MCP_ATTRIBUTION_CLIENT_METADATA_KEY;
+use crate::responses_metadata::MapleCodeResponsesMetadata;
+use crate::responses_metadata::MapleCodeResponsesRequestKind;
 use crate::responses_metadata::NODE_REPL_AUTO_REVIEW_REQUIRED_KEY;
 use crate::responses_metadata::NODE_REPL_DISABLED_KEY;
 use crate::responses_metadata::PARENT_TURN_ID_KEY;
@@ -23,6 +23,8 @@ use crate::responses_metadata::validate_extra_metadata;
 use crate::session::step_context::StepContext;
 use crate::session::tests::make_session_and_context;
 use crate::session::tests::update_turn_settings_for_test;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
 use maplecode_analytics::CompactionImplementation;
 use maplecode_analytics::CompactionPhase;
 use maplecode_analytics::CompactionReason;
@@ -39,8 +41,6 @@ use maplecode_protocol::protocol::ThreadSource;
 use maplecode_sandboxing::SandboxType;
 use maplecode_sandboxing::get_platform_sandbox;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -584,8 +584,9 @@ async fn execution_metadata_applies_captured_settings_to_responses_metadata() {
     let (_session, mut turn) = make_session_and_context().await;
     let config = Arc::make_mut(&mut turn.config);
     config.approvals_reviewer = maplecode_protocol::config_types::ApprovalsReviewer::AutoReview;
-    config.permissions.approval_policy =
-        crate::config::Constrained::allow_any(maplecode_protocol::protocol::AskForApproval::OnRequest);
+    config.permissions.approval_policy = crate::config::Constrained::allow_any(
+        maplecode_protocol::protocol::AskForApproval::OnRequest,
+    );
     update_turn_settings_for_test(&mut turn, |settings| {
         let model_info = Arc::make_mut(&mut settings.model_info);
         model_info.slug = "captured-step-model".to_string();
@@ -873,7 +874,10 @@ fn turn_metadata_state_merges_client_metadata_without_replacing_reserved_fields(
         ("workspace_kind".to_string(), "projectless".to_string()),
         ("source".to_string(), "client-source".to_string()),
         ("model".to_string(), "client-supplied".to_string()),
-        ("maplecode_version".to_string(), "client-supplied".to_string()),
+        (
+            "maplecode_version".to_string(),
+            "client-supplied".to_string(),
+        ),
         (
             "reasoning_effort".to_string(),
             "client-supplied".to_string(),
@@ -1190,7 +1194,10 @@ fn turn_metadata_state_overlays_compaction_only_on_compaction_requests(
     assert_eq!(compact_json["request_kind"].as_str(), Some("compaction"));
     assert_eq!(compact_json["turn_id"].as_str(), Some("turn-a"));
     assert_eq!(compact_json[WINDOW_ID_KEY].as_str(), Some("thread-a:2"));
-    assert_eq!(compact_json["maplecode_security_surface"].as_str(), Some("sdk"));
+    assert_eq!(
+        compact_json["maplecode_security_surface"].as_str(),
+        Some("sdk")
+    );
     assert_eq!(
         compact_json["misalignment_override"].as_str(),
         compaction_override
@@ -1211,7 +1218,10 @@ fn turn_metadata_state_overlays_compaction_only_on_compaction_requests(
     assert_eq!(regular_json["misalignment_override"], continuation);
     assert_eq!(regular_json["request_kind"].as_str(), Some("turn"));
     assert_eq!(regular_json[WINDOW_ID_KEY].as_str(), Some("thread-a:3"));
-    assert_eq!(regular_json["maplecode_security_surface"].as_str(), Some("sdk"));
+    assert_eq!(
+        regular_json["maplecode_security_surface"].as_str(),
+        Some("sdk")
+    );
     assert!(regular_json.get("compaction").is_none());
 }
 

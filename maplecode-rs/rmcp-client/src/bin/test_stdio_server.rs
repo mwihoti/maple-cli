@@ -108,7 +108,11 @@ impl TestToolServer {
             .ok()
             .into_iter()
             .flat_map(|read_only| {
-                ["get_maplecode_security_daybreak_access", "get_daybreak_access"].map(|name| {
+                [
+                    "get_maplecode_security_daybreak_access",
+                    "get_daybreak_access",
+                ]
+                .map(|name| {
                     let mut tool = sandbox_meta_tool.clone();
                     tool.name = Cow::Borrowed(name);
                     tool.description =

@@ -139,7 +139,12 @@ fn matching_prefixes_cover_each_namespace_once() {
     let mut tools = original.clone();
     let namespaces = original
         .iter()
-        .map(|tool| ("maplecode_apps", tool.tool_name.namespace.as_deref().unwrap()))
+        .map(|tool| {
+            (
+                "maplecode_apps",
+                tool.tool_name.namespace.as_deref().unwrap(),
+            )
+        })
         .chain([
             ("maplecode_apps", "mcp__maplecode_apps__gmail"),
             ("apps_alias", "mcp__maplecode_apps__gmail"),

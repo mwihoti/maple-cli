@@ -19,6 +19,7 @@ use std::time::Duration;
 use std::time::Instant;
 
 use anyhow::Context as _;
+use futures::FutureExt as _;
 use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_config::types::OAuthCredentialsStoreMode;
 use maplecode_exec_server::Environment;
@@ -31,7 +32,6 @@ use maplecode_rmcp_client::ElicitationAction;
 use maplecode_rmcp_client::ElicitationResponse;
 use maplecode_rmcp_client::RmcpClient;
 use maplecode_utils_cargo_bin::CargoBinError;
-use futures::FutureExt as _;
 use pretty_assertions::assert_eq;
 use rmcp::model::CallToolResult;
 use rmcp::model::ClientCapabilities;
@@ -63,7 +63,8 @@ fn init_params() -> InitializeRequestParams {
         Some(ElicitationCapability::new().with_form(FormElicitationCapability::new()));
     InitializeRequestParams::new(
         capabilities,
-        Implementation::new("maplecode-test", "0.0.0-test").with_title("Maple Code rmcp recovery test"),
+        Implementation::new("maplecode-test", "0.0.0-test")
+            .with_title("Maple Code rmcp recovery test"),
     )
     .with_protocol_version(ProtocolVersion::V_2025_06_18)
 }

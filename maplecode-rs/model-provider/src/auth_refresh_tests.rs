@@ -1,17 +1,17 @@
 //! Verifies that concurrent proactive and unauthorized requests share one OAuth refresh.
 
 use super::auth_provider_from_auth_manager;
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
+use maplecode_login::MapleCodeAuth;
 use maplecode_login::RefreshTokenError;
 use maplecode_login::auth::RefreshTokenFailedError;
 use maplecode_login::auth::RefreshTokenFailedReason;
-use http::HeaderMap;
-use http::HeaderValue;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::sync::Arc;
@@ -50,9 +50,12 @@ impl ExternalAuth for RotatingExternalAuth {
             } else {
                 "Bearer replacement"
             };
-            Ok(MapleCodeAuth::Headers(AuthHeaders::new(HeaderMap::from_iter(
-                [(http::header::AUTHORIZATION, HeaderValue::from_static(token))],
-            ))))
+            Ok(MapleCodeAuth::Headers(AuthHeaders::new(
+                HeaderMap::from_iter([(
+                    http::header::AUTHORIZATION,
+                    HeaderValue::from_static(token),
+                )]),
+            )))
         })
     }
 

@@ -1,11 +1,5 @@
 //! Injected agent messages share native delivery boundaries while retaining their wire payloads.
 
-use maplecode_core::InputWaitOutcome;
-use maplecode_core::TurnInputRequest;
-use maplecode_core::TurnInputSubmission;
-use maplecode_features::Feature;
-use maplecode_protocol::models::ResponseItem;
-use maplecode_protocol::protocol::EventMsg;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::context_snapshot::SnapshotEntry;
@@ -14,6 +8,12 @@ use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_core::InputWaitOutcome;
+use maplecode_core::TurnInputRequest;
+use maplecode_core::TurnInputSubmission;
+use maplecode_features::Feature;
+use maplecode_protocol::models::ResponseItem;
+use maplecode_protocol::protocol::EventMsg;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

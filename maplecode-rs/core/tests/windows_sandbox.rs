@@ -11,6 +11,17 @@
 mod repository_skills_tests;
 
 use anyhow::Context;
+use core_test_support::PathExt;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_with_timeout;
 use maplecode_config::types::ApprovalsReviewer;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
@@ -46,17 +57,6 @@ use maplecode_sandboxing::SandboxType;
 use maplecode_sandboxing::WindowsSandboxProxySettingsMode;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_windows_sandbox_test_support::WindowsSandboxAccountTestGuard;
-use core_test_support::PathExt;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_with_timeout;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use serial_test::serial;
@@ -115,8 +115,12 @@ fn maplecode_home_for_windows_sandbox_test(name: &str) -> anyhow::Result<TestMap
         // retries run in the same Windows VM, so keep MAPLECODE_HOME stable within
         // the test temp root and let setup reconcile its persisted ACL state.
         let maplecode_home = PathBuf::from(test_tmpdir).join(name);
-        std::fs::create_dir_all(&maplecode_home)
-            .with_context(|| format!("create stable test MAPLECODE_HOME {}", maplecode_home.display()))?;
+        std::fs::create_dir_all(&maplecode_home).with_context(|| {
+            format!(
+                "create stable test MAPLECODE_HOME {}",
+                maplecode_home.display()
+            )
+        })?;
         return Ok(TestMapleCodeHome::Persistent(maplecode_home));
     }
 
@@ -138,7 +142,10 @@ fn stage_windows_sandbox_helpers() -> anyhow::Result<()> {
                 .with_context(|| format!("create resources dir {}", resources_dir.display()));
         }
     }
-    for helper_name in ["maplecode-windows-sandbox-setup", "maplecode-command-runner"] {
+    for helper_name in [
+        "maplecode-windows-sandbox-setup",
+        "maplecode-command-runner",
+    ] {
         let helper = maplecode_utils_cargo_bin::cargo_bin(helper_name)?;
         let file_name = Path::new(helper_name).with_extension("exe");
         let destination = resources_dir.join(file_name);
@@ -172,16 +179,27 @@ fn stage_windows_sandbox_cli(fixture_bin: &Path) -> anyhow::Result<(PathBuf, Pat
 
     let maplecode_source = maplecode_utils_cargo_bin::cargo_bin("maplecode")?;
     let maplecode = fixture_bin.join("maplecode.exe");
-    maplecode_utils_cargo_bin::copy_executable(&maplecode_source, &maplecode)
-        .with_context(|| format!("copy {} to {}", maplecode_source.display(), maplecode.display()))?;
-    for helper_name in ["maplecode-windows-sandbox-setup", "maplecode-command-runner"] {
+    maplecode_utils_cargo_bin::copy_executable(&maplecode_source, &maplecode).with_context(
+        || {
+            format!(
+                "copy {} to {}",
+                maplecode_source.display(),
+                maplecode.display()
+            )
+        },
+    )?;
+    for helper_name in [
+        "maplecode-windows-sandbox-setup",
+        "maplecode-command-runner",
+    ] {
         let helper = maplecode_utils_cargo_bin::cargo_bin(helper_name)?;
         let destination = resources_dir.join(Path::new(helper_name).with_extension("exe"));
         maplecode_utils_cargo_bin::copy_executable(&helper, &destination)
             .with_context(|| format!("copy {} to {}", helper.display(), destination.display()))?;
     }
 
-    let probe_source = maplecode_utils_cargo_bin::cargo_bin("maplecode-windows-managed-deny-probe")?;
+    let probe_source =
+        maplecode_utils_cargo_bin::cargo_bin("maplecode-windows-managed-deny-probe")?;
     let probe = fixture_bin.join("managed-deny-probe.exe");
     maplecode_utils_cargo_bin::copy_executable(&probe_source, &probe)
         .with_context(|| format!("copy {} to {}", probe_source.display(), probe.display()))?;
@@ -301,7 +319,8 @@ fn windows_sandbox_cli_preserves_managed_deny_reads_across_launches() -> anyhow:
 #[tokio::test]
 #[serial(maplecode_home)]
 async fn windows_elevated_setup_rejects_default_root_deny() -> anyhow::Result<()> {
-    let maplecode_home = maplecode_home_for_windows_sandbox_test("windows-elevated-root-deny-maplecode-home")?;
+    let maplecode_home =
+        maplecode_home_for_windows_sandbox_test("windows-elevated-root-deny-maplecode-home")?;
     let workspace = TempDir::new()?;
     let cwd = dunce::canonicalize(workspace.path())?.abs();
     let file_system_sandbox_policy =
@@ -338,9 +357,11 @@ async fn windows_elevated_setup_rejects_default_root_deny() -> anyhow::Result<()
 #[tokio::test]
 #[serial(maplecode_home)]
 async fn windows_restricted_token_rejects_exact_and_glob_deny_read_policy() -> anyhow::Result<()> {
-    let maplecode_home =
-        maplecode_home_for_windows_sandbox_test("windows-restricted-token-deny-read-maplecode-home")?;
-    let _maplecode_home_guard = EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
+    let maplecode_home = maplecode_home_for_windows_sandbox_test(
+        "windows-restricted-token-deny-read-maplecode-home",
+    )?;
+    let _maplecode_home_guard =
+        EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
     let workspace = TempDir::new()?;
     let cwd = dunce::canonicalize(workspace.path())?.abs();
     let secret = cwd.join("secret.env");
@@ -427,8 +448,10 @@ async fn windows_restricted_token_rejects_exact_and_glob_deny_read_policy() -> a
 async fn windows_elevated_temp_only_core_and_direct_spawn_enforce_carveouts() -> anyhow::Result<()>
 {
     let _account_guard = WindowsSandboxAccountTestGuard::acquire()?;
-    let maplecode_home = maplecode_home_for_windows_sandbox_test("windows-temp-only-child-maplecode-home")?;
-    let _maplecode_home_guard = EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
+    let maplecode_home =
+        maplecode_home_for_windows_sandbox_test("windows-temp-only-child-maplecode-home")?;
+    let _maplecode_home_guard =
+        EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
     stage_windows_sandbox_helpers()?;
     let fixture = TempDir::new()?;
     let root = dunce::canonicalize(fixture.path())?;
@@ -612,9 +635,11 @@ async fn windows_elevated_temp_only_core_and_direct_spawn_enforce_carveouts() ->
 #[serial(maplecode_home)]
 async fn windows_elevated_does_not_create_missing_workspace_metadata() -> anyhow::Result<()> {
     let _account_guard = WindowsSandboxAccountTestGuard::acquire()?;
-    let maplecode_home =
-        maplecode_home_for_windows_sandbox_test("windows-elevated-missing-metadata-maplecode-home")?;
-    let _maplecode_home_guard = EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
+    let maplecode_home = maplecode_home_for_windows_sandbox_test(
+        "windows-elevated-missing-metadata-maplecode-home",
+    )?;
+    let _maplecode_home_guard =
+        EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
     stage_windows_sandbox_helpers()?;
     let workspace = TempDir::new()?;
     let cwd = dunce::canonicalize(workspace.path())?.abs();
@@ -738,8 +763,10 @@ $rules = foreach ($name in @('maplecode_sandbox_offline_block_inbound', 'mapleco
 #[serial(maplecode_home)]
 async fn windows_elevated_enforces_deny_read_and_protects_setup_marker() -> anyhow::Result<()> {
     let _account_guard = WindowsSandboxAccountTestGuard::acquire()?;
-    let maplecode_home = maplecode_home_for_windows_sandbox_test("windows-elevated-deny-read-maplecode-home")?;
-    let _maplecode_home_guard = EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
+    let maplecode_home =
+        maplecode_home_for_windows_sandbox_test("windows-elevated-deny-read-maplecode-home")?;
+    let _maplecode_home_guard =
+        EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
     stage_windows_sandbox_helpers()?;
     let workspace = TempDir::new()?;
     let cwd = dunce::canonicalize(workspace.path())?.abs();
@@ -752,7 +779,10 @@ async fn windows_elevated_enforces_deny_read_and_protects_setup_marker() -> anyh
     let bundled_skill_dir = user_profile.path().join(".maplecode/plugins/cache");
     std::fs::create_dir_all(&bundled_skill_dir)?;
     let bundled_skill = bundled_skill_dir.join("SKILL.md");
-    let setup_marker = maplecode_home.path().join(".sandbox").join("setup_marker.json");
+    let setup_marker = maplecode_home
+        .path()
+        .join(".sandbox")
+        .join("setup_marker.json");
     std::fs::write(&glob_secret, "glob secret\n")?;
     std::fs::write(&public, "public ok\n")?;
     std::fs::write(&bundled_skill, "bundled skill ok\n")?;
@@ -882,10 +912,13 @@ async fn windows_elevated_powershell_preserves_relative_paths() -> anyhow::Resul
     let maplecode_home = maplecode_home_for_windows_sandbox_test(
         "windows-elevated-powershell-relative-paths-maplecode-home",
     )?;
-    let _maplecode_home_guard = EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
+    let _maplecode_home_guard =
+        EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
     stage_windows_sandbox_helpers()?;
     // The refresh caller must own the helper directory after provisioning protects its DACL.
-    std::fs::create_dir_all(maplecode_windows_sandbox::sandbox_bin_dir(maplecode_home.path()))?;
+    std::fs::create_dir_all(maplecode_windows_sandbox::sandbox_bin_dir(
+        maplecode_home.path(),
+    ))?;
 
     let profile_dir = TempDir::new()?;
     let fake_profile = dunce::canonicalize(profile_dir.path())?;
@@ -1007,9 +1040,11 @@ Write-Output ('PUBLIC=' + (Get-Content -LiteralPath .\public.txt -Raw).Trim())"#
 #[serial(maplecode_home)]
 async fn windows_elevated_unified_exec_enforces_large_recursive_deny_reads() -> anyhow::Result<()> {
     let _account_guard = WindowsSandboxAccountTestGuard::acquire()?;
-    let maplecode_home =
-        maplecode_home_for_windows_sandbox_test("windows-elevated-tool-runtime-deny-read-maplecode-home")?;
-    let _maplecode_home_guard = EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
+    let maplecode_home = maplecode_home_for_windows_sandbox_test(
+        "windows-elevated-tool-runtime-deny-read-maplecode-home",
+    )?;
+    let _maplecode_home_guard =
+        EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
     stage_windows_sandbox_helpers()?;
 
     let configured_maplecode_home = dunce::canonicalize(maplecode_home.path())?.abs();
@@ -1181,7 +1216,9 @@ async fn windows_elevated_unified_exec_enforces_large_recursive_deny_reads() -> 
 
     // Re-enter real setup after corrupting this test's bookkeeping, then exercise
     // recovery through the same agent tool path rather than relying on a cached launch.
-    let state_path = maplecode_home.path().join(".sandbox/deny_read_acl_state.json");
+    let state_path = maplecode_home
+        .path()
+        .join(".sandbox/deny_read_acl_state.json");
     std::fs::write(&state_path, b"malformed bookkeeping")?;
     let permission_profile = harness
         .test()
@@ -1279,8 +1316,10 @@ async fn windows_elevated_approved_git_pull_preserves_deny_read() -> anyhow::Res
     use EventMsg::TurnComplete;
 
     let _account_guard = WindowsSandboxAccountTestGuard::acquire()?;
-    let maplecode_home = maplecode_home_for_windows_sandbox_test("windows-elevated-git-pull-deny-read")?;
-    let _maplecode_home_guard = EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
+    let maplecode_home =
+        maplecode_home_for_windows_sandbox_test("windows-elevated-git-pull-deny-read")?;
+    let _maplecode_home_guard =
+        EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
     stage_windows_sandbox_helpers()?;
     let home = dunce::canonicalize(maplecode_home.path())?.abs();
     let builder = test_maplecode()

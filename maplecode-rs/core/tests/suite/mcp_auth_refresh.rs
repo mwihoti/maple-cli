@@ -1,19 +1,22 @@
 #![allow(clippy::unwrap_used)]
 
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
 use maplecode_config::McpServerTransportConfig;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_core::config::Constrained;
 use maplecode_core::plugins_manager_for_config;
 use maplecode_exec_server_test_support::environment_manager_without_environments;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
+use maplecode_mcp::EffectiveMcpServer;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::MapleCodeAppsToolsCache;
-use maplecode_mcp::EffectiveMcpServer;
 use maplecode_mcp::McpRuntime;
 use maplecode_mcp::McpRuntimeContext;
 use maplecode_mcp::McpRuntimeInput;
@@ -21,9 +24,6 @@ use maplecode_mcp::McpStartupPolicy;
 use maplecode_mcp::McpToolCatalogCache;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_protocol::protocol::AskForApproval;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -40,7 +40,10 @@ impl ExternalAuth for StaticExternalAuth {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 }
@@ -107,7 +110,9 @@ async fn hosted_plugin_runtime_ps_mcp_tool_calls_use_current_auth_manager_token(
         ),
         maplecode_apps_tools_cache: MapleCodeAppsToolsCache::default(),
         tool_catalog_cache: McpToolCatalogCache::default(),
-        maplecode_apps_tools_cache_key: maplecode_mcp::maplecode_apps_tools_cache_key(Some(&expected_auth)),
+        maplecode_apps_tools_cache_key: maplecode_mcp::maplecode_apps_tools_cache_key(Some(
+            &expected_auth,
+        )),
         client_mcp_extensions: ClientMcpExtensions::default(),
         auth: Some(expected_auth.clone()),
         auth_manager: Some(Arc::clone(&auth_manager)),

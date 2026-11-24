@@ -19,7 +19,6 @@ use crate::events::ReviewTrigger;
 use crate::events::Reviewer;
 use crate::events::TrackEventRequest;
 use crate::facts::AnalyticsFact;
-use crate::facts::MapleCodeCompactionEvent;
 use crate::facts::CompactionImplementation;
 use crate::facts::CompactionPhase;
 use crate::facts::CompactionReason;
@@ -27,6 +26,7 @@ use crate::facts::CompactionStatus;
 use crate::facts::CompactionStrategy;
 use crate::facts::CompactionTrigger;
 use crate::facts::CustomAnalyticsFact;
+use crate::facts::MapleCodeCompactionEvent;
 use crate::facts::SubAgentThreadStartedInput;
 use crate::facts::ThreadInitializationMode;
 use crate::reducer::AnalyticsReducer;
@@ -119,9 +119,11 @@ fn sample_permissions_approval_request(request_id: i64) -> ServerRequest {
             cwd: test_path_buf("/tmp").abs().into(),
             reason: Some("need network".to_string()),
             permissions: RequestPermissionProfile {
-                network: Some(maplecode_app_server_protocol::AdditionalNetworkPermissions {
-                    enabled: Some(true),
-                }),
+                network: Some(
+                    maplecode_app_server_protocol::AdditionalNetworkPermissions {
+                        enabled: Some(true),
+                    },
+                ),
                 file_system: None,
             },
         },

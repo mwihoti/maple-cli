@@ -1,3 +1,5 @@
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ConfigBatchWriteParams;
@@ -10,8 +12,6 @@ use maplecode_app_server_protocol::HooksListResponse;
 use maplecode_app_server_protocol::MergeStrategy;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_protocol::ThreadId;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
 use std::path::PathBuf;
 use uuid::Uuid;
 

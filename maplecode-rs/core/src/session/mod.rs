@@ -66,6 +66,9 @@ use async_channel::Sender;
 use chrono::DateTime;
 use chrono::Local;
 use chrono::Utc;
+use futures::future::BoxFuture;
+use futures::future::Shared;
+use futures::prelude::*;
 use maplecode_analytics::AnalyticsEventsClient;
 use maplecode_analytics::ImagePreparationFact;
 use maplecode_analytics::ImagePreparationMetadata;
@@ -202,9 +205,6 @@ use maplecode_utils_audio::prepare_response_items as prepare_audio_response_item
 use maplecode_utils_git_discovery::GitRootDiscovery;
 use maplecode_utils_output_truncation::with_serialization_allowance;
 use maplecode_utils_path_uri::PathUri;
-use futures::future::BoxFuture;
-use futures::future::Shared;
-use futures::prelude::*;
 use rmcp::model::RequestId;
 use serde_json::Value;
 use tokio::sync::Mutex;
@@ -225,8 +225,6 @@ use tracing::warn;
 use uuid::Uuid;
 
 use crate::client::ModelClient;
-use crate::maplecode_thread::MapleCodeThreadSettingsOverrides;
-use crate::maplecode_thread::ThreadConfigSnapshot;
 #[cfg(test)]
 use crate::compact::collect_user_messages;
 use crate::config::Config;
@@ -237,6 +235,8 @@ use crate::config::StartedNetworkProxy;
 use crate::config::resolve_web_search_mode_for_turn;
 use crate::context_manager::ContextManager;
 use crate::context_manager::HistoryReplacement;
+use crate::maplecode_thread::MapleCodeThreadSettingsOverrides;
+use crate::maplecode_thread::ThreadConfigSnapshot;
 use crate::thread_rollout_truncation::initial_history_has_prior_user_turns;
 use maplecode_config::CONFIG_TOML_FILE;
 use maplecode_config::ConfigLayerSource;
@@ -362,11 +362,11 @@ use maplecode_core_plugins::PluginCommandAttribution;
 use maplecode_core_plugins::PluginsManager;
 use maplecode_core_plugins::RecommendedPluginCandidatesInput;
 use maplecode_git_utils::get_git_repo_root;
-use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::CompactedItem;
 use maplecode_history::CompactionResumeMetadata;
 use maplecode_history::DynamicToolsSnapshot;
 use maplecode_history::InitialHistory;
+use maplecode_history::MapleCodeHarnessMetadata;
 pub(crate) use maplecode_history::PreviousTurnSettings;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_mcp::McpConfig;
@@ -391,11 +391,11 @@ use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
 use maplecode_protocol::protocol::ApplyPatchApprovalRequestEvent;
 use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::DeprecationNoticeEvent;
 use maplecode_protocol::protocol::Event;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ExecApprovalRequestEvent;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::ModelRerouteEvent;
 use maplecode_protocol::protocol::ModelRerouteReason;
 use maplecode_protocol::protocol::ModelVerification;
@@ -1247,7 +1247,9 @@ impl SessionIo {
             message_delivery: None,
         })
         .await?;
-        reply_rx.await.unwrap_or(Err(MapleCodeErr::InternalAgentDied))
+        reply_rx
+            .await
+            .unwrap_or(Err(MapleCodeErr::InternalAgentDied))
     }
 
     pub(crate) async fn submit_recover_turn(
@@ -1274,7 +1276,9 @@ impl SessionIo {
             message_delivery: None,
         })
         .await?;
-        reply_rx.await.unwrap_or(Err(MapleCodeErr::InternalAgentDied))
+        reply_rx
+            .await
+            .unwrap_or(Err(MapleCodeErr::InternalAgentDied))
     }
 
     pub(crate) async fn shutdown_and_wait(&self) -> MapleCodeResult<()> {
@@ -2636,16 +2640,17 @@ impl Session {
                     warn!("user config path has no parent directory");
                     return;
                 };
-                let user_config = match maplecode_config::loader::resolve_relative_paths_in_config_toml(
-                    user_config,
-                    &config_dir,
-                ) {
-                    Ok(config) => config,
-                    Err(err) => {
-                        warn!("failed to resolve paths while reloading user config: {err}");
-                        return;
-                    }
-                };
+                let user_config =
+                    match maplecode_config::loader::resolve_relative_paths_in_config_toml(
+                        user_config,
+                        &config_dir,
+                    ) {
+                        Ok(config) => config,
+                        Err(err) => {
+                            warn!("failed to resolve paths while reloading user config: {err}");
+                            return;
+                        }
+                    };
                 reloaded_user_configs.push((config_toml_path, user_config));
             }
 
@@ -2680,7 +2685,11 @@ impl Session {
     }
 
     /// Record a terminal MapleCodeErr before the app-server completion notification is reduced.
-    pub(crate) fn track_turn_maplecode_error(&self, turn_context: &TurnContext, error: &MapleCodeErr) {
+    pub(crate) fn track_turn_maplecode_error(
+        &self,
+        turn_context: &TurnContext,
+        error: &MapleCodeErr,
+    ) {
         self.services
             .analytics_events_client
             .track_turn_maplecode_error(TurnMapleCodeErrorFact::from_maplecode_err(
@@ -2971,7 +2980,9 @@ impl Session {
     /// Delivers an event without creating a local rollout for a thread that has not materialized.
     pub(crate) async fn send_event_raw_without_materializing_rollout(&self, event: Event) {
         let persist = match self.current_rollout_path().await {
-            Ok(Some(path)) => maplecode_rollout::existing_rollout_path(&path).await.is_some(),
+            Ok(Some(path)) => maplecode_rollout::existing_rollout_path(&path)
+                .await
+                .is_some(),
             Ok(None) => true,
             Err(err) => {
                 warn!("failed to check whether thread persistence is materialized: {err}");
@@ -5955,10 +5966,12 @@ impl Session {
                 model_info,
                 vec![ResponseItemEnvelope {
                     item: response_item,
-                    metadata: metadata.acceptance_order.map(|order| MapleCodeHarnessMetadata {
-                        user_input_order: Some(order),
-                        ..Default::default()
-                    }),
+                    metadata: metadata
+                        .acceptance_order
+                        .map(|order| MapleCodeHarnessMetadata {
+                            user_input_order: Some(order),
+                            ..Default::default()
+                        }),
                 }],
             )
             .await;

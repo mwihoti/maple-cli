@@ -2,9 +2,9 @@
 
 use super::*;
 use crate::legacy_core::config::ConfigBuilder;
+use core_test_support::responses;
 use maplecode_app_server_client::AppServerEvent;
 use maplecode_app_server_protocol::ServerNotification;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -89,7 +89,8 @@ stream_max_retries = 0
             .iter_mut()
             .find(|model| model.slug == "gpt-5.5")
             .expect("bundled model")
-            .default_reasoning_summary = maplecode_protocol::config_types::ReasoningSummary::Concise;
+            .default_reasoning_summary =
+            maplecode_protocol::config_types::ReasoningSummary::Concise;
         server_config.model_catalog = Some(catalog);
         let client_home = tempfile::tempdir()?;
         let config = if mode == ThreadParamsMode::Remote {

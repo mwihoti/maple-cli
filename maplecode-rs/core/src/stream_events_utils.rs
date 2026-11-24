@@ -17,6 +17,7 @@ use crate::session::step_context::StepContext;
 use crate::session::turn_context::TurnContext;
 use crate::tools::call_trace;
 use crate::tools::parallel::ToolCallRuntime;
+use futures::Future;
 use maplecode_memories_read::citations::parse_memory_citation;
 use maplecode_memories_read::citations::thread_ids_from_memory_citation;
 use maplecode_protocol::error::MapleCodeErr;
@@ -29,7 +30,6 @@ use maplecode_protocol::models::ResponseInputItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_rollout::state_db;
 use maplecode_utils_stream_parser::strip_proposed_plan_blocks;
-use futures::Future;
 use tracing::debug;
 use tracing::instrument;
 use tracing::warn;
@@ -66,7 +66,9 @@ pub(crate) fn raw_assistant_output_text_from_item(item: &ResponseItem) -> Option
         let combined = content
             .iter()
             .filter_map(|ci| match ci {
-                maplecode_protocol::models::ContentItem::OutputText { text, .. } => Some(text.as_str()),
+                maplecode_protocol::models::ContentItem::OutputText { text, .. } => {
+                    Some(text.as_str())
+                }
                 _ => None,
             })
             .collect::<String>();
@@ -102,12 +104,12 @@ pub(crate) async fn record_completed_response_item_with_finalized_facts(
         &step_context.settings.model_info,
         vec![ResponseItemEnvelope {
             item: item.clone(),
-            metadata: step_context
-                .sampled_through_sequence
-                .map(|sequence| MapleCodeHarnessMetadata {
+            metadata: step_context.sampled_through_sequence.map(|sequence| {
+                MapleCodeHarnessMetadata {
                     sampled_through_sequence: Some(sequence),
                     ..Default::default()
-                }),
+                }
+            }),
         }],
     )
     .await;
@@ -292,7 +294,9 @@ pub(crate) async fn finalize_non_tool_response_item(
                     .content
                     .iter()
                     .map(|entry| match entry {
-                        maplecode_protocol::items::AgentMessageContent::Text { text } => text.as_str(),
+                        maplecode_protocol::items::AgentMessageContent::Text { text } => {
+                            text.as_str()
+                        }
                     })
                     .collect::<String>();
                 let last_agent_message = if combined.trim().is_empty() {

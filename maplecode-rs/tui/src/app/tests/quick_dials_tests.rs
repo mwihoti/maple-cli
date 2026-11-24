@@ -63,7 +63,8 @@ async fn quick_dials_respect_profile_and_external_ownership() -> Result<()> {
     let (mut app, mut events, _ops) = make_test_app_with_channels().await;
     let maplecode_home = app.config.maplecode_home.to_path_buf();
     let base_path = app.local_settings.user_config_path.clone();
-    let profile_path = AbsolutePathBuf::from_absolute_path(maplecode_home.join("work.config.toml"))?;
+    let profile_path =
+        AbsolutePathBuf::from_absolute_path(maplecode_home.join("work.config.toml"))?;
     std::fs::write(
         base_path.as_path(),
         "[tui.presets.1]\ninput = 'base prompt'\nlabel = 'base label'\n",

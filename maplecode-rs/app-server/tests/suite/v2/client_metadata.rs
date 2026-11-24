@@ -3,6 +3,8 @@ use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::create_fake_parented_rollout_with_source;
 use app_test_support::create_fake_rollout;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
 use maplecode_app_server_protocol::ReviewDelivery;
 use maplecode_app_server_protocol::ReviewStartParams;
 use maplecode_app_server_protocol::ReviewStartResponse;
@@ -23,8 +25,6 @@ use maplecode_app_server_protocol::UserInput as V2UserInput;
 use maplecode_protocol::ThreadId as CoreThreadId;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use std::collections::HashMap;
 use tempfile::TempDir;
@@ -442,7 +442,10 @@ async fn turn_start_sends_nested_subagent_lineage_after_cold_thread_resume_v2() 
             .count()
     };
     assert_eq!(
-        (count("maplecode_turn_event"), count("maplecode_web_search_event")),
+        (
+            count("maplecode_turn_event"),
+            count("maplecode_web_search_event")
+        ),
         (1, 1)
     );
 
@@ -602,7 +605,8 @@ async fn turn_steer_updates_client_metadata_on_follow_up_responses_request_v2(
         first_metadata["misalignment_override"],
     );
 
-    let event = wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_event").await?;
+    let event =
+        wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "maplecode_turn_event").await?;
     assert_eq!(
         (
             event["event_params"]["turn_trigger"].as_str(),

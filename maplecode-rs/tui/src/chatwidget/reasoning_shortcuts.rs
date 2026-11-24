@@ -13,10 +13,10 @@
 //! advertised order. Raising into Ultra requires the explicit
 //! advanced-reasoning picker.
 
+use crossterm::event::KeyEvent;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::openai_models::ModelPreset;
 use maplecode_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
-use crossterm::event::KeyEvent;
 
 use super::ChatWidget;
 use super::PARENT_OWNED_INPUT_MESSAGE;

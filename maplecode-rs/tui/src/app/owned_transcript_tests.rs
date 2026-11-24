@@ -9,10 +9,6 @@ use crate::history_cell::HistoryCell;
 use crate::history_cell::UserHistoryCell;
 use crate::session_state::ThreadSessionState;
 use crate::test_support::test_path_buf;
-use maplecode_app_server_protocol::AskForApproval;
-use maplecode_config::types::ApprovalsReviewer;
-use maplecode_config::types::CopyOnSelect;
-use maplecode_protocol::models::PermissionProfile;
 use crossterm::event::MouseButton::Left;
 use crossterm::event::MouseButton::Right;
 use crossterm::event::MouseEvent;
@@ -20,6 +16,10 @@ use crossterm::event::MouseEventKind;
 use crossterm::event::MouseEventKind::Down;
 use crossterm::event::MouseEventKind::Drag;
 use crossterm::event::MouseEventKind::Up;
+use maplecode_app_server_protocol::AskForApproval;
+use maplecode_config::types::ApprovalsReviewer;
+use maplecode_config::types::CopyOnSelect;
+use maplecode_protocol::models::PermissionProfile;
 use pretty_assertions::assert_eq;
 use ratatui::buffer::Buffer;
 
@@ -354,7 +354,9 @@ async fn owned_transcript_reserves_a_row_above_the_composer() -> Result<()> {
         if label == "Detailed" {
             app.transcript_cells = vec![Arc::new(crate::history_cell::new_view_image_tool_call(
                 "detail-image".to_string(),
-                maplecode_utils_path_uri::LegacyAppPathString::from_string("assets/detail-image.png"),
+                maplecode_utils_path_uri::LegacyAppPathString::from_string(
+                    "assets/detail-image.png",
+                ),
             ))];
             app.open_transcript_overlay(&mut tui);
             assert!(app.overlay.is_none() && app.transcript_view.is_detailed());

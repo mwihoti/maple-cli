@@ -960,7 +960,9 @@ fn profile_has_managed_filesystem_restrictions(permission_profile: &PermissionPr
 }
 
 pub(crate) fn default_policy_path(maplecode_home: &Path) -> PathBuf {
-    maplecode_home.join(RULES_DIR_NAME).join(DEFAULT_POLICY_FILE)
+    maplecode_home
+        .join(RULES_DIR_NAME)
+        .join(DEFAULT_POLICY_FILE)
 }
 
 #[cfg(test)]

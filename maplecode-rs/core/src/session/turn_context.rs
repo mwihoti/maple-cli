@@ -15,6 +15,9 @@ use crate::skills::HostSkillDiscovery;
 use crate::tools::sandboxing::configured_windows_sandbox_selection;
 use crate::tools::sandboxing::executor_windows_sandbox_selection;
 use arc_swap::ArcSwap;
+use futures::FutureExt;
+use futures::future::BoxFuture;
+use futures::future::Shared;
 use maplecode_core_plugins::PluginCommandAttribution;
 use maplecode_core_plugins::ResolvedPluginMetricsOperation;
 use maplecode_core_plugins::TrustedPluginRoots;
@@ -45,9 +48,6 @@ use maplecode_skills_extension::HostSkillsSnapshot;
 use maplecode_skills_extension::SkillLoadOutcome;
 use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_plugins::PluginIdentity;
-use futures::FutureExt;
-use futures::future::BoxFuture;
-use futures::future::Shared;
 use std::path::PathBuf;
 use std::sync::Mutex as StdMutex;
 use std::sync::atomic::AtomicBool;
@@ -663,10 +663,12 @@ impl TurnContext {
                     .plugins
                     .iter()
                     .map(|plugin| match &plugin.plugin_id {
-                        maplecode_core_plugins::PluginIdentity::Local { plugin_id } => PluginIdentity {
-                            plugin_id: plugin_id.clone(),
-                            remote_plugin_id: None,
-                        },
+                        maplecode_core_plugins::PluginIdentity::Local { plugin_id } => {
+                            PluginIdentity {
+                                plugin_id: plugin_id.clone(),
+                                remote_plugin_id: None,
+                            }
+                        }
                         maplecode_core_plugins::PluginIdentity::Remote { remote_plugin_id } => {
                             PluginIdentity {
                                 plugin_id: String::new(),

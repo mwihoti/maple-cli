@@ -22,10 +22,10 @@ use tokio::io::AsyncWriteExt;
 
 use crate::ExecServerRuntimeOptions;
 use crate::FileSystemSandboxContext;
-use crate::fs_helper::MAPLECODE_FS_HELPER_ARG1;
 use crate::fs_helper::FsHelperPayload;
 use crate::fs_helper::FsHelperRequest;
 use crate::fs_helper::FsHelperResponse;
+use crate::fs_helper::MAPLECODE_FS_HELPER_ARG1;
 use crate::rpc::internal_error;
 use crate::rpc::invalid_request;
 
@@ -555,7 +555,8 @@ mod tests {
         sandbox_context.sandbox_override = SandboxOverride::EscalatedSandboxWithRestrictions;
         #[cfg(windows)]
         let sandbox_context = crate::FileSystemSandboxContext {
-            windows_sandbox_selection: maplecode_file_system::WindowsSandboxSelection::RestrictedToken,
+            windows_sandbox_selection:
+                maplecode_file_system::WindowsSandboxSelection::RestrictedToken,
             ..sandbox_context
         };
         selected.close().expect("remove selected directory");
@@ -583,9 +584,11 @@ mod tests {
     #[test]
     fn sandbox_exec_request_binds_windows_relative_globs_to_policy_cwd() {
         let maplecode_self_exe = std::env::current_exe().expect("current exe");
-        let runtime_paths =
-            ExecServerRuntimeOptions::new(maplecode_self_exe, /*maplecode_linux_sandbox_exe*/ None)
-                .expect("runtime paths");
+        let runtime_paths = ExecServerRuntimeOptions::new(
+            maplecode_self_exe,
+            /*maplecode_linux_sandbox_exe*/ None,
+        )
+        .expect("runtime paths");
         let runner = FileSystemSandboxRunner::new(runtime_paths);
         let selected = tempfile::tempdir().expect("selected directory");
         let selected_cwd = AbsolutePathBuf::from_absolute_path(selected.path()).expect("cwd");
@@ -605,7 +608,8 @@ mod tests {
             ),
         ]);
         let sandbox_context = crate::FileSystemSandboxContext {
-            windows_sandbox_selection: maplecode_file_system::WindowsSandboxSelection::RestrictedToken,
+            windows_sandbox_selection:
+                maplecode_file_system::WindowsSandboxSelection::RestrictedToken,
             ..sandbox_context_with_cwd(&policy, cwd_uri)
         };
         selected.close().expect("remove selected directory");
@@ -658,11 +662,17 @@ mod tests {
     fn helper_permissions_include_only_the_helper_executable() {
         let maplecode_self_exe = std::env::current_exe().expect("current exe");
         let maplecode_self_exe = maplecode_self_exe.canonicalize().expect("canonical helper");
-        let runtime_paths =
-            ExecServerRuntimeOptions::new(maplecode_self_exe, /*maplecode_linux_sandbox_exe*/ None)
-                .expect("runtime paths");
+        let runtime_paths = ExecServerRuntimeOptions::new(
+            maplecode_self_exe,
+            /*maplecode_linux_sandbox_exe*/ None,
+        )
+        .expect("runtime paths");
         // :root covers the cwd's drive. The helper needs an exact read on its own drive.
-        let drive = if runtime_paths.maplecode_self_exe.as_path().starts_with(r"C:\") {
+        let drive = if runtime_paths
+            .maplecode_self_exe
+            .as_path()
+            .starts_with(r"C:\")
+        {
             r"D:\"
         } else {
             r"C:\"
@@ -675,7 +685,8 @@ mod tests {
         let sibling = parent.join("credentials.json");
 
         let context = crate::FileSystemSandboxContext {
-            windows_sandbox_selection: maplecode_file_system::WindowsSandboxSelection::RestrictedToken,
+            windows_sandbox_selection:
+                maplecode_file_system::WindowsSandboxSelection::RestrictedToken,
             ..sandbox_context_with_cwd(
                 &FileSystemSandboxPolicy::read_only(),
                 PathUri::from_abs_path(&cwd),
@@ -686,12 +697,10 @@ mod tests {
             .expect("sandbox command");
         let policy = request.permission_profile.file_system_sandbox_policy();
 
-        assert!(
-            policy.can_read_local_path_with_cwd(
-                runtime_paths.maplecode_self_exe.as_path(),
-                cwd.as_path(),
-            )
-        );
+        assert!(policy.can_read_local_path_with_cwd(
+            runtime_paths.maplecode_self_exe.as_path(),
+            cwd.as_path(),
+        ));
         assert!(!policy.can_read_local_path_with_cwd(parent.as_path(), cwd.as_path()));
         assert!(!policy.can_read_local_path_with_cwd(sibling.as_path(), cwd.as_path()));
     }

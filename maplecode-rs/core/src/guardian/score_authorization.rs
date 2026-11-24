@@ -1,8 +1,8 @@
 //! Binds async and serving assessments to their captured authorization and model policy.
 //! A serving assessment lives with its invocation or code cell, without a separate cache.
 
-use crate::MapleCodeThread;
 use crate::GuardianAuthorizationVersion;
+use crate::MapleCodeThread;
 use crate::context::GuardianReviewEvidence;
 
 /// Authorization and policy captured for a score; consumers must revalidate before approval.

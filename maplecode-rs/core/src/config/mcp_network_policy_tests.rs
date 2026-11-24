@@ -5,6 +5,7 @@
 use super::*;
 use crate::config::ConfigBuilder;
 use anyhow::Context;
+use http::StatusCode;
 use maplecode_execpolicy::Decision;
 use maplecode_execpolicy::NetworkRuleProtocol::Https;
 use maplecode_http_client::HttpClientBuilder;
@@ -16,7 +17,6 @@ use maplecode_protocol::permissions::NetworkSandboxPolicy::Enabled;
 use maplecode_protocol::permissions::NetworkSandboxPolicy::Restricted;
 use maplecode_protocol::protocol::AskForApproval::Never;
 use maplecode_protocol::protocol::AskForApproval::OnRequest;
-use http::StatusCode;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

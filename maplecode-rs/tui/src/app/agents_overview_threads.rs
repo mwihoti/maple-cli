@@ -12,6 +12,7 @@ use crate::app_event::AgentsOverviewThreadRefresh;
 use crate::app_event::AppEvent;
 use crate::app_server_session::AppServerSession;
 use crate::chatwidget::ChatWidget;
+use futures::StreamExt;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::ServerNotification;
@@ -27,7 +28,6 @@ use maplecode_app_server_protocol::ThreadTurnsListParams;
 use maplecode_app_server_protocol::ThreadTurnsListResponse;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::protocol::SubAgentSource;
-use futures::StreamExt;
 use std::collections::HashMap;
 use uuid::Uuid;
 

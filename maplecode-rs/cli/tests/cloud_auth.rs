@@ -33,7 +33,8 @@ async fn cloud_list_respects_the_credential_store_and_trusted_destinations() -> 
     )?;
 
     let command = || -> Result<assert_cmd::Command> {
-        let mut command = assert_cmd::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?);
+        let mut command =
+            assert_cmd::Command::new(maplecode_utils_cargo_bin::cargo_bin("maplecode")?);
         command
             .current_dir(maplecode_home.path())
             .env("MAPLECODE_HOME", maplecode_home.path())

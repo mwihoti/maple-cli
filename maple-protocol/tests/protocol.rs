@@ -348,7 +348,11 @@ fn readable_tool_names_resolve_to_advertised_tools_only() {
     let tool = r["tools"][0].clone();
     let plain = tool["name"].as_str().unwrap().to_owned();
     r["tools"] = json!([{"type":"namespace","name":"functions","tools":[tool]}]);
-    for requested in [plain.clone(), format!("functions.{plain}"), format!("functions__{plain}")] {
+    for requested in [
+        plain.clone(),
+        format!("functions.{plain}"),
+        format!("functions__{plain}"),
+    ] {
         let c = request::translate(&r).unwrap();
         let mut d = Decoder::new(c.tools);
         d.feed(&frame(
@@ -588,10 +592,19 @@ fn a_fresh_decoder_does_not_inherit_cancelled_partial_output() {
 fn empty_opening_content_delta_does_not_precede_item_added() {
     let mut d = Decoder::new(BTreeMap::new());
     let mut events = d
-        .feed(&frame(json!({"role":"assistant","content":""}), Value::Null))
+        .feed(&frame(
+            json!({"role":"assistant","content":""}),
+            Value::Null,
+        ))
         .unwrap();
-    events.extend(d.feed(&frame(json!({"reasoning":"think"}), Value::Null)).unwrap());
-    events.extend(d.feed(&frame(json!({"content":"hello"}), json!("stop"))).unwrap());
+    events.extend(
+        d.feed(&frame(json!({"reasoning":"think"}), Value::Null))
+            .unwrap(),
+    );
+    events.extend(
+        d.feed(&frame(json!({"content":"hello"}), json!("stop")))
+            .unwrap(),
+    );
     events.extend(d.feed(b"data: [DONE]\n\n").unwrap());
     let mut open = std::collections::HashSet::new();
     for e in &events {

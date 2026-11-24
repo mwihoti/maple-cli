@@ -3,14 +3,6 @@
 use super::super::rmcp_client::remote_aware_environment_id;
 use super::super::rmcp_client::remote_aware_stdio_server_bin;
 use anyhow::Result;
-use maplecode_core::ConfigRefreshOutcome;
-use maplecode_features::Feature;
-use maplecode_protocol::mcp::McpServerConnectionStatus;
-use maplecode_protocol::openai_models::ToolMode;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::McpStartupStatus;
-use maplecode_protocol::protocol::SessionSource;
-use maplecode_protocol::protocol::SubAgentSource;
 use core_test_support::apps_test_server::AppsTestServer;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
@@ -20,6 +12,14 @@ use core_test_support::skip_if_wine_exec;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event_match;
 use core_test_support::wait_for_mcp_server;
+use maplecode_core::ConfigRefreshOutcome;
+use maplecode_features::Feature;
+use maplecode_protocol::mcp::McpServerConnectionStatus;
+use maplecode_protocol::openai_models::ToolMode;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::McpStartupStatus;
+use maplecode_protocol::protocol::SessionSource;
+use maplecode_protocol::protocol::SubAgentSource;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
@@ -137,7 +137,10 @@ async fn mcp_resource_messages(tool_mode: ToolMode) -> Result<()> {
     .await;
     test.submit_turn("List available MCP resources and templates.")
         .await?;
-    let (config, _) = test.maplecode.current_mcp_config_and_runtime_context().await;
+    let (config, _) = test
+        .maplecode
+        .current_mcp_config_and_runtime_context()
+        .await;
     assert_eq!(
         test.maplecode
             .mcp_connection_statuses(&config)

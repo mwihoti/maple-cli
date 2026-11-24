@@ -9,8 +9,8 @@ use std::path::PathBuf;
 use anyhow::Context;
 use anyhow::Result;
 use anyhow::anyhow;
-use maplecode_install_context::MapleCodePackageManifest;
 use maplecode_install_context::InstallContext;
+use maplecode_install_context::MapleCodePackageManifest;
 
 use crate::Daemon;
 use crate::install_lock::acquire_install_lock;
@@ -234,7 +234,8 @@ async fn prepare_from_package(
         .tempdir_in(&releases)?;
     let mut staged_digests = BTreeMap::new();
     let digest = package_tree(source, Some(stage.path()), &mut staged_digests)?;
-    let staged_exe = if cfg!(target_os = "macos") && stage.path().join("MapleCodeCLI.app").is_dir() {
+    let staged_exe = if cfg!(target_os = "macos") && stage.path().join("MapleCodeCLI.app").is_dir()
+    {
         Path::new("MapleCodeCLI.app/Contents/MacOS/maplecode")
     } else {
         Path::new(source_entrypoint)
@@ -284,7 +285,10 @@ async fn prepare_from_package(
         metadata["entrypoint"] = entrypoint.into();
         let bytes = serde_json::to_vec_pretty(&metadata)?;
         std::fs::write(stage.path().join("maplecode-package.json"), &bytes)?;
-        staged_digests.insert(PathBuf::from("maplecode-package.json"), blake3::hash(&bytes));
+        staged_digests.insert(
+            PathBuf::from("maplecode-package.json"),
+            blake3::hash(&bytes),
+        );
         package_tree(stage.path(), /*destination*/ None, &mut staged_digests)?
     } else {
         digest

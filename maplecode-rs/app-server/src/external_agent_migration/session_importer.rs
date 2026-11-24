@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use chrono::DateTime;
 use chrono::Utc;
+use futures::StreamExt;
 use maplecode_arg0::Arg0DispatchPaths;
 use maplecode_core::ThreadManager;
 use maplecode_core::config::ConfigOverrides;
@@ -42,7 +43,6 @@ use maplecode_thread_store::ThreadMetadataPatch;
 use maplecode_thread_store::ThreadPersistenceMetadata;
 use maplecode_thread_store::ThreadStore;
 use maplecode_thread_store::UpdateThreadMetadataParams;
-use futures::StreamExt;
 use tokio::sync::Semaphore;
 
 use crate::config_manager::ConfigManager;
@@ -246,7 +246,8 @@ impl ExternalAgentSessionImporter {
             .into_iter()
             .map(|completed_import| completed_import.import)
             .collect();
-        if let Err(err) = record_completed_session_imports(&self.maplecode_home, completed_imports) {
+        if let Err(err) = record_completed_session_imports(&self.maplecode_home, completed_imports)
+        {
             record_import_error(
                 &mut item_result,
                 "session_ledger_update",
@@ -371,7 +372,11 @@ impl ExternalAgentSessionImporter {
     ) -> Result<Option<PendingSessionImport>, SessionImportStepFailure> {
         let maplecode_home = self.maplecode_home.clone();
         tokio::task::spawn_blocking(move || {
-            prepare_validated_session_import_with_metadata_mode(&maplecode_home, session, metadata_mode)
+            prepare_validated_session_import_with_metadata_mode(
+                &maplecode_home,
+                session,
+                metadata_mode,
+            )
         })
         .await
         .map_err(|err| {
@@ -404,7 +409,10 @@ impl ExternalAgentSessionImporter {
                 /*request_overrides*/ None,
                 ConfigOverrides {
                     cwd: Some(cwd),
-                    maplecode_linux_sandbox_exe: self.arg0_paths.maplecode_linux_sandbox_exe.clone(),
+                    maplecode_linux_sandbox_exe: self
+                        .arg0_paths
+                        .maplecode_linux_sandbox_exe
+                        .clone(),
                     ..Default::default()
                 },
             )

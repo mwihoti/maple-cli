@@ -1,4 +1,13 @@
 use anyhow::Result;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
 use maplecode_features::Feature;
@@ -12,15 +21,6 @@ use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::MULTI_AGENT_MODE_OPEN_TAG;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -124,7 +124,10 @@ async fn submit_turn(
             }),
         )
         .await?;
-    wait_for_event(maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
     Ok(())
 }
 
@@ -613,7 +616,12 @@ async fn leaving_ultra_after_cold_resume_emits_explicit_mode() -> Result<()> {
         .with_config(configure_ultra);
     let resumed = resume_builder.restart(&server, &initial).await?;
     drop(initial);
-    submit_turn(&resumed.maplecode, "after resume", Some(ReasoningEffort::High)).await?;
+    submit_turn(
+        &resumed.maplecode,
+        "after resume",
+        Some(ReasoningEffort::High),
+    )
+    .await?;
 
     let requests = responses.requests();
     assert_eq!(

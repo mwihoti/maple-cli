@@ -9,6 +9,7 @@ use std::sync::atomic::AtomicU64;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
 
+use futures::TryFutureExt;
 use maplecode_code_mode_protocol::CellId;
 use maplecode_code_mode_protocol::CodeModeOutputTruncation;
 use maplecode_code_mode_protocol::CodeModeSession;
@@ -27,7 +28,6 @@ use maplecode_code_mode_protocol::grpc;
 use maplecode_code_mode_protocol::grpc::code_mode_host_client::CodeModeHostClient;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
-use futures::TryFutureExt;
 use rand::Rng;
 use tokio::sync::Semaphore;
 use tokio::sync::watch;

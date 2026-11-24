@@ -218,7 +218,9 @@ impl ThreadGoalRequestProcessor {
         let persist_result = match self.thread_manager.get_thread(thread_id).await {
             Ok(thread) => {
                 let needs_settings_checkpoint = match thread.rollout_path() {
-                    Some(path) => maplecode_rollout::existing_rollout_path(&path).await.is_none(),
+                    Some(path) => maplecode_rollout::existing_rollout_path(&path)
+                        .await
+                        .is_none(),
                     None => false,
                 };
                 match thread
@@ -535,7 +537,9 @@ pub(super) fn api_thread_goal_from_state(goal: maplecode_state::ThreadGoal) -> T
     }
 }
 
-fn api_thread_goal_status_from_state(status: maplecode_state::ThreadGoalStatus) -> ThreadGoalStatus {
+fn api_thread_goal_status_from_state(
+    status: maplecode_state::ThreadGoalStatus,
+) -> ThreadGoalStatus {
     match status {
         maplecode_state::ThreadGoalStatus::Active => ThreadGoalStatus::Active,
         maplecode_state::ThreadGoalStatus::Paused => ThreadGoalStatus::Paused,

@@ -7,6 +7,9 @@
 use maplecode_protocol::openai_models::CatalogModel;
 use std::sync::Arc;
 
+use futures::FutureExt;
+use futures::future::BoxFuture;
+use futures::future::Shared;
 use maplecode_features::Feature;
 use maplecode_guardian_reviewer::reviewer_instructions;
 use maplecode_login::AuthManager;
@@ -16,9 +19,6 @@ use maplecode_prompts::ResolvedModelMessages;
 use maplecode_protocol::models::BaseInstructionsProvenance;
 use maplecode_protocol::openai_models::ModelInfo;
 use maplecode_protocol::openai_models::ReasoningEffort;
-use futures::FutureExt;
-use futures::future::BoxFuture;
-use futures::future::Shared;
 use tokio_util::task::AbortOnDropHandle;
 
 use crate::config::Config;
@@ -196,7 +196,10 @@ async fn resolve_catalog_review_model(
     parent_model: &ModelInfo,
     reasoning_effort: Option<&ReasoningEffort>,
     default_review_model_id: &str,
-) -> (maplecode_guardian_reviewer::ReviewModel, Option<CatalogModel>) {
+) -> (
+    maplecode_guardian_reviewer::ReviewModel,
+    Option<CatalogModel>,
+) {
     // Keep a successful refresh even if writing it to the disk cache failed.
     let models_manager = &session.services.models_manager;
     let mut catalog = models_manager

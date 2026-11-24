@@ -275,7 +275,8 @@ pub async fn run_plugin_list(
         args.marketplace_name.as_deref(),
     )?;
 
-    let marketplace_sources = configured_marketplace_sources(&plugins_input, maplecode_home.as_path());
+    let marketplace_sources =
+        configured_marketplace_sources(&plugins_input, maplecode_home.as_path());
     let marketplaces = outcome
         .marketplaces
         .into_iter()
@@ -777,7 +778,9 @@ async fn load_plugin_command_context(
     let auth_manager = load_cli_auth_manager(&config).await?;
     let auth = auth_manager.auth().await;
     let uses_remote_catalog = plugins_input.plugins_enabled
-        && auth.as_ref().is_some_and(MapleCodeAuth::uses_maplecode_backend)
+        && auth
+            .as_ref()
+            .is_some_and(MapleCodeAuth::uses_maplecode_backend)
         && marketplace_name.is_none_or(|name| name == REMOTE_GLOBAL_MARKETPLACE_NAME);
     let manager = Arc::new(if uses_remote_catalog {
         plugins_manager_for_config_with_runtime(&config, Arc::clone(&auth_manager)).await?

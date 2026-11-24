@@ -9,6 +9,8 @@ use super::super::tests::sampler_config;
 use super::*;
 use crate::async_scorer::request::PreparedRequest;
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
 use maplecode_guardian_context::TranscriptCursor;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_login::AuthManager;
@@ -18,8 +20,6 @@ use maplecode_login::WorkspaceRoutingResolver;
 use maplecode_model_provider::ModelProviderFuture;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::ModelProviderInfo;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
@@ -205,11 +205,13 @@ async fn cold_pool_uses_http_during_open_timeout_then_recovers_after_cooldown() 
         let mut config = sampler_config(base_url.clone());
         config.provider = create_model_provider(
             ModelProviderInfo::create_openai_provider(Some(base_url)),
-            Some(AuthManager::from_auth_for_testing(if uses_maplecode_backend {
-                MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()
-            } else {
-                MapleCodeAuth::from_api_key("test-api-key")
-            })),
+            Some(AuthManager::from_auth_for_testing(
+                if uses_maplecode_backend {
+                    MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()
+                } else {
+                    MapleCodeAuth::from_api_key("test-api-key")
+                },
+            )),
         );
         config.service_tier = Some("priority".to_owned());
         let sampler = LunaSampler::new(config);

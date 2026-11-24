@@ -31,6 +31,10 @@ pub use app::ExitReason;
 pub use app::ResumableThread;
 use app_server_session::AppServerSession;
 use app_server_session::ThreadParamsMode;
+use color_eyre::eyre::WrapErr;
+use crossterm::SynchronizedUpdate;
+use cwd_prompt::CwdPromptAction;
+pub use daemon_startup::uses_wsl_drvfs;
 use maplecode_app_server_client::AppServerClient;
 use maplecode_app_server_client::DEFAULT_IN_PROCESS_CHANNEL_CAPACITY;
 use maplecode_app_server_client::InProcessAppServerClient;
@@ -75,10 +79,6 @@ use maplecode_utils_absolute_path::canonicalize_existing_preserving_symlinks;
 use maplecode_utils_home_dir::find_maplecode_home;
 use maplecode_utils_oss::ensure_oss_provider_ready;
 use maplecode_utils_oss::get_default_model_for_oss_provider;
-use color_eyre::eyre::WrapErr;
-use crossterm::SynchronizedUpdate;
-use cwd_prompt::CwdPromptAction;
-pub use daemon_startup::uses_wsl_drvfs;
 pub use session_archive_commands::DeleteConfirmation;
 pub use session_archive_commands::SessionArchiveAction;
 pub use session_archive_commands::SessionArchiveCommandOptions;
@@ -481,7 +481,8 @@ fn websocket_url_supports_auth_token(parsed: &Url) -> bool {
 pub fn resolve_remote_addr(addr: &str) -> color_eyre::Result<RemoteAppServerEndpoint> {
     if let Some(socket_path) = addr.strip_prefix("unix://") {
         let socket_path = if socket_path.is_empty() {
-            let maplecode_home = find_maplecode_home().wrap_err("failed to resolve MAPLECODE_HOME")?;
+            let maplecode_home =
+                find_maplecode_home().wrap_err("failed to resolve MAPLECODE_HOME")?;
             maplecode_app_server_client::app_server_control_socket_path(&maplecode_home)
                 .map_err(color_eyre::Report::new)?
         } else {
@@ -545,7 +546,8 @@ async fn connect_remote_app_server(
 }
 
 async fn maybe_probe_default_daemon_socket(maplecode_home: &Path) -> Option<AbsolutePathBuf> {
-    let socket_path = maplecode_app_server_client::app_server_control_socket_path(maplecode_home).ok()?;
+    let socket_path =
+        maplecode_app_server_client::app_server_control_socket_path(maplecode_home).ok()?;
     #[cfg(windows)]
     let (validated_path, _directory) =
         maplecode_uds::validate_private_socket_path(socket_path.as_path()).ok()?;
@@ -919,7 +921,9 @@ async fn lookup_latest_session_target_with_app_server(
         if let Some(target) = target
             && (uses_remote_workspace
                 || match target.path.as_deref() {
-                    Some(path) => maplecode_rollout::existing_rollout_path(path).await.is_some(),
+                    Some(path) => maplecode_rollout::existing_rollout_path(path)
+                        .await
+                        .is_some(),
                     None => false,
                 })
         {
@@ -1141,10 +1145,12 @@ async fn cloud_config_bundle_for_app_server_target(
     embedded_network_policy: &maplecode_app_server_client::EmbeddedNetworkPolicy,
 ) -> std::io::Result<CloudConfigBundleLoader> {
     managed_config_bundle_loader_for_storage(
-        embedded_network_policy
-            .bind_bootstrap_auth(app_server_target.auth_config_for_cloud_loader(
-                bootstrap_auth_config(maplecode_home, bootstrap_config)?,
-            )),
+        embedded_network_policy.bind_bootstrap_auth(
+            app_server_target.auth_config_for_cloud_loader(bootstrap_auth_config(
+                maplecode_home,
+                bootstrap_config,
+            )?),
+        ),
         bootstrap_config.config_layer_stack.requirements_toml(),
         /*enable_maplecode_api_key_env*/ false,
     )
@@ -1638,8 +1644,10 @@ async fn run_ratatui_app(
     // Leave the one-time override initialization below to use the final config.
     if (cli.resume_picker || cli.fork_picker)
         && let Some(name) = config.tui_theme.as_deref()
-        && let Some(theme) =
-            crate::render::highlight::resolve_theme_by_name(name, Some(config.maplecode_home.as_path()))
+        && let Some(theme) = crate::render::highlight::resolve_theme_by_name(
+            name,
+            Some(config.maplecode_home.as_path()),
+        )
     {
         crate::render::highlight::set_syntax_theme(theme);
     }
@@ -2188,7 +2196,9 @@ async fn run_ratatui_app(
     // this must happen after the last possible reload.
     if let Some(w) = crate::render::highlight::set_theme_override(
         local_settings.tui.theme.clone(),
-        find_maplecode_home().ok().map(AbsolutePathBuf::into_path_buf),
+        find_maplecode_home()
+            .ok()
+            .map(AbsolutePathBuf::into_path_buf),
     ) {
         config.startup_warnings.push(w);
     }

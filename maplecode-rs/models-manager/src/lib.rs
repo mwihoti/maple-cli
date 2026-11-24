@@ -10,8 +10,8 @@ pub mod test_support;
 
 pub use catalog::CatalogModel;
 pub use catalog::ModelOrigin;
-pub use maplecode_protocol::auth::AuthMode;
 pub use config::ModelsManagerConfig;
+pub use maplecode_protocol::auth::AuthMode;
 pub use originator::ModelCatalogOriginator;
 
 /// Load the bundled model catalog shipped with `maplecode-models-manager`.

@@ -2,6 +2,9 @@
 
 use std::sync::Arc;
 
+use core::time::Duration;
+use core_test_support::load_default_config_for_test;
+use core_test_support::wait_for_event;
 use maplecode_core::NewThread;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
@@ -17,9 +20,6 @@ use maplecode_protocol::protocol::TurnContextItem;
 use maplecode_protocol::protocol::TurnStartedEvent;
 use maplecode_protocol::protocol::UserMessageEvent;
 use maplecode_protocol::protocol::WarningEvent;
-use core::time::Duration;
-use core_test_support::load_default_config_for_test;
-use core_test_support::wait_for_event;
 use tempfile::TempDir;
 
 fn resume_history(

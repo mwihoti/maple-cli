@@ -2,12 +2,12 @@
 
 use std::path::PathBuf;
 
-use maplecode_config::types::KeybindingSpec;
-use maplecode_config::types::KeybindingsSpec;
-use maplecode_config::types::TuiKeymap;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyModifiers;
+use maplecode_config::types::KeybindingSpec;
+use maplecode_config::types::KeybindingsSpec;
+use maplecode_config::types::TuiKeymap;
 use pretty_assertions::assert_eq;
 
 use super::super::super::chat_composer_history::HistoryEntry;

@@ -49,6 +49,30 @@ use maplecode_mcp::SandboxState;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_utils_path_uri::LegacyAppPathString;
 
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::assert_regex_match;
+use core_test_support::is_remote_test_environment;
+use core_test_support::responses;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_no_remote_env;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::stdio_server_bin;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_docker_container_name;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::test_env;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
+use http::StatusCode;
+use image::DynamicImage;
+use image::GenericImageView;
+use image::ImageBuffer;
+use image::Rgba;
 use maplecode_history::RolloutItem;
 use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
@@ -100,30 +124,6 @@ use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_cargo_bin::cargo_bin;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::assert_regex_match;
-use core_test_support::is_remote_test_environment;
-use core_test_support::responses;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_no_remote_env;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::stdio_server_bin;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::test_env;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::test_docker_container_name;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
-use http::StatusCode;
-use image::DynamicImage;
-use image::GenericImageView;
-use image::ImageBuffer;
-use image::Rgba;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -472,7 +472,10 @@ async fn call_structured_tool(
         .expect("structured content")
         .clone();
 
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
     Ok(structured_content)
 }
 
@@ -542,7 +545,10 @@ async fn agent_metadata_is_only_sent_to_the_selected_plugin(
     )
     .await?;
     assert_eq!(meta["callId"], json!(call_id));
-    assert_eq!(meta["x-maplecode-turn-metadata"]["turn_trigger"], "composer");
+    assert_eq!(
+        meta["x-maplecode-turn-metadata"]["turn_trigger"],
+        "composer"
+    );
     let expect_private_metadata = matches!(case, AgentMetadataCase::ApprovedPlugin);
     assert_eq!(
         meta.get("x-maplecode-root-turn-id").cloned(),
@@ -917,7 +923,10 @@ async fn environment_mcp_policy_filters_runtime_config_and_model_tools(
     fixture
         .submit_text_turn("start with pending environment configuration")
         .await?;
-    let (pending_config, _) = fixture.maplecode.current_mcp_config_and_runtime_context().await;
+    let (pending_config, _) = fixture
+        .maplecode
+        .current_mcp_config_and_runtime_context()
+        .await;
     let pending_servers = pending_config.mcp_server_catalog.configured_servers();
     assert!(!pending_servers["allowed"].enabled);
     assert!(!pending_servers["unselected"].enabled);
@@ -970,7 +979,10 @@ async fn environment_mcp_policy_filters_runtime_config_and_model_tools(
         )
         .await?;
 
-    let (runtime_config, _) = fixture.maplecode.current_mcp_config_and_runtime_context().await;
+    let (runtime_config, _) = fixture
+        .maplecode
+        .current_mcp_config_and_runtime_context()
+        .await;
     let runtime_servers = runtime_config.mcp_server_catalog.configured_servers();
     assert!(!runtime_servers["blocked"].enabled);
     assert!(!runtime_servers["unselected"].enabled);
@@ -1004,7 +1016,10 @@ async fn environment_mcp_policy_filters_runtime_config_and_model_tools(
         .maplecode
         .environment_failed(&selection, "environment policy unavailable".to_string())
         .await?;
-    let (failed_config, _) = fixture.maplecode.current_mcp_config_and_runtime_context().await;
+    let (failed_config, _) = fixture
+        .maplecode
+        .current_mcp_config_and_runtime_context()
+        .await;
     let failed_servers = failed_config.mcp_server_catalog.configured_servers();
     assert!(!failed_servers["allowed"].enabled);
     Ok(())
@@ -1426,7 +1441,10 @@ async fn stdio_server_round_trip(server_name: &'static str, namespace: &str) -> 
         .expect("env snapshot inserted");
     assert_eq!(env_value, expected_env_value);
 
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let search_request = search_mock.single_request();
     let tools_state = search_request
@@ -1799,9 +1817,12 @@ async fn apps_enabled_turn_skips_pending_optional_mcp_without_cached_tools() -> 
             .is_none_or(|name| !name.starts_with("mcp__pending_optional"))
     }));
 
-    tokio::time::timeout(Duration::from_secs(2), fixture.maplecode.shutdown_and_wait())
-        .await
-        .context("shutdown should cancel pending optional MCP startup")??;
+    tokio::time::timeout(
+        Duration::from_secs(2),
+        fixture.maplecode.shutdown_and_wait(),
+    )
+    .await
+    .context("shutdown should cancel pending optional MCP startup")??;
     Ok(())
 }
 
@@ -1861,9 +1882,12 @@ async fn shutdown_cancels_startup_prewarm_waiting_for_mcp_startup() -> anyhow::R
         server.single_connection().is_empty(),
         "prewarm should wait for tools before sending generate=false"
     );
-    tokio::time::timeout(Duration::from_secs(2), fixture.maplecode.shutdown_and_wait())
-        .await
-        .context("shutdown should not wait for startup prewarm MCP startup")??;
+    tokio::time::timeout(
+        Duration::from_secs(2),
+        fixture.maplecode.shutdown_and_wait(),
+    )
+    .await
+    .context("shutdown should not wait for startup prewarm MCP startup")??;
     // Dropping the thread closes its cached socket. Wait for the server to drain preceding frames.
     drop(fixture);
     assert!(
@@ -2147,11 +2171,12 @@ async fn interrupt_during_mcp_startup_preserves_user_input_in_history(
         detail: Some(ImageDetail::High),
     });
     fixture.maplecode.start_or_steer_turn(input).await?;
-    let turn_id = core_test_support::wait_for_event_match(&fixture.maplecode, |event| match event {
-        EventMsg::TurnStarted(started) => Some(started.turn_id.clone()),
-        _ => None,
-    })
-    .await;
+    let turn_id =
+        core_test_support::wait_for_event_match(&fixture.maplecode, |event| match event {
+            EventMsg::TurnStarted(started) => Some(started.turn_id.clone()),
+            _ => None,
+        })
+        .await;
     let (reply, outcome) = tokio::sync::oneshot::channel();
     fixture
         .maplecode
@@ -2318,9 +2343,9 @@ async fn stdio_server_uses_configured_cwd_before_runtime_fallback() -> anyhow::R
 #[serial(mcp_cwd)]
 async fn local_stdio_server_uses_runtime_fallback_cwd_when_config_omits_cwd() -> anyhow::Result<()>
 {
-    use maplecode_core::StartThreadOptions;
     use core_test_support::exec_server::ExecServerProcess;
     use core_test_support::test_maplecode::local;
+    use maplecode_core::StartThreadOptions;
 
     skip_if_no_network!(Ok(()));
 
@@ -2976,7 +3001,10 @@ async fn stdio_mcp_parallel_tool_calls_default_false_runs_serially() -> anyhow::
         "default MCP tool calls should run serially; saw events: {call_events:?}"
     );
 
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let request = final_mock.single_request();
     for call_id in [first_call_id, second_call_id] {
@@ -3079,7 +3107,10 @@ async fn stdio_mcp_read_only_tool_calls_run_concurrently_without_server_opt_in()
         ))
         .await?;
 
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let request = final_mock.single_request();
     for call_id in [first_call_id, second_call_id] {
@@ -3172,7 +3203,10 @@ async fn stdio_mcp_parallel_tool_calls_opt_in_runs_concurrently() -> anyhow::Res
         ))
         .await?;
 
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let request = final_mock.single_request();
     for call_id in [first_call_id, second_call_id] {
@@ -3251,7 +3285,10 @@ async fn stdio_encrypted_content_responses_round_trip() -> anyhow::Result<()> {
             "call the rmcp encrypted output tool",
         ))
         .await?;
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let output_item = final_mock.single_request().function_call_output(call_id);
     let output = output_item["output"]
@@ -3348,11 +3385,12 @@ async fn stdio_image_responses_round_trip() -> anyhow::Result<()> {
         .start_or_steer_turn(read_only_user_turn(&fixture, "call the rmcp image tool"))
         .await?;
 
-    let turn_id = core_test_support::wait_for_event_match(&fixture.maplecode, |event| match event {
-        EventMsg::TurnStarted(started) => Some(started.turn_id.clone()),
-        _ => None,
-    })
-    .await;
+    let turn_id =
+        core_test_support::wait_for_event_match(&fixture.maplecode, |event| match event {
+            EventMsg::TurnStarted(started) => Some(started.turn_id.clone()),
+            _ => None,
+        })
+        .await;
 
     // Wait for tool begin/end and final completion.
     let begin_event = wait_for_event(&fixture.maplecode, |ev| {
@@ -3411,7 +3449,10 @@ async fn stdio_image_responses_round_trip() -> anyhow::Result<()> {
     assert_eq!(entry.get("mimeType"), Some(&json!("image/png")));
     assert_eq!(entry.get("data"), Some(&json!(base64_only)));
 
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let output_item = final_mock.single_request().function_call_output(call_id);
     assert_eq!(output_item["type"], "function_call_output");
@@ -3516,7 +3557,10 @@ async fn stdio_image_responses_resize_large_image() -> anyhow::Result<()> {
             "call the rmcp image_scenario tool",
         ))
         .await?;
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let output_item = final_mock.single_request().function_call_output(call_id);
     assert_eq!(output_item["call_id"], call_id);
@@ -3605,7 +3649,10 @@ async fn stdio_image_responses_preserve_original_detail_metadata() -> anyhow::Re
         ))
         .await?;
 
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let output_item = final_mock.single_request().function_call_output(call_id);
     let output = output_item["output"]
@@ -3779,7 +3826,10 @@ async fn stdio_image_responses_are_sanitized_for_text_only_model() -> anyhow::Re
         matches!(ev, EventMsg::McpToolCallEnd(_))
     })
     .await;
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let output_item = final_mock.single_request().function_call_output(call_id);
     let header = output_item["output"][0]["text"]
@@ -3915,7 +3965,10 @@ async fn stdio_server_propagates_whitelisted_env_vars() -> anyhow::Result<()> {
         .expect("env snapshot inserted");
     assert_eq!(env_value, expected_env_value);
 
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     server.verify().await;
 
@@ -4013,7 +4066,10 @@ async fn stdio_server_propagates_explicit_local_env_var_source() -> anyhow::Resu
         .expect("structured content");
     assert_eq!(structured["env"], expected_env_value);
 
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
     server.verify().await;
     Ok(())
 }
@@ -4109,7 +4165,10 @@ async fn remote_stdio_env_var_source_does_not_copy_local_env() -> anyhow::Result
         .expect("structured content");
     assert_eq!(structured["env"], Value::Null);
 
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
     server.verify().await;
     Ok(())
 }
@@ -4392,7 +4451,10 @@ async fn streamable_http_tool_call_round_trip(mode: HeadersHelperMode) -> anyhow
     }
     // Phase 7: verify the scripted model calls were consumed and clean up the
     // placement-aware MCP server.
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     server.verify().await;
 
@@ -4997,7 +5059,10 @@ async fn streamable_http_with_oauth_round_trip_impl() -> anyhow::Result<()> {
 
     // Phase 9: verify the scripted model calls were consumed and clean up the
     // placement-aware MCP server.
-    wait_for_event(&fixture.maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&fixture.maplecode, |ev| {
+        matches!(ev, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let request = response_mock.single_request().body_json();
     assert!(

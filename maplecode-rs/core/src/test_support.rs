@@ -175,7 +175,10 @@ pub fn auth_manager_from_auth(auth: MapleCodeAuth) -> Arc<AuthManager> {
     AuthManager::from_auth_for_testing(auth)
 }
 
-pub fn auth_manager_from_auth_with_home(auth: MapleCodeAuth, maplecode_home: PathBuf) -> Arc<AuthManager> {
+pub fn auth_manager_from_auth_with_home(
+    auth: MapleCodeAuth,
+    maplecode_home: PathBuf,
+) -> Arc<AuthManager> {
     AuthManager::from_auth_for_testing_with_home(auth, maplecode_home)
 }
 
@@ -309,7 +312,10 @@ pub fn responses_metadata(
     }
 }
 
-pub fn with_parent_turn(mut metadata: MapleCodeResponsesMetadata, id: &str) -> MapleCodeResponsesMetadata {
+pub fn with_parent_turn(
+    mut metadata: MapleCodeResponsesMetadata,
+    id: &str,
+) -> MapleCodeResponsesMetadata {
     metadata.parent_turn_id = Some(id.to_string());
     metadata
 }

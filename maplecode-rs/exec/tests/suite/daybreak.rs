@@ -159,8 +159,8 @@ async fn exec_custom_provider_daybreak_uses_capability() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn configured_daybreak_exec() -> anyhow::Result<(TestMapleCodeExecBuilder, wiremock::MockServer)>
-{
+async fn configured_daybreak_exec()
+-> anyhow::Result<(TestMapleCodeExecBuilder, wiremock::MockServer)> {
     let test = test_maplecode_exec();
     let server = responses::start_mock_server().await;
     let token = concat!(

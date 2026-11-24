@@ -157,7 +157,8 @@ async fn tmpdir_uses_command_environment_over_rpc(
     }
     #[cfg(windows)]
     let _account_guard = if selection == WindowsSandboxSelection::Elevated {
-        let guard = maplecode_windows_sandbox_test_support::WindowsSandboxAccountTestGuard::acquire()?;
+        let guard =
+            maplecode_windows_sandbox_test_support::WindowsSandboxAccountTestGuard::acquire()?;
         // The RPC server re-enters this test executable, as in file_system_windows.
         let executable = std::env::current_exe()?;
         let resources = executable
@@ -169,7 +170,10 @@ async fn tmpdir_uses_command_environment_over_rpc(
         {
             return Err(error).context("create Windows sandbox test resources");
         }
-        for name in ["maplecode-windows-sandbox-setup", "maplecode-command-runner"] {
+        for name in [
+            "maplecode-windows-sandbox-setup",
+            "maplecode-command-runner",
+        ] {
             let source = maplecode_utils_cargo_bin::cargo_bin(name)?;
             let destination = resources.join(std::path::Path::new(name).with_extension("exe"));
             if let Err(error) = maplecode_utils_cargo_bin::copy_executable(&source, &destination)

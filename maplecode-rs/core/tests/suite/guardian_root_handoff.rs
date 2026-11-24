@@ -322,7 +322,8 @@ pub(crate) async fn handoff_scenario(native_history: bool) -> Result<Vec<Respons
         .await?
         .items;
     test.maplecode =
-        crate::suite::guardian_checkpoint_migration::resume(&test, &test.maplecode, rollout).await?;
+        crate::suite::guardian_checkpoint_migration::resume(&test, &test.maplecode, rollout)
+            .await?;
     expected.insert(
         /*index*/ 2,
         GuardianRootMessage::Assistant("Inspect the metrics too?".to_owned()),
@@ -346,7 +347,8 @@ pub(crate) async fn handoff_scenario(native_history: bool) -> Result<Vec<Respons
         }
     }}]))?;
     test.maplecode =
-        crate::suite::guardian_checkpoint_migration::resume(&test, &test.maplecode, history).await?;
+        crate::suite::guardian_checkpoint_migration::resume(&test, &test.maplecode, history)
+            .await?;
     let snapshot = leaf.guardian_root_snapshot().await.expect("migrated root");
     assert_eq!(
         (

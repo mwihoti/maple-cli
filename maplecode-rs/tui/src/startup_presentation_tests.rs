@@ -55,7 +55,11 @@ async fn first_frame_respects_screen_and_status_line_overrides() -> anyhow::Resu
     for (config, args, expected) in [
         ("", vec!["maplecode"], (true, true, true)),
         ("[tui]\n", vec!["maplecode"], (true, true, true)),
-        ("", vec!["maplecode", "--no-alt-screen"], (false, false, true)),
+        (
+            "",
+            vec!["maplecode", "--no-alt-screen"],
+            (false, false, true),
+        ),
         (
             "[tui]\nfullscreen_transcript = true\n",
             vec!["maplecode"],

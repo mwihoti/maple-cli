@@ -10,10 +10,6 @@ use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use chrono::SecondsFormat;
 use chrono::Utc;
-use maplecode_http_client::HttpClient;
-use maplecode_http_client::HttpError;
-use maplecode_protocol::auth::PlanType as AuthPlanType;
-use maplecode_protocol::protocol::SessionSource;
 use crypto_box::SecretKey as Curve25519SecretKey;
 use ed25519_dalek::Signer as _;
 use ed25519_dalek::SigningKey;
@@ -27,6 +23,10 @@ use jsonwebtoken::Validation;
 use jsonwebtoken::decode;
 use jsonwebtoken::decode_header;
 use jsonwebtoken::jwk::JwkSet;
+use maplecode_http_client::HttpClient;
+use maplecode_http_client::HttpError;
+use maplecode_protocol::auth::PlanType as AuthPlanType;
+use maplecode_protocol::protocol::SessionSource;
 use rand::TryRngCore;
 use rand::rngs::OsRng;
 use serde::Deserialize;
@@ -54,8 +54,9 @@ pub enum ChatGptEnvironment {
 
 impl ChatGptEnvironment {
     pub fn from_chatgpt_base_url(chatgpt_base_url: &str) -> Result<Self> {
-        let url = maplecode_http_client::validate_endpoint_url(chatgpt_base_url, "chatgpt_base_url")
-            .map_err(anyhow::Error::msg)?;
+        let url =
+            maplecode_http_client::validate_endpoint_url(chatgpt_base_url, "chatgpt_base_url")
+                .map_err(anyhow::Error::msg)?;
         let host = url.host_str().unwrap_or_default();
         anyhow::ensure!(
             maplecode_http_client::is_allowed_chatgpt_host(host)

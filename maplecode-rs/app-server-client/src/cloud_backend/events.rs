@@ -1,10 +1,10 @@
 //! Converts supported cloud transcript events without interpreting executor paths locally.
 
+use color_eyre::eyre::Result;
+use color_eyre::eyre::bail;
 use maplecode_app_server_protocol as protocol;
 use maplecode_cloud_client as cloud;
 use maplecode_protocol::models::ImageDetail;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::bail;
 
 pub(super) fn turn(summary: cloud::TurnSummary) -> Result<protocol::Turn> {
     Ok(protocol::Turn {

@@ -1,4 +1,26 @@
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
+use core_test_support::apps_test_server::search_capable_apps_builder;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::context_snapshot::SnapshotEntry;
+use core_test_support::responses;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_custom_tool_call;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::namespace_child_tool;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use maplecode_config::Constrained;
 use maplecode_core::EnvironmentConfig;
 use maplecode_core::TurnInputRequest;
@@ -30,28 +52,6 @@ use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::request_user_input::RequestUserInputAnswer;
 use maplecode_protocol::request_user_input::RequestUserInputResponse;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
-use core_test_support::apps_test_server::search_capable_apps_builder;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::context_snapshot::SnapshotEntry;
-use core_test_support::responses;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_custom_tool_call;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::namespace_child_tool;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use rmcp::model::ReadResourceRequestParams;
 use serde::Deserialize;
@@ -90,7 +90,10 @@ impl<S: Subscriber> Layer<S> for McpCacheCounters {
     fn on_new_span(&self, attributes: &Attributes<'_>, _id: &Id, _context: LayerContext<'_, S>) {
         let metadata = attributes.metadata();
         match (metadata.target(), metadata.name()) {
-            ("maplecode_mcp::connection_manager::tool_catalog", "capture_binding_with_metadata") => {
+            (
+                "maplecode_mcp::connection_manager::tool_catalog",
+                "capture_binding_with_metadata",
+            ) => {
                 self.binding_captures.fetch_add(1, Ordering::SeqCst);
             }
             ("maplecode_core::tools::handlers::tool_search", "new") => {
@@ -499,7 +502,10 @@ async fn root_reconciliation_reuses_pending_apps_startup() -> Result<()> {
     let mut extensions = ExtensionRegistryBuilder::new();
     extensions.mcp_server_contributor(Arc::new(AppsMcpServerContributor {
         id: "pending_apps_root_reconciliation_test",
-        url: format!("{}/api/maplecode/ps/mcp", gated_apps_server.chatgpt_base_url),
+        url: format!(
+            "{}/api/maplecode/ps/mcp",
+            gated_apps_server.chatgpt_base_url
+        ),
         root_resolved: Some(Arc::clone(&root_resolved)),
     }));
     let mut builder = search_capable_apps_builder(apps_server.chatgpt_base_url)
@@ -1411,7 +1417,10 @@ async fn apps_guidance_and_deferred_namespace_appear_after_recovery_within_a_tur
     let mut extensions = ExtensionRegistryBuilder::new();
     extensions.mcp_server_contributor(Arc::new(AppsMcpServerContributor {
         id: "deferred_apps_recovery_test",
-        url: format!("{}/api/maplecode/ps/mcp", gated_apps_server.chatgpt_base_url),
+        url: format!(
+            "{}/api/maplecode/ps/mcp",
+            gated_apps_server.chatgpt_base_url
+        ),
         root_resolved: None,
     }));
     let call_id = "pause-for-apps";
@@ -1868,7 +1877,11 @@ async fn later_follow_up_uses_background_recovered_apps_after_mid_thread_startup
         "Calendar should be available before the MCP refresh: {initial_request}"
     );
 
-    tokio::fs::remove_dir_all(test.maplecode_home_path().join("cache/maplecode_apps_tools")).await?;
+    tokio::fs::remove_dir_all(
+        test.maplecode_home_path()
+            .join("cache/maplecode_apps_tools"),
+    )
+    .await?;
     startup_control.fail_next_initialize_attempts(/*attempts*/ 1);
     test.maplecode.submit(Op::RefreshMcpServers).await?;
     test.maplecode

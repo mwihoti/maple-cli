@@ -3,6 +3,9 @@
 use std::sync::Arc;
 
 use anyhow::Result;
+use core_test_support::responses::start_mock_server;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::NetworkPolicyController;
@@ -14,9 +17,6 @@ use maplecode_login::AuthManager;
 use maplecode_login::AuthRouteConfig;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tempfile::TempDir;
@@ -63,7 +63,9 @@ async fn denied_oauth_refresh_terminates_401_recovery_and_preserves_auth() -> Re
         .expect(/*r*/ 2) // Initial request and the existing disk-reload recovery step.
         .mount(&server)
         .await;
-    let mut builder = test_maplecode().with_home(home).with_auth_manager(auth.clone());
+    let mut builder = test_maplecode()
+        .with_home(home)
+        .with_auth_manager(auth.clone());
     let test = builder.build_with_auto_env(&server).await?;
     test.maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {

@@ -16,6 +16,7 @@ use tokio_util::task::AbortOnDropHandle;
 use tracing::debug;
 use tracing::warn;
 
+use http::HeaderMap;
 use maplecode_api::AuthError;
 use maplecode_api::AuthProvider;
 use maplecode_http_client::HttpClientFactory;
@@ -26,7 +27,6 @@ use maplecode_utils_rustls_provider::ensure_rustls_crypto_provider;
 use maplecode_websocket_client::WebSocketConnection;
 use maplecode_websocket_client::WebSocketConnector;
 use maplecode_websocket_client::WebSocketTlsMode;
-use http::HeaderMap;
 
 use crate::ExecServerClient;
 use crate::ExecServerError;

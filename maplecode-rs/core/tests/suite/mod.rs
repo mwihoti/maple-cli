@@ -1,4 +1,5 @@
 // Aggregates all former standalone integration tests as modules.
+use ctor::ctor;
 use maplecode_apply_patch::MAPLECODE_CORE_APPLY_PATCH_ARG1;
 #[cfg(unix)]
 use maplecode_exec_server::MAPLECODE_ARG0_EXEC_HELPER_ARG1;
@@ -7,7 +8,6 @@ use maplecode_sandboxing::landlock::MAPLECODE_LINUX_SANDBOX_ARG0;
 use maplecode_test_binary_support::TestBinaryDispatchGuard;
 use maplecode_test_binary_support::TestBinaryDispatchMode;
 use maplecode_test_binary_support::configure_test_binary_dispatch;
-use ctor::ctor;
 
 // This code runs before any other tests are run.
 // It allows the test binary to behave like maplecode and dispatch to apply_patch and maplecode-linux-sandbox
@@ -73,8 +73,6 @@ mod cloud_config;
 mod code_mode;
 mod code_mode_elicitation;
 mod code_mode_model_messages;
-mod maplecode_apps_protocol;
-mod maplecode_delegate;
 mod collaboration_instructions;
 mod compact;
 mod compact_remote;
@@ -101,6 +99,8 @@ mod guardian_authorization_refresh;
 mod guardian_cached_score;
 #[path = "guardian_checkpoint_migration_tests.rs"]
 mod guardian_checkpoint_migration;
+mod maplecode_apps_protocol;
+mod maplecode_delegate;
 mod reasoning_replay_metrics;
 // Uses the same command-approval harness as guardian_review below.
 mod builtin_model_catalog;

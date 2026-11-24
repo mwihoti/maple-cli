@@ -1,9 +1,9 @@
 //! Login cancellation and readiness stay responsive during blocked credential reads.
 
 use super::*;
+use core_test_support::oauth::mount_device_code_grant;
 use maplecode_keyring_store::CredentialStoreError;
 use maplecode_keyring_store::KeyringStore;
-use core_test_support::oauth::mount_device_code_grant;
 use pretty_assertions::assert_eq;
 use std::sync::Mutex;
 use std::sync::atomic::AtomicBool;

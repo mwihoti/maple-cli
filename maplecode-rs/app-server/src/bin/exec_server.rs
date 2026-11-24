@@ -19,7 +19,11 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let _ = args.next();
     let argv1 = args.next();
     #[cfg(unix)]
-    if argv1.as_deref() == Some(OsStr::new(maplecode_exec_server::MAPLECODE_ARG0_EXEC_HELPER_ARG1)) {
+    if argv1.as_deref()
+        == Some(OsStr::new(
+            maplecode_exec_server::MAPLECODE_ARG0_EXEC_HELPER_ARG1,
+        ))
+    {
         maplecode_exec_server::run_arg0_exec_helper_main();
     }
     if argv1.as_deref() == Some(OsStr::new(maplecode_exec_server::MAPLECODE_FS_HELPER_ARG1)) {

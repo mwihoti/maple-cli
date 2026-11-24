@@ -659,10 +659,15 @@ impl App {
         let maplecode_home = app_server.maplecode_home_path(&self.config.maplecode_home);
         let feedback = self.feedback.clone();
         tokio::spawn(async move {
-            let result =
-                deliver_feedback(request_handle, maplecode_home, params, feedback, destination)
-                    .await
-                    .map_err(|err| format!("{err:#}"));
+            let result = deliver_feedback(
+                request_handle,
+                maplecode_home,
+                params,
+                feedback,
+                destination,
+            )
+            .await
+            .map_err(|err| format!("{err:#}"));
             app_event_tx.send(AppEvent::FeedbackSubmitted {
                 origin_thread_id,
                 category,
@@ -1069,7 +1074,8 @@ fn plugin_remote_section_error_next_step(label: &str, err: &str) -> &'static str
         "Switch to the matching workspace or ask the sharer for access"
     } else if err.contains("not found") || err.contains("status 404") {
         "Check that you are signed in to the correct workspace and still have access"
-    } else if err.contains("old build") || err.contains("update maplecode") || err.contains("stale") {
+    } else if err.contains("old build") || err.contains("update maplecode") || err.contains("stale")
+    {
         crate::history_cell::branded(
             "Update Maple Code, then try opening the shared plugin again",
             "Update Maple Code, then try opening the shared plugin again",
@@ -1369,9 +1375,15 @@ pub(super) fn mcp_inventory_maps_from_statuses(statuses: Vec<McpServerStatus>) -
             server_name.clone(),
             match status.auth_status {
                 maplecode_app_server_protocol::McpAuthStatus::Unknown => McpAuthStatus::Unknown,
-                maplecode_app_server_protocol::McpAuthStatus::Unsupported => McpAuthStatus::Unsupported,
-                maplecode_app_server_protocol::McpAuthStatus::NotLoggedIn => McpAuthStatus::NotLoggedIn,
-                maplecode_app_server_protocol::McpAuthStatus::BearerToken => McpAuthStatus::BearerToken,
+                maplecode_app_server_protocol::McpAuthStatus::Unsupported => {
+                    McpAuthStatus::Unsupported
+                }
+                maplecode_app_server_protocol::McpAuthStatus::NotLoggedIn => {
+                    McpAuthStatus::NotLoggedIn
+                }
+                maplecode_app_server_protocol::McpAuthStatus::BearerToken => {
+                    McpAuthStatus::BearerToken
+                }
                 maplecode_app_server_protocol::McpAuthStatus::OAuth => McpAuthStatus::OAuth,
             },
         );

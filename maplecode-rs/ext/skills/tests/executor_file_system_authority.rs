@@ -262,8 +262,10 @@ impl ExecutorFileSystem for SyntheticFileSystem {
 
 #[tokio::test]
 async fn skill_loading_and_reads_use_the_supplied_executor_file_system() {
-    let test_root =
-        std::env::temp_dir().join(format!("maplecode-executor-skill-fs-{}", std::process::id()));
+    let test_root = std::env::temp_dir().join(format!(
+        "maplecode-executor-skill-fs-{}",
+        std::process::id()
+    ));
     let project_folder = AbsolutePathBuf::from_absolute_path_checked(test_root.join(".maplecode"))
         .expect("absolute project folder");
     let alias_root = project_folder.join("skills");

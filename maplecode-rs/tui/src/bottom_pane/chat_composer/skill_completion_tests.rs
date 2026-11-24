@@ -127,7 +127,8 @@ fn default_unified_mention_popup_snapshot() {
         /*enhanced_keys_supported*/ false,
         |composer| {
             let features = maplecode_features::Features::with_defaults();
-            composer.set_mentions_v2_enabled(features.enabled(maplecode_features::Feature::MentionsV2));
+            composer
+                .set_mentions_v2_enabled(features.enabled(maplecode_features::Feature::MentionsV2));
             composer.set_skill_mentions(Some(vec![
                 SkillMetadata {
                     name: "sample-tools:search".to_string(),

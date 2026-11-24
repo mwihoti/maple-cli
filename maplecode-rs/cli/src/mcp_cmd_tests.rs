@@ -72,7 +72,9 @@ async fn isolated_test_home(test_name: &str) -> anyhow::Result<Option<PathBuf>> 
     const CHILD: &str = "MAPLECODE_MCP_NETWORK_TEST_CHILD";
     let test_name = format!("mcp_cmd::tests::{test_name}");
     if std::env::var(CHILD).as_deref() == Ok(test_name.as_str()) {
-        return Ok(Some(maplecode_core::config::find_maplecode_home()?.to_path_buf()));
+        return Ok(Some(
+            maplecode_core::config::find_maplecode_home()?.to_path_buf(),
+        ));
     }
 
     // Only the child receives the temporary home; the production loader resolves

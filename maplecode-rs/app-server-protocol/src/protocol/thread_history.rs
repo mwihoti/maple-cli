@@ -1286,7 +1286,10 @@ impl ThreadHistoryBuilder {
         self.upsert_item(/*turn_id*/ None, item, times);
     }
 
-    fn handle_collab_close_end(&mut self, payload: &maplecode_protocol::protocol::CollabCloseEndEvent) {
+    fn handle_collab_close_end(
+        &mut self,
+        payload: &maplecode_protocol::protocol::CollabCloseEndEvent,
+    ) {
         let status = match &payload.status {
             AgentStatus::Errored(_) | AgentStatus::NotFound => CollabAgentToolCallStatus::Failed,
             _ => CollabAgentToolCallStatus::Completed,
@@ -1873,9 +1876,9 @@ fn convert_dynamic_tool_content_items(
         .iter()
         .cloned()
         .map(|item| match item {
-            maplecode_protocol::dynamic_tools::DynamicToolCallOutputContentItem::InputText { text } => {
-                DynamicToolCallOutputContentItem::InputText { text }
-            }
+            maplecode_protocol::dynamic_tools::DynamicToolCallOutputContentItem::InputText {
+                text,
+            } => DynamicToolCallOutputContentItem::InputText { text },
             maplecode_protocol::dynamic_tools::DynamicToolCallOutputContentItem::InputImage {
                 image_url,
             } => DynamicToolCallOutputContentItem::InputImage { image_url },
@@ -2049,7 +2052,6 @@ mod tests {
     use maplecode_protocol::protocol::AgentReasoningEvent;
     use maplecode_protocol::protocol::AgentReasoningRawContentEvent;
     use maplecode_protocol::protocol::ApplyPatchApprovalRequestEvent;
-    use maplecode_protocol::protocol::MapleCodeErrorInfo;
     use maplecode_protocol::protocol::DynamicToolCallResponseEvent;
     use maplecode_protocol::protocol::EnteredReviewModeEvent;
     use maplecode_protocol::protocol::ExecCommandBeginEvent;
@@ -2057,6 +2059,7 @@ mod tests {
     use maplecode_protocol::protocol::ExecCommandSource;
     use maplecode_protocol::protocol::ExitedReviewModeEvent;
     use maplecode_protocol::protocol::ItemStartedEvent;
+    use maplecode_protocol::protocol::MapleCodeErrorInfo;
     use maplecode_protocol::protocol::McpInvocation;
     use maplecode_protocol::protocol::McpToolCallEndEvent;
     use maplecode_protocol::protocol::PatchApplyBeginEvent;
@@ -3994,7 +3997,9 @@ mod tests {
                 completed_at_ms: Some(1_042),
                 status: GuardianAssessmentStatus::Denied,
                 risk_level: Some(maplecode_protocol::protocol::GuardianRiskLevel::High),
-                user_authorization: Some(maplecode_protocol::protocol::GuardianUserAuthorization::Low),
+                user_authorization: Some(
+                    maplecode_protocol::protocol::GuardianUserAuthorization::Low,
+                ),
                 rationale: Some("Would delete user data.".into()),
                 decision_source: Some(
                     maplecode_protocol::protocol::GuardianAssessmentDecisionSource::Agent,
@@ -5500,7 +5505,9 @@ mod tests {
                 error: Some(TurnError {
                     misalignment: None,
                     message: "Selected model is at capacity. Please try a different model.".into(),
-                    maplecode_error_info: Some(crate::protocol::v2::MapleCodeErrorInfo::ServerOverloaded),
+                    maplecode_error_info: Some(
+                        crate::protocol::v2::MapleCodeErrorInfo::ServerOverloaded
+                    ),
                     additional_details: None,
                 }),
                 started_at: Some(10),

@@ -1,5 +1,12 @@
 use std::sync::Arc;
 
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::ForkSnapshot;
 use maplecode_core::NewThread;
 use maplecode_core::TurnInputRequest;
@@ -17,13 +24,6 @@ use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::protocol::ThreadSettingsSnapshot;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::InMemoryThreadStore;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use wiremock::Mock;
 use wiremock::MockServer;

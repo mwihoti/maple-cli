@@ -1,15 +1,5 @@
 use anyhow::Context;
 use anyhow::Result;
-use maplecode_core::EnvironmentConfig;
-use maplecode_exec_server::CreateDirectoryOptions;
-use maplecode_exec_server::RemoveOptions;
-use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::models::PermissionProfileSnapshot;
-use maplecode_protocol::permissions::NetworkSandboxPolicy;
-use maplecode_protocol::sandbox::SandboxType;
-use maplecode_utils_absolute_path::AbsolutePathBuf;
-use maplecode_utils_path_uri::PathUri;
 #[cfg(windows)]
 use core_test_support::PathExt;
 use core_test_support::TestTargetOs;
@@ -26,6 +16,16 @@ use core_test_support::skip_if_wine_exec;
 use core_test_support::test_maplecode::TestMapleCode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_target_os;
+use maplecode_core::EnvironmentConfig;
+use maplecode_exec_server::CreateDirectoryOptions;
+use maplecode_exec_server::RemoveOptions;
+use maplecode_protocol::config_types::WindowsSandboxLevel;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::models::PermissionProfileSnapshot;
+use maplecode_protocol::permissions::NetworkSandboxPolicy;
+use maplecode_protocol::sandbox::SandboxType;
+use maplecode_utils_absolute_path::AbsolutePathBuf;
+use maplecode_utils_path_uri::PathUri;
 use serde_json::json;
 use test_case::test_case;
 use wiremock::MockServer;
@@ -57,7 +57,10 @@ async fn workspace_roots_test(server: &MockServer) -> Result<TestMapleCode> {
 }
 
 fn outside_workspace_path(test: &TestMapleCode, file_name: &str) -> Result<PathUri> {
-    let file_name = format!("maplecode-workspace-roots-{}-{file_name}", std::process::id());
+    let file_name = format!(
+        "maplecode-workspace-roots-{}-{file_name}",
+        std::process::id()
+    );
     PathUri::from_abs_path(&test.config.cwd)
         .parent()
         .context("test workspace should have a parent")?

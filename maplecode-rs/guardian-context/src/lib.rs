@@ -98,12 +98,12 @@ pub use cursor::TranscriptCursor;
 pub use cursor::TranscriptMode;
 pub use cursor::TranscriptSelection;
 mod preparation;
-pub use maplecode_protocol::TranscriptFormat;
 pub use composition::CollectedContext;
 pub use composition::ComposedContext;
 pub use composition::ContextPresentation;
 pub use composition::MAX_TEXT_PART_ESTIMATED_TOKENS;
 pub use composition::PreparedTranscript;
+pub use maplecode_protocol::TranscriptFormat;
 pub use preparation::ContextBudgeting;
 pub use preparation::ContextProfile;
 pub use preparation::SyncImagePreparer;
@@ -229,8 +229,11 @@ pub trait SectionHistory: Send + Sync {
     /// Legacy providers cannot establish completeness from a message ID alone.
     fn items_with_sources(
         &self,
-    ) -> Box<dyn Iterator<Item = (&ResponseItem, Option<&maplecode_history::RetainedSource>)> + Send + '_>
-    {
+    ) -> Box<
+        dyn Iterator<Item = (&ResponseItem, Option<&maplecode_history::RetainedSource>)>
+            + Send
+            + '_,
+    > {
         Box::new(self.items().map(|item| (item, None)))
     }
 

@@ -7,6 +7,10 @@
 
 #![allow(clippy::unwrap_used)]
 
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use maplecode_app_server_client::AppServerRequestHandle;
 use maplecode_app_server_protocol::AccountLoginCompletedNotification;
 use maplecode_app_server_protocol::AccountUpdatedNotification;
@@ -18,10 +22,6 @@ use maplecode_app_server_protocol::LoginAccountResponse;
 use maplecode_login::AuthConfig;
 use maplecode_login::read_openai_api_key_from_env;
 use maplecode_protocol::auth::AuthMode;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;

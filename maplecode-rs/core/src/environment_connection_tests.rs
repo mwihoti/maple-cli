@@ -4,13 +4,13 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use assert_matches::assert_matches;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_exec_server::Environment;
 use maplecode_exec_server::EnvironmentConnectionState;
 use maplecode_protocol::protocol::EnvironmentConnectionEvent;
 use maplecode_protocol::protocol::Event;
 use maplecode_protocol::protocol::EventMsg;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tokio::net::TcpListener;

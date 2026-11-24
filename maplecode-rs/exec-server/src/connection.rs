@@ -8,12 +8,12 @@ use std::time::Instant;
 
 use axum::extract::ws::Message as AxumWebSocketMessage;
 use axum::extract::ws::WebSocket as AxumWebSocket;
-use maplecode_exec_server_protocol::JSONRPCMessage;
-use maplecode_exec_server_protocol::JSONRPCRequest;
 use futures::Sink;
 use futures::SinkExt;
 use futures::Stream;
 use futures::StreamExt;
+use maplecode_exec_server_protocol::JSONRPCMessage;
+use maplecode_exec_server_protocol::JSONRPCRequest;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
 use tokio::process::Child;
@@ -203,7 +203,8 @@ fn terminate_process_tree(child_process: &mut Child, process_group_id: Option<u3
     };
 
     #[cfg(unix)]
-    if let Err(err) = maplecode_utils_pty::process_group::terminate_process_group(process_group_id) {
+    if let Err(err) = maplecode_utils_pty::process_group::terminate_process_group(process_group_id)
+    {
         warn!("failed to terminate exec-server stdio process group {process_group_id}: {err}");
         kill_direct_child(child_process, "terminate");
     }
@@ -819,10 +820,10 @@ mod tests {
     use std::task::Context;
     use std::task::Poll;
 
-    use maplecode_exec_server_protocol::JSONRPCRequest;
-    use maplecode_exec_server_protocol::RequestId;
     use futures::channel::mpsc as futures_mpsc;
     use futures::task::AtomicWaker;
+    use maplecode_exec_server_protocol::JSONRPCRequest;
+    use maplecode_exec_server_protocol::RequestId;
     use pretty_assertions::assert_eq;
     use tokio::net::TcpListener;
     use tokio::time::timeout;

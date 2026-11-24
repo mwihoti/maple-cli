@@ -1,10 +1,10 @@
 //! Public JSON-RPC coverage for caller metadata on MCP resource reads.
 
 use super::*;
+use core_test_support::stdio_server_bin;
 use maplecode_app_server_protocol::JSONRPCMessage;
 use maplecode_app_server_protocol::JSONRPCRequest;
 use maplecode_protocol::protocol::W3cTraceContext;
-use core_test_support::stdio_server_bin;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

@@ -559,7 +559,11 @@ async fn voice_handoff_attributes_plugin_events_after_realtime_closes() {
         )
         .await;
 
-    for event_type in ["maplecode_app_used", "skill_invocation", "maplecode_turn_event"] {
+    for event_type in [
+        "maplecode_app_used",
+        "skill_invocation",
+        "maplecode_turn_event",
+    ] {
         let event = events
             .iter()
             .map(|event| serde_json::to_value(event).expect("serialize analytics event"))

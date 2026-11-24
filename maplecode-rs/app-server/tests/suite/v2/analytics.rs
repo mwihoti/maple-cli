@@ -8,6 +8,12 @@ use app_test_support::create_mock_responses_server_sequence;
 use app_test_support::to_response;
 use app_test_support::write_chatgpt_auth;
 use app_test_support::write_mock_responses_config_toml_with_chatgpt_base_url;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::startup::STARTUP_TIMEOUT;
+use core_test_support::startup::expect_startup;
 use maplecode_app_server_protocol::ApprovalsReviewer;
 use maplecode_app_server_protocol::AskForApproval;
 use maplecode_app_server_protocol::ClientRequest;
@@ -43,12 +49,6 @@ use maplecode_protocol::config_types::Settings;
 use maplecode_protocol::models::MessagePhase;
 use maplecode_protocol::openai_models::ModelsResponse;
 use maplecode_protocol::openai_models::ReasoningEffort;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::startup::STARTUP_TIMEOUT;
-use core_test_support::startup::expect_startup;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -725,7 +725,10 @@ async fn metrics_exporters_respect_analytics_preferences() -> Result<()> {
     Ok(())
 }
 
-pub(crate) async fn mount_analytics_capture(server: &MockServer, maplecode_home: &Path) -> Result<()> {
+pub(crate) async fn mount_analytics_capture(
+    server: &MockServer,
+    maplecode_home: &Path,
+) -> Result<()> {
     Mock::given(method("POST"))
         .and(path("/maplecode/analytics-events/events"))
         .respond_with(ResponseTemplate::new(200))
@@ -773,7 +776,8 @@ pub(crate) async fn wait_for_analytics_payload(
                 continue;
             };
             if let Some(request) = requests.iter().find(|request| {
-                request.method == "POST" && request.url.path() == "/maplecode/analytics-events/events"
+                request.method == "POST"
+                    && request.url.path() == "/maplecode/analytics-events/events"
             }) {
                 break request.body.clone();
             }

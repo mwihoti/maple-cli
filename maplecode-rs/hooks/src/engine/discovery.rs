@@ -456,7 +456,9 @@ fn config_toml_source_path(layer: &ConfigLayerEntry) -> AbsolutePathBuf {
         | ConfigLayerSource::System { file }
         | ConfigLayerSource::User { file, .. }
         | ConfigLayerSource::LegacyManagedConfigTomlFromFile { file } => file.clone(),
-        ConfigLayerSource::Project { dot_maplecode_folder } => layer
+        ConfigLayerSource::Project {
+            dot_maplecode_folder,
+        } => layer
             .hooks_config_folder()
             .unwrap_or_else(|| dot_maplecode_folder.clone())
             .join(CONFIG_TOML_FILE),

@@ -11,11 +11,11 @@ use std::sync::PoisonError;
 use crate::agent::control::AgentTreeMembership;
 use crate::agent::control::AgentTreeTeardownGuard;
 use crate::thread_manager::thread_store_error_kind;
+use futures::future::BoxFuture;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::MapleCodeErrKind;
 use maplecode_protocol::protocol::Op;
 use maplecode_thread_store::LiveThreadInitGuard;
-use futures::future::BoxFuture;
 use tokio::sync::Mutex;
 
 use super::SessionIo;

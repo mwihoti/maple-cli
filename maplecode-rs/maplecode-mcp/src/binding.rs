@@ -466,7 +466,10 @@ impl PreparedMcpCall {
                             tokio::time::timeout_at(deadline, add_trusted_access_context)
                                 .await
                                 .map_err(|_| {
-                                    maplecode_rmcp_client::request_timeout_error("tools/call", timeout)
+                                    maplecode_rmcp_client::request_timeout_error(
+                                        "tools/call",
+                                        timeout,
+                                    )
                                 })?
                         }
                         None => add_trusted_access_context.await,

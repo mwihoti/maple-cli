@@ -105,9 +105,9 @@ mod attestation;
 mod auth_mode;
 mod bespoke_event_handling;
 mod code_mode_host;
-mod maplecode_home_metrics;
 mod command_exec;
 mod config_layer;
+mod maplecode_home_metrics;
 mod startup_config;
 pub use startup_config::StartupConfigArgs;
 pub use startup_config::print_startup_config;
@@ -399,7 +399,10 @@ fn project_config_warning(config: &Config) -> Option<ConfigWarningNotification> 
     let mut disabled_folders = Vec::new();
 
     for layer in config.config_layer_stack.all_layers_low_to_high() {
-        let ConfigLayerSource::Project { dot_maplecode_folder } = &layer.name else {
+        let ConfigLayerSource::Project {
+            dot_maplecode_folder,
+        } = &layer.name
+        else {
             continue;
         };
         let Some(disabled_reason) = &layer.disabled_reason else {
@@ -611,7 +614,10 @@ pub async fn run_main_with_transport_options(
 
     #[cfg(target_os = "macos")]
     let local_runtime_paths = local_runtime_paths.with_allowed_symlinked_maplecode_home(
-        maplecode_config::allowed_symlinked_maplecode_home(&config.config_layer_stack, &config.maplecode_home),
+        maplecode_config::allowed_symlinked_maplecode_home(
+            &config.config_layer_stack,
+            &config.maplecode_home,
+        ),
     );
     let code_mode_session_provider: Option<Arc<dyn CodeModeSessionProvider>> =
         match &runtime_options.code_mode_host_transport {
@@ -947,7 +953,10 @@ pub async fn run_main_with_transport_options(
     transport_accept_handles.push(remote_control_accept_handle);
 
     // Only the standalone server measures its local home, not embedded/cloud runtimes.
-    if let Some(metrics) = otel.as_ref().and_then(maplecode_otel::OtelProvider::metrics) {
+    if let Some(metrics) = otel
+        .as_ref()
+        .and_then(maplecode_otel::OtelProvider::metrics)
+    {
         maplecode_home_metrics::spawn(&config, metrics.clone(), transport_shutdown_token.clone());
     }
 
@@ -1547,8 +1556,8 @@ fn sqlite_recovery_notice(
 fn emit_state_db_backup_warning(message: &str) {
     warn!("{message}");
     if !tracing::dispatcher::has_been_set() {
-        let _ =
-            maplecode_app_server_daemon::stderr_writer().write_all(format!("{message}\n").as_bytes());
+        let _ = maplecode_app_server_daemon::stderr_writer()
+            .write_all(format!("{message}\n").as_bytes());
     }
 }
 

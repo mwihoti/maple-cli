@@ -134,7 +134,10 @@ impl PreparedWindowsSandboxCleanup {
                     ".sandbox-secrets",
                     crate::setup::sandbox_secrets_dir(maplecode_home),
                 ),
-                (".sandbox-bin", crate::setup::sandbox_bin_dir(maplecode_home)),
+                (
+                    ".sandbox-bin",
+                    crate::setup::sandbox_bin_dir(maplecode_home),
+                ),
             ] {
                 match std::fs::remove_dir_all(path) {
                     Ok(()) => report(&format!("removed {directory}")),

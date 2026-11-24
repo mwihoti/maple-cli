@@ -102,7 +102,9 @@ impl ThreadManager {
                 }
             }
         });
-        let thread = receiver.await.map_err(|_| MapleCodeErr::InternalAgentDied)??;
+        let thread = receiver
+            .await
+            .map_err(|_| MapleCodeErr::InternalAgentDied)??;
         handoff.disarm();
         Ok(thread)
     }

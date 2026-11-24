@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use http::HeaderMap;
+use http::HeaderValue;
 use maplecode_config::LoaderOverrides;
 use maplecode_core::config::Config;
 use maplecode_core::config::ConfigBuilder;
@@ -34,8 +36,6 @@ use maplecode_protocol::openai_models::ToolMessage;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::protocol::TruncationPolicy;
-use http::HeaderMap;
-use http::HeaderValue;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tempfile::TempDir;

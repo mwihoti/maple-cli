@@ -1,9 +1,9 @@
 //! Checks the persistence boundary when an operation loses its caller.
 
 use super::*;
+use futures::poll;
 use maplecode_core::test_support::auth_manager_from_auth;
 use maplecode_login::MapleCodeAuth;
-use futures::poll;
 use pretty_assertions::assert_eq;
 use tokio::sync::oneshot;
 

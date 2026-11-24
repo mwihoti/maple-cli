@@ -137,14 +137,24 @@ async fn recovery_retains_originator_without_initial_credentials() -> anyhow::Re
     assert_eq!(
         loads,
         vec![
-            ("maplecode_vscode".into(), "pinned".into(), "success".into(), 1),
+            (
+                "maplecode_vscode".into(),
+                "pinned".into(),
+                "success".into(),
+                1
+            ),
             (
                 "maplecode_vscode".into(),
                 "policy".into(),
                 "not_found".into(),
                 2
             ),
-            ("maplecode_vscode".into(), "policy".into(), "success".into(), 1),
+            (
+                "maplecode_vscode".into(),
+                "policy".into(),
+                "success".into(),
+                1
+            ),
         ]
     );
     metrics.shutdown()?;

@@ -2,12 +2,12 @@
 //! Observe ownership at the first model request, before the process can finish.
 
 use anyhow::Context;
+use core_test_support::responses;
+use core_test_support::test_maplecode_exec::test_maplecode_exec;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_worktree::CreateWorktree;
 use maplecode_worktree::WorktreeManager;
 use maplecode_worktree::WorktreeSettings;
-use core_test_support::responses;
-use core_test_support::test_maplecode_exec::test_maplecode_exec;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::fs;
@@ -115,7 +115,10 @@ async fn worktree_start_and_fork_use_host_pool_and_preserve_legacy_resume() -> a
     legacy_manager.bind_thread(&legacy.root, &legacy_id)?;
     fs::write(source.join("AGENTS.md"), "uncommitted source instructions")?;
     fs::create_dir(source.join(".maplecode"))?;
-    fs::write(source.join(".maplecode/config.toml"), "[invalid source config")?;
+    fs::write(
+        source.join(".maplecode/config.toml"),
+        "[invalid source config",
+    )?;
 
     let launcher = tempfile::tempdir()?;
     fs::create_dir(launcher.path().join("extra"))?;

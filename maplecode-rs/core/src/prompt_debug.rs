@@ -49,7 +49,9 @@ pub async fn build_prompt_input(
         &config,
         Arc::clone(&auth_manager),
         installation_id,
-        Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+        Arc::new(ModelCatalogSettings::disk(
+            config.maplecode_home.to_path_buf(),
+        )),
     );
     let thread_manager = ThreadManager::new(
         &config,

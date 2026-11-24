@@ -894,6 +894,9 @@ mod tests {
     #[path = "reply_tests.rs"]
     mod replies;
     use super::*;
+    use futures::SinkExt;
+    use futures::StreamExt;
+    use futures::poll;
     use maplecode_app_server_protocol::AccountUpdatedNotification;
     use maplecode_app_server_protocol::ConfigRequirementsReadResponse;
     use maplecode_app_server_protocol::GetAccountResponse;
@@ -913,9 +916,6 @@ mod tests {
     use maplecode_protocol::config_types::Personality;
     use maplecode_uds::UnixListener;
     use maplecode_utils_absolute_path::AbsolutePathBuf;
-    use futures::SinkExt;
-    use futures::StreamExt;
-    use futures::poll;
     use pretty_assertions::assert_eq;
     use std::ops::Deref;
     use std::path::Path;
@@ -1191,20 +1191,22 @@ mod tests {
     }
 
     fn turn_completed_notification() -> ServerNotification {
-        ServerNotification::TurnCompleted(maplecode_app_server_protocol::TurnCompletedNotification {
-            thread_id: "thread".to_string(),
-            turn: maplecode_app_server_protocol::Turn {
-                id: "turn".to_string(),
-                root_turn_id: None,
-                items_view: maplecode_app_server_protocol::TurnItemsView::Full,
-                items: Vec::new(),
-                status: maplecode_app_server_protocol::TurnStatus::Completed,
-                error: None,
-                started_at: None,
-                completed_at: Some(0),
-                duration_ms: Some(1),
+        ServerNotification::TurnCompleted(
+            maplecode_app_server_protocol::TurnCompletedNotification {
+                thread_id: "thread".to_string(),
+                turn: maplecode_app_server_protocol::Turn {
+                    id: "turn".to_string(),
+                    root_turn_id: None,
+                    items_view: maplecode_app_server_protocol::TurnItemsView::Full,
+                    items: Vec::new(),
+                    status: maplecode_app_server_protocol::TurnStatus::Completed,
+                    error: None,
+                    started_at: None,
+                    completed_at: Some(0),
+                    duration_ms: Some(1),
+                },
             },
-        })
+        )
     }
 
     fn test_remote_connect_args(websocket_url: String) -> RemoteAppServerConnectArgs {
@@ -1543,8 +1545,9 @@ mod tests {
     #[tokio::test]
     async fn remote_unix_socket_typed_request_roundtrip_works() {
         let socket_dir = TempDir::new().expect("socket dir");
-        let socket_path = AbsolutePathBuf::from_absolute_path(socket_dir.path().join("maplecode.sock"))
-            .expect("socket path should resolve");
+        let socket_path =
+            AbsolutePathBuf::from_absolute_path(socket_dir.path().join("maplecode.sock"))
+                .expect("socket path should resolve");
         let mut listener = UnixListener::bind(socket_path.as_path())
             .await
             .expect("listener should bind");

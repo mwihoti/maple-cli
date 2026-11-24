@@ -1,5 +1,12 @@
 //! Trusted reasoning-effort updates follow surviving history and the next turn's selected settings.
 
+use core_test_support::responses;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::skip_if_no_network;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::ForkSnapshot;
 use maplecode_core::RecoverTurnRequest;
@@ -17,22 +24,15 @@ use maplecode_login::MapleCodeAuth;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::openai_models::ReasoningEffortPreset;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::InternalSessionSource;
+use maplecode_protocol::protocol::MapleCodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::protocol::ThreadSource;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::skip_if_no_network;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::sync::Arc;
@@ -409,7 +409,10 @@ async fn worker_reasoning_overrides_follow_effective_client_policy(
         .concat(),
     );
     // Fixed-effort workers neither append updates nor erase inherited live or durable history.
-    for (thread, expected) in [(&parent, inherited_updates), (&test.maplecode, worker_updates)] {
+    for (thread, expected) in [
+        (&parent, inherited_updates),
+        (&test.maplecode, worker_updates),
+    ] {
         let context_updates = thread
             .conversation_history_snapshot()
             .await

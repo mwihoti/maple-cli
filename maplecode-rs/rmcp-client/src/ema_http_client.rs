@@ -8,6 +8,7 @@ use std::sync::MutexGuard;
 use std::sync::PoisonError;
 use std::time::Duration;
 
+use futures::future::BoxFuture;
 use maplecode_exec_server::ExecServerError;
 use maplecode_exec_server::HttpClient;
 use maplecode_exec_server::HttpHeader;
@@ -15,7 +16,6 @@ use maplecode_exec_server::HttpRedirectPolicy;
 use maplecode_exec_server::HttpRequestParams;
 use maplecode_exec_server::HttpRequestResponse;
 use maplecode_exec_server::HttpResponseBodyStream;
-use futures::future::BoxFuture;
 use tokio::sync::OwnedRwLockReadGuard;
 use tokio::sync::RwLock;
 use tokio::sync::Semaphore;
@@ -67,7 +67,10 @@ impl EmaRequestAuthority {
     }
 
     /// Policy changes stop new dispatches without cancelling already admitted responses.
-    pub fn with_policy(mut self, policy: Option<maplecode_config::CloudConfigBundleBinding>) -> Self {
+    pub fn with_policy(
+        mut self,
+        policy: Option<maplecode_config::CloudConfigBundleBinding>,
+    ) -> Self {
         self.policy = policy;
         self
     }

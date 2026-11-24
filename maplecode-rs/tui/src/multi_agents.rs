@@ -9,6 +9,12 @@ use crate::history_cell::PlainHistoryCell;
 use crate::render::line_utils::prefix_lines;
 use crate::style::accent_color;
 use crate::text_formatting::truncate_text;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+#[cfg(target_os = "macos")]
+use crossterm::event::KeyEventKind;
+#[cfg(target_os = "macos")]
+use crossterm::event::KeyModifiers;
 use maplecode_app_server_protocol::CollabAgentState;
 use maplecode_app_server_protocol::CollabAgentStatus;
 use maplecode_app_server_protocol::CollabAgentTool;
@@ -17,12 +23,6 @@ use maplecode_app_server_protocol::SubAgentActivityKind;
 use maplecode_app_server_protocol::ThreadItemPayload;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-#[cfg(target_os = "macos")]
-use crossterm::event::KeyEventKind;
-#[cfg(target_os = "macos")]
-use crossterm::event::KeyModifiers;
 use ratatui::style::Stylize;
 use ratatui::text::Line;
 use ratatui::text::Span;

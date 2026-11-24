@@ -91,13 +91,16 @@ pub(super) async fn load_exec_server_remote_auth_provider(
 ) -> anyhow::Result<maplecode_api::SharedAuthProvider> {
     if use_agent_identity_auth {
         read_maplecode_access_token_from_env().ok_or_else(|| {
-            anyhow::anyhow!("MAPLECODE_ACCESS_TOKEN is required when --use-agent-identity-auth is set")
+            anyhow::anyhow!(
+                "MAPLECODE_ACCESS_TOKEN is required when --use-agent-identity-auth is set"
+            )
         })?;
-        let auth = AuthManager::shared_from_config(config, /*enable_maplecode_api_key_env*/ false)
-            .await?
-            .auth()
-            .await
-            .ok_or_else(|| anyhow::anyhow!("Agent Identity authentication is unavailable"))?;
+        let auth =
+            AuthManager::shared_from_config(config, /*enable_maplecode_api_key_env*/ false)
+                .await?
+                .auth()
+                .await
+                .ok_or_else(|| anyhow::anyhow!("Agent Identity authentication is unavailable"))?;
         if !matches!(auth, MapleCodeAuth::AgentIdentity(_)) {
             anyhow::bail!(
                 "MAPLECODE_ACCESS_TOKEN did not provide permitted Agent Identity authentication"

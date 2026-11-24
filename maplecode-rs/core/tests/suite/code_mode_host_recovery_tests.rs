@@ -1,8 +1,8 @@
 //! Host loss must reach the model without replaying completed external effects.
 
 use super::*;
-use maplecode_extension_api::ToolCallSource;
 use core_test_support::test_maplecode::TestMapleCodeHarness;
+use maplecode_extension_api::ToolCallSource;
 use pretty_assertions::assert_eq;
 
 struct PauseCompletedCommand {

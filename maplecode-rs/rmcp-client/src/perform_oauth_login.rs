@@ -965,6 +965,8 @@ mod tests {
     use axum::Router;
     use axum::routing::get;
     use axum::routing::post;
+    use futures::future::BoxFuture;
+    use http::HeaderMap;
     use maplecode_config::McpServerOAuthConfig;
     use maplecode_config::types::AuthKeyringBackendKind;
     use maplecode_config::types::OAuthCredentialsStoreMode;
@@ -976,8 +978,6 @@ mod tests {
     use maplecode_exec_server::RouteAwareHttpClient;
     use maplecode_http_client::HttpClientFactory;
     use maplecode_http_client::OutboundProxyPolicy;
-    use futures::future::BoxFuture;
-    use http::HeaderMap;
     use oauth2::TokenResponse;
     use pretty_assertions::assert_eq;
     use serde_json::json;

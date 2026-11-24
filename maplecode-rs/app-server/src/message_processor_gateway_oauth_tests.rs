@@ -288,11 +288,12 @@ delivery = {{ kind = "header", name = "X-Gateway-Authorization" }}
         error,
         JSONRPCErrorError {
             code: -32600,
-            message: maplecode_app_server_protocol::ModelProviderError::ModelProviderPolicyConflict {
-                model_provider: "gateway".into(),
-                required_model_provider: "openai".into(),
-            }
-            .to_string(),
+            message:
+                maplecode_app_server_protocol::ModelProviderError::ModelProviderPolicyConflict {
+                    model_provider: "gateway".into(),
+                    required_model_provider: "openai".into(),
+                }
+                .to_string(),
             data: Some(serde_json::to_value(
                 maplecode_app_server_protocol::ModelProviderError::ModelProviderPolicyConflict {
                     model_provider: "gateway".into(),

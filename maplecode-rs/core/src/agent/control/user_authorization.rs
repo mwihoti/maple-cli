@@ -12,8 +12,6 @@
 use std::borrow::Cow;
 
 use super::LocalAgentControl;
-use crate::maplecode_thread::GuardianRootMessage;
-use crate::maplecode_thread::GuardianRootSnapshot;
 use crate::compact::is_summary_message;
 use crate::context::ContextualUserFragment;
 use crate::context::GuardianReviewEvidence;
@@ -21,6 +19,8 @@ use crate::context::UserGoalUpdate;
 use crate::context::is_contextual_user_fragment;
 use crate::context_manager::ContextManager;
 use crate::event_mapping::parse_turn_item;
+use crate::maplecode_thread::GuardianRootMessage;
+use crate::maplecode_thread::GuardianRootSnapshot;
 use maplecode_guardian_context::RootAssistantCandidate;
 use maplecode_guardian_context::RootAssistantContent;
 use maplecode_guardian_context::RootConversationCandidates;
@@ -302,7 +302,8 @@ impl LocalAgentControl {
             history: root_history,
             handoff_boundaries,
         });
-        let prepared = request_candidates.prepare(maplecode_guardian_context::ContextBudgeting::Fixed);
+        let prepared =
+            request_candidates.prepare(maplecode_guardian_context::ContextBudgeting::Fixed);
         let root_evidence = root_thread
             .session
             .services

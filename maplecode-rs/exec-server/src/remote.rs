@@ -2,6 +2,13 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::time::Instant;
 
+use futures::FutureExt;
+use http::HeaderMap;
+use http::HeaderName;
+use http::HeaderValue;
+use http::Method;
+use http::StatusCode;
+use http::header::AUTHORIZATION;
 use maplecode_api::AuthProvider;
 use maplecode_api::SharedAuthProvider;
 use maplecode_http_client::CHATGPT_ACCOUNT_ID_HEADER;
@@ -10,13 +17,6 @@ use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::HttpResponse;
 use maplecode_http_client::Request;
 use maplecode_http_client::RouteAwareClientPool;
-use futures::FutureExt;
-use http::HeaderMap;
-use http::HeaderName;
-use http::HeaderValue;
-use http::Method;
-use http::StatusCode;
-use http::header::AUTHORIZATION;
 use serde::Deserialize;
 use tokio::time::sleep;
 use tokio::time::timeout_at;
@@ -1141,10 +1141,10 @@ fn preview_error_body(body: &str) -> Option<String> {
 mod tests {
     use std::sync::Arc;
 
-    use maplecode_api::AuthProvider;
-    use maplecode_http_client::OutboundProxyPolicy;
     use http::HeaderMap;
     use http::HeaderValue;
+    use maplecode_api::AuthProvider;
+    use maplecode_http_client::OutboundProxyPolicy;
     use opentelemetry::trace::TracerProvider as _;
     use opentelemetry_sdk::trace::SdkTracerProvider;
     use pretty_assertions::assert_eq;
@@ -1168,11 +1168,17 @@ mod tests {
     struct StaticRegistryAuthProvider;
 
     impl AuthProvider for StaticRegistryAuthProvider {
-        fn add_auth_headers(&self, _headers: &mut HeaderMap) -> Result<(), maplecode_api::AuthError> {
+        fn add_auth_headers(
+            &self,
+            _headers: &mut HeaderMap,
+        ) -> Result<(), maplecode_api::AuthError> {
             Ok(())
         }
 
-        fn apply_auth_headers(&self, mut headers: HeaderMap) -> maplecode_api::AuthHeadersFuture<'_> {
+        fn apply_auth_headers(
+            &self,
+            mut headers: HeaderMap,
+        ) -> maplecode_api::AuthHeadersFuture<'_> {
             Box::pin(async move {
                 let _ = headers.insert(
                     http::header::AUTHORIZATION,
@@ -1194,7 +1200,10 @@ mod tests {
     struct ScopedExecutorAuth;
 
     impl AuthProvider for ScopedExecutorAuth {
-        fn add_auth_headers(&self, headers: &mut HeaderMap) -> Result<(), maplecode_api::AuthError> {
+        fn add_auth_headers(
+            &self,
+            headers: &mut HeaderMap,
+        ) -> Result<(), maplecode_api::AuthError> {
             headers.insert(
                 AUTHORIZATION,
                 HeaderValue::from_static("Bearer synthetic-scoped-token"),

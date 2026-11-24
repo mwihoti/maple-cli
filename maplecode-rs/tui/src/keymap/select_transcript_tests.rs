@@ -1,10 +1,10 @@
 use super::*;
-use maplecode_config::types::KeybindingSpec;
-use maplecode_config::types::KeybindingsSpec;
-use maplecode_config::types::TuiKeymap;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyModifiers;
+use maplecode_config::types::KeybindingSpec;
+use maplecode_config::types::KeybindingsSpec;
+use maplecode_config::types::TuiKeymap;
 
 fn binding(spec: &str) -> KeybindingsSpec {
     KeybindingsSpec::One(KeybindingSpec(spec.to_string()))

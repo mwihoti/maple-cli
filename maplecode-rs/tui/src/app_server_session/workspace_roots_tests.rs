@@ -3,9 +3,9 @@
 use super::*;
 use crate::legacy_core::config::ConfigBuilder;
 use crate::legacy_core::config::ConfigOverrides;
+use core_test_support::responses;
 use maplecode_app_server_client::AppServerEvent;
 use maplecode_app_server_protocol::ServerNotification;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 
 #[test]

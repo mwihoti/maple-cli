@@ -1,4 +1,5 @@
 use anyhow::Result;
+use core_test_support::test_path_buf;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::protocol::EventMsg;
@@ -11,7 +12,6 @@ use maplecode_protocol::protocol::ThreadSource;
 use maplecode_protocol::protocol::TokenCountEvent;
 use maplecode_protocol::protocol::TokenUsage;
 use maplecode_protocol::protocol::TokenUsageInfo;
-use core_test_support::test_path_buf;
 use serde_json::json;
 use std::fs;
 use std::fs::FileTimes;
@@ -345,7 +345,11 @@ pub fn create_fake_rollout_with_text_elements(
     let year = &filename_ts[0..4];
     let month = &filename_ts[5..7];
     let day = &filename_ts[8..10];
-    let dir = maplecode_home.join("sessions").join(year).join(month).join(day);
+    let dir = maplecode_home
+        .join("sessions")
+        .join(year)
+        .join(month)
+        .join(day);
     fs::create_dir_all(&dir)?;
 
     let file_path = dir.join(format!("rollout-{filename_ts}-{uuid}.jsonl"));

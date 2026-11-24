@@ -109,7 +109,9 @@ impl AgentGraphStore for LocalAgentGraphStore {
     }
 }
 
-fn to_state_status(status: ThreadSpawnEdgeStatus) -> maplecode_state::DirectionalThreadSpawnEdgeStatus {
+fn to_state_status(
+    status: ThreadSpawnEdgeStatus,
+) -> maplecode_state::DirectionalThreadSpawnEdgeStatus {
     match status {
         ThreadSpawnEdgeStatus::Open => maplecode_state::DirectionalThreadSpawnEdgeStatus::Open,
         ThreadSpawnEdgeStatus::Closed => maplecode_state::DirectionalThreadSpawnEdgeStatus::Closed,

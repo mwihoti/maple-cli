@@ -220,7 +220,11 @@ fn otlp_http_exporter_honors_cumulative_temporality_env() -> Result<()> {
     ))?;
 
     metrics.counter("maplecode.turns", /*inc*/ 1, &[("source", "test")])?;
-    metrics.counter("maplecode.api_request", /*inc*/ 1, &[("status", "200")])?;
+    metrics.counter(
+        "maplecode.api_request",
+        /*inc*/ 1,
+        &[("status", "200")],
+    )?;
     metrics.counter_with_description(
         EXEC_SERVER_CLIENT_REQUEST_COUNT_METRIC,
         "Client-side exec-server RPC attempts.",

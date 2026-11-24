@@ -294,7 +294,8 @@ fn install_method_from_exe(
     package_layout: Option<&MapleCodePackageLayout>,
     is_macos: bool,
 ) -> InstallMethod {
-    if let Some(standalone_method) = standalone_install_method(exe_path, maplecode_home, package_layout)
+    if let Some(standalone_method) =
+        standalone_install_method(exe_path, maplecode_home, package_layout)
     {
         return standalone_method;
     }

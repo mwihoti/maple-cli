@@ -216,12 +216,18 @@ async fn dynamic_tools_resume_override_stays_local_after_compaction() -> Result<
             })
             .await
     };
-    let initial = start(maplecode_history::InitialHistory::New, vec![tool("release")]).await?;
+    let initial = start(
+        maplecode_history::InitialHistory::New,
+        vec![tool("release")],
+    )
+    .await?;
     initial.thread.ensure_rollout_materialized().await;
     initial.thread.shutdown_and_wait().await?;
     let path = initial.thread.rollout_path().expect("rollout path");
     let load_history = || maplecode_rollout::RolloutRecorder::get_rollout_history(&path);
-    let check_tools = async |thread: &maplecode_core::MapleCodeThread, present: &str, absent: &str| {
+    let check_tools = async |thread: &maplecode_core::MapleCodeThread,
+                             present: &str,
+                             absent: &str| {
         let response = responses::mount_sse_once(&server, responses::sse_completed(present)).await;
         thread
             .start_or_steer_turn(TurnInputRequest::user_input(vec![text(

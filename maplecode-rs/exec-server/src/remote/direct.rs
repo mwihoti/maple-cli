@@ -1,5 +1,7 @@
 use std::time::Instant;
 
+use http::Method;
+use http::StatusCode;
 use maplecode_api::AuthError;
 use maplecode_api::AuthProvider;
 use maplecode_http_client::NetworkPolicy;
@@ -7,8 +9,6 @@ use maplecode_http_client::NetworkPolicyDenied;
 use maplecode_http_client::Request;
 use maplecode_websocket_client::WebSocketConnection;
 use maplecode_websocket_client::WebSocketConnector;
-use http::Method;
-use http::StatusCode;
 use serde::Deserialize;
 use serde::Serialize;
 use tokio::time::sleep;

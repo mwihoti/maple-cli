@@ -4,6 +4,10 @@ use std::path::PathBuf;
 
 #[cfg(test)]
 use crate::app_command::AppCommand as Op;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use maplecode_app_server_protocol::McpElicitationEnumSchema;
 use maplecode_app_server_protocol::McpElicitationPrimitiveSchema;
 use maplecode_app_server_protocol::McpElicitationSingleSelectEnumSchema;
@@ -24,10 +28,6 @@ use maplecode_protocol::mcp_approval_meta::TOOL_NAME_KEY;
 use maplecode_protocol::mcp_approval_meta::TOOL_PARAMS_DISPLAY_KEY as APPROVAL_TOOL_PARAMS_DISPLAY_KEY;
 use maplecode_protocol::mcp_approval_meta::TOOL_PARAMS_KEY as APPROVAL_TOOL_PARAMS_KEY;
 use maplecode_protocol::user_input::TextElement;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Stylize;
@@ -2266,7 +2266,9 @@ mod tests {
             request, tx, /*has_input_focus*/ true, /*enhanced_keys_supported*/ false,
             /*disable_paste_burst*/ true,
         );
-        overlay.handle_paste("x".repeat(maplecode_protocol::user_input::MAX_USER_INPUT_TEXT_CHARS + 1));
+        overlay.handle_paste(
+            "x".repeat(maplecode_protocol::user_input::MAX_USER_INPUT_TEXT_CHARS + 1),
+        );
         overlay.handle_key_event(KeyCode::Enter.into());
         assert!(overlay.next_frame_delay().is_some());
         overlay.handle_key_event(KeyEvent::new(KeyCode::Char('n'), KeyModifiers::CONTROL));

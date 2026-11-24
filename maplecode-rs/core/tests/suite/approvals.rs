@@ -2,6 +2,25 @@
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::managed_network_requirements_loader;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_with_timeout;
 #[cfg(unix)]
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_config::types::ApprovalsReviewer;
@@ -39,25 +58,6 @@ use maplecode_protocol::protocol::ReviewDecision;
 use maplecode_protocol::protocol::SandboxPolicy;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::managed_network_requirements_loader;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_with_timeout;
 use pretty_assertions::assert_eq;
 use regex_lite::Regex;
 use serde_json::Value;
@@ -2869,7 +2869,8 @@ async fn shell_startup_credentials_are_brokered(
     let global_startup = matches!(shell_mode, "filtered_startup" | "startup_override");
 
     let builder = {
-        let Some(zsh) = maplecode_core::shell::get_shell(maplecode_core::shell::ShellType::Zsh) else {
+        let Some(zsh) = maplecode_core::shell::get_shell(maplecode_core::shell::ShellType::Zsh)
+        else {
             return Ok(());
         };
         test_maplecode()
@@ -2920,7 +2921,8 @@ async fn shell_startup_credentials_are_brokered(
         "export LOGIN_SHELL_READY=ready\n",
     )?;
     let startup_shell = if global_startup {
-        let Some(zsh) = maplecode_core::shell::get_shell(maplecode_core::shell::ShellType::Zsh) else {
+        let Some(zsh) = maplecode_core::shell::get_shell(maplecode_core::shell::ShellType::Zsh)
+        else {
             return Ok(());
         };
         let zsh_path = zsh.derive_exec_args("", /*use_login_shell*/ false)[0].clone();
@@ -2962,7 +2964,8 @@ ZDOTDIR = "{}"
         .with_home(home)
         .with_cloud_config_bundle(managed_network_requirements_loader());
     if !allow_login_shell {
-        let Some(bash) = maplecode_core::shell::get_shell(maplecode_core::shell::ShellType::Bash) else {
+        let Some(bash) = maplecode_core::shell::get_shell(maplecode_core::shell::ShellType::Bash)
+        else {
             return Ok(());
         };
         builder = builder.with_user_shell(bash);
@@ -3119,7 +3122,10 @@ ZDOTDIR = "{}"
             .flat_map(opentelemetry_sdk::metrics::data::ScopeMetrics::metrics)
         {
             let count = match (metric.name(), metric.data()) {
-                ("maplecode.shell_snapshot.command", AggregatedMetrics::U64(MetricData::Sum(sum))) => {
+                (
+                    "maplecode.shell_snapshot.command",
+                    AggregatedMetrics::U64(MetricData::Sum(sum)),
+                ) => {
                     for point in sum.data_points() {
                         let tags = point
                             .attributes()
@@ -3235,7 +3241,8 @@ async fn brokered_shell_snapshot_fallback(mode: &'static str) -> Result<()> {
         "ghp_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const REAL_CUSTOM_TOKEN: &str = "custom_abcdefghijklmnopqrstuvwx";
 
-    let Some(bash) = maplecode_core::shell::get_shell(maplecode_core::shell::ShellType::Bash) else {
+    let Some(bash) = maplecode_core::shell::get_shell(maplecode_core::shell::ShellType::Bash)
+    else {
         return Ok(());
     };
     let startup_dir = tempfile::tempdir_in(std::env::current_dir()?)?;
@@ -3998,8 +4005,7 @@ async fn invalid_requested_prefix_rule_falls_back_for_compound_command() -> Resu
     let test = builder.build(&server).await?;
 
     let call_id = "invalid-prefix-rule";
-    let command =
-        "touch /tmp/maplecode-fallback-rule-test.txt && echo hello > /tmp/maplecode-fallback-rule-test.txt";
+    let command = "touch /tmp/maplecode-fallback-rule-test.txt && echo hello > /tmp/maplecode-fallback-rule-test.txt";
     let event = shell_event_with_prefix_rule(
         call_id,
         command,
@@ -4065,8 +4071,7 @@ async fn approving_fallback_rule_for_compound_command_works() -> Result<()> {
     let test = builder.build(&server).await?;
 
     let call_id = "invalid-prefix-rule";
-    let command =
-        "touch /tmp/maplecode-fallback-rule-test.txt && echo hello > /tmp/maplecode-fallback-rule-test.txt";
+    let command = "touch /tmp/maplecode-fallback-rule-test.txt && echo hello > /tmp/maplecode-fallback-rule-test.txt";
     let event = shell_event_with_prefix_rule(
         call_id,
         command,
@@ -4112,8 +4117,7 @@ async fn approving_fallback_rule_for_compound_command_works() -> Result<()> {
     wait_for_completion(&test).await;
 
     let call_id = "invalid-prefix-rule-again";
-    let command =
-        "touch /tmp/maplecode-fallback-rule-test.txt && echo hello > /tmp/maplecode-fallback-rule-test.txt";
+    let command = "touch /tmp/maplecode-fallback-rule-test.txt && echo hello > /tmp/maplecode-fallback-rule-test.txt";
     let event = shell_event_with_prefix_rule(
         call_id,
         command,

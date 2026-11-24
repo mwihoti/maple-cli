@@ -1,10 +1,10 @@
 //! Caller-facing native gRPC types. Diagnostics never include credentials or server payloads.
 
 use bytes::Bytes;
-use maplecode_http_client::CHATGPT_ACCOUNT_ID_HEADER;
 use http::HeaderMap;
 use http::HeaderValue;
 use http::header::AUTHORIZATION;
+use maplecode_http_client::CHATGPT_ACCOUNT_ID_HEADER;
 use std::fmt;
 
 /// Caller-owned ChatGPT bearer token and selected account, validated as HTTP headers.

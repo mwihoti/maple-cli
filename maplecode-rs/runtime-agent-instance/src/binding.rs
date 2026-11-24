@@ -9,6 +9,7 @@ use crate::RuntimeAuth;
 use crate::RuntimeRegistration;
 use crate::RuntimeRegistrationClient;
 use crate::RuntimeRegistrationMetadata;
+use http::StatusCode;
 use maplecode_agent_identity::ChatGptEnvironment;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::NetworkPolicyDenied;
@@ -18,7 +19,6 @@ use maplecode_login::AuthOwner;
 use maplecode_login::MapleCodeAuth;
 use maplecode_login::RefreshTokenError;
 use maplecode_login::auth::RefreshTokenFailedError;
-use http::StatusCode;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use url::Url;
@@ -351,7 +351,9 @@ fn actor_authorization(
     auth: &MapleCodeAuth,
     selection: &PlatformResourceSelection,
 ) -> Result<AuthenticatedActorAuthorization, RuntimeAuthError> {
-    if !matches!(auth, MapleCodeAuth::ApiKey(_)) && selection != &PlatformResourceSelection::default() {
+    if !matches!(auth, MapleCodeAuth::ApiKey(_))
+        && selection != &PlatformResourceSelection::default()
+    {
         return Err(RuntimeAuthError::UnsupportedResourceSelection);
     }
     let credential = auth

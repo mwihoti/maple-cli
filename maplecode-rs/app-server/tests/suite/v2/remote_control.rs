@@ -13,6 +13,8 @@ use app_test_support::TestAppServer;
 use app_test_support::create_fake_paginated_rollout;
 use app_test_support::to_response;
 use app_test_support::write_chatgpt_auth;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server::AppServerRuntimeOptions;
 use maplecode_app_server::AppServerTransport;
 use maplecode_app_server::PluginStartupTasks;
@@ -48,8 +50,6 @@ use maplecode_state::RemoteControlEnrollmentRecord;
 use maplecode_state::StateRuntime;
 use maplecode_utils_cli::CliConfigOverrides;
 use maplecode_websocket_auth::WebsocketAuthSettings;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serial_test::serial;
 use tempfile::TempDir;
@@ -226,7 +226,8 @@ async fn explicit_remote_control_startup_fails_when_disabled_by_requirements() -
         .join("app-server.sock");
     let transport =
         AppServerTransport::from_listen_url(&format!("unix://{}", socket_path.display()))?;
-    let _maplecode_home_guard = EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
+    let _maplecode_home_guard =
+        EnvVarGuard::set("MAPLECODE_HOME", maplecode_home.path().as_os_str());
 
     let result = timeout(
         STARTUP_TIMEOUT,
@@ -1433,7 +1434,9 @@ struct HttpRequest {
     reader: BufReader<TcpStream>,
 }
 
-async fn configured_remote_control_listener(maplecode_home: &std::path::Path) -> Result<TcpListener> {
+async fn configured_remote_control_listener(
+    maplecode_home: &std::path::Path,
+) -> Result<TcpListener> {
     let listener = TcpListener::bind("127.0.0.1:0").await?;
     let remote_control_url = format!("http://{}/backend-api/", listener.local_addr()?);
     let catalog_path = maplecode_home.join("models.json");

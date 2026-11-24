@@ -145,7 +145,11 @@ async fn device_code_login_integration_succeeds() -> anyhow::Result<()> {
     mock_oauth_token_single(&mock_server, jwt.clone()).await;
 
     let issuer = mock_server.uri();
-    let opts = server_opts(&maplecode_home, issuer.clone(), AuthCredentialsStoreMode::File);
+    let opts = server_opts(
+        &maplecode_home,
+        issuer.clone(),
+        AuthCredentialsStoreMode::File,
+    );
 
     run_device_code_login(opts)
         .await

@@ -1,5 +1,9 @@
 #![allow(clippy::unwrap_used)]
 
+use core_test_support::responses;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_features::Feature;
 use maplecode_login::MapleCodeAuth;
@@ -11,10 +15,6 @@ use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_protocol::config_types::WebSearchMode;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::openai_models::WebSearchToolType;
-use core_test_support::responses;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -40,12 +40,14 @@ async fn web_search_mode_cached_sets_external_web_access_false() {
     ]);
     let resp_mock = responses::mount_sse_once(&server, sse).await;
 
-    let mut builder = test_maplecode().with_model("gpt-5.4").with_config(|config| {
-        config
-            .web_search_mode
-            .set(WebSearchMode::Cached)
-            .expect("test web_search_mode should satisfy constraints");
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.4")
+        .with_config(|config| {
+            config
+                .web_search_mode
+                .set(WebSearchMode::Cached)
+                .expect("test web_search_mode should satisfy constraints");
+        });
     let test = builder
         .build(&server)
         .await
@@ -285,16 +287,18 @@ async fn web_search_mode_takes_precedence_over_legacy_flags() {
     ]);
     let resp_mock = responses::mount_sse_once(&server, sse).await;
 
-    let mut builder = test_maplecode().with_model("gpt-5.4").with_config(|config| {
-        config
-            .features
-            .enable(Feature::WebSearchRequest)
-            .expect("test config should allow feature update");
-        config
-            .web_search_mode
-            .set(WebSearchMode::Cached)
-            .expect("test web_search_mode should satisfy constraints");
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.4")
+        .with_config(|config| {
+            config
+                .features
+                .enable(Feature::WebSearchRequest)
+                .expect("test config should allow feature update");
+            config
+                .web_search_mode
+                .set(WebSearchMode::Cached)
+                .expect("test web_search_mode should satisfy constraints");
+        });
     let test = builder
         .build(&server)
         .await
@@ -327,20 +331,22 @@ async fn web_search_mode_defaults_to_cached_when_features_disabled() {
     ]);
     let resp_mock = responses::mount_sse_once(&server, sse).await;
 
-    let mut builder = test_maplecode().with_model("gpt-5.4").with_config(|config| {
-        config
-            .web_search_mode
-            .set(WebSearchMode::Cached)
-            .expect("test web_search_mode should satisfy constraints");
-        config
-            .features
-            .disable(Feature::WebSearchCached)
-            .expect("test config should allow feature update");
-        config
-            .features
-            .disable(Feature::WebSearchRequest)
-            .expect("test config should allow feature update");
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.4")
+        .with_config(|config| {
+            config
+                .web_search_mode
+                .set(WebSearchMode::Cached)
+                .expect("test web_search_mode should satisfy constraints");
+            config
+                .features
+                .disable(Feature::WebSearchCached)
+                .expect("test config should allow feature update");
+            config
+                .features
+                .disable(Feature::WebSearchRequest)
+                .expect("test config should allow feature update");
+        });
     let test = builder
         .build(&server)
         .await
@@ -382,20 +388,22 @@ async fn web_search_mode_updates_between_turns_with_permission_profile() {
     )
     .await;
 
-    let mut builder = test_maplecode().with_model("gpt-5.4").with_config(|config| {
-        config
-            .web_search_mode
-            .set(WebSearchMode::Cached)
-            .expect("test web_search_mode should satisfy constraints");
-        config
-            .features
-            .disable(Feature::WebSearchCached)
-            .expect("test config should allow feature update");
-        config
-            .features
-            .disable(Feature::WebSearchRequest)
-            .expect("test config should allow feature update");
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.4")
+        .with_config(|config| {
+            config
+                .web_search_mode
+                .set(WebSearchMode::Cached)
+                .expect("test web_search_mode should satisfy constraints");
+            config
+                .features
+                .disable(Feature::WebSearchCached)
+                .expect("test config should allow feature update");
+            config
+                .features
+                .disable(Feature::WebSearchRequest)
+                .expect("test config should allow feature update");
+        });
     let test = builder
         .build(&server)
         .await

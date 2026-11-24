@@ -5,6 +5,8 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
 
+use futures::FutureExt;
+use futures::future::BoxFuture;
 use maplecode_config::AbsolutePathBuf;
 use maplecode_config::ConfigLayerEntry;
 use maplecode_config::ConfigLayerSource;
@@ -34,8 +36,6 @@ use maplecode_protocol::protocol::HookSource;
 use maplecode_protocol::protocol::HookTrustStatus;
 use maplecode_utils_path_uri::LegacyAppPathString;
 use maplecode_utils_path_uri::PathUri;
-use futures::FutureExt;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 use tempfile::tempdir;
 use tokio::sync::Notify;
@@ -1915,7 +1915,8 @@ fn bundled_cleanup_trust_requires_matching_plugin_server_and_event() {
 #[test]
 fn local_hosted_app_cleanup_hooks_require_saved_trust() {
     let temp = tempdir().expect("create plugin directory");
-    let mut source = bundled_cleanup_source("browser@openai-curated-remote", "maplecode_apps", "Stop");
+    let mut source =
+        bundled_cleanup_source("browser@openai-curated-remote", "maplecode_apps", "Stop");
     source.plugin_root = AbsolutePathBuf::try_from(temp.path()).expect("plugin root");
     source.hooks.stop[0].hooks[0] = HookHandlerConfig::McpTool {
         server: "maplecode_apps".to_string(),

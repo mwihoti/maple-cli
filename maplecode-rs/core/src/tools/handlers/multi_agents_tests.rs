@@ -29,6 +29,7 @@ use crate::tools::handlers::multi_agents_v2::SendMessageHandler as SendMessageHa
 use crate::tools::handlers::multi_agents_v2::SpawnAgentHandler as SpawnAgentHandlerV2;
 use crate::tools::handlers::multi_agents_v2::WaitAgentHandler as WaitAgentHandlerV2;
 use crate::turn_diff_tracker::TurnDiffTracker;
+use core_test_support::TempDirExt;
 use maplecode_extension_api::empty_extension_registry;
 use maplecode_features::Feature;
 use maplecode_history::InitialHistory;
@@ -78,7 +79,6 @@ use maplecode_protocol::protocol::TurnAbortedEvent;
 use maplecode_protocol::protocol::TurnCompleteEvent;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_state::DirectionalThreadSpawnEdgeStatus;
-use core_test_support::TempDirExt;
 use opentelemetry_sdk::metrics::InMemoryMetricExporter;
 use opentelemetry_sdk::metrics::data::AggregatedMetrics;
 use opentelemetry_sdk::metrics::data::MetricData;
@@ -737,7 +737,11 @@ async fn spawn_agent_role_service_tier_cannot_override_root_preference() {
     tokio::fs::create_dir_all(&turn.config.maplecode_home)
         .await
         .expect("maplecode home should be created");
-    let role_config_path = turn.config.maplecode_home.as_path().join("tiered-role.toml");
+    let role_config_path = turn
+        .config
+        .maplecode_home
+        .as_path()
+        .join("tiered-role.toml");
     tokio::fs::write(
         &role_config_path,
         r#"model = "gpt-5.5"
@@ -4324,7 +4328,9 @@ async fn tool_handlers_cascade_close_and_resume_and_keep_explicitly_closed_subtr
             &config,
             auth_manager.clone(),
             "11111111-1111-4111-8111-111111111111".to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,

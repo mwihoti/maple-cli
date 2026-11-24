@@ -5,6 +5,7 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
+use futures::FutureExt;
 use maplecode_config::AppToolApproval;
 use maplecode_config::Constrained;
 use maplecode_config::types::ApprovalsReviewer;
@@ -16,7 +17,6 @@ use maplecode_rmcp_client::InProcessTransportFactory;
 use maplecode_rmcp_client::RmcpClient;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use futures::FutureExt;
 use pretty_assertions::assert_eq;
 use rmcp::model::JsonObject;
 use rmcp::model::Tool;

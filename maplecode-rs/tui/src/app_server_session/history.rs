@@ -10,6 +10,8 @@ use crate::local_settings::LocalSettings;
 use crate::resize_reflow_cap::resize_reflow_max_rows;
 use crate::thread_transcript::RawReasoningVisibility;
 use crate::thread_transcript::thread_items_to_transcript_cells;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::SortDirection;
 use maplecode_app_server_protocol::Thread;
@@ -26,8 +28,6 @@ use maplecode_app_server_protocol::Turn;
 use maplecode_app_server_protocol::TurnItemsView;
 use maplecode_app_server_protocol::TurnStatus;
 use maplecode_protocol::ThreadId;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
 
 pub(crate) const INITIAL_HISTORY_TURN_LIMIT: u32 = 5;
 const HISTORY_TURN_PAGE_LIMIT: u32 = 100;
@@ -171,7 +171,8 @@ impl AppServerSession {
         thread_id: ThreadId,
         before_turn_id: String,
         retained_turns: &[Turn],
-    ) -> std::result::Result<ThreadRevertResponse, maplecode_app_server_client::TypedRequestError> {
+    ) -> std::result::Result<ThreadRevertResponse, maplecode_app_server_client::TypedRequestError>
+    {
         let request_id = self.next_request_id();
         let response: ThreadRevertResponse = self
             .request_handle

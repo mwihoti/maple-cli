@@ -57,7 +57,10 @@ impl OAuthLoginControl {
         )
     }
 
-    pub(super) fn for_host(maplecode_home: &std::path::Path, factory: &HttpClientFactory) -> Arc<Self> {
+    pub(super) fn for_host(
+        maplecode_home: &std::path::Path,
+        factory: &HttpClientFactory,
+    ) -> Arc<Self> {
         type Controls = Vec<(PathBuf, HttpClientFactory, Arc<OAuthLoginControl>)>;
         static CONTROLS: OnceLock<std::sync::Mutex<Controls>> = OnceLock::new();
         let mut controls = CONTROLS
@@ -381,7 +384,8 @@ impl OAuthSessionManager {
         cached.token = previous_token;
         // If saving fails, the next request can retry without asking the user to sign in again.
         cached.pending = Some(token);
-        let credential_lock = Arc::new(storage::lock_credentials(&self.state.maplecode_home).await?);
+        let credential_lock =
+            Arc::new(storage::lock_credentials(&self.state.maplecode_home).await?);
         cached.token = self.load_token_async().await?;
         self.persist_pending(cached, &credential_lock).await?;
         Ok(())

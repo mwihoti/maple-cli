@@ -5,6 +5,22 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::namespace_child_tool;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::stdio_server_bin;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use maplecode_config::McpStartupReadiness;
 use maplecode_config::types::AppToolApproval;
 use maplecode_config::types::ApprovalsReviewer;
@@ -24,22 +40,6 @@ use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_path_uri::LegacyAppPathString;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::namespace_child_tool;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::stdio_server_bin;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -441,8 +441,10 @@ async fn run_mcp_permission_request_hook_test(outcome: PermissionRequestHookOutc
         ),
     }
 
-    let hook_inputs =
-        read_hook_inputs(test.maplecode_home_path(), "permission_request_hook_log.jsonl")?;
+    let hook_inputs = read_hook_inputs(
+        test.maplecode_home_path(),
+        "permission_request_hook_log.jsonl",
+    )?;
     assert_eq!(hook_inputs.len(), 1);
     assert_eq!(
         json!({

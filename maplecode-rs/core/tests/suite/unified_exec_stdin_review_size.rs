@@ -1,16 +1,6 @@
 //! Stdin approval must cover the complete input before any bytes reach a terminal.
 
 use anyhow::Result;
-use maplecode_core::TurnInputRequest;
-use maplecode_features::Feature;
-use maplecode_protocol::approvals::ExecApprovalKind;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::ReviewDecision;
-use maplecode_protocol::protocol::SandboxPolicy;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_function_call;
 use core_test_support::responses::mount_sse_sequence;
@@ -21,6 +11,16 @@ use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_target_windows;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_core::TurnInputRequest;
+use maplecode_features::Feature;
+use maplecode_protocol::approvals::ExecApprovalKind;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::ReviewDecision;
+use maplecode_protocol::protocol::SandboxPolicy;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

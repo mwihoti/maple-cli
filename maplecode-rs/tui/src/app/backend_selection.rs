@@ -29,7 +29,12 @@ impl BackendPreferenceContext {
         let project_root_markers = config
             .config_layer_stack
             .layers_high_to_low()
-            .filter(|layer| !matches!(layer.name, maplecode_config::ConfigLayerSource::Project { .. }))
+            .filter(|layer| {
+                !matches!(
+                    layer.name,
+                    maplecode_config::ConfigLayerSource::Project { .. }
+                )
+            })
             .find_map(|layer| {
                 maplecode_config::project_root_markers_from_config(&layer.config)
                     .ok()

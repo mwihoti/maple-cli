@@ -3,6 +3,30 @@
 use anyhow::Context;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::PathExt;
+use core_test_support::is_remote_test_environment;
+use core_test_support::responses;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_no_remote_env;
+use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::local;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::test_target_os;
+use core_test_support::wait_for_event_with_timeout;
+use image::DynamicImage;
+use image::GenericImageView;
+use image::ImageBuffer;
+use image::Rgba;
+use image::load_from_memory;
 use maplecode_core::TurnInputRequest;
 use maplecode_exec_server::CreateDirectoryOptions;
 use maplecode_exec_server::LOCAL_ENVIRONMENT_ID;
@@ -35,30 +59,6 @@ use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::PathExt;
-use core_test_support::is_remote_test_environment;
-use core_test_support::responses;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_no_remote_env;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::local;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::test_target_os;
-use core_test_support::wait_for_event_with_timeout;
-use image::DynamicImage;
-use image::GenericImageView;
-use image::ImageBuffer;
-use image::Rgba;
-use image::load_from_memory;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -85,7 +85,11 @@ enum ImageBudgetPolicy {
     UnifiedResponsesLiteWithoutOriginalSupport,
 }
 
-fn disabled_user_turn(test: &TestMapleCode, items: Vec<UserInput>, model: String) -> TurnInputRequest {
+fn disabled_user_turn(
+    test: &TestMapleCode,
+    items: Vec<UserInput>,
+    model: String,
+) -> TurnInputRequest {
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, test.config.cwd.as_path());
     TurnInputRequest::user_input(items).with_thread_settings(ThreadSettingsOverrides {
@@ -161,7 +165,10 @@ fn png_bytes(width: u32, height: u32, rgba: [u8; 4]) -> anyhow::Result<Vec<u8>> 
     Ok(cursor.into_inner())
 }
 
-async fn create_workspace_directory(test: &TestMapleCode, rel_path: &str) -> anyhow::Result<PathUri> {
+async fn create_workspace_directory(
+    test: &TestMapleCode,
+    rel_path: &str,
+) -> anyhow::Result<PathUri> {
     let abs_path_uri = test.workspace_path_uri(rel_path)?;
     test.fs()
         .create_directory(
@@ -480,13 +487,19 @@ async fn view_image_tool_attaches_local_image() -> anyhow::Result<()> {
         maplecode,
         |event| match event {
             EventMsg::ItemStarted(event) => {
-                if matches!(&event.item, maplecode_protocol::items::TurnItem::ImageView(_)) {
+                if matches!(
+                    &event.item,
+                    maplecode_protocol::items::TurnItem::ImageView(_)
+                ) {
                     item_started = Some(event.item.clone());
                 }
                 false
             }
             EventMsg::ItemCompleted(event) => {
-                if matches!(&event.item, maplecode_protocol::items::TurnItem::ImageView(_)) {
+                if matches!(
+                    &event.item,
+                    maplecode_protocol::items::TurnItem::ImageView(_)
+                ) {
                     item_completed = Some(event.item.clone());
                 }
                 false
@@ -1011,9 +1024,11 @@ async fn view_image_tool_errors_clearly_for_unsupported_detail_values() -> anyho
     skip_if_no_network!(Ok(()));
 
     let server = start_mock_server().await;
-    let mut builder = test_maplecode().with_model("gpt-5.5").with_config(|config| {
-        let _ = config.features.disable(Feature::UnifiedImageBudget);
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.5")
+        .with_config(|config| {
+            let _ = config.features.disable(Feature::UnifiedImageBudget);
+        });
     let test = builder.build_with_auto_env(&server).await?;
     let TestMapleCode {
         maplecode,
@@ -1091,9 +1106,11 @@ async fn view_image_tool_treats_null_detail_as_omitted() -> anyhow::Result<()> {
     skip_if_no_network!(Ok(()));
 
     let server = start_mock_server().await;
-    let mut builder = test_maplecode().with_model("gpt-5.5").with_config(|config| {
-        let _ = config.features.disable(Feature::UnifiedImageBudget);
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.5")
+        .with_config(|config| {
+            let _ = config.features.disable(Feature::UnifiedImageBudget);
+        });
     let test = builder.build_with_auto_env(&server).await?;
     let TestMapleCode {
         maplecode,
@@ -1296,9 +1313,11 @@ async fn view_image_tool_does_not_force_original_resolution_with_capability_only
     skip_if_no_network!(Ok(()));
 
     let server = start_mock_server().await;
-    let mut builder = test_maplecode().with_model("gpt-5.5").with_config(|config| {
-        let _ = config.features.disable(Feature::UnifiedImageBudget);
-    });
+    let mut builder = test_maplecode()
+        .with_model("gpt-5.5")
+        .with_config(|config| {
+            let _ = config.features.disable(Feature::UnifiedImageBudget);
+        });
     let test = builder.build_with_auto_env(&server).await?;
     let TestMapleCode {
         maplecode,

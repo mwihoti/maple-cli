@@ -105,7 +105,10 @@ async fn unarchive_thread_with_index(
     let mut restored_path = None;
     let mut rollout_moves = Vec::new();
     for rollout_path in rollout_paths {
-        if !rollout_path_is_archived(store.config.maplecode_home.as_path(), rollout_path.as_path()) {
+        if !rollout_path_is_archived(
+            store.config.maplecode_home.as_path(),
+            rollout_path.as_path(),
+        ) {
             continue;
         }
         let canonical_archived_path = scoped_rollout_path(

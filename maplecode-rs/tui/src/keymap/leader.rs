@@ -7,10 +7,10 @@ use super::chords::normalize_chord_binding;
 use super::configured_context_alias_is_used;
 use super::resolve_bindings;
 use crate::key_hint;
-use maplecode_config::types::TuiKeymap;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use itertools::Itertools;
+use maplecode_config::types::TuiKeymap;
 
 pub(super) fn resolve(config: &TuiKeymap, chords: &mut RuntimeChordKeymap) -> Result<(), String> {
     let default = key_hint::ctrl(KeyCode::Char('x'));

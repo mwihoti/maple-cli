@@ -1992,7 +1992,8 @@ mod tests {
             ),
             (oldest_unpinned, 1_700_000_000, None),
         ] {
-            let mut metadata = test_thread_metadata(&maplecode_home, thread_id, maplecode_home.clone());
+            let mut metadata =
+                test_thread_metadata(&maplecode_home, thread_id, maplecode_home.clone());
             metadata.recency_at = DateTime::<Utc>::from_timestamp(recency_at, 0).unwrap();
             if thread_id == oldest_pinned {
                 metadata.preview = Some(String::new());
@@ -2124,7 +2125,8 @@ mod tests {
         let last = ThreadId::from_string("00000000-0000-0000-0000-000000000063").unwrap();
 
         for (thread_id, position) in [(first, 1_000_000), (tied, 1_000_000), (last, 2_000_000)] {
-            let mut metadata = test_thread_metadata(&maplecode_home, thread_id, maplecode_home.clone());
+            let mut metadata =
+                test_thread_metadata(&maplecode_home, thread_id, maplecode_home.clone());
             if thread_id == tied {
                 metadata.preview = Some(String::new());
                 metadata.first_user_message = None;
@@ -2370,7 +2372,8 @@ mod tests {
             (newer_id, newer_updated_at),
             (middle_id, newer_updated_at),
         ] {
-            let mut metadata = test_thread_metadata(&maplecode_home, thread_id, maplecode_home.clone());
+            let mut metadata =
+                test_thread_metadata(&maplecode_home, thread_id, maplecode_home.clone());
             metadata.updated_at = updated_at;
             metadata.first_user_message = Some("hello".to_string());
             runtime
@@ -2792,7 +2795,8 @@ mod tests {
             (second_child_id, 1_700_000_200),
             (grandchild_id, 1_700_000_300),
         ] {
-            let mut metadata = test_thread_metadata(&maplecode_home, thread_id, maplecode_home.clone());
+            let mut metadata =
+                test_thread_metadata(&maplecode_home, thread_id, maplecode_home.clone());
             metadata.created_at =
                 DateTime::<Utc>::from_timestamp(created_at, 0).expect("valid timestamp");
             metadata.updated_at = metadata.created_at;
@@ -3637,7 +3641,8 @@ mod tests {
             DateTime::<Utc>::from_timestamp_millis(1_700_002_000_456).expect("timestamp");
 
         for thread_id in [first_id, second_id, third_id] {
-            let mut metadata = test_thread_metadata(&maplecode_home, thread_id, maplecode_home.clone());
+            let mut metadata =
+                test_thread_metadata(&maplecode_home, thread_id, maplecode_home.clone());
             metadata.recency_at = recency_at;
             runtime
                 .upsert_thread(&metadata)

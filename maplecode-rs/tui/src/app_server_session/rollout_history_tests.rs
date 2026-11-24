@@ -6,11 +6,11 @@ use crate::legacy_core::config::Config;
 use crate::legacy_core::config::ConfigBuilder;
 use app_test_support::create_fake_paginated_rollout;
 use app_test_support::create_fake_rollout;
+use color_eyre::eyre::Result;
+use futures::FutureExt;
 use maplecode_app_server_protocol::ThreadHistoryMode;
 use maplecode_features::Feature;
 use maplecode_protocol::ThreadId;
-use color_eyre::eyre::Result;
-use futures::FutureExt;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 
@@ -98,8 +98,9 @@ async fn resume_with_saved_server_profile() -> Result<()> {
         .await?;
     tokio::time::timeout(std::time::Duration::from_secs(5), async {
         loop {
-            if let Some(maplecode_app_server_client::AppServerEvent::ServerNotification(notification)) =
-                server.next_event().await.map(|event| event.event)
+            if let Some(maplecode_app_server_client::AppServerEvent::ServerNotification(
+                notification,
+            )) = server.next_event().await.map(|event| event.event)
                 && let maplecode_app_server_protocol::ServerNotification::ThreadSettingsUpdated(
                     settings,
                 ) = *notification
@@ -389,7 +390,8 @@ async fn cached_legacy_resume_revalidates_history_across_migration_settings() ->
             // Resume must acquire its guard before waiting for metadata revalidation.
             assert!(resume.as_mut().now_or_never().is_none());
             assert!(
-                maplecode_rollout::try_acquire_rollout_maintenance_lock(maplecode_home.path())?.is_none()
+                maplecode_rollout::try_acquire_rollout_maintenance_lock(maplecode_home.path())?
+                    .is_none()
             );
             resume.await?
         };

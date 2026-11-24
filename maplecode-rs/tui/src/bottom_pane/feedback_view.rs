@@ -1,8 +1,8 @@
-use maplecode_feedback::MAPLECODE_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME;
-use maplecode_feedback::MAPLECODE_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME;
 use maplecode_feedback::DOCTOR_REPORT_ATTACHMENT_FILENAME;
 use maplecode_feedback::FEEDBACK_DIAGNOSTICS_ATTACHMENT_FILENAME;
 use maplecode_feedback::FeedbackDiagnostics;
+use maplecode_feedback::MAPLECODE_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME;
+use maplecode_feedback::MAPLECODE_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME;
 use maplecode_feedback::WINDOWS_SANDBOX_LOG_ATTACHMENT_FILENAME;
 use ratatui::style::Stylize;
 use ratatui::text::Line;

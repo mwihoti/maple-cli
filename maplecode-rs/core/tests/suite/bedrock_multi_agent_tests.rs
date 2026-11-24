@@ -1,5 +1,8 @@
 //! Verifies default Bedrock catalogs select V2 and expose its collaboration tools.
 
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::test_maplecode;
 use maplecode_features::Feature;
 use maplecode_login::MapleCodeAuth;
 use maplecode_login::auth::BedrockApiKeyAuth;
@@ -7,9 +10,6 @@ use maplecode_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
 use maplecode_model_provider_info::AMAZON_BEDROCK_RUNTIME_PROVIDER_ID;
 use maplecode_model_provider_info::built_in_model_providers;
 use maplecode_protocol::protocol::MultiAgentVersion;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::test_maplecode;
 use pretty_assertions::assert_eq;
 
 #[test_case::test_case(AMAZON_BEDROCK_PROVIDER_ID, "openai.gpt-5.6-sol"; "mantle")]

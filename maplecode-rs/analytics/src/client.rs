@@ -11,7 +11,6 @@ use crate::facts::AppMentionedInput;
 use crate::facts::AppUsedInput;
 use crate::facts::ArtifactOperation;
 use crate::facts::ArtifactOperationInput;
-use crate::facts::MapleCodeGoalEvent;
 use crate::facts::CustomAnalyticsFact;
 use crate::facts::ElicitationType;
 use crate::facts::ExternalAgentConfigImportCompletedInput;
@@ -19,6 +18,7 @@ use crate::facts::ExternalAgentConfigImportFailureInput;
 use crate::facts::HookRunFact;
 use crate::facts::HookRunInput;
 use crate::facts::ImagePreparationFact;
+use crate::facts::MapleCodeGoalEvent;
 use crate::facts::McpToolCallElicitation;
 use crate::facts::PluginInstallFailedInput;
 use crate::facts::PluginInstallRequested;
@@ -46,6 +46,7 @@ use crate::reducer::MAX_PLUGIN_MEASUREMENTS_PER_BATCH;
 use crate::reducer::tracked_tool_item_id;
 use crate::reducer::valid_plugin_measurement_identifier;
 use crate::reducer::valid_plugin_measurement_row;
+use http::HeaderMap;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ClientResponsePayload;
 use maplecode_app_server_protocol::InitializeParams;
@@ -79,7 +80,6 @@ use maplecode_protocol::protocol::Event;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::request_permissions::RequestPermissionsResponse;
 use maplecode_runtime_agent_instance::RuntimeAuthSlot;
-use http::HeaderMap;
 use std::collections::HashSet;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -545,9 +545,9 @@ impl AnalyticsEventsClient {
             ItemStartedNotification::new(
                 thread_id.clone(),
                 turn_id.clone(),
-                maplecode_app_server_protocol::ThreadItemPayload::from(TurnItem::CollabAgentToolCall(
-                    item,
-                )),
+                maplecode_app_server_protocol::ThreadItemPayload::from(
+                    TurnItem::CollabAgentToolCall(item),
+                ),
                 started_at_ms,
             ),
         ));
@@ -740,9 +740,9 @@ impl AnalyticsEventsClient {
     }
 
     pub fn track_turn_maplecode_error(&self, fact: TurnMapleCodeErrorFact) {
-        self.record_fact(AnalyticsFact::Custom(CustomAnalyticsFact::TurnMapleCodeError(
-            Box::new(fact),
-        )));
+        self.record_fact(AnalyticsFact::Custom(
+            CustomAnalyticsFact::TurnMapleCodeError(Box::new(fact)),
+        ));
     }
 
     pub fn track_plugin_installed(&self, plugin: PluginTelemetryMetadata) {

@@ -29,8 +29,8 @@ pub(super) fn foreground_owner(
 ) -> Result<crate::installation_record::InstallationRecord> {
     let _lock = maplecode_windows_sandbox::acquire_sandbox_setup_lock(/*timeout_ms*/ 5_000)?;
     if let Some(previous) = crate::installation_record::load()? {
-        let same_owner =
-            previous.user_sid == record.user_sid && previous.maplecode_home == record.maplecode_home;
+        let same_owner = previous.user_sid == record.user_sid
+            && previous.maplecode_home == record.maplecode_home;
         if previous.runtime.is_some() {
             let family = windows::ApplicationModel::Package::Current()?
                 .Id()?

@@ -8,6 +8,8 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 
+use futures::StreamExt;
+use futures::stream;
 use maplecode_attachment_store::FormatSpecificMetadata;
 use maplecode_attachment_store::ResolveRequest;
 use maplecode_history::ResponseItemEnvelope;
@@ -15,8 +17,6 @@ use maplecode_protocol::models::AudioReference;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_utils_audio::estimate_file_audio_tokens;
-use futures::StreamExt;
-use futures::stream;
 
 use crate::session::Session;
 

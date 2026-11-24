@@ -19,18 +19,19 @@ use axum::response::IntoResponse;
 use axum::response::sse::Event;
 use axum::response::sse::Sse;
 use axum::routing::post;
+use futures::StreamExt;
 use maplecode_config::McpServerTransportConfig;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_core::plugins_manager_for_config;
 use maplecode_exec_server_test_support::environment_manager_without_environments;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
+use maplecode_mcp::EffectiveMcpServer;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::MapleCodeAppsResourceListParams;
-use maplecode_mcp::EffectiveMcpServer;
 use maplecode_mcp::McpEventNotification;
 use maplecode_mcp::McpResourceClient;
 use maplecode_mcp::McpRuntime;
@@ -39,7 +40,6 @@ use maplecode_mcp::McpRuntimeInput;
 use maplecode_mcp::McpServerRegistration;
 use maplecode_mcp::McpStartupPolicy;
 use maplecode_mcp::ResolvedMcpCatalog;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -296,7 +296,9 @@ impl Fixture {
             .with_connection_pool(Default::default()),
             maplecode_apps_tools_cache: Default::default(),
             tool_catalog_cache: Default::default(),
-            maplecode_apps_tools_cache_key: maplecode_mcp::maplecode_apps_tools_cache_key(Some(&auth_value)),
+            maplecode_apps_tools_cache_key: maplecode_mcp::maplecode_apps_tools_cache_key(Some(
+                &auth_value,
+            )),
             client_mcp_extensions: Default::default(),
             auth: Some(auth_value.clone()),
             auth_manager: Some(Arc::clone(&auth)),
@@ -328,12 +330,12 @@ async fn apps_resource_discovery_during_initial_tools_list() -> Result<()> {
             .await
             .context("initial tools/list did not start")?;
         let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
-        let mut page = Box::pin(
-            reader.list_maplecode_apps_resources(MapleCodeAppsResourceListParams {
+        let mut page = Box::pin(reader.list_maplecode_apps_resources(
+            MapleCodeAppsResourceListParams {
                 mime_type: "mcp/plugin".into(),
                 cursor: None,
-            }),
-        );
+            },
+        ));
         if early_resources {
             assert_eq!(
                 timeout(WAIT, &mut page)
@@ -378,12 +380,12 @@ async fn apps_resource_discovery_times_out_during_stalled_initialization() -> Re
     });
     let fixture = Fixture::start(Some(Arc::clone(&blocked)), /*early_resources*/ true).await?;
     let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
-    let mut page = Box::pin(
-        reader.list_maplecode_apps_resources(MapleCodeAppsResourceListParams {
+    let mut page = Box::pin(reader.list_maplecode_apps_resources(
+        MapleCodeAppsResourceListParams {
             mime_type: "mcp/plugin".into(),
             cursor: None,
-        }),
-    );
+        },
+    ));
     assert!(futures::poll!(&mut page).is_pending());
     timeout(WAIT, blocked.started.notified())
         .await
@@ -463,12 +465,12 @@ async fn apps_resource_discovery_propagates_initial_tools_list_failure() -> Resu
     let fixture = Fixture::start(Some(Arc::clone(&blocked)), /*early_resources*/ true).await?;
     timeout(WAIT, blocked.started.notified()).await?;
     let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
-    let mut page = Box::pin(
-        reader.list_maplecode_apps_resources(MapleCodeAppsResourceListParams {
+    let mut page = Box::pin(reader.list_maplecode_apps_resources(
+        MapleCodeAppsResourceListParams {
             mime_type: "mcp/plugin".into(),
             cursor: None,
-        }),
-    );
+        },
+    ));
     tokio::select! {
         result = &mut page => panic!("catalog returned before inventory failed: {result:?}"),
         result = timeout(WAIT, blocked.resource_started.notified()) => result?,
@@ -501,12 +503,12 @@ async fn apps_resource_discovery_observes_cancellation_after_inventory_finishes(
     let fixture = Fixture::start(Some(Arc::clone(&blocked)), /*early_resources*/ true).await?;
     timeout(WAIT, blocked.started.notified()).await?;
     let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
-    let mut page = Box::pin(
-        reader.list_maplecode_apps_resources(MapleCodeAppsResourceListParams {
+    let mut page = Box::pin(reader.list_maplecode_apps_resources(
+        MapleCodeAppsResourceListParams {
             mime_type: "mcp/plugin".into(),
             cursor: None,
-        }),
-    );
+        },
+    ));
     tokio::select! {
         result = &mut page => panic!("catalog returned before release: {result:?}"),
         result = timeout(WAIT, blocked.resource_started.notified()) => result?,
@@ -573,12 +575,12 @@ async fn apps_resource_discovery_discards_page_after_account_switch() -> Result<
     let mut fixture = Fixture::start(Some(Arc::clone(&blocked)), /*early_resources*/ true).await?;
     timeout(WAIT, blocked.started.notified()).await?;
     let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
-    let mut page = Box::pin(
-        reader.list_maplecode_apps_resources(MapleCodeAppsResourceListParams {
+    let mut page = Box::pin(reader.list_maplecode_apps_resources(
+        MapleCodeAppsResourceListParams {
             mime_type: "mcp/skill".into(),
             cursor: None,
-        }),
-    );
+        },
+    ));
     tokio::select! {
         result = &mut page => panic!("catalog returned before account switch: {result:?}"),
         result = timeout(WAIT, blocked.resource_started.notified()) => result?,

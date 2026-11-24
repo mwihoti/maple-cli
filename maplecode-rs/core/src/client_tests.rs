@@ -15,12 +15,13 @@ use super::X_OPENAI_SUBAGENT_HEADER;
 use crate::AttestationContext;
 use crate::AttestationProvider;
 use crate::GenerateAttestationFuture;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
 use crate::responses_metadata::MAX_MCP_ATTRIBUTION_BYTES;
 use crate::responses_metadata::MCP_ATTRIBUTION_CLIENT_METADATA_KEY;
+use crate::responses_metadata::MapleCodeResponsesMetadata;
 use crate::test_support::TestMapleCodeResponsesRequestKind;
 use crate::test_support::responses_metadata as test_responses_metadata;
 use base64::Engine;
+use futures::StreamExt;
 use maplecode_api::AgentIdentityTelemetry;
 use maplecode_api::ApiError;
 use maplecode_api::ResponseEvent;
@@ -84,7 +85,6 @@ use maplecode_runtime_agent_instance::RuntimeRole;
 use maplecode_tools::JsonSchema;
 use maplecode_tools::ResponsesApiTool;
 use maplecode_tools::ToolSpec;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::BTreeMap;
@@ -201,8 +201,9 @@ async fn workspace_routed_http_rejects_redirects_without_a_routing_header(
             .respond_with(ResponseTemplate::new(/*status*/ 200))
             .mount(&destination)
             .await;
-        let manager =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        let manager = AuthManager::from_auth_for_testing(
+            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        );
         let resolver: Arc<dyn WorkspaceRoutingResolver> = Arc::new(Routing(routing_override));
         manager.set_workspace_routing_resolver(Arc::downgrade(&resolver));
         let registration = MockServer::start().await;
@@ -345,7 +346,8 @@ impl ModelProvider for SetupRefreshProvider {
         maplecode_home: PathBuf,
         config_model_catalog: Option<ModelsResponse>,
     ) -> SharedModelsManager {
-        self.inner.models_manager(maplecode_home, config_model_catalog)
+        self.inner
+            .models_manager(maplecode_home, config_model_catalog)
     }
 }
 
@@ -1917,7 +1919,8 @@ impl ModelProvider for TestRecoveryProvider {
 
     fn recover_from_unauthorized(
         &self,
-    ) -> ModelProviderFuture<'_, maplecode_protocol::error::Result<ProviderUnauthorizedRecovery>> {
+    ) -> ModelProviderFuture<'_, maplecode_protocol::error::Result<ProviderUnauthorizedRecovery>>
+    {
         self.attempts.fetch_add(1, Ordering::Relaxed);
         Box::pin(async move {
             if self.should_fail {
@@ -1935,7 +1938,8 @@ impl ModelProvider for TestRecoveryProvider {
         maplecode_home: PathBuf,
         config_model_catalog: Option<ModelsResponse>,
     ) -> SharedModelsManager {
-        self.inner.models_manager(maplecode_home, config_model_catalog)
+        self.inner
+            .models_manager(maplecode_home, config_model_catalog)
     }
 }
 
@@ -2638,7 +2642,8 @@ async fn realtime_auth_uses_request_scope_on_reconnect(mode: RuntimeAuthMode, ga
 async fn realtime_uses_openai_credentials_with_bedrock_inference() {
     let (mut model_client, _) =
         model_client_with_counting_attestation(/*include_attestation*/ false);
-    let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("realtime-key"));
+    let credentials =
+        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("realtime-key"));
     let info = ModelProviderInfo::create_amazon_bedrock_provider(Some(
         maplecode_model_provider_info::ModelProviderAwsAuthInfo {
             profile: Some("configured-profile".into()),

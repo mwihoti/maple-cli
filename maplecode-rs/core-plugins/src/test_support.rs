@@ -12,6 +12,7 @@ use crate::PluginsConfigInput;
 use crate::PluginsManager;
 use crate::http_client_selector::HttpClientSelector;
 use crate::remote::RemotePluginServiceConfig;
+use http::Method;
 use maplecode_config::LoaderOverrides;
 use maplecode_config::NoopThreadConfigLoader;
 use maplecode_config::loader::load_config_layers_state;
@@ -23,10 +24,10 @@ use maplecode_http_client::RequestBuilder;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
 use maplecode_login::auth::BedrockAccessKeysAuth;
 use maplecode_login::auth::BedrockApiKeyAuth;
 use maplecode_login::test_support::auth_manager_from_optional_auth;
@@ -47,7 +48,6 @@ use maplecode_utils_path_uri::PathUri;
 use maplecode_utils_plugins::PluginSkillRoot;
 use maplecode_utils_plugins::SkillDiscoveryMode;
 use maplecode_utils_plugins::migrated_command_skills_root;
-use http::Method;
 use toml::Value;
 
 pub(crate) const TEST_CURATED_PLUGIN_SHA: &str = "0123456789abcdef0123456789abcdef01234567";
@@ -153,7 +153,10 @@ impl ExternalAuth for StaticExternalAuth {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 }
@@ -514,11 +517,15 @@ fn write_curated_marketplace(
 }
 
 pub(crate) fn write_curated_plugin_sha_with(maplecode_home: &Path, sha: &str) {
-    write_file(&maplecode_home.join(".tmp/plugins.sha"), &format!("{sha}\n"));
+    write_file(
+        &maplecode_home.join(".tmp/plugins.sha"),
+        &format!("{sha}\n"),
+    );
 }
 
 pub(crate) async fn load_plugins_config(maplecode_home: &Path, cwd: &Path) -> PluginsConfigInput {
-    let maplecode_home = AbsolutePathBuf::try_from(maplecode_home).expect("maplecode home should be absolute");
+    let maplecode_home =
+        AbsolutePathBuf::try_from(maplecode_home).expect("maplecode home should be absolute");
     let cwd = AbsolutePathBuf::try_from(cwd).expect("cwd should be absolute");
     let config_layer_stack = load_config_layers_state(
         LOCAL_FS.as_ref(),

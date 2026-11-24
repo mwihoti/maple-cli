@@ -1,21 +1,9 @@
 #![allow(clippy::unwrap_used)]
 
-use maplecode_core::TurnInputRequest;
 use core_test_support::test_maplecode::local_requests;
+use maplecode_core::TurnInputRequest;
 use std::collections::HashMap;
 
-use maplecode_features::Feature;
-use maplecode_protocol::config_types::CollaborationMode;
-use maplecode_protocol::config_types::ModeKind;
-use maplecode_protocol::config_types::Settings;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::request_user_input::RequestUserInputAnswer;
-use maplecode_protocol::request_user_input::RequestUserInputResponse;
-use maplecode_protocol::user_input::UserInput;
 use core_test_support::TempDirExt;
 use core_test_support::responses;
 use core_test_support::responses::ResponsesRequest;
@@ -32,6 +20,18 @@ use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
+use maplecode_features::Feature;
+use maplecode_protocol::config_types::CollaborationMode;
+use maplecode_protocol::config_types::ModeKind;
+use maplecode_protocol::config_types::Settings;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::request_user_input::RequestUserInputAnswer;
+use maplecode_protocol::request_user_input::RequestUserInputResponse;
+use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -198,7 +198,10 @@ async fn request_user_input_round_trip_for_mode(mode: ModeKind) -> anyhow::Resul
         .await?;
 
     wait_for_event(&maplecode, |event| matches!(event, EventMsg::TokenCount(_))).await;
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let req = second_mock.single_request();
     let output_text = call_output(&req, call_id);
@@ -323,7 +326,10 @@ async fn request_user_input_interrupt_emits_deferred_token_count(
             .map(|info| info.total_token_usage.total_tokens),
         Some(77)
     );
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnAborted(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnAborted(_))
+    })
+    .await;
 
     assert_eq!(request.call_id, call_id);
     Ok(())
@@ -398,7 +404,10 @@ where
         )
         .await?;
 
-    wait_for_event(&maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(&maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
 
     let req = second_mock.single_request();
     let (output, success) = call_output_content_and_success(&req, &call_id);

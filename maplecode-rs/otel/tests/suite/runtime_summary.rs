@@ -1,3 +1,4 @@
+use eventsource_stream::Event as StreamEvent;
 use maplecode_otel::MetricsClient;
 use maplecode_otel::MetricsConfig;
 use maplecode_otel::Result;
@@ -8,7 +9,6 @@ use maplecode_otel::TelemetryAuthMode;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::ToolName;
 use maplecode_protocol::protocol::SessionSource;
-use eventsource_stream::Event as StreamEvent;
 use opentelemetry_sdk::metrics::InMemoryMetricExporter;
 use pretty_assertions::assert_eq;
 use std::time::Duration;

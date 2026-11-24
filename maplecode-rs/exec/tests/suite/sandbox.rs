@@ -391,7 +391,10 @@ async fn sandbox_blocks_first_time_dot_maplecode_creation() {
     .await
     .expect("should spawn command creating .maplecode");
 
-    let status = child.wait().await.expect("should wait for .maplecode command");
+    let status = child
+        .wait()
+        .await
+        .expect("should wait for .maplecode command");
     assert!(
         !status.success(),
         "sandbox unexpectedly allowed first-time .maplecode creation: {status:?}"

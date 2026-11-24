@@ -82,10 +82,10 @@ impl AppsRequestProcessor {
                 .map_err(|error| internal_error(error.to_string()))?;
         }
         let auth = auth_manager.auth().await;
-        if !config
-            .features
-            .apps_enabled_for_auth(auth.as_ref().is_some_and(MapleCodeAuth::uses_maplecode_backend))
-        {
+        if !config.features.apps_enabled_for_auth(
+            auth.as_ref()
+                .is_some_and(MapleCodeAuth::uses_maplecode_backend),
+        ) {
             let response = AppsListResponse {
                 data: Vec::new(),
                 next_cursor: None,

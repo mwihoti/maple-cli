@@ -136,9 +136,9 @@ impl ExecRequest {
         } = options;
         let windows_sandbox_filesystem_overrides = if sandbox == SandboxType::WindowsRestrictedToken
         {
-            let sandbox_policy_cwd = windows_sandbox_policy_cwd
-                .to_abs_path()
-                .map_err(|err| MapleCodeErr::InvalidRequest(format!("invalid sandbox cwd: {err}")))?;
+            let sandbox_policy_cwd = windows_sandbox_policy_cwd.to_abs_path().map_err(|err| {
+                MapleCodeErr::InvalidRequest(format!("invalid sandbox cwd: {err}"))
+            })?;
             WindowsSandboxFilesystemOverrides::resolve(
                 sandbox,
                 &permission_profile,
@@ -163,7 +163,10 @@ impl ExecRequest {
         }
         #[cfg(target_os = "macos")]
         if sandbox == SandboxType::MacosSeatbelt {
-            env.insert(MAPLECODE_SANDBOX_ENV_VAR.to_string(), "seatbelt".to_string());
+            env.insert(
+                MAPLECODE_SANDBOX_ENV_VAR.to_string(),
+                "seatbelt".to_string(),
+            );
         }
         Ok(Self {
             command,

@@ -1,4 +1,20 @@
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::ev_web_search_call_done;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::stdio_server_bin;
+use core_test_support::test_maplecode::local_requests;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::test_maplecode::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
 use maplecode_config::types::McpServerConfig;
 use maplecode_config::types::McpServerTransportConfig;
 use maplecode_core::StartThreadOptions;
@@ -30,22 +46,6 @@ use maplecode_protocol::protocol::UserMessageEvent;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_thread_store::ThreadMetadataPatch;
 use maplecode_web_search_extension::install as install_web_search_extension;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::ev_web_search_call_done;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::stdio_server_bin;
-use core_test_support::test_maplecode::local_requests;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::test_maplecode::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
@@ -995,8 +995,10 @@ async fn tool_call_logs_include_thread_id() -> Result<()> {
 
     test.submit_turn("run a shell command").await?;
 
-    let log_db_layer =
-        maplecode_state::log_db::start(db.clone(), Arc::new(maplecode_feedback::MapleCodeFeedback::new()));
+    let log_db_layer = maplecode_state::log_db::start(
+        db.clone(),
+        Arc::new(maplecode_feedback::MapleCodeFeedback::new()),
+    );
     let subscriber = tracing_subscriber::registry().with(log_db_layer.clone());
     let dispatch = tracing::Dispatch::new(subscriber);
     tracing::dispatcher::with_default(&dispatch, || {

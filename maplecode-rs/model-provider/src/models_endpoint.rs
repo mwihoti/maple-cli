@@ -6,6 +6,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use crate::GatewayAuthManager;
+use http::HeaderMap;
 use maplecode_api::AgentIdentityTelemetry;
 use maplecode_api::ModelsClient;
 use maplecode_api::RequestTelemetry;
@@ -37,7 +38,6 @@ use maplecode_protocol::error::Result as CoreResult;
 use maplecode_response_debug_context::extract_response_debug_context;
 use maplecode_response_debug_context::telemetry_transport_error_message;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
-use http::HeaderMap;
 use tokio::time::timeout;
 
 use crate::auth::agent_identity_telemetry;
@@ -148,12 +148,12 @@ impl OpenAiModelsEndpoint {
         client_version: &str,
         http_client_factory: HttpClientFactory,
     ) -> CoreResult<ModelsEndpointResponse> {
-        let deadline = if self.provider_info.name == maplecode_model_provider_info::MAPLE_PROVIDER_NAME
-        {
-            MAPLE_MODELS_REFRESH_TIMEOUT
-        } else {
-            MODELS_REFRESH_TIMEOUT
-        };
+        let deadline =
+            if self.provider_info.name == maplecode_model_provider_info::MAPLE_PROVIDER_NAME {
+                MAPLE_MODELS_REFRESH_TIMEOUT
+            } else {
+                MODELS_REFRESH_TIMEOUT
+            };
         timeout(
             deadline,
             self.fetch_models(client_version, http_client_factory),
@@ -197,7 +197,8 @@ impl OpenAiModelsEndpoint {
         let identity = crate::models_identity::identity(&self.provider_info, auth.as_ref())?;
         let auth_mode = auth.as_ref().map(MapleCodeAuth::auth_mode);
         let mut api_provider = resolve_api_provider(&self.provider_info, auth.as_ref())?;
-        if (auth.as_ref().is_some_and(MapleCodeAuth::is_api_key_auth) || self.has_provider_api_key())
+        if (auth.as_ref().is_some_and(MapleCodeAuth::is_api_key_auth)
+            || self.has_provider_api_key())
             && self.supports_api_key_models()
             && self.provider_info.base_url.is_none()
             && self.provider_info.model_catalog_url.is_none()
@@ -232,11 +233,12 @@ impl OpenAiModelsEndpoint {
         };
         let auth_telemetry = auth_header_telemetry(api_auth.as_ref())
             .map_err(|error| map_api_error(error.into()))?;
-        let agent_identity_telemetry = if let Some(MapleCodeAuth::AgentIdentity(auth)) = auth.as_ref() {
-            Some(agent_identity_telemetry(auth))
-        } else {
-            None
-        };
+        let agent_identity_telemetry =
+            if let Some(MapleCodeAuth::AgentIdentity(auth)) = auth.as_ref() {
+                Some(agent_identity_telemetry(auth))
+            } else {
+                None
+            };
         let request_telemetry: Arc<dyn RequestTelemetry> = Arc::new(ModelsRequestTelemetry {
             include_response_debug: self.provider_info.model_catalog_url.is_none(),
             auth_mode: auth_mode.map(|mode| TelemetryAuthMode::from(mode).to_string()),

@@ -32,7 +32,10 @@ fn repository() -> Result<(TempDir, std::path::PathBuf)> {
     fs::create_dir(&root)?;
     setup_git(&root, &["init", "-b", "main"])?;
     setup_git(&root, &["config", "user.name", "Maple Code Test"])?;
-    setup_git(&root, &["config", "user.email", "maplecode@example.invalid"])?;
+    setup_git(
+        &root,
+        &["config", "user.email", "maplecode@example.invalid"],
+    )?;
     fs::write(root.join("tracked.txt"), "tracked\n")?;
     setup_git(&root, &["add", "tracked.txt"])?;
     setup_git(&root, &["commit", "--no-gpg-sign", "-m", "initial"])?;

@@ -320,9 +320,10 @@ impl McpServerConnectionIdentity {
 
     pub(crate) fn has_same_connection_config(&self, other: &Self) -> bool {
         let same_runtime_auth = match (&self.runtime_auth, &other.runtime_auth) {
-            (Some(MapleCodeAuth::AgentIdentity(left)), Some(MapleCodeAuth::AgentIdentity(right))) => {
-                left.record() == right.record()
-            }
+            (
+                Some(MapleCodeAuth::AgentIdentity(left)),
+                Some(MapleCodeAuth::AgentIdentity(right)),
+            ) => left.record() == right.record(),
             (Some(left), Some(right)) => {
                 left == right
                     && left.get_account_id() == right.get_account_id()

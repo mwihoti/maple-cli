@@ -55,9 +55,9 @@ async fn turn_costs_register_with_requested_organization(openai_alias: bool) {
             },
             format!("{}/agent/register", server.uri()).parse().unwrap(),
         ));
-        let mut info = maplecode_model_provider_info::ModelProviderInfo::create_openai_provider(Some(
-            format!("{}/v1", server.uri()),
-        ));
+        let mut info = maplecode_model_provider_info::ModelProviderInfo::create_openai_provider(
+            Some(format!("{}/v1", server.uri())),
+        );
         info.name = "OpenAI alias".to_string();
         info.http_headers = Some(HashMap::from([(
             "OpenAI-Organization".to_string(),

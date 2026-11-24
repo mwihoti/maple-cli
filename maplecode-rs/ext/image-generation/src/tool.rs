@@ -151,7 +151,10 @@ impl<'call> ToolExecutor<ToolCall<'call>> for ImageGenerationTool {
     }
 
     /// Executes the selected image operation and returns the completed image result.
-    fn handle<'a>(&'a self, call: ToolCall<'call>) -> maplecode_extension_api::ToolExecutorFuture<'a>
+    fn handle<'a>(
+        &'a self,
+        call: ToolCall<'call>,
+    ) -> maplecode_extension_api::ToolExecutorFuture<'a>
     where
         'call: 'a,
     {
@@ -199,12 +202,20 @@ impl ImageGenerationTool {
         let result = match request {
             ImageRequest::Generate(request) => {
                 self.backend
-                    .generate(request, &call.turn_id, call.maplecode_turn_metadata.as_deref())
+                    .generate(
+                        request,
+                        &call.turn_id,
+                        call.maplecode_turn_metadata.as_deref(),
+                    )
                     .await
             }
             ImageRequest::Edit(request) => {
                 self.backend
-                    .edit(request, &call.turn_id, call.maplecode_turn_metadata.as_deref())
+                    .edit(
+                        request,
+                        &call.turn_id,
+                        call.maplecode_turn_metadata.as_deref(),
+                    )
                     .await
             }
         }

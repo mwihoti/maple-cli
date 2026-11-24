@@ -3,15 +3,6 @@
 //! adding bearer credentials.
 
 use anyhow::Result;
-use maplecode_login::AuthHeaders;
-use maplecode_login::MapleCodeAuth;
-use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
-use maplecode_protocol::protocol::ConversationStartParams;
-use maplecode_protocol::protocol::ConversationStartTransport;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::RealtimeConversationVersion;
-use maplecode_protocol::protocol::RealtimeOutputModality;
 use core_test_support::responses::start_mock_server;
 use core_test_support::responses::start_websocket_server;
 use core_test_support::skip_if_no_network;
@@ -20,6 +11,15 @@ use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
 use http::HeaderMap;
 use http::HeaderValue;
+use maplecode_login::AuthHeaders;
+use maplecode_login::MapleCodeAuth;
+use maplecode_protocol::protocol::ConversationStartParams;
+use maplecode_protocol::protocol::ConversationStartTransport;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::RealtimeConversationVersion;
+use maplecode_protocol::protocol::RealtimeOutputModality;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
@@ -137,7 +137,9 @@ async fn existing_call_uses_selected_endpoint_and_runtime_auth(
         );
         let error = wait_for_event_match(&test.maplecode, |event| match event {
             EventMsg::RealtimeConversationRealtime(event) => match &event.payload {
-                maplecode_protocol::protocol::RealtimeEvent::Error(message) => Some(message.clone()),
+                maplecode_protocol::protocol::RealtimeEvent::Error(message) => {
+                    Some(message.clone())
+                }
                 _ => None,
             },
             _ => None,

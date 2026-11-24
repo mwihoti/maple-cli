@@ -1,6 +1,6 @@
+use indexmap::IndexMap;
 use maplecode_plugin::AppConnectorId;
 use maplecode_plugin::AppDeclaration;
-use indexmap::IndexMap;
 use serde::Deserialize;
 use serde_json::Value;
 

@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
+use futures::future::BoxFuture;
 use maplecode_exec_server::ExecServerError;
 use maplecode_exec_server::HttpClient;
 use maplecode_exec_server::HttpHeader;
 use maplecode_exec_server::HttpRequestParams;
 use maplecode_exec_server::HttpRequestResponse;
 use maplecode_exec_server::HttpResponseBodyStream;
-use futures::future::BoxFuture;
 
 pub(crate) struct ExecutorEnvironmentHttpClient {
     pub(crate) bearer_token_env_var: String,

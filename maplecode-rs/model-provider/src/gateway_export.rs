@@ -48,7 +48,10 @@ impl GatewayExport {
             .acquire_for_unsupported_sdk()
             .map_err(|error| MapleCodeErr::Fatal(error.to_string()))?;
         let output = permit
-            .run(maplecode_login::run_credential_export(&self.command, "Gateway"))
+            .run(maplecode_login::run_credential_export(
+                &self.command,
+                "Gateway",
+            ))
             .await
             .map_err(|error| MapleCodeErr::Fatal(error.to_string()))?
             .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string()))?;

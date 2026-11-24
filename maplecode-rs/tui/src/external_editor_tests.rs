@@ -65,7 +65,10 @@ fn editor_directory_rejects_writable_home_editor_and_parent() {
     let paths = EditorPaths::new();
     let editor = paths.maplecode_home.join("editor");
     fs::create_dir(&editor).expect("create editor directory");
-    let parent = paths.maplecode_home.parent().expect("Maple Code home parent");
+    let parent = paths
+        .maplecode_home
+        .parent()
+        .expect("Maple Code home parent");
 
     for writable_root in [paths.maplecode_home.as_path(), editor.as_path(), parent] {
         let policy = workspace_write_policy(&[writable_root]);
@@ -119,7 +122,8 @@ fn editor_directory_rejects_preexisting_symlink() {
     let paths = EditorPaths::new();
     let outside = paths.cwd.join("outside");
     fs::create_dir(&outside).expect("create editor symlink target");
-    symlink(&outside, paths.maplecode_home.join("editor")).expect("create editor directory symlink");
+    symlink(&outside, paths.maplecode_home.join("editor"))
+        .expect("create editor directory symlink");
     let policy = FileSystemSandboxPolicy::read_only();
 
     assert!(editor_directory(&[&paths.maplecode_home], &policy, &paths.cwd).is_err());
@@ -136,7 +140,9 @@ fn editor_directory_rejects_writable_maplecode_home_alias() {
     let policy = workspace_write_policy(&[]);
 
     assert!(policy.can_write_local_path_with_cwd(&aliased_home.join("editor"), &paths.cwd));
-    assert!(!policy.can_write_local_path_with_cwd(&paths.maplecode_home.join("editor"), &paths.cwd));
+    assert!(
+        !policy.can_write_local_path_with_cwd(&paths.maplecode_home.join("editor"), &paths.cwd)
+    );
     assert!(editor_directory(&[&aliased_home], &policy, &paths.cwd).is_err());
 }
 
@@ -202,8 +208,9 @@ fn editor_directory_rejects_explicitly_writable_workspace_fallback() {
     fs::create_dir(&maplecode_home).expect("create Maple Code home");
     fs::create_dir(&cwd).expect("create workspace");
     let workspace_maplecode_home = cwd.join(".maplecode");
-    let writable_workspace_maplecode_home = AbsolutePathBuf::from_absolute_path(&workspace_maplecode_home)
-        .expect("absolute workspace metadata directory");
+    let writable_workspace_maplecode_home =
+        AbsolutePathBuf::from_absolute_path(&workspace_maplecode_home)
+            .expect("absolute workspace metadata directory");
     let policy = FileSystemSandboxPolicy::workspace_write(
         &[writable_workspace_maplecode_home],
         /*exclude_tmpdir_env_var*/ false,
@@ -226,7 +233,8 @@ fn editor_directory_rejects_workspace_fallback_symlink_to_writable_target() {
 
     let paths = EditorPaths::new();
     let workspace_maplecode_home = paths.cwd.join(".maplecode");
-    symlink(&paths.maplecode_home, &workspace_maplecode_home).expect("create workspace metadata symlink");
+    symlink(&paths.maplecode_home, &workspace_maplecode_home)
+        .expect("create workspace metadata symlink");
     let policy = workspace_write_policy(&[&paths.maplecode_home]);
 
     assert!(!policy.can_write_local_path_with_cwd(&workspace_maplecode_home, &paths.cwd));
@@ -252,8 +260,12 @@ fn editor_directory_uses_next_protected_candidate_after_creation_error() {
     fs::write(&unavailable_home, "not a directory").expect("create unavailable Maple Code home");
     let policy = workspace_write_policy(&[]);
 
-    let directory = editor_directory(&[&unavailable_home, &paths.maplecode_home], &policy, &paths.cwd)
-        .expect("use next protected candidate after directory creation fails");
+    let directory = editor_directory(
+        &[&unavailable_home, &paths.maplecode_home],
+        &policy,
+        &paths.cwd,
+    )
+    .expect("use next protected candidate after directory creation fails");
 
     assert_eq!(directory, paths.maplecode_home.join("editor"));
 }
@@ -326,8 +338,9 @@ async fn editor_process_uses_protected_workspace_fallback_with_default_temporary
     fs::create_dir(&maplecode_home).expect("create Maple Code home");
     fs::create_dir(&cwd).expect("create workspace");
     let default_maplecode_home = dirs::home_dir().expect("home directory").join(".maplecode");
-    let writable_default_maplecode_home = AbsolutePathBuf::from_absolute_path(&default_maplecode_home)
-        .expect("absolute default Maple Code home");
+    let writable_default_maplecode_home =
+        AbsolutePathBuf::from_absolute_path(&default_maplecode_home)
+            .expect("absolute default Maple Code home");
     let policy = FileSystemSandboxPolicy::workspace_write(
         &[writable_default_maplecode_home],
         /*exclude_tmpdir_env_var*/ false,

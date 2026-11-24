@@ -446,12 +446,14 @@ pub async fn run() -> Result<()> {
         }
         CliCommand::ThreadIncrementElicitation { thread_id } => {
             ensure_dynamic_tools_unused(&dynamic_tools, "thread-increment-elicitation")?;
-            let url = resolve_shared_websocket_url(maplecode_bin, url, "thread-increment-elicitation")?;
+            let url =
+                resolve_shared_websocket_url(maplecode_bin, url, "thread-increment-elicitation")?;
             thread_increment_elicitation(&url, thread_id)
         }
         CliCommand::ThreadDecrementElicitation { thread_id } => {
             ensure_dynamic_tools_unused(&dynamic_tools, "thread-decrement-elicitation")?;
-            let url = resolve_shared_websocket_url(maplecode_bin, url, "thread-decrement-elicitation")?;
+            let url =
+                resolve_shared_websocket_url(maplecode_bin, url, "thread-decrement-elicitation")?;
             thread_decrement_elicitation(&url, thread_id)
         }
         CliCommand::LiveElicitationTimeoutPause {
@@ -479,7 +481,8 @@ pub async fn run() -> Result<()> {
             if url.is_some() {
                 bail!("plugin-analytics-smoke requires --maplecode-bin and does not support --url");
             }
-            let maplecode_bin = maplecode_bin.context("plugin-analytics-smoke requires --maplecode-bin")?;
+            let maplecode_bin =
+                maplecode_bin.context("plugin-analytics-smoke requires --maplecode-bin")?;
             plugin_analytics_smoke::run(&maplecode_bin, &config_overrides, &plugin_id, capture_file)
         }
         CliCommand::PluginAnalyticsMutationSmoke {
@@ -493,8 +496,8 @@ pub async fn run() -> Result<()> {
                     "plugin-analytics-mutation-smoke requires --maplecode-bin and does not support --url"
                 );
             }
-            let maplecode_bin =
-                maplecode_bin.context("plugin-analytics-mutation-smoke requires --maplecode-bin")?;
+            let maplecode_bin = maplecode_bin
+                .context("plugin-analytics-mutation-smoke requires --maplecode-bin")?;
             plugin_analytics_mutation_smoke::run(
                 &maplecode_bin,
                 &config_overrides,
@@ -511,9 +514,12 @@ pub async fn run() -> Result<()> {
         } => {
             ensure_dynamic_tools_unused(&dynamic_tools, "plugin-remote-uninstall")?;
             if url.is_some() {
-                bail!("plugin-remote-uninstall requires --maplecode-bin and does not support --url");
+                bail!(
+                    "plugin-remote-uninstall requires --maplecode-bin and does not support --url"
+                );
             }
-            let maplecode_bin = maplecode_bin.context("plugin-remote-uninstall requires --maplecode-bin")?;
+            let maplecode_bin =
+                maplecode_bin.context("plugin-remote-uninstall requires --maplecode-bin")?;
             plugin_analytics_mutation_smoke::run_cleanup(
                 &maplecode_bin,
                 &config_overrides,
@@ -609,7 +615,12 @@ impl Drop for BackgroundAppServer {
     }
 }
 
-fn serve(maplecode_bin: &Path, config_overrides: &[String], listen: &str, kill: bool) -> Result<()> {
+fn serve(
+    maplecode_bin: &Path,
+    config_overrides: &[String],
+    listen: &str,
+    kill: bool,
+) -> Result<()> {
     let runtime_dir = PathBuf::from("/tmp/maplecode-app-server-test-client");
     fs::create_dir_all(&runtime_dir)
         .with_context(|| format!("failed to create runtime dir {}", runtime_dir.display()))?;
@@ -1477,7 +1488,9 @@ fn item_started_before_helper_done_is_unexpected(
 impl MapleCodeClient {
     fn connect(endpoint: &Endpoint, config_overrides: &[String]) -> Result<Self> {
         match endpoint {
-            Endpoint::SpawnMapleCode(maplecode_bin) => Self::spawn_stdio(maplecode_bin, config_overrides),
+            Endpoint::SpawnMapleCode(maplecode_bin) => {
+                Self::spawn_stdio(maplecode_bin, config_overrides)
+            }
             Endpoint::ConnectWs(url) => Self::connect_websocket(url),
         }
     }

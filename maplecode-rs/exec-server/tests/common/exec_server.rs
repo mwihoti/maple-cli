@@ -5,12 +5,12 @@ use std::process::Stdio;
 use std::time::Duration;
 
 use anyhow::anyhow;
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_exec_server_protocol::JSONRPCMessage;
 use maplecode_exec_server_protocol::JSONRPCNotification;
 use maplecode_exec_server_protocol::JSONRPCRequest;
 use maplecode_exec_server_protocol::RequestId;
-use futures::SinkExt;
-use futures::StreamExt;
 use tempfile::TempDir;
 use tokio::io::AsyncBufReadExt;
 use tokio::io::BufReader;

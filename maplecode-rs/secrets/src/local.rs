@@ -457,8 +457,8 @@ fn parse_canonical_key(canonical_key: &str) -> Option<SecretListEntry> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use maplecode_keyring_store::tests::MockKeyringStore;
     use keyring::Error as KeyringError;
+    use maplecode_keyring_store::tests::MockKeyringStore;
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -609,7 +609,13 @@ mod tests {
                 .join("mcp_oauth.age")
                 .exists()
         );
-        assert!(!maplecode_home.path().join("secrets").join("local.age").exists());
+        assert!(
+            !maplecode_home
+                .path()
+                .join("secrets")
+                .join("local.age")
+                .exists()
+        );
         assert!(
             maplecode_home
                 .path()
@@ -620,7 +626,10 @@ mod tests {
         keyring
             .delete(
                 keyring_service(),
-                &compute_keyring_account(maplecode_home.path(), LocalSecretsNamespace::MapleCodeAuth),
+                &compute_keyring_account(
+                    maplecode_home.path(),
+                    LocalSecretsNamespace::MapleCodeAuth,
+                ),
             )
             .expect("remove primary secrets key");
         assert_eq!(

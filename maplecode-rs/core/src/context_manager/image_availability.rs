@@ -2,6 +2,8 @@
 
 use std::collections::HashSet;
 
+use futures::StreamExt;
+use futures::stream;
 use maplecode_attachment_store::AttachmentStore;
 use maplecode_context_fragments::AnnotatedContent;
 use maplecode_context_fragments::set_annotated_content;
@@ -12,8 +14,6 @@ use maplecode_protocol::models::ContentItemMetadata;
 use maplecode_protocol::models::FunctionCallOutputContentItem;
 use maplecode_protocol::models::ImageReference;
 use maplecode_protocol::models::ResponseItem;
-use futures::StreamExt;
-use futures::stream;
 
 const MAX_CONCURRENT_IMAGE_AVAILABILITY_CHECKS: usize = 8;
 

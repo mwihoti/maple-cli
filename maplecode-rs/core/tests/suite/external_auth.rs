@@ -1,20 +1,3 @@
-use maplecode_core::TurnInputRequest;
-use maplecode_login::AuthHeaders;
-use maplecode_login::MapleCodeAuth;
-use maplecode_login::ExternalAuth;
-use maplecode_login::ExternalAuthFuture;
-use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::auth::BedrockAccessKeysAuth;
-use maplecode_model_provider_info::AwsAuthRefreshConfig;
-use maplecode_model_provider_info::AwsCredentialExportConfig;
-use maplecode_model_provider_info::ModelProviderAwsAuthInfo;
-use maplecode_model_provider_info::ModelProviderInfo;
-use maplecode_model_provider_info::WireApi;
-use maplecode_model_provider_info::create_oss_provider_with_base_url;
-use maplecode_protocol::protocol::AuthRecoveryEvent;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::user_input::UserInput;
-use maplecode_utils_redacted_string::RedactedString;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_response_created;
 use core_test_support::responses::mount_response_sequence;
@@ -28,6 +11,23 @@ use core_test_support::wait_for_event;
 use http::HeaderMap;
 use http::HeaderValue;
 use http::header::AUTHORIZATION;
+use maplecode_core::TurnInputRequest;
+use maplecode_login::AuthHeaders;
+use maplecode_login::ExternalAuth;
+use maplecode_login::ExternalAuthFuture;
+use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
+use maplecode_login::auth::BedrockAccessKeysAuth;
+use maplecode_model_provider_info::AwsAuthRefreshConfig;
+use maplecode_model_provider_info::AwsCredentialExportConfig;
+use maplecode_model_provider_info::ModelProviderAwsAuthInfo;
+use maplecode_model_provider_info::ModelProviderInfo;
+use maplecode_model_provider_info::WireApi;
+use maplecode_model_provider_info::create_oss_provider_with_base_url;
+use maplecode_protocol::protocol::AuthRecoveryEvent;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::user_input::UserInput;
+use maplecode_utils_redacted_string::RedactedString;
 use pretty_assertions::assert_eq;
 use std::num::NonZeroU64;
 use std::path::Path;
@@ -60,7 +60,10 @@ impl ExternalAuth for ScriptedExternalAuth {
         Box::pin(async move { auth })
     }
 
-    fn refresh(&self, context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         let auth = if context.previous_account_id.as_deref() != Some(CHATGPT_ACCOUNT_ID) {
             Err(std::io::Error::other(
                 "external auth refresh changed the ChatGPT workspace",
@@ -79,7 +82,11 @@ impl ExternalAuth for ScriptedExternalAuth {
 }
 
 fn external_chatgpt_auth(access_token: &str) -> std::io::Result<MapleCodeAuth> {
-    MapleCodeAuth::from_external_chatgpt_tokens(access_token, CHATGPT_ACCOUNT_ID, Some("enterprise"))
+    MapleCodeAuth::from_external_chatgpt_tokens(
+        access_token,
+        CHATGPT_ACCOUNT_ID,
+        Some("enterprise"),
+    )
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

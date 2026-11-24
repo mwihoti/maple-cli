@@ -1,16 +1,4 @@
 use anyhow::Result;
-use maplecode_analytics::AnalyticsEventsClient;
-use maplecode_core::TurnInputRequest;
-use maplecode_core::config::AgentRoleConfig;
-use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::openai_models::ReasoningEffort;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::Op;
-use maplecode_protocol::protocol::ThreadSettingsOverrides;
-use maplecode_protocol::user_input::UserInput;
-use maplecode_thread_store::ReadThreadParams;
 use core_test_support::responses::assert_parent_turn;
 use core_test_support::responses::assert_root_turn;
 use core_test_support::responses::ev_assistant_message;
@@ -24,6 +12,18 @@ use core_test_support::responses::sse_response;
 use core_test_support::responses::start_mock_server;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
+use maplecode_analytics::AnalyticsEventsClient;
+use maplecode_core::TurnInputRequest;
+use maplecode_core::config::AgentRoleConfig;
+use maplecode_features::Feature;
+use maplecode_login::MapleCodeAuth;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::openai_models::ReasoningEffort;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::Op;
+use maplecode_protocol::protocol::ThreadSettingsOverrides;
+use maplecode_protocol::user_input::UserInput;
+use maplecode_thread_store::ReadThreadParams;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -305,7 +305,8 @@ async fn cold_root_resume_restores_agent_identity_and_role_on_followup() -> Resu
             .into_iter()
             .find_map(|request| {
                 let body = request.body_json();
-                if body["client_metadata"]["x-maplecode-parent-thread-id"] != json!(root_thread_id) {
+                if body["client_metadata"]["x-maplecode-parent-thread-id"] != json!(root_thread_id)
+                {
                     return None;
                 }
                 body["client_metadata"]["thread_id"]
@@ -531,7 +532,10 @@ async fn cold_root_resume_restores_agent_identity_and_role_on_followup() -> Resu
     let redirected_server = start_mock_server().await;
     let redirected_base_url = format!("{}/v1", redirected_server.uri());
     std::fs::write(
-        resumed.config.maplecode_home.join("durable-worker-role.toml"),
+        resumed
+            .config
+            .maplecode_home
+            .join("durable-worker-role.toml"),
         format!(
             r#"model = "{ROLE_MODEL}"
 model_reasoning_effort = "high"

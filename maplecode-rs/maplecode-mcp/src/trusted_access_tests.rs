@@ -3,6 +3,8 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
 
+use futures::FutureExt;
+use futures::future::BoxFuture;
 use maplecode_exec_server::ByteChunk;
 use maplecode_exec_server::ExecServerError;
 use maplecode_exec_server::HttpClient;
@@ -15,12 +17,10 @@ use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use futures::FutureExt;
-use futures::future::BoxFuture;
+use maplecode_login::MapleCodeAuth;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -102,7 +102,10 @@ impl ExternalAuth for StaticExternalAuth {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         self.resolve()
     }
 }
@@ -121,7 +124,10 @@ impl ExternalAuth for SequencedExternalAuth {
         })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         self.resolve()
     }
 }

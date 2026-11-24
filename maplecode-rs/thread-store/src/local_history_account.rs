@@ -43,8 +43,11 @@ impl LocalHistoryAccount {
             // Resolve the page together so each reverted thread does not rescan all history.
             if original_paths.is_none() {
                 *original_paths = Some(
-                    maplecode_rollout::find_rollout_paths_by_rollout_ids(maplecode_home, page_thread_ids)
-                        .await,
+                    maplecode_rollout::find_rollout_paths_by_rollout_ids(
+                        maplecode_home,
+                        page_thread_ids,
+                    )
+                    .await,
                 );
             }
             let Some(original) = original_paths

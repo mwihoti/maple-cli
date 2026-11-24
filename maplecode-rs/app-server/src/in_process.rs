@@ -899,6 +899,7 @@ async fn start_uninitialized(mut args: InProcessStartArgs) -> IoResult<InProcess
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::FutureExt;
     use maplecode_app_server_protocol::ClientInfo;
     use maplecode_app_server_protocol::ConfigRequirementsReadResponse;
     use maplecode_app_server_protocol::ExternalAgentConfigImportCompletedNotification;
@@ -916,7 +917,6 @@ mod tests {
     use maplecode_app_server_protocol::TurnItemsView;
     use maplecode_app_server_protocol::TurnStatus;
     use maplecode_core::config::ConfigBuilder;
-    use futures::FutureExt;
     use pretty_assertions::assert_eq;
     use std::path::Path;
     use tempfile::TempDir;

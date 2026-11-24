@@ -83,13 +83,14 @@ fn maplecode_apps_tools_cache_is_overwritten_by_last_write() {
     let tools_gateway_2 = vec![create_test_tool(MAPLECODE_APPS_MCP_SERVER_NAME, "two")];
 
     write_cached_maplecode_apps_tools(&cache_context, &tools_gateway_1).expect("write first cache");
-    let cached_gateway_1 =
-        read_cached_maplecode_apps_tools(&cache_context).expect("cache entry exists for first write");
+    let cached_gateway_1 = read_cached_maplecode_apps_tools(&cache_context)
+        .expect("cache entry exists for first write");
     assert_eq!(cached_gateway_1[0].callable_name, "one");
 
-    write_cached_maplecode_apps_tools(&cache_context, &tools_gateway_2).expect("write second cache");
-    let cached_gateway_2 =
-        read_cached_maplecode_apps_tools(&cache_context).expect("cache entry exists for second write");
+    write_cached_maplecode_apps_tools(&cache_context, &tools_gateway_2)
+        .expect("write second cache");
+    let cached_gateway_2 = read_cached_maplecode_apps_tools(&cache_context)
+        .expect("cache entry exists for second write");
     assert_eq!(cached_gateway_2[0].callable_name, "two");
 }
 
@@ -152,7 +153,8 @@ fn maplecode_apps_tools_cache_preserves_formerly_disallowed_connectors() {
     ];
 
     write_cached_maplecode_apps_tools(&cache_context, &tools).expect("write cache");
-    let cached = read_cached_maplecode_apps_tools(&cache_context).expect("cache entry exists for user");
+    let cached =
+        read_cached_maplecode_apps_tools(&cache_context).expect("cache entry exists for user");
 
     assert_eq!(
         cached
@@ -330,7 +332,8 @@ fn maplecode_apps_tools_cache_context_does_not_reread_disk_after_creation() {
         Some("user-one"),
     );
     let updated_tools = vec![create_test_tool(MAPLECODE_APPS_MCP_SERVER_NAME, "updated")];
-    write_cached_maplecode_apps_tools(&writer_cache_context, &updated_tools).expect("rewrite cache");
+    write_cached_maplecode_apps_tools(&writer_cache_context, &updated_tools)
+        .expect("rewrite cache");
 
     assert_eq!(
         reader_cache_context
@@ -340,7 +343,8 @@ fn maplecode_apps_tools_cache_context_does_not_reread_disk_after_creation() {
         "cached"
     );
     assert_eq!(
-        read_cached_maplecode_apps_tools(&writer_cache_context).expect("disk tools")[0].callable_name,
+        read_cached_maplecode_apps_tools(&writer_cache_context).expect("disk tools")[0]
+            .callable_name,
         "updated"
     );
 }
@@ -868,7 +872,10 @@ fn personal_and_workspace_contexts_are_distinct_even_with_matching_ids() {
         },
     );
 
-    let workspace_tools = vec![create_test_tool(MAPLECODE_APPS_MCP_SERVER_NAME, "workspace")];
+    let workspace_tools = vec![create_test_tool(
+        MAPLECODE_APPS_MCP_SERVER_NAME,
+        "workspace",
+    )];
     let _ = workspace_context.publish_runtime_if_newest_accepted(
         workspace_context.begin_fetch(ConnectorRuntimeFetchSource::Startup),
         &create_test_server_info("Maple Code Apps"),

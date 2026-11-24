@@ -15,6 +15,9 @@ use tokio::process::ChildStdout;
 
 use anyhow::Context;
 use anyhow::ensure;
+use core_test_support::is_remote_test_environment;
+use core_test_support::test_maplecode::TestEnv;
+use core_test_support::test_maplecode::test_env;
 use maplecode_app_server_protocol::AppsInstalledParams;
 use maplecode_app_server_protocol::AppsListParams;
 use maplecode_app_server_protocol::AppsReadParams;
@@ -130,9 +133,6 @@ use maplecode_exec_server::MAPLECODE_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR;
 use maplecode_exec_server::MAPLECODE_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR;
 use maplecode_exec_server::MAPLECODE_EXEC_SERVER_URL_ENV_VAR;
 use maplecode_login::default_client::MAPLECODE_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
-use core_test_support::is_remote_test_environment;
-use core_test_support::test_maplecode::TestEnv;
-use core_test_support::test_maplecode::test_env;
 use serde::de::DeserializeOwned;
 use tempfile::TempDir;
 use tokio::process::Command;
@@ -2104,7 +2104,10 @@ impl TestAppServerBuilder {
                         MAPLECODE_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR.to_string(),
                         None,
                     ),
-                    (MAPLECODE_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_string(), None),
+                    (
+                        MAPLECODE_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_string(),
+                        None,
+                    ),
                     (
                         MAPLECODE_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR.to_string(),
                         None,

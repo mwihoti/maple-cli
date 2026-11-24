@@ -8,10 +8,10 @@ use app_test_support::encode_id_token;
 use app_test_support::write_chatgpt_auth;
 use app_test_support::write_models_cache;
 use maplecode_app_server_protocol::ClientInfo;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::GetAccountParams;
 use maplecode_app_server_protocol::LoginAccountResponse;
 use maplecode_app_server_protocol::LogoutAccountResponse;
+use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::ThreadStartParams;
 use maplecode_app_server_protocol::TurnStartParams;
@@ -312,7 +312,10 @@ async fn reused_refresh_token_tells_the_user_to_sign_in_again() -> Result<()> {
     .await??;
     assert_eq!(completed.turn.status, TurnStatus::Failed);
     let error = completed.turn.error.expect("failed turn error");
-    assert_eq!(error.maplecode_error_info, Some(MapleCodeErrorInfo::Unauthorized));
+    assert_eq!(
+        error.maplecode_error_info,
+        Some(MapleCodeErrorInfo::Unauthorized)
+    );
     assert!(
         error.message.contains("refresh token was already used"),
         "{error}"

@@ -1,6 +1,8 @@
 //! Active settings keep environment selection and model changes scoped to the running turn.
 
 use super::*;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_maplecode::environment_config_for_selection;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_exec_server::CreateDirectoryOptions;
 use maplecode_extension_api::ExtensionDataInit;
@@ -13,8 +15,6 @@ use maplecode_protocol::models::PermissionProfileSnapshot;
 use maplecode_protocol::protocol::EnvironmentConfigState;
 use maplecode_protocol::protocol::TurnEnvironmentRequests;
 use maplecode_protocol::protocol::TurnEnvironmentSelection;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::environment_config_for_selection;
 use pretty_assertions::assert_eq;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
@@ -149,16 +149,17 @@ async fn check_connection_events_for_active_selection(scheduler_idle: Arc<Notify
             "expected {remote_id} to connect, got {event:?}"
         );
     };
-    let assert_no_connection_events = async |thread: &MapleCodeThread, message: &str| -> Result<()> {
-        // Register on the sole worker so the next park follows all runnable listeners.
-        let idle = Arc::clone(&scheduler_idle);
-        tokio::spawn(async move { idle.notified().await }).await?;
-        for _ in 0..thread.queued_event_count() {
-            let event = thread.next_event().await?.msg;
-            assert!(!connection_event(&event), "{message} {event:?}");
-        }
-        Ok(())
-    };
+    let assert_no_connection_events =
+        async |thread: &MapleCodeThread, message: &str| -> Result<()> {
+            // Register on the sole worker so the next park follows all runnable listeners.
+            let idle = Arc::clone(&scheduler_idle);
+            tokio::spawn(async move { idle.notified().await }).await?;
+            for _ in 0..thread.queued_event_count() {
+                let event = thread.next_event().await?.msg;
+                assert!(!connection_event(&event), "{message} {event:?}");
+            }
+            Ok(())
+        };
     wait_for_connection(&control).await;
     assert_no_connection_events(&thread, "deselected executor emitted").await?;
     startup_barrier.release.notify_one();

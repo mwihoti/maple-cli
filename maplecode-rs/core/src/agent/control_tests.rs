@@ -36,6 +36,7 @@ use crate::thread_manager::ForkSnapshot;
 use crate::thread_manager::StartThreadOptions;
 use crate::tools::handlers::multi_agents_common::thread_spawn_source;
 use assert_matches::assert_matches;
+use core_test_support::responses::strip_response_item_ids;
 use maplecode_extension_api::ExtensionDataInit;
 use maplecode_extension_api::Instructions;
 use maplecode_extension_api::LoadInstructionsFuture;
@@ -110,7 +111,6 @@ use maplecode_thread_store::LocalThreadStoreConfig;
 use maplecode_thread_store::PersistContext;
 use maplecode_thread_store::ThreadStore;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::responses::strip_response_item_ids;
 use pretty_assertions::assert_eq;
 use std::future::Future;
 use std::future::poll_fn;
@@ -781,7 +781,10 @@ async fn spawn_failure_context_survives_manager_and_fork_errors() {
                 Some(AgentErrorContext::ManagerUnavailable),
                 MapleCodeErrKind::UnsupportedOperation
             ),
-            (Some(AgentErrorContext::ForkHistory), MapleCodeErrKind::Fatal),
+            (
+                Some(AgentErrorContext::ForkHistory),
+                MapleCodeErrKind::Fatal
+            ),
         ],
     );
 }
@@ -2618,14 +2621,16 @@ async fn spawn_agent_without_fork_from_paginated_parent_stays_fresh_and_paginate
         features.disable(Feature::MultiAgentV2DynamicTools)
     }
     .expect("configure dynamic tool inheritance");
-    let dynamic_tools = vec![maplecode_protocol::dynamic_tools::DynamicToolSpec::Function(
-        maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec {
-            name: "echo".to_string(),
-            description: "Return the supplied message.".to_string(),
-            input_schema: serde_json::json!({"type": "object", "properties": {"message": {"type": "string"}}}),
-            defer_loading: false,
-        },
-    )];
+    let dynamic_tools = vec![
+        maplecode_protocol::dynamic_tools::DynamicToolSpec::Function(
+            maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec {
+                name: "echo".to_string(),
+                description: "Return the supplied message.".to_string(),
+                input_schema: serde_json::json!({"type": "object", "properties": {"message": {"type": "string"}}}),
+                defer_loading: false,
+            },
+        ),
+    ];
     let parent = harness
         .manager
         .start_thread(StartThreadOptions {
@@ -4975,7 +4980,9 @@ async fn resume_thread_subagent_restores_stored_metadata() {
             &config,
             auth_manager.clone(),
             uuid::Uuid::new_v4().to_string(),
-            Arc::new(ModelCatalogSettings::disk(config.maplecode_home.to_path_buf())),
+            Arc::new(ModelCatalogSettings::disk(
+                config.maplecode_home.to_path_buf(),
+            )),
         ),
         crate::MapleCodeAppsToolsCache::default(),
         SessionSource::Exec,

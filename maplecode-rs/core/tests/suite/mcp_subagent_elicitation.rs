@@ -1,6 +1,13 @@
 //! MCP server elicitations preserve approval policy and signal abandonment before shutdown.
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use maplecode_core::RestrictRootCapabilities;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
@@ -17,13 +24,6 @@ use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::protocol::ThreadSource;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

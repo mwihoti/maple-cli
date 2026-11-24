@@ -13,6 +13,7 @@ use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
 
+use futures::future::join_all;
 use maplecode_code_mode::CellId;
 use maplecode_code_mode::CodeModeNestedToolCall;
 use maplecode_code_mode::CodeModeOutputTruncation;
@@ -22,7 +23,6 @@ use maplecode_code_mode::CodeModeToolKind;
 use maplecode_code_mode::RuntimeResponse;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::models::FunctionCallOutputContentItem;
-use futures::future::join_all;
 use serde_json::Value as JsonValue;
 use tokio::sync::OnceCell;
 use tokio_util::sync::CancellationToken;

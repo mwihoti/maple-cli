@@ -223,7 +223,8 @@ pub fn translate(request: &Value) -> Result<ChatRequest> {
                 if !matches!(role, "system" | "developer" | "user" | "assistant") {
                     return Err(Error("unsupported conversation role"));
                 }
-                let mut msg = json!({"role":role,"content":content(&item["content"],role,&mut tool_images)?});
+                let mut msg =
+                    json!({"role":role,"content":content(&item["content"],role,&mut tool_images)?});
                 if role == "assistant" && !reasoning.is_empty() {
                     msg["reasoning"] = Value::String(std::mem::take(&mut reasoning));
                 }

@@ -2,6 +2,7 @@
 
 use std::time::Duration;
 
+use futures::FutureExt;
 use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_config::types::OAuthCredentialsStoreMode;
 use maplecode_exec_server::Environment;
@@ -9,7 +10,6 @@ use maplecode_rmcp_client::ElicitationAction;
 use maplecode_rmcp_client::ElicitationResponse;
 use maplecode_rmcp_client::McpProtocolMode;
 use maplecode_rmcp_client::RmcpClient;
-use futures::FutureExt;
 use opentelemetry::trace::TracerProvider as _;
 use opentelemetry_sdk::trace::InMemorySpanExporter;
 use opentelemetry_sdk::trace::SdkTracerProvider;

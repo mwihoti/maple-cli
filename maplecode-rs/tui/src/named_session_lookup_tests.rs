@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use futures::SinkExt;
+use futures::StreamExt;
 use maplecode_app_server_client::RemoteAppServerClient;
 use maplecode_app_server_client::RemoteAppServerConnectArgs;
 use maplecode_app_server_client::RemoteAppServerEndpoint;
@@ -12,8 +14,6 @@ use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::ThreadHistoryMode;
 use maplecode_state::ThreadMetadataBuilder;
 use maplecode_utils_absolute_path::test_support::PathExt;
-use futures::SinkExt;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use tempfile::TempDir;

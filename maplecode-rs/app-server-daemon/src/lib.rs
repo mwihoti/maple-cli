@@ -37,13 +37,13 @@ use anyhow::Result;
 use anyhow::anyhow;
 pub use backend::BackendKind;
 use backend::BackendPaths;
+use managed_install::managed_maplecode_bin;
+#[cfg(any(unix, windows))]
+use managed_install::managed_maplecode_version;
 use maplecode_app_server_protocol::RemoteControlConnectionStatus;
 use maplecode_app_server_protocol::RemoteControlPairingStartResponse;
 use maplecode_app_server_transport::app_server_control_socket_path;
 use maplecode_utils_home_dir::find_maplecode_home;
-use managed_install::managed_maplecode_bin;
-#[cfg(any(unix, windows))]
-use managed_install::managed_maplecode_version;
 use serde::Serialize;
 use settings::DaemonSettings;
 use settings::MAX_SHUTDOWN_GRACE_SECONDS;
@@ -362,12 +362,13 @@ impl Daemon {
         let state_dir = maplecode_home.as_path().join(STATE_DIR_NAME);
         let managed_maplecode_bin = managed_maplecode_bin(maplecode_home.as_path());
         // Old CLIs must not mistake a daemon-owned installation for their backend.
-        let (pid_file, update_pid_file) =
-            if managed_maplecode_bin.starts_with(maplecode_home.as_path().join("packages/standalone")) {
-                (LEGACY_PID_FILE_NAME, LEGACY_UPDATE_PID_FILE_NAME)
-            } else {
-                (DAEMON_PID_FILE_NAME, DAEMON_UPDATE_PID_FILE_NAME)
-            };
+        let (pid_file, update_pid_file) = if managed_maplecode_bin
+            .starts_with(maplecode_home.as_path().join("packages/standalone"))
+        {
+            (LEGACY_PID_FILE_NAME, LEGACY_UPDATE_PID_FILE_NAME)
+        } else {
+            (DAEMON_PID_FILE_NAME, DAEMON_UPDATE_PID_FILE_NAME)
+        };
         Ok(Self {
             log_diagnostics: false,
             socket_path,
@@ -405,7 +406,8 @@ impl Daemon {
             .parent()
             .and_then(Path::parent)
             .context("daemon settings path has no Maple Code home")?;
-        let (pid, updater) = if managed_maplecode_bin.starts_with(home.join("packages/standalone")) {
+        let (pid, updater) = if managed_maplecode_bin.starts_with(home.join("packages/standalone"))
+        {
             (LEGACY_PID_FILE_NAME, LEGACY_UPDATE_PID_FILE_NAME)
         } else {
             (DAEMON_PID_FILE_NAME, DAEMON_UPDATE_PID_FILE_NAME)
@@ -578,10 +580,12 @@ impl Daemon {
             // this lock or probes the running server. Never restart from a
             // release that is no longer the selected latest-channel binary.
             if !self.is_stable_standalone_release()?
-                || managed_install::resolved_managed_maplecode_bin(&self.current_managed_maplecode_bin()?)
-                    .await
-                    .ok()
-                    .as_deref()
+                || managed_install::resolved_managed_maplecode_bin(
+                    &self.current_managed_maplecode_bin()?,
+                )
+                .await
+                .ok()
+                .as_deref()
                     != Some(managed_maplecode_bin)
             {
                 return Ok(RestartIfRunningOutcome::AlreadyCurrent);
@@ -648,10 +652,12 @@ impl Daemon {
         };
 
         if !self.is_stable_standalone_release()?
-            || managed_install::resolved_managed_maplecode_bin(&self.current_managed_maplecode_bin()?)
-                .await
-                .ok()
-                .as_deref()
+            || managed_install::resolved_managed_maplecode_bin(
+                &self.current_managed_maplecode_bin()?,
+            )
+            .await
+            .ok()
+            .as_deref()
                 != Some(managed_maplecode_bin)
         {
             return Ok(RestartIfRunningOutcome::AlreadyCurrent);
@@ -1112,7 +1118,9 @@ impl Daemon {
 
     #[cfg(any(unix, windows))]
     async fn managed_maplecode_version_best_effort(&self) -> Option<String> {
-        managed_maplecode_version(&self.managed_maplecode_bin).await.ok()
+        managed_maplecode_version(&self.managed_maplecode_bin)
+            .await
+            .ok()
     }
 
     #[cfg(not(any(unix, windows)))]

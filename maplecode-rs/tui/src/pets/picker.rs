@@ -173,9 +173,10 @@ fn custom_pet_entries(maplecode_home: &Path) -> Vec<PetPickerEntry> {
                 continue;
             }
             let selector = custom_pet_selector(id);
-            let Ok(pet) =
-                Pet::load_with_maplecode_home(&selector, /*maplecode_home*/ Some(maplecode_home))
-            else {
+            let Ok(pet) = Pet::load_with_maplecode_home(
+                &selector,
+                /*maplecode_home*/ Some(maplecode_home),
+            ) else {
                 continue;
             };
             entries_by_selector.insert(

@@ -67,9 +67,9 @@ impl TestEnvironment {
     pub(crate) fn remote_cwd(&self, instance_id: &str) -> Result<Option<LegacyAppPathString>> {
         let path_uri = match self {
             Self::Local => return Ok(None),
-            Self::Docker { .. } => {
-                PathUri::parse(&format!("file:///tmp/maplecode-core-test-cwd-{instance_id}"))?
-            }
+            Self::Docker { .. } => PathUri::parse(&format!(
+                "file:///tmp/maplecode-core-test-cwd-{instance_id}"
+            ))?,
             Self::WineExec => {
                 // Each Wine-exec test process has an isolated filesystem root, so this drive-root
                 // path cannot collide with a different Bazel shard.

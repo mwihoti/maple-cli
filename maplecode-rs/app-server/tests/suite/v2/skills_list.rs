@@ -7,6 +7,8 @@ use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::create_mock_responses_server_repeating_assistant;
 use app_test_support::write_chatgpt_auth;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_wine_exec;
 use maplecode_app_server_protocol::ConfigBatchWriteParams;
 use maplecode_app_server_protocol::ConfigEdit;
 use maplecode_app_server_protocol::ConfigReadParams;
@@ -31,14 +33,12 @@ use maplecode_app_server_protocol::ThreadStartResponse;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_core::config::set_project_trust_level;
 use maplecode_core_plugins::store::PluginStore;
-use maplecode_exec_server::MAPLECODE_EXEC_SERVER_URL_ENV_VAR;
 use maplecode_exec_server::CreateDirectoryOptions;
+use maplecode_exec_server::MAPLECODE_EXEC_SERVER_URL_ENV_VAR;
 use maplecode_plugin::PluginId;
 use maplecode_protocol::config_types::TrustLevel;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_wine_exec;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use test_case::test_case;
@@ -486,8 +486,9 @@ async fn skills_list_loads_remote_installed_plugin_skills_from_cache() -> Result
     let maplecode_home = TempDir::new()?;
     let cwd = TempDir::new()?;
     let server = MockServer::start().await;
-    let expected_skill_path =
-        std::fs::canonicalize(write_cached_remote_plugin_with_skill(maplecode_home.path())?)?;
+    let expected_skill_path = std::fs::canonicalize(write_cached_remote_plugin_with_skill(
+        maplecode_home.path(),
+    )?)?;
     write_plugins_enabled_config_with_base_url(
         maplecode_home.path(),
         &format!("{}/backend-api/", server.uri()),

@@ -98,8 +98,8 @@ fn config_layer_stack_with_requirements(
     .expect("requirements should be present");
     let requirements_toml = with_sources.clone().into_toml();
     let requirements = ConfigRequirements::try_from(with_sources).expect("normalize requirements");
-    let config_file =
-        AbsolutePathBuf::try_from(maplecode_home.join(CONFIG_TOML_FILE)).expect("absolute config path");
+    let config_file = AbsolutePathBuf::try_from(maplecode_home.join(CONFIG_TOML_FILE))
+        .expect("absolute config path");
     ConfigLayerStack::new(
         vec![ConfigLayerEntry::new(
             ConfigLayerSource::User {
@@ -856,7 +856,10 @@ fn write_plugin(root: &Path, dir_name: &str, manifest_name: &str) {
 
 fn init_git_repo(repo: &Path) {
     run_git(repo, &["init"]);
-    run_git(repo, &["config", "user.email", "maplecode-test@example.com"]);
+    run_git(
+        repo,
+        &["config", "user.email", "maplecode-test@example.com"],
+    );
     run_git(repo, &["config", "user.name", "Maple Code Test"]);
     run_git(repo, &["add", "."]);
     run_git(repo, &["commit", "-m", "initial"]);
@@ -906,9 +909,13 @@ async fn load_plugins_from_config(
 ) -> PluginLoadOutcome {
     write_file(&maplecode_home.join(CONFIG_TOML_FILE), config_toml);
     let config = load_config(maplecode_home, maplecode_home).await;
-    test_plugins_manager_with_options(maplecode_home.to_path_buf(), Some(Product::MapleCode), auth_mode)
-        .plugins_for_config(&config)
-        .await
+    test_plugins_manager_with_options(
+        maplecode_home.to_path_buf(),
+        Some(Product::MapleCode),
+        auth_mode,
+    )
+    .plugins_for_config(&config)
+    .await
 }
 
 async fn load_config(maplecode_home: &Path, cwd: &Path) -> PluginsConfigInput {
@@ -1609,7 +1616,11 @@ enabled = true
     write_cached_plugin(maplecode_home.path(), "openai-curated", "calendar");
     write_cached_plugin(maplecode_home.path(), "openai-api-curated", "linear");
     write_cached_plugin(maplecode_home.path(), "openai-curated-remote", "linear");
-    write_cached_plugin(maplecode_home.path(), "openai-curated-remote", "remote-only");
+    write_cached_plugin(
+        maplecode_home.path(),
+        "openai-curated-remote",
+        "remote-only",
+    );
 
     let config = load_config(maplecode_home.path(), maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
@@ -1684,7 +1695,11 @@ enabled = true
     write_cached_plugin(maplecode_home.path(), "openai-api-curated", "linear");
     write_cached_plugin(maplecode_home.path(), "openai-curated", "calendar");
     write_cached_plugin(maplecode_home.path(), "openai-curated-remote", "linear");
-    write_cached_plugin(maplecode_home.path(), "openai-curated-remote", "remote-only");
+    write_cached_plugin(
+        maplecode_home.path(),
+        "openai-curated-remote",
+        "remote-only",
+    );
 
     let config = load_config(maplecode_home.path(), maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
@@ -1723,7 +1738,11 @@ enabled = true
     );
     write_cached_plugin(maplecode_home.path(), "openai-curated", "linear");
     write_cached_plugin(maplecode_home.path(), "openai-api-curated", "linear");
-    write_cached_plugin(maplecode_home.path(), "openai-curated-remote", "remote-only");
+    write_cached_plugin(
+        maplecode_home.path(),
+        "openai-curated-remote",
+        "remote-only",
+    );
 
     let mut config = load_config(maplecode_home.path(), maplecode_home.path()).await;
     let auth_manager = test_auth_manager(/*auth_mode*/ None);
@@ -2868,7 +2887,8 @@ async fn effective_apps_dedupes_connector_ids_across_plugins() {
         toml::to_string(&Value::Table(root)).expect("plugin test config should serialize");
 
     let outcome =
-        load_plugins_from_config(&config_toml, maplecode_home.path(), Some(AuthMode::Chatgpt)).await;
+        load_plugins_from_config(&config_toml, maplecode_home.path(), Some(AuthMode::Chatgpt))
+            .await;
 
     assert_eq!(
         outcome.effective_apps(),
@@ -3285,7 +3305,8 @@ async fn plugin_defaults_resolve_remote_enablement_and_separate_cache_entries() 
 
     let mut disabled_plugin = remote_installed_plugin("sample");
     disabled_plugin.enabled = false;
-    disabled_plugin.availability = maplecode_app_server_protocol::PluginAvailability::DisabledByAdmin;
+    disabled_plugin.availability =
+        maplecode_app_server_protocol::PluginAvailability::DisabledByAdmin;
     manager.write_remote_installed_plugins_cache(vec![disabled_plugin]);
     write_file(
         &config_path,
@@ -4000,7 +4021,11 @@ async fn install_plugin_supports_git_subdir_marketplace_sources() {
             auth_policy: MarketplacePluginAuthPolicy::OnInstall,
         }
     );
-    assert!(installed_path.join(".maplecode-plugin/plugin.json").is_file());
+    assert!(
+        installed_path
+            .join(".maplecode-plugin/plugin.json")
+            .is_file()
+    );
 }
 
 #[tokio::test]
@@ -4054,7 +4079,11 @@ async fn install_plugin_supports_relative_git_subdir_marketplace_sources() {
             auth_policy: MarketplacePluginAuthPolicy::OnInstall,
         }
     );
-    assert!(installed_path.join(".maplecode-plugin/plugin.json").is_file());
+    assert!(
+        installed_path
+            .join(".maplecode-plugin/plugin.json")
+            .is_file()
+    );
 }
 
 #[tokio::test]
@@ -7273,7 +7302,8 @@ async fn load_plugins_uses_project_config_files() {
     let stack = ConfigLayerStack::new(
         vec![ConfigLayerEntry::new(
             ConfigLayerSource::Project {
-                dot_maplecode_folder: AbsolutePathBuf::try_from(project_root.join(".maplecode")).unwrap(),
+                dot_maplecode_folder: AbsolutePathBuf::try_from(project_root.join(".maplecode"))
+                    .unwrap(),
             },
             toml::from_str(&plugin_config_toml(
                 /*enabled*/ true, /*plugins_feature_enabled*/ true,
@@ -7718,7 +7748,11 @@ plugins = true
 remote_plugin = true
 "#,
     );
-    write_cached_plugin(maplecode_home.path(), REMOTE_GLOBAL_MARKETPLACE_NAME, "linear");
+    write_cached_plugin(
+        maplecode_home.path(),
+        REMOTE_GLOBAL_MARKETPLACE_NAME,
+        "linear",
+    );
     write_cached_plugin(
         maplecode_home.path(),
         REMOTE_WORKSPACE_SHARED_WITH_ME_MARKETPLACE_NAME,

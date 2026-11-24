@@ -23,6 +23,7 @@ use crate::SubscriptionRequest;
 use crate::SubscriptionTarget;
 use crate::ThreadQuery;
 use crate::ThreadSort;
+use futures::future::BoxFuture;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::MapleCodeErrorDetails;
@@ -35,7 +36,6 @@ use maplecode_tools::ToolExecutor;
 use maplecode_tools::ToolExecutorFuture;
 use maplecode_tools::ToolName;
 use maplecode_tools::ToolSpec;
-use futures::future::BoxFuture;
 use serde::Serialize;
 use serde_json::Value;
 use std::num::NonZeroU32;
@@ -538,7 +538,9 @@ impl From<FunctionCallError> for BoardToolError {
     }
 }
 
-fn encode<T: Serialize>(value: maplecode_protocol::error::Result<T>) -> Result<Value, BoardToolError> {
+fn encode<T: Serialize>(
+    value: maplecode_protocol::error::Result<T>,
+) -> Result<Value, BoardToolError> {
     let value = value.map_err(|error| {
         if let MapleCodeErrorDetails::Io(io) = error.details()
             && let Some(denied) = io

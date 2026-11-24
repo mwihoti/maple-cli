@@ -1,14 +1,6 @@
 //! Verifies fresh V2 subagents can use inherited client tools when enabled.
 
 use anyhow::Result;
-use maplecode_core::StartThreadOptions;
-use maplecode_features::Feature;
-use maplecode_protocol::dynamic_tools::DynamicToolCallOutputContentItem;
-use maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec;
-use maplecode_protocol::dynamic_tools::DynamicToolResponse;
-use maplecode_protocol::dynamic_tools::DynamicToolSpec;
-use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::Op;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_function_call;
@@ -21,6 +13,14 @@ use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
+use maplecode_core::StartThreadOptions;
+use maplecode_features::Feature;
+use maplecode_protocol::dynamic_tools::DynamicToolCallOutputContentItem;
+use maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec;
+use maplecode_protocol::dynamic_tools::DynamicToolResponse;
+use maplecode_protocol::dynamic_tools::DynamicToolSpec;
+use maplecode_protocol::protocol::EventMsg;
+use maplecode_protocol::protocol::Op;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::time::Duration;

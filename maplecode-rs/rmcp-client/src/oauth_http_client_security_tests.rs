@@ -3,6 +3,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Result;
+use futures::future::BoxFuture;
 use maplecode_exec_server::ExecServerError;
 use maplecode_exec_server::HttpClient;
 use maplecode_exec_server::HttpRequestParams;
@@ -11,7 +12,6 @@ use maplecode_exec_server::HttpResponseBodyStream;
 use maplecode_exec_server::RouteAwareHttpClient;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
-use futures::future::BoxFuture;
 use pretty_assertions::assert_eq;
 use rmcp::transport::auth::AuthorizationManager;
 use rmcp::transport::auth::AuthorizationMetadata;
@@ -386,9 +386,9 @@ async fn oauth_registration_redirects_never_forward_resource_only_headers() -> R
 
 #[tokio::test]
 async fn same_origin_redirects_preserve_timeout_and_response_body_limits() -> Result<()> {
-    let http_client: Arc<dyn maplecode_exec_server::HttpClient> = Arc::new(RouteAwareHttpClient::new(
-        HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault),
-    ));
+    let http_client: Arc<dyn maplecode_exec_server::HttpClient> = Arc::new(
+        RouteAwareHttpClient::new(HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault)),
+    );
     crate::oauth::test_support::warm_http_client(http_client.as_ref()).await?;
     for oversized_redirect_body in [false, true] {
         let server = MockServer::start().await;

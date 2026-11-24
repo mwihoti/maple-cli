@@ -12,6 +12,7 @@ use super::started_thread_from_resume_response;
 use super::thread_resume_params_from_config;
 use super::thread_session_state_from_thread_response;
 use crate::legacy_core::config::Config;
+use color_eyre::eyre::Result;
 use maplecode_app_server_client::TypedRequestError;
 use maplecode_app_server_protocol::AskForApproval;
 use maplecode_app_server_protocol::ClientRequest;
@@ -23,7 +24,6 @@ use maplecode_app_server_protocol::ThreadTurnsListResponse;
 use maplecode_app_server_protocol::TurnItemsView;
 use maplecode_protocol::ThreadId;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
-use color_eyre::eyre::Result;
 
 // Bound recovery to recent messages when item paging is unavailable.
 const READ_ONLY_HISTORY_TURN_LIMIT: u32 = 100;

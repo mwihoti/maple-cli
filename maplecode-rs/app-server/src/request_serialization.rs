@@ -5,11 +5,11 @@ use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::Arc;
 
+use futures::stream::FuturesUnordered;
+use futures::stream::StreamExt;
 use maplecode_app_server_protocol::ClientRequestSerializationScope;
 use maplecode_diagnostics::Gauge;
 use maplecode_diagnostics::GaugeGuard;
-use futures::stream::FuturesUnordered;
-use futures::stream::StreamExt;
 use tokio::sync::Mutex;
 use tokio::sync::Notify;
 use tracing::Instrument;

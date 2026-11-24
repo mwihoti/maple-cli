@@ -51,9 +51,10 @@ fn one_upgrade_failure_does_not_block_another_marketplace() {
     let good_url = url::Url::from_directory_path(remote_repo.path())
         .expect("remote repository URL")
         .to_string();
-    let missing_url = url::Url::from_directory_path(maplecode_home.path().join("missing-repository"))
-        .expect("missing repository URL")
-        .to_string();
+    let missing_url =
+        url::Url::from_directory_path(maplecode_home.path().join("missing-repository"))
+            .expect("missing repository URL")
+            .to_string();
     let config = format!(
         r#"
 [marketplaces.bad]
@@ -518,7 +519,8 @@ fn changed_config_rolls_back_marketplace_activation() {
     );
     assert!(initial.all_succeeded());
     let root = &initial.upgraded_roots[0];
-    let original_metadata = std::fs::read(root.join(".maplecode-marketplace-install.json")).unwrap();
+    let original_metadata =
+        std::fs::read(root.join(".maplecode-marketplace-install.json")).unwrap();
     std::fs::write(remote.path().join("new-file"), "new revision").unwrap();
     run_git(remote.path(), &["add", "."]);
     run_git(remote.path(), &["commit", "-m", "update"]);
@@ -618,7 +620,10 @@ fn init_marketplace_repo(repo: &Path, marketplace_name: &str) {
     )
     .expect("write marketplace manifest");
     run_git(repo, &["init"]);
-    run_git(repo, &["config", "user.email", "maplecode-test@example.com"]);
+    run_git(
+        repo,
+        &["config", "user.email", "maplecode-test@example.com"],
+    );
     run_git(repo, &["config", "user.name", "Maple Code Test"]);
     run_git(repo, &["add", "."]);
     run_git(repo, &["commit", "-m", "initial"]);

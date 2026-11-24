@@ -15,6 +15,7 @@ use crate::chatwidget::ReplayKind;
 use crate::chatwidget::tests::make_chatwidget_manual_with_sender;
 use crate::chatwidget::tests::render_bottom_popup;
 use crate::history_cell::FinalMessageSeparator;
+use futures::future::AbortHandle;
 use maplecode_app_server_protocol::AgentMessageDeltaNotification;
 use maplecode_app_server_protocol::ItemCompletedNotification;
 use maplecode_app_server_protocol::ItemStartedNotification;
@@ -32,7 +33,6 @@ use maplecode_app_server_protocol::UserInput;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::items::AsyncUserInputQuestion;
 use maplecode_protocol::models::MessagePhase;
-use futures::future::AbortHandle;
 use std::collections::VecDeque;
 
 // Model the app's atomic handoff before inspecting its ordinary history events.

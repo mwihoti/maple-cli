@@ -3,6 +3,8 @@ mod common;
 #[cfg(unix)]
 use anyhow::Context;
 use anyhow::Result;
+use futures::StreamExt;
+use futures::TryStreamExt;
 use maplecode_exec_server::Environment;
 use maplecode_exec_server::ExecServerClient;
 use maplecode_exec_server::ExecServerError;
@@ -18,8 +20,6 @@ use maplecode_exec_server::RemoteExecServerConnectArgs;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_utils_path_uri::PathUri;
-use futures::StreamExt;
-use futures::TryStreamExt;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 #[cfg(any(unix, windows))]

@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::Result;
+use futures::FutureExt;
+use futures::future::join_all;
 use maplecode_config::McpServerAuth;
 use maplecode_config::McpServerConfig;
 use maplecode_config::McpServerTransportConfig;
@@ -20,8 +22,6 @@ use maplecode_rmcp_client::determine_streamable_http_auth_status;
 use maplecode_rmcp_client::determine_streamable_http_auth_status_from_credentials;
 use maplecode_rmcp_client::discover_streamable_http_oauth;
 use maplecode_rmcp_client::resolve_mcp_oauth_callback_url;
-use futures::FutureExt;
-use futures::future::join_all;
 use tokio::sync::OnceCell;
 use tracing::warn;
 

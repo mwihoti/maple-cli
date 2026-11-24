@@ -5,21 +5,21 @@ use super::proxy_websocket_servers;
 use super::sample_request;
 use super::sampler_config;
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::responses::WebSocketConnectionConfig;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
+use maplecode_login::MapleCodeAuth;
 use maplecode_login::WorkspaceRouting;
 use maplecode_login::WorkspaceRoutingRequest;
 use maplecode_login::WorkspaceRoutingResolver;
 use maplecode_model_provider::ModelProviderFuture;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::ModelProviderInfo;
-use core_test_support::responses;
-use core_test_support::responses::WebSocketConnectionConfig;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
@@ -80,7 +80,10 @@ impl ExternalAuth for AuthAfterRouting {
         })
     }
 
-    fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(
+        &self,
+        _context: ExternalAuthRefreshContext,
+    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
         ExternalAuth::resolve(self)
     }
 }

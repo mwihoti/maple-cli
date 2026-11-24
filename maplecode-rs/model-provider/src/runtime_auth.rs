@@ -1,5 +1,6 @@
 //! Keep model requests and catalog refreshes bound to the same registered actor.
 
+use http::HeaderMap;
 use maplecode_api::AuthError;
 use maplecode_features::RuntimeAuthMode;
 use maplecode_http_client::CHATGPT_ACCOUNT_ID_HEADER;
@@ -18,7 +19,6 @@ use maplecode_runtime_agent_instance::RuntimeAuth;
 use maplecode_runtime_agent_instance::RuntimeAuthBinding;
 use maplecode_runtime_agent_instance::RuntimeAuthError;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
-use http::HeaderMap;
 use std::sync::Arc;
 
 /// Select the runtime for the resource scope carried by the model request.
@@ -150,8 +150,9 @@ pub fn validate_runtime_environment(
     };
     let destination_is_staging = match destination {
         Some(destination) => {
-            let destination = url::Url::parse(destination)
-                .map_err(|_| MapleCodeErr::InvalidRequest("invalid runtime auth destination".into()))?;
+            let destination = url::Url::parse(destination).map_err(|_| {
+                MapleCodeErr::InvalidRequest("invalid runtime auth destination".into())
+            })?;
             let host = destination
                 .host_str()
                 .unwrap_or_default()

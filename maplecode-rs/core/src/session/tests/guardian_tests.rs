@@ -22,6 +22,18 @@ use crate::tools::sandboxing::ToolCtx;
 use crate::tools::sandboxing::ToolError;
 use crate::tools::sandboxing::ToolRuntime;
 use crate::turn_diff_tracker::TurnDiffTracker;
+use core_test_support::PathExt;
+use core_test_support::TempDirExt;
+use core_test_support::maplecode_linux_sandbox_exe_or_skip;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_response_once;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::responses::start_mock_server;
 use maplecode_config::ConfigLayerEntry;
 use maplecode_config::ConfigLayerSource;
 use maplecode_config::ConfigRequirements;
@@ -51,18 +63,6 @@ use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::request_permissions::PermissionGrantScope;
 use maplecode_protocol::request_permissions::RequestPermissionProfile;
 use maplecode_protocol::request_permissions::RequestPermissionsResponse;
-use core_test_support::PathExt;
-use core_test_support::TempDirExt;
-use core_test_support::maplecode_linux_sandbox_exe_or_skip;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_response_once;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::responses::start_mock_server;
 use pretty_assertions::assert_eq;
 use std::fs;
 use std::sync::Arc;
@@ -778,11 +778,11 @@ async fn network_approval_uses_published_task_authority_within_same_turn(
             config.permissions.approval_policy = Constrained::allow_any(admitted_policy);
             config.approvals_reviewer = ApprovalsReviewer::AutoReview;
             config
-                    .permissions
-                    .set_permission_profile(
-                        maplecode_protocol::models::PermissionProfile::workspace_write(),
-                    )
-                    .expect("set managed permissions");
+                .permissions
+                .set_permission_profile(
+                    maplecode_protocol::models::PermissionProfile::workspace_write(),
+                )
+                .expect("set managed permissions");
         },
     )
     .await;
@@ -983,20 +983,22 @@ async fn sandbox_denied_retry_uses_the_action_policy_and_reviewer() {
         ) -> Result<String, ToolError> {
             self.attempts += 1;
             if self.attempts == 1 {
-                return Err(ToolError::MapleCode(MapleCodeErr::Sandbox(SandboxErr::Denied {
-                    output: Box::new(ExecToolCallOutput {
-                        exit_code: 1,
-                        ..Default::default()
-                    }),
-                    network_policy_decision: Some(NetworkPolicyDecisionPayload {
-                        decision: NetworkPolicyDecision::Ask,
-                        source: NetworkDecisionSource::Decider,
-                        protocol: Some(NetworkApprovalProtocol::Https),
-                        host: Some("example.com".to_string()),
-                        port: Some(443),
-                        reason: None,
-                    }),
-                })));
+                return Err(ToolError::MapleCode(MapleCodeErr::Sandbox(
+                    SandboxErr::Denied {
+                        output: Box::new(ExecToolCallOutput {
+                            exit_code: 1,
+                            ..Default::default()
+                        }),
+                        network_policy_decision: Some(NetworkPolicyDecisionPayload {
+                            decision: NetworkPolicyDecision::Ask,
+                            source: NetworkDecisionSource::Decider,
+                            protocol: Some(NetworkApprovalProtocol::Https),
+                            host: Some("example.com".to_string()),
+                            port: Some(443),
+                            reason: None,
+                        }),
+                    },
+                )));
             }
             Ok("sandbox-retry-succeeded".to_string())
         }
@@ -1307,7 +1309,8 @@ async fn guardian_subagent_does_not_inherit_parent_exec_policy_rules() {
         }
     );
 
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
+    let auth_manager =
+        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
     let models_manager = models_manager_with_provider(
         config.maplecode_home.to_path_buf(),
         auth_manager.clone(),

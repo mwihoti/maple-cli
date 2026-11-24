@@ -1,13 +1,6 @@
 //! Denial resampling repeats the last request and publishes only the final decision.
 
 use anyhow::Result;
-use maplecode_core::TurnInputRequest;
-use maplecode_core::config::Constrained;
-use maplecode_features::Feature;
-use maplecode_protocol::config_types::ApprovalsReviewer;
-use maplecode_protocol::models::PermissionProfile;
-use maplecode_protocol::protocol::AskForApproval;
-use maplecode_protocol::protocol::EventMsg;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::responses;
@@ -20,39 +13,48 @@ use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_sandbox;
 use core_test_support::test_maplecode::TestMapleCodeHarness;
 use core_test_support::test_maplecode::test_maplecode;
+use maplecode_core::TurnInputRequest;
+use maplecode_core::config::Constrained;
+use maplecode_features::Feature;
+use maplecode_protocol::config_types::ApprovalsReviewer;
+use maplecode_protocol::models::PermissionProfile;
+use maplecode_protocol::protocol::AskForApproval;
+use maplecode_protocol::protocol::EventMsg;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn guardian_denial_reconsideration() -> Result<()> {
     skip_if_no_network!(Ok(()));
     skip_if_sandbox!(Ok(()));
-    let builder = test_maplecode().with_model("gpt-5.5").with_config(|config| {
-        super::configure_scenario_catalog(config);
-        config.approvals_reviewer = ApprovalsReviewer::AutoReview;
-        config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
-        config
-            .permissions
-            .set_permission_profile(PermissionProfile::read_only())
-            .expect("set read-only permission profile");
-        // Apply to the selected reviewer too, including per-model reviewer overrides.
-        for model in &mut config
-            .model_catalog
-            .as_mut()
-            .expect("scenario model catalog")
-            .models
-        {
-            model.context_window = Some(200_000);
-            model.auto_compact_token_limit = Some(200_000);
-        }
-        // The provisional denial crosses the background threshold. It must
-        // never reach post-turn work or start compaction of that answer.
-        config.features.enable(Feature::AsyncCompaction).unwrap();
-        config.async_compaction_threshold_percent = 50;
-        config
-            .features
-            .enable(Feature::GuardianDenialReconsideration)
-            .expect("enable Guardian denial reconsideration");
-    });
+    let builder = test_maplecode()
+        .with_model("gpt-5.5")
+        .with_config(|config| {
+            super::configure_scenario_catalog(config);
+            config.approvals_reviewer = ApprovalsReviewer::AutoReview;
+            config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
+            config
+                .permissions
+                .set_permission_profile(PermissionProfile::read_only())
+                .expect("set read-only permission profile");
+            // Apply to the selected reviewer too, including per-model reviewer overrides.
+            for model in &mut config
+                .model_catalog
+                .as_mut()
+                .expect("scenario model catalog")
+                .models
+            {
+                model.context_window = Some(200_000);
+                model.auto_compact_token_limit = Some(200_000);
+            }
+            // The provisional denial crosses the background threshold. It must
+            // never reach post-turn work or start compaction of that answer.
+            config.features.enable(Feature::AsyncCompaction).unwrap();
+            config.async_compaction_threshold_percent = 50;
+            config
+                .features
+                .enable(Feature::GuardianDenialReconsideration)
+                .expect("enable Guardian denial reconsideration");
+        });
     let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
     let mock = responses::mount_sse_sequence(

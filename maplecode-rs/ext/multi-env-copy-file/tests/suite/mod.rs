@@ -2,6 +2,15 @@
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::test_maplecode::environment_config_for_selection;
+use core_test_support::test_maplecode::test_maplecode;
+use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_exec_server::ReadFileOptions;
 use maplecode_extension_api::ExtensionRegistryBuilder;
@@ -12,15 +21,6 @@ use maplecode_protocol::protocol::Op;
 use maplecode_protocol::user_input::UserInput;
 use maplecode_utils_path_uri::PathConvention;
 use maplecode_utils_path_uri::PathUri;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::environment_config_for_selection;
-use core_test_support::test_maplecode::test_maplecode;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::fs;
@@ -79,8 +79,8 @@ async fn copy_file_is_opt_in(enabled: bool, attach_environment: bool) -> Result<
 /// Invalid endpoints fail before truncating a target; directories and missing parents are rejected.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn copy_file_validates_endpoints() -> Result<()> {
-    use maplecode_protocol::protocol::TurnEnvironmentSelection;
     use core_test_support::exec_server::ExecServerProcess;
+    use maplecode_protocol::protocol::TurnEnvironmentSelection;
     let executor = ExecServerProcess::start().await?;
     let root = TempDir::new()?;
     let server = start_mock_server().await;
@@ -276,6 +276,7 @@ async fn copy_file_validates_endpoints() -> Result<()> {
 #[test_case(true; "turn_and_session_grants")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn copy_file_uses_each_environments_permissions(use_grants: bool) -> Result<()> {
+    use core_test_support::exec_server::ExecServerProcess;
     use maplecode_protocol::models::PermissionProfile;
     use maplecode_protocol::models::PermissionProfileSnapshot;
     use maplecode_protocol::permissions::FileSystemAccessMode;
@@ -289,7 +290,6 @@ async fn copy_file_uses_each_environments_permissions(use_grants: bool) -> Resul
     use maplecode_protocol::request_permissions::PermissionGrantScope;
     use maplecode_protocol::request_permissions::RequestPermissionsResponse;
     use maplecode_utils_absolute_path::AbsolutePathBuf;
-    use core_test_support::exec_server::ExecServerProcess;
 
     let source_executor = ExecServerProcess::start().await?;
     let target_executor = ExecServerProcess::start().await?;

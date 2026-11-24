@@ -2,12 +2,13 @@ use anyhow::Result;
 use app_test_support::ChatGptAuthFixture;
 use app_test_support::TestAppServer;
 use app_test_support::write_chatgpt_auth;
+use core_test_support::responses;
 use maplecode_app_server_protocol::ClientRequest;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::CyberAccessProgram;
 use maplecode_app_server_protocol::ExperimentalFeatureEnablementSetParams;
 use maplecode_app_server_protocol::ExperimentalFeatureEnablementSetResponse;
 use maplecode_app_server_protocol::JSONRPCErrorError;
+use maplecode_app_server_protocol::MapleCodeErrorInfo;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::ThreadForkParams;
 use maplecode_app_server_protocol::ThreadForkResponse;
@@ -26,7 +27,6 @@ use maplecode_app_server_protocol::UserInput;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::login_with_api_key;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::BTreeMap;
@@ -592,7 +592,10 @@ async fn turn_start_forwards_cyber_access_program_with_personal_access_token() -
         .with_env_overrides(&[
             ("OPENAI_API_KEY", None),
             ("MAPLECODE_ACCESS_TOKEN", Some("at-test-token")),
-            ("MAPLECODE_AUTHAPI_BASE_URL", Some(authapi_base_url.as_str())),
+            (
+                "MAPLECODE_AUTHAPI_BASE_URL",
+                Some(authapi_base_url.as_str()),
+            ),
         ])
         .build_initialized()
         .await?;

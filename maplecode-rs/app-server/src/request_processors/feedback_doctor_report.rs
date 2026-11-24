@@ -220,7 +220,10 @@ mod tests {
         );
         assert_eq!(
             command.get_envs().collect::<Vec<_>>(),
-            [("MAPLECODE_HOME".as_ref(), Some(maplecode_home.path().as_os_str()))]
+            [(
+                "MAPLECODE_HOME".as_ref(),
+                Some(maplecode_home.path().as_os_str())
+            )]
         );
     }
 

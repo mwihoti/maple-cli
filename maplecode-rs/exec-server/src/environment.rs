@@ -665,20 +665,23 @@ fn noise_environment_config_from_values(
     auth_token: Option<String>,
     chatgpt_account_id: Option<String>,
 ) -> Result<Option<NoiseRendezvousEnvironmentConfig>, ExecServerError> {
-    let (registry_url, environment_id, auth_token) =
-        match (registry_url, environment_id, auth_token) {
-            (None, None, None) => return Ok(None),
-            (Some(registry_url), Some(environment_id), Some(auth_token)) => {
-                (registry_url, environment_id, auth_token)
-            }
-            _ => {
-                return Err(ExecServerError::EnvironmentRegistryConfig(format!(
-                    "Noise environment requires {MAPLECODE_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR}, \
+    let (registry_url, environment_id, auth_token) = match (
+        registry_url,
+        environment_id,
+        auth_token,
+    ) {
+        (None, None, None) => return Ok(None),
+        (Some(registry_url), Some(environment_id), Some(auth_token)) => {
+            (registry_url, environment_id, auth_token)
+        }
+        _ => {
+            return Err(ExecServerError::EnvironmentRegistryConfig(format!(
+                "Noise environment requires {MAPLECODE_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR}, \
 {MAPLECODE_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR}, and \
 {MAPLECODE_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR}"
-                )));
-            }
-        };
+            )));
+        }
+    };
 
     NoiseRendezvousEnvironmentConfig::new(
         registry_url,

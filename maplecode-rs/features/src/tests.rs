@@ -569,7 +569,10 @@ fn collab_is_legacy_alias_for_multi_agent() {
 #[test]
 fn maplecode_hooks_is_legacy_alias_for_hooks() {
     assert_eq!(feature_for_key("hooks"), Some(Feature::MapleCodeHooks));
-    assert_eq!(feature_for_key("maplecode_hooks"), Some(Feature::MapleCodeHooks));
+    assert_eq!(
+        feature_for_key("maplecode_hooks"),
+        Some(Feature::MapleCodeHooks)
+    );
 }
 
 #[test]

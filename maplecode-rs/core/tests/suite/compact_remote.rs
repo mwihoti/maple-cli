@@ -5,12 +5,24 @@ use anyhow::Context;
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::ThreadIdle;
+use core_test_support::responses;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_websocket_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::test_maplecode as base_test_maplecode;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_event_with_timeout;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
-use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::InitialHistory;
+use maplecode_history::MapleCodeHarnessMetadata;
 use maplecode_history::RolloutItem;
 use maplecode_login::MapleCodeAuth;
 use maplecode_login::auth::BedrockApiKeyAuth;
@@ -37,18 +49,6 @@ use maplecode_protocol::protocol::RealtimeEvent;
 use maplecode_protocol::protocol::RealtimeOutputModality;
 use maplecode_protocol::protocol::ThreadHistoryMode;
 use maplecode_protocol::user_input::UserInput;
-use core_test_support::ThreadIdle;
-use core_test_support::responses;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_websocket_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
-use core_test_support::test_maplecode::test_maplecode as base_test_maplecode;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_event_with_timeout;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -310,7 +310,8 @@ async fn remote_compact_v2_retains_metadata_from_resumed_history() -> Result<()>
     )
     .await;
 
-    let builder = || test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+    let builder =
+        || test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
     let initial = builder()
         .with_pre_build_hook(|home| {
             fs::write(
@@ -507,7 +508,10 @@ async fn remote_compact_v2_records_usage_before_output_validation() -> Result<()
     })
     .await;
     assert_eq!(preserved_prompts, vec!["turn that triggers auto compact"]);
-    wait_for_event(maplecode, |event| matches!(event, EventMsg::TurnComplete(_))).await;
+    wait_for_event(maplecode, |event| {
+        matches!(event, EventMsg::TurnComplete(_))
+    })
+    .await;
     assert_eq!(responses_mock.requests().len(), 2);
 
     maplecode.flush_rollout().await?;

@@ -1,4 +1,5 @@
 use crate::error::ApiError;
+use futures::Stream;
 use maplecode_protocol::ResponseUsageMetadata;
 use maplecode_protocol::config_types::ReasoningSummary as ReasoningSummaryConfig;
 use maplecode_protocol::config_types::Verbosity as VerbosityConfig;
@@ -11,7 +12,6 @@ use maplecode_protocol::protocol::TurnModerationMetadataEvent;
 use maplecode_protocol::protocol::W3cTraceContext;
 use maplecode_protocol::turn_input::CyberAccessProgram;
 use maplecode_protocol::turn_input::PromptCacheTtl;
-use futures::Stream;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;

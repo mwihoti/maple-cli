@@ -2,6 +2,7 @@
 
 use super::*;
 use base64::Engine;
+use core_test_support::responses;
 use maplecode_extension_api::ExtensionFuture;
 use maplecode_extension_api::ModelRequestInput;
 use maplecode_extension_api::ModelResponseInterceptor;
@@ -16,7 +17,6 @@ use maplecode_runtime_agent_instance::AgentHostAuthorization;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
 use maplecode_runtime_agent_instance::RuntimeRegistrationMetadata;
 use maplecode_runtime_agent_instance::RuntimeRole;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::collections::VecDeque;
@@ -811,7 +811,8 @@ async fn paused_runtime_cannot_continue_on_an_admitted_websocket(mode: RuntimeAu
     });
 
     let assert_paused = |error: &maplecode_protocol::error::MapleCodeErr| {
-        let maplecode_protocol::error::MapleCodeErrorDetails::UnexpectedStatus(response) = error.details()
+        let maplecode_protocol::error::MapleCodeErrorDetails::UnexpectedStatus(response) =
+            error.details()
         else {
             panic!("expected a paused-runtime HTTP response: {error:?}");
         };

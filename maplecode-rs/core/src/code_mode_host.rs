@@ -17,6 +17,7 @@ use std::task::Context;
 use std::task::Poll;
 use std::time::Duration;
 
+use hyper_util::rt::TokioIo;
 use maplecode_code_mode::CodeModeOutputTruncation;
 use maplecode_code_mode::CodeModeProcessMetricsSample;
 use maplecode_code_mode::CodeModeSessionCellExecutionLimits;
@@ -28,7 +29,6 @@ use maplecode_code_mode::GrpcCodeModeSessionProvider;
 use maplecode_code_mode::ProcessOwnedCodeModeSessionProvider;
 use maplecode_protocol::shell_environment::scrub_non_inheritable_env_vars;
 use maplecode_utils_process::background_command;
-use hyper_util::rt::TokioIo;
 use tokio::io::AsyncBufReadExt;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;

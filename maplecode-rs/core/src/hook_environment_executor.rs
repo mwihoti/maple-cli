@@ -6,6 +6,8 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::bail;
+use futures::FutureExt;
+use futures::future::BoxFuture;
 use maplecode_exec_server::ExecOutputStream;
 use maplecode_exec_server::ExecParams;
 use maplecode_exec_server::ExecProcess;
@@ -19,8 +21,6 @@ use maplecode_hooks::HookEnvironmentExecutor;
 use maplecode_hooks::Hooks;
 use maplecode_network_proxy::NetworkProxy;
 use maplecode_protocol::models::PermissionProfile;
-use futures::FutureExt;
-use futures::future::BoxFuture;
 
 use crate::environment_selection::TurnEnvironmentSnapshot;
 use crate::session::session::Session;

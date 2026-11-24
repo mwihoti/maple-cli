@@ -43,8 +43,8 @@ pub(crate) fn create_wait_tool(
         }),
         strict: false,
         parameters: parameters_override
-            .and_then(
-                |parameters| match maplecode_tools::parse_catalog_tool_parameters(parameters) {
+            .and_then(|parameters| {
+                match maplecode_tools::parse_catalog_tool_parameters(parameters) {
                     Ok(parameters) => Some(parameters),
                     Err(reason) => {
                         tracing::warn!(
@@ -54,8 +54,8 @@ pub(crate) fn create_wait_tool(
                         );
                         None
                     }
-                },
-            )
+                }
+            })
             .unwrap_or_else(|| {
                 JsonSchema::object(
                     properties,

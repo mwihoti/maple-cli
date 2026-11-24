@@ -11,6 +11,7 @@ use app_test_support::rollout_path;
 use app_test_support::to_response;
 use app_test_support::write_chatgpt_auth;
 use app_test_support::write_models_cache;
+use core_test_support::responses;
 use maplecode_app_server_protocol::ActivePermissionProfile;
 use maplecode_app_server_protocol::ApprovalsReviewer;
 use maplecode_app_server_protocol::AskForApproval;
@@ -90,7 +91,6 @@ use maplecode_rollout::append_thread_name;
 use maplecode_rollout::read_session_meta_line;
 use maplecode_state::StateRuntime;
 use maplecode_utils_absolute_path::test_support::PathExt;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -1951,7 +1951,11 @@ async fn thread_fork_freezes_active_paginated_turn_as_interrupted(
         Some("mock_provider"),
         /*git_info*/ None,
     )?;
-    let source_path = rollout_path(maplecode_home.path(), "2025-01-05T12-00-00", &source_thread_id);
+    let source_path = rollout_path(
+        maplecode_home.path(),
+        "2025-01-05T12-00-00",
+        &source_thread_id,
+    );
     let source_id = ThreadId::from_string(source_thread_id.as_str())?;
     let user_response_item = |id: &str| {
         RolloutItem::ResponseItem(

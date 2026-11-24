@@ -55,7 +55,8 @@ pub const DOCTOR_REPORT_ATTACHMENT_FILENAME: &str = "maplecode-doctor-report.jso
 /// Filename used for the raw Maple Code Apps MCP tools cache feedback attachment.
 pub const MAPLECODE_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME: &str = "maplecode-apps-tools-cache.json";
 /// Filename used for the raw connector directory cache feedback attachment.
-pub const MAPLECODE_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME: &str = "maplecode-app-directory-cache.json";
+pub const MAPLECODE_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME: &str =
+    "maplecode-app-directory-cache.json";
 /// Filename used for the Windows sandbox log feedback attachment.
 pub const WINDOWS_SANDBOX_LOG_ATTACHMENT_FILENAME: &str = "windows-sandbox.log";
 const DEFAULT_MAX_BYTES: usize = 4 * 1024 * 1024; // 4 MiB
@@ -263,8 +264,14 @@ impl MapleCodeFeedback {
                     // target before re-emitting them as `log`; tungstenite TRACE
                     // includes full websocket frames and authenticated handshakes.
                     .with_target("tungstenite", LevelFilter::DEBUG)
-                    .with_target("maplecode_api::responses_websocket_timing", LevelFilter::OFF)
-                    .with_target("maplecode_core::post_sampling_token_estimate", LevelFilter::OFF),
+                    .with_target(
+                        "maplecode_api::responses_websocket_timing",
+                        LevelFilter::OFF,
+                    )
+                    .with_target(
+                        "maplecode_core::post_sampling_token_estimate",
+                        LevelFilter::OFF,
+                    ),
             )
     }
 

@@ -809,7 +809,9 @@ async fn turn_lifecycle_emits_failed_turn_event() {
                 TurnMapleCodeErrorFact::from_maplecode_err(
                     "thread-2".to_string(),
                     "turn-2".to_string(),
-                    &MapleCodeErr::InvalidRequest("unknown turn environment id `env-2`".to_string()),
+                    &MapleCodeErr::InvalidRequest(
+                        "unknown turn environment id `env-2`".to_string(),
+                    ),
                 ),
             ))),
             &mut out,
