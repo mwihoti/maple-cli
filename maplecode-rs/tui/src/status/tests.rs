@@ -358,7 +358,7 @@ async fn status_snapshot_shows_chatgpt_plan_without_email() {
         ..LoaderOverrides::without_managed_config_for_tests()
     };
     let server = wiremock::MockServer::start().await;
-    wiremock::Mock::given(wiremock::matchers::path("/api/maplecode/accounts/check"))
+    wiremock::Mock::given(wiremock::matchers::path("/api/codex/accounts/check"))
         .respond_with(
             wiremock::ResponseTemplate::new(200).set_body_json(serde_json::json!({
                 "accounts": [{
@@ -371,7 +371,7 @@ async fn status_snapshot_shows_chatgpt_plan_without_email() {
         )
         .mount(&server)
         .await;
-    wiremock::Mock::given(wiremock::matchers::path("/api/maplecode/config/bundle"))
+    wiremock::Mock::given(wiremock::matchers::path("/api/codex/config/bundle"))
         .respond_with(wiremock::ResponseTemplate::new(/*s*/ 200).set_body_string("{}"))
         .mount(&server)
         .await;

@@ -304,7 +304,7 @@ async fn daemon_startup_falls_back_only_for_implicit_endpoints() -> color_eyre::
             LoaderOverrides::default(),
             /*strict_config*/ false,
             CloudConfigBundleLoader::default(),
-            maplecode_feedback::MapleCodeFeedback::new(),
+            maplecode_feedback::MaplecodeFeedback::new(),
             /*log_db*/ None,
             &mut state_db,
             Arc::new(EnvironmentManager::default_for_tests()),

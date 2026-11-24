@@ -44,7 +44,7 @@ impl AppEventSender {
         if self.voice_only.load(Ordering::Relaxed)
             && !matches!(
                 &event,
-                AppEvent::MapleCodeOp(
+                AppEvent::MaplecodeOp(
                     AppCommand::RealtimeConversationStart { .. }
                         | AppCommand::RealtimeConversationStop { .. }
                         | AppCommand::RealtimeConversationSpeech { .. }
@@ -62,7 +62,7 @@ impl AppEventSender {
         }
         // Record inbound events for high-fidelity session replay.
         // Avoid double-logging Ops; those are logged at the point of submission.
-        if !matches!(event, AppEvent::MapleCodeOp(_)) {
+        if !matches!(event, AppEvent::MaplecodeOp(_)) {
             session_log::log_inbound_app_event(&event);
         }
         if let Err(e) = self.app_event_tx.send(event) {
@@ -71,19 +71,19 @@ impl AppEventSender {
     }
 
     pub(crate) fn interrupt(&self) {
-        self.send(AppEvent::MapleCodeOp(AppCommand::interrupt()));
+        self.send(AppEvent::MaplecodeOp(AppCommand::interrupt()));
     }
 
     pub(crate) fn compact(&self) {
-        self.send(AppEvent::MapleCodeOp(AppCommand::compact()));
+        self.send(AppEvent::MaplecodeOp(AppCommand::compact()));
     }
 
     pub(crate) fn set_thread_name(&self, name: String) {
-        self.send(AppEvent::MapleCodeOp(AppCommand::set_thread_name(name)));
+        self.send(AppEvent::MaplecodeOp(AppCommand::set_thread_name(name)));
     }
 
     pub(crate) fn review(&self, target: ReviewTarget) {
-        self.send(AppEvent::MapleCodeOp(AppCommand::review(target)));
+        self.send(AppEvent::MaplecodeOp(AppCommand::review(target)));
     }
 
     pub(crate) fn user_input_answer(

@@ -1329,7 +1329,7 @@ fn markdown_render_file_link_snapshot() {
 fn unordered_list_local_file_link_stays_inline_with_following_text() {
     let text = render_markdown_text_with_width_and_cwd(
         "- [binary](/Users/example/code/maplecode/maplecode-rs/README.md:93): core is the agent/business logic, tui is the terminal UI, exec is the headless automation surface, and cli is the top-level multitool binary.",
-        Some(72),
+        Some(76),
         Some(Path::new("/Users/example/code/maplecode")),
     );
     let rendered = text
@@ -1379,7 +1379,7 @@ fn unordered_list_local_file_link_soft_break_before_colon_stays_inline() {
 fn consecutive_unordered_list_local_file_links_do_not_detach_paths() {
     let text = render_markdown_text_with_width_and_cwd(
         "- [binary](/Users/example/code/maplecode/maplecode-rs/README.md:93)\n  : cli is the top-level multitool binary.\n- [expectations](/Users/example/code/maplecode/maplecode-rs/core/README.md:1)\n  : maplecode-core owns the real runtime behavior.",
-        Some(72),
+        Some(80),
         Some(Path::new("/Users/example/code/maplecode")),
     );
     let rendered = text

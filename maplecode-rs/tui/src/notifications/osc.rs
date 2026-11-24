@@ -74,7 +74,7 @@ impl Command for PostNotification<'_> {
         }
         let sequence = match self.protocol {
             OscProtocol::Osc9 => format!("\x1b]9;{body}\x07"),
-            OscProtocol::Osc777 => format!("\x1b]777;notify;MapleCode;{body}\x1b\\"),
+            OscProtocol::Osc777 => format!("\x1b]777;notify;Maple Code;{body}\x1b\\"),
         };
         if self.dcs_passthrough {
             let escaped = sequence.replace('\x1b', "\x1b\x1b");
@@ -133,7 +133,7 @@ mod tests {
             (OscProtocol::Osc9, format!("\x1b]9;{prefix}…\x07")),
             (
                 OscProtocol::Osc777,
-                format!("\x1b]777;notify;MapleCode;{prefix}…\x1b\\"),
+                format!("\x1b]777;notify;Maple Code;{prefix}…\x1b\\"),
             ),
         ] {
             let mut ansi = String::new();

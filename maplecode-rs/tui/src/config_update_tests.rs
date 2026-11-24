@@ -322,7 +322,7 @@ fn format_config_error_preserves_server_validation_message() {
 fn effective_defaults_accept_foreign_layer_paths() -> Result<()> {
     let layers = serde_json::json!([
         {"name": {"type": "system", "file": "/etc/maplecode/config.toml"}, "version": "1", "config": {}},
-        {"name": {"type": "project", "dotMapleCodeFolder": "C:\\work\\.maplecode"}, "disabledReason": "untrusted", "version": "1", "config": {}}
+        {"name": {"type": "project", "dotMaplecodeFolder": "C:\\work\\.maplecode"}, "disabledReason": "untrusted", "version": "1", "config": {}}
     ]);
     let response: EffectiveConfig = serde_json::from_value(serde_json::json!({
         "config": {"model": "server-model"},

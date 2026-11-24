@@ -1458,7 +1458,7 @@ mod tests {
             strict_config: false,
             cloud_config_bundle: CloudConfigBundleLoader::default(),
             embedded_network_policy: Default::default(),
-            feedback: maplecode_feedback::MapleCodeFeedback::new(),
+            feedback: maplecode_feedback::MaplecodeFeedback::new(),
             log_db: None,
             state_db: None,
             environment_manager: Arc::new(

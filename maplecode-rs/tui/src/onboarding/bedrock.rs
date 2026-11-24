@@ -452,7 +452,7 @@ impl BedrockState {
             }
             BedrockView::EnvironmentInstructions => {
                 lines.push(
-                    "  Export AWS credentials, then run `maplecode --no-daemon` in that shell."
+                    "  Export AWS credentials, then run `maplecode --no-daemon` there."
                         .into(),
                 );
                 lines.push("".into());

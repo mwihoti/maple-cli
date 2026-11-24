@@ -127,7 +127,7 @@ async fn managed_workspace_default_respects_read_only_availability() -> color_ey
             loader_overrides,
             /*strict_config*/ false,
             Default::default(),
-            maplecode_feedback::MapleCodeFeedback::new(),
+            maplecode_feedback::MaplecodeFeedback::new(),
             /*log_db*/ None,
             /*state_db*/ None,
             Arc::new(EnvironmentManager::default_for_tests()),

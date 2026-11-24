@@ -952,7 +952,7 @@ pub(super) async fn run_main_inner(
         (None, None)
     };
 
-    let feedback = maplecode_feedback::MapleCodeFeedback::new();
+    let feedback = maplecode_feedback::MaplecodeFeedback::new();
     let feedback_layer = feedback.logger_layer();
     let feedback_metadata_layer = feedback.metadata_layer();
 

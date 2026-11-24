@@ -515,7 +515,7 @@ fn credential_entries_share_region_and_keep_aws_secrets_hidden() {
     insta::assert_snapshot!(render_visible(&access_keys), @r###"
     > Set up Amazon Bedrock
 
-      Export AWS credentials, then run `maplecode --no-daemon` in that shell.
+      Export AWS credentials, then run `maplecode --no-daemon` there.
 
       Setup guide: https://learn.chatgpt.com/docs/amazon-bedrock
 

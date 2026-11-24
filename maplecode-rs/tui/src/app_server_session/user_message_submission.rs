@@ -7,7 +7,7 @@ use maplecode_app_server_client::CloudUserMessageReceipt;
 use maplecode_app_server_client::TypedRequestError;
 use maplecode_app_server_protocol::ApprovalsReviewer;
 use maplecode_app_server_protocol::AskForApproval;
-use maplecode_app_server_protocol::MapleCodeErrorInfo as AppServerMapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo as AppServerMaplecodeErrorInfo;
 use maplecode_app_server_protocol::TurnError as AppServerTurnError;
 use maplecode_app_server_protocol::TurnStartParams;
 use maplecode_protocol::ThreadId;
@@ -291,7 +291,7 @@ pub(crate) fn active_turn_not_steerable_turn_error(
     let turn_error: AppServerTurnError = serde_json::from_value(source.data.clone()?).ok()?;
     matches!(
         turn_error.maplecode_error_info,
-        Some(AppServerMapleCodeErrorInfo::ActiveTurnNotSteerable { .. })
+        Some(AppServerMaplecodeErrorInfo::ActiveTurnNotSteerable { .. })
     )
     .then_some(turn_error)
 }

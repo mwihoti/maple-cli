@@ -443,7 +443,7 @@ mod tests {
                 ),
                 /*migration_markdown*/ None,
                 "gpt-5.1-codex-max".to_string(),
-                Some("MapleCode-optimized flagship for deep and fast reasoning.".to_string()),
+                Some("Maplecode-optimized flagship for deep and fast reasoning.".to_string()),
                 /*can_opt_out*/ true,
             ),
         );

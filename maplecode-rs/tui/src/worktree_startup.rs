@@ -160,7 +160,7 @@ pub(super) async fn prepare(
             loader_overrides.clone(),
             strict_config,
             source_bundle.clone(),
-            maplecode_feedback::MapleCodeFeedback::new(),
+            maplecode_feedback::MaplecodeFeedback::new(),
             /*log_db*/ None,
             state,
             Arc::new(environment),

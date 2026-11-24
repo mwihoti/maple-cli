@@ -9,7 +9,7 @@ use crate::legacy_core::config::Config;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::GetAccountSecuritySetupResponse;
 use maplecode_app_server_protocol::RequestId;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use serde::Deserialize;
 use std::time::Duration;
 use uuid::Uuid;
@@ -33,7 +33,7 @@ pub(crate) struct Identity {
     pub user: String,
 }
 impl Identity {
-    fn from_auth(auth: &MapleCodeAuth) -> Option<Self> {
+    fn from_auth(auth: &MaplecodeAuth) -> Option<Self> {
         Some(Self {
             account: auth.get_account_id()?,
             user: auth.get_chatgpt_user_id()?,

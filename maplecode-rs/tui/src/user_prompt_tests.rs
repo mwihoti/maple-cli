@@ -4,7 +4,7 @@ use pretty_assertions::assert_eq;
 #[test]
 fn extract_prompt_request_returns_text_after_last_delimiter() {
     let message =
-        "# Context\n## My request for MapleCode:\nFirst\n## My request for MapleCode:\n  Second\n";
+        "# Context\n## My request for Maple Code:\nFirst\n## My request for Maple Code:\n  Second\n";
 
     assert_eq!(
         extract_prompt_request_with_offset(message),

@@ -1,8 +1,8 @@
-//! Tracks when MapleCode-owned transcript scrollback must be repaired after terminal resize.
+//! Tracks when Maplecode-owned transcript scrollback must be repaired after terminal resize.
 //!
 //! Terminal scrollback is not a retained widget tree: once Maple Code writes wrapped lines into the
 //! terminal, the terminal owns those rows. Width resize reflow treats the in-memory transcript cells
-//! as the source of truth, clears MapleCode-owned history, and re-emits the cells at the current width.
+//! as the source of truth, clears Maplecode-owned history, and re-emits the cells at the current width.
 //! Height-only growth also schedules a rebuild so rows exposed above the inline viewport are
 //! restored from the same source of truth.
 //!
