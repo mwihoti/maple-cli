@@ -54,7 +54,7 @@ fn header_auth_exposes_a_valid_chatgpt_account_id() {
             );
         }
 
-        let auth = MapleCodeAuth::Headers(AuthHeaders::new(headers));
+        let auth = MaplecodeAuth::Headers(AuthHeaders::new(headers));
         assert_eq!(auth.get_account_id().as_deref(), expected_account_id);
     }
 }
@@ -370,7 +370,7 @@ async fn agent_identity_jwt_uses_explicit_staging_endpoint_overrides() -> anyhow
     let record = agent_identity_record(WORKSPACE_ID_ALLOWED);
     let jwt = signed_agent_identity_jwt(&record, json!(record.plan_type))?;
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/agent-identities/jwks"))
+        .and(path("/api/codex/agent-identities/jwks"))
         .respond_with(ResponseTemplate::new(200).set_body_json(test_jwks_body()))
         .expect(1)
         .mount(&jwks_server)
@@ -387,17 +387,17 @@ async fn agent_identity_jwt_uses_explicit_staging_endpoint_overrides() -> anyhow
         "MAPLECODE_AGENT_IDENTITY_AUTHAPI_BASE_URL",
         &authapi_base_url,
     );
-    let jwks_base_url = format!("{}/api/maplecode/", jwks_server.uri());
+    let jwks_base_url = format!("{}/api/codex/", jwks_server.uri());
     let _jwks_guard = EnvVarGuard::set("MAPLECODE_AGENT_IDENTITY_JWKS_BASE_URL", &jwks_base_url);
 
-    let auth = MapleCodeAuth::from_agent_identity_jwt(
+    let auth = MaplecodeAuth::from_agent_identity_jwt(
         &jwt,
         Some(ChatGptEnvironment::Staging.chatgpt_base_url()),
         &crate::test_support::transport_default_auth_route_config(),
     )
     .await?;
 
-    let MapleCodeAuth::AgentIdentity(agent_identity) = auth else {
+    let MaplecodeAuth::AgentIdentity(agent_identity) = auth else {
         panic!("JWT should load as agent identity auth");
     };
     assert_eq!(agent_identity.run_task_id(), "task-id");
@@ -414,7 +414,7 @@ async fn agent_identity_jwt_supports_existing_staging_launcher() -> anyhow::Resu
     let record = agent_identity_record(WORKSPACE_ID_ALLOWED);
     let jwt = signed_agent_identity_jwt(&record, json!(record.plan_type))?;
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/agent-identities/jwks"))
+        .and(path("/api/codex/agent-identities/jwks"))
         .respond_with(ResponseTemplate::new(200).set_body_json(test_jwks_body()))
         .expect(1)
         .mount(&jwks_server)
@@ -431,17 +431,17 @@ async fn agent_identity_jwt_supports_existing_staging_launcher() -> anyhow::Resu
         "MAPLECODE_AGENT_IDENTITY_AUTHAPI_BASE_URL",
         &authapi_base_url,
     );
-    let jwks_base_url = format!("{}/api/maplecode", jwks_server.uri());
+    let jwks_base_url = format!("{}/api/codex", jwks_server.uri());
     let _jwks_guard = EnvVarGuard::set("MAPLECODE_AGENT_IDENTITY_JWKS_BASE_URL", &jwks_base_url);
 
-    let auth = MapleCodeAuth::from_agent_identity_jwt(
+    let auth = MaplecodeAuth::from_agent_identity_jwt(
         &jwt,
         Some(&jwks_base_url),
         &crate::test_support::transport_default_auth_route_config(),
     )
     .await?;
 
-    let MapleCodeAuth::AgentIdentity(agent_identity) = auth else {
+    let MaplecodeAuth::AgentIdentity(agent_identity) = auth else {
         panic!("JWT should load as agent identity auth");
     };
     assert_eq!(agent_identity.run_task_id(), "task-id");
@@ -562,7 +562,7 @@ async fn stored_agent_identity_jwt_keeps_auth_json_unchanged() -> anyhow::Result
     .await?
     .expect("auth should load");
 
-    let MapleCodeAuth::AgentIdentity(agent_identity_auth) = auth else {
+    let MaplecodeAuth::AgentIdentity(agent_identity_auth) = auth else {
         panic!("stored JWT should load as agent identity auth");
     };
     assert_eq!(agent_identity_auth.run_task_id(), "task-id");
@@ -1138,7 +1138,7 @@ async fn agent_identity_jwt_task_registration_retry_exhaustion_is_strict() -> an
     let authapi_base_url = server.uri();
     let chatgpt_base_url = format!("{authapi_base_url}/backend-api");
 
-    let err = MapleCodeAuth::from_agent_identity_jwt_with_authapi_base_url(
+    let err = MaplecodeAuth::from_agent_identity_jwt_with_authapi_base_url(
         &agent_identity,
         Some(&chatgpt_base_url),
         &authapi_base_url,
@@ -1191,7 +1191,7 @@ async fn login_with_access_token_rejects_unsigned_jwt() {
 async fn missing_auth_json_returns_none() {
     let dir = tempdir().unwrap();
     let _access_token_guard = remove_access_token_env_var();
-    let auth = MapleCodeAuth::from_auth_storage(
+    let auth = MaplecodeAuth::from_auth_storage(
         dir.path(),
         AuthCredentialsStoreMode::File,
         /*chatgpt_base_url*/ None,
@@ -1441,7 +1441,7 @@ async fn refresh_failure_is_scoped_to_the_matching_auth_snapshot() {
         .expect("tokens should exist");
     updated_tokens.access_token = "new-access-token".to_string();
     updated_tokens.refresh_token = "new-refresh-token".to_string();
-    let updated_auth = MapleCodeAuth::from_auth_dot_json(
+    let updated_auth = MaplecodeAuth::from_auth_dot_json(
         maplecode_home.path(),
         updated_auth_dot_json,
         AuthCredentialsStoreMode::File,
@@ -1472,7 +1472,7 @@ async fn provider_credentials_follow_the_primary_network_policy() {
     let policy = controller.policy();
     let factory = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault)
         .with_network_policy(policy.clone());
-    let mut primary = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("login-key"));
+    let mut primary = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("login-key"));
     Arc::get_mut(&mut primary).unwrap().auth_route_config =
         AuthRouteConfig::from_http_client_factory(factory);
     assert!(controller.publish(
@@ -1505,7 +1505,7 @@ async fn provider_credentials_follow_the_primary_network_policy() {
     assert!(transport.network_policy().acquire(&allowed).is_ok());
     assert!(transport.network_policy().acquire(&blocked).is_err());
 
-    primary.set_cached_auth(Some(MapleCodeAuth::from_api_key("another-login-key")));
+    primary.set_cached_auth(Some(MaplecodeAuth::from_api_key("another-login-key")));
     assert!(permit.check().is_err());
     assert!(transport.network_policy().acquire(&allowed).is_err());
 }
@@ -1578,7 +1578,7 @@ async fn unauthorized_recovery_retries_provider_command_after_initial_failure() 
     assert_eq!(result.auth_state_changed(), Some(true));
     assert_eq!(
         manager.auth_cached(),
-        Some(MapleCodeAuth::from_api_key("provider-token"))
+        Some(MaplecodeAuth::from_api_key("provider-token"))
     );
     assert!(!recovery.has_next());
     assert_eq!(recovery.unavailable_reason(), "recovery_exhausted");
@@ -1587,7 +1587,7 @@ async fn unauthorized_recovery_retries_provider_command_after_initial_failure() 
 
 #[test]
 fn unauthorized_recovery_without_an_external_provider_still_requires_refreshable_auth() {
-    for auth in [None, Some(MapleCodeAuth::from_api_key("static-token"))] {
+    for auth in [None, Some(MaplecodeAuth::from_api_key("static-token"))] {
         let manager = AuthManager::from_optional_auth_for_testing(auth);
         let recovery = manager.unauthorized_recovery();
 
@@ -1627,40 +1627,40 @@ async fn unauthorized_recovery_uses_external_refresh_for_bearer_manager() {
 }
 
 #[derive(Clone)]
-struct StaticExternalAuth(MapleCodeAuth);
+struct StaticExternalAuth(MaplecodeAuth);
 
 impl ExternalAuth for StaticExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 }
 
 struct RefreshingExternalAuth {
-    initial: MapleCodeAuth,
-    refreshed: MapleCodeAuth,
+    initial: MaplecodeAuth,
+    refreshed: MaplecodeAuth,
 }
 
 impl ExternalAuth for RefreshingExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.initial.clone()) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.refreshed.clone()) })
     }
 }
 
-fn external_header_auth(account_id: Option<&'static str>) -> MapleCodeAuth {
+fn external_header_auth(account_id: Option<&'static str>) -> MaplecodeAuth {
     let mut headers = http::HeaderMap::new();
     headers.insert(
         http::header::AUTHORIZATION,
@@ -1672,16 +1672,16 @@ fn external_header_auth(account_id: Option<&'static str>) -> MapleCodeAuth {
             http::HeaderValue::from_static(account_id),
         );
     }
-    MapleCodeAuth::Headers(AuthHeaders::new(headers))
+    MaplecodeAuth::Headers(AuthHeaders::new(headers))
 }
 
 struct FailingExternalAuth {
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     resolve_count: AtomicUsize,
 }
 
 impl ExternalAuth for FailingExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         let resolve_count = self.resolve_count.fetch_add(1, Ordering::SeqCst);
         Box::pin(async move {
             if resolve_count == 0 {
@@ -1695,7 +1695,7 @@ impl ExternalAuth for FailingExternalAuth {
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Err(std::io::Error::other("external auth failed")) })
     }
 
@@ -1709,8 +1709,8 @@ impl ExternalAuth for FailingExternalAuth {
 
 #[tokio::test]
 async fn external_auth_keeps_cached_credentials_after_permanent_reload_failure() {
-    let manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("seed"));
-    let auth = MapleCodeAuth::from_api_key("configured-token");
+    let manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("seed"));
+    let auth = MaplecodeAuth::from_api_key("configured-token");
     let external_auth = Arc::new(FailingExternalAuth {
         auth: auth.clone(),
         resolve_count: AtomicUsize::new(0),
@@ -1737,13 +1737,13 @@ async fn external_auth_keeps_cached_credentials_after_permanent_reload_failure()
 }
 
 struct RecoveringExternalAuth {
-    initial: MapleCodeAuth,
-    recovered: MapleCodeAuth,
+    initial: MaplecodeAuth,
+    recovered: MaplecodeAuth,
     resolve_count: AtomicUsize,
 }
 
 impl ExternalAuth for RecoveringExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         let attempt = self.resolve_count.fetch_add(1, Ordering::SeqCst);
         Box::pin(async move {
             match attempt {
@@ -1760,7 +1760,7 @@ impl ExternalAuth for RecoveringExternalAuth {
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -1768,8 +1768,8 @@ impl ExternalAuth for RecoveringExternalAuth {
 #[tokio::test]
 async fn external_auth_keeps_its_identity_through_a_transient_reload_failure() {
     let manager = AuthManager::from_optional_auth_for_testing(/*auth*/ None);
-    let initial = MapleCodeAuth::from_api_key("initial-token");
-    let recovered = MapleCodeAuth::from_api_key("recovered-token");
+    let initial = MaplecodeAuth::from_api_key("initial-token");
+    let recovered = MaplecodeAuth::from_api_key("recovered-token");
     manager
         .set_external_auth(Arc::new(RecoveringExternalAuth {
             initial: initial.clone(),
@@ -1841,7 +1841,7 @@ async fn workspace_policy_change_rejects_pending_transient_auth_fallback() {
     assert_eq!(
         fallback
             .as_ref()
-            .and_then(MapleCodeAuth::get_account_id)
+            .and_then(MaplecodeAuth::get_account_id)
             .as_deref(),
         Some(WORKSPACE_ID_ALLOWED)
     );
@@ -1891,7 +1891,7 @@ async fn external_auth_does_not_reuse_disallowed_credentials_after_a_transient_f
 async fn failed_storage_reload_preserves_cached_identity() -> anyhow::Result<()> {
     let _access_token = remove_access_token_env_var();
     let home = tempdir()?;
-    let auth = MapleCodeAuth::from_api_key("stored-key");
+    let auth = MaplecodeAuth::from_api_key("stored-key");
     let manager =
         AuthManager::from_auth_for_testing_with_home(auth.clone(), home.path().to_path_buf());
     let initial = manager
@@ -1914,8 +1914,8 @@ async fn failed_storage_reload_preserves_cached_identity() -> anyhow::Result<()>
 
 #[tokio::test]
 async fn replacing_external_auth_clears_permanent_failure() {
-    let manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("seed"));
-    let auth = MapleCodeAuth::from_api_key("external-token");
+    let manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("seed"));
+    let auth = MaplecodeAuth::from_api_key("external-token");
     manager
         .set_external_auth(Arc::new(FailingExternalAuth {
             auth: auth.clone(),
@@ -1941,10 +1941,10 @@ async fn replacing_external_auth_clears_permanent_failure() {
 
 #[tokio::test]
 async fn runtime_external_auth_uses_provider_error_classification() {
-    let manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("seed"));
+    let manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("seed"));
     manager
         .set_external_auth(Arc::new(FailingExternalAuth {
-            auth: MapleCodeAuth::from_api_key("runtime-token"),
+            auth: MaplecodeAuth::from_api_key("runtime-token"),
             resolve_count: AtomicUsize::new(0),
         }))
         .await
@@ -1964,7 +1964,7 @@ async fn external_auth_provider_can_install_headers() {
         http::HeaderValue::from_static("Bearer external"),
     );
     headers.insert("x-external-auth", http::HeaderValue::from_static("enabled"));
-    let auth = MapleCodeAuth::Headers(AuthHeaders::new(headers));
+    let auth = MaplecodeAuth::Headers(AuthHeaders::new(headers));
     let maplecode_home = tempdir().expect("tempdir");
     login_with_api_key(
         maplecode_home.path(),
@@ -2050,7 +2050,7 @@ async fn external_header_auth_rejects_a_disallowed_workspace_on_refresh() {
 async fn workload_identity_auth_is_immutable_and_process_local() {
     let maplecode_home = tempdir().expect("tempdir");
     let mut manager = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("seed"),
+        MaplecodeAuth::from_api_key("seed"),
         maplecode_home.path().to_path_buf(),
     );
     Arc::get_mut(&mut manager)
@@ -2062,7 +2062,7 @@ async fn workload_identity_auth_is_immutable_and_process_local() {
         chatgpt_account_id: Some("workspace-one".to_string()),
     })
     .expect("fake access token");
-    let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let auth = MaplecodeAuth::from_external_chatgpt_tokens(
         &access_token,
         "workspace-one",
         Some("enterprise"),
@@ -2483,7 +2483,7 @@ async fn load_auth_reads_access_token_from_env() {
     .expect("env auth should load")
     .expect("env auth should be present");
 
-    let MapleCodeAuth::AgentIdentity(agent_identity) = auth else {
+    let MaplecodeAuth::AgentIdentity(agent_identity) = auth else {
         panic!("env auth should load as agent identity");
     };
     assert_eq!(agent_identity.record(), &expected_record);
@@ -2772,7 +2772,7 @@ async fn auth_manager_rejects_disallowed_stored_and_external_auth() {
     assert_eq!(manager.auth().await, None);
     assert!(
         manager
-            .set_external_auth(Arc::new(StaticExternalAuth(MapleCodeAuth::from_api_key(
+            .set_external_auth(Arc::new(StaticExternalAuth(MaplecodeAuth::from_api_key(
                 "sk-external",
             ))))
             .await
@@ -3359,7 +3359,7 @@ async fn assert_agent_identity_plan_alias(
         .await;
     let authapi_base_url = server.uri();
     let chatgpt_base_url = format!("{authapi_base_url}/backend-api");
-    let auth = MapleCodeAuth::from_agent_identity_jwt_with_authapi_base_url(
+    let auth = MaplecodeAuth::from_agent_identity_jwt_with_authapi_base_url(
         &jwt,
         Some(&chatgpt_base_url),
         &authapi_base_url,

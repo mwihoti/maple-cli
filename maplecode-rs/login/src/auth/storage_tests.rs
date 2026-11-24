@@ -454,7 +454,7 @@ fn seed_secrets_backend_and_fallback_auth_file_for_delete(
         maplecode_home.to_path_buf(),
         SecretsBackendKind::Local,
         Arc::new(mock_keyring.clone()),
-        LocalSecretsNamespace::MapleCodeAuth,
+        LocalSecretsNamespace::MaplecodeAuth,
     );
     manager.set(
         &SecretScope::Global,
@@ -475,7 +475,7 @@ fn seed_secrets_backend_with_auth(
         maplecode_home.to_path_buf(),
         SecretsBackendKind::Local,
         Arc::new(mock_keyring.clone()),
-        LocalSecretsNamespace::MapleCodeAuth,
+        LocalSecretsNamespace::MaplecodeAuth,
     );
     manager.set(
         &SecretScope::Global,
@@ -494,7 +494,7 @@ fn assert_keyring_saved_auth_and_removed_fallback(
         maplecode_home.to_path_buf(),
         SecretsBackendKind::Local,
         Arc::new(mock_keyring.clone()),
-        LocalSecretsNamespace::MapleCodeAuth,
+        LocalSecretsNamespace::MaplecodeAuth,
     );
     let saved_value = manager
         .get(&SecretScope::Global, &MAPLECODE_AUTH_SECRET_NAME)?
@@ -506,7 +506,7 @@ fn assert_keyring_saved_auth_and_removed_fallback(
         mock_keyring.saved_value(&old_key).is_none(),
         "legacy keyring auth entry should not be used"
     );
-    let secrets_key = compute_keyring_account(maplecode_home, LocalSecretsNamespace::MapleCodeAuth);
+    let secrets_key = compute_keyring_account(maplecode_home, LocalSecretsNamespace::MaplecodeAuth);
     assert!(
         mock_keyring.saved_value(&secrets_key).is_some(),
         "secrets backend should persist an encryption passphrase in the keyring"
@@ -610,7 +610,7 @@ fn keyring_auth_storage_compute_store_key_for_home_directory() -> anyhow::Result
 
     let key = compute_store_key(maplecode_home.as_path())?;
 
-    assert_eq!(key, "cli|940db7b1d0e4eb40");
+    assert_eq!(key, "cli|e50e74a25c5fb587");
     Ok(())
 }
 
@@ -679,7 +679,7 @@ fn factory_uses_secrets_backend_only_when_requested() -> anyhow::Result<()> {
         secrets_keyring
             .saved_value(&compute_keyring_account(
                 secrets_home.path(),
-                LocalSecretsNamespace::MapleCodeAuth,
+                LocalSecretsNamespace::MaplecodeAuth,
             ))
             .is_some()
     );

@@ -1,7 +1,7 @@
 use super::manager::ExternalAuth;
 use super::manager::ExternalAuthFuture;
 use super::manager::ExternalAuthRefreshContext;
-use super::manager::MapleCodeAuth;
+use super::manager::MaplecodeAuth;
 use maplecode_protocol::config_types::ModelProviderAuthInfo;
 use std::collections::HashMap;
 use std::ffi::OsString;
@@ -32,7 +32,7 @@ impl BearerTokenRefresher {
         clippy::await_holding_invalid_type,
         reason = "external bearer cache misses intentionally hold cached_token across the provider command to avoid duplicate refreshes"
     )]
-    async fn resolve(&self) -> io::Result<MapleCodeAuth> {
+    async fn resolve(&self) -> io::Result<MaplecodeAuth> {
         let access_token = {
             let mut cached = self.state.cached_token.lock().await;
             if let Some(cached_token) = cached.as_ref() {
@@ -41,7 +41,7 @@ impl BearerTokenRefresher {
                     None => true,
                 };
                 if should_use_cached_token {
-                    return Ok(MapleCodeAuth::from_api_key(
+                    return Ok(MaplecodeAuth::from_api_key(
                         cached_token.access_token.as_str(),
                     ));
                 }
@@ -55,29 +55,29 @@ impl BearerTokenRefresher {
             });
             access_token
         };
-        Ok(MapleCodeAuth::from_api_key(access_token.as_str()))
+        Ok(MaplecodeAuth::from_api_key(access_token.as_str()))
     }
 
-    async fn refresh(&self, _context: ExternalAuthRefreshContext) -> io::Result<MapleCodeAuth> {
+    async fn refresh(&self, _context: ExternalAuthRefreshContext) -> io::Result<MaplecodeAuth> {
         let access_token = run_provider_auth_command(&self.state.config, &self.state.env).await?;
         let mut cached = self.state.cached_token.lock().await;
         *cached = Some(CachedExternalBearerToken {
             access_token: access_token.clone(),
             fetched_at: Instant::now(),
         });
-        Ok(MapleCodeAuth::from_api_key(access_token.as_str()))
+        Ok(MaplecodeAuth::from_api_key(access_token.as_str()))
     }
 }
 
 impl ExternalAuth for BearerTokenRefresher {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(BearerTokenRefresher::resolve(self))
     }
 
     fn refresh(
         &self,
         context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(BearerTokenRefresher::refresh(self, context))
     }
 }

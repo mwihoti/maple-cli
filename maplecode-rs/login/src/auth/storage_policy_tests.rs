@@ -121,7 +121,7 @@ fn storage_metrics_distinguish_explicit_file_from_secure_failure_fallback() -> a
             let key = match kind {
                 AuthKeyringBackendKind::Direct => compute_store_key(home.path())?,
                 AuthKeyringBackendKind::Secrets => {
-                    compute_keyring_account(home.path(), LocalSecretsNamespace::MapleCodeAuth)
+                    compute_keyring_account(home.path(), LocalSecretsNamespace::MaplecodeAuth)
                 }
             };
             let auth = auth_with_prefix("private credential value");
@@ -148,7 +148,7 @@ fn storage_metrics_distinguish_explicit_file_from_secure_failure_fallback() -> a
                         home.path().to_path_buf(),
                         SecretsBackendKind::Local,
                         Arc::new(MockKeyringStore::default()),
-                        LocalSecretsNamespace::MapleCodeAuth,
+                        LocalSecretsNamespace::MaplecodeAuth,
                     );
                     manager.set(&SecretScope::Global, &MAPLECODE_AUTH_SECRET_NAME, "{}")?;
                 }
@@ -288,7 +288,7 @@ fn auto_auth_storage_load_falls_back_when_keyring_errors() -> anyhow::Result<()>
         Arc::new(mock_keyring.clone()),
         AuthKeyringBackendKind::Secrets,
     );
-    let key = compute_keyring_account(maplecode_home.path(), LocalSecretsNamespace::MapleCodeAuth);
+    let key = compute_keyring_account(maplecode_home.path(), LocalSecretsNamespace::MaplecodeAuth);
 
     let encrypted = auth_with_prefix("encrypted");
     seed_secrets_backend_with_auth(&mock_keyring, maplecode_home.path(), &encrypted)?;
@@ -473,7 +473,7 @@ fn auto_auth_storage_save_falls_back_when_keyring_errors() -> anyhow::Result<()>
         Arc::new(mock_keyring.clone()),
         AuthKeyringBackendKind::Secrets,
     );
-    let key = compute_keyring_account(maplecode_home.path(), LocalSecretsNamespace::MapleCodeAuth);
+    let key = compute_keyring_account(maplecode_home.path(), LocalSecretsNamespace::MaplecodeAuth);
     mock_keyring.set_error(&key, KeyringError::Invalid("error".into(), "save".into()));
 
     let auth = auth_with_prefix("fallback");

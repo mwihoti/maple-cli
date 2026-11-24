@@ -5,7 +5,7 @@
 
 use crate::AuthManager;
 use crate::AuthRouteConfig;
-use crate::MapleCodeAuth;
+use crate::MaplecodeAuth;
 use crate::auth::AgentIdentityAuth;
 use crate::auth::AgentIdentityAuthRecord;
 use maplecode_http_client::HttpClientFactory;
@@ -14,7 +14,7 @@ use maplecode_protocol::account::PlanType as AccountPlanType;
 use std::sync::Arc;
 
 /// Creates an authentication manager with optional credentials for cross-crate tests.
-pub fn auth_manager_from_optional_auth(auth: Option<MapleCodeAuth>) -> Arc<AuthManager> {
+pub fn auth_manager_from_optional_auth(auth: Option<MaplecodeAuth>) -> Arc<AuthManager> {
     AuthManager::from_optional_auth_for_testing(auth)
 }
 
@@ -38,7 +38,7 @@ pub async fn auth_manager_with_agent_identity() -> std::io::Result<Arc<AuthManag
     )
     .await?;
     Ok(auth_manager_from_optional_auth(Some(
-        MapleCodeAuth::AgentIdentity(auth),
+        MaplecodeAuth::AgentIdentity(auth),
     )))
 }
 

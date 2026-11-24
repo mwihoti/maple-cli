@@ -13,7 +13,7 @@ use maplecode_http_client::HttpClient;
 use maplecode_http_client::HttpClientBuilder;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
-pub use maplecode_http_client::RequestBuilder as MapleCodeRequestBuilder;
+pub use maplecode_http_client::RequestBuilder as MaplecodeRequestBuilder;
 use maplecode_http_client::ReqwestTransport;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_terminal_detection::user_agent;

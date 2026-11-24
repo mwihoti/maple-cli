@@ -31,7 +31,7 @@ pub(super) fn telemetry(
         AuthCredentialsStoreMode::Ephemeral => StoreMode::Ephemeral,
     };
     StorageTelemetry::new(
-        CredentialKind::MapleCode,
+        CredentialKind::Maplecode,
         mode,
         keyring_store(kind),
         operation,

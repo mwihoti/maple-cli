@@ -85,7 +85,7 @@ async fn api_platform_auth_refreshes_with_a_rotated_assertion() {
     let adapter = WorkloadIdentityExternalAuth::from_config_with_registry(config, &registry)
         .expect("adapter");
     let manager = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("unused-fallback"),
+        MaplecodeAuth::from_api_key("unused-fallback"),
         temp_dir.path().to_path_buf(),
     );
     manager
@@ -538,7 +538,7 @@ async fn api_refresh_preserves_product_and_identity() {
         .expect("adapter");
         assert_eq!(
             adapter.resolve().await.expect("initial API auth"),
-            MapleCodeAuth::from_api_key(&api_access_token("access-one"))
+            MaplecodeAuth::from_api_key(&api_access_token("access-one"))
         );
         let error = adapter
             .refresh(ExternalAuthRefreshContext {
@@ -556,7 +556,7 @@ async fn api_refresh_preserves_product_and_identity() {
                 .resolve()
                 .await
                 .expect("corrected token is re-exchanged"),
-            MapleCodeAuth::from_api_key(&api_access_token("access-three"))
+            MaplecodeAuth::from_api_key(&api_access_token("access-three"))
         );
         assert_eq!(request_count.load(Ordering::SeqCst), 3);
     }

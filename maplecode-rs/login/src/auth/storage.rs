@@ -441,7 +441,7 @@ impl SecretsKeyringAuthStorage {
             maplecode_home.clone(),
             SecretsBackendKind::Local,
             keyring_store,
-            LocalSecretsNamespace::MapleCodeAuth,
+            LocalSecretsNamespace::MaplecodeAuth,
         );
         Self {
             maplecode_home,

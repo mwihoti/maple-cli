@@ -7,7 +7,7 @@ use tempfile::tempdir;
 use super::*;
 use crate::auth::AuthKeyringBackendKind;
 use crate::auth::AuthManager;
-use crate::auth::MapleCodeAuth;
+use crate::auth::MaplecodeAuth;
 use crate::auth::storage::AuthStorageBackend;
 use crate::auth::storage::FileAuthStorage;
 
@@ -53,7 +53,7 @@ fn bedrock_api_key_debug_redacts_secret() {
         r#"BedrockApiKeyAuth { api_key: "<redacted>", region: "us-east-1" }"#
     );
     assert_eq!(
-        format!("{:?}", MapleCodeAuth::BedrockApiKey(auth)),
+        format!("{:?}", MaplecodeAuth::BedrockApiKey(auth)),
         r#"BedrockApiKey(BedrockApiKeyAuth { api_key: "<redacted>", region: "us-east-1" })"#
     );
 }
@@ -98,14 +98,14 @@ async fn login_with_bedrock_api_key_replaces_openai_auth() -> anyhow::Result<()>
     assert_eq!(auth_manager.auth_mode(), Some(AuthMode::BedrockApiKey));
     assert_eq!(
         auth_manager.auth_cached().and_then(|auth| match auth {
-            MapleCodeAuth::BedrockApiKey(auth) => Some(auth),
-            MapleCodeAuth::ApiKey(_)
-            | MapleCodeAuth::Chatgpt(_)
-            | MapleCodeAuth::ChatgptAuthTokens(_)
-            | MapleCodeAuth::Headers(_)
-            | MapleCodeAuth::AgentIdentity(_)
-            | MapleCodeAuth::PersonalAccessToken(_)
-            | MapleCodeAuth::BedrockAccessKeys(_) => None,
+            MaplecodeAuth::BedrockApiKey(auth) => Some(auth),
+            MaplecodeAuth::ApiKey(_)
+            | MaplecodeAuth::Chatgpt(_)
+            | MaplecodeAuth::ChatgptAuthTokens(_)
+            | MaplecodeAuth::Headers(_)
+            | MaplecodeAuth::AgentIdentity(_)
+            | MaplecodeAuth::PersonalAccessToken(_)
+            | MaplecodeAuth::BedrockAccessKeys(_) => None,
         }),
         Some(bedrock_auth())
     );
@@ -169,14 +169,14 @@ async fn access_keys_auth_round_trips_and_logs_out() -> anyhow::Result<()> {
     assert_eq!(auth_manager.auth_mode(), Some(AuthMode::BedrockAccessKeys));
     assert_eq!(
         auth_manager.auth_cached().and_then(|auth| match auth {
-            MapleCodeAuth::BedrockAccessKeys(auth) => Some(auth),
-            MapleCodeAuth::ApiKey(_)
-            | MapleCodeAuth::Chatgpt(_)
-            | MapleCodeAuth::ChatgptAuthTokens(_)
-            | MapleCodeAuth::Headers(_)
-            | MapleCodeAuth::AgentIdentity(_)
-            | MapleCodeAuth::PersonalAccessToken(_)
-            | MapleCodeAuth::BedrockApiKey(_) => None,
+            MaplecodeAuth::BedrockAccessKeys(auth) => Some(auth),
+            MaplecodeAuth::ApiKey(_)
+            | MaplecodeAuth::Chatgpt(_)
+            | MaplecodeAuth::ChatgptAuthTokens(_)
+            | MaplecodeAuth::Headers(_)
+            | MaplecodeAuth::AgentIdentity(_)
+            | MaplecodeAuth::PersonalAccessToken(_)
+            | MaplecodeAuth::BedrockApiKey(_) => None,
         }),
         Some(crate::auth::BedrockAccessKeysAuth {
             access_key_id: "access-key-id".to_string(),
@@ -217,14 +217,14 @@ async fn bedrock_only_auth_storage_creates_primary_auth() -> anyhow::Result<()> 
     assert_eq!(auth_manager.auth_mode(), Some(AuthMode::BedrockApiKey));
     assert_eq!(
         auth_manager.auth_cached().and_then(|auth| match auth {
-            MapleCodeAuth::BedrockApiKey(auth) => Some(auth),
-            MapleCodeAuth::ApiKey(_)
-            | MapleCodeAuth::Chatgpt(_)
-            | MapleCodeAuth::ChatgptAuthTokens(_)
-            | MapleCodeAuth::Headers(_)
-            | MapleCodeAuth::AgentIdentity(_)
-            | MapleCodeAuth::PersonalAccessToken(_)
-            | MapleCodeAuth::BedrockAccessKeys(_) => None,
+            MaplecodeAuth::BedrockApiKey(auth) => Some(auth),
+            MaplecodeAuth::ApiKey(_)
+            | MaplecodeAuth::Chatgpt(_)
+            | MaplecodeAuth::ChatgptAuthTokens(_)
+            | MaplecodeAuth::Headers(_)
+            | MaplecodeAuth::AgentIdentity(_)
+            | MaplecodeAuth::PersonalAccessToken(_)
+            | MaplecodeAuth::BedrockAccessKeys(_) => None,
         }),
         Some(bedrock_auth())
     );

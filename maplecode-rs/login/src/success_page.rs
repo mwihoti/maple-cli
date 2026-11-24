@@ -18,14 +18,14 @@ pub enum LoginSuccessPage {
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum LoginSuccessPageBrand {
-    MapleCode,
+    Maplecode,
     Chatgpt,
 }
 
 impl LoginSuccessPageBrand {
     fn as_str(self) -> &'static str {
         match self {
-            Self::MapleCode => "maplecode",
+            Self::Maplecode => "maplecode",
             Self::Chatgpt => "chatgpt",
         }
     }

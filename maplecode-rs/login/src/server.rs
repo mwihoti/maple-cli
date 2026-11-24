@@ -954,21 +954,18 @@ fn login_error_response(
 }
 
 /// Returns true when the OAuth callback represents a missing Maple Code entitlement.
-fn is_missing_maplecode_entitlement_error(
-    error_code: &str,
-    error_description: Option<&str>,
-) -> bool {
+fn is_missing_codex_entitlement_error(error_code: &str, error_description: Option<&str>) -> bool {
     error_code == "access_denied"
         && error_description.is_some_and(|description| {
             description
                 .to_ascii_lowercase()
-                .contains("missing_maplecode_entitlement")
+                .contains("missing_codex_entitlement")
         })
 }
 
 /// Converts OAuth callback errors into a user-facing message.
 fn oauth_callback_error_message(error_code: &str, error_description: Option<&str>) -> String {
-    if is_missing_maplecode_entitlement_error(error_code, error_description) {
+    if is_missing_codex_entitlement_error(error_code, error_description) {
         return "Maple Code is not enabled for your workspace. Contact your workspace administrator to request access to Maple Code.".to_string();
     }
 
@@ -989,7 +986,7 @@ fn render_login_error_page(
 ) -> Vec<u8> {
     let code = error_code.unwrap_or("unknown_error");
     let (title, display_message, display_description, help_text) =
-        if is_missing_maplecode_entitlement_error(code, error_description) {
+        if is_missing_codex_entitlement_error(code, error_description) {
             (
                 "You do not have access to Maple Code".to_string(),
                 "This account is not currently authorized to use Maple Code in this workspace."
@@ -1074,7 +1071,7 @@ pub(crate) async fn obtain_api_key(
 #[cfg(test)]
 mod tests {
     use super::html_escape;
-    use super::is_missing_maplecode_entitlement_error;
+    use super::is_missing_codex_entitlement_error;
     use super::render_login_error_page;
 
     #[test]
@@ -1094,8 +1091,8 @@ mod tests {
 
     #[test]
     fn render_login_error_page_uses_entitlement_copy() {
-        let error_description = Some("missing_maplecode_entitlement");
-        assert!(is_missing_maplecode_entitlement_error(
+        let error_description = Some("missing_codex_entitlement");
+        assert!(is_missing_codex_entitlement_error(
             "access_denied",
             error_description
         ));
@@ -1109,6 +1106,6 @@ mod tests {
 
         assert!(body.contains("You do not have access to Maple Code"));
         assert!(body.contains("Contact your workspace administrator"));
-        assert!(!body.contains("missing_maplecode_entitlement"));
+        assert!(!body.contains("missing_codex_entitlement"));
     }
 }

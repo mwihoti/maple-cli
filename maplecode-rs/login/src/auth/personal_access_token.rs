@@ -40,9 +40,9 @@ impl PersonalAccessTokenAuth {
     pub(super) async fn load_with_cached(
         access_token: &str,
         auth_route_config: &AuthRouteConfig,
-        cached: Option<&super::MapleCodeAuth>,
+        cached: Option<&super::MaplecodeAuth>,
     ) -> std::io::Result<Self> {
-        if let Some(super::MapleCodeAuth::PersonalAccessToken(cached)) = cached
+        if let Some(super::MaplecodeAuth::PersonalAccessToken(cached)) = cached
             && cached.access_token() == access_token
         {
             return Ok(cached.clone());

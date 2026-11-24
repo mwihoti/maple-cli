@@ -102,7 +102,7 @@ fn compose_success_url_keeps_setup_on_local_page() {
         /*maplecode_streamlined_login*/ true,
         &LoginSuccessPage::Hosted {
             url: Url::parse(MAPLECODE_OPEN_APP_URL).expect("open app URL should parse"),
-            app_brand: LoginSuccessPageBrand::MapleCode,
+            app_brand: LoginSuccessPageBrand::Maplecode,
         },
     ) else {
         panic!("expected local success redirect");

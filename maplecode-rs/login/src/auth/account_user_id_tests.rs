@@ -13,9 +13,9 @@ fn access_token(auth_claims: Value) -> String {
     format!("e30.{payload}.c2ln")
 }
 
-fn managed_auth(access_token: String, selected_account: Option<&str>) -> MapleCodeAuth {
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
-    let MapleCodeAuth::Chatgpt(managed) = &auth else {
+fn managed_auth(access_token: String, selected_account: Option<&str>) -> MaplecodeAuth {
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let MaplecodeAuth::Chatgpt(managed) = &auth else {
         panic!("expected managed ChatGPT auth");
     };
     let mut state = managed.state.auth_dot_json.lock().unwrap();
@@ -103,7 +103,7 @@ fn external_account_user_id_must_match_the_selected_workspace() {
         ("workspace-a", Some("membership-a".to_string())),
         ("workspace-b", None),
     ] {
-        let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+        let auth = MaplecodeAuth::from_external_chatgpt_tokens(
             &token,
             selected_account,
             /*chatgpt_plan_type*/ None,
@@ -120,7 +120,7 @@ fn malformed_account_user_id_does_not_break_ordinary_external_auth() {
         "chatgpt_account_id": "workspace-a",
         "chatgpt_user_id": "chatgpt-user",
     }));
-    let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let auth = MaplecodeAuth::from_external_chatgpt_tokens(
         &token,
         "workspace-a",
         /*chatgpt_plan_type*/ None,
@@ -149,8 +149,8 @@ fn api_key_and_header_auth_do_not_expose_an_account_user_id() {
         http::HeaderValue::from_static("workspace-a"),
     );
     for auth in [
-        MapleCodeAuth::from_api_key("test-api-key"),
-        MapleCodeAuth::Headers(AuthHeaders::new(headers)),
+        MaplecodeAuth::from_api_key("test-api-key"),
+        MaplecodeAuth::Headers(AuthHeaders::new(headers)),
     ] {
         assert_eq!(auth.get_chatgpt_account_user_id(), None);
     }

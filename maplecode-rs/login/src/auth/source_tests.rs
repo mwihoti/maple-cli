@@ -5,7 +5,7 @@ use base64::Engine;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
-fn oauth(session: &str, token: &str) -> MapleCodeAuth {
+fn oauth(session: &str, token: &str) -> MaplecodeAuth {
     let claims = json!({
         "iss": "https://auth.openai.com/",
         "session_id": session,
@@ -18,9 +18,9 @@ fn oauth(session: &str, token: &str) -> MapleCodeAuth {
     from_claims(claims, "workspace-a")
 }
 
-fn from_claims(claims: serde_json::Value, workspace: &str) -> MapleCodeAuth {
+fn from_claims(claims: serde_json::Value, workspace: &str) -> MaplecodeAuth {
     let payload = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(claims.to_string());
-    MapleCodeAuth::from_external_chatgpt_tokens(
+    MaplecodeAuth::from_external_chatgpt_tokens(
         &format!("header.{payload}.signature"),
         workspace,
         /*chatgpt_plan_type*/ None,
@@ -102,8 +102,8 @@ fn a_sessionless_token_cannot_claim_refresh_continuity() {
 
 #[test]
 fn api_key_replacement_and_logout_retire_the_previous_source() {
-    let key_a = MapleCodeAuth::from_api_key("key-a");
-    let key_b = MapleCodeAuth::from_api_key("key-b");
+    let key_a = MaplecodeAuth::from_api_key("key-a");
+    let key_b = MaplecodeAuth::from_api_key("key-b");
     let manager = AuthManager::from_auth_for_testing(key_a.clone());
     let first = manager.auth_change_state_for(&key_a).unwrap();
     manager.set_cached_auth(Some(key_a.clone()));
@@ -157,11 +157,11 @@ async fn explicit_api_key_never_reloads_an_ambient_credential() -> anyhow::Resul
 }
 
 struct RecoverableExternalAuth {
-    current: RwLock<Option<MapleCodeAuth>>,
+    current: RwLock<Option<MaplecodeAuth>>,
 }
 
 impl ExternalAuth for RecoverableExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             self.current
                 .read()
@@ -174,7 +174,7 @@ impl ExternalAuth for RecoverableExternalAuth {
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }

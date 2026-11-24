@@ -104,7 +104,7 @@ impl AccountOAuthGrant {
             && cached
                 .auth
                 .as_ref()
-                .filter(|auth| matches!(auth, super::MapleCodeAuth::Chatgpt(_)))
+                .filter(|auth| matches!(auth, super::MaplecodeAuth::Chatgpt(_)))
                 .and_then(|auth| auth.get_token_data().ok())
                 .is_some_and(|tokens| same_account_grant(&self.tokens, &tokens))
     }

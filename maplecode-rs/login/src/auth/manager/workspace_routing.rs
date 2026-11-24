@@ -10,7 +10,7 @@ use std::sync::Arc;
 use std::sync::Weak;
 
 use crate::AuthManager;
-use crate::MapleCodeAuth;
+use crate::MaplecodeAuth;
 
 /// A successful discovery for one selected workspace.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -63,7 +63,7 @@ impl AuthManager {
     /// CLI callers without a discovery owner retain their existing routing behavior.
     pub async fn workspace_routing(
         &self,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
         request: WorkspaceRoutingRequest,
     ) -> io::Result<Option<WorkspaceRouting>> {
         let Some(resolver) = self.workspace_routing_resolver.get() else {

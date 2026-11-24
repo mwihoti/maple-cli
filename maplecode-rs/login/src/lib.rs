@@ -56,7 +56,7 @@ pub use auth::ExternalAuthRefreshContext;
 pub use auth::ExternalAuthRefreshReason;
 pub use auth::MAPLECODE_ACCESS_TOKEN_ENV_VAR;
 pub use auth::MAPLECODE_API_KEY_ENV_VAR;
-pub use auth::MapleCodeAuth;
+pub use auth::MaplecodeAuth;
 pub use auth::OPENAI_API_KEY_ENV_VAR;
 pub use auth::REFRESH_TOKEN_URL_OVERRIDE_ENV_VAR;
 pub use auth::REVOKE_TOKEN_URL_OVERRIDE_ENV_VAR;

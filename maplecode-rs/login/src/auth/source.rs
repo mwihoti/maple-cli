@@ -3,13 +3,13 @@
 //! OAuth session claims are only continuity hints. The registration service verifies
 //! the credential and binds the runtime; these values never grant authority locally.
 
-use super::MapleCodeAuth;
+use super::MaplecodeAuth;
 use crate::token_data::decode_jwt_payload;
 use serde::Deserialize;
 
 pub(super) fn same_source(
-    previous: Option<&MapleCodeAuth>,
-    current: Option<&MapleCodeAuth>,
+    previous: Option<&MaplecodeAuth>,
+    current: Option<&MaplecodeAuth>,
 ) -> bool {
     let (Some(previous), Some(current)) = (previous, current) else {
         return false;
@@ -25,7 +25,7 @@ pub(super) fn same_source(
     if previous_subject != current_subject {
         return false;
     }
-    if let (MapleCodeAuth::AgentIdentity(previous), MapleCodeAuth::AgentIdentity(current)) =
+    if let (MaplecodeAuth::AgentIdentity(previous), MaplecodeAuth::AgentIdentity(current)) =
         (previous, current)
     {
         return previous.record() == current.record();
@@ -41,7 +41,7 @@ pub(super) fn same_source(
     if !platform_wif
         && !matches!(
             previous,
-            MapleCodeAuth::Chatgpt(_) | MapleCodeAuth::ChatgptAuthTokens(_)
+            MaplecodeAuth::Chatgpt(_) | MaplecodeAuth::ChatgptAuthTokens(_)
         )
     {
         return false;

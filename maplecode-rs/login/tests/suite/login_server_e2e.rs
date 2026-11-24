@@ -495,7 +495,7 @@ async fn oauth_access_denied_missing_entitlement_blocks_login_with_clear_error()
         "error body should still include the oauth error code"
     );
     assert!(
-        !body.contains("missing_maplecode_entitlement"),
+        !body.contains("missing_codex_entitlement"),
         "known entitlement errors should be mapped to user-facing copy"
     );
 

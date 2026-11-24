@@ -24,7 +24,7 @@ use super::AuthConfig;
 use super::ExternalAuth;
 use super::ExternalAuthFuture;
 use super::ExternalAuthRefreshContext;
-use super::MapleCodeAuth;
+use super::MaplecodeAuth;
 use super::RefreshTokenError;
 use super::RefreshTokenFailedError;
 use super::RefreshTokenFailedReason;
@@ -414,7 +414,7 @@ impl WorkloadIdentityExternalAuth {
         &self,
         token: WorkloadIdentityToken,
         previous_account_id: Option<&str>,
-    ) -> std::io::Result<MapleCodeAuth> {
+    ) -> std::io::Result<MaplecodeAuth> {
         let token_version = token.version();
         let result = self.validate_auth(&token, previous_account_id);
         if result.is_err() {
@@ -433,7 +433,7 @@ impl WorkloadIdentityExternalAuth {
         &self,
         token: &WorkloadIdentityToken,
         previous_account_id: Option<&str>,
-    ) -> std::io::Result<MapleCodeAuth> {
+    ) -> std::io::Result<MaplecodeAuth> {
         let auth = match &token.metadata {
             WorkloadIdentityMetadata::Api(metadata) => {
                 if !super::source::has_session_claim(&token.access_token) {
@@ -441,13 +441,13 @@ impl WorkloadIdentityExternalAuth {
                         WorkloadIdentityError::InvalidExchangeResponse,
                     ));
                 }
-                MapleCodeAuth::ApiKey(ApiKeyAuth {
+                MaplecodeAuth::ApiKey(ApiKeyAuth {
                     api_key: token.access_token.clone(),
                     workload_identity: Some(metadata.clone()),
                 })
             }
             WorkloadIdentityMetadata::Chatgpt(metadata) => {
-                let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+                let auth = MaplecodeAuth::from_external_chatgpt_tokens(
                     &token.access_token,
                     &metadata.chatgpt_account_id,
                     metadata.chatgpt_plan_type.as_deref(),
@@ -471,7 +471,7 @@ impl WorkloadIdentityExternalAuth {
 }
 
 impl ExternalAuth for WorkloadIdentityExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async move {
             let token = self
                 .session
@@ -487,7 +487,7 @@ impl ExternalAuth for WorkloadIdentityExternalAuth {
     fn refresh(
         &self,
         context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async move {
             let observed_version = self.observed_token_version.load(Ordering::Acquire);
             let token = self

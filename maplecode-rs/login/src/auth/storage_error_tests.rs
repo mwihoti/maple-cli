@@ -29,7 +29,7 @@ fn secure_storage_errors_display_the_underlying_cause() -> anyhow::Result<()> {
             let key = match kind {
                 AuthKeyringBackendKind::Direct => compute_store_key(home.path())?,
                 AuthKeyringBackendKind::Secrets => {
-                    compute_keyring_account(home.path(), LocalSecretsNamespace::MapleCodeAuth)
+                    compute_keyring_account(home.path(), LocalSecretsNamespace::MaplecodeAuth)
                 }
             };
             for operation in [Operation::Load, Operation::Save, Operation::Delete] {

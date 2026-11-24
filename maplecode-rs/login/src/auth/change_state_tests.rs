@@ -7,13 +7,13 @@ use maplecode_http_client::NetworkPolicyController;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
-fn chatgpt_auth(user: &str, workspace: &str, token: &str) -> MapleCodeAuth {
+fn chatgpt_auth(user: &str, workspace: &str, token: &str) -> MaplecodeAuth {
     let claims = json!({
         "jti": token,
         "https://api.openai.com/auth": {"chatgpt_user_id": user},
     });
     let payload = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(claims.to_string());
-    MapleCodeAuth::from_external_chatgpt_tokens(
+    MaplecodeAuth::from_external_chatgpt_tokens(
         &format!("header.{payload}.signature"),
         workspace,
         /*chatgpt_plan_type*/ None,
@@ -44,8 +44,8 @@ fn auth_owner_generation_distinguishes_refreshes_from_identity_changes() {
         (Some(chatgpt_auth("user-b", "workspace-b", "token-4")), 4, 3),
         (Some(chatgpt_auth("", "workspace-b", "token-5")), 5, 4),
         (Some(chatgpt_auth("", "workspace-b", "token-6")), 6, 5),
-        (Some(MapleCodeAuth::from_api_key("key-1")), 7, 6),
-        (Some(MapleCodeAuth::from_api_key("key-2")), 8, 7),
+        (Some(MaplecodeAuth::from_api_key("key-1")), 7, 6),
+        (Some(MaplecodeAuth::from_api_key("key-2")), 8, 7),
     ] {
         let previous_owner = changes.borrow().owner_generation;
         let factory = manager.http_client_factory();
@@ -76,7 +76,7 @@ fn api_workload_identity_changes_retire_previous_owner() {
         user_id: "service-account".into(),
     };
     let auth = |workload_identity| {
-        MapleCodeAuth::ApiKey(ApiKeyAuth {
+        MaplecodeAuth::ApiKey(ApiKeyAuth {
             api_key: "same-bearer".into(),
             workload_identity,
         })
@@ -136,7 +136,7 @@ fn platform_wif_refresh_preserves_source_but_family_changes_retire_it() {
     });
     let auth = |claims: &serde_json::Value| {
         let payload = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(claims.to_string());
-        MapleCodeAuth::ApiKey(ApiKeyAuth {
+        MaplecodeAuth::ApiKey(ApiKeyAuth {
             api_key: format!("header.{payload}.signature"),
             workload_identity: Some(ApiTokenMetadata {
                 api_organization_id: "organization".into(),

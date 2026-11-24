@@ -70,7 +70,7 @@ impl WorkspaceLogin {
     }
 }
 
-impl MapleCodeAuth {
+impl MaplecodeAuth {
     pub fn workspace_login(
         &self,
         session_id: &str,
@@ -125,7 +125,7 @@ impl AuthManager {
             workspace_id,
         )?;
         let auth = self.auth_cached();
-        if !matches!(auth, Some(MapleCodeAuth::Chatgpt(_))) {
+        if !matches!(auth, Some(MaplecodeAuth::Chatgpt(_))) {
             return Err(io::Error::new(
                 io::ErrorKind::Unsupported,
                 "Workspace switching requires a managed ChatGPT login",
@@ -164,7 +164,7 @@ impl AuthManager {
             .await
             .map_err(io::Error::other)?;
         self.validate_workspace_switch(session_id, workspace_id)?;
-        let Some(MapleCodeAuth::Chatgpt(auth)) = self.auth_cached() else {
+        let Some(MaplecodeAuth::Chatgpt(auth)) = self.auth_cached() else {
             return Err(io::Error::other("Authentication is unavailable"));
         };
         let snapshot = auth

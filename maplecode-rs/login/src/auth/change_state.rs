@@ -1,7 +1,7 @@
 //! Tracks credential changes separately from ownership changes, before notifications coalesce.
 
 use super::AuthManager;
-use super::MapleCodeAuth;
+use super::MaplecodeAuth;
 use std::sync::Arc;
 
 /// An account owner within a particular credential source, retained by in-flight work.
@@ -83,8 +83,8 @@ impl AuthChangeState {
 }
 
 pub(super) fn same_owner(
-    previous: Option<&MapleCodeAuth>,
-    current: Option<&MapleCodeAuth>,
+    previous: Option<&MaplecodeAuth>,
+    current: Option<&MaplecodeAuth>,
 ) -> bool {
     let (Some(previous), Some(current)) = (previous, current) else {
         return false;
@@ -108,13 +108,13 @@ pub(super) fn same_owner(
 }
 
 pub(super) fn same_login(
-    previous: Option<&MapleCodeAuth>,
-    current: Option<&MapleCodeAuth>,
+    previous: Option<&MaplecodeAuth>,
+    current: Option<&MaplecodeAuth>,
 ) -> bool {
     same_owner(previous, current) && login_owner_id(previous) == login_owner_id(current)
 }
 
-fn login_owner_id(auth: Option<&MapleCodeAuth>) -> Option<String> {
+fn login_owner_id(auth: Option<&MaplecodeAuth>) -> Option<String> {
     auth.and_then(|auth| auth.get_token_data().ok())
         .and_then(|tokens| tokens.login_owner_id)
 }
