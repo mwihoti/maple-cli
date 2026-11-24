@@ -396,7 +396,7 @@ trait EnvSource {
 
     /// Returns the configured CA bundle and which environment variable selected it.
     ///
-    /// `MAPLECODE_CA_CERTIFICATE` wins over `SSL_CERT_FILE` because it is the MapleCode-specific override.
+    /// `MAPLECODE_CA_CERTIFICATE` wins over `SSL_CERT_FILE` because it is the Maplecode-specific override.
     /// Keeping the winning variable name with the path lets later logging explain not only which
     /// file was used but also why that file was chosen.
     fn configured_ca_bundle(&self) -> Option<ConfiguredCaBundle> {
