@@ -2,8 +2,8 @@
 
 #[cfg(debug_assertions)]
 use crate::client::AnalyticsEventsClient;
-use crate::events::MapleCodeAcceptedLineFingerprintsEventParams;
-use crate::events::MapleCodeAcceptedLineFingerprintsEventRequest;
+use crate::events::MaplecodeAcceptedLineFingerprintsEventParams;
+use crate::events::MaplecodeAcceptedLineFingerprintsEventRequest;
 use crate::events::TrackEventRequest;
 use crate::facts::AnalyticsFact;
 #[cfg(debug_assertions)]
@@ -40,9 +40,9 @@ use std::time::SystemTime;
 #[test]
 fn accepted_line_fingerprints_event_serializes_expected_shape() {
     let event = TrackEventRequest::AcceptedLineFingerprints(Box::new(
-        MapleCodeAcceptedLineFingerprintsEventRequest {
+        MaplecodeAcceptedLineFingerprintsEventRequest {
             event_type: "maplecode_accepted_line_fingerprints",
-            event_params: MapleCodeAcceptedLineFingerprintsEventParams {
+            event_params: MaplecodeAcceptedLineFingerprintsEventParams {
                 event_type: "maplecode.accepted_line_fingerprints",
                 turn_id: "turn-1".to_string(),
                 thread_id: "thread-1".to_string(),
@@ -229,7 +229,7 @@ async fn analytics_flush_delivers_completed_turn_with_file_diff() {
         std::process::id()
     ));
     let auth_manager = maplecode_login::AuthManager::from_auth_for_testing(
-        maplecode_login::MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        maplecode_login::MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
     );
     let client = AnalyticsEventsClient::new_for_capture_file(auth_manager, capture_path.clone());
 

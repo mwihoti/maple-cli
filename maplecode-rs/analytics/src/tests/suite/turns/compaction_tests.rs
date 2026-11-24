@@ -1,7 +1,7 @@
 //! Compaction fact, wire payload, and implementation tests.
 
 use crate::events::AppServerRpcTransport;
-use crate::events::MapleCodeCompactionEventRequest;
+use crate::events::MaplecodeCompactionEventRequest;
 use crate::events::TrackEventRequest;
 use crate::facts::AnalyticsFact;
 use crate::facts::CompactionImplementation;
@@ -11,8 +11,8 @@ use crate::facts::CompactionStatus;
 use crate::facts::CompactionStrategy;
 use crate::facts::CompactionTrigger;
 use crate::facts::CustomAnalyticsFact;
-use crate::facts::MapleCodeCompactionEvent;
-use crate::facts::MapleCodeErrKind;
+use crate::facts::MaplecodeCompactionEvent;
+use crate::facts::MaplecodeErrKind;
 use crate::reducer::AnalyticsReducer;
 use crate::tests::support::sample_app_server_client_metadata;
 use crate::tests::support::sample_runtime_metadata;
@@ -33,7 +33,7 @@ use serde_json::json;
 #[test]
 fn compaction_event_serializes_expected_shape() {
     let mut event_params = crate::events::maplecode_compaction_event_params(
-        MapleCodeCompactionEvent {
+        MaplecodeCompactionEvent {
             thread_id: "thread-1".to_string(),
             turn_id: "turn-1".to_string(),
             trigger: CompactionTrigger::Auto,
@@ -63,7 +63,7 @@ fn compaction_event_serializes_expected_shape() {
         /*parent_thread_id*/ None,
     );
     event_params.voice_session_id = Some("voice-session-1".to_string());
-    let event = TrackEventRequest::Compaction(Box::new(MapleCodeCompactionEventRequest {
+    let event = TrackEventRequest::Compaction(Box::new(MaplecodeCompactionEventRequest {
         event_type: "maplecode_compaction_event",
         event_params,
     }));
@@ -257,7 +257,7 @@ async fn compaction_events_keep_authoritative_voice_session_across_consecutive_c
     reducer
         .ingest(
             AnalyticsFact::Custom(CustomAnalyticsFact::Compaction(Box::new(
-                MapleCodeCompactionEvent {
+                MaplecodeCompactionEvent {
                     thread_id: "thread-1".to_string(),
                     turn_id: "turn-compact-1".to_string(),
                     trigger: CompactionTrigger::Manual,
@@ -266,7 +266,7 @@ async fn compaction_events_keep_authoritative_voice_session_across_consecutive_c
                     phase: CompactionPhase::StandaloneTurn,
                     strategy: CompactionStrategy::Memento,
                     status: CompactionStatus::Failed,
-                    maplecode_error_kind: Some(MapleCodeErrKind::ContextWindowExceeded),
+                    maplecode_error_kind: Some(MaplecodeErrKind::ContextWindowExceeded),
                     maplecode_error_http_status_code: None,
                     usage_limit_window_minutes: None,
                     active_context_tokens_before: 131_000,
@@ -296,7 +296,7 @@ async fn compaction_events_keep_authoritative_voice_session_across_consecutive_c
     reducer
         .ingest(
             AnalyticsFact::Custom(CustomAnalyticsFact::Compaction(Box::new(
-                MapleCodeCompactionEvent {
+                MaplecodeCompactionEvent {
                     thread_id: "thread-1".to_string(),
                     turn_id: "turn-compact-2".to_string(),
                     trigger: CompactionTrigger::Auto,

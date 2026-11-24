@@ -1,6 +1,6 @@
 use crate::events::AppServerRpcTransport;
 use crate::events::GuardianReviewEventParams;
-use crate::events::MapleCodeRuntimeMetadata;
+use crate::events::MaplecodeRuntimeMetadata;
 use crate::guardian_v2::GuardianV2Event;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ClientResponsePayload;
@@ -16,9 +16,9 @@ use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::config_types::Personality;
 use maplecode_protocol::config_types::ReasoningSummary;
 use maplecode_protocol::config_types::ServiceTier;
-use maplecode_protocol::error::MapleCodeErr;
-pub use maplecode_protocol::error::MapleCodeErrKind;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+pub use maplecode_protocol::error::MaplecodeErrKind;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::protocol::AskForApproval;
@@ -265,36 +265,36 @@ pub struct TurnProfileFact {
 }
 
 #[derive(Clone)]
-pub struct TurnMapleCodeErrorFact {
+pub struct TurnMaplecodeErrorFact {
     pub(crate) turn_id: String,
     pub(crate) thread_id: String,
-    pub(crate) error: TurnMapleCodeError,
+    pub(crate) error: TurnMaplecodeError,
 }
 
-impl TurnMapleCodeErrorFact {
-    pub fn from_maplecode_err(thread_id: String, turn_id: String, error: &MapleCodeErr) -> Self {
+impl TurnMaplecodeErrorFact {
+    pub fn from_maplecode_err(thread_id: String, turn_id: String, error: &MaplecodeErr) -> Self {
         Self {
             turn_id,
             thread_id,
-            error: TurnMapleCodeError::from_maplecode_err(error),
+            error: TurnMaplecodeError::from_maplecode_err(error),
         }
     }
 }
 
 #[derive(Clone)]
-pub(crate) struct TurnMapleCodeError {
-    pub(crate) kind: MapleCodeErrKind,
+pub(crate) struct TurnMaplecodeError {
+    pub(crate) kind: MaplecodeErrKind,
     pub(crate) http_status_code: Option<u16>,
     pub(crate) usage_limit_window_minutes: Option<u16>,
 }
 
-impl TurnMapleCodeError {
-    fn from_maplecode_err(error: &MapleCodeErr) -> Self {
+impl TurnMaplecodeError {
+    fn from_maplecode_err(error: &MaplecodeErr) -> Self {
         Self {
             kind: error.into(),
             http_status_code: error.http_status_code_value(),
             usage_limit_window_minutes: match error.details() {
-                MapleCodeErrorDetails::UsageLimitReached(error) => error.limit_window_minutes,
+                MaplecodeErrorDetails::UsageLimitReached(error) => error.limit_window_minutes,
                 _ => None,
             },
         }
@@ -328,7 +328,7 @@ pub enum TurnSteerRejectionReason {
 }
 
 #[derive(Clone)]
-pub struct MapleCodeTurnSteerEvent {
+pub struct MaplecodeTurnSteerEvent {
     pub expected_turn_id: Option<String>,
     pub accepted_turn_id: Option<String>,
     pub num_input_images: usize,
@@ -498,7 +498,7 @@ pub enum CompactionStatus {
 }
 
 #[derive(Clone)]
-pub struct MapleCodeCompactionEvent {
+pub struct MaplecodeCompactionEvent {
     pub thread_id: String,
     pub turn_id: String,
     pub trigger: CompactionTrigger,
@@ -507,7 +507,7 @@ pub struct MapleCodeCompactionEvent {
     pub phase: CompactionPhase,
     pub strategy: CompactionStrategy,
     pub status: CompactionStatus,
-    pub maplecode_error_kind: Option<MapleCodeErrKind>,
+    pub maplecode_error_kind: Option<MaplecodeErrKind>,
     pub maplecode_error_http_status_code: Option<u16>,
     pub usage_limit_window_minutes: Option<u16>,
     pub active_context_tokens_before: i64,
@@ -531,7 +531,7 @@ pub enum GoalEventKind {
 }
 
 #[derive(Clone)]
-pub struct MapleCodeGoalEvent {
+pub struct MaplecodeGoalEvent {
     pub thread_id: String,
     pub turn_id: Option<String>,
     pub goal_id: String,
@@ -548,7 +548,7 @@ pub(crate) enum AnalyticsFact {
         connection_id: u64,
         params: InitializeParams,
         product_client_id: String,
-        runtime: MapleCodeRuntimeMetadata,
+        runtime: MaplecodeRuntimeMetadata,
         rpc_transport: AppServerRpcTransport,
     },
     ClientRequest {
@@ -618,15 +618,15 @@ pub(crate) enum CustomAnalyticsFact {
     CodeModeToolCall(CodeModeToolCallFact),
     ControlToolCall(ControlToolCallFact),
     SubAgentThreadStarted(SubAgentThreadStartedInput),
-    Compaction(Box<MapleCodeCompactionEvent>),
-    Goal(Box<MapleCodeGoalEvent>),
+    Compaction(Box<MaplecodeCompactionEvent>),
+    Goal(Box<MaplecodeGoalEvent>),
     ThreadHintStatus(Box<crate::thread_hint::ThreadHintStatusEvent>),
     GuardianReview(Box<GuardianReviewEventParams>),
     GuardianV2(Box<GuardianV2Event>),
     TurnResolvedConfig(Box<TurnResolvedConfigFact>),
     TurnTokenUsage(Box<TurnTokenUsageFact>),
     TurnProfile(Box<TurnProfileFact>),
-    TurnMapleCodeError(Box<TurnMapleCodeErrorFact>),
+    TurnMaplecodeError(Box<TurnMaplecodeErrorFact>),
     ImagePreparation(Box<ImagePreparationFact>),
     SkillInvoked(SkillInvokedInput),
     AppMentioned(AppMentionedInput),

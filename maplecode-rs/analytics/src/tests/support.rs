@@ -1,8 +1,8 @@
 //! Shared analytics test facts, fixtures, and reducer setup.
 
 use crate::events::AppServerRpcTransport;
-use crate::events::MapleCodeAppServerClientMetadata;
-use crate::events::MapleCodeRuntimeMetadata;
+use crate::events::MaplecodeAppServerClientMetadata;
+use crate::events::MaplecodeRuntimeMetadata;
 use crate::events::TrackEventRequest;
 use crate::facts::AnalyticsFact;
 use crate::facts::CodeModeToolCallFact;
@@ -171,8 +171,8 @@ pub(super) fn sample_thread_start_response(
     })
 }
 
-pub(super) fn sample_app_server_client_metadata() -> MapleCodeAppServerClientMetadata {
-    MapleCodeAppServerClientMetadata {
+pub(super) fn sample_app_server_client_metadata() -> MaplecodeAppServerClientMetadata {
+    MaplecodeAppServerClientMetadata {
         product_client_id: DEFAULT_ORIGINATOR.to_string(),
         client_name: Some("maplecode-tui".to_string()),
         client_version: Some("1.0.0".to_string()),
@@ -181,8 +181,8 @@ pub(super) fn sample_app_server_client_metadata() -> MapleCodeAppServerClientMet
     }
 }
 
-pub(super) fn sample_runtime_metadata() -> MapleCodeRuntimeMetadata {
-    MapleCodeRuntimeMetadata {
+pub(super) fn sample_runtime_metadata() -> MaplecodeRuntimeMetadata {
+    MaplecodeRuntimeMetadata {
         maplecode_rs_version: "0.1.0".to_string(),
         runtime_os: "macos".to_string(),
         runtime_os_version: "15.3.1".to_string(),
@@ -320,7 +320,7 @@ pub(super) fn sample_turn_completed_notification(
     thread_id: &str,
     turn_id: &str,
     status: AppServerTurnStatus,
-    maplecode_error_info: Option<maplecode_app_server_protocol::MapleCodeErrorInfo>,
+    maplecode_error_info: Option<maplecode_app_server_protocol::MaplecodeErrorInfo>,
 ) -> ServerNotification {
     ServerNotification::TurnCompleted(TurnCompletedNotification {
         thread_id: thread_id.to_string(),
@@ -605,7 +605,7 @@ pub(super) fn sample_initialize_fact(connection_id: u64) -> AnalyticsFact {
             }),
         },
         product_client_id: DEFAULT_ORIGINATOR.to_string(),
-        runtime: MapleCodeRuntimeMetadata {
+        runtime: MaplecodeRuntimeMetadata {
             maplecode_rs_version: "0.99.0".to_string(),
             runtime_os: "linux".to_string(),
             runtime_os_version: "24.04".to_string(),

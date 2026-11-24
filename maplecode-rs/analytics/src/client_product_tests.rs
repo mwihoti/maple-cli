@@ -153,7 +153,7 @@ async fn product_streams_send_concurrently_and_preserve_event_order() {
     // Withhold every response until all 16 requests arrive: serial delivery would time out.
     let (destination, server, _, _) = capture_requests(/*count*/ 16, Responses::Together).await;
     let manager = AuthManager::from_auth_for_testing(
-        maplecode_login::MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        maplecode_login::MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
     );
     let mut products = ThreadProducts::default();
     for index in 0..16 {
@@ -211,7 +211,7 @@ async fn buffered_tool_events_preserve_attribution_or_drop_it_on_queue_overflow(
         )
         .await;
         let manager = AuthManager::from_auth_for_testing(
-            maplecode_login::MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            maplecode_login::MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         );
         let client = AnalyticsEventsClient {
             queue: Some(AnalyticsEventsQueue::new(

@@ -1,6 +1,6 @@
 //! Turn lifecycle, prerequisites, counts, image preparation, and event payload tests.
 
-use crate::events::MapleCodeTurnEventRequest;
+use crate::events::MaplecodeTurnEventRequest;
 use crate::events::TrackEventRequest;
 use crate::facts::AnalyticsFact;
 use crate::facts::ControlToolCallFact;
@@ -10,7 +10,7 @@ use crate::facts::ImageDetailSetting;
 use crate::facts::ImagePreparationFact;
 use crate::facts::ImagePreparationMetadata;
 use crate::facts::ThreadInitializationMode;
-use crate::facts::TurnMapleCodeErrorFact;
+use crate::facts::TurnMaplecodeErrorFact;
 use crate::facts::TurnResolvedConfigFact;
 use crate::facts::TurnStatus;
 use crate::reducer::AnalyticsReducer;
@@ -38,7 +38,7 @@ use maplecode_app_server_protocol::ThreadItemPayload;
 use maplecode_app_server_protocol::ThreadRealtimeStartedNotification;
 use maplecode_app_server_protocol::TurnStatus as AppServerTurnStatus;
 use maplecode_app_server_protocol::WebSearchItem;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::UsageLimitReachedError;
 use maplecode_protocol::protocol::RealtimeConversationVersion;
 use maplecode_protocol::protocol::ThreadSource;
@@ -99,9 +99,9 @@ async fn image_preparation_fact_is_included_in_turn_event() {
 
 #[test]
 fn turn_event_serializes_expected_shape() {
-    let event = TrackEventRequest::TurnEvent(Box::new(MapleCodeTurnEventRequest {
+    let event = TrackEventRequest::TurnEvent(Box::new(MaplecodeTurnEventRequest {
         event_type: "maplecode_turn_event",
-        event_params: crate::events::MapleCodeTurnEventParams {
+        event_params: crate::events::MaplecodeTurnEventParams {
             critical_path: crate::TurnCriticalPath::Disabled.into(),
             thread_id: "thread-2".to_string(),
             session_id: "session-thread-2".to_string(),
@@ -805,11 +805,11 @@ async fn turn_lifecycle_emits_failed_turn_event() {
     .await;
     reducer
         .ingest(
-            AnalyticsFact::Custom(CustomAnalyticsFact::TurnMapleCodeError(Box::new(
-                TurnMapleCodeErrorFact::from_maplecode_err(
+            AnalyticsFact::Custom(CustomAnalyticsFact::TurnMaplecodeError(Box::new(
+                TurnMaplecodeErrorFact::from_maplecode_err(
                     "thread-2".to_string(),
                     "turn-2".to_string(),
-                    &MapleCodeErr::InvalidRequest(
+                    &MaplecodeErr::InvalidRequest(
                         "unknown turn environment id `env-2`".to_string(),
                     ),
                 ),
@@ -823,7 +823,7 @@ async fn turn_lifecycle_emits_failed_turn_event() {
                 "thread-2",
                 "turn-2",
                 AppServerTurnStatus::Failed,
-                Some(maplecode_app_server_protocol::MapleCodeErrorInfo::BadRequest),
+                Some(maplecode_app_server_protocol::MaplecodeErrorInfo::BadRequest),
             ))),
             &mut out,
         )
@@ -850,7 +850,7 @@ async fn turn_lifecycle_emits_failed_turn_event() {
 #[tokio::test]
 async fn turn_event_reports_decisive_usage_limit_window() {
     let usage_limit = |limit_window_minutes| {
-        MapleCodeErr::UsageLimitReached(UsageLimitReachedError {
+        MaplecodeErr::UsageLimitReached(UsageLimitReachedError {
             plan_type: None,
             resets_at: None,
             rate_limits: None,
@@ -862,22 +862,22 @@ async fn turn_event_reports_decisive_usage_limit_window() {
     let cases = [
         (
             usage_limit(Some(300)),
-            maplecode_app_server_protocol::MapleCodeErrorInfo::UsageLimitExceeded,
+            maplecode_app_server_protocol::MaplecodeErrorInfo::UsageLimitExceeded,
             json!(["usageLimitExceeded", "usage_limit_reached", 300]),
         ),
         (
             usage_limit(Some(10_080)),
-            maplecode_app_server_protocol::MapleCodeErrorInfo::UsageLimitExceeded,
+            maplecode_app_server_protocol::MaplecodeErrorInfo::UsageLimitExceeded,
             json!(["usageLimitExceeded", "usage_limit_reached", 10080]),
         ),
         (
             usage_limit(None),
-            maplecode_app_server_protocol::MapleCodeErrorInfo::UsageLimitExceeded,
+            maplecode_app_server_protocol::MaplecodeErrorInfo::UsageLimitExceeded,
             json!(["usageLimitExceeded", "usage_limit_reached", null]),
         ),
         (
-            MapleCodeErr::InvalidRequest("invalid request".to_string()),
-            maplecode_app_server_protocol::MapleCodeErrorInfo::BadRequest,
+            MaplecodeErr::InvalidRequest("invalid request".to_string()),
+            maplecode_app_server_protocol::MaplecodeErrorInfo::BadRequest,
             json!(["badRequest", "invalid_request", null]),
         ),
     ];
@@ -896,8 +896,8 @@ async fn turn_event_reports_decisive_usage_limit_window() {
         .await;
         reducer
             .ingest(
-                AnalyticsFact::Custom(CustomAnalyticsFact::TurnMapleCodeError(Box::new(
-                    TurnMapleCodeErrorFact::from_maplecode_err(
+                AnalyticsFact::Custom(CustomAnalyticsFact::TurnMaplecodeError(Box::new(
+                    TurnMaplecodeErrorFact::from_maplecode_err(
                         "thread-2".to_string(),
                         "turn-2".to_string(),
                         &error,

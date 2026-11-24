@@ -1,8 +1,8 @@
 //! App mention and usage events.
 
-use crate::events::MapleCodeAppMentionedEventRequest;
-use crate::events::MapleCodeAppUsedEventRequest;
-use crate::events::MapleCodeAppUsedMetadata;
+use crate::events::MaplecodeAppMentionedEventRequest;
+use crate::events::MaplecodeAppUsedEventRequest;
+use crate::events::MaplecodeAppUsedMetadata;
 use crate::events::TrackEventRequest;
 use crate::events::maplecode_app_metadata;
 use crate::facts::AnalyticsFact;
@@ -22,7 +22,7 @@ use serde_json::json;
 #[test]
 fn app_mentioned_event_serializes_expected_shape() {
     let tracking = test_tracking_context("thread-1", "turn-1");
-    let event = TrackEventRequest::AppMentioned(MapleCodeAppMentionedEventRequest {
+    let event = TrackEventRequest::AppMentioned(MaplecodeAppMentionedEventRequest {
         event_type: "maplecode_app_mentioned",
         event_params: maplecode_app_metadata(
             &tracking,
@@ -61,9 +61,9 @@ fn app_used_event_serializes_expected_shape() {
         .expect("unique metadata")
         .turn_trigger = Some("appServer-goal".to_string());
     tracking.turn_metadata = Some(metadata);
-    let event = TrackEventRequest::AppUsed(MapleCodeAppUsedEventRequest {
+    let event = TrackEventRequest::AppUsed(MaplecodeAppUsedEventRequest {
         event_type: "maplecode_app_used",
-        event_params: MapleCodeAppUsedMetadata {
+        event_params: MaplecodeAppUsedMetadata {
             app: maplecode_app_metadata(
                 &tracking,
                 AppInvocation {

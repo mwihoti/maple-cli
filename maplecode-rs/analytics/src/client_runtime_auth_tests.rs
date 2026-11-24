@@ -51,12 +51,12 @@ async fn runtime_delivery_signs_each_batch_and_strips_cross_origin_auth() {
                 "actor": {"kind": "platform", "user_id": "user-a", "organization_id": "org-a", "project_id": null},
             })))
             .expect(1).mount(&server).await;
-        Mock::given(path("/maplecode/analytics-events/events"))
+        Mock::given(path("/codex/analytics-events/events"))
             .respond_with(ResponseTemplate::new(307).insert_header("location", redirected.uri()))
             .expect(2)
             .mount(&server)
             .await;
-        let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("key-a"));
+        let credentials = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("key-a"));
         let runtime = (
             Arc::new(RuntimeAuthManager::new(
                 Arc::clone(&credentials),
@@ -95,7 +95,7 @@ async fn runtime_delivery_signs_each_batch_and_strips_cross_origin_auth() {
         let requests = server.received_requests().await.unwrap();
         let proofs: Vec<_> = requests
             .iter()
-            .filter(|r| r.url.path() == "/maplecode/analytics-events/events")
+            .filter(|r| r.url.path() == "/codex/analytics-events/events")
             .map(|request| {
                 let authorization = request.headers["authorization"].to_str().unwrap();
                 match mode {
@@ -126,13 +126,13 @@ async fn runtime_delivery_signs_each_batch_and_strips_cross_origin_auth() {
 async fn custom_analytics_destination_does_not_initialize_runtime_auth() {
     for mode in [RuntimeAuthMode::DualHeader, RuntimeAuthMode::AssertionOnly] {
         let server = MockServer::start().await;
-        Mock::given(path("/maplecode/analytics-events/events"))
+        Mock::given(path("/codex/analytics-events/events"))
             .respond_with(ResponseTemplate::new(200))
             .expect(1)
             .mount(&server)
             .await;
         let client = AnalyticsEventsClient::new_with_runtime(
-            AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("key-a")),
+            AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("key-a")),
             server.uri(),
             Some(true),
             Some((RuntimeAuthSlot::default(), mode)),
@@ -171,12 +171,12 @@ async fn analytics_between_model_calls_keeps_the_selected_api_resources() {
             .expect(2)
             .mount(&server)
             .await;
-        Mock::given(path("/maplecode/analytics-events/events"))
+        Mock::given(path("/codex/analytics-events/events"))
             .respond_with(ResponseTemplate::new(200))
             .expect(1)
             .mount(&server)
             .await;
-        let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("key-a"));
+        let credentials = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("key-a"));
         let owner = Arc::new(RuntimeAuthManager::new(
             Arc::clone(&credentials),
             AgentHostAuthorization::InstallationId {
@@ -291,7 +291,7 @@ async fn analytics_between_model_calls_keeps_the_selected_api_resources() {
                     assert!(!request.headers.contains_key("x-openai-agent-assertion"));
                 }
             }
-            if request.url.path() == "/maplecode/analytics-events/events" {
+            if request.url.path() == "/codex/analytics-events/events" {
                 assert!(!request.headers.contains_key("x-model-secret"));
             }
         }

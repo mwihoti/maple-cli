@@ -7,50 +7,50 @@ use crate::events::FinalApprovalOutcome;
 use crate::events::GuardianReviewEventParams;
 use crate::events::GuardianReviewEventPayload;
 use crate::events::GuardianReviewEventRequest;
-use crate::events::MapleCodeAppMentionedEventRequest;
-use crate::events::MapleCodeAppServerClientMetadata;
-use crate::events::MapleCodeAppUsedEventRequest;
-use crate::events::MapleCodeAppUsedMetadata;
-use crate::events::MapleCodeCollabAgentToolCallEventParams;
-use crate::events::MapleCodeCollabAgentToolCallEventRequest;
-use crate::events::MapleCodeCommandExecutionEventParams;
-use crate::events::MapleCodeCommandExecutionEventRequest;
-use crate::events::MapleCodeCompactionEventRequest;
-use crate::events::MapleCodeControlToolCallEventParams;
-use crate::events::MapleCodeControlToolCallEventRequest;
-use crate::events::MapleCodeCuaToolCallStartedEventParams;
-use crate::events::MapleCodeCuaToolCallStartedEventRequest;
-use crate::events::MapleCodeDynamicToolCallEventParams;
-use crate::events::MapleCodeDynamicToolCallEventRequest;
-use crate::events::MapleCodeFileChangeEventParams;
-use crate::events::MapleCodeFileChangeEventRequest;
-use crate::events::MapleCodeGoalEventRequest;
-use crate::events::MapleCodeHookRunEventRequest;
-use crate::events::MapleCodeImageGenerationEventParams;
-use crate::events::MapleCodeImageGenerationEventRequest;
-use crate::events::MapleCodeMcpToolCallEventParams;
-use crate::events::MapleCodeMcpToolCallEventRequest;
-use crate::events::MapleCodeOnboardingExternalAgentImportCompleteEventRequest;
-use crate::events::MapleCodeOnboardingExternalAgentImportCompleteMetadata;
-use crate::events::MapleCodeOnboardingExternalAgentImportFailureEventRequest;
-use crate::events::MapleCodeOnboardingExternalAgentImportFailureMetadata;
-use crate::events::MapleCodePluginEventRequest;
-use crate::events::MapleCodePluginInstallFailedEventRequest;
-use crate::events::MapleCodePluginInstallFailedMetadata;
-use crate::events::MapleCodePluginInstallRequestedEventRequest;
-use crate::events::MapleCodePluginMeasurementEventParams;
-use crate::events::MapleCodePluginMeasurementEventRequest;
-use crate::events::MapleCodePluginUsedEventRequest;
-use crate::events::MapleCodeReviewEventParams;
-use crate::events::MapleCodeReviewEventRequest;
-use crate::events::MapleCodeRuntimeMetadata;
-use crate::events::MapleCodeToolItemEventBase;
-use crate::events::MapleCodeTurnEventParams;
-use crate::events::MapleCodeTurnEventRequest;
-use crate::events::MapleCodeTurnSteerEventParams;
-use crate::events::MapleCodeTurnSteerEventRequest;
-use crate::events::MapleCodeWebSearchEventParams;
-use crate::events::MapleCodeWebSearchEventRequest;
+use crate::events::MaplecodeAppMentionedEventRequest;
+use crate::events::MaplecodeAppServerClientMetadata;
+use crate::events::MaplecodeAppUsedEventRequest;
+use crate::events::MaplecodeAppUsedMetadata;
+use crate::events::MaplecodeCollabAgentToolCallEventParams;
+use crate::events::MaplecodeCollabAgentToolCallEventRequest;
+use crate::events::MaplecodeCommandExecutionEventParams;
+use crate::events::MaplecodeCommandExecutionEventRequest;
+use crate::events::MaplecodeCompactionEventRequest;
+use crate::events::MaplecodeControlToolCallEventParams;
+use crate::events::MaplecodeControlToolCallEventRequest;
+use crate::events::MaplecodeCuaToolCallStartedEventParams;
+use crate::events::MaplecodeCuaToolCallStartedEventRequest;
+use crate::events::MaplecodeDynamicToolCallEventParams;
+use crate::events::MaplecodeDynamicToolCallEventRequest;
+use crate::events::MaplecodeFileChangeEventParams;
+use crate::events::MaplecodeFileChangeEventRequest;
+use crate::events::MaplecodeGoalEventRequest;
+use crate::events::MaplecodeHookRunEventRequest;
+use crate::events::MaplecodeImageGenerationEventParams;
+use crate::events::MaplecodeImageGenerationEventRequest;
+use crate::events::MaplecodeMcpToolCallEventParams;
+use crate::events::MaplecodeMcpToolCallEventRequest;
+use crate::events::MaplecodeOnboardingExternalAgentImportCompleteEventRequest;
+use crate::events::MaplecodeOnboardingExternalAgentImportCompleteMetadata;
+use crate::events::MaplecodeOnboardingExternalAgentImportFailureEventRequest;
+use crate::events::MaplecodeOnboardingExternalAgentImportFailureMetadata;
+use crate::events::MaplecodePluginEventRequest;
+use crate::events::MaplecodePluginInstallFailedEventRequest;
+use crate::events::MaplecodePluginInstallFailedMetadata;
+use crate::events::MaplecodePluginInstallRequestedEventRequest;
+use crate::events::MaplecodePluginMeasurementEventParams;
+use crate::events::MaplecodePluginMeasurementEventRequest;
+use crate::events::MaplecodePluginUsedEventRequest;
+use crate::events::MaplecodeReviewEventParams;
+use crate::events::MaplecodeReviewEventRequest;
+use crate::events::MaplecodeRuntimeMetadata;
+use crate::events::MaplecodeToolItemEventBase;
+use crate::events::MaplecodeTurnEventParams;
+use crate::events::MaplecodeTurnEventRequest;
+use crate::events::MaplecodeTurnSteerEventParams;
+use crate::events::MaplecodeTurnSteerEventRequest;
+use crate::events::MaplecodeWebSearchEventParams;
+use crate::events::MaplecodeWebSearchEventRequest;
 use crate::events::ReviewResolution;
 use crate::events::ReviewStatus;
 use crate::events::ReviewSubjectKind;
@@ -96,8 +96,8 @@ use crate::facts::HookRunInput;
 use crate::facts::ImagePreparationFact;
 use crate::facts::ImagePreparationMetadata;
 use crate::facts::InvocationType;
-use crate::facts::MapleCodeCompactionEvent;
-use crate::facts::MapleCodeGoalEvent;
+use crate::facts::MaplecodeCompactionEvent;
+use crate::facts::MaplecodeGoalEvent;
 use crate::facts::McpToolCallElicitation;
 use crate::facts::PluginInstallFailedInput;
 use crate::facts::PluginInstallRequestedInput;
@@ -111,8 +111,8 @@ use crate::facts::SkillInvokedInput;
 use crate::facts::SubAgentThreadStartedInput;
 use crate::facts::ThreadInitializationMode;
 use crate::facts::TurnAnalyticsMetadata;
-use crate::facts::TurnMapleCodeError;
-use crate::facts::TurnMapleCodeErrorFact;
+use crate::facts::TurnMaplecodeError;
+use crate::facts::TurnMaplecodeErrorFact;
 use crate::facts::TurnProfile;
 use crate::facts::TurnProfileFact;
 use crate::facts::TurnResolvedConfigFact;
@@ -144,7 +144,7 @@ use maplecode_app_server_protocol::FileChangeApprovalDecision;
 use maplecode_app_server_protocol::GuardianApprovalReviewAction;
 use maplecode_app_server_protocol::GuardianApprovalReviewStatus;
 use maplecode_app_server_protocol::InitializeParams;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::McpToolCallStatus;
 use maplecode_app_server_protocol::NetworkPolicyRuleAction;
 use maplecode_app_server_protocol::PatchApplyStatus;
@@ -230,8 +230,8 @@ pub(crate) struct AnalyticsReducer {
 }
 
 struct ConnectionState {
-    app_server_client: MapleCodeAppServerClientMetadata,
-    runtime: MapleCodeRuntimeMetadata,
+    app_server_client: MaplecodeAppServerClientMetadata,
+    runtime: MaplecodeRuntimeMetadata,
 }
 
 #[derive(Default)]
@@ -256,7 +256,7 @@ impl ThreadAnalyticsState {
     fn app_server_client(
         &self,
         connection_state: &ConnectionState,
-    ) -> MapleCodeAppServerClientMetadata {
+    ) -> MaplecodeAppServerClientMetadata {
         let mut app_server_client = connection_state.app_server_client.clone();
         if let Some(originator) = self.originator.as_ref() {
             app_server_client.product_client_id.clone_from(originator);
@@ -314,7 +314,7 @@ impl<'a> AnalyticsDropSite<'a> {
         }
     }
 
-    fn compaction(input: &'a MapleCodeCompactionEvent) -> Self {
+    fn compaction(input: &'a MaplecodeCompactionEvent) -> Self {
         Self {
             event_name: "compaction",
             thread_id: &input.thread_id,
@@ -324,7 +324,7 @@ impl<'a> AnalyticsDropSite<'a> {
         }
     }
 
-    fn goal(input: &'a MapleCodeGoalEvent) -> Self {
+    fn goal(input: &'a MaplecodeGoalEvent) -> Self {
         Self {
             event_name: "goal",
             thread_id: &input.thread_id,
@@ -471,7 +471,7 @@ struct PendingTurnInterruptState {
 #[derive(Clone)]
 struct CompletedTurnState {
     status: Option<TurnStatus>,
-    turn_error: Option<MapleCodeErrorInfo>,
+    turn_error: Option<MaplecodeErrorInfo>,
     completed_at: u64,
     duration_ms: Option<u64>,
 }
@@ -489,7 +489,7 @@ struct TurnState {
     profile: Option<TurnProfile>,
     completed: Option<CompletedTurnState>,
     explicit_client_interrupt_requested_at_ms: Option<u64>,
-    maplecode_error: Option<TurnMapleCodeError>,
+    maplecode_error: Option<TurnMaplecodeError>,
     latest_diff: Option<String>,
     steer_count: usize,
     tool_counts: TurnToolCounts,
@@ -814,7 +814,7 @@ impl AnalyticsReducer {
                 CustomAnalyticsFact::TurnProfile(input) => {
                     self.ingest_turn_profile(*input, out).await;
                 }
-                CustomAnalyticsFact::TurnMapleCodeError(input) => {
+                CustomAnalyticsFact::TurnMaplecodeError(input) => {
                     self.ingest_turn_maplecode_error(*input);
                 }
                 CustomAnalyticsFact::ImagePreparation(input) => {
@@ -1041,9 +1041,9 @@ impl AnalyticsReducer {
                 );
                 base.cell_id = cell_id;
                 let event =
-                    TrackEventRequest::DynamicToolCall(MapleCodeDynamicToolCallEventRequest {
+                    TrackEventRequest::DynamicToolCall(MaplecodeDynamicToolCallEventRequest {
                         event_type: "maplecode_dynamic_tool_call_event",
-                        event_params: MapleCodeDynamicToolCallEventParams {
+                        event_params: MaplecodeDynamicToolCallEventParams {
                             base,
                             dynamic_tool_name: tool_name,
                             success: Some(success),
@@ -1125,9 +1125,9 @@ impl AnalyticsReducer {
             },
         );
         base.cell_id = cell_id;
-        let event = TrackEventRequest::ControlToolCall(MapleCodeControlToolCallEventRequest {
+        let event = TrackEventRequest::ControlToolCall(MaplecodeControlToolCallEventRequest {
             event_type: "maplecode_control_tool_call_event",
-            event_params: MapleCodeControlToolCallEventParams {
+            event_params: MaplecodeControlToolCallEventParams {
                 base,
                 success: status == ControlToolCallStatus::Completed,
             },
@@ -1264,13 +1264,13 @@ impl AnalyticsReducer {
         connection_id: u64,
         params: InitializeParams,
         product_client_id: String,
-        runtime: MapleCodeRuntimeMetadata,
+        runtime: MaplecodeRuntimeMetadata,
         rpc_transport: AppServerRpcTransport,
     ) {
         self.connections.insert(
             connection_id,
             ConnectionState {
-                app_server_client: MapleCodeAppServerClientMetadata {
+                app_server_client: MaplecodeAppServerClientMetadata {
                     product_client_id,
                     client_name: Some(params.client_info.name),
                     client_version: Some(params.client_info.version),
@@ -1418,8 +1418,8 @@ impl AnalyticsReducer {
         self.maybe_emit_turn_event(&turn_id, out).await;
     }
 
-    fn ingest_turn_maplecode_error(&mut self, input: TurnMapleCodeErrorFact) {
-        let TurnMapleCodeErrorFact {
+    fn ingest_turn_maplecode_error(&mut self, input: TurnMaplecodeErrorFact) {
+        let TurnMaplecodeErrorFact {
             turn_id,
             thread_id,
             error,
@@ -1523,7 +1523,7 @@ impl AnalyticsReducer {
         let AppMentionedInput { tracking, mentions } = input;
         out.extend(mentions.into_iter().map(|mention| {
             let event_params = maplecode_app_metadata(&tracking, mention);
-            TrackEventRequest::AppMentioned(MapleCodeAppMentionedEventRequest {
+            TrackEventRequest::AppMentioned(MaplecodeAppMentionedEventRequest {
                 event_type: "maplecode_app_mentioned",
                 event_params,
             })
@@ -1536,7 +1536,7 @@ impl AnalyticsReducer {
             app,
             elicitation_type,
         } = input;
-        let event_params = MapleCodeAppUsedMetadata {
+        let event_params = MaplecodeAppUsedMetadata {
             app: maplecode_app_metadata(&tracking, app),
             voice_session_id: self
                 .turns
@@ -1544,7 +1544,7 @@ impl AnalyticsReducer {
                 .and_then(|turn| turn.voice_session_id.clone()),
             elicitation_type,
         };
-        out.push(TrackEventRequest::AppUsed(MapleCodeAppUsedEventRequest {
+        out.push(TrackEventRequest::AppUsed(MaplecodeAppUsedEventRequest {
             event_type: "maplecode_app_used",
             event_params,
         }));
@@ -1552,7 +1552,7 @@ impl AnalyticsReducer {
 
     fn ingest_hook_run(&mut self, input: HookRunInput, out: &mut Vec<TrackEventRequest>) {
         let HookRunInput { tracking, hook } = input;
-        out.push(TrackEventRequest::HookRun(MapleCodeHookRunEventRequest {
+        out.push(TrackEventRequest::HookRun(MaplecodeHookRunEventRequest {
             event_type: "maplecode_hook_run",
             event_params: maplecode_hook_run_metadata(&tracking, hook),
         }));
@@ -1561,7 +1561,7 @@ impl AnalyticsReducer {
     fn ingest_plugin_used(&mut self, input: PluginUsedInput, out: &mut Vec<TrackEventRequest>) {
         let PluginUsedInput { tracking, plugin } = input;
         out.push(TrackEventRequest::PluginUsed(
-            MapleCodePluginUsedEventRequest {
+            MaplecodePluginUsedEventRequest {
                 event_type: "maplecode_plugin_used",
                 event_params: maplecode_plugin_used_metadata(&tracking, plugin),
             },
@@ -1575,7 +1575,7 @@ impl AnalyticsReducer {
     ) {
         let PluginInstallRequestedInput { tracking, request } = input;
         out.push(TrackEventRequest::PluginInstallRequested(
-            MapleCodePluginInstallRequestedEventRequest {
+            MaplecodePluginInstallRequestedEventRequest {
                 event_type: "maplecode_plugin_install_requested",
                 event_params: maplecode_plugin_install_requested_metadata(&tracking, request),
             },
@@ -1588,7 +1588,7 @@ impl AnalyticsReducer {
         out: &mut Vec<TrackEventRequest>,
     ) {
         let PluginStateChangedInput { plugin, state } = input;
-        let event = MapleCodePluginEventRequest {
+        let event = MaplecodePluginEventRequest {
             event_type: plugin_state_event_type(state),
             event_params: maplecode_plugin_metadata(plugin),
         };
@@ -1612,9 +1612,9 @@ impl AnalyticsReducer {
             sub_error_type,
         } = input;
         out.push(TrackEventRequest::PluginInstallFailed(
-            MapleCodePluginInstallFailedEventRequest {
+            MaplecodePluginInstallFailedEventRequest {
                 event_type: "maplecode_plugin_install_failed",
-                event_params: MapleCodePluginInstallFailedMetadata {
+                event_params: MaplecodePluginInstallFailedMetadata {
                     plugin: maplecode_plugin_metadata(plugin),
                     source,
                     error_type,
@@ -1630,9 +1630,9 @@ impl AnalyticsReducer {
         out: &mut Vec<TrackEventRequest>,
     ) {
         out.push(TrackEventRequest::ExternalAgentConfigImportCompleted(
-            MapleCodeOnboardingExternalAgentImportCompleteEventRequest {
+            MaplecodeOnboardingExternalAgentImportCompleteEventRequest {
                 event_type: "maplecode_onboarding_external_agent_import_complete",
-                event_params: MapleCodeOnboardingExternalAgentImportCompleteMetadata {
+                event_params: MaplecodeOnboardingExternalAgentImportCompleteMetadata {
                     import_id: input.import_id,
                     source: input.source,
                     provider_id: input.provider_id,
@@ -1651,9 +1651,9 @@ impl AnalyticsReducer {
         out: &mut Vec<TrackEventRequest>,
     ) {
         out.push(TrackEventRequest::ExternalAgentConfigImportFailure(
-            MapleCodeOnboardingExternalAgentImportFailureEventRequest {
+            MaplecodeOnboardingExternalAgentImportFailureEventRequest {
                 event_type: "maplecode_onboarding_external_agent_import_failure",
-                event_params: MapleCodeOnboardingExternalAgentImportFailureMetadata {
+                event_params: MaplecodeOnboardingExternalAgentImportFailureMetadata {
                     import_id: input.import_id,
                     source: input.source,
                     provider_id: input.provider_id,
@@ -2134,9 +2134,9 @@ impl AnalyticsReducer {
                     .and_then(|turn| turn.resolved_config.as_ref())
                     .map(|config| config.turn_metadata.as_ref());
                 out.push(TrackEventRequest::CuaToolCallStarted(
-                    MapleCodeCuaToolCallStartedEventRequest {
+                    MaplecodeCuaToolCallStartedEventRequest {
                         event_type: "maplecode_cua_tool_call_started",
-                        event_params: MapleCodeCuaToolCallStartedEventParams {
+                        event_params: MaplecodeCuaToolCallStartedEventParams {
                             thread_id: notification.thread_id,
                             session_id: thread_metadata.session_id.clone(),
                             turn_id: notification.turn_id,
@@ -2426,9 +2426,9 @@ impl AnalyticsReducer {
             rows.into_iter()
                 .filter(valid_plugin_measurement_row)
                 .map(|row| {
-                    TrackEventRequest::PluginMeasurement(MapleCodePluginMeasurementEventRequest {
+                    TrackEventRequest::PluginMeasurement(MaplecodePluginMeasurementEventRequest {
                         event_type: "maplecode_plugin_measurement_event",
-                        event_params: MapleCodePluginMeasurementEventParams {
+                        event_params: MaplecodePluginMeasurementEventParams {
                             thread_id: thread_id.clone(),
                             turn_id: turn_id.clone(),
                             item_id: item_id.clone(),
@@ -2507,7 +2507,7 @@ impl AnalyticsReducer {
 
     fn ingest_compaction(
         &mut self,
-        input: MapleCodeCompactionEvent,
+        input: MaplecodeCompactionEvent,
         out: &mut Vec<TrackEventRequest>,
     ) {
         let Some((connection_state, thread_state, thread_metadata)) =
@@ -2533,7 +2533,7 @@ impl AnalyticsReducer {
         );
         event_params.voice_session_id = voice_session_id;
         out.push(TrackEventRequest::Compaction(Box::new(
-            MapleCodeCompactionEventRequest {
+            MaplecodeCompactionEventRequest {
                 event_type: "maplecode_compaction_event",
                 event_params,
             },
@@ -2590,14 +2590,14 @@ impl AnalyticsReducer {
         }
     }
 
-    fn ingest_goal(&mut self, input: MapleCodeGoalEvent, out: &mut Vec<TrackEventRequest>) {
+    fn ingest_goal(&mut self, input: MaplecodeGoalEvent, out: &mut Vec<TrackEventRequest>) {
         let Some((connection_state, thread_state, thread_metadata)) =
             self.thread_context_or_warn(AnalyticsDropSite::goal(&input))
         else {
             return;
         };
         out.push(TrackEventRequest::Goal(Box::new(
-            MapleCodeGoalEventRequest {
+            MaplecodeGoalEventRequest {
                 event_type: "maplecode_goal_event",
                 event_params: maplecode_goal_event_params(
                     input,
@@ -2701,9 +2701,9 @@ impl AnalyticsReducer {
             return;
         };
         out.push(TrackEventRequest::TurnSteer(
-            MapleCodeTurnSteerEventRequest {
+            MaplecodeTurnSteerEventRequest {
                 event_type: "maplecode_turn_steer_event",
-                event_params: MapleCodeTurnSteerEventParams {
+                event_params: MaplecodeTurnSteerEventParams {
                     thread_id: pending_request.thread_id,
                     session_id: thread_metadata.session_id.clone(),
                     expected_turn_id: Some(pending_request.expected_turn_id),
@@ -2746,9 +2746,9 @@ impl AnalyticsReducer {
             return;
         };
         out.push(TrackEventRequest::ReviewEvent(
-            MapleCodeReviewEventRequest {
+            MaplecodeReviewEventRequest {
                 event_type: "maplecode_review_event",
-                event_params: MapleCodeReviewEventParams {
+                event_params: MaplecodeReviewEventParams {
                     thread_id: pending_review.thread_id,
                     turn_id: pending_review.turn_id,
                     item_id: pending_review.item_id,
@@ -2835,7 +2835,7 @@ impl AnalyticsReducer {
             warn_missing_analytics_context(&drop_site, MissingAnalyticsContext::ThreadMetadata);
             return;
         };
-        let turn_event = TrackEventRequest::TurnEvent(Box::new(MapleCodeTurnEventRequest {
+        let turn_event = TrackEventRequest::TurnEvent(Box::new(MaplecodeTurnEventRequest {
             event_type: "maplecode_turn_event",
             event_params: maplecode_turn_event_params(
                 thread_state.app_server_client(connection_state),
@@ -2987,7 +2987,7 @@ fn cua_mcp_tool_identity(
     ))
 }
 
-fn tool_event_base_mut(event: &mut TrackEventRequest) -> Option<&mut MapleCodeToolItemEventBase> {
+fn tool_event_base_mut(event: &mut TrackEventRequest) -> Option<&mut MaplecodeToolItemEventBase> {
     match event {
         TrackEventRequest::CommandExecution(event) => Some(&mut event.event_params.base),
         TrackEventRequest::FileChange(event) => Some(&mut event.event_params.base),
@@ -3135,9 +3135,9 @@ fn tool_item_event(input: ToolItemEventInput<'_>) -> Option<TrackEventRequest> {
                 },
             );
             Some(TrackEventRequest::CommandExecution(
-                MapleCodeCommandExecutionEventRequest {
+                MaplecodeCommandExecutionEventRequest {
                     event_type: "maplecode_command_execution_event",
-                    event_params: MapleCodeCommandExecutionEventParams {
+                    event_params: MaplecodeCommandExecutionEventParams {
                         sandbox_backend: sandbox_type
                             .map(|sandbox| sandbox.as_metric_tag().to_string()),
                         model_slug: model_context.map(|context| context.model_slug.clone()),
@@ -3187,9 +3187,9 @@ fn tool_item_event(input: ToolItemEventInput<'_>) -> Option<TrackEventRequest> {
                 },
             );
             Some(TrackEventRequest::FileChange(
-                MapleCodeFileChangeEventRequest {
+                MaplecodeFileChangeEventRequest {
                     event_type: "maplecode_file_change_event",
-                    event_params: MapleCodeFileChangeEventParams {
+                    event_params: MaplecodeFileChangeEventParams {
                         base,
                         file_change_count: usize_to_u64(changes.len()),
                         file_add_count: counts.add,
@@ -3232,9 +3232,9 @@ fn tool_item_event(input: ToolItemEventInput<'_>) -> Option<TrackEventRequest> {
                 },
             );
             Some(TrackEventRequest::McpToolCall(
-                MapleCodeMcpToolCallEventRequest {
+                MaplecodeMcpToolCallEventRequest {
                     event_type: "maplecode_mcp_tool_call_event",
-                    event_params: MapleCodeMcpToolCallEventParams {
+                    event_params: MaplecodeMcpToolCallEventParams {
                         base,
                         mcp_server_name: server.clone(),
                         mcp_tool_name: tool.clone(),
@@ -3282,9 +3282,9 @@ fn tool_item_event(input: ToolItemEventInput<'_>) -> Option<TrackEventRequest> {
                 },
             );
             Some(TrackEventRequest::DynamicToolCall(
-                MapleCodeDynamicToolCallEventRequest {
+                MaplecodeDynamicToolCallEventRequest {
                     event_type: "maplecode_dynamic_tool_call_event",
-                    event_params: MapleCodeDynamicToolCallEventParams {
+                    event_params: MaplecodeDynamicToolCallEventParams {
                         base,
                         dynamic_tool_name: tool.clone(),
                         success: *success,
@@ -3328,9 +3328,9 @@ fn tool_item_event(input: ToolItemEventInput<'_>) -> Option<TrackEventRequest> {
                 },
             );
             Some(TrackEventRequest::CollabAgentToolCall(
-                MapleCodeCollabAgentToolCallEventRequest {
+                MaplecodeCollabAgentToolCallEventRequest {
                     event_type: "maplecode_collab_agent_tool_call_event",
-                    event_params: MapleCodeCollabAgentToolCallEventParams {
+                    event_params: MaplecodeCollabAgentToolCallEventParams {
                         base,
                         sender_thread_id: sender_thread_id.clone(),
                         receiver_thread_count: usize_to_u64(receiver_thread_ids.len()),
@@ -3384,9 +3384,9 @@ fn tool_item_event(input: ToolItemEventInput<'_>) -> Option<TrackEventRequest> {
                 },
             );
             Some(TrackEventRequest::WebSearch(
-                MapleCodeWebSearchEventRequest {
+                MaplecodeWebSearchEventRequest {
                     event_type: "maplecode_web_search_event",
-                    event_params: MapleCodeWebSearchEventParams {
+                    event_params: MaplecodeWebSearchEventParams {
                         base,
                         web_search_action: item.action.as_ref().map(web_search_action_kind),
                         query_present: !item.query.trim().is_empty(),
@@ -3417,9 +3417,9 @@ fn tool_item_event(input: ToolItemEventInput<'_>) -> Option<TrackEventRequest> {
                 },
             );
             Some(TrackEventRequest::ImageGeneration(
-                MapleCodeImageGenerationEventRequest {
+                MaplecodeImageGenerationEventRequest {
                     event_type: "maplecode_image_generation_event",
-                    event_params: MapleCodeImageGenerationEventParams {
+                    event_params: MaplecodeImageGenerationEventParams {
                         base,
                         revised_prompt_present: item.revised_prompt.is_some(),
                         saved_path_present: item.saved_path.is_some(),
@@ -3490,10 +3490,10 @@ fn tool_item_base(
     tool_name: String,
     outcome: ToolItemOutcome,
     context: ToolItemContext<'_>,
-) -> MapleCodeToolItemEventBase {
+) -> MaplecodeToolItemEventBase {
     let thread_metadata = context.thread_metadata;
     let review_summary = context.review_summary.cloned().unwrap_or_default();
-    MapleCodeToolItemEventBase {
+    MaplecodeToolItemEventBase {
         thread_id: thread_id.to_string(),
         session_id: thread_metadata.session_id.clone(),
         turn_id: turn_id.to_string(),
@@ -3942,12 +3942,12 @@ fn accepted_line_event_input(
 }
 
 fn maplecode_turn_event_params(
-    app_server_client: MapleCodeAppServerClientMetadata,
-    runtime: MapleCodeRuntimeMetadata,
+    app_server_client: MaplecodeAppServerClientMetadata,
+    runtime: MaplecodeRuntimeMetadata,
     turn_id: String,
     turn_state: &TurnState,
     thread_metadata: &ThreadMetadataState,
-) -> MapleCodeTurnEventParams {
+) -> MaplecodeTurnEventParams {
     let (
         Some(thread_id),
         Some(num_input_images),
@@ -4005,7 +4005,7 @@ fn maplecode_turn_event_params(
     } = profile;
     let token_usage = turn_state.token_usage.clone();
     let maplecode_error = turn_state.maplecode_error.as_ref();
-    MapleCodeTurnEventParams {
+    MaplecodeTurnEventParams {
         critical_path: critical_path.into(),
         thread_id,
         session_id: thread_metadata.session_id.clone(),

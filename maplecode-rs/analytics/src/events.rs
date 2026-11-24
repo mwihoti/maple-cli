@@ -15,9 +15,9 @@ use crate::facts::GoalEventKind;
 use crate::facts::HookRunFact;
 use crate::facts::ImagePreparationMetadata;
 use crate::facts::InvocationType;
-use crate::facts::MapleCodeCompactionEvent;
-use crate::facts::MapleCodeErrKind;
-use crate::facts::MapleCodeGoalEvent;
+use crate::facts::MaplecodeCompactionEvent;
+use crate::facts::MaplecodeErrKind;
+use crate::facts::MaplecodeGoalEvent;
 use crate::facts::PluginInstallRequested;
 use crate::facts::PluginState;
 use crate::facts::SubAgentThreadStartedInput;
@@ -31,7 +31,7 @@ use crate::facts::TurnSubmissionType;
 use crate::guardian_v2::GuardianV2EventRequest;
 use crate::now_unix_millis;
 use maplecode_app_server_protocol::CommandExecutionSource;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_login::default_client::originator;
 use maplecode_plugin::PluginId;
 use maplecode_plugin::PluginTelemetryMetadata;
@@ -74,41 +74,41 @@ pub(crate) enum TrackEventRequest {
     ThreadArchive(ThreadArchiveEvent),
     GuardianReview(Box<GuardianReviewEventRequest>),
     GuardianV2(Box<GuardianV2EventRequest>),
-    AppMentioned(MapleCodeAppMentionedEventRequest),
-    AppUsed(MapleCodeAppUsedEventRequest),
-    HookRun(MapleCodeHookRunEventRequest),
-    Compaction(Box<MapleCodeCompactionEventRequest>),
-    Goal(Box<MapleCodeGoalEventRequest>),
+    AppMentioned(MaplecodeAppMentionedEventRequest),
+    AppUsed(MaplecodeAppUsedEventRequest),
+    HookRun(MaplecodeHookRunEventRequest),
+    Compaction(Box<MaplecodeCompactionEventRequest>),
+    Goal(Box<MaplecodeGoalEventRequest>),
     ThreadHintStatus(Box<crate::thread_hint::ThreadHintStatusEventRequest>),
-    TurnEvent(Box<MapleCodeTurnEventRequest>),
-    TurnSteer(MapleCodeTurnSteerEventRequest),
-    ArtifactOperation(MapleCodeArtifactOperationEventRequest),
-    CommandExecution(MapleCodeCommandExecutionEventRequest),
-    PluginMeasurement(MapleCodePluginMeasurementEventRequest),
-    FileChange(MapleCodeFileChangeEventRequest),
-    CuaToolCallStarted(MapleCodeCuaToolCallStartedEventRequest),
-    McpToolCall(MapleCodeMcpToolCallEventRequest),
-    DynamicToolCall(MapleCodeDynamicToolCallEventRequest),
-    ControlToolCall(MapleCodeControlToolCallEventRequest),
-    CollabAgentToolCall(MapleCodeCollabAgentToolCallEventRequest),
-    WebSearch(MapleCodeWebSearchEventRequest),
-    ImageGeneration(MapleCodeImageGenerationEventRequest),
-    AcceptedLineFingerprints(Box<MapleCodeAcceptedLineFingerprintsEventRequest>),
+    TurnEvent(Box<MaplecodeTurnEventRequest>),
+    TurnSteer(MaplecodeTurnSteerEventRequest),
+    ArtifactOperation(MaplecodeArtifactOperationEventRequest),
+    CommandExecution(MaplecodeCommandExecutionEventRequest),
+    PluginMeasurement(MaplecodePluginMeasurementEventRequest),
+    FileChange(MaplecodeFileChangeEventRequest),
+    CuaToolCallStarted(MaplecodeCuaToolCallStartedEventRequest),
+    McpToolCall(MaplecodeMcpToolCallEventRequest),
+    DynamicToolCall(MaplecodeDynamicToolCallEventRequest),
+    ControlToolCall(MaplecodeControlToolCallEventRequest),
+    CollabAgentToolCall(MaplecodeCollabAgentToolCallEventRequest),
+    WebSearch(MaplecodeWebSearchEventRequest),
+    ImageGeneration(MaplecodeImageGenerationEventRequest),
+    AcceptedLineFingerprints(Box<MaplecodeAcceptedLineFingerprintsEventRequest>),
     #[allow(dead_code)]
-    ReviewEvent(MapleCodeReviewEventRequest),
-    PluginUsed(MapleCodePluginUsedEventRequest),
-    PluginInstallRequested(MapleCodePluginInstallRequestedEventRequest),
-    PluginInstalled(MapleCodePluginEventRequest),
-    PluginUninstalled(MapleCodePluginEventRequest),
-    PluginEnabled(MapleCodePluginEventRequest),
-    PluginDisabled(MapleCodePluginEventRequest),
-    PluginInstallFailed(MapleCodePluginInstallFailedEventRequest),
-    ExternalAgentConfigImportCompleted(MapleCodeOnboardingExternalAgentImportCompleteEventRequest),
-    ExternalAgentConfigImportFailure(MapleCodeOnboardingExternalAgentImportFailureEventRequest),
+    ReviewEvent(MaplecodeReviewEventRequest),
+    PluginUsed(MaplecodePluginUsedEventRequest),
+    PluginInstallRequested(MaplecodePluginInstallRequestedEventRequest),
+    PluginInstalled(MaplecodePluginEventRequest),
+    PluginUninstalled(MaplecodePluginEventRequest),
+    PluginEnabled(MaplecodePluginEventRequest),
+    PluginDisabled(MaplecodePluginEventRequest),
+    PluginInstallFailed(MaplecodePluginInstallFailedEventRequest),
+    ExternalAgentConfigImportCompleted(MaplecodeOnboardingExternalAgentImportCompleteEventRequest),
+    ExternalAgentConfigImportFailure(MaplecodeOnboardingExternalAgentImportFailureEventRequest),
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeArtifactOperationEventParams {
+pub(crate) struct MaplecodeArtifactOperationEventParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) turn_trigger: Option<String>,
     pub(crate) thread_id: String,
@@ -117,7 +117,7 @@ pub(crate) struct MapleCodeArtifactOperationEventParams {
     pub(crate) lifecycle: ArtifactOperationLifecycle,
     pub(crate) occurred_at_ms: u64,
     pub(crate) product_client_id: String,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     pub(crate) model_slug: String,
     pub(crate) plugin_id: String,
     pub(crate) script_path: String,
@@ -130,19 +130,19 @@ pub(crate) struct MapleCodeArtifactOperationEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeArtifactOperationEventRequest {
+pub(crate) struct MaplecodeArtifactOperationEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeArtifactOperationEventParams,
+    pub(crate) event_params: MaplecodeArtifactOperationEventParams,
 }
 
 pub(crate) fn maplecode_artifact_operation_event_request(
     tracking: TrackEventsContext,
     operation: ArtifactOperation,
-) -> MapleCodeArtifactOperationEventRequest {
+) -> MaplecodeArtifactOperationEventRequest {
     let turn = tracking.turn_metadata.as_deref();
-    MapleCodeArtifactOperationEventRequest {
+    MaplecodeArtifactOperationEventRequest {
         event_type: "maplecode_artifact_operation",
-        event_params: MapleCodeArtifactOperationEventParams {
+        event_params: MaplecodeArtifactOperationEventParams {
             turn_trigger: turn.and_then(TurnAnalyticsMetadata::turn_trigger),
             thread_id: tracking.thread_id,
             turn_id: tracking.turn_id,
@@ -183,7 +183,7 @@ impl TrackEventRequest {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeAcceptedLineFingerprintsEventParams {
+pub(crate) struct MaplecodeAcceptedLineFingerprintsEventParams {
     pub(crate) event_type: &'static str,
     pub(crate) turn_id: String,
     pub(crate) thread_id: String,
@@ -199,9 +199,9 @@ pub(crate) struct MapleCodeAcceptedLineFingerprintsEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeAcceptedLineFingerprintsEventRequest {
+pub(crate) struct MaplecodeAcceptedLineFingerprintsEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeAcceptedLineFingerprintsEventParams,
+    pub(crate) event_params: MaplecodeAcceptedLineFingerprintsEventParams,
 }
 
 #[derive(Serialize)]
@@ -228,7 +228,7 @@ pub(crate) struct SkillInvocationEventParams {
 }
 
 #[derive(Clone, Serialize)]
-pub(crate) struct MapleCodeAppServerClientMetadata {
+pub(crate) struct MaplecodeAppServerClientMetadata {
     pub(crate) product_client_id: String,
     pub(crate) client_name: Option<String>,
     pub(crate) client_version: Option<String>,
@@ -237,7 +237,7 @@ pub(crate) struct MapleCodeAppServerClientMetadata {
 }
 
 #[derive(Clone, Serialize)]
-pub(crate) struct MapleCodeRuntimeMetadata {
+pub(crate) struct MaplecodeRuntimeMetadata {
     pub(crate) maplecode_rs_version: String,
     pub(crate) runtime_os: String,
     pub(crate) runtime_os_version: String,
@@ -248,8 +248,8 @@ pub(crate) struct MapleCodeRuntimeMetadata {
 pub(crate) struct ThreadInitializedEventParams {
     pub(crate) thread_id: String,
     pub(crate) session_id: String,
-    pub(crate) app_server_client: MapleCodeAppServerClientMetadata,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) app_server_client: MaplecodeAppServerClientMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     pub(crate) model: String,
     pub(crate) ephemeral: bool,
     /// Whether the thread's checkout is a validated linked Git worktree, if known.
@@ -281,9 +281,9 @@ pub(crate) struct ThreadArchiveEventParams {
     pub(crate) action: ThreadArchiveAction,
     pub(crate) occurred_at_ms: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) app_server_client: Option<MapleCodeAppServerClientMetadata>,
+    pub(crate) app_server_client: Option<MaplecodeAppServerClientMetadata>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) runtime: Option<MapleCodeRuntimeMetadata>,
+    pub(crate) runtime: Option<MaplecodeRuntimeMetadata>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) thread_source: Option<ThreadSource>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -633,8 +633,8 @@ pub struct GuardianReviewSessionAnalyticsParams {
 #[derive(Serialize)]
 pub(crate) struct GuardianReviewEventPayload {
     pub(crate) session_id: String,
-    pub(crate) app_server_client: MapleCodeAppServerClientMetadata,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) app_server_client: MaplecodeAppServerClientMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     #[serde(flatten)]
     pub(crate) guardian_review: GuardianReviewEventParams,
 }
@@ -688,7 +688,7 @@ pub(crate) enum ToolEventType {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeToolItemEventBase {
+pub(crate) struct MaplecodeToolItemEventBase {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) turn_trigger: Option<String>,
     pub(crate) thread_id: String,
@@ -702,8 +702,8 @@ pub(crate) struct MapleCodeToolItemEventBase {
     pub(crate) parent_call_id: Option<String>,
     pub(crate) originating_response_id: Option<String>,
     pub(crate) subsequent_response_id: Option<String>,
-    pub(crate) app_server_client: MapleCodeAppServerClientMetadata,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) app_server_client: MaplecodeAppServerClientMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -727,7 +727,7 @@ pub(crate) struct MapleCodeToolItemEventBase {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeCuaToolCallStartedEventParams {
+pub(crate) struct MaplecodeCuaToolCallStartedEventParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) turn_trigger: Option<String>,
     pub(crate) thread_id: String,
@@ -738,8 +738,8 @@ pub(crate) struct MapleCodeCuaToolCallStartedEventParams {
     pub(crate) cell_id: Option<String>,
     pub(crate) parent_call_id: Option<String>,
     pub(crate) originating_response_id: Option<String>,
-    pub(crate) app_server_client: MapleCodeAppServerClientMetadata,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) app_server_client: MaplecodeAppServerClientMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -752,9 +752,9 @@ pub(crate) struct MapleCodeCuaToolCallStartedEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeCuaToolCallStartedEventRequest {
+pub(crate) struct MaplecodeCuaToolCallStartedEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeCuaToolCallStartedEventParams,
+    pub(crate) event_params: MaplecodeCuaToolCallStartedEventParams,
 }
 
 #[allow(dead_code)]
@@ -808,13 +808,13 @@ pub(crate) enum ReviewResolution {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeReviewEventParams {
+pub(crate) struct MaplecodeReviewEventParams {
     pub(crate) thread_id: String,
     pub(crate) turn_id: String,
     pub(crate) item_id: Option<String>,
     pub(crate) review_id: String,
-    pub(crate) app_server_client: MapleCodeAppServerClientMetadata,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) app_server_client: MaplecodeAppServerClientMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -830,9 +830,9 @@ pub(crate) struct MapleCodeReviewEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeReviewEventRequest {
+pub(crate) struct MaplecodeReviewEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeReviewEventParams,
+    pub(crate) event_params: MaplecodeReviewEventParams,
 }
 #[allow(dead_code)]
 #[derive(Clone, Copy, Debug, Serialize)]
@@ -845,12 +845,12 @@ pub(crate) enum WebSearchActionKind {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeCommandExecutionEventParams {
+pub(crate) struct MaplecodeCommandExecutionEventParams {
     pub(crate) sandbox_backend: Option<String>,
     pub(crate) model_slug: Option<String>,
     pub(crate) reasoning_effort: Option<String>,
     #[serde(flatten)]
-    pub(crate) base: MapleCodeToolItemEventBase,
+    pub(crate) base: MaplecodeToolItemEventBase,
     pub(crate) plugin_id: Option<String>,
     pub(crate) script_path: Option<String>,
     pub(crate) command_execution_source: CommandExecutionSource,
@@ -863,13 +863,13 @@ pub(crate) struct MapleCodeCommandExecutionEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeCommandExecutionEventRequest {
+pub(crate) struct MaplecodeCommandExecutionEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeCommandExecutionEventParams,
+    pub(crate) event_params: MaplecodeCommandExecutionEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginMeasurementEventParams {
+pub(crate) struct MaplecodePluginMeasurementEventParams {
     pub(crate) thread_id: String,
     pub(crate) turn_id: String,
     pub(crate) item_id: String,
@@ -885,15 +885,15 @@ pub(crate) struct MapleCodePluginMeasurementEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginMeasurementEventRequest {
+pub(crate) struct MaplecodePluginMeasurementEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodePluginMeasurementEventParams,
+    pub(crate) event_params: MaplecodePluginMeasurementEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeFileChangeEventParams {
+pub(crate) struct MaplecodeFileChangeEventParams {
     #[serde(flatten)]
-    pub(crate) base: MapleCodeToolItemEventBase,
+    pub(crate) base: MaplecodeToolItemEventBase,
     pub(crate) file_change_count: u64,
     pub(crate) file_add_count: u64,
     pub(crate) file_update_count: u64,
@@ -902,15 +902,15 @@ pub(crate) struct MapleCodeFileChangeEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeFileChangeEventRequest {
+pub(crate) struct MaplecodeFileChangeEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeFileChangeEventParams,
+    pub(crate) event_params: MaplecodeFileChangeEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeMcpToolCallEventParams {
+pub(crate) struct MaplecodeMcpToolCallEventParams {
     #[serde(flatten)]
-    pub(crate) base: MapleCodeToolItemEventBase,
+    pub(crate) base: MaplecodeToolItemEventBase,
     pub(crate) mcp_server_name: String,
     pub(crate) mcp_tool_name: String,
     pub(crate) mcp_error_present: bool,
@@ -921,15 +921,15 @@ pub(crate) struct MapleCodeMcpToolCallEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeMcpToolCallEventRequest {
+pub(crate) struct MaplecodeMcpToolCallEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeMcpToolCallEventParams,
+    pub(crate) event_params: MaplecodeMcpToolCallEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeDynamicToolCallEventParams {
+pub(crate) struct MaplecodeDynamicToolCallEventParams {
     #[serde(flatten)]
-    pub(crate) base: MapleCodeToolItemEventBase,
+    pub(crate) base: MaplecodeToolItemEventBase,
     pub(crate) dynamic_tool_name: String,
     pub(crate) success: Option<bool>,
     pub(crate) output_content_item_count: Option<u64>,
@@ -939,28 +939,28 @@ pub(crate) struct MapleCodeDynamicToolCallEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeDynamicToolCallEventRequest {
+pub(crate) struct MaplecodeDynamicToolCallEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeDynamicToolCallEventParams,
+    pub(crate) event_params: MaplecodeDynamicToolCallEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeControlToolCallEventParams {
+pub(crate) struct MaplecodeControlToolCallEventParams {
     #[serde(flatten)]
-    pub(crate) base: MapleCodeToolItemEventBase,
+    pub(crate) base: MaplecodeToolItemEventBase,
     pub(crate) success: bool,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeControlToolCallEventRequest {
+pub(crate) struct MaplecodeControlToolCallEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeControlToolCallEventParams,
+    pub(crate) event_params: MaplecodeControlToolCallEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeCollabAgentToolCallEventParams {
+pub(crate) struct MaplecodeCollabAgentToolCallEventParams {
     #[serde(flatten)]
-    pub(crate) base: MapleCodeToolItemEventBase,
+    pub(crate) base: MaplecodeToolItemEventBase,
     pub(crate) sender_thread_id: String,
     pub(crate) receiver_thread_count: u64,
     pub(crate) receiver_thread_ids: Option<Vec<String>>,
@@ -972,30 +972,30 @@ pub(crate) struct MapleCodeCollabAgentToolCallEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeCollabAgentToolCallEventRequest {
+pub(crate) struct MaplecodeCollabAgentToolCallEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeCollabAgentToolCallEventParams,
+    pub(crate) event_params: MaplecodeCollabAgentToolCallEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeWebSearchEventParams {
+pub(crate) struct MaplecodeWebSearchEventParams {
     #[serde(flatten)]
-    pub(crate) base: MapleCodeToolItemEventBase,
+    pub(crate) base: MaplecodeToolItemEventBase,
     pub(crate) web_search_action: Option<WebSearchActionKind>,
     pub(crate) query_present: bool,
     pub(crate) query_count: Option<u64>,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeWebSearchEventRequest {
+pub(crate) struct MaplecodeWebSearchEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeWebSearchEventParams,
+    pub(crate) event_params: MaplecodeWebSearchEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeImageGenerationEventParams {
+pub(crate) struct MaplecodeImageGenerationEventParams {
     #[serde(flatten)]
-    pub(crate) base: MapleCodeToolItemEventBase,
+    pub(crate) base: MaplecodeToolItemEventBase,
     pub(crate) revised_prompt_present: bool,
     pub(crate) saved_path_present: bool,
     pub(crate) transparent_background: Option<bool>,
@@ -1004,13 +1004,13 @@ pub(crate) struct MapleCodeImageGenerationEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeImageGenerationEventRequest {
+pub(crate) struct MaplecodeImageGenerationEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeImageGenerationEventParams,
+    pub(crate) event_params: MaplecodeImageGenerationEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeAppMetadata {
+pub(crate) struct MaplecodeAppMetadata {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) turn_trigger: Option<String>,
     pub(crate) connector_id: Option<String>,
@@ -1023,27 +1023,27 @@ pub(crate) struct MapleCodeAppMetadata {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeAppMentionedEventRequest {
+pub(crate) struct MaplecodeAppMentionedEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeAppMetadata,
+    pub(crate) event_params: MaplecodeAppMetadata,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeAppUsedMetadata {
+pub(crate) struct MaplecodeAppUsedMetadata {
     #[serde(flatten)]
-    pub(crate) app: MapleCodeAppMetadata,
+    pub(crate) app: MaplecodeAppMetadata,
     pub(crate) voice_session_id: Option<String>,
     pub(crate) elicitation_type: Option<ElicitationType>,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeAppUsedEventRequest {
+pub(crate) struct MaplecodeAppUsedEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeAppUsedMetadata,
+    pub(crate) event_params: MaplecodeAppUsedMetadata,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeHookRunMetadata {
+pub(crate) struct MaplecodeHookRunMetadata {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) turn_trigger: Option<String>,
     pub(crate) thread_id: Option<String>,
@@ -1058,18 +1058,18 @@ pub(crate) struct MapleCodeHookRunMetadata {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeHookRunEventRequest {
+pub(crate) struct MaplecodeHookRunEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeHookRunMetadata,
+    pub(crate) event_params: MaplecodeHookRunMetadata,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeCompactionEventParams {
+pub(crate) struct MaplecodeCompactionEventParams {
     pub(crate) thread_id: String,
     pub(crate) session_id: String,
     pub(crate) turn_id: String,
-    pub(crate) app_server_client: MapleCodeAppServerClientMetadata,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) app_server_client: MaplecodeAppServerClientMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -1080,7 +1080,7 @@ pub(crate) struct MapleCodeCompactionEventParams {
     pub(crate) strategy: CompactionStrategy,
     pub(crate) status: CompactionStatus,
     pub(crate) voice_session_id: Option<String>,
-    pub(crate) maplecode_error_kind: Option<MapleCodeErrKind>,
+    pub(crate) maplecode_error_kind: Option<MaplecodeErrKind>,
     pub(crate) maplecode_error_http_status_code: Option<u16>,
     pub(crate) usage_limit_window_minutes: Option<u16>,
     pub(crate) active_context_tokens_before: i64,
@@ -1095,18 +1095,18 @@ pub(crate) struct MapleCodeCompactionEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeCompactionEventRequest {
+pub(crate) struct MaplecodeCompactionEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeCompactionEventParams,
+    pub(crate) event_params: MaplecodeCompactionEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeGoalEventParams {
+pub(crate) struct MaplecodeGoalEventParams {
     pub(crate) thread_id: String,
     pub(crate) session_id: String,
     pub(crate) turn_id: Option<String>,
-    pub(crate) app_server_client: MapleCodeAppServerClientMetadata,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) app_server_client: MaplecodeAppServerClientMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -1119,13 +1119,13 @@ pub(crate) struct MapleCodeGoalEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeGoalEventRequest {
+pub(crate) struct MaplecodeGoalEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeGoalEventParams,
+    pub(crate) event_params: MaplecodeGoalEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeTurnEventParams {
+pub(crate) struct MaplecodeTurnEventParams {
     #[serde(flatten)]
     pub(crate) critical_path: crate::turn_critical_path::CriticalPathEventParams,
     pub(crate) thread_id: String,
@@ -1140,8 +1140,8 @@ pub(crate) struct MapleCodeTurnEventParams {
     // TODO(rhan-oai): Populate once queued/default submission type is plumbed from
     // the turn/start callsites instead of always being reported as None.
     pub(crate) submission_type: Option<TurnSubmissionType>,
-    pub(crate) app_server_client: MapleCodeAppServerClientMetadata,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) app_server_client: MaplecodeAppServerClientMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     pub(crate) ephemeral: bool,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) initialization_mode: ThreadInitializationMode,
@@ -1168,8 +1168,8 @@ pub(crate) struct MapleCodeTurnEventParams {
     /// Client wall-clock time for the first non-startup turn/interrupt request
     /// that later received a successful response.
     pub(crate) explicit_client_interrupt_requested_at_ms: Option<u64>,
-    pub(crate) turn_error: Option<MapleCodeErrorInfo>,
-    pub(crate) maplecode_error_kind: Option<MapleCodeErrKind>,
+    pub(crate) turn_error: Option<MaplecodeErrorInfo>,
+    pub(crate) maplecode_error_kind: Option<MaplecodeErrKind>,
     pub(crate) maplecode_error_http_status_code: Option<u16>,
     /// The server-selected window responsible for a usage limit, when known.
     pub(crate) usage_limit_window_minutes: Option<u16>,
@@ -1203,19 +1203,19 @@ pub(crate) struct MapleCodeTurnEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeTurnEventRequest {
+pub(crate) struct MaplecodeTurnEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeTurnEventParams,
+    pub(crate) event_params: MaplecodeTurnEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeTurnSteerEventParams {
+pub(crate) struct MaplecodeTurnSteerEventParams {
     pub(crate) thread_id: String,
     pub(crate) session_id: String,
     pub(crate) expected_turn_id: Option<String>,
     pub(crate) accepted_turn_id: Option<String>,
-    pub(crate) app_server_client: MapleCodeAppServerClientMetadata,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) app_server_client: MaplecodeAppServerClientMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -1226,13 +1226,13 @@ pub(crate) struct MapleCodeTurnSteerEventParams {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeTurnSteerEventRequest {
+pub(crate) struct MaplecodeTurnSteerEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeTurnSteerEventParams,
+    pub(crate) event_params: MaplecodeTurnSteerEventParams,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginMetadata {
+pub(crate) struct MaplecodePluginMetadata {
     pub(crate) plugin_id: Option<String>,
     pub(crate) remote_plugin_id: Option<String>,
     pub(crate) plugin_name: Option<String>,
@@ -1244,11 +1244,11 @@ pub(crate) struct MapleCodePluginMetadata {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginUsedMetadata {
+pub(crate) struct MaplecodePluginUsedMetadata {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) turn_trigger: Option<String>,
     #[serde(flatten)]
-    pub(crate) plugin: MapleCodePluginMetadata,
+    pub(crate) plugin: MaplecodePluginMetadata,
     pub(crate) mcp_server_names: Option<Vec<String>>,
     pub(crate) thread_id: Option<String>,
     pub(crate) turn_id: Option<String>,
@@ -1256,7 +1256,7 @@ pub(crate) struct MapleCodePluginUsedMetadata {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginInstallRequestedPluginMetadata {
+pub(crate) struct MaplecodePluginInstallRequestedPluginMetadata {
     pub(crate) plugin_id: String,
     pub(crate) remote_plugin_id: Option<String>,
     pub(crate) plugin_name: String,
@@ -1264,9 +1264,9 @@ pub(crate) struct MapleCodePluginInstallRequestedPluginMetadata {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginInstallRequestedMetadata {
+pub(crate) struct MaplecodePluginInstallRequestedMetadata {
     pub(crate) suggestion_id: String,
-    pub(crate) plugins: Vec<MapleCodePluginInstallRequestedPluginMetadata>,
+    pub(crate) plugins: Vec<MaplecodePluginInstallRequestedPluginMetadata>,
     pub(crate) source: crate::facts::PluginInstallRequestSource,
     pub(crate) thread_id: String,
     pub(crate) turn_id: String,
@@ -1275,34 +1275,34 @@ pub(crate) struct MapleCodePluginInstallRequestedMetadata {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginInstallRequestedEventRequest {
+pub(crate) struct MaplecodePluginInstallRequestedEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodePluginInstallRequestedMetadata,
+    pub(crate) event_params: MaplecodePluginInstallRequestedMetadata,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginEventRequest {
+pub(crate) struct MaplecodePluginEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodePluginMetadata,
+    pub(crate) event_params: MaplecodePluginMetadata,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginInstallFailedMetadata {
+pub(crate) struct MaplecodePluginInstallFailedMetadata {
     #[serde(flatten)]
-    pub(crate) plugin: MapleCodePluginMetadata,
+    pub(crate) plugin: MaplecodePluginMetadata,
     pub(crate) source: crate::facts::PluginInstallSource,
     pub(crate) error_type: String,
     pub(crate) sub_error_type: Option<String>,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginInstallFailedEventRequest {
+pub(crate) struct MaplecodePluginInstallFailedEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodePluginInstallFailedMetadata,
+    pub(crate) event_params: MaplecodePluginInstallFailedMetadata,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeOnboardingExternalAgentImportCompleteMetadata {
+pub(crate) struct MaplecodeOnboardingExternalAgentImportCompleteMetadata {
     pub(crate) import_id: String,
     pub(crate) source: String,
     pub(crate) provider_id: String,
@@ -1314,13 +1314,13 @@ pub(crate) struct MapleCodeOnboardingExternalAgentImportCompleteMetadata {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeOnboardingExternalAgentImportCompleteEventRequest {
+pub(crate) struct MaplecodeOnboardingExternalAgentImportCompleteEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeOnboardingExternalAgentImportCompleteMetadata,
+    pub(crate) event_params: MaplecodeOnboardingExternalAgentImportCompleteMetadata,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeOnboardingExternalAgentImportFailureMetadata {
+pub(crate) struct MaplecodeOnboardingExternalAgentImportFailureMetadata {
     pub(crate) import_id: String,
     pub(crate) source: String,
     pub(crate) provider_id: String,
@@ -1333,15 +1333,15 @@ pub(crate) struct MapleCodeOnboardingExternalAgentImportFailureMetadata {
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodeOnboardingExternalAgentImportFailureEventRequest {
+pub(crate) struct MaplecodeOnboardingExternalAgentImportFailureEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodeOnboardingExternalAgentImportFailureMetadata,
+    pub(crate) event_params: MaplecodeOnboardingExternalAgentImportFailureMetadata,
 }
 
 #[derive(Serialize)]
-pub(crate) struct MapleCodePluginUsedEventRequest {
+pub(crate) struct MaplecodePluginUsedEventRequest {
     pub(crate) event_type: &'static str,
-    pub(crate) event_params: MapleCodePluginUsedMetadata,
+    pub(crate) event_params: MaplecodePluginUsedMetadata,
 }
 
 pub(crate) fn plugin_state_event_type(state: PluginState) -> &'static str {
@@ -1356,9 +1356,9 @@ pub(crate) fn plugin_state_event_type(state: PluginState) -> &'static str {
 pub(crate) fn maplecode_app_metadata(
     tracking: &TrackEventsContext,
     app: AppInvocation,
-) -> MapleCodeAppMetadata {
+) -> MaplecodeAppMetadata {
     let turn = tracking.turn_metadata.as_deref();
-    MapleCodeAppMetadata {
+    MaplecodeAppMetadata {
         turn_trigger: turn.and_then(TurnAnalyticsMetadata::turn_trigger),
         connector_id: app.connector_id,
         thread_id: Some(tracking.thread_id.clone()),
@@ -1372,20 +1372,20 @@ pub(crate) fn maplecode_app_metadata(
 
 pub(crate) fn maplecode_plugin_metadata(
     plugin: PluginTelemetryMetadata,
-) -> MapleCodePluginMetadata {
+) -> MaplecodePluginMetadata {
     maplecode_plugin_metadata_with_product_client_id(plugin, originator().value)
 }
 
 fn maplecode_plugin_metadata_with_product_client_id(
     plugin: PluginTelemetryMetadata,
     product_client_id: String,
-) -> MapleCodePluginMetadata {
+) -> MaplecodePluginMetadata {
     let PluginTelemetryMetadata {
         plugin_id,
         remote_plugin_id,
         capability_summary,
     } = plugin;
-    MapleCodePluginMetadata {
+    MaplecodePluginMetadata {
         plugin_id: plugin_id.as_ref().map(PluginId::as_key),
         remote_plugin_id,
         plugin_name: plugin_id
@@ -1412,13 +1412,13 @@ fn maplecode_plugin_metadata_with_product_client_id(
 pub(crate) fn maplecode_plugin_install_requested_metadata(
     tracking: &TrackEventsContext,
     request: PluginInstallRequested,
-) -> MapleCodePluginInstallRequestedMetadata {
-    MapleCodePluginInstallRequestedMetadata {
+) -> MaplecodePluginInstallRequestedMetadata {
+    MaplecodePluginInstallRequestedMetadata {
         suggestion_id: request.suggestion_id,
         plugins: request
             .plugins
             .into_iter()
-            .map(|plugin| MapleCodePluginInstallRequestedPluginMetadata {
+            .map(|plugin| MaplecodePluginInstallRequestedPluginMetadata {
                 plugin_id: plugin.plugin_id,
                 remote_plugin_id: plugin.remote_plugin_id,
                 plugin_name: plugin.plugin_name,
@@ -1434,15 +1434,15 @@ pub(crate) fn maplecode_plugin_install_requested_metadata(
 }
 
 pub(crate) fn maplecode_compaction_event_params(
-    input: MapleCodeCompactionEvent,
+    input: MaplecodeCompactionEvent,
     session_id: String,
-    app_server_client: MapleCodeAppServerClientMetadata,
-    runtime: MapleCodeRuntimeMetadata,
+    app_server_client: MaplecodeAppServerClientMetadata,
+    runtime: MaplecodeRuntimeMetadata,
     thread_source: Option<ThreadSource>,
     subagent_source: Option<String>,
     parent_thread_id: Option<String>,
-) -> MapleCodeCompactionEventParams {
-    MapleCodeCompactionEventParams {
+) -> MaplecodeCompactionEventParams {
+    MaplecodeCompactionEventParams {
         thread_id: input.thread_id,
         session_id,
         turn_id: input.turn_id,
@@ -1474,15 +1474,15 @@ pub(crate) fn maplecode_compaction_event_params(
 }
 
 pub(crate) fn maplecode_goal_event_params(
-    input: MapleCodeGoalEvent,
+    input: MaplecodeGoalEvent,
     session_id: String,
-    app_server_client: MapleCodeAppServerClientMetadata,
-    runtime: MapleCodeRuntimeMetadata,
+    app_server_client: MaplecodeAppServerClientMetadata,
+    runtime: MaplecodeRuntimeMetadata,
     thread_source: Option<ThreadSource>,
     subagent_source: Option<String>,
     parent_thread_id: Option<String>,
-) -> MapleCodeGoalEventParams {
-    MapleCodeGoalEventParams {
+) -> MaplecodeGoalEventParams {
+    MaplecodeGoalEventParams {
         thread_id: input.thread_id,
         session_id,
         turn_id: input.turn_id,
@@ -1503,13 +1503,13 @@ pub(crate) fn maplecode_goal_event_params(
 pub(crate) fn maplecode_plugin_used_metadata(
     tracking: &TrackEventsContext,
     plugin: PluginTelemetryMetadata,
-) -> MapleCodePluginUsedMetadata {
+) -> MaplecodePluginUsedMetadata {
     let mcp_server_names = plugin
         .capability_summary
         .as_ref()
         .map(|summary| summary.mcp_server_names.clone());
     let turn = tracking.turn_metadata.as_deref();
-    MapleCodePluginUsedMetadata {
+    MaplecodePluginUsedMetadata {
         turn_trigger: turn.and_then(TurnAnalyticsMetadata::turn_trigger),
         plugin: maplecode_plugin_metadata_with_product_client_id(
             plugin,
@@ -1525,9 +1525,9 @@ pub(crate) fn maplecode_plugin_used_metadata(
 pub(crate) fn maplecode_hook_run_metadata(
     tracking: &TrackEventsContext,
     hook: HookRunFact,
-) -> MapleCodeHookRunMetadata {
+) -> MaplecodeHookRunMetadata {
     let turn = tracking.turn_metadata.as_deref();
-    MapleCodeHookRunMetadata {
+    MaplecodeHookRunMetadata {
         turn_trigger: turn.and_then(TurnAnalyticsMetadata::turn_trigger),
         thread_id: Some(tracking.thread_id.clone()),
         turn_id: Some(tracking.turn_id.clone()),
@@ -1576,11 +1576,11 @@ fn analytics_hook_source(source: HookSource) -> &'static str {
     }
 }
 
-pub(crate) fn current_runtime_metadata() -> MapleCodeRuntimeMetadata {
+pub(crate) fn current_runtime_metadata() -> MaplecodeRuntimeMetadata {
     // Runtime metadata is stable; avoid launching OS discovery subprocesses per event.
     static OS_INFO: LazyLock<os_info::Info> = LazyLock::new(os_info::get);
     let os_info = &*OS_INFO;
-    MapleCodeRuntimeMetadata {
+    MaplecodeRuntimeMetadata {
         maplecode_rs_version: env!("CARGO_PKG_VERSION").to_string(),
         runtime_os: std::env::consts::OS.to_string(),
         runtime_os_version: os_info.version().to_string(),
@@ -1594,7 +1594,7 @@ pub(crate) fn subagent_thread_started_event_request(
     let event_params = ThreadInitializedEventParams {
         thread_id: input.thread_id,
         session_id: input.session_id,
-        app_server_client: MapleCodeAppServerClientMetadata {
+        app_server_client: MaplecodeAppServerClientMetadata {
             product_client_id: input.product_client_id,
             client_name: input.client_name,
             client_version: input.client_version,

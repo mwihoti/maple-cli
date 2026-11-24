@@ -1,7 +1,7 @@
 //! External-agent configuration import event tests.
 
-use crate::events::MapleCodeOnboardingExternalAgentImportFailureEventRequest;
-use crate::events::MapleCodeOnboardingExternalAgentImportFailureMetadata;
+use crate::events::MaplecodeOnboardingExternalAgentImportFailureEventRequest;
+use crate::events::MaplecodeOnboardingExternalAgentImportFailureMetadata;
 use crate::events::TrackEventRequest;
 use crate::facts::AnalyticsFact;
 use crate::facts::CustomAnalyticsFact;
@@ -54,9 +54,9 @@ async fn reducer_ingests_external_agent_config_import_completed_fact() {
 #[test]
 fn external_agent_config_import_failure_event_serializes_expected_shape() {
     let event = TrackEventRequest::ExternalAgentConfigImportFailure(
-        MapleCodeOnboardingExternalAgentImportFailureEventRequest {
+        MaplecodeOnboardingExternalAgentImportFailureEventRequest {
             event_type: "maplecode_onboarding_external_agent_import_failure",
-            event_params: MapleCodeOnboardingExternalAgentImportFailureMetadata {
+            event_params: MaplecodeOnboardingExternalAgentImportFailureMetadata {
                 import_id: "import-1".to_string(),
                 source: "app_server".to_string(),
                 provider_id: "test-provider-42".to_string(),

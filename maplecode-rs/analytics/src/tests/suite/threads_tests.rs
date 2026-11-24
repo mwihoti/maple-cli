@@ -1,8 +1,8 @@
 //! Thread lifecycle, lineage, originator, and metadata event tests.
 
 use crate::events::AppServerRpcTransport;
-use crate::events::MapleCodeAppServerClientMetadata;
-use crate::events::MapleCodeRuntimeMetadata;
+use crate::events::MaplecodeAppServerClientMetadata;
+use crate::events::MaplecodeRuntimeMetadata;
 use crate::events::ThreadInitializedEvent;
 use crate::events::ThreadInitializedEventParams;
 use crate::events::TrackEventRequest;
@@ -17,7 +17,7 @@ use crate::facts::CompactionStatus;
 use crate::facts::CompactionStrategy;
 use crate::facts::CompactionTrigger;
 use crate::facts::CustomAnalyticsFact;
-use crate::facts::MapleCodeCompactionEvent;
+use crate::facts::MaplecodeCompactionEvent;
 use crate::facts::SubAgentThreadStartedInput;
 use crate::facts::ThreadInitializationMode;
 use crate::facts::TurnResolvedConfigFact;
@@ -64,14 +64,14 @@ fn thread_initialized_event_serializes_expected_shape() {
         event_params: ThreadInitializedEventParams {
             thread_id: "thread-0".to_string(),
             session_id: "session-thread-0".to_string(),
-            app_server_client: MapleCodeAppServerClientMetadata {
+            app_server_client: MaplecodeAppServerClientMetadata {
                 product_client_id: DEFAULT_ORIGINATOR.to_string(),
                 client_name: Some("maplecode-tui".to_string()),
                 client_version: Some("1.0.0".to_string()),
                 rpc_transport: AppServerRpcTransport::Stdio,
                 experimental_api_enabled: Some(true),
             },
-            runtime: MapleCodeRuntimeMetadata {
+            runtime: MaplecodeRuntimeMetadata {
                 maplecode_rs_version: "0.1.0".to_string(),
                 runtime_os: "macos".to_string(),
                 runtime_os_version: "15.3.1".to_string(),
@@ -227,7 +227,7 @@ async fn initialize_caches_client_and_thread_lifecycle_publishes_once_initialize
                     }),
                 },
                 product_client_id: DEFAULT_ORIGINATOR.to_string(),
-                runtime: MapleCodeRuntimeMetadata {
+                runtime: MaplecodeRuntimeMetadata {
                     maplecode_rs_version: "0.99.0".to_string(),
                     runtime_os: "linux".to_string(),
                     runtime_os_version: "24.04".to_string(),
@@ -388,7 +388,7 @@ async fn thread_originator_overrides_shared_connection_across_thread_events() {
     reducer
         .ingest(
             AnalyticsFact::Custom(CustomAnalyticsFact::Compaction(Box::new(
-                MapleCodeCompactionEvent {
+                MaplecodeCompactionEvent {
                     thread_id: "thread-work".to_string(),
                     turn_id: "turn-compact".to_string(),
                     trigger: CompactionTrigger::Manual,

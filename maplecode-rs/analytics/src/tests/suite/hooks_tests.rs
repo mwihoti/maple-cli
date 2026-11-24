@@ -1,6 +1,6 @@
 //! Hook execution event, source, and status tests.
 
-use crate::events::MapleCodeHookRunEventRequest;
+use crate::events::MaplecodeHookRunEventRequest;
 use crate::events::TrackEventRequest;
 use crate::events::maplecode_hook_run_metadata;
 use crate::facts::AnalyticsFact;
@@ -21,7 +21,7 @@ use serde_json::json;
 #[test]
 fn hook_run_event_serializes_expected_shape() {
     let tracking = test_tracking_context("thread-3", "turn-3");
-    let event = TrackEventRequest::HookRun(MapleCodeHookRunEventRequest {
+    let event = TrackEventRequest::HookRun(MaplecodeHookRunEventRequest {
         event_type: "maplecode_hook_run",
         event_params: maplecode_hook_run_metadata(
             &tracking,

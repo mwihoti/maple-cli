@@ -2,11 +2,11 @@
 
 use crate::events::AppServerRpcTransport;
 use crate::events::FinalApprovalOutcome;
-use crate::events::MapleCodeAppServerClientMetadata;
-use crate::events::MapleCodeCommandExecutionEventParams;
-use crate::events::MapleCodeCommandExecutionEventRequest;
-use crate::events::MapleCodeRuntimeMetadata;
-use crate::events::MapleCodeToolItemEventBase;
+use crate::events::MaplecodeAppServerClientMetadata;
+use crate::events::MaplecodeCommandExecutionEventParams;
+use crate::events::MaplecodeCommandExecutionEventRequest;
+use crate::events::MaplecodeRuntimeMetadata;
+use crate::events::MaplecodeToolItemEventBase;
 use crate::events::ToolEventType;
 use crate::events::ToolItemTerminalStatus;
 use crate::events::TrackEventRequest;
@@ -98,13 +98,13 @@ fn sampling_response(
 
 #[test]
 fn command_execution_event_serializes_expected_shape() {
-    let event = TrackEventRequest::CommandExecution(MapleCodeCommandExecutionEventRequest {
+    let event = TrackEventRequest::CommandExecution(MaplecodeCommandExecutionEventRequest {
         event_type: "maplecode_command_execution_event",
-        event_params: MapleCodeCommandExecutionEventParams {
+        event_params: MaplecodeCommandExecutionEventParams {
             sandbox_backend: None,
             model_slug: None,
             reasoning_effort: None,
-            base: MapleCodeToolItemEventBase {
+            base: MaplecodeToolItemEventBase {
                 turn_trigger: None,
                 thread_id: "thread-1".to_string(),
                 session_id: "session-thread-1".to_string(),
@@ -115,14 +115,14 @@ fn command_execution_event_serializes_expected_shape() {
                 parent_call_id: None,
                 originating_response_id: None,
                 subsequent_response_id: None,
-                app_server_client: MapleCodeAppServerClientMetadata {
+                app_server_client: MaplecodeAppServerClientMetadata {
                     product_client_id: "maplecode_tui".to_string(),
                     client_name: Some("maplecode-tui".to_string()),
                     client_version: Some("1.2.3".to_string()),
                     rpc_transport: AppServerRpcTransport::Websocket,
                     experimental_api_enabled: Some(true),
                 },
-                runtime: MapleCodeRuntimeMetadata {
+                runtime: MaplecodeRuntimeMetadata {
                     maplecode_rs_version: "0.99.0".to_string(),
                     runtime_os: "macos".to_string(),
                     runtime_os_version: "15.3.1".to_string(),

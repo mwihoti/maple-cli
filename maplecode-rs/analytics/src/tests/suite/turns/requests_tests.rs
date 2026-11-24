@@ -21,7 +21,7 @@ use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ClientResponsePayload;
 use maplecode_app_server_protocol::InitializeParams;
 use maplecode_app_server_protocol::JSONRPCErrorError;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::NonSteerableTurnKind;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::TurnError as AppServerTurnError;
@@ -91,7 +91,7 @@ fn non_steerable_review_error() -> JSONRPCErrorError {
             serde_json::to_value(AppServerTurnError {
                 misalignment: None,
                 message: "cannot steer a review turn".to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::ActiveTurnNotSteerable {
+                maplecode_error_info: Some(MaplecodeErrorInfo::ActiveTurnNotSteerable {
                     turn_kind: NonSteerableTurnKind::Review,
                 }),
                 additional_details: None,

@@ -1,5 +1,5 @@
-use crate::events::MapleCodeAcceptedLineFingerprintsEventParams;
-use crate::events::MapleCodeAcceptedLineFingerprintsEventRequest;
+use crate::events::MaplecodeAcceptedLineFingerprintsEventParams;
+use crate::events::MaplecodeAcceptedLineFingerprintsEventRequest;
 use crate::events::TrackEventRequest;
 use maplecode_git_utils::canonicalize_git_remote_url;
 use maplecode_git_utils::get_git_remote_urls_assume_git_repo;
@@ -85,9 +85,9 @@ pub(crate) fn accepted_line_fingerprint_event_requests(
     } = input;
 
     vec![TrackEventRequest::AcceptedLineFingerprints(Box::new(
-        MapleCodeAcceptedLineFingerprintsEventRequest {
+        MaplecodeAcceptedLineFingerprintsEventRequest {
             event_type: "maplecode_accepted_line_fingerprints",
-            event_params: MapleCodeAcceptedLineFingerprintsEventParams {
+            event_params: MaplecodeAcceptedLineFingerprintsEventParams {
                 event_type,
                 turn_id,
                 thread_id,

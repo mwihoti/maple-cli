@@ -1,10 +1,10 @@
 //! Plugin lifecycle, usage, measurements, and event deduplication tests.
 
 use crate::client::AnalyticsEventsQueue;
-use crate::events::MapleCodePluginEventRequest;
-use crate::events::MapleCodePluginInstallFailedEventRequest;
-use crate::events::MapleCodePluginInstallFailedMetadata;
-use crate::events::MapleCodePluginUsedEventRequest;
+use crate::events::MaplecodePluginEventRequest;
+use crate::events::MaplecodePluginInstallFailedEventRequest;
+use crate::events::MaplecodePluginInstallFailedMetadata;
+use crate::events::MaplecodePluginUsedEventRequest;
 use crate::events::TrackEventRequest;
 use crate::events::maplecode_plugin_metadata;
 use crate::events::maplecode_plugin_used_metadata;
@@ -133,7 +133,7 @@ async fn plugin_measurement_batch_emits_directly_and_filters_invalid_rows() {
 #[test]
 fn plugin_used_event_serializes_expected_shape() {
     let tracking = test_tracking_context("thread-3", "turn-3");
-    let event = TrackEventRequest::PluginUsed(MapleCodePluginUsedEventRequest {
+    let event = TrackEventRequest::PluginUsed(MaplecodePluginUsedEventRequest {
         event_type: "maplecode_plugin_used",
         event_params: maplecode_plugin_used_metadata(&tracking, sample_plugin_metadata()),
     });
@@ -192,7 +192,7 @@ async fn reducer_ingests_plugin_used_fact() {
 
 #[test]
 fn plugin_management_event_serializes_expected_shape() {
-    let event = TrackEventRequest::PluginInstalled(MapleCodePluginEventRequest {
+    let event = TrackEventRequest::PluginInstalled(MaplecodePluginEventRequest {
         event_type: "maplecode_plugin_installed",
         event_params: maplecode_plugin_metadata(sample_plugin_metadata()),
     });
@@ -219,9 +219,9 @@ fn plugin_management_event_serializes_expected_shape() {
 
 #[test]
 fn plugin_install_failed_event_serializes_expected_shape() {
-    let event = TrackEventRequest::PluginInstallFailed(MapleCodePluginInstallFailedEventRequest {
+    let event = TrackEventRequest::PluginInstallFailed(MaplecodePluginInstallFailedEventRequest {
         event_type: "maplecode_plugin_install_failed",
-        event_params: MapleCodePluginInstallFailedMetadata {
+        event_params: MaplecodePluginInstallFailedMetadata {
             plugin: maplecode_plugin_metadata(sample_plugin_metadata()),
             source: PluginInstallSource::Manual,
             error_type: "store_io".to_string(),
@@ -256,7 +256,7 @@ fn plugin_install_failed_event_serializes_expected_shape() {
 fn plugin_management_event_keeps_plugin_id_local_when_remote_id_exists() {
     let mut plugin = sample_plugin_metadata();
     plugin.remote_plugin_id = Some("plugins~Plugin_remote".to_string());
-    let event = TrackEventRequest::PluginInstalled(MapleCodePluginEventRequest {
+    let event = TrackEventRequest::PluginInstalled(MaplecodePluginEventRequest {
         event_type: "maplecode_plugin_installed",
         event_params: maplecode_plugin_metadata(plugin),
     });

@@ -1,7 +1,7 @@
 //! Per-attempt thread hint status analytics without hint contents.
 
-use crate::events::MapleCodeAppServerClientMetadata;
-use crate::events::MapleCodeRuntimeMetadata;
+use crate::events::MaplecodeAppServerClientMetadata;
+use crate::events::MaplecodeRuntimeMetadata;
 use maplecode_protocol::protocol::ThreadSource;
 use serde::Serialize;
 
@@ -28,8 +28,8 @@ pub(crate) struct ThreadHintStatusEventRequest {
 pub(crate) struct ThreadHintStatusEventParams {
     pub(crate) thread_id: String,
     pub(crate) session_id: String,
-    pub(crate) app_server_client: MapleCodeAppServerClientMetadata,
-    pub(crate) runtime: MapleCodeRuntimeMetadata,
+    pub(crate) app_server_client: MaplecodeAppServerClientMetadata,
+    pub(crate) runtime: MaplecodeRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,

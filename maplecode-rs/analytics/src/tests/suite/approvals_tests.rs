@@ -8,10 +8,10 @@ use crate::GuardianReviewFailureReason;
 use crate::GuardianReviewTerminalStatus;
 use crate::GuardianReviewedAction;
 use crate::events::AppServerRpcTransport;
-use crate::events::MapleCodeAppServerClientMetadata;
-use crate::events::MapleCodeReviewEventParams;
-use crate::events::MapleCodeReviewEventRequest;
-use crate::events::MapleCodeRuntimeMetadata;
+use crate::events::MaplecodeAppServerClientMetadata;
+use crate::events::MaplecodeReviewEventParams;
+use crate::events::MaplecodeReviewEventRequest;
+use crate::events::MaplecodeRuntimeMetadata;
 use crate::events::ReviewResolution;
 use crate::events::ReviewStatus;
 use crate::events::ReviewSubjectKind;
@@ -26,7 +26,7 @@ use crate::facts::CompactionStatus;
 use crate::facts::CompactionStrategy;
 use crate::facts::CompactionTrigger;
 use crate::facts::CustomAnalyticsFact;
-use crate::facts::MapleCodeCompactionEvent;
+use crate::facts::MaplecodeCompactionEvent;
 use crate::facts::SubAgentThreadStartedInput;
 use crate::facts::ThreadInitializationMode;
 use crate::reducer::AnalyticsReducer;
@@ -169,21 +169,21 @@ fn sample_guardian_review_completed(
 
 #[test]
 fn review_event_serializes_expected_shape() {
-    let event = TrackEventRequest::ReviewEvent(MapleCodeReviewEventRequest {
+    let event = TrackEventRequest::ReviewEvent(MaplecodeReviewEventRequest {
         event_type: "maplecode_review_event",
-        event_params: MapleCodeReviewEventParams {
+        event_params: MaplecodeReviewEventParams {
             thread_id: "thread-1".to_string(),
             turn_id: "turn-1".to_string(),
             item_id: None,
             review_id: "review-1".to_string(),
-            app_server_client: MapleCodeAppServerClientMetadata {
+            app_server_client: MaplecodeAppServerClientMetadata {
                 product_client_id: "maplecode_tui".to_string(),
                 client_name: Some("maplecode-tui".to_string()),
                 client_version: Some("1.2.3".to_string()),
                 rpc_transport: AppServerRpcTransport::Websocket,
                 experimental_api_enabled: Some(true),
             },
-            runtime: MapleCodeRuntimeMetadata {
+            runtime: MaplecodeRuntimeMetadata {
                 maplecode_rs_version: "0.99.0".to_string(),
                 runtime_os: "macos".to_string(),
                 runtime_os_version: "15.3.1".to_string(),
@@ -874,7 +874,7 @@ async fn guardian_events_keep_thread_source_and_originator_with_explicit_turn_co
     reducer
         .ingest(
             AnalyticsFact::Custom(CustomAnalyticsFact::Compaction(Box::new(
-                MapleCodeCompactionEvent {
+                MaplecodeCompactionEvent {
                     thread_id: "thread-review".to_string(),
                     turn_id: "turn-compact".to_string(),
                     trigger: CompactionTrigger::Manual,

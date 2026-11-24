@@ -18,7 +18,7 @@ use crate::facts::ExternalAgentConfigImportFailureInput;
 use crate::facts::HookRunFact;
 use crate::facts::HookRunInput;
 use crate::facts::ImagePreparationFact;
-use crate::facts::MapleCodeGoalEvent;
+use crate::facts::MaplecodeGoalEvent;
 use crate::facts::McpToolCallElicitation;
 use crate::facts::PluginInstallFailedInput;
 use crate::facts::PluginInstallRequested;
@@ -31,7 +31,7 @@ use crate::facts::SkillInvocation;
 use crate::facts::SkillInvokedInput;
 use crate::facts::SubAgentThreadStartedInput;
 use crate::facts::TrackEventsContext;
-use crate::facts::TurnMapleCodeErrorFact;
+use crate::facts::TurnMaplecodeErrorFact;
 use crate::facts::TurnProfileFact;
 use crate::facts::TurnResolvedConfigFact;
 use crate::facts::TurnTokenUsageFact;
@@ -68,7 +68,7 @@ use maplecode_features::RuntimeAuthMode;
 use maplecode_http_client::OPENAI_ORGANIZATION_HEADER;
 use maplecode_http_client::OPENAI_PROJECT_HEADER;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::ChatgptBaseUrl;
 use maplecode_plugin::PluginId;
 use maplecode_plugin::PluginTelemetryMetadata;
@@ -178,11 +178,11 @@ impl AnalyticsEventsDestination {
         }
     }
 
-    fn url_for_auth(&self, auth: &MapleCodeAuth) -> Option<String> {
+    fn url_for_auth(&self, auth: &MaplecodeAuth) -> Option<String> {
         match self {
             Self::Http { base_url, .. } => {
                 let base_url = base_url.resolve(auth).trim_end_matches('/');
-                Some(format!("{base_url}/maplecode/analytics-events/events"))
+                Some(format!("{base_url}/codex/analytics-events/events"))
             }
             #[cfg(debug_assertions)]
             Self::CaptureFile { .. } => None,
@@ -684,7 +684,7 @@ impl AnalyticsEventsClient {
         ));
     }
 
-    pub fn track_compaction(&self, event: crate::facts::MapleCodeCompactionEvent) {
+    pub fn track_compaction(&self, event: crate::facts::MaplecodeCompactionEvent) {
         self.record_fact(AnalyticsFact::Custom(CustomAnalyticsFact::Compaction(
             Box::new(event),
         )));
@@ -703,7 +703,7 @@ impl AnalyticsEventsClient {
         )));
     }
 
-    pub fn track_goal_event(&self, event: MapleCodeGoalEvent) {
+    pub fn track_goal_event(&self, event: MaplecodeGoalEvent) {
         self.record_fact(AnalyticsFact::Custom(CustomAnalyticsFact::Goal(Box::new(
             event,
         ))));
@@ -739,9 +739,9 @@ impl AnalyticsEventsClient {
         )));
     }
 
-    pub fn track_turn_maplecode_error(&self, fact: TurnMapleCodeErrorFact) {
+    pub fn track_turn_maplecode_error(&self, fact: TurnMaplecodeErrorFact) {
         self.record_fact(AnalyticsFact::Custom(
-            CustomAnalyticsFact::TurnMapleCodeError(Box::new(fact)),
+            CustomAnalyticsFact::TurnMaplecodeError(Box::new(fact)),
         ));
     }
 
@@ -1143,7 +1143,7 @@ fn track_event_request_batches(events: Vec<TrackEventRequest>) -> Vec<Vec<TrackE
 }
 
 async fn send_track_events_request(
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     destination: &AnalyticsEventsDestination,
     events: Vec<TrackEventRequest>,
     http_client_factory: &maplecode_http_client::HttpClientFactory,

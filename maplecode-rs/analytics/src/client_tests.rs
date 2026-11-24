@@ -12,28 +12,28 @@ use super::track_event_request_batches;
 use crate::events::AppServerRpcTransport;
 #[cfg(debug_assertions)]
 use crate::events::FinalApprovalOutcome;
-use crate::events::MapleCodeAcceptedLineFingerprintsEventParams;
-use crate::events::MapleCodeAcceptedLineFingerprintsEventRequest;
+use crate::events::MaplecodeAcceptedLineFingerprintsEventParams;
+use crate::events::MaplecodeAcceptedLineFingerprintsEventRequest;
 #[cfg(debug_assertions)]
-use crate::events::MapleCodeAppServerClientMetadata;
+use crate::events::MaplecodeAppServerClientMetadata;
 #[cfg(debug_assertions)]
-use crate::events::MapleCodeMcpToolCallEventParams;
+use crate::events::MaplecodeMcpToolCallEventParams;
 #[cfg(debug_assertions)]
-use crate::events::MapleCodeMcpToolCallEventRequest;
+use crate::events::MaplecodeMcpToolCallEventRequest;
 #[cfg(debug_assertions)]
-use crate::events::MapleCodePluginMeasurementEventParams;
+use crate::events::MaplecodePluginMeasurementEventParams;
 #[cfg(debug_assertions)]
-use crate::events::MapleCodePluginMeasurementEventRequest;
+use crate::events::MaplecodePluginMeasurementEventRequest;
 #[cfg(debug_assertions)]
-use crate::events::MapleCodePluginMetadata;
+use crate::events::MaplecodePluginMetadata;
 #[cfg(debug_assertions)]
-use crate::events::MapleCodePluginUsedEventRequest;
+use crate::events::MaplecodePluginUsedEventRequest;
 #[cfg(debug_assertions)]
-use crate::events::MapleCodePluginUsedMetadata;
+use crate::events::MaplecodePluginUsedMetadata;
 #[cfg(debug_assertions)]
-use crate::events::MapleCodeRuntimeMetadata;
+use crate::events::MaplecodeRuntimeMetadata;
 #[cfg(debug_assertions)]
-use crate::events::MapleCodeToolItemEventBase;
+use crate::events::MaplecodeToolItemEventBase;
 use crate::events::SkillInvocationEventParams;
 use crate::events::SkillInvocationEventRequest;
 #[cfg(debug_assertions)]
@@ -131,9 +131,9 @@ impl AnalyticsEventsClient {
 
 fn sample_accepted_line_fingerprint_event(thread_id: &str) -> TrackEventRequest {
     TrackEventRequest::AcceptedLineFingerprints(Box::new(
-        MapleCodeAcceptedLineFingerprintsEventRequest {
+        MaplecodeAcceptedLineFingerprintsEventRequest {
             event_type: "maplecode_accepted_line_fingerprints",
-            event_params: MapleCodeAcceptedLineFingerprintsEventParams {
+            event_params: MaplecodeAcceptedLineFingerprintsEventParams {
                 event_type: "maplecode.accepted_line_fingerprints",
                 turn_id: "turn-1".to_string(),
                 thread_id: thread_id.to_string(),
@@ -202,10 +202,10 @@ fn sample_regular_track_event(thread_id: &str) -> TrackEventRequest {
 
 #[cfg(debug_assertions)]
 fn sample_mcp_tool_call_event(thread_id: &str, plugin_id: Option<&str>) -> TrackEventRequest {
-    TrackEventRequest::McpToolCall(MapleCodeMcpToolCallEventRequest {
+    TrackEventRequest::McpToolCall(MaplecodeMcpToolCallEventRequest {
         event_type: "maplecode_mcp_tool_call_event",
-        event_params: MapleCodeMcpToolCallEventParams {
-            base: MapleCodeToolItemEventBase {
+        event_params: MaplecodeMcpToolCallEventParams {
+            base: MaplecodeToolItemEventBase {
                 turn_trigger: None,
                 thread_id: thread_id.to_string(),
                 session_id: format!("session-{thread_id}"),
@@ -216,14 +216,14 @@ fn sample_mcp_tool_call_event(thread_id: &str, plugin_id: Option<&str>) -> Track
                 parent_call_id: None,
                 originating_response_id: None,
                 subsequent_response_id: None,
-                app_server_client: MapleCodeAppServerClientMetadata {
+                app_server_client: MaplecodeAppServerClientMetadata {
                     product_client_id: "maplecode_desktop".to_string(),
                     client_name: None,
                     client_version: None,
                     rpc_transport: AppServerRpcTransport::InProcess,
                     experimental_api_enabled: None,
                 },
-                runtime: MapleCodeRuntimeMetadata {
+                runtime: MaplecodeRuntimeMetadata {
                     maplecode_rs_version: "0.0.0".to_string(),
                     runtime_os: "test".to_string(),
                     runtime_os_version: "test".to_string(),
@@ -260,11 +260,11 @@ fn sample_mcp_tool_call_event(thread_id: &str, plugin_id: Option<&str>) -> Track
 
 #[cfg(debug_assertions)]
 fn sample_plugin_used_track_event(thread_id: &str, plugin_id: Option<&str>) -> TrackEventRequest {
-    TrackEventRequest::PluginUsed(MapleCodePluginUsedEventRequest {
+    TrackEventRequest::PluginUsed(MaplecodePluginUsedEventRequest {
         event_type: "maplecode_plugin_used",
-        event_params: MapleCodePluginUsedMetadata {
+        event_params: MaplecodePluginUsedMetadata {
             turn_trigger: None,
-            plugin: MapleCodePluginMetadata {
+            plugin: MaplecodePluginMetadata {
                 plugin_id: plugin_id.map(str::to_string),
                 remote_plugin_id: None,
                 plugin_name: Some("sample".to_string()),
@@ -374,7 +374,7 @@ fn analytics_destination_uses_http_without_capture_file() {
             .into_iter()
             .zip(expected_urls)
         {
-            let auth = maplecode_login::MapleCodeAuth::from_api_key(api_key);
+            let auth = maplecode_login::MaplecodeAuth::from_api_key(api_key);
             assert_eq!(
                 destination.url_for_auth(&auth).as_deref(),
                 Some(expected_url)
@@ -409,7 +409,7 @@ async fn capture_file_writes_exact_serialized_request() {
     };
     let event = sample_regular_track_event("thread-1");
     let expected_event = serde_json::to_value(&event).expect("serialize expected event");
-    let auth = maplecode_login::MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = maplecode_login::MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let factory = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault);
     // Capture-only delivery must not initialize or depend on runtime authentication.
@@ -441,7 +441,7 @@ async fn capture_file_writes_final_batches_as_separate_lines() {
     let destination = AnalyticsEventsDestination::CaptureFile {
         path: capture_path.clone(),
     };
-    let auth = maplecode_login::MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = maplecode_login::MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let events = vec![
         sample_regular_track_event("thread-1"),
         sample_accepted_line_fingerprint_event("thread-2"),
@@ -485,12 +485,12 @@ async fn api_key_auth_sends_only_plugin_events_to_maplecode_backend() {
         path: capture_path.clone(),
     };
     let auth_manager = maplecode_login::AuthManager::from_auth_for_testing(
-        maplecode_login::MapleCodeAuth::from_api_key("sk-test"),
+        maplecode_login::MaplecodeAuth::from_api_key("sk-test"),
     );
     let plugin_measurement = |thread_id: &str, plugin_id: &str| {
-        TrackEventRequest::PluginMeasurement(MapleCodePluginMeasurementEventRequest {
+        TrackEventRequest::PluginMeasurement(MaplecodePluginMeasurementEventRequest {
             event_type: "maplecode_plugin_measurement_event",
-            event_params: MapleCodePluginMeasurementEventParams {
+            event_params: MaplecodePluginMeasurementEventParams {
                 model_slug: None,
                 reasoning_effort: None,
                 thread_id: thread_id.to_string(),
@@ -974,7 +974,7 @@ async fn flush_waits_for_preceding_fact_delivery() {
 async fn flush_is_noop_when_analytics_is_disabled() {
     let client = AnalyticsEventsClient::new(
         maplecode_login::AuthManager::from_auth_for_testing(
-            maplecode_login::MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            maplecode_login::MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         ),
         "https://chatgpt.com/backend-api".to_string(),
         /*analytics_enabled*/ Some(false),
