@@ -68,7 +68,7 @@ async fn a_supplied_chatgpt_token_does_not_replace_config_server_sign_in() {
         }),
         ..Default::default()
     };
-    let chatgpt = maplecode_login::MapleCodeAuth::from_external_chatgpt_tokens(
+    let chatgpt = maplecode_login::MaplecodeAuth::from_external_chatgpt_tokens(
         "e30.e30.c2ln",
         "endor",
         /*chatgpt_plan_type*/ None,
@@ -107,7 +107,7 @@ async fn policy_fetch_uses_replacement_config_server_credentials() {
         .into_bundle()
     });
     for (account, policy) in policies.iter().enumerate() {
-        Mock::given(path("/settings/maplecode/config/bundle"))
+        Mock::given(path("/settings/codex/config/bundle"))
             .and(header("authorization", format!("Bearer account-{account}")))
             .respond_with(ResponseTemplate::new(200).set_body_json(policy))
             .mount(&server)
@@ -189,7 +189,7 @@ async fn cached_policy_is_reused_only_for_the_same_endpoint() {
         CloudConfigBundleFixture::enterprise_requirement("allowed_approval_policies = ['never']")
             .into_bundle();
     Mock::given(method("GET"))
-        .and(path("/settings/maplecode/config/bundle"))
+        .and(path("/settings/codex/config/bundle"))
         .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(&bundle))
         .mount(&server)
         .await;

@@ -7,7 +7,7 @@ use maplecode_config::CloudConfigTomlBundle;
 use maplecode_config::CloudRequirementsFragment;
 use maplecode_config::CloudRequirementsTomlBundle;
 use maplecode_http_client::HttpClientFactory;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use std::future::Future;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -62,7 +62,7 @@ impl BundleRequestError {
 pub(crate) trait BundleClient: Send + Sync {
     fn get_bundle(
         &self,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
     ) -> impl Future<Output = Result<CloudConfigBundle, BundleRequestError>> + Send;
 }
 
@@ -83,7 +83,7 @@ impl BackendBundleClient {
 impl BundleClient for BackendBundleClient {
     async fn get_bundle(
         &self,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
     ) -> Result<CloudConfigBundle, BundleRequestError> {
         let client = BackendClient::from_auth(
             self.base_url.clone(),

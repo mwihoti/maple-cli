@@ -10,7 +10,7 @@ use maplecode_config::ConfigRequirementsToml;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AuthConfig;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::account::PlanType;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -172,7 +172,7 @@ pub async fn chatgpt_config_bundle_loader_for_storage(
 /// Use the configured policy server or the supplied account's ChatGPT policy when eligible.
 pub async fn managed_config_bundle_loader_for_auth(
     config: AuthConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     requirements: &ConfigRequirementsToml,
 ) -> std::io::Result<CloudConfigBundleLoader> {
     if requirements.config_server.is_some() {

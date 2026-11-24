@@ -7,7 +7,7 @@ use crate::config_source::BundleSource;
 use maplecode_config::CloudConfigBundle;
 use maplecode_config::CloudConfigBundleLoadError;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::RefreshTokenError;
 use maplecode_login::UnauthorizedRecovery;
 use maplecode_protocol::account::PlanType;
@@ -33,13 +33,13 @@ pub(crate) struct ChatGptSource<C> {
 }
 
 impl<C: BundleClient> BundleSource for ChatGptSource<C> {
-    type Auth = MapleCodeAuth;
+    type Auth = MaplecodeAuth;
     type FetchContext = UnauthorizedRecovery;
     fn begin_fetch(&self) -> Self::FetchContext {
         self.auth_manager.unauthorized_recovery()
     }
 
-    async fn auth(&self) -> Result<Option<MapleCodeAuth>, CloudConfigBundleLoadError> {
+    async fn auth(&self) -> Result<Option<MaplecodeAuth>, CloudConfigBundleLoadError> {
         Ok(self.auth_manager.auth().await.filter(|auth| {
             auth.uses_maplecode_backend()
                 && auth
@@ -48,13 +48,13 @@ impl<C: BundleClient> BundleSource for ChatGptSource<C> {
         }))
     }
 
-    fn identity(&self, auth: &MapleCodeAuth) -> (Option<String>, Option<String>) {
+    fn identity(&self, auth: &MaplecodeAuth) -> (Option<String>, Option<String>) {
         (auth.get_chatgpt_user_id(), auth.get_account_id())
     }
 
     async fn get_bundle(
         &self,
-        auth: &mut MapleCodeAuth,
+        auth: &mut MaplecodeAuth,
         _context: &mut UnauthorizedRecovery,
     ) -> Result<CloudConfigBundle, BundleRequestError> {
         self.client.get_bundle(auth).await
@@ -62,7 +62,7 @@ impl<C: BundleClient> BundleSource for ChatGptSource<C> {
 
     async fn recover_auth(
         &self,
-        auth: &mut MapleCodeAuth,
+        auth: &mut MaplecodeAuth,
         recovery: &mut UnauthorizedRecovery,
         status_code: Option<u16>,
         _recovery_attempt: usize,

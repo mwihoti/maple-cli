@@ -19,7 +19,7 @@ use maplecode_config::CloudRequirementsTomlBundle;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_login::AuthKeyringBackendKind;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::AgentIdentityAuth;
 use maplecode_login::auth::AgentIdentityAuthRecord;
 use maplecode_login::auth::ExternalAuth;
@@ -127,7 +127,7 @@ async fn auth_manager_with_plan(plan_type: &str) -> Arc<AuthManager> {
 async fn auth_manager_with_agent_identity_business_plan() -> Arc<AuthManager> {
     let key_material = maplecode_agent_identity::generate_agent_key_material()
         .expect("generate agent key material");
-    AuthManager::from_auth_for_testing(MapleCodeAuth::AgentIdentity(
+    AuthManager::from_auth_for_testing(MaplecodeAuth::AgentIdentity(
         AgentIdentityAuth::from_record(
             AgentIdentityAuthRecord {
                 agent_runtime_id: "agent-runtime-123".to_string(),
@@ -378,7 +378,7 @@ impl StaticBundleClient {
 impl BundleClient for StaticBundleClient {
     async fn get_bundle(
         &self,
-        _auth: &MapleCodeAuth,
+        _auth: &MaplecodeAuth,
     ) -> Result<CloudConfigBundle, BundleRequestError> {
         self.request_count.fetch_add(1, Ordering::SeqCst);
         Ok(self.bundle.clone())
@@ -390,7 +390,7 @@ struct PendingBundleClient;
 impl BundleClient for PendingBundleClient {
     async fn get_bundle(
         &self,
-        _auth: &MapleCodeAuth,
+        _auth: &MaplecodeAuth,
     ) -> Result<CloudConfigBundle, BundleRequestError> {
         pending::<()>().await;
         Ok(CloudConfigBundle::default())
@@ -411,7 +411,7 @@ impl Drop for NotifyingPendingBundleClient {
 impl BundleClient for NotifyingPendingBundleClient {
     async fn get_bundle(
         &self,
-        _auth: &MapleCodeAuth,
+        _auth: &MaplecodeAuth,
     ) -> Result<CloudConfigBundle, BundleRequestError> {
         self.request_started.notify_one();
         pending::<()>().await;
@@ -440,7 +440,7 @@ impl SequenceBundleClient {
 impl BundleClient for SequenceBundleClient {
     async fn get_bundle(
         &self,
-        _auth: &MapleCodeAuth,
+        _auth: &MaplecodeAuth,
     ) -> Result<CloudConfigBundle, BundleRequestError> {
         let attempt = self.request_count.fetch_add(1, Ordering::SeqCst);
         self.request_started.notify_one();
@@ -463,7 +463,7 @@ struct TokenBundleClient {
 impl BundleClient for TokenBundleClient {
     async fn get_bundle(
         &self,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
     ) -> Result<CloudConfigBundle, BundleRequestError> {
         self.request_count.fetch_add(1, Ordering::SeqCst);
         if matches!(
@@ -486,13 +486,13 @@ struct UnauthorizedBundleClient {
 }
 
 struct TestExternalChatgptAuth {
-    current: RwLock<MapleCodeAuth>,
-    refreshed: MapleCodeAuth,
+    current: RwLock<MaplecodeAuth>,
+    refreshed: MaplecodeAuth,
     refresh_count: AtomicUsize,
 }
 
 impl ExternalAuth for TestExternalChatgptAuth {
-    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             self.current
                 .read()
@@ -504,7 +504,7 @@ impl ExternalAuth for TestExternalChatgptAuth {
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             let refreshed = self.refreshed.clone();
             *self
@@ -521,7 +521,7 @@ impl ExternalAuth for TestExternalChatgptAuth {
 impl BundleClient for UnauthorizedBundleClient {
     async fn get_bundle(
         &self,
-        _auth: &MapleCodeAuth,
+        _auth: &MaplecodeAuth,
     ) -> Result<CloudConfigBundle, BundleRequestError> {
         self.request_count.fetch_add(1, Ordering::SeqCst);
         Err(BundleRequestError::Unauthorized {
@@ -1179,14 +1179,14 @@ async fn external_auth_recovers_once_per_bundle_fetch() {
         )
         .await,
     );
-    let initial_auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let initial_auth = MaplecodeAuth::from_external_chatgpt_tokens(
         &fake_chatgpt_jwt("enterprise", Some("user-12345"), b"initial"),
         "account-12345",
         Some("enterprise"),
     )
     .expect("initial external auth");
     let refreshed_token = fake_chatgpt_jwt("enterprise", Some("user-12345"), b"refreshed");
-    let refreshed_auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let refreshed_auth = MaplecodeAuth::from_external_chatgpt_tokens(
         &refreshed_token,
         "account-12345",
         Some("enterprise"),
