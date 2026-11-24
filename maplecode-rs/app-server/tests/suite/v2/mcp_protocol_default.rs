@@ -67,7 +67,7 @@ async fn enabling_hosted_apps_protocol_refreshes_an_existing_thread() -> Result<
         .await
         .expect("mock server should capture Apps MCP startup requests")
         .into_iter()
-        .filter(|request| request.url.path() == "/api/maplecode/ps/mcp")
+        .filter(|request| request.url.path() == "/api/codex/ps/mcp")
         .filter_map(|request| {
             let body: Value = serde_json::from_slice(&request.body).ok()?;
             body.get("method")?.as_str().map(str::to_string)
@@ -104,7 +104,7 @@ async fn enabling_hosted_apps_protocol_refreshes_an_existing_thread() -> Result<
         .await
         .expect("mock server should capture Apps MCP startup requests")
         .into_iter()
-        .filter(|request| request.url.path() == "/api/maplecode/ps/mcp")
+        .filter(|request| request.url.path() == "/api/codex/ps/mcp")
         .filter_map(|request| {
             let body: Value = serde_json::from_slice(&request.body).ok()?;
             body.get("method")?.as_str().map(str::to_string)

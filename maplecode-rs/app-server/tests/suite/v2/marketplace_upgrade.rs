@@ -611,7 +611,7 @@ PATH=$TEST_GIT_PATH exec git "$@"
         root.as_path(),
         &[
             "-c",
-            "user.name=MapleCode",
+            "user.name=Maplecode",
             "-c",
             "user.email=maplecode@example.com",
             "commit",

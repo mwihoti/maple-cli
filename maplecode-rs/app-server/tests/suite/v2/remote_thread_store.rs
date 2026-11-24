@@ -58,7 +58,7 @@ use maplecode_core::config::Config;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_exec_server::EnvironmentManager;
 use maplecode_features::Feature;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::models::BaseInstructions;
 use maplecode_protocol::protocol::SessionSource;
@@ -709,7 +709,7 @@ async fn start_in_process_client(
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         embedded_network_policy: Default::default(),
         thread_config_loader: Arc::new(NoopThreadConfigLoader),
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: None,
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),

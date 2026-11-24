@@ -19,7 +19,7 @@ use maplecode_config::CloudConfigBundleLoader;
 use maplecode_config::LoaderOverrides;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_exec_server::EnvironmentManager;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::models::BaseInstructions;
 use maplecode_protocol::protocol::SessionSource;
@@ -166,7 +166,7 @@ async fn get_conversation_summary_by_thread_id_reads_pathless_store_thread() -> 
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         embedded_network_policy: Default::default(),
         thread_config_loader: Arc::new(maplecode_config::NoopThreadConfigLoader),
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: None,
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),

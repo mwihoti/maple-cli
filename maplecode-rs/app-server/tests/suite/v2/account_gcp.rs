@@ -77,7 +77,7 @@ async fn gcp_account_tracks_provider_changes_with_saved_chatgpt_credentials() ->
         ),
         (
             "amazon-bedrock",
-            json!({"account": {"type": "amazonBedrock", "usesMapleCodeManagedCredentials": false}, "userId": null, "requiresOpenaiAuth": false, "workspaceRouting": null}),
+            json!({"account": {"type": "amazonBedrock", "usesMaplecodeManagedCredentials": false}, "userId": null, "requiresOpenaiAuth": false, "workspaceRouting": null}),
         ),
         (
             "openai",

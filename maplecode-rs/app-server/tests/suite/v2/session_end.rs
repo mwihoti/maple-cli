@@ -187,7 +187,7 @@ with Path(r"{}").open("a", encoding="utf-8") as handle:
     )?;
     MockResponsesConfig::new(server_uri)
         .with_sandbox_mode("danger-full-access")
-        .enable_feature(Feature::MapleCodeHooks)
+        .enable_feature(Feature::MaplecodeHooks)
         .with_extra_config(&format!(
             r#"[[hooks.SessionEnd]]
 matcher = "other"

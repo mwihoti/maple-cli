@@ -277,7 +277,7 @@ async fn setup_bedrock_profile_and_environment() -> Result<()> {
     .await??;
     assert_eq!(
         error.error.message,
-        "MapleCode-managed Bedrock credentials are already configured and take priority over AWS environment credentials. Run `maplecode logout` and try again."
+        "Maplecode-managed Bedrock credentials are already configured and take priority over AWS environment credentials. Run `maplecode logout` and try again."
     );
     assert_eq!(std::fs::read_to_string(&auth_path)?, expected_auth);
     assert_eq!(

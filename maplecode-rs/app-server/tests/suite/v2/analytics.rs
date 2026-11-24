@@ -730,7 +730,7 @@ pub(crate) async fn mount_analytics_capture(
     maplecode_home: &Path,
 ) -> Result<()> {
     Mock::given(method("POST"))
-        .and(path("/maplecode/analytics-events/events"))
+        .and(path("/codex/analytics-events/events"))
         .respond_with(ResponseTemplate::new(200))
         .mount(server)
         .await;
@@ -754,7 +754,7 @@ pub(crate) async fn captured_analytics_events(server: &MockServer) -> Vec<Value>
         .await
         .unwrap_or_default()
         .into_iter()
-        .filter(|request| request.url.path() == "/maplecode/analytics-events/events")
+        .filter(|request| request.url.path() == "/codex/analytics-events/events")
         .flat_map(|request| {
             let payload: Value = serde_json::from_slice(&request.body).expect("analytics payload");
             payload["events"]
@@ -776,8 +776,7 @@ pub(crate) async fn wait_for_analytics_payload(
                 continue;
             };
             if let Some(request) = requests.iter().find(|request| {
-                request.method == "POST"
-                    && request.url.path() == "/maplecode/analytics-events/events"
+                request.method == "POST" && request.url.path() == "/codex/analytics-events/events"
             }) {
                 break request.body.clone();
             }
@@ -829,7 +828,7 @@ pub(crate) async fn wait_for_matching_analytics_event(
                     || !request
                         .url
                         .path()
-                        .ends_with("/maplecode/analytics-events/events")
+                        .ends_with("/codex/analytics-events/events")
                 {
                     continue;
                 }
@@ -1202,7 +1201,7 @@ enabled = true
         .await
         .unwrap_or_default()
     {
-        if request.method != "POST" || request.url.path() != "/maplecode/analytics-events/events" {
+        if request.method != "POST" || request.url.path() != "/codex/analytics-events/events" {
             continue;
         }
         let payload: Value = serde_json::from_slice(&request.body)?;

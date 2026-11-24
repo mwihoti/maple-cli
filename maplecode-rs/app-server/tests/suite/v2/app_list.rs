@@ -1623,7 +1623,7 @@ async fn start_apps_server_with_delays_and_control_inner(
 
     let router = Router::new()
         .route(
-            "/api/maplecode/accounts/check",
+            "/api/codex/accounts/check",
             get(|State(state): State<Arc<AppsServerState>>| async move {
                 Json(json!({
                     "accounts": [{
@@ -1640,7 +1640,7 @@ async fn start_apps_server_with_delays_and_control_inner(
             get(list_directory_connectors),
         )
         .with_state(state)
-        .nest_service("/api/maplecode/ps/mcp", mcp_service);
+        .nest_service("/api/codex/ps/mcp", mcp_service);
 
     let handle = tokio::spawn(async move {
         let _ = axum::serve(listener, router).await;

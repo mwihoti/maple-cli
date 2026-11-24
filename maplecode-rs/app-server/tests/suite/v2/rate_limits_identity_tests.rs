@@ -60,7 +60,7 @@ async fn identity_is_rechecked_after_backend_response(
     )?;
     let expected_authorization = format!("Bearer {old_token}");
     let router = Router::new().route(
-        "/api/maplecode/usage",
+        "/api/codex/usage",
         get(move |headers: HeaderMap| {
             let expected_authorization = expected_authorization.clone();
             let entered = Arc::clone(&request_entered);

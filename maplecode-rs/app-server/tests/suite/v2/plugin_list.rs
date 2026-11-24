@@ -2032,7 +2032,7 @@ async fn app_server_startup_downloads_installed_plugin_bundles_without_discovery
     for endpoint in [
         "/backend-api/ps/plugins/list",
         "/backend-api/plugins/featured",
-        "/backend-api/ps/plugins/suggested/maplecode",
+        "/backend-api/ps/plugins/suggested/codex",
     ] {
         Mock::given(path(endpoint))
             .respond_with(ResponseTemplate::new(404))

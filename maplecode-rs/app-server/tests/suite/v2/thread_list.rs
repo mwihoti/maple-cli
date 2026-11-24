@@ -1187,7 +1187,7 @@ async fn thread_list_db_only_errors_distinguish_unavailable_database_from_empty_
     use maplecode_config::NoopThreadConfigLoader;
     use maplecode_core::config::ConfigBuilder;
     use maplecode_exec_server::EnvironmentManager;
-    use maplecode_feedback::MapleCodeFeedback;
+    use maplecode_feedback::MaplecodeFeedback;
     use std::sync::Arc;
 
     let home = TempDir::new()?;
@@ -1239,7 +1239,7 @@ async fn thread_list_db_only_errors_distinguish_unavailable_database_from_empty_
             cloud_config_bundle: CloudConfigBundleLoader::default(),
             embedded_network_policy: Default::default(),
             thread_config_loader: Arc::new(NoopThreadConfigLoader),
-            feedback: MapleCodeFeedback::new(),
+            feedback: MaplecodeFeedback::new(),
             log_db: None,
             state_db,
             environment_manager: Arc::new(EnvironmentManager::default_for_tests()),

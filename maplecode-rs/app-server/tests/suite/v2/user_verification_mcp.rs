@@ -126,14 +126,14 @@ async fn user_verification_mcp_round_trip_requires_proof_in_full_access() -> Res
     );
     let listener = TcpListener::bind("127.0.0.1:0").await?;
     let base_url = format!("http://{}", listener.local_addr()?);
-    let router = Router::new().nest_service("/api/maplecode/ps/mcp", service);
+    let router = Router::new().nest_service("/api/codex/ps/mcp", service);
     let _server = AbortOnDropHandle::new(tokio::spawn(async move {
         axum::serve(listener, router).await.unwrap();
     }));
     let model_server = start_mock_server().await;
     let mut extensions = ExtensionRegistryBuilder::new();
     let plugin_service_config = serde_json::from_value(json!({
-        "url": format!("{base_url}/api/maplecode/ps/mcp"),
+        "url": format!("{base_url}/api/codex/ps/mcp"),
     }))?;
     extensions.mcp_server_contributor(Arc::new(HostedVerificationServer(plugin_service_config)));
     let test = apps_enabled_builder(base_url)

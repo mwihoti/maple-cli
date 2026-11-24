@@ -47,7 +47,7 @@ async fn mcp_event_stream_waits_for_activation_forwards_events_and_cancels() -> 
     let allow_activation = Arc::new(Notify::new());
     let activation_gate = Arc::clone(&allow_activation);
     let router = Router::new().route(
-        "/api/maplecode/ps/mcp",
+        "/api/codex/ps/mcp",
         post(move |Json(message): Json<Value>| {
             let stream_started_tx = stream_started_tx.clone();
             let allow_activation = Arc::clone(&activation_gate);

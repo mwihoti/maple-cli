@@ -585,7 +585,7 @@ impl InstalledAppsFixture {
         );
         let router = Router::new()
             .route(
-                "/api/maplecode/config/bundle",
+                "/api/codex/config/bundle",
                 get(|| async { Json(json!({})) }),
             )
             .route("/connectors/directory/list", get(list_directory_apps))
@@ -593,7 +593,7 @@ impl InstalledAppsFixture {
                 "/connectors/directory/list_workspace",
                 get(list_directory_apps),
             )
-            .nest_service("/api/maplecode/ps/mcp", mcp_service)
+            .nest_service("/api/codex/ps/mcp", mcp_service)
             .with_state(Arc::clone(&state));
         let handle = tokio::spawn(async move {
             let _ = axum::serve(listener, router).await;

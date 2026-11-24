@@ -34,7 +34,7 @@ use maplecode_config::types::OAuthCredentialsStoreMode;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_exec_server::EnvironmentManager;
 use maplecode_features::Feature;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_login::MAPLECODE_ACCESS_TOKEN_ENV_VAR;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_rmcp_client::stored_oauth_credentials;
@@ -216,12 +216,12 @@ async fn enterprise_login_attempt_lifecycle() -> Result<()> {
     app_test_support::mount_workspace_routing(&server).await;
     let origin = server.uri();
     let issuer = format!("{}/idp", idp_server.uri());
-    let resource = format!("{origin}/api/maplecode/ps/mcp");
+    let resource = format!("{origin}/api/codex/ps/mcp");
     core_test_support::apps_test_server::AppsTestServer::mount(&server).await?;
     let catalog_meta = json!({"enterpriseCatalog": "calendar"});
     let response_meta = catalog_meta.clone();
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(wiremock::matchers::header_regex(
             "authorization",
             "^Bearer enterprise-resource-",
@@ -242,7 +242,7 @@ async fn enterprise_login_attempt_lifecycle() -> Result<()> {
         .await;
     Mock::given(method("GET"))
         .and(path(
-            "/.well-known/oauth-protected-resource/api/maplecode/ps/mcp",
+            "/.well-known/oauth-protected-resource/api/codex/ps/mcp",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "resource": resource, "authorization_servers": [format!("{origin}/as")],
@@ -302,7 +302,7 @@ async fn enterprise_login_attempt_lifecycle() -> Result<()> {
             }))
         }).mount(&server).await;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(header("authorization", "Bearer enterprise-resource-1"))
         .and(body_partial_json(json!({"method": "tools/call"})))
         .respond_with(ResponseTemplate::new(401))
@@ -479,7 +479,7 @@ oauth = {{ client_id = "mcp-client", client_secret = "resource-secret", token_en
         strict_config: false,
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         thread_config_loader: Arc::new(NoopThreadConfigLoader),
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: Some(state_db),
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
@@ -1131,7 +1131,7 @@ oauth = {{ client_id = "mcp-client", client_secret = "resource-secret", token_en
     account_auth["tokens"]["refresh_token"] = json!("rotated-account-refresh");
     std::fs::write(&auth_path, serde_json::to_vec(&account_auth)?)?;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(header("authorization", "Bearer enterprise-resource-4"))
         .and(body_partial_json(json!({"method":"tools/call"})))
         .respond_with(ResponseTemplate::new(401))
@@ -1264,7 +1264,7 @@ oauth = {{ client_id = "mcp-client", client_secret = "resource-secret", token_en
         .mount(&idp_server)
         .await;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(header("authorization", "Bearer enterprise-resource-7"))
         .and(body_partial_json(json!({"method":"tools/call"})))
         .respond_with(ResponseTemplate::new(401))
@@ -1730,7 +1730,7 @@ oauth = {{ client_id = "mcp-client", authorization_server_issuer = "{origin}/as"
             strict_config: false,
             cloud_config_bundle: CloudConfigBundleLoader::default(),
             thread_config_loader: Arc::new(NoopThreadConfigLoader),
-            feedback: MapleCodeFeedback::new(),
+            feedback: MaplecodeFeedback::new(),
             log_db: None,
             state_db: None,
             environment_manager: Arc::new(EnvironmentManager::default_for_tests()),

@@ -8,7 +8,7 @@ use maplecode_app_server_protocol::ErrorNotification;
 use maplecode_app_server_protocol::ItemCompletedNotification;
 use maplecode_app_server_protocol::ItemStartedNotification;
 use maplecode_app_server_protocol::JSONRPCMessage;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::ModelRerouteReason;
 use maplecode_app_server_protocol::ModelReroutedNotification;
 use maplecode_app_server_protocol::ModelVerification;
@@ -139,7 +139,7 @@ async fn cyber_policy_response_emits_typed_error_notification_v2() -> Result<()>
             error: maplecode_app_server_protocol::TurnError {
                 misalignment: None,
                 message: CYBER_POLICY_MESSAGE.to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::CyberPolicy),
+                maplecode_error_info: Some(MaplecodeErrorInfo::CyberPolicy),
                 additional_details: None,
             },
             will_retry: false,
@@ -451,7 +451,7 @@ async fn collect_cyber_policy_error_and_validate_no_reroute(
                     .params
                     .ok_or_else(|| anyhow::anyhow!("error notifications must include params"))?;
                 let payload: ErrorNotification = serde_json::from_value(params)?;
-                if payload.error.maplecode_error_info == Some(MapleCodeErrorInfo::CyberPolicy) {
+                if payload.error.maplecode_error_info == Some(MaplecodeErrorInfo::CyberPolicy) {
                     error = Some(payload);
                 }
             }

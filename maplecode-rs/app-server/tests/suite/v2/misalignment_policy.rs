@@ -5,7 +5,7 @@ use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use maplecode_app_server_protocol::ClientRequest;
 use maplecode_app_server_protocol::ErrorNotification;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::MisalignmentErrorDetails;
 use maplecode_app_server_protocol::MisalignmentSteer;
 use maplecode_app_server_protocol::ThreadStartParams;
@@ -222,7 +222,7 @@ async fn assert_policy_violation_completes_turn_with_typed_terminal_error(
             error: TurnError {
                 misalignment: expected_misalignment.clone(),
                 message: MESSAGE.to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::MisalignmentPolicyViolation),
+                maplecode_error_info: Some(MaplecodeErrorInfo::MisalignmentPolicyViolation),
                 additional_details: None,
             },
             will_retry: false,
@@ -244,7 +244,7 @@ async fn assert_policy_violation_completes_turn_with_typed_terminal_error(
         Some(TurnError {
             misalignment: expected_misalignment,
             message: MESSAGE.to_string(),
-            maplecode_error_info: Some(MapleCodeErrorInfo::MisalignmentPolicyViolation),
+            maplecode_error_info: Some(MaplecodeErrorInfo::MisalignmentPolicyViolation),
             additional_details: None,
         })
     );

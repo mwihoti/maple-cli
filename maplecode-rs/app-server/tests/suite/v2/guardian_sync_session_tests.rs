@@ -6,7 +6,7 @@ use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
 use maplecode_app_server_protocol::GuardianWarningNotification;
 use maplecode_app_server_protocol::JSONRPCErrorError;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::RawResponseItemCompletedNotification;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::ReviewDelivery;
@@ -135,7 +135,7 @@ async fn circuit_break_action_preserves_warning_and_reports_error_in_live_and_sa
             timeout(TIMEOUT, app.read_notification("turn/completed")).await??;
         let expected_error = (action == Some("strict")).then_some(TurnError {
             message: warning.message,
-            maplecode_error_info: Some(MapleCodeErrorInfo::TooManyDenials),
+            maplecode_error_info: Some(MaplecodeErrorInfo::TooManyDenials),
             additional_details: None,
             misalignment: None,
         });

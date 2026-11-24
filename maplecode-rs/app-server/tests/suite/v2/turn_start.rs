@@ -390,7 +390,7 @@ async fn tool_call_metadata_stays_out_of_raw_response_item_notifications(
         "isError": false,
     });
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(body_partial_json(json!({
             "method": "tools/call",
             "params": {"name": "calendar_list_events", "arguments": arguments},

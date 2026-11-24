@@ -74,7 +74,7 @@ use maplecode_core::ARCHIVED_SESSIONS_SUBDIR;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_exec_server::EnvironmentManager;
 use maplecode_features::Feature;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::PermissionProfile;
@@ -275,7 +275,7 @@ async fn mcp_resource_read_preserves_protocol_errors(protocol: ProtocolVersion) 
     let (apps_server_url, _calls, apps_server_handle) = start_resource_apps_mcp_server().await?;
     let maplecode_home = TempDir::new()?;
     let config = MockResponsesConfig::new(&responses_server.uri()).with_extra_config(&format!(
-        "[mcp_servers.resource_server]\nurl = \"{apps_server_url}/api/maplecode/ps/mcp\""
+        "[mcp_servers.resource_server]\nurl = \"{apps_server_url}/api/codex/ps/mcp\""
     ));
     let config = if protocol == ProtocolVersion::V_2026_07_28 {
         config.enable_feature(Feature::Mcp20260728)
@@ -621,7 +621,7 @@ async fn metadata_and_mcp_requests_complete_while_unrelated_resume_loads_config(
     let maplecode_home = TempDir::new()?;
     MockResponsesConfig::new(&responses_server.uri())
         .with_extra_config(&format!(
-            "[mcp_servers.resource_server]\nurl = \"{mcp_server_url}/api/maplecode/ps/mcp\""
+            "[mcp_servers.resource_server]\nurl = \"{mcp_server_url}/api/codex/ps/mcp\""
         ))
         .write(maplecode_home.path())?;
     let thread_id = create_fake_rollout(
@@ -1326,7 +1326,7 @@ async fn start_resource_in_process_client(
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         embedded_network_policy: Default::default(),
         thread_config_loader,
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: Some(state_db),
         environment_manager,
@@ -1421,7 +1421,7 @@ pub(super) async fn start_resource_apps_mcp_server()
         Arc::new(LocalSessionManager::default()),
         StreamableHttpServerConfig::default(),
     );
-    let router = Router::new().nest_service("/api/maplecode/ps/mcp", mcp_service);
+    let router = Router::new().nest_service("/api/codex/ps/mcp", mcp_service);
     let apps_server_handle = tokio::spawn(async move {
         let _ = axum::serve(listener, router).await;
     });

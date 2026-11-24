@@ -99,8 +99,7 @@ async fn plugin_uninstall_tracks_analytics_event() -> Result<()> {
                 continue;
             };
             if let Some(request) = requests.iter().find(|request| {
-                request.method == "POST"
-                    && request.url.path() == "/maplecode/analytics-events/events"
+                request.method == "POST" && request.url.path() == "/codex/analytics-events/events"
             }) {
                 break request.body.clone();
             }
@@ -676,7 +675,7 @@ async fn wait_for_plugin_analytics_payload(server: &MockServer) -> Result<serde_
                     && request
                         .url
                         .path()
-                        .ends_with("/maplecode/analytics-events/events")
+                        .ends_with("/codex/analytics-events/events")
             }) {
                 return serde_json::from_slice(&request.body)
                     .map_err(|err| anyhow::anyhow!("invalid analytics payload: {err}"));

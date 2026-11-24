@@ -15,7 +15,7 @@ use core_test_support::skip_if_no_network;
 use maplecode_app_server_protocol::ItemCompletedNotification;
 use maplecode_app_server_protocol::ItemStartedNotification;
 use maplecode_app_server_protocol::JSONRPCError;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::RawResponseCompletedNotification;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::ResponseUsageMetadata;
@@ -260,7 +260,7 @@ async fn prediction_context_failure_does_not_compact(reset_context: bool) -> Res
         let error = completed.turn.error.expect("prediction should fail");
         assert_eq!(
             error.maplecode_error_info,
-            Some(MapleCodeErrorInfo::ContextWindowExceeded)
+            Some(MaplecodeErrorInfo::ContextWindowExceeded)
         );
         assert_eq!(requests.len(), 2);
         assert_eq!(

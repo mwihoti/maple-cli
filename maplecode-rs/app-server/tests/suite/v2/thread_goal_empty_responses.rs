@@ -88,7 +88,7 @@ async fn empty_goal_continuations_block_after_three_without_activity(
         .enable_feature(Feature::Goals);
     if recovery == Some("interrupt") {
         config = config
-            .enable_feature(Feature::MapleCodeHooks)
+            .enable_feature(Feature::MaplecodeHooks)
             .with_root_config(
                 "model_auto_compact_token_limit = 200000\nmodel_post_turn_compact_threshold_percent = 0",
             )

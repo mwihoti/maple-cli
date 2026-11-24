@@ -149,7 +149,7 @@ async fn setup_validates_permissions_before_provisioning(
     // Registered tests use a nonexistent service; an invalid hint detects any legacy service call.
     let service_family = if registered_core {
         format!(
-            "MapleCodeSetupTest{}_0000000000000",
+            "MaplecodeSetupTest{}_0000000000000",
             uuid::Uuid::now_v7().simple()
         )
     } else {

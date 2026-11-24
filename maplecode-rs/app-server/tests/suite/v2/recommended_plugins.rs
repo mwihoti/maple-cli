@@ -55,7 +55,7 @@ async fn recommended_plugins_after_external_login(feature: RecommendationFeature
     let server = responses::start_mock_server().await;
     let apps_server = AppsTestServer::mount(&server).await?;
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .and(query_param("scope", "GLOBAL"))
         .respond_with(
             ResponseTemplate::new(200)

@@ -28,7 +28,7 @@ use maplecode_config::LoaderOverrides;
 use maplecode_config::NoopThreadConfigLoader;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_exec_server::EnvironmentManager;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_protocol::protocol::SessionSource;
 use pretty_assertions::assert_eq;
@@ -45,7 +45,7 @@ use wiremock::matchers::header;
 use wiremock::matchers::method;
 use wiremock::matchers::path;
 
-const COST_PATH: &str = "/api/maplecode/usage/thread-estimates/query";
+const COST_PATH: &str = "/api/codex/usage/thread-estimates/query";
 
 #[tokio::test]
 async fn chatgpt_turn_cost_reaches_otlp_on_success() -> Result<()> {
@@ -150,7 +150,7 @@ metrics_exporter = {{ otlp-http = {{ endpoint = "{}/metrics", protocol = "json" 
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         embedded_network_policy: Default::default(),
         thread_config_loader: Arc::new(NoopThreadConfigLoader),
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: None,
         environment_manager: Arc::new(environment_manager),

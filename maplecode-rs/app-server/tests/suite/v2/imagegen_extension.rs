@@ -87,7 +87,7 @@ async fn standalone_image_generation_returns_saved_path_hint_to_model(
     };
     let server = responses::start_mock_server().await;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/images/generations"))
+        .and(path("/api/codex/images/generations"))
         .respond_with(
             ResponseTemplate::new(200)
                 .insert_header("x-maplecode-imagegen-request-id", "req-imagegen-123")
@@ -220,7 +220,7 @@ async fn standalone_image_generation_returns_saved_path_hint_to_model(
         .await
         .context("failed to fetch received requests")?
         .into_iter()
-        .find(|request| request.url.path() == "/api/maplecode/images/generations")
+        .find(|request| request.url.path() == "/api/codex/images/generations")
         .context("image generation request should be sent")?;
     let mut expected_request = json!({
         "prompt": "paint a blue whale",
@@ -612,7 +612,7 @@ async fn invalid_transparent_background_does_not_dispatch(
             .await
             .context("failed to fetch received requests")?
             .iter()
-            .all(|request| !request.url.path().starts_with("/api/maplecode/images/"))
+            .all(|request| !request.url.path().starts_with("/api/codex/images/"))
     );
     Ok(())
 }
@@ -628,7 +628,7 @@ async fn standalone_image_generation_failure_emits_terminal_item(
     let maplecode_home = TempDir::new()?;
     let mut arguments = json!({"prompt": "paint a blue whale"});
     let image_endpoint = match input {
-        ImagegenInput::PromptOnly => "/api/maplecode/images/generations",
+        ImagegenInput::PromptOnly => "/api/codex/images/generations",
         ImagegenInput::ReferencedFile => {
             skip_if_remote!(
                 Ok(()),
@@ -637,7 +637,7 @@ async fn standalone_image_generation_failure_emits_terminal_item(
             let input_path = maplecode_home.path().join("reference.png");
             std::fs::write(&input_path, TINY_PNG_BYTES)?;
             arguments["referenced_image_paths"] = json!([input_path]);
-            "/api/maplecode/images/edits"
+            "/api/codex/images/edits"
         }
     };
     Mock::given(method("POST"))
@@ -758,7 +758,7 @@ async fn image_generation_usage_limit_preserves_correlated_failure_metadata(
     };
     let server = responses::start_mock_server().await;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/images/generations"))
+        .and(path("/api/codex/images/generations"))
         .respond_with(
             ResponseTemplate::new(429)
                 .insert_header("x-maplecode-active-limit", limit_id)
@@ -1114,7 +1114,7 @@ generatedImage(result);
         .await
         .context("failed to fetch received requests")?
         .into_iter()
-        .find(|request| request.url.path() == "/api/maplecode/images/generations")
+        .find(|request| request.url.path() == "/api/codex/images/generations")
         .context("image generation request should be sent")?;
     assert_eq!(
         image_request.body_json::<serde_json::Value>()?,
@@ -1136,7 +1136,7 @@ async fn gif_edit_from_code_mode_preserves_animation_and_api_defaults() -> Resul
     let call_id = "code-mode-gif-edit";
     let server = responses::start_mock_server().await;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/images/edits"))
+        .and(path("/api/codex/images/edits"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "created": 1,
             "background": "opaque",
@@ -1257,7 +1257,7 @@ generatedImage(result);
         .await
         .context("failed to fetch received requests")?
         .into_iter()
-        .find(|request| request.url.path() == "/api/maplecode/images/edits")
+        .find(|request| request.url.path() == "/api/codex/images/edits")
         .context("image edit request should be sent")?;
     // Empty GIF options leave frame count and duration to the Images API defaults.
     assert_eq!(
@@ -1415,7 +1415,7 @@ async fn run_image_edit_test(
         .context("failed to fetch received requests")?;
     let image_request = requests
         .iter()
-        .find(|request| request.url.path() == "/api/maplecode/images/edits")
+        .find(|request| request.url.path() == "/api/codex/images/edits")
         .context("image edit request should be sent")?;
     assert_eq!(
         image_request
@@ -1493,7 +1493,7 @@ async fn wait_for_image_generation_completed(
 
 async fn mount_image_response_with_background(server: &MockServer, background: &str) {
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/images/generations"))
+        .and(path("/api/codex/images/generations"))
         .respond_with(
             ResponseTemplate::new(200)
                 .insert_header("x-maplecode-imagegen-request-id", "req-imagegen-123")
@@ -1510,7 +1510,7 @@ async fn mount_image_response_with_background(server: &MockServer, background: &
 
 async fn mount_image_edit_response(server: &MockServer) {
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/images/edits"))
+        .and(path("/api/codex/images/edits"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "created": 1,
             "background": "transparent",
@@ -1529,7 +1529,7 @@ fn create_config_toml(
     let mut config = MockResponsesConfig::new(server_uri)
         .with_model_provider("openai-custom")
         .with_provider_name("OpenAI")
-        .with_provider_base_url(&format!("{server_uri}/api/maplecode"))
+        .with_provider_base_url(&format!("{server_uri}/api/codex"))
         .with_root_config(&format!("chatgpt_base_url = \"{server_uri}\""))
         .with_provider_config("supports_websockets = false\nrequires_openai_auth = true");
     if matches!(mode, ImagegenTestMode::CodeModeOnly) {

@@ -254,7 +254,7 @@ async fn assert_standalone_web_search_round_trips_output(
     )]);
     let server = responses::start_mock_server().await;
     let search_path = match provider {
-        WebSearchProvider::ChatGpt => "/api/maplecode/alpha/search",
+        WebSearchProvider::ChatGpt => "/api/codex/alpha/search",
         WebSearchProvider::CustomResponses => "/v1/alpha/search",
     };
     mount_search_response(&server, search_path, /*expected_calls*/ 1).await;
@@ -306,7 +306,7 @@ async fn assert_standalone_web_search_round_trips_output(
         WebSearchProvider::ChatGpt => config
             .with_model_provider("openai-custom")
             .with_provider_name("OpenAI")
-            .with_provider_base_url(&format!("{}/api/maplecode", server.uri()))
+            .with_provider_base_url(&format!("{}/api/codex", server.uri()))
             .with_provider_config("requires_openai_auth = true"),
         WebSearchProvider::CustomResponses => config
             .with_model_provider("custom-responses")
@@ -914,7 +914,7 @@ async fn model_lab_search_provider(
                 policy,
                 SearchPolicy::Standalone(_) | SearchPolicy::RequireNativeTelemetry
             ) {
-                meta["openai/maplecode_installation_id"] = json!("desktop-installation");
+                meta["openai/codex_installation_id"] = json!("desktop-installation");
             }
             [("mcp_request_meta".to_string(), meta.to_string())].into()
         }),

@@ -206,7 +206,7 @@ async fn get_account_rate_limits_returns_snapshot(
     });
 
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/usage"))
+        .and(path("/api/codex/usage"))
         .and(header("authorization", "Bearer chatgpt-token"))
         .and(header("chatgpt-account-id", "account-123"))
         .respond_with(ResponseTemplate::new(200).set_body_json(response_body))
@@ -214,7 +214,7 @@ async fn get_account_rate_limits_returns_snapshot(
         .mount(&server)
         .await;
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/rate-limit-reset-credits"))
+        .and(path("/api/codex/rate-limit-reset-credits"))
         .and(header("authorization", "Bearer chatgpt-token"))
         .and(header("chatgpt-account-id", "account-123"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
@@ -352,7 +352,7 @@ async fn get_account_rate_limits_returns_snapshot(
             credits: Some(vec![
                 RateLimitResetCredit {
                     id: "credit-1".to_string(),
-                    reset_type: RateLimitResetType::MapleCodeRateLimits,
+                    reset_type: RateLimitResetType::MaplecodeRateLimits,
                     status: RateLimitResetCreditStatus::Available,
                     granted_at: reset_credit_granted_at,
                     expires_at: Some(reset_credit_expires_at),
@@ -414,7 +414,7 @@ async fn get_account_rate_limits_filters_banner_by_identity(
         "ctas": [{"action": "notify_owner", "label": "Notify owner"}]
     });
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/usage"))
+        .and(path("/api/codex/usage"))
         .and(header("authorization", "Bearer chatgpt-token"))
         .and(header("chatgpt-account-id", "workspace-a"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
@@ -428,7 +428,7 @@ async fn get_account_rate_limits_filters_banner_by_identity(
         .mount(&server)
         .await;
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/rate-limit-reset-credits"))
+        .and(path("/api/codex/rate-limit-reset-credits"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "available_count": 0, "credits": []
         })))
@@ -474,7 +474,7 @@ async fn get_account_rate_limits_preserves_count_when_reset_credit_details_fail(
     write_chatgpt_base_url(maplecode_home.path(), &server.uri())?;
 
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/usage"))
+        .and(path("/api/codex/usage"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "plan_type": "pro",
             "rate_limit": {
@@ -493,7 +493,7 @@ async fn get_account_rate_limits_preserves_count_when_reset_credit_details_fail(
         .mount(&server)
         .await;
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/rate-limit-reset-credits"))
+        .and(path("/api/codex/rate-limit-reset-credits"))
         .respond_with(ResponseTemplate::new(500).set_body_string("boom"))
         .expect(1)
         .mount(&server)
@@ -605,7 +605,7 @@ async fn send_add_credits_nudge_email_posts_expected_body() -> Result<()> {
     write_chatgpt_base_url(maplecode_home.path(), &server_url)?;
 
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/accounts/send_add_credits_nudge_email"))
+        .and(path("/api/codex/accounts/send_add_credits_nudge_email"))
         .and(header("authorization", "Bearer chatgpt-token"))
         .and(header("chatgpt-account-id", "account-123"))
         .and(wiremock::matchers::body_json(json!({
@@ -653,7 +653,7 @@ async fn send_add_credits_nudge_email_maps_cooldown() -> Result<()> {
     write_chatgpt_base_url(maplecode_home.path(), &server_url)?;
 
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/accounts/send_add_credits_nudge_email"))
+        .and(path("/api/codex/accounts/send_add_credits_nudge_email"))
         .respond_with(ResponseTemplate::new(429))
         .mount(&server)
         .await;
@@ -696,7 +696,7 @@ async fn send_add_credits_nudge_email_surfaces_backend_failure() -> Result<()> {
     write_chatgpt_base_url(maplecode_home.path(), &server_url)?;
 
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/accounts/send_add_credits_nudge_email"))
+        .and(path("/api/codex/accounts/send_add_credits_nudge_email"))
         .respond_with(ResponseTemplate::new(500).set_body_string("boom"))
         .mount(&server)
         .await;

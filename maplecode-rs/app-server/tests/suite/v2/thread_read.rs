@@ -19,7 +19,7 @@ use maplecode_app_server_protocol::InitializeCapabilities;
 use maplecode_app_server_protocol::InitializeParams;
 use maplecode_app_server_protocol::JSONRPCError;
 use maplecode_app_server_protocol::JSONRPCResponse;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::SessionSource;
 use maplecode_app_server_protocol::SortDirection;
@@ -64,7 +64,7 @@ use maplecode_config::LoaderOverrides;
 use maplecode_core::ARCHIVED_SESSIONS_SUBDIR;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_exec_server::EnvironmentManager;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_protocol::ContextWindowId;
 use maplecode_protocol::items::AgentMessageContent;
 use maplecode_protocol::items::AgentMessageItem;
@@ -961,7 +961,7 @@ async fn thread_turns_list_reads_store_history_without_rollout_path() -> Result<
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         embedded_network_policy: Default::default(),
         thread_config_loader: Arc::new(maplecode_config::NoopThreadConfigLoader),
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: None,
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
@@ -1032,7 +1032,7 @@ async fn thread_read_loaded_include_turns_reads_store_history_without_rollout_pa
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         embedded_network_policy: Default::default(),
         thread_config_loader: Arc::new(maplecode_config::NoopThreadConfigLoader),
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: None,
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
@@ -1162,7 +1162,7 @@ async fn thread_list_includes_store_thread_without_rollout_path() -> Result<()> 
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         embedded_network_policy: Default::default(),
         thread_config_loader: Arc::new(maplecode_config::NoopThreadConfigLoader),
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: None,
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
@@ -2849,12 +2849,12 @@ async fn thread_items_read_validates_ids_before_history_access() -> Result<()> {
     Ok(())
 }
 
-#[test_case::test_case("model_not_found", MapleCodeErrorInfo::ModelNotFound, "Access to this deployment ended."; "model_not_found")]
-#[test_case::test_case("inference_hook_denied", MapleCodeErrorInfo::InferenceHookDenied, "Blocked by the workspace hook."; "inference_hook_denied")]
+#[test_case::test_case("model_not_found", MaplecodeErrorInfo::ModelNotFound, "Access to this deployment ended."; "model_not_found")]
+#[test_case::test_case("inference_hook_denied", MaplecodeErrorInfo::InferenceHookDenied, "Blocked by the workspace hook."; "inference_hook_denied")]
 #[tokio::test]
 async fn thread_read_preserves_provider_error_after_failed_turn(
     code: &str,
-    expected: MapleCodeErrorInfo,
+    expected: MaplecodeErrorInfo,
     message: &str,
 ) -> Result<()> {
     let server = responses::start_mock_server().await;

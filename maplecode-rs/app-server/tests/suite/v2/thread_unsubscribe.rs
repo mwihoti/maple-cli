@@ -634,7 +634,7 @@ async fn v2_child_idle_eviction_preserves_mail_and_followup_context() -> Result<
         .with_root_config("thread_unload_delay_secs = 0")
         .with_extra_config(&format!(
             r#"[mcp_servers.fails_once]
-url = "{}/api/maplecode/ps/mcp"
+url = "{}/api/codex/ps/mcp"
 http_headers = {{ Authorization = "Bearer synthetic-test-token" }}
 required = true
 # No cached tools: the child must initialize instead of taking the lazy startup path.

@@ -2754,7 +2754,7 @@ async fn start_apps_server(
         )
         .route("/ps/apps/batch", post(batch_apps))
         .with_state(state)
-        .nest_service("/api/maplecode/ps/mcp", mcp_service);
+        .nest_service("/api/codex/ps/mcp", mcp_service);
 
     let handle = tokio::spawn(async move {
         let _ = axum::serve(listener, router).await;
@@ -2911,7 +2911,7 @@ async fn wait_for_plugin_analytics_payload(
                     && request
                         .url
                         .path()
-                        .ends_with("/maplecode/analytics-events/events")
+                        .ends_with("/codex/analytics-events/events")
             }) {
                 let mut payload: serde_json::Value = serde_json::from_slice(&request.body)
                     .map_err(|err| anyhow::anyhow!("invalid analytics payload: {err}"))?;

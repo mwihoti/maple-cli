@@ -52,7 +52,7 @@ requires_openai_auth = true
 supports_websockets = {supports_websockets}
 
 [model_providers.custom-openai.http_headers]
-"X-OpenAI-Internal-MapleCode-Residency" = "eu-static"
+"X-OpenAI-Internal-Maplecode-Residency" = "eu-static"
 "x-provider-header" = "preserved"
 
 [model_providers.custom-openai.env_http_headers]

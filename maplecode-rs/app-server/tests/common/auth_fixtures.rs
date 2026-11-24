@@ -18,7 +18,7 @@ use serde_json::json;
 pub async fn mount_workspace_routing(server: &wiremock::MockServer) {
     wiremock::Mock::given(wiremock::matchers::method("GET"))
         .and(wiremock::matchers::path_regex(
-            "^/(backend-api/wham|api/maplecode)/accounts/check$",
+            "^/(backend-api/wham|api/codex)/accounts/check$",
         ))
         .respond_with(|request: &wiremock::Request| {
             let account_id = request

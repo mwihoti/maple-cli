@@ -2346,7 +2346,7 @@ async fn login_account_chatgpt_device_code_succeeds_and_notifies() -> Result<()>
     else {
         bail!("unexpected login response: {login:?}");
     };
-    assert_eq!(verification_url, format!("{issuer}/maplecode/device"));
+    assert_eq!(verification_url, format!("{issuer}/codex/device"));
     assert_eq!(user_code, "CODE-12345");
 
     let note = timeout(

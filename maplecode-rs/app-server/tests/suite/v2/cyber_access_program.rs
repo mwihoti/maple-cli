@@ -8,7 +8,7 @@ use maplecode_app_server_protocol::CyberAccessProgram;
 use maplecode_app_server_protocol::ExperimentalFeatureEnablementSetParams;
 use maplecode_app_server_protocol::ExperimentalFeatureEnablementSetResponse;
 use maplecode_app_server_protocol::JSONRPCErrorError;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::RequestId;
 use maplecode_app_server_protocol::ThreadForkParams;
 use maplecode_app_server_protocol::ThreadForkResponse;
@@ -271,7 +271,7 @@ async fn api_key_cyber_access_program_requires_only_forwarding_feature() -> Resu
                     Some(TurnError {
                         message: "Cyber access programs are disabled for this API-key session."
                             .to_owned(),
-                        maplecode_error_info: Some(MapleCodeErrorInfo::Other),
+                        maplecode_error_info: Some(MaplecodeErrorInfo::Other),
                         additional_details: None,
                         misalignment: None,
                     })
@@ -339,7 +339,7 @@ async fn api_key_cyber_access_program_server_rejection_does_not_fall_back() -> R
     let error = completed.turn.error.expect("server rejection");
     assert_eq!(
         error.maplecode_error_info,
-        Some(MapleCodeErrorInfo::HttpConnectionFailed {
+        Some(MaplecodeErrorInfo::HttpConnectionFailed {
             http_status_code: Some(403),
         })
     );

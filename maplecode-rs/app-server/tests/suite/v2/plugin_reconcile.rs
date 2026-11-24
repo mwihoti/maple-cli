@@ -273,7 +273,7 @@ async fn start_app_server(server: &MockServer) -> Result<(TestAppServer, TempDir
         .with_root_config(&format!("chatgpt_base_url = \"{base_url}\""))
         .disable_feature(Feature::Apps)
         .enable_feature(Feature::Plugins)
-        .enable_feature(Feature::MapleCodeHooks)
+        .enable_feature(Feature::MaplecodeHooks)
         .disable_feature(Feature::RemotePlugin)
         .disable_feature(Feature::PluginSharing)
         .write(maplecode_home.path())?;

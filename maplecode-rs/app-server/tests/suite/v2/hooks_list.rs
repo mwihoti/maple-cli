@@ -356,7 +356,7 @@ async fn plugin_upgrade_refreshes_hook_runtime_for_loaded_session() -> Result<()
     write_versioned_plugin_hook(&plugin_source, "1", &hook_log_path)?;
     MockResponsesConfig::new(&server.uri())
         .enable_feature(Feature::Plugins)
-        .enable_feature(Feature::MapleCodeHooks)
+        .enable_feature(Feature::MaplecodeHooks)
         .write(maplecode_home.path())?;
 
     let mut mcp = TestAppServer::builder()
@@ -588,7 +588,7 @@ async fn loaded_session_refreshes_externally_updated_plugin_hooks() -> Result<()
     store.install(AbsolutePathBuf::try_from(source.path())?, plugin_id.clone())?;
     MockResponsesConfig::new(&server.uri())
         .enable_feature(Feature::Plugins)
-        .enable_feature(Feature::MapleCodeHooks)
+        .enable_feature(Feature::MaplecodeHooks)
         .write(maplecode_home.path())?;
     let mut config = std::fs::read_to_string(maplecode_home.path().join("config.toml"))?;
     config.push_str("\n[plugins.\"demo@test\"]\nenabled = true\n");
@@ -812,7 +812,7 @@ exec "{real_git}" "$@"
 
     MockResponsesConfig::new(&server.uri())
         .enable_feature(Feature::Plugins)
-        .enable_feature(Feature::MapleCodeHooks)
+        .enable_feature(Feature::MaplecodeHooks)
         .with_root_config(&format!(
             "chatgpt_base_url = \"{}/backend-api/\"",
             server.uri()

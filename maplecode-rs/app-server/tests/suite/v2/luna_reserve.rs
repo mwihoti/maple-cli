@@ -68,7 +68,7 @@ async fn luna_reserve_usage_capability(
         .mount(&backend)
         .await;
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/usage"))
+        .and(path("/api/codex/usage"))
         .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(json!({
             "account_id": "account-a", "user_id": "user-a", "plan_type": "pro",
             "rate_limit": {"allowed": false, "limit_reached": true},
@@ -81,7 +81,7 @@ async fn luna_reserve_usage_capability(
         .as_ref()
         .is_some_and(|params| params["excludeResetCreditDetails"] == true);
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/rate-limit-reset-credits"))
+        .and(path("/api/codex/rate-limit-reset-credits"))
         .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(json!({
             "available_count": 2, "credits": []
         })))
@@ -116,7 +116,7 @@ async fn luna_reserve_usage_capability(
         .expect("recorded backend requests");
     let usage = requests
         .iter()
-        .find(|request| request.url.path() == "/api/maplecode/usage")
+        .find(|request| request.url.path() == "/api/codex/usage")
         .expect("usage request");
     assert_eq!(
         usage

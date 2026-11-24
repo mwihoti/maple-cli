@@ -65,7 +65,7 @@ async fn signed_image_renewal_preserves_live_mcp_and_plugin_skills() -> Result<(
     );
     let server_installed = Arc::clone(&installed);
     let router = Router::new()
-        .nest_service("/api/maplecode/ps/mcp", mcp_service)
+        .nest_service("/api/codex/ps/mcp", mcp_service)
         .route(
             "/ps/plugins/installed",
             get(move || {

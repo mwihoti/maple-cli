@@ -262,7 +262,7 @@ retrying the failed request.
 
 Maple Code app-server advertises `openai/elicitation.userVerification` to the
 host-owned plugin service for bundled, in-process TUI sessions (`maplecode-tui`) and
-local stdio desktop sessions (`MapleCode Desktop`) on devices with supported biometric
+local stdio desktop sessions (`Maplecode Desktop`) on devices with supported biometric
 hardware and the `experimentalApi` opt-in. This is an app-server decision,
 independent of whether a key exists; TUI/Desktop/mobile do not advertise this MCP
 capability. Mobile integration requires a separate rollout. Other clients and

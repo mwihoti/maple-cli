@@ -75,7 +75,7 @@ use maplecode_app_server_protocol::TurnSteerResponse;
 use maplecode_app_server_protocol::UserInput as V2UserInput;
 use maplecode_login::default_client::RESIDENCY_HEADER_NAME;
 use maplecode_protocol::protocol::ConversationTextRole;
-use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
+use maplecode_protocol::protocol::MaplecodeResponseHandoffMode;
 use maplecode_protocol::protocol::RealtimeConversationVersion;
 use maplecode_protocol::protocol::RealtimeOutputModality;
 use maplecode_protocol::protocol::RealtimeVoice;
@@ -385,7 +385,7 @@ impl RealtimeE2eHarness {
         offer_sdp: &str,
         client_managed_handoffs: Option<bool>,
         maplecode_responses_as_items: Option<bool>,
-        maplecode_response_handoff_mode: Option<MapleCodeResponseHandoffMode>,
+        maplecode_response_handoff_mode: Option<MaplecodeResponseHandoffMode>,
         delegation_ack_filler: Option<bool>,
         version: RealtimeConversationVersion,
     ) -> Result<StartedWebrtcRealtime> {
@@ -491,7 +491,7 @@ impl RealtimeE2eHarness {
 
     async fn start_frameless_bidi_realtime(
         &mut self,
-        maplecode_response_handoff_mode: Option<MapleCodeResponseHandoffMode>,
+        maplecode_response_handoff_mode: Option<MaplecodeResponseHandoffMode>,
         maplecode_response_handoff_channel_prefixes: Option<BTreeMap<String, Vec<String>>>,
         initial_items: Option<Vec<ThreadRealtimeInitialItem>>,
     ) -> Result<ThreadRealtimeStartedNotification> {
@@ -2124,7 +2124,7 @@ async fn realtime_respects_managed_residency(
         .with_extra_config("[realtime]\nversion = \"v1\"\ntype = \"conversational\"")
         .with_extra_config(
             "[model_providers.mock_provider.http_headers]\n\
-             \"X-OpenAI-Internal-MapleCode-Residency\" = \"eu-static\"\n\
+             \"X-OpenAI-Internal-Maplecode-Residency\" = \"eu-static\"\n\
              \"x-provider-header\" = \"preserved\"",
         );
     let configured_residency = match provider_headers {
@@ -2875,7 +2875,7 @@ async fn webrtc_v1_ignores_maplecode_response_handoff_mode() -> Result<()> {
             "v=offer\r\n",
             /*client_managed_handoffs*/ None,
             /*maplecode_responses_as_items*/ None,
-            /*maplecode_response_handoff_mode*/ Some(MapleCodeResponseHandoffMode::BemTags),
+            /*maplecode_response_handoff_mode*/ Some(MaplecodeResponseHandoffMode::BemTags),
             /*delegation_ack_filler*/ None,
             RealtimeConversationVersion::V1,
         )
@@ -3300,7 +3300,7 @@ async fn websocket_v3_routes_handoffs_by_session_mode() -> Result<()> {
             [None, None, None, None],
         ),
         (
-            Some(MapleCodeResponseHandoffMode::Commentary),
+            Some(MaplecodeResponseHandoffMode::Commentary),
             None,
             [
                 "[ANALYSIS]silent context",
@@ -3316,7 +3316,7 @@ async fn websocket_v3_routes_handoffs_by_session_mode() -> Result<()> {
             ],
         ),
         (
-            Some(MapleCodeResponseHandoffMode::BemTags),
+            Some(MaplecodeResponseHandoffMode::BemTags),
             None,
             [
                 "[ANALYSIS]silent context",
@@ -3332,7 +3332,7 @@ async fn websocket_v3_routes_handoffs_by_session_mode() -> Result<()> {
             ],
         ),
         (
-            Some(MapleCodeResponseHandoffMode::BemTags),
+            Some(MaplecodeResponseHandoffMode::BemTags),
             Some(BTreeMap::from([
                 ("analysis".to_string(), vec!["[THOUGHT]".to_string()]),
                 (

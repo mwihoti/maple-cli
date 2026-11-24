@@ -117,7 +117,7 @@ pub async fn write_models_cache_with_models(
         .maplecode_home(maplecode_home.to_path_buf())
         .build()
         .await?;
-    let auth = maplecode_login::MapleCodeAuth::from_auth_storage(
+    let auth = maplecode_login::MaplecodeAuth::from_auth_storage(
         maplecode_home,
         config.cli_auth_credentials_store_mode,
         Some(&config.chatgpt_base_url),

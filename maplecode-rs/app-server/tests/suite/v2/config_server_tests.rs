@@ -130,7 +130,7 @@ wire_api = 'responses'
         .add_enterprise_requirement(requirements)
         .into_bundle();
         Mock::given(method("GET"))
-            .and(path("/team/maplecode/config/bundle"))
+            .and(path("/team/codex/config/bundle"))
             .respond_with(ResponseTemplate::new(200).set_body_json(bundle))
             .mount(&config_server)
             .await;
@@ -254,7 +254,7 @@ async fn stdin_token_startup(
         SkipPolicy | RejectAccount => ResponseTemplate::new(400)
             .set_body_json(serde_json::json!({"detail": "No active workspace"})),
     };
-    let policy = authenticated("/api/maplecode/config/bundle")
+    let policy = authenticated("/api/codex/config/bundle")
         .respond_with(policy_response)
         .expect(u64::from(matches!(
             expected,

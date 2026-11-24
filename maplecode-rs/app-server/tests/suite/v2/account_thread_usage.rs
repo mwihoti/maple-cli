@@ -53,7 +53,7 @@ async fn account_thread_usage_uses_active_workspace_and_canonical_thread_ids() -
     )?;
 
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/usage/thread_usage/query"))
+        .and(path("/api/codex/usage/thread_usage/query"))
         .and(header("authorization", "Bearer active-token"))
         .and(header("chatgpt-account-id", "active-workspace"))
         .and(body_json(json!({ "thread_ids": [thread_id] })))
@@ -137,7 +137,7 @@ async fn account_thread_usage_supports_externally_managed_authentication() -> Re
             .chatgpt_account_id("external-workspace"),
     )?;
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/config/bundle"))
+        .and(path("/api/codex/config/bundle"))
         .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(json!({})))
         .mount(&server)
         .await;
@@ -158,7 +158,7 @@ async fn account_thread_usage_supports_externally_managed_authentication() -> Re
     assert_eq!(login, LoginAccountResponse::ChatgptAuthTokens {});
 
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/usage/thread_usage/query"))
+        .and(path("/api/codex/usage/thread_usage/query"))
         .and(header("authorization", format!("Bearer {access_token}")))
         .and(header("chatgpt-account-id", "external-workspace"))
         .and(body_json(json!({ "thread_ids": [thread_id] })))
@@ -207,7 +207,7 @@ async fn account_thread_usage_hides_unavailable_billing_routes() -> Result<()> {
         AuthCredentialsStoreMode::File,
     )?;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/usage/thread_usage/query"))
+        .and(path("/api/codex/usage/thread_usage/query"))
         .respond_with(ResponseTemplate::new(/*s*/ 403))
         .expect(/*r*/ 1)
         .mount(&server)
@@ -241,7 +241,7 @@ async fn account_thread_usage_rejects_malformed_thread_ids_before_backend_reques
         AuthCredentialsStoreMode::File,
     )?;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/usage/thread_usage/query"))
+        .and(path("/api/codex/usage/thread_usage/query"))
         .respond_with(ResponseTemplate::new(/*s*/ 200))
         .expect(/*r*/ 0)
         .mount(&server)
