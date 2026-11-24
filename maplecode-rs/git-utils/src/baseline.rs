@@ -256,7 +256,7 @@ pub async fn diff_since_latest_init(root: &Path) -> anyhow::Result<GitBaselineDi
 
 fn maplecode_signature() -> gix::actor::Signature {
     gix::actor::Signature {
-        name: "MapleCode".into(),
+        name: "Maple Code".into(),
         email: "noreply@openai.com".into(),
         time: gix::date::Time {
             seconds: chrono::Utc::now().timestamp(),
@@ -696,7 +696,7 @@ mod tests {
             &root,
             &[
                 "-c",
-                "user.name=MapleCode",
+                "user.name=Maplecode",
                 "-c",
                 "user.email=maplecode@example.com",
                 "-c",

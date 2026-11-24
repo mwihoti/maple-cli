@@ -634,7 +634,7 @@ mod tests {
             root,
             &["git", "config", "user.email", "maplecode@example.com"],
         );
-        let _ = run(root, &["git", "config", "user.name", "MapleCode"]);
+        let _ = run(root, &["git", "config", "user.name", "Maple Code"]);
         dir
     }
 

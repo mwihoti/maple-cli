@@ -910,7 +910,7 @@ mod tests {
             "https://github.com/openai/codex.git",
             "https://github.com:443/openai/codex.git",
             "https://token@github.com/openai/codex/",
-            "github.com/OpenAI/MapleCode.git",
+            "github.com/OpenAI/Codex.git",
         ] {
             assert_eq!(
                 canonicalize_git_remote_url(remote),
