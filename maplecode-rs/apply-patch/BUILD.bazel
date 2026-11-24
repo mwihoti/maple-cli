@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "apply-patch",
+    crate_name = "maplecode_apply_patch",
+)

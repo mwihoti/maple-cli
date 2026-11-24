@@ -1,0 +1,74 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-core-plugins"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "maplecode_core_plugins"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-utils-process = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+maplecode-analytics = { workspace = true }
+maplecode-api = { workspace = true }
+maplecode-app-server-protocol = { workspace = true }
+maplecode-config = { workspace = true }
+maplecode-connectors = { workspace = true }
+maplecode-core-plugin-common = { workspace = true }
+maplecode-exec-server = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-git-utils = { workspace = true }
+maplecode-hooks = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-mcp = { workspace = true }
+maplecode-model-provider = { workspace = true }
+maplecode-otel = { workspace = true }
+maplecode-plugin = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-runtime-agent-instance = { workspace = true }
+maplecode-shell-command = { workspace = true }
+maplecode-skills = { workspace = true }
+maplecode-tools = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-path = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+maplecode-utils-plugins = { workspace = true }
+dirs = { workspace = true }
+flate2 = { workspace = true }
+futures = { workspace = true }
+http = { workspace = true }
+regex = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+serde_yaml = { workspace = true }
+sha2 = { workspace = true }
+tar = { workspace = true }
+tempfile = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["fs", "macros", "rt", "time"] }
+toml = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
+zip = { workspace = true }
+
+[dev-dependencies]
+base64 = { workspace = true }
+maplecode-exec-server-test-support = { workspace = true }
+maplecode-utils-cargo-bin = { workspace = true }
+libc = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }
+tracing-subscriber = { workspace = true }
+tracing-test = { workspace = true, features = ["no-env-filter"] }
+wiremock = { workspace = true }

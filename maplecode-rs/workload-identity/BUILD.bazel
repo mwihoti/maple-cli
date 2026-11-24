@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "workload-identity",
+    crate_name = "maplecode_workload_identity",
+)

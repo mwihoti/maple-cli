@@ -335,7 +335,7 @@ fn malformed_or_unknown_tool_in_multi_call_response_releases_none() {
     }
     let mut d = Decoder::new(BTreeMap::new());
     d.feed(&frame(json!({"tool_calls":[{"index":0,"id":"a","function":{"name":"unauthorized","arguments":"{}"}}]}),json!("tool_calls"))).unwrap();
-    // An unknown tool becomes a call Codex cannot dispatch, not a dead turn.
+    // An unknown tool becomes a call Maple Code cannot dispatch, not a dead turn.
     let events = d.feed(b"data: [DONE]\n\n").unwrap();
     let item = &done(&events)[0];
     assert_eq!(item["name"], "unavailable_tool");

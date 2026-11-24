@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "cloud-tasks-mock-client",
+    crate_name = "maplecode_cloud_tasks_mock_client",
+)

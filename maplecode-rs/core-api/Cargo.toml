@@ -1,0 +1,34 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-core-api"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "maplecode_core_api"
+path = "src/lib.rs"
+test = false
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-app-server-protocol = { workspace = true }
+maplecode-arg0 = { workspace = true }
+maplecode-analytics = { workspace = true }
+maplecode-config = { workspace = true }
+maplecode-core = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-home = { workspace = true }
+maplecode-history = { workspace = true }
+maplecode-image-generation-extension = { workspace = true }
+maplecode-exec-server = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-model-provider = { workspace = true }
+maplecode-model-provider-info = { workspace = true }
+maplecode-models-manager = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-state = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }

@@ -52,7 +52,7 @@ OPENSSL_CC="${musl_linker}" bash "$(dirname "${BASH_SOURCE[0]}")/install-musl-op
 
 zig_target="${TARGET/-unknown-linux-musl/-linux-musl}"
 runner_temp="${RUNNER_TEMP:-/tmp}"
-tool_root="${runner_temp}/codex-musl-tools-${TARGET}"
+tool_root="${runner_temp}/maplecode-musl-tools-${TARGET}"
 mkdir -p "${tool_root}"
 
 libcap_root="${tool_root}/libcap-${libcap_version}"
@@ -262,7 +262,7 @@ target_cxx_var="${target_cxx_var//-/_}"
 echo "${target_cxx_var}=${cxx}" >> "$GITHUB_ENV"
 
 # Fold identical code and pack relocations for x86-64 musl release packages.
-if [[ "${TARGET}" == "x86_64-unknown-linux-musl" && "${CODEX_MUSL_RELEASE_LINK_FLAGS:-}" == "1" ]]; then
+if [[ "${TARGET}" == "x86_64-unknown-linux-musl" && "${MAPLECODE_MUSL_RELEASE_LINK_FLAGS:-}" == "1" ]]; then
   link_flags=(-Cllvm-args=--addrsig -Clink-arg=-fuse-ld=lld -Clink-arg=-Wl,--icf=safe,-z,pack-relative-relocs)
   echo "RUSTFLAGS=${RUSTFLAGS:+$RUSTFLAGS }${link_flags[*]}" >> "$GITHUB_ENV"
 fi

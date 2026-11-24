@@ -9,30 +9,30 @@ from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 TYPES = {
-    "bug": "Reproducible defects in Codex products (CLI, VS Code extension, web, auth).",
+    "bug": "Reproducible defects in MapleCode products (CLI, VS Code extension, web, auth).",
     "enhancement": "Feature requests or usability improvements that ask for new capabilities, better ergonomics, or quality-of-life tweaks.",
     "documentation": "Updates or corrections needed in docs/README/config references (broken links, missing examples, outdated keys, clarification requests).",
 }
 
 PRODUCTS = {
-    "CLI": "the Codex command line interface.",
+    "CLI": "the MapleCode command line interface.",
     "extension": "VS Code (or other IDE) extension-specific issues.",
-    "app": "Issues related to the Codex desktop application.",
-    "codex-web": "Issues targeting the Codex web UI/Cloud experience.",
-    "github-action": "Issues with the Codex GitHub action.",
-    "iOS": "Issues with the Codex iOS app.",
+    "app": "Issues related to the MapleCode desktop application.",
+    "maplecode-web": "Issues targeting the MapleCode web UI/Cloud experience.",
+    "github-action": "Issues with the MapleCode GitHub action.",
+    "iOS": "Issues with the MapleCode iOS app.",
 }
 
 AREAS = {
     "windows-os": "Bugs or friction specific to Windows environments (always when PowerShell is mentioned, path handling, copy/paste, OS-specific auth or tooling failures).",
     "mcp": "Topics involving Model Context Protocol servers/clients.",
-    "mcp-server": "Problems related to the codex mcp-server command, where codex runs as an MCP server.",
+    "mcp-server": "Problems related to the maplecode mcp-server command, where maplecode runs as an MCP server.",
     "azure": "Problems or requests tied to Azure OpenAI deployments.",
     "model-behavior": "Undesirable LLM behavior: forgetting goals, refusing work, hallucinating environment details, quota misreports, or other reasoning/performance anomalies.",
     "code-review": "Issues related to the code review feature or functionality.",
     "safety-check": "Issues related to cyber risk detection or trusted access verification.",
     "auth": "Problems related to authentication, login, or access tokens.",
-    "exec": 'Problems related to the "codex exec" command or functionality.',
+    "exec": 'Problems related to the "maplecode exec" command or functionality.',
     "hooks": "Problems related to event hooks",
     "context": "Problems related to compaction, context windows, or available context reporting.",
     "skills": "Problems related to skills or plugins",
@@ -48,7 +48,7 @@ AREAS = {
     "config": "Issues involving config.toml, config keys, config key merging, config updates, profiles, hooks config, project config, agent role TOMLs, instruction/personality config, and config schema behavior.",
     "plan": "Issues involving plan mode, planning workflows, or plan-specific tools/behavior.",
     "computer-use": "Issues involving agentic computer use or SkyComputerUseService.",
-    "browser": "Issues involving agentic browser use, IAB, or the built-in browser within the Codex app.",
+    "browser": "Issues involving agentic browser use, IAB, or the built-in browser within the MapleCode app.",
     "memory": "Issues involving agentic memory storage and retrieval.",
     "imagen": "Issues involving image generation.",
     "remote": "Issues involving remote access, remote control, or SSH.",

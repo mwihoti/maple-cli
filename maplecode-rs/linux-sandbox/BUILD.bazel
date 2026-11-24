@@ -1,0 +1,13 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "linux-sandbox",
+    crate_name = "maplecode_linux_sandbox",
+    extra_binaries = [
+        "//maplecode-rs/bwrap:bwrap",
+    ],
+    rustc_env_files = select({
+        "@platforms//os:linux": ["//maplecode-rs/bwrap:bwrap-sha256-env"],
+        "//conditions:default": [],
+    }),
+)

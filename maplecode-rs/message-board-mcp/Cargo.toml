@@ -1,0 +1,45 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-message-board-mcp"
+version.workspace = true
+
+[lib]
+name = "maplecode_message_board_mcp"
+path = "src/lib.rs"
+test = false
+doctest = false
+
+[[bin]]
+name = "maplecode-message-board-mcp"
+path = "src/main.rs"
+test = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+axum = { workspace = true, features = ["http1", "tokio"] }
+chrono = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+maplecode-attachment-store = { workspace = true }
+maplecode-message-board = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-state = { workspace = true }
+maplecode-tools = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-output-truncation = { workspace = true }
+futures = { workspace = true }
+rmcp = { workspace = true, features = ["server", "transport-streamable-http-server"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sqlx = { workspace = true }
+tokio = { workspace = true, features = ["macros", "net", "rt", "signal"] }
+tokio-util = { workspace = true, features = ["rt"] }
+uuid = { workspace = true, features = ["v4", "v7"] }
+
+[dev-dependencies]
+maplecode-utils-cargo-bin = { workspace = true }
+maplecode-utils-process = { workspace = true }
+tempfile = { workspace = true }

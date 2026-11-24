@@ -1,0 +1,10 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "code-mode-runtime",
+    compile_data = [
+        "src/runtime/content.js",
+        "src/runtime/settled.js",
+    ],
+    crate_name = "maplecode_code_mode_runtime",
+)

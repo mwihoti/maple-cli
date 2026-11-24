@@ -1,0 +1,30 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-model-provider-info"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "maplecode_model_provider_info"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-client = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-keyring-store = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-utils-redacted-string = { workspace = true }
+http = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+
+[dev-dependencies]
+maplecode-utils-absolute-path = { workspace = true }
+maplit = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+toml = { workspace = true }

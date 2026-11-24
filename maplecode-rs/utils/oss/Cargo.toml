@@ -1,0 +1,17 @@
+[package]
+name = "maplecode-utils-oss"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-core = { workspace = true }
+maplecode-lmstudio = { workspace = true }
+maplecode-model-provider-info = { workspace = true }
+maplecode-ollama = { workspace = true }
+
+[lib]
+doctest = false

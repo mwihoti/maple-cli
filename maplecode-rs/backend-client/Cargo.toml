@@ -1,0 +1,39 @@
+[package]
+name = "maplecode-backend-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+http = { workspace = true }
+url = { workspace = true }
+maplecode-backend-openapi-models = { path = "../maplecode-backend-openapi-models" }
+maplecode-api = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-model-provider = { workspace = true }
+maplecode-runtime-agent-instance = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-response-debug-context = { workspace = true }
+tokio = { workspace = true, features = ["time"] }
+
+[dev-dependencies]
+base64 = { workspace = true }
+uuid = { workspace = true }
+pretty_assertions = "1"
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt"] }
+wiremock = { workspace = true }

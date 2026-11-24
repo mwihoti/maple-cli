@@ -204,7 +204,7 @@ class DotSlashReleaseConfigTests(unittest.TestCase):
         # Names from the published rust-v0.167.0-alpha.2 release, which has no
         # Bazel assets: https://github.com/openai/codex/releases/tag/rust-v0.167.0-alpha.2
         cls.assets = set(
-            (github_dir / "scripts/fixtures/codex-0.167.0-alpha.2-assets.txt")
+            (github_dir / "scripts/fixtures/maplecode-0.167.0-alpha.2-assets.txt")
             .read_text()
             .splitlines()
         )
@@ -223,40 +223,40 @@ class DotSlashReleaseConfigTests(unittest.TestCase):
             {filename: set(outputs) for filename, outputs in self.configs.items()},
             {
                 "dotslash-config.json": {
-                    "codex",
-                    "codex-app-server",
-                    "codex-responses-api-proxy",
+                    "maplecode",
+                    "maplecode-app-server",
+                    "maplecode-responses-api-proxy",
                     "bwrap",
-                    "codex-command-runner",
-                    "codex-windows-sandbox-setup",
-                    "codex-windows-sandbox-service",
+                    "maplecode-command-runner",
+                    "maplecode-windows-sandbox-setup",
+                    "maplecode-windows-sandbox-service",
                 },
                 "dotslash-argument-comment-lint-config.json": {"argument-comment-lint"},
-                "dotslash-provisioned-config.json": {"codex-provisioned"},
+                "dotslash-provisioned-config.json": {"maplecode-provisioned"},
             },
         )
         self.assertFalse(any("-bazel" in asset for asset in self.assets))
         self.assertEqual(self.missing_assets(self.assets), [])
 
     def test_missing_cargo_asset_is_detected(self):
-        missing_asset = "codex-package-aarch64-apple-darwin.tar.zst"
+        missing_asset = "maplecode-package-aarch64-apple-darwin.tar.zst"
         self.assertIn(missing_asset, self.assets)
         self.assertEqual(
             self.missing_assets(self.assets - {missing_asset}),
-            [("dotslash-config.json", "codex", "macos-aarch64")],
+            [("dotslash-config.json", "maplecode", "macos-aarch64")],
         )
 
     def test_missing_provisioned_cargo_asset_is_detected(self):
         for arch in ("aarch64", "x86_64"):
             with self.subTest(arch=arch):
-                missing_asset = f"codex-provisioned-package-{arch}-apple-darwin.tar.gz"
+                missing_asset = f"maplecode-provisioned-package-{arch}-apple-darwin.tar.gz"
                 self.assertIn(missing_asset, self.assets)
                 self.assertEqual(
                     self.missing_assets(self.assets - {missing_asset}),
                     [
                         (
                             "dotslash-provisioned-config.json",
-                            "codex-provisioned",
+                            "maplecode-provisioned",
                             f"macos-{arch}",
                         )
                     ],
@@ -287,14 +287,14 @@ class StablePublicationTests(unittest.TestCase):
                       'api graphql')
                         if compgen -G 'release-*' >/dev/null; then echo true; else echo false; fi ;;
                       'api --silent')
-                        [[ "$3" == "repos/test/codex/git/ref/tags/$GITHUB_REF_NAME" ]]
+                        [[ "$3" == "repos/test/maplecode/git/ref/tags/$GITHUB_REF_NAME" ]]
                         [[ -f "${3##*/}.tag" ]] || exit 5 ;;
                       'api --method')
                         case "$3 $4" in
-                          'POST repos/test/codex/releases')
+                          'POST repos/test/maplecode/releases')
                             printf '%s\\n' "$@" > "release-$CREATE_ID"
                             echo "$CREATE_ID" ;;
-                          'DELETE repos/test/codex/releases/'*)
+                          'DELETE repos/test/maplecode/releases/'*)
                             echo "DELETE $4" >> operations
                             rm -- "release-${4##*/}" ;;
                           *) exit 99 ;;
@@ -316,7 +316,7 @@ class StablePublicationTests(unittest.TestCase):
             )
             gh.chmod(0o755)
             alpha = "rust-v0.100.0-alpha.1"
-            delete = "DELETE repos/test/codex/releases"
+            delete = "DELETE repos/test/maplecode/releases"
             # Repeated tags reuse the preceding release state for a retry.
             for tag, fail_at, create_id, status, surviving_id, operations in (
                 (alpha, "upload", 101, 7, None, ["upload", f"{delete}/101"]),
@@ -352,7 +352,7 @@ class StablePublicationTests(unittest.TestCase):
                         env={
                             **os.environ,
                             "PATH": f"{root}{os.pathsep}{os.environ['PATH']}",
-                            "GITHUB_REPOSITORY": "test/codex",
+                            "GITHUB_REPOSITORY": "test/maplecode",
                             "GITHUB_REPOSITORY_OWNER": "test",
                             "GITHUB_REF_NAME": tag,
                             "RELEASE_NAME": tag.removeprefix("rust-v"),
@@ -402,7 +402,7 @@ class StablePublicationTests(unittest.TestCase):
             self.assertFalse(r2.should_update_channel("endpoint", "0.99.9", "latest"))
             self.assertTrue(r2.should_update_channel("endpoint", "0.100.0", "latest"))
             self.assertIn(
-                "s3://releases/codex/channels/latest", command.call_args.args[0]
+                "s3://releases/maplecode/channels/latest", command.call_args.args[0]
             )
             command.return_value = "invalid"
             with self.assertRaises(r2.PublishError):

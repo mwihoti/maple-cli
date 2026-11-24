@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "file-system",
+    crate_name = "maplecode_file_system",
+)

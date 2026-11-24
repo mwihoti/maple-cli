@@ -1,0 +1,5 @@
+---
+source: tui/src/markdown_render_tests.rs
+expression: rendered
+---
+Your maplecode launcher automatically adds those overrides (project/dotslash-gen/bin/maplecode:1105), even though you did not specify any.

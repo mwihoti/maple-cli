@@ -1,0 +1,54 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-guardian-v2"
+version.workspace = true
+
+[lib]
+name = "maplecode_guardian_v2"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-agent-identity = { workspace = true }
+maplecode-runtime-agent-instance = { workspace = true }
+anyhow = { workspace = true }
+maplecode-analytics = { workspace = true }
+maplecode-api = { workspace = true }
+maplecode-config = { workspace = true }
+maplecode-context-fragments = { workspace = true }
+maplecode-core = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-guardian-context = { workspace = true }
+maplecode-guardian-reviewer = { workspace = true }
+maplecode-history = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-model-provider = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-prompts = { workspace = true }
+maplecode-websocket-client = { workspace = true }
+dirs = { workspace = true }
+http = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["time"] }
+tracing = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+base64 = { workspace = true }
+maplecode-model-provider-info = { workspace = true }
+maplecode-protocol-test-support = { workspace = true }
+maplecode-utils-cargo-bin = { workspace = true }
+core_test_support = { workspace = true }
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+wiremock = { workspace = true }
+zstd = { workspace = true }

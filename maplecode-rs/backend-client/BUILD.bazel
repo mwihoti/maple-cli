@@ -1,0 +1,7 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "backend-client",
+    compile_data = glob(["tests/fixtures/**"]),
+    crate_name = "maplecode_backend_client",
+)

@@ -1,0 +1,30 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-prompts"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "maplecode_prompts"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+maplecode-collaboration-mode-templates = { workspace = true }
+maplecode-context-fragments = { workspace = true }
+maplecode-execpolicy = { workspace = true }
+maplecode-git-utils = { workspace = true }
+maplecode-guardian-context = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-template = { workspace = true }
+tracing = { workspace = true }
+whoami = { workspace = true }
+
+[dev-dependencies]
+maplecode-protocol-test-support = { workspace = true }
+pretty_assertions = { workspace = true }

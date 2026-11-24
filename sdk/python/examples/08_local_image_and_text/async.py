@@ -15,13 +15,13 @@ ensure_local_sdk_src()
 
 import asyncio
 
-from openai_codex import AsyncCodex, LocalImageInput, TextInput
+from openai_maplecode import AsyncMapleCode, LocalImageInput, TextInput
 
 
 async def main() -> None:
     with temporary_sample_image_path() as image_path:
-        async with AsyncCodex(config=runtime_config()) as codex:
-            thread = await codex.thread_start(
+        async with AsyncMapleCode(config=runtime_config()) as maplecode:
+            thread = await maplecode.thread_start(
                 model="gpt-5.4", config={"model_reasoning_effort": "high"}
             )
 

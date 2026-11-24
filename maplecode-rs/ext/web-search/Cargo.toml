@@ -1,0 +1,35 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-web-search-extension"
+version.workspace = true
+
+[lib]
+name = "maplecode_web_search_extension"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-api = { workspace = true }
+maplecode-core = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-extension-items = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-model-provider = { workspace = true }
+maplecode-model-provider-info = { workspace = true }
+maplecode-otel = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-tools = { workspace = true }
+http = { workspace = true }
+schemars = { workspace = true }
+serde_json = { workspace = true }
+url = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true }

@@ -1,0 +1,14 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+exports_files(
+    ["tests/common/mod.rs"],
+    visibility = [
+        "//maplecode-rs/core:__pkg__",
+        "//maplecode-rs/ext/guardian-v3:__pkg__",
+    ],
+)
+
+maplecode_rust_crate(
+    name = "message-board",
+    crate_name = "maplecode_message_board",
+)

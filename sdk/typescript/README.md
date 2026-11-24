@@ -1,8 +1,8 @@
-# Codex SDK
+# Maple Code SDK
 
-Embed the Codex agent in your workflows and apps.
+Embed the Maple Code agent in your workflows and apps.
 
-The TypeScript SDK wraps the `codex` CLI from `@openai/codex`. It spawns the CLI and exchanges JSONL events over stdin/stdout.
+The TypeScript SDK wraps the `maplecode` CLI from `@openai/codex`. It spawns the CLI and exchanges JSONL events over stdin/stdout.
 
 ## Installation
 
@@ -15,10 +15,10 @@ Requires Node.js 18+.
 ## Quickstart
 
 ```typescript
-import { Codex } from "@openai/codex-sdk";
+import { Maple Code } from "@openai/codex-sdk";
 
-const codex = new Codex();
-const thread = codex.startThread();
+const maplecode = new MapleCode();
+const thread = maplecode.startThread();
 const turn = await thread.run("Diagnose the test failure and propose a fix");
 
 console.log(turn.finalResponse);
@@ -52,7 +52,7 @@ for await (const event of events) {
 
 ### Structured output
 
-The Codex agent can produce a JSON response that conforms to a specified schema. The schema can be provided for each turn as a plain JSON object.
+The Maple Code agent can produce a JSON response that conforms to a specified schema. The schema can be provided for each turn as a plain JSON object.
 
 ```typescript
 const schema = {
@@ -85,7 +85,7 @@ console.log(turn.finalResponse);
 
 ### Attaching images
 
-Provide structured input entries when you need to include images alongside text. Text entries are concatenated into the final prompt while image entries are passed to the Codex CLI via `--image`.
+Provide structured input entries when you need to include images alongside text. Text entries are concatenated into the final prompt while image entries are passed to the Maple Code CLI via `--image`.
 
 ```typescript
 const turn = await thread.run([
@@ -97,48 +97,48 @@ const turn = await thread.run([
 
 ### Resuming an existing thread
 
-Threads are persisted in `~/.codex/sessions`. If you lose the in-memory `Thread` object, reconstruct it with `resumeThread()` and keep going.
+Threads are persisted in `~/.maplecode/sessions`. If you lose the in-memory `Thread` object, reconstruct it with `resumeThread()` and keep going.
 
 ```typescript
-const savedThreadId = process.env.CODEX_THREAD_ID!;
-const thread = codex.resumeThread(savedThreadId);
+const savedThreadId = process.env.MAPLECODE_THREAD_ID!;
+const thread = maplecode.resumeThread(savedThreadId);
 await thread.run("Implement the fix");
 ```
 
 ### Working directory controls
 
-Codex runs in the current working directory by default. To avoid unrecoverable errors, Codex requires the working directory to be a Git repository. You can skip the Git repository check by passing the `skipGitRepoCheck` option when creating a thread.
+Maple Code runs in the current working directory by default. To avoid unrecoverable errors, Maple Code requires the working directory to be a Git repository. You can skip the Git repository check by passing the `skipGitRepoCheck` option when creating a thread.
 
 ```typescript
-const thread = codex.startThread({
+const thread = maplecode.startThread({
   workingDirectory: "/path/to/project",
   skipGitRepoCheck: true,
 });
 ```
 
-### Controlling the Codex CLI environment
+### Controlling the Maple Code CLI environment
 
-By default, the Codex CLI inherits the Node.js process environment. Provide the optional `env` parameter when instantiating the
-`Codex` client to fully control which variables the CLI receives—useful for sandboxed hosts like Electron apps.
+By default, the Maple Code CLI inherits the Node.js process environment. Provide the optional `env` parameter when instantiating the
+`MapleCode` client to fully control which variables the CLI receives—useful for sandboxed hosts like Electron apps.
 
 ```typescript
-const codex = new Codex({
+const maplecode = new MapleCode({
   env: {
     PATH: "/usr/local/bin",
   },
 });
 ```
 
-The SDK still injects its required variables (such as `CODEX_API_KEY`) on top of the environment you provide. If you set
+The SDK still injects its required variables (such as `MAPLECODE_API_KEY`) on top of the environment you provide. If you set
 `baseUrl`, the SDK passes it as a `--config openai_base_url=...` override.
 
 ### Passing `--config` overrides
 
-Use the `config` option to provide additional Codex CLI configuration overrides. The SDK accepts a JSON object, flattens it
+Use the `config` option to provide additional Maple Code CLI configuration overrides. The SDK accepts a JSON object, flattens it
 into dotted paths, and serializes values as TOML literals before passing them as repeated `--config key=value` flags.
 
 ```typescript
-const codex = new Codex({
+const maplecode = new MapleCode({
   config: {
     show_raw_agent_reasoning: true,
     sandbox_workspace_write: { network_access: true },
@@ -147,10 +147,10 @@ const codex = new Codex({
 ```
 
 For configuration keys that cannot be expressed as dotted paths, pass raw TOML overrides with `configOverrides`. Each entry
-is forwarded unchanged as a separate `--config` argument, without modifying `CODEX_HOME`:
+is forwarded unchanged as a separate `--config` argument, without modifying `MAPLECODE_HOME`:
 
 ```typescript
-const codex = new Codex({
+const maplecode = new MapleCode({
   config: { default_permissions: "audit" },
   configOverrides: ['permissions.audit.filesystem={":root"="read","/path/to/project/.env"="deny"}'],
 });

@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "attachment-store",
+    crate_name = "maplecode_attachment_store",
+)

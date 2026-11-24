@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "thread-manager-sample",
+    crate_name = "maplecode_thread_manager_sample",
+)

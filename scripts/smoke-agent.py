@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the real native Maple-enabled Codex against an intentionally broken crate.
+"""Run the real native Maple-enabled MapleCode against an intentionally broken crate.
 
 This invokes real inference with workspace-write sandboxing and the native
 headless approval policy, which denies operations that require approval.
@@ -18,7 +18,7 @@ def main():
     args = parser.parse_args()
     binary = args.binary.expanduser().resolve()
     if not binary.is_file():
-        parser.error("build the native Maple-enabled Codex binary first")
+        parser.error("build the native Maple-enabled MapleCode binary first")
     root = Path(__file__).resolve().parents[1]
     workspace = Path(tempfile.mkdtemp(prefix="maple-agent-smoke-"))
     shutil.copytree(root / "fixtures/maple-smoke", workspace, dirs_exist_ok=True,

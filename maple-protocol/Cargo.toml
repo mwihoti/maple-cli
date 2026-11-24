@@ -3,7 +3,7 @@ name = "maple-protocol"
 version = "0.1.0"
 edition = "2024"
 license = "Apache-2.0"
-description = "Maple Chat Completions adapter for the Codex Responses transport"
+description = "Maple Chat Completions adapter for the MapleCode Responses transport"
 
 # Independently testable while the full upstream workspace is unavailable.
 [workspace]

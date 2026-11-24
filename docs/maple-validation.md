@@ -13,23 +13,23 @@ refresh errors. It now preflights the configured credential and uses
 reads retain their cache/fallback semantics. The manager's complete 63-test
 suite passed, including three new regression tests for HTTP 401/403/429,
 malformed catalog data, and stale cache reads after timeout. The native CLI and
-test executables for codex-api, codex-cli, codex-model-provider-info,
-codex-protocol and codex-models-manager rebuilt successfully offline (7m54s).
+test executables for maplecode-api, maplecode-cli, maplecode-model-provider-info,
+maplecode-protocol and maplecode-models-manager rebuilt successfully offline (7m54s).
 A missing-key check now returns an actionable credential-store/environment error
 instead of claiming no models are available. Actual host model discovery and
 inference remain to be verified.
 
 Date: 2026-11-19. Full checkout: a sibling `maple-code-full` directory.
-Branch: `feature/maple-provider`. Native target release: Codex `rust-v0.170.0`.
+Branch: `feature/maple-provider`. Native target release: Maple Code `rust-v0.170.0`.
 
 ## Initial validation in the partial source checkout
 
 | Check | Result |
 | --- | --- |
 | `git clone --depth 1 https://github.com/openai/codex.git maple-code` | Failed: shell could not resolve github.com. Connected GitHub reads supplied inspected source files instead. |
-| Baseline `cargo build --offline --manifest-path codex-rs/Cargo.toml` | Blocked before compilation: missing workspace member `codex-rs/aws-auth/Cargo.toml`. This is a partial-source limitation, not an upstream test failure. |
-| Baseline `cargo test --offline --manifest-path codex-rs/Cargo.toml -p codex-api` | Same manifest-loading blocker. No upstream baseline tests ran. |
-| Modified native tests for codex-api, codex-model-provider-info, codex-protocol, codex-cli | Same blocker. These changes have not been type-checked as an integrated Codex workspace. |
+| Baseline `cargo build --offline --manifest-path maplecode-rs/Cargo.toml` | Blocked before compilation: missing workspace member `maplecode-rs/aws-auth/Cargo.toml`. This is a partial-source limitation, not an upstream test failure. |
+| Baseline `cargo test --offline --manifest-path maplecode-rs/Cargo.toml -p maplecode-api` | Same manifest-loading blocker. No upstream baseline tests ran. |
+| Modified native tests for maplecode-api, maplecode-model-provider-info, maplecode-protocol, maplecode-cli | Same blocker. These changes have not been type-checked as an integrated Maple Code workspace. |
 | `cargo test --offline --manifest-path maple-protocol/Cargo.toml` | **22 tests passed**, plus empty unit/doc-test targets. Uses cached dependencies and installed Rust 1.99.1, not the unavailable pinned Rust 1.95.0. |
 | `/usr/bin/cargo-clippy clippy --offline --manifest-path maple-protocol/Cargo.toml --all-targets -- -D warnings` | Passed for the standalone protocol crate. |
 | `python -m unittest discover -s scripts/tests -v` | **7 tests passed**; request construction, auth-error redaction, redirect rejection, endpoint validation and a deterministic addition-tool probe. These are mocks, not authenticated inference. |
@@ -42,7 +42,7 @@ Branch: `feature/maple-provider`. Native target release: Codex `rust-v0.170.0`.
 
 ## Native test coverage
 
-`codex-rs/codex-api/src/maple_tests.rs` uses the real upstream HTTP transport
+`maplecode-rs/maplecode-api/src/maple_tests.rs` uses the real upstream HTTP transport
 trait and SSE parser interfaces, with memory-backed responses for:
 
 - Valid/invalid bearer authentication, 403 access denial, 429 rate limits.
@@ -132,7 +132,7 @@ credential-store tests and both shell-environment tests. The smoke harness
 passed with a test executable that made a deterministic fixture edit and
 confirmed that the baseline source was staged.
 
-The workspace test build produced `codex-rs/target/debug/codex`. The executable
+The workspace test build produced `maplecode-rs/target/debug/maplecode`. The executable
 reported version 0.170.0, displayed the Maple subcommands, and recognized a
 fixture environment key in `maple auth status`. The provider-info suite passed
 46 tests, and the protocol suite passed 381. The API suite passed 196 tests,
@@ -150,13 +150,13 @@ workflow remain unverified.
 ## Native build and temporary-storage follow-up
 
 The host has now compiled the integrated native CLI. The existing binary reports
-`codex-cli 0.170.0`, and `codex maple --help` exposes the provider commands.
+`maplecode-cli 0.170.0`, and `maplecode maple --help` exposes the provider commands.
 The earlier uncompiled-state notes above describe the initial environment and
 are superseded by this update for the full checkout.
 
 Executed directly from the host-built test executables, without a Cargo rebuild:
 
-- codex-api `maple_tests`: **7 passed** (real upstream parser/transport interfaces,
+- maplecode-api `maple_tests`: **7 passed** (real upstream parser/transport interfaces,
   with deterministic memory responses).
 - model-provider-info `maple_credentials::tests`: **2 passed**.
 - protocol `maple_key_tests`: **2 passed**.
@@ -169,11 +169,11 @@ quota-enabled /tmp filesystem. Fixture setup hardcodes /tmp, so TMPDIR does not
 redirect it. The source filesystem has free space; no files or caches were deleted.
 
 A separate stripped CLI fixture was prepared at
-`codex-rs/target/maple-test-bin/codex` (427 MiB), and its version was verified.
+`maplecode-rs/target/maple-test-bin/maplecode` (427 MiB), and its version was verified.
 The original debug executable remains unchanged. Run
 `python scripts/test-daemon-low-disk.py` from the full checkout to reuse the
 compiled daemon test executable, select that compact fixture through upstream's
-existing CARGO_BIN_EXE_codex hook, and execute tests serially. Preparation was
+existing CARGO_BIN_EXE_maplecode hook, and execute tests serially. Preparation was
 verified here; the daemon suite still requires a host-terminal rerun because this
 agent environment restricts local socket access. No tests are skipped by the helper.
 
@@ -182,8 +182,8 @@ agent environment restricts local socket access. No tests are skipped by the hel
 Date: 2026-11-20. Maple Proxy 0.3.2 (`ghcr.io/opensecretcloud/maple-proxy`),
 debug CLI built from this branch.
 
-- `codex maple models` returned nine tool-capable models through the proxy.
-- `codex exec` with `deepseek-v4-1-flash` and `glm-5-3-flash` completed turns,
+- `maplecode maple models` returned nine tool-capable models through the proxy.
+- `maplecode exec` with `deepseek-v4-1-flash` and `glm-5-3-flash` completed turns,
   including a real `ls` tool call whose result the model summarized.
 
 Three defects were found against the live service and fixed:
@@ -211,7 +211,7 @@ A later session failed with "encrypted, audio, uploaded-file or non-user image
 content is unsupported" after the model called `view_image` on a screenshot.
 Tool-result images are now moved into a user message that follows the tool
 batch. A direct request in that shape returned HTTP 200 from
-`deepseek-v4-1-flash-1017-uncensored`, and `codex exec` identified the colour
+`deepseek-v4-1-flash-1017-uncensored`, and `maplecode exec` identified the colour
 of a solid test image through `view_image`.
 
 `--full-access` was added as a visible alias of
@@ -227,7 +227,7 @@ A session ended with "model requested an unadvertised tool". The name the
 model used was not captured. The decoder now resolves readable tool names to
 the single advertised tool they identify and turns any other name into an
 undispatchable `unavailable_tool` call. This is covered by decoder tests; the
-original failure was not reproduced live. A normal `codex exec` tool call
+original failure was not reproduced live. A normal `maplecode exec` tool call
 still completed on the rebuilt binary.
 
 More interface text follows the provider: `/` command descriptions, the
@@ -239,7 +239,7 @@ On 2026-11-21 every request returned 502 with "PCR0 is not approved by the
 configured trust policy" for over twenty minutes; retries and a proxy restart
 did not help. Proxy 0.3.2 came from the archived OpenSecretCloud repository.
 Replacing it with the v3.4.9 proxy from MaplePrivacyLabs/Maple releases
-(checksum verified) restored the model list and a `codex exec` turn at once.
+(checksum verified) restored the model list and a `maplecode exec` turn at once.
 The earlier ten-minute outage on 2026-11-20 was probably the same cause.
 
 `scripts/install-from-source.sh` was syntax-checked with `bash -n`, and its
@@ -247,9 +247,9 @@ proxy download step was run on Linux x86_64 into a temporary directory.
 
 On 2026-11-22 the remaining interface text in the TUI crate was moved to the
 provider-dependent wording: menus, notices, errors and the permissions picker.
-It passed `cargo check -p codex-tui`. The binary could not be relinked because
+It passed `cargo check -p maplecode-tui`. The binary could not be relinked because
 the disk was full, so none of this text has been seen in a live session yet.
-Still named Codex: Windows-only prompts, sign-in onboarding, a few constants,
+Still named MapleCode: Windows-only prompts, sign-in onboarding, a few constants,
 text sent to the model, and messages produced by other crates.
 
 On 2026-11-23, after disk space was freed, the binary was rebuilt with
@@ -258,8 +258,8 @@ in the binary as "Use with caution: Maple Code can edit files ...". The other
 text moved on 2026-11-22 is now built but has still not been read on screen,
 apart from the header, the placeholder and the startup help lines.
 
-A Maple session used to open as "OpenAI Codex" with the OpenAI logo and
-"Ask Codex to do anything" for about a second, because the first frame was
+A Maple session used to open as "Maple Code" with the OpenAI logo and
+"Ask Maple Code to do anything" for about a second, because the first frame was
 drawn before the provider was known. The name is now set from the bootstrap
 config, and the logo is replaced by a maple leaf for the Maple provider. The
 session was started in a 110x40 terminal and captured every 0.3 seconds: every
@@ -267,7 +267,7 @@ frame read "Maple Code", and the first drawn frame showed the leaf. Only a
 provider set by `model_provider` in `config.toml` was tried.
 
 The five maple leaf tests pass when `maple_leaf.rs` is compiled on its own with
-`rustc --test`. Within `cargo test -p codex-tui`, an earlier run passed the
+`rustc --test`. Within `cargo test -p maplecode-tui`, an earlier run passed the
 existing logo animation tests and two leaf tests; the final run was stopped
 because the machine ran out of memory, so three leaf tests and the startup
 tests have not run there. In that earlier run the `fresh_thread_header` snapshot

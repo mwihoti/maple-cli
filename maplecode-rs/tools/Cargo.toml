@@ -1,0 +1,40 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-tools"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+bitflags = { workspace = true }
+maplecode-attachment-store = { workspace = true }
+maplecode-code-mode = { workspace = true }
+maplecode-connectors = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-file-system = { workspace = true }
+maplecode-extension-items = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-utils-output-truncation = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+maplecode-utils-string = { workspace = true }
+jsonptr = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = [
+    "base64",
+    "macros",
+    "schemars",
+    "server",
+] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["raw_value"] }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+urlencoding = { workspace = true }
+
+[dev-dependencies]
+maplecode-utils-cargo-bin = { workspace = true }
+pretty_assertions = { workspace = true }
+
+[lib]
+doctest = false

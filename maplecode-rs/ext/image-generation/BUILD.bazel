@@ -1,0 +1,10 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "image-generation",
+    compile_data = [
+        "imagegen_description.md",
+        "imagegen_gif_description.md",
+    ],
+    crate_name = "maplecode_image_generation_extension",
+)

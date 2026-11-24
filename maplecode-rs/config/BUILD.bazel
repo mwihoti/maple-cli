@@ -1,0 +1,7 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "config",
+    compile_data = ["defaults.toml"],
+    crate_name = "maplecode_config",
+)

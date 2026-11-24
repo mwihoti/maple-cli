@@ -1,5 +1,5 @@
 [project]
-name = "codex-python-release-tools"
+name = "maplecode-python-release-tools"
 version = "0.0.0"
 requires-python = ">=3.10"
 

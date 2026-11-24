@@ -1,0 +1,64 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-mcp"
+version.workspace = true
+
+[lib]
+name = "maplecode_mcp"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+arc-swap = { workspace = true }
+async-channel = { workspace = true }
+maplecode-async-utils = { workspace = true }
+maplecode-api = { workspace = true }
+maplecode-config = { workspace = true }
+maplecode-connectors = { workspace = true }
+maplecode-diagnostics = { workspace = true }
+maplecode-exec-server = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-model-provider = { workspace = true }
+maplecode-network-proxy = { workspace = true }
+maplecode-otel = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-rmcp-client = { workspace = true }
+maplecode-runtime-agent-instance = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+maplecode-utils-plugins = { workspace = true }
+maplecode-utils-process = { workspace = true }
+futures = { workspace = true }
+http = { workspace = true }
+lru = { workspace = true }
+regex-lite = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = ["base64", "macros", "schemars", "server"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha1 = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["io-util", "macros", "rt-multi-thread"] }
+tokio-util = { workspace = true, features = ["rt"] }
+tracing = { workspace = true }
+url = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
+
+[dev-dependencies]
+base64 = { workspace = true }
+assert_matches = { workspace = true }
+maplecode-exec-server-test-support = { workspace = true }
+maplecode-plugin = { workspace = true }
+maplecode-utils-cargo-bin = { workspace = true }
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = ["base64", "macros", "schemars", "server"] }
+tempfile = { workspace = true }
+uuid = { workspace = true }
+wiremock = { workspace = true }

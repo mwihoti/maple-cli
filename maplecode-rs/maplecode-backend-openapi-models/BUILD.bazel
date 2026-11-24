@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "maplecode-backend-openapi-models",
+    crate_name = "maplecode_backend_openapi_models",
+)

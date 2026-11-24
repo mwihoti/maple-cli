@@ -1,0 +1,32 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-agent-message-board-extension"
+version.workspace = true
+
+[lib]
+name = "maplecode_agent_message_board_extension"
+path = "src/lib.rs"
+test = false
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-agent-message-board-client = { workspace = true }
+maplecode-config = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-message-board = { workspace = true }
+maplecode-message-board-mcp = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-state = { workspace = true }
+maplecode-tools = { workspace = true }
+futures = { workspace = true }
+tokio = { workspace = true, features = ["sync"] }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread"] }

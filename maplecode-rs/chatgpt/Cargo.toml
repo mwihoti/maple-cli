@@ -1,0 +1,37 @@
+[package]
+name = "maplecode-chatgpt"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+maplecode-connectors = { workspace = true }
+maplecode-core = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-runtime-agent-instance = { workspace = true }
+maplecode-git-utils = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-model-provider = { workspace = true }
+maplecode-plugin = { workspace = true }
+maplecode-utils-cli = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["full"] }
+
+[dev-dependencies]
+maplecode-protocol = { workspace = true }
+base64 = { workspace = true }
+uuid = { workspace = true }
+wiremock = { workspace = true }
+maplecode-utils-cargo-bin = { workspace = true }
+pretty_assertions = { workspace = true }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+
+[lib]
+doctest = false

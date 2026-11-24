@@ -1,0 +1,17 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "multi-env-copy-file",
+    crate_name = "maplecode_multi_env_copy_file",
+    extra_binaries = [
+        "//maplecode-rs/bwrap:bwrap",
+        "//maplecode-rs/code-mode-host:maplecode-code-mode-host",
+        "//maplecode-rs/linux-sandbox:maplecode-linux-sandbox",
+        "//maplecode-rs/cli:maplecode",
+        "//maplecode-rs/windows-sandbox-rs:maplecode-command-runner",
+        "//maplecode-rs/windows-sandbox-rs:maplecode-windows-managed-deny-probe",
+        "//maplecode-rs/windows-sandbox-rs:maplecode-windows-sandbox-setup",
+    ],
+    run_tests_with_wine_exec = True,
+    test_tags = ["no-sandbox"],
+)

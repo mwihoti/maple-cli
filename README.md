@@ -1,14 +1,16 @@
 # Maple Code — integration in progress
 
-This is the full Codex source checkout with the Maple provider changes applied.
+Maple Code is a fork of OpenAI Codex with a Maple provider. The source was
+renamed throughout, so packages, folders and the program are named `maplecode`.
 The Maple protocol adapter and native provider tests pass with cached Cargo
 dependencies. Live inference and the coding workflow still require access to
 the local Maple Proxy. The [validation record](docs/maple-validation.md)
 tracks build and test results.
 
-Work is on `feature/maple-provider`, based on inspected Codex `rust-v0.170.0`
+Work is on `feature/maple-provider`, based on upstream OpenAI Codex `rust-v0.170.0`
 (commit `29eb79e9866b3262a777fdf8195c1b9e63684c91`). Original Apache-2.0
-[LICENSE](LICENSE) and [NOTICE](NOTICE) are preserved. Nothing has been pushed
+[LICENSE](LICENSE) and [NOTICE](NOTICE) are preserved and still credit the upstream project. Links to
+upstream, OpenAI service addresses and OpenAI model names keep the name Codex. Nothing has been pushed
 or published. See [architecture](docs/maple-architecture.md),
 [validation and limitations](docs/maple-validation.md), and the exact source
 provenance in [upstream-source.json](upstream-source.json).
@@ -27,7 +29,7 @@ provenance in [upstream-source.json](upstream-source.json).
 - Dynamic `/models` conversion using actual Maple capabilities/context data.
   Non-tool models and unknown tool capabilities are excluded from the agent
   catalog. Discovery does not prove account access.
-- Provider commands under `codex maple`: secure login, logout, auth status,
+- Provider commands under `maplecode maple`: secure login, logout, auth status,
   and model listing with `--search` and `--json`.
 - Existing `--model`, `/model`, model persistence and resume architecture reused.
 - Credential redaction before HTTP telemetry and prevention of MAPLE_API_KEY
@@ -52,9 +54,9 @@ After `cargo fetch --locked` succeeds, you can add `--offline` to use cached
 dependencies.
 
 ```bash
-cd /path/to/maple-code-full/codex-rs
-cargo test --locked -p codex-api -p codex-model-provider-info -p codex-model-provider -p codex-protocol -p codex-cli
-cargo build --locked --bin codex
+cd /path/to/maple-code-full/maplecode-rs
+cargo test --locked -p maplecode-api -p maplecode-model-provider-info -p maplecode-model-provider -p maplecode-protocol -p maplecode-cli
+cargo build --locked --bin maplecode
 ```
 
 The original upstream build attempts are recorded in `maple-baseline-results.json`.
@@ -63,7 +65,7 @@ changes required by the tagged source.
 
 ### Disk space
 
-A debug build of the workspace writes about 32 GB under `codex-rs/target`. A
+A debug build of the workspace writes about 32 GB under `maplecode-rs/target`. A
 release build has not been completed here, so its size is unmeasured; a partial
 one had written 5 GB. The linker crashes with a bus error if the
 disk fills part-way through.
@@ -86,10 +88,10 @@ shell arguments, config files and Git. Use the hidden prompt and OS store:
 
 ```bash
 cd /path/to/maple-code-full
-./codex-rs/target/debug/codex maple login
-./codex-rs/target/debug/codex maple auth status
-./codex-rs/target/debug/codex maple models
-./codex-rs/target/debug/codex maple models --search 'your search'
+./maplecode-rs/target/debug/maplecode maple login
+./maplecode-rs/target/debug/maplecode maple auth status
+./maplecode-rs/target/debug/maplecode maple models
+./maplecode-rs/target/debug/maplecode maple models --search 'your search'
 ```
 
 Login stores the key; it does not claim the server accepted it. Model discovery
@@ -104,7 +106,7 @@ export MAPLE_API_KEY
 export MAPLE_BASE_URL=http://127.0.0.1:8080/v1
 ```
 
-`MAPLE_API_KEY` takes precedence over stored credentials. `codex maple logout`
+`MAPLE_API_KEY` takes precedence over stored credentials. `maplecode maple logout`
 deletes the current endpoint's stored key; also `unset MAPLE_API_KEY` to stop
 using an environment key. Auth status reports configuration, not verified access.
 Changing the base URL changes the credential-store account.
@@ -114,7 +116,7 @@ Choose an exact tool-capable model ID from the live list; no model ID is assumed
 ```bash
 read -rp 'Model ID from the catalog: ' MAPLE_MODEL
 export MAPLE_MODEL
-./codex-rs/target/debug/codex \
+./maplecode-rs/target/debug/maplecode \
   -c 'model_provider="maple"' \
   -c 'features.api_key_model_discovery=true' \
   -c 'approval_policy="on-request"' \
@@ -122,7 +124,7 @@ export MAPLE_MODEL
 ```
 
 Use `/model` in the conversation to select another discovered model. Use the
-same provider settings with `codex resume --last` for upstream session resume.
+same provider settings with `maplecode resume --last` for upstream session resume.
 These flows require native end-to-end verification. Non-secret persistent
 settings are in [examples/maple.config.toml](examples/maple.config.toml).
 
@@ -144,7 +146,7 @@ Run the actual native agent on the intentionally broken Rust fixture:
 
 ```bash
 python scripts/smoke-agent.py \
-  --binary ./codex-rs/target/debug/codex --model "$MAPLE_MODEL"
+  --binary ./maplecode-rs/target/debug/maplecode --model "$MAPLE_MODEL"
 ```
 
 This stages the original fixture in a temporary Git repository, verifies the
@@ -177,7 +179,7 @@ The launcher reads `.env.maple` unless `MAPLE_API_KEY` is already set, starts a
 localhost-only Maple Proxy when none is answering at `MAPLE_BASE_URL` (place the
 `maple-proxy` binary in `~/.maple-code/bin/` or on `PATH`), and prefers the
 release build over the debug build. It keeps its settings in `~/.maple-code`,
-so an ordinary `~/.codex` is untouched. `daemon_auto_start` stays off because a
+so an ordinary `~/.maplecode` is untouched. `daemon_auto_start` stays off because a
 source build has no installed package for the background app server.
 
 The first catalog request after the proxy starts or idles waits for the proxy's
@@ -193,8 +195,8 @@ policy" once Maple deploys a newer backend; updating the proxy fixes it.
 
 With the Maple provider active the interface calls itself Maple Code: the
 session header, the `exec` banner, the input placeholder and approval messages
-("You approved maple-code to run ..."). Other providers keep the Codex name.
-The binary and its subcommands are still named `codex`.
+("You approved maple-code to run ..."). Other providers keep the Maple Code name.
+The binary and its subcommands are still named `maplecode`.
 
 Resume hints, the exit menu and the `/` command descriptions follow the same
 rule, so a Maple session tells you to run `maple-code resume <id>`.
@@ -206,7 +208,7 @@ the OpenAI logo. It turns on its stem once, settles facing you, and replays
 when clicked. Other providers keep the original logo.
 
 The product name is chosen from `model_provider` in `config.toml` before the
-first frame is drawn, so the screen no longer opens as "OpenAI Codex" for a
+first frame is drawn, so the screen no longer opens as "Maple Code" for a
 moment. A provider selected only by a profile or a `-c` override is still
 applied a moment later, once the full configuration has loaded.
 
@@ -215,7 +217,7 @@ applied a moment later, once the full configuration has loaded.
 Maple models see each tool under an opaque alias with the readable name in the
 description. A model that answers with the readable name, with or without its
 namespace, is matched to the advertised tool when exactly one fits. Any other
-name becomes a call to `unavailable_tool`, which Codex answers with an
+name becomes a call to `unavailable_tool`, which Maple Code answers with an
 "unsupported call" result so the model can retry instead of ending the turn.
 
 ### Images

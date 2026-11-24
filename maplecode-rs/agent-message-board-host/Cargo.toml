@@ -1,0 +1,25 @@
+[package]
+name = "maplecode-agent-message-board-host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+test = false
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+chrono = { workspace = true }
+maplecode-agent-message-board-client = { workspace = true }
+maplecode-agent-message-board-extension = { workspace = true }
+maplecode-core = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-message-board = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-state = { workspace = true }
+maplecode-thread-store = { workspace = true }
+futures = { workspace = true }

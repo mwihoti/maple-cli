@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "keyring-store",
+    crate_name = "maplecode_keyring_store",
+)

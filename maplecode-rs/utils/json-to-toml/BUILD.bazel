@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "json-to-toml",
+    crate_name = "maplecode_utils_json_to_toml",
+)

@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "external-agent-migration",
+    crate_name = "maplecode_external_agent_migration",
+)

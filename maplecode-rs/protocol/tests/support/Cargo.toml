@@ -1,0 +1,17 @@
+[package]
+name = "maplecode-protocol-test-support"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+path = "lib.rs"
+test = false
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-protocol = { workspace = true }
+uuid = { workspace = true, features = ["v7"] }

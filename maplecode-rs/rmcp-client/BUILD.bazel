@@ -1,0 +1,9 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "rmcp-client",
+    crate_name = "maplecode_rmcp_client",
+    extra_binaries = [
+        "//maplecode-rs/cli:maplecode",
+    ],
+)

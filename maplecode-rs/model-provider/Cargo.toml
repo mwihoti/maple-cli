@@ -1,0 +1,52 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-model-provider"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "maplecode_model_provider"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+maplecode-utils-process = { workspace = true }
+chrono = { workspace = true }
+maplecode-api = { workspace = true }
+maplecode-agent-identity = { workspace = true }
+maplecode-aws-auth = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-feedback = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-runtime-agent-instance = { workspace = true }
+maplecode-keyring-store = { workspace = true }
+maplecode-model-provider-info = { workspace = true }
+maplecode-models-manager = { workspace = true }
+maplecode-otel = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-response-debug-context = { workspace = true }
+maplecode-secrets = { workspace = true }
+http = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+tokio = { workspace = true, features = ["io-util", "process", "sync", "time"] }
+tracing = { workspace = true, features = ["log"] }
+url = { workspace = true }
+
+[dev-dependencies]
+base64 = { workspace = true }
+maplecode-utils-cargo-bin = { workspace = true }
+maplecode-utils-redacted-string = { workspace = true }
+maplecode-utils-rustls-provider = { workspace = true }
+pretty_assertions = { workspace = true }
+rcgen = { workspace = true }
+rustls = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt"] }
+wiremock = { workspace = true }

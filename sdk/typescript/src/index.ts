@@ -26,9 +26,9 @@ export type {
 export { Thread } from "./thread";
 export type { RunResult, RunStreamedResult, Input, UserInput } from "./thread";
 
-export { Codex } from "./codex";
+export { MapleCode } from "./maplecode";
 
-export type { CodexOptions } from "./codexOptions";
+export type { MapleCodeOptions } from "./maplecodeOptions";
 
 export type {
   ThreadOptions,

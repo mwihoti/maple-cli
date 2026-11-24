@@ -1,0 +1,22 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-context-fragments"
+version.workspace = true
+
+[lib]
+name = "maplecode_context_fragments"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-protocol = { workspace = true }
+maplecode-utils-string = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+maplecode-protocol-test-support = { workspace = true }
+pretty_assertions = { workspace = true }

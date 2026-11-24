@@ -1,0 +1,11 @@
+---
+source: tui/src/inline_visualization_tests.rs
+expression: text
+---
+• Fenced:
+
+  ::maplecode-inline-vis{file="chart.html"}
+
+  Indented:
+
+      ::maplecode-inline-vis{file="chart.html"}

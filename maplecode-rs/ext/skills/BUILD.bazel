@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "skills",
+    crate_name = "maplecode_skills_extension",
+)

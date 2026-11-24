@@ -38,9 +38,9 @@ def main() -> None:
             check=True,
         )
         for relative in (
-            "src/openai_codex/api.py",
-            "src/openai_codex/generated/v2_all.py",
-            "src/openai_codex/generated/notification_registry.py",
+            "src/openai_maplecode/api.py",
+            "src/openai_maplecode/generated/v2_all.py",
+            "src/openai_maplecode/generated/notification_registry.py",
         ):
             destination = output / relative
             destination.parent.mkdir(parents=True, exist_ok=True)

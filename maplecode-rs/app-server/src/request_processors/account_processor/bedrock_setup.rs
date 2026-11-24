@@ -1,0 +1,148 @@
+use super::super::bedrock_auth::BedrockProviderConfig;
+use super::super::bedrock_auth::prepare_bedrock_provider;
+use super::super::config_processor::map_error as map_config_error;
+use super::AccountRequestProcessor;
+use super::CloudLoginProvider;
+use crate::error_code::internal_error;
+use crate::error_code::invalid_request;
+use maplecode_app_server_protocol::AwsCredentialType;
+use maplecode_app_server_protocol::BedrockAwsProfile;
+use maplecode_app_server_protocol::BedrockDiscoverParams;
+use maplecode_app_server_protocol::BedrockDiscoverResponse;
+use maplecode_app_server_protocol::BedrockEnvironmentCredential;
+use maplecode_app_server_protocol::BedrockSetupParams;
+use maplecode_app_server_protocol::BedrockSetupResponse;
+use maplecode_app_server_protocol::ClientResponsePayload;
+use maplecode_app_server_protocol::JSONRPCErrorError;
+use maplecode_login::MapleCodeAuth;
+use maplecode_model_provider::is_supported_amazon_bedrock_region;
+
+const AWS_ACCESS_KEY_ID: &str = "AWS_ACCESS_KEY_ID";
+const AWS_SECRET_ACCESS_KEY: &str = "AWS_SECRET_ACCESS_KEY";
+const AWS_BEARER_TOKEN_BEDROCK: &str = "AWS_BEARER_TOKEN_BEDROCK";
+
+impl AccountRequestProcessor {
+    pub(crate) async fn bedrock_discover(
+        &self,
+        _params: BedrockDiscoverParams,
+    ) -> Result<Option<ClientResponsePayload>, JSONRPCErrorError> {
+        self.ensure_provider_login_allowed(CloudLoginProvider::AmazonBedrock)?;
+        let profiles = maplecode_aws_auth::discover_aws_profiles()
+            .await
+            .map_err(|err| internal_error(format!("failed to discover AWS profiles: {err}")))?
+            .into_iter()
+            .map(|profile| BedrockAwsProfile {
+                name: profile.name,
+                region: profile.region,
+            })
+            .collect();
+
+        let region = non_empty_env_var("AWS_REGION");
+        let environment_credentials = [
+            (
+                AwsCredentialType::AccessKeys,
+                non_empty_env_var(AWS_ACCESS_KEY_ID).is_some()
+                    && non_empty_env_var(AWS_SECRET_ACCESS_KEY).is_some(),
+            ),
+            (
+                AwsCredentialType::BedrockApiKey,
+                non_empty_env_var(AWS_BEARER_TOKEN_BEDROCK).is_some(),
+            ),
+        ]
+        .into_iter()
+        .filter(|(_, available)| *available)
+        .map(|(credential_type, _)| BedrockEnvironmentCredential {
+            credential_type,
+            region: region.clone(),
+        })
+        .collect();
+
+        Ok(Some(
+            BedrockDiscoverResponse {
+                profiles,
+                environment_credentials,
+            }
+            .into(),
+        ))
+    }
+
+    pub(crate) async fn bedrock_setup(
+        &self,
+        params: BedrockSetupParams,
+    ) -> Result<Option<ClientResponsePayload>, JSONRPCErrorError> {
+        self.ensure_provider_login_allowed(CloudLoginProvider::AmazonBedrock)?;
+        let (profile, region) = match &params {
+            BedrockSetupParams::Profile { profile, region } => {
+                (Some(profile.trim()), region.trim())
+            }
+            BedrockSetupParams::Environment { region } => (None, region.trim()),
+        };
+        let write = prepare_bedrock_provider(
+            &self.config_manager,
+            BedrockProviderConfig {
+                region: Some(region),
+                profile,
+            },
+        )
+        .await?;
+        if profile.is_none()
+            && matches!(
+                self.auth_manager.auth_cached(),
+                Some(MapleCodeAuth::BedrockApiKey(_) | MapleCodeAuth::BedrockAccessKeys(_))
+            )
+        {
+            return Err(invalid_request(
+                "MapleCode-managed Bedrock credentials are already configured and take priority over AWS environment credentials. Run `maplecode logout` and try again.",
+            ));
+        }
+
+        if !is_supported_amazon_bedrock_region(region) {
+            return Err(invalid_request(format!(
+                "Amazon Bedrock does not support region `{region}`"
+            )));
+        }
+
+        if let Some(profile) = profile {
+            if profile.is_empty() {
+                return Err(invalid_request("AWS profile name must not be empty."));
+            }
+            maplecode_aws_auth::validate_aws_profile(
+                profile,
+                region,
+                self.config.http_client_factory(),
+            )
+            .await
+            .map_err(|err| {
+                invalid_request(format!(
+                    "failed to load credentials for AWS profile `{profile}`: {err}"
+                ))
+            })?;
+        } else {
+            let has_bedrock_api_key = non_empty_env_var(AWS_BEARER_TOKEN_BEDROCK).is_some();
+            let has_access_keys = non_empty_env_var(AWS_ACCESS_KEY_ID).is_some()
+                && non_empty_env_var(AWS_SECRET_ACCESS_KEY).is_some();
+            if !has_bedrock_api_key && !has_access_keys {
+                return Err(invalid_request(
+                    "No AWS credentials found. Please Configure AWS credentials or complete AWS sign-in, then try again.",
+                ));
+            }
+        }
+
+        // TODO: Validate the selected credentials against Bedrock ListModels once supported.
+        self.cancel_active_login().await;
+        self.config_manager
+            .commit_provider_config(write)
+            .await
+            .map_err(map_config_error)?;
+        self.model_catalog.invalidate().await;
+
+        Ok(Some(BedrockSetupResponse {}.into()))
+    }
+}
+
+fn non_empty_env_var(name: &str) -> Option<String> {
+    std::env::var(name)
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+}

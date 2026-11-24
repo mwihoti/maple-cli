@@ -1,0 +1,52 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-skills-extension"
+version.workspace = true
+
+[lib]
+name = "maplecode_skills_extension"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+blake3 = { workspace = true }
+maplecode-analytics = { workspace = true }
+maplecode-config = { workspace = true }
+maplecode-exec-server = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-mcp = { workspace = true }
+maplecode-otel = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-skills = { workspace = true }
+maplecode-tools = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+maplecode-utils-plugins = { workspace = true }
+maplecode-utils-string = { workspace = true }
+dirs = { workspace = true }
+futures = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["rt", "sync", "time"] }
+toml = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+assert_matches = { workspace = true }
+maplecode-attachment-store = { workspace = true }
+maplecode-core-plugin-common = { workspace = true }
+maplecode-models-manager = { workspace = true }
+maplecode-protocol-test-support = { workspace = true }
+maplecode-utils-cargo-bin = { workspace = true }
+dunce = { workspace = true }
+insta = { workspace = true }
+opentelemetry_sdk = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "test-util"] }
+tracing-subscriber = { workspace = true }

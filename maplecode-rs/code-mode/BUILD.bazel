@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "code-mode",
+    crate_name = "maplecode_code_mode",
+)

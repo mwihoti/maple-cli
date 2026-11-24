@@ -1,6 +1,6 @@
 # Maple integration investigation
 
-Inspected release: OpenAI Codex `rust-v0.170.0`, commit
+Inspected release: Maple Code `rust-v0.170.0`, commit
 `29eb79e9866b3262a777fdf8195c1b9e63684c91`, tree
 `f657bf577be9e5dda06174066b9cbea2e6b8a02b`, latest non-prerelease returned by
 GitHub on 2026-11-19. This directory initially contains **40 inspected upstream
@@ -11,25 +11,25 @@ connected GitHub service supplied those files. Do not claim a baseline build.
 
 | Exact path | Responsibility / intended change |
 | --- | --- |
-| `codex-rs/Cargo.toml` | Rust workspace; many crates, workspace dependencies and patched Git dependencies. Keep unchanged. |
-| `codex-rs/cli/src/main.rs`, `maple_cmd.rs`, `Cargo.toml` | Native `codex` main, `arg0_dispatch_or_else`, then `dispatch_cli`, TUI or exec. Adds a separate `maple` command namespace for login/logout/status/models. |
-| `codex-rs/model-provider-info/src/lib.rs` | Provider registry, auth configuration, endpoint construction. Add Maple with bearer env key, no OpenAI login or WebSockets. |
-| `codex-rs/model-provider/src/models_endpoint.rs` | Provider/auth-bound discovery, network policy, retries, cache identity. Enable Maple discovery through this existing path. |
-| `codex-rs/codex-api/src/endpoint/models.rs` | Fetch raw catalog and decode Codex metadata. Translate Maple metadata only for the Maple provider. |
-| `codex-rs/models-manager/src/manager.rs`, `manager_tests.rs` | Add an explicit catalog read that propagates refresh errors for CLI diagnostics. Preserve existing conversation refresh/cache behavior and ownership checks. |
-| `codex-rs/core/src/client.rs` | Build full Responses request; apply auth, policies, telemetry, retries, interceptors; send HTTP or WebSockets; map response stream. Preserve. |
-| `codex-rs/codex-api/src/endpoint/responses.rs` | HTTP request boundary; translate Maple request before encoding, post chat/completions, adapt byte stream before upstream parser. |
-| `codex-rs/codex-api/src/endpoint/session.rs` | Redact provider errors before request telemetry/retry callbacks see them, preserving status, timeout, network policy and retry advice. |
-| `codex-rs/codex-api/src/maple.rs`, `maple_tests.rs`, `lib.rs`, `Cargo.toml` | Stream adapter, protocol dependency and native interface regression tests. |
-| `codex-rs/config/src/config_toml.rs` | Reserve Maple identity; allow only non-secret base_url overrides. |
-| `codex-rs/codex-api/src/sse/responses.rs` | Parses Responses events into ResponseEvent. Owns idle timeouts and cancels polling when receiver closes. Reuse unchanged. |
-| `codex-rs/protocol/src/models.rs` | Canonical history and tool items. Preserve call IDs, names, namespaces and tool outputs. |
-| `codex-rs/protocol/src/shell_environment.rs` | Add MAPLE_API_KEY to existing non-inheritable credentials list; prevent shell overrides from restoring it in tool children. |
-| `codex-rs/core/src/thread_manager/model_catalog.rs` | Per-thread catalog and auth owner; preserves history during model changes. |
-| `codex-rs/tui/src/slash_command.rs`, `chatwidget.rs` | Existing `/model` command, interactive conversation controls. Reuse existing selector. |
-| `codex-rs/keyring-store/src/lib.rs` | Existing OS credential abstraction, reused unchanged. New `model-provider-info/src/maple_credentials.rs` validates endpoint-scoped keys and maps errors without leaking backend payloads. |
-| `codex-cli/bin/codex.js`, `package.json` | Node launcher selects native platform package/vendor binary, forwards argv, environment and signals. Adapt only after agent validation. |
-| `maple-protocol/` | Small independently testable JSON/SSE protocol adapter, path dependency of codex-api. No tool execution or permission decisions. |
+| `maplecode-rs/Cargo.toml` | Rust workspace; many crates, workspace dependencies and patched Git dependencies. Keep unchanged. |
+| `maplecode-rs/cli/src/main.rs`, `maple_cmd.rs`, `Cargo.toml` | Native `maplecode` main, `arg0_dispatch_or_else`, then `dispatch_cli`, TUI or exec. Adds a separate `maple` command namespace for login/logout/status/models. |
+| `maplecode-rs/model-provider-info/src/lib.rs` | Provider registry, auth configuration, endpoint construction. Add Maple with bearer env key, no OpenAI login or WebSockets. |
+| `maplecode-rs/model-provider/src/models_endpoint.rs` | Provider/auth-bound discovery, network policy, retries, cache identity. Enable Maple discovery through this existing path. |
+| `maplecode-rs/maplecode-api/src/endpoint/models.rs` | Fetch raw catalog and decode Maple Code metadata. Translate Maple metadata only for the Maple provider. |
+| `maplecode-rs/models-manager/src/manager.rs`, `manager_tests.rs` | Add an explicit catalog read that propagates refresh errors for CLI diagnostics. Preserve existing conversation refresh/cache behavior and ownership checks. |
+| `maplecode-rs/core/src/client.rs` | Build full Responses request; apply auth, policies, telemetry, retries, interceptors; send HTTP or WebSockets; map response stream. Preserve. |
+| `maplecode-rs/maplecode-api/src/endpoint/responses.rs` | HTTP request boundary; translate Maple request before encoding, post chat/completions, adapt byte stream before upstream parser. |
+| `maplecode-rs/maplecode-api/src/endpoint/session.rs` | Redact provider errors before request telemetry/retry callbacks see them, preserving status, timeout, network policy and retry advice. |
+| `maplecode-rs/maplecode-api/src/maple.rs`, `maple_tests.rs`, `lib.rs`, `Cargo.toml` | Stream adapter, protocol dependency and native interface regression tests. |
+| `maplecode-rs/config/src/config_toml.rs` | Reserve Maple identity; allow only non-secret base_url overrides. |
+| `maplecode-rs/maplecode-api/src/sse/responses.rs` | Parses Responses events into ResponseEvent. Owns idle timeouts and cancels polling when receiver closes. Reuse unchanged. |
+| `maplecode-rs/protocol/src/models.rs` | Canonical history and tool items. Preserve call IDs, names, namespaces and tool outputs. |
+| `maplecode-rs/protocol/src/shell_environment.rs` | Add MAPLE_API_KEY to existing non-inheritable credentials list; prevent shell overrides from restoring it in tool children. |
+| `maplecode-rs/core/src/thread_manager/model_catalog.rs` | Per-thread catalog and auth owner; preserves history during model changes. |
+| `maplecode-rs/tui/src/slash_command.rs`, `chatwidget.rs` | Existing `/model` command, interactive conversation controls. Reuse existing selector. |
+| `maplecode-rs/keyring-store/src/lib.rs` | Existing OS credential abstraction, reused unchanged. New `model-provider-info/src/maple_credentials.rs` validates endpoint-scoped keys and maps errors without leaking backend payloads. |
+| `maplecode-cli/bin/maplecode.js`, `package.json` | Node launcher selects native platform package/vendor binary, forwards argv, environment and signals. Adapt only after agent validation. |
+| `maple-protocol/` | Small independently testable JSON/SSE protocol adapter, path dependency of maplecode-api. No tool execution or permission decisions. |
 
 Lifecycle: CLI configuration -> provider/auth owner -> thread model catalog ->
 core model client builds request with history and tools -> policy-aware HTTP
@@ -53,7 +53,7 @@ translate at the HTTP boundary and retain Responses as the internal protocol.
 Provider name `Maple` selects this adapter; ordinary Responses providers keep
 their existing behavior. Maple WebSockets and remote compaction are disabled.
 `model-provider/src/models_endpoint.rs` restores the existing generic
-`codex_models_manager::model_info::BASE_INSTRUCTIONS` on discovered models;
+`maplecode_models_manager::model_info::BASE_INSTRUCTIONS` on discovered models;
 Maple metadata does not replace the coding-agent prompt. The existing TUI's
 `chatwidget/model_popups.rs` emits `PersistModelSelection`, while
 `session_model_selection.rs` dispatches `UpdateModel`/`ApplyModelSelection`.
@@ -83,7 +83,7 @@ must never be reported as completed, and partial tool calls must not execute.
 ## Build, testing, licensing and implementation order
 
 Read `docs/install.md`, `docs/contributing.md`, `LICENSE`, `NOTICE` and the pinned
-toolchain. Upstream builds with `cargo build` in `codex-rs`, uses `just fmt`,
+toolchain. Upstream builds with `cargo build` in `maplecode-rs`, uses `just fmt`,
 `just fix -p CRATE`, `just test -p CRATE` / nextest; routine runs avoid all-features.
 The current contributing guide accepts issues, not external PRs. This local fork
 does not push anything. Preserve Apache-2.0 and NOTICE in all distributions.
@@ -102,11 +102,11 @@ does not push anything. Preserve Apache-2.0 and NOTICE in all distributions.
 
 ## Distribution investigation
 
-The upstream CLI manifest names `codex-cli` and its main bin `codex` at
-`cli/src/main.rs`. `codex-cli/bin/codex.js` maps Linux x64 to
+The upstream CLI manifest names `maplecode-cli` and its main bin `maplecode` at
+`cli/src/main.rs`. `maplecode-cli/bin/maplecode.js` maps Linux x64 to
 `x86_64-unknown-linux-musl` / `@openai/codex-linux-x64`, first resolving an
 optional platform package's `vendor`, then a bundled vendor directory. It
-launches `vendor/<target>/bin/codex`, forwards argv/environment and process
+launches `vendor/<target>/bin/maplecode`, forwards argv/environment and process
 signals, and annotates the installing package manager. A future Maple package
 must adapt these platform package names and vendor paths together with the
 native binary name and release scripts; renaming only the Node bin key is

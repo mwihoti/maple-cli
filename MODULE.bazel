@@ -1,4 +1,4 @@
-module(name = "codex")
+module(name = "maplecode")
 
 bazel_dep(name = "bazel_lib", version = "3.2.2")
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
@@ -344,8 +344,8 @@ register_toolchains("//bazel/toolchains/prost:toolchain")
 
 crate = use_extension("@rules_rs//rs:extensions.bzl", "crate")
 crate.from_cargo(
-    cargo_lock = "//codex-rs:Cargo.lock",
-    cargo_toml = "//codex-rs:Cargo.toml",
+    cargo_lock = "//maplecode-rs:Cargo.lock",
+    cargo_toml = "//maplecode-rs:Cargo.toml",
     platform_triples = [
         "aarch64-unknown-linux-gnu",
         "aarch64-unknown-linux-musl",
@@ -388,7 +388,7 @@ crate.annotation(
     crate_features = ["debug-embed"],
 )
 crate.annotation(
-    # Keep Windows proxy authentication aligned with codex-rs/.cargo/config.toml.
+    # Keep Windows proxy authentication aligned with maplecode-rs/.cargo/config.toml.
     build_script_env = {"CFLAGS": "-DCURL_ENABLE_NTLM"},
     crate = "curl-sys",
 )
@@ -551,15 +551,15 @@ override_repo(
     **{"crates__openssl-sys-0.9.118": "openssl_sys_bazel"}
 )
 
-codex_release_archive = use_repo_rule("//bazel/extensions:codex_release_archive.bzl", "codex_release_archive")
+maplecode_release_archive = use_repo_rule("//bazel/extensions:maplecode_release_archive.bzl", "maplecode_release_archive")
 
-codex_release_archive(
-    name = "codex_release_latest_stable",
+maplecode_release_archive(
+    name = "maplecode_release_latest_stable",
     release = "latest",
 )
 
-codex_release_archive(
-    name = "codex_release_historical_stable",
+maplecode_release_archive(
+    name = "maplecode_release_historical_stable",
     release = "historical",
 )
 
@@ -690,7 +690,7 @@ crate.annotation(
         "CMAKE": "$${pwd}/$(CMAKE)",
         "CMAKE_GENERATOR": "Ninja",
         "CMAKE_TOOLCHAIN_FILE": "$(execpath @@//third_party/voice:opus-toolchain.cmake)",
-        "CODEX_VOICE_NINJA": "$${pwd}/$(NINJA)",
+        "MAPLECODE_VOICE_NINJA": "$${pwd}/$(NINJA)",
     },
     build_script_toolchains = [
         "@rules_foreign_cc//toolchains:current_cmake_toolchain",

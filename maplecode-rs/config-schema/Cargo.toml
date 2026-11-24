@@ -1,0 +1,17 @@
+[package]
+name = "maplecode-config-schema"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "maplecode-write-config-schema"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+maplecode-config = { workspace = true }

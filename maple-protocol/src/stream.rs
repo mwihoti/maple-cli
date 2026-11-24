@@ -33,8 +33,8 @@ pub struct Decoder {
     output_bytes: usize,
 }
 
-/// Name reported to Codex when the model calls something that was never
-/// advertised. No tool has this name, so Codex answers with an error result.
+/// Name reported to Maple Code when the model calls something that was never
+/// advertised. No tool has this name, so Maple Code answers with an error result.
 pub const UNAVAILABLE_TOOL: &str = "unavailable_tool";
 
 /// Finds the advertised tool a model meant. Models are given opaque wire
@@ -199,7 +199,7 @@ impl Decoder {
                 let text = value.as_str().ok_or(Error("invalid streamed text"))?;
                 // Chat Completions servers commonly open with `"content": ""`
                 // alongside the role. Emitting that as a delta would precede the
-                // output_item.added event, which Codex treats as a protocol error.
+                // output_item.added event, which Maple Code treats as a protocol error.
                 if text.is_empty() {
                     continue;
                 }
@@ -303,7 +303,7 @@ impl Decoder {
             }
             let Some(tool) = resolve(&self.tools, &call.name) else {
                 // Ending the turn here leaves the model no way to recover. Hand
-                // Codex a call to a name it cannot dispatch, so the model gets
+                // Maple Code a call to a name it cannot dispatch, so the model gets
                 // an "unsupported call" result and can retry with a real tool.
                 items.push(json!({"type":"function_call",
                     "id":format!("maple_call_{id}_{index}"),"call_id":call.id,

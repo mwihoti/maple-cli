@@ -1,0 +1,39 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-history-notes-extension"
+version.workspace = true
+
+[lib]
+name = "maplecode_history_notes_extension"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-analytics = { workspace = true }
+maplecode-client = { workspace = true }
+maplecode-core = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-model-provider = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-tools = { workspace = true }
+maplecode-utils-output-truncation = { workspace = true }
+http = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+maplecode-config = { workspace = true }
+maplecode-model-provider-info = { workspace = true }
+core_test_support = { workspace = true }
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt"] }
+wiremock = { workspace = true }

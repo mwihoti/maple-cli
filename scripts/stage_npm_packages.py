@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage one or more Codex npm packages for release."""
+"""Stage one or more MapleCode npm packages for release."""
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -17,7 +17,7 @@ from typing import Sequence
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BUILD_SCRIPT = REPO_ROOT / "codex-cli" / "scripts" / "build_npm_package.py"
+BUILD_SCRIPT = REPO_ROOT / "maplecode-cli" / "scripts" / "build_npm_package.py"
 WORKFLOW_NAME = ".github/workflows/rust-release.yml"
 GITHUB_REPO = "openai/codex"
 BINARY_TARGETS = (
@@ -29,16 +29,16 @@ BINARY_TARGETS = (
     "aarch64-pc-windows-msvc",
 )
 
-_SPEC = importlib.util.spec_from_file_location("codex_build_npm_package", BUILD_SCRIPT)
+_SPEC = importlib.util.spec_from_file_location("maplecode_build_npm_package", BUILD_SCRIPT)
 if _SPEC is None or _SPEC.loader is None:
     raise RuntimeError(f"Unable to load module from {BUILD_SCRIPT}")
 _BUILD_MODULE = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(_BUILD_MODULE)
 PACKAGE_NATIVE_COMPONENTS = getattr(_BUILD_MODULE, "PACKAGE_NATIVE_COMPONENTS", {})
 PACKAGE_EXPANSIONS = getattr(_BUILD_MODULE, "PACKAGE_EXPANSIONS", {})
-CODEX_PLATFORM_PACKAGES = getattr(_BUILD_MODULE, "CODEX_PLATFORM_PACKAGES", {})
-CODEX_PACKAGE_COMPONENT = getattr(
-    _BUILD_MODULE, "CODEX_PACKAGE_COMPONENT", "codex-package"
+MAPLECODE_PLATFORM_PACKAGES = getattr(_BUILD_MODULE, "MAPLECODE_PLATFORM_PACKAGES", {})
+MAPLECODE_PACKAGE_COMPONENT = getattr(
+    _BUILD_MODULE, "MAPLECODE_PACKAGE_COMPONENT", "maplecode-package"
 )
 
 
@@ -56,10 +56,10 @@ class WorkflowArtifact:
 
 
 BINARY_COMPONENTS = {
-    "codex-responses-api-proxy": BinaryComponent(
-        artifact_prefix="codex-responses-api-proxy",
-        dest_dir="codex-responses-api-proxy",
-        binary_basename="codex-responses-api-proxy",
+    "maplecode-responses-api-proxy": BinaryComponent(
+        artifact_prefix="maplecode-responses-api-proxy",
+        dest_dir="maplecode-responses-api-proxy",
+        binary_basename="maplecode-responses-api-proxy",
     ),
 }
 
@@ -229,8 +229,8 @@ def install_from_downloaded_artifacts(
     components: Sequence[str],
     vendor_dir: Path,
 ) -> None:
-    if CODEX_PACKAGE_COMPONENT in components:
-        install_codex_package_archives(artifacts_dir, vendor_dir, BINARY_TARGETS)
+    if MAPLECODE_PACKAGE_COMPONENT in components:
+        install_maplecode_package_archives(artifacts_dir, vendor_dir, BINARY_TARGETS)
     install_binary_components(
         artifacts_dir,
         vendor_dir,
@@ -242,7 +242,7 @@ def select_target_artifacts(
     workflow_id: str,
     components: Sequence[str],
 ) -> list[WorkflowArtifact]:
-    needs_target_artifacts = CODEX_PACKAGE_COMPONENT in components or any(
+    needs_target_artifacts = MAPLECODE_PACKAGE_COMPONENT in components or any(
         component in BINARY_COMPONENTS for component in components
     )
     if not needs_target_artifacts:
@@ -325,7 +325,7 @@ def download_artifacts(
         )
 
 
-def install_codex_package_archives(
+def install_maplecode_package_archives(
     artifacts_dir: Path,
     vendor_dir: Path,
     targets: Sequence[str],
@@ -334,14 +334,14 @@ def install_codex_package_archives(
         return
 
     print(
-        "Installing Codex package archives for targets: " + ", ".join(targets),
+        "Installing MapleCode package archives for targets: " + ", ".join(targets),
         flush=True,
     )
     max_workers = min(len(targets), max(1, (os.cpu_count() or 1)))
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
             executor.submit(
-                install_single_codex_package_archive,
+                install_single_maplecode_package_archive,
                 artifacts_dir,
                 vendor_dir,
                 target,
@@ -353,13 +353,13 @@ def install_codex_package_archives(
             print(f"  installed {installed_path}", flush=True)
 
 
-def install_single_codex_package_archive(
+def install_single_maplecode_package_archive(
     artifacts_dir: Path,
     vendor_dir: Path,
     target: str,
 ) -> Path:
     artifact_subdir = artifact_dir_for_target(artifacts_dir, target)
-    archive_path = artifact_subdir / f"codex-package-{target}.tar.gz"
+    archive_path = artifact_subdir / f"maplecode-package-{target}.tar.gz"
     if not archive_path.exists():
         raise FileNotFoundError(f"Expected package archive not found: {archive_path}")
 
@@ -488,9 +488,9 @@ def run_command(cmd: list[str]) -> None:
 
 
 def tarball_name_for_package(package: str, version: str) -> str:
-    if package in CODEX_PLATFORM_PACKAGES:
-        platform = package.removeprefix("codex-")
-        return f"codex-npm-{platform}-{version}.tgz"
+    if package in MAPLECODE_PLATFORM_PACKAGES:
+        platform = package.removeprefix("maplecode-")
+        return f"maplecode-npm-{platform}-{version}.tgz"
     return f"{package}-npm-{version}.tgz"
 
 

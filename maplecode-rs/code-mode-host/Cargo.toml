@@ -1,0 +1,47 @@
+[package]
+name = "maplecode-code-mode-host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "maplecode-code-mode-host"
+path = "src/main.rs"
+
+[lib]
+doctest = false
+name = "maplecode_code_mode_host"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-http-client = { workspace = true }
+anyhow = { workspace = true }
+axum = { workspace = true, features = ["http1", "tokio", "ws"] }
+clap = { workspace = true, features = ["derive"] }
+maplecode-code-mode-protocol = { workspace = true }
+maplecode-code-mode-runtime = { workspace = true }
+maplecode-otel = { workspace = true }
+maplecode-otel-trace-websocket = { workspace = true }
+maplecode-protocol = { workspace = true }
+futures = { workspace = true }
+prost = "0.14.3"
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["io-std", "io-util", "macros", "net", "process", "rt", "sync", "time"] }
+tokio-stream = { workspace = true }
+tokio-util = { workspace = true, features = ["rt"] }
+tonic = { workspace = true, features = ["router", "transport", "zstd"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
+maplecode-plugin-host = { workspace = true }
+maplecode-code-mode = { workspace = true }
+maplecode-utils-cargo-bin = { workspace = true }
+maplecode-utils-process = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }

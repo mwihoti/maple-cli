@@ -1,12 +1,12 @@
 #!/usr/bin/env -S NODE_NO_WARNINGS=1 pnpm ts-node-esm --files
 
-import { Codex } from "@openai/codex-sdk";
+import { MapleCode } from "@openai/codex-sdk";
 
-import { codexPathOverride } from "./helpers.ts";
+import { maplecodePathOverride } from "./helpers.ts";
 
-const codex = new Codex({ codexPathOverride: codexPathOverride() });
+const maplecode = new MapleCode({ maplecodePathOverride: maplecodePathOverride() });
 
-const thread = codex.startThread();
+const thread = maplecode.startThread();
 
 const schema = {
   type: "object",

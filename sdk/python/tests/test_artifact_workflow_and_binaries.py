@@ -71,21 +71,21 @@ def _load_release_version_module():
     return module
 
 
-def _write_fake_codex_package(package_dir: Path, script) -> Path:
+def _write_fake_maplecode_package(package_dir: Path, script) -> Path:
     (package_dir / "bin").mkdir(parents=True)
-    (package_dir / "codex-resources").mkdir()
-    (package_dir / "codex-path").mkdir()
-    (package_dir / "codex-package.json").write_text('{"variant":"codex"}\n')
-    (package_dir / "bin" / script.runtime_binary_name()).write_text("fake codex\n")
+    (package_dir / "maplecode-resources").mkdir()
+    (package_dir / "maplecode-path").mkdir()
+    (package_dir / "maplecode-package.json").write_text('{"variant":"maplecode"}\n')
+    (package_dir / "bin" / script.runtime_binary_name()).write_text("fake maplecode\n")
     (package_dir / "bin" / script.runtime_code_mode_host_name()).write_text("fake code mode host\n")
-    (package_dir / "codex-resources" / "bwrap").write_text("fake bwrap\n")
-    (package_dir / "codex-path" / "rg").write_text("fake rg\n")
+    (package_dir / "maplecode-resources" / "bwrap").write_text("fake bwrap\n")
+    (package_dir / "maplecode-path" / "rg").write_text("fake rg\n")
     return package_dir
 
 
-def _write_fake_codex_package_archive(tmp_path: Path, script) -> Path:
-    package_dir = _write_fake_codex_package(tmp_path / "codex-package", script)
-    archive_path = tmp_path / "codex-package.tar.gz"
+def _write_fake_maplecode_package_archive(tmp_path: Path, script) -> Path:
+    package_dir = _write_fake_maplecode_package(tmp_path / "maplecode-package", script)
+    archive_path = tmp_path / "maplecode-package.tar.gz"
     _write_package_archive(package_dir, archive_path)
     return archive_path
 
@@ -125,7 +125,7 @@ def test_root_fmt_recipes_use_shared_formatter_driver() -> None:
         ],
     }
     expected = {
-        "working_directory": 'set working-directory := "codex-rs"',
+        "working_directory": 'set working-directory := "maplecode-rs"',
         "fmt_commands": ["@{{ python }} ../scripts/format.py"],
         "fmt_check_commands": ["@{{ python }} ../scripts/format.py --check"],
     }
@@ -146,8 +146,8 @@ def test_root_format_driver_covers_all_formatter_groups(
     script = _load_root_format_script_module()
     for name in (
         "bazel/rules/example.rs",
-        "codex-rs/src/lib.rs",
-        "codex-rs/new file.rs",
+        "maplecode-rs/src/lib.rs",
+        "maplecode-rs/new file.rs",
     ):
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -166,8 +166,8 @@ def test_root_format_driver_covers_all_formatter_groups(
         assert cwd == tmp_path
         if args == git_ls_files_args + ["--", "*.rs"]:
             return (
-                b"codex-rs/src/lib.rs\0bazel/rules/example.rs\0"
-                b"codex-rs/new file.rs\0codex-rs/deleted.rs\0"
+                b"maplecode-rs/src/lib.rs\0bazel/rules/example.rs\0"
+                b"maplecode-rs/new file.rs\0maplecode-rs/deleted.rs\0"
             )
         assert args == git_ls_files_args
         return b"MODULE.bazel\0README.md\0third_party/v8/libcxx.BUILD.bazel\0"
@@ -235,7 +235,7 @@ def test_root_format_driver_covers_all_formatter_groups(
         "--edition",
         "2024",
         "--config-path",
-        str(tmp_path / "codex-rs/rustfmt.toml"),
+        str(tmp_path / "maplecode-rs/rustfmt.toml"),
         "--config",
         "imports_granularity=Item,skip_children=true",
     )
@@ -245,10 +245,10 @@ def test_root_format_driver_covers_all_formatter_groups(
         os.path.join("src", "lib.rs"),
     )
     assert formatters[1].commands == (
-        script.Command(rustfmt_args + rust_files, tmp_path / "codex-rs"),
+        script.Command(rustfmt_args + rust_files, tmp_path / "maplecode-rs"),
     )
     assert checks[1].commands == (
-        script.Command(rustfmt_args + ("--check",) + rust_files, tmp_path / "codex-rs"),
+        script.Command(rustfmt_args + ("--check",) + rust_files, tmp_path / "maplecode-rs"),
     )
     format_buildifier_args = formatters[2].commands[-1].args
     check_buildifier_args = checks[2].commands[-1].args
@@ -391,7 +391,7 @@ def test_generation_resolves_configured_schema_and_explicit_override(
     args = ["generate-types"]
     if schema_override is None:
         (sdk_dir / "pyproject.toml").write_text(
-            '[tool.codex.codegen]\nschema-dir = "../../configured-schema"\n'
+            '[tool.maplecode.codegen]\nschema-dir = "../../configured-schema"\n'
         )
         expected_schema = tmp_path / "configured-schema"
     else:
@@ -407,7 +407,7 @@ def _load_repository_schema_bundle() -> dict:
     """Read the repository app-server schema bundle used by generation."""
     script = _load_update_script_module()
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text())
-    schema_dir = ROOT / pyproject["tool"]["codex"]["codegen"]["schema-dir"]
+    schema_dir = ROOT / pyproject["tool"]["maplecode"]["codegen"]["schema-dir"]
     return json.loads(script.schema_bundle_path(schema_dir).read_text())
 
 
@@ -500,7 +500,7 @@ def test_python_codegen_schema_annotation_adds_stable_variant_titles() -> None:
         "GranularAskForApproval",
     ]
 
-    from openai_codex.generated.v2_all import ReasoningSummary
+    from openai_maplecode.generated.v2_all import ReasoningSummary
 
     reasoning_values, disabled = definitions["ReasoningSummary"]["oneOf"]
     assert reasoning_values["title"] == "ReasoningSummaryValue"
@@ -517,7 +517,7 @@ def test_generate_v2_all_uses_titles_for_generated_names() -> None:
 
 
 def test_generated_chatgpt_account_email_is_required_nullable() -> None:
-    from openai_codex.generated.v2_all import ChatgptAccount
+    from openai_maplecode.generated.v2_all import ChatgptAccount
 
     account = ChatgptAccount.model_validate({"email": None, "planType": "pro", "type": "chatgpt"})
     assert account.email is None
@@ -529,7 +529,7 @@ def test_generated_chatgpt_account_email_is_required_nullable() -> None:
 
 @pytest.mark.parametrize("link_id", ["link_calendar", None])
 def test_generated_resource_read_target_requires_explicit_account(link_id: str | None) -> None:
-    from openai_codex.generated.v2_all import McpResourceReadTarget
+    from openai_maplecode.generated.v2_all import McpResourceReadTarget
 
     payload = {"connectorId": "calendar", "linkId": link_id}
     target = McpResourceReadTarget.model_validate(payload)
@@ -541,7 +541,7 @@ def test_generated_resource_read_target_requires_explicit_account(link_id: str |
 
 def test_generated_inline_image_class_names_remain_stable() -> None:
     """Keep the existing Python class names when image references expand."""
-    from openai_codex.generated.v2_all import (
+    from openai_maplecode.generated.v2_all import (
         ImageUserInput,
         InputImageContentItem,
         InputImageFunctionCallOutputContentItem,
@@ -557,7 +557,7 @@ def test_generated_inline_image_class_names_remain_stable() -> None:
 
 def test_generated_audio_inputs_preserve_inline_and_file_shapes() -> None:
     """Existing audio imports still work, and file references round-trip through the unions."""
-    from openai_codex.generated.v2_all import (
+    from openai_maplecode.generated.v2_all import (
         AudioUserInput,
         ContentItem,
         FileIdUserInput1,
@@ -581,7 +581,7 @@ def test_generated_audio_inputs_preserve_inline_and_file_shapes() -> None:
 
 def test_generated_image_generation_thread_item_alias_remains_available() -> None:
     """Existing SDK callers can still construct and validate inline image-generation items."""
-    from openai_codex.generated.v2_all import (
+    from openai_maplecode.generated.v2_all import (
         ImageGenerationThreadItem,
         ResultThreadItem,
     )
@@ -604,7 +604,7 @@ def test_generated_image_generation_thread_item_alias_remains_available() -> Non
 
 
 def test_runtime_package_template_has_no_checked_in_binaries() -> None:
-    runtime_root = ROOT.parent / "python-runtime" / "src" / "codex_cli_bin"
+    runtime_root = ROOT.parent / "python-runtime" / "src" / "maplecode_cli_bin"
     assert sorted(
         path.name
         for path in runtime_root.rglob("*")
@@ -621,16 +621,16 @@ def test_examples_readme_points_to_runtime_version_source_of_truth() -> None:
 def test_runtime_distribution_name_is_consistent() -> None:
     script = _load_update_script_module()
     runtime_setup = _load_runtime_setup_module()
-    from openai_codex import _version, client as client_module
+    from openai_maplecode import _version, client as client_module
 
-    assert script.SDK_DISTRIBUTION_NAME == "openai-codex"
-    assert runtime_setup.SDK_PACKAGE_NAME == "openai-codex"
-    assert _version.DISTRIBUTION_NAME == "openai-codex"
-    assert script.RUNTIME_DISTRIBUTION_NAME == "openai-codex-cli-bin"
-    assert runtime_setup.PACKAGE_NAME == "openai-codex-cli-bin"
-    assert client_module.RUNTIME_PKG_NAME == "openai-codex-cli-bin"
+    assert script.SDK_DISTRIBUTION_NAME == "openai-maplecode"
+    assert runtime_setup.SDK_PACKAGE_NAME == "openai-maplecode"
+    assert _version.DISTRIBUTION_NAME == "openai-maplecode"
+    assert script.RUNTIME_DISTRIBUTION_NAME == "openai-maplecode-cli-bin"
+    assert runtime_setup.PACKAGE_NAME == "openai-maplecode-cli-bin"
+    assert client_module.RUNTIME_PKG_NAME == "openai-maplecode-cli-bin"
     assert (
-        "importlib.metadata.version('codex-cli-bin')"
+        "importlib.metadata.version('maplecode-cli-bin')"
         not in (ROOT / "_runtime_setup.py").read_text()
     )
 
@@ -646,10 +646,10 @@ def test_source_sdk_package_declares_stable_documentation() -> None:
         in pyproject["project"]["classifiers"],
         "license": pyproject["project"]["license"],
         "documentation": pyproject["project"]["urls"]["Documentation"],
-        "readme_is_stable": "# OpenAI Codex Python SDK\n" in readme,
+        "readme_is_stable": "# OpenAI MapleCode Python SDK\n" in readme,
         "local_license_file": (ROOT / "LICENSE").exists(),
     } == {
-        "description": "Python SDK for Codex",
+        "description": "Python SDK for MapleCode",
         "is_stable": True,
         "license": "Apache-2.0",
         "documentation": "https://github.com/openai/codex/tree/main/sdk/python/docs",
@@ -702,7 +702,7 @@ def test_runtime_setup_reads_independent_runtime_pin_and_release_tags() -> None:
         "release_tag": runtime_setup._release_tag("0.116.0a1"),
         "alpha_hotfix_release_tag": runtime_setup._release_tag("0.116.0a1.post2"),
     } == {
-        "package_name": "openai-codex-cli-bin",
+        "package_name": "openai-maplecode-cli-bin",
         "sdk_template_version": "0.0.0-dev",
         "runtime_pin": "0.153.4",
         "normalized_release_version": "0.116.0a1",
@@ -715,12 +715,12 @@ def test_runtime_setup_reads_independent_runtime_pin_and_release_tags() -> None:
 @pytest.mark.parametrize(
     ("system", "machine", "asset_name"),
     [
-        ("Darwin", "arm64", "codex-package-aarch64-apple-darwin.tar.gz"),
-        ("Linux", "x86_64", "codex-package-x86_64-unknown-linux-musl.tar.gz"),
-        ("Windows", "AMD64", "codex-package-x86_64-pc-windows-msvc.tar.gz"),
+        ("Darwin", "arm64", "maplecode-package-aarch64-apple-darwin.tar.gz"),
+        ("Linux", "x86_64", "maplecode-package-x86_64-unknown-linux-musl.tar.gz"),
+        ("Windows", "AMD64", "maplecode-package-x86_64-pc-windows-msvc.tar.gz"),
     ],
 )
-def test_runtime_setup_downloads_codex_package_archives(
+def test_runtime_setup_downloads_maplecode_package_archives(
     monkeypatch: pytest.MonkeyPatch,
     system: str,
     machine: str,
@@ -778,14 +778,14 @@ def test_runtime_package_is_wheel_only_and_builds_platform_specific_wheels() -> 
         elif isinstance(node.value, ast.JoinedStr):
             build_data_assignments[node.targets[0].slice.value] = "joined-string"
 
-    assert pyproject["project"]["name"] == "openai-codex-cli-bin"
+    assert pyproject["project"]["name"] == "openai-maplecode-cli-bin"
     assert pyproject["tool"]["hatch"]["build"]["targets"]["wheel"] == {
-        "packages": ["src/codex_cli_bin"],
+        "packages": ["src/maplecode_cli_bin"],
         "include": [
-            "src/codex_cli_bin/codex-package.json",
-            "src/codex_cli_bin/bin/**",
-            "src/codex_cli_bin/codex-resources/**",
-            "src/codex_cli_bin/codex-path/**",
+            "src/maplecode_cli_bin/maplecode-package.json",
+            "src/maplecode_cli_bin/bin/**",
+            "src/maplecode_cli_bin/maplecode-resources/**",
+            "src/maplecode_cli_bin/maplecode-path/**",
         ],
         "hooks": {"custom": {}},
     }
@@ -804,7 +804,7 @@ def test_stage_runtime_release_copies_package_layout_and_sets_version(
     tmp_path: Path,
 ) -> None:
     script = _load_update_script_module()
-    package_archive = _write_fake_codex_package_archive(tmp_path, script)
+    package_archive = _write_fake_maplecode_package_archive(tmp_path, script)
 
     staged = script.stage_python_runtime_package(
         tmp_path / "runtime-stage",
@@ -814,37 +814,37 @@ def test_stage_runtime_release_copies_package_layout_and_sets_version(
     package_root = script.staged_runtime_package_root(staged)
 
     assert {
-        "metadata": (package_root / "codex-package.json").read_text(),
-        "codex": (package_root / "bin" / script.runtime_binary_name()).read_text(),
+        "metadata": (package_root / "maplecode-package.json").read_text(),
+        "maplecode": (package_root / "bin" / script.runtime_binary_name()).read_text(),
         "code_mode_host": (package_root / "bin" / script.runtime_code_mode_host_name()).read_text(),
-        "bwrap": (package_root / "codex-resources" / "bwrap").read_text(),
-        "rg": (package_root / "codex-path" / "rg").read_text(),
+        "bwrap": (package_root / "maplecode-resources" / "bwrap").read_text(),
+        "rg": (package_root / "maplecode-path" / "rg").read_text(),
     } == {
-        "metadata": '{"variant":"codex"}\n',
-        "codex": "fake codex\n",
+        "metadata": '{"variant":"maplecode"}\n',
+        "maplecode": "fake maplecode\n",
         "code_mode_host": "fake code mode host\n",
         "bwrap": "fake bwrap\n",
         "rg": "fake rg\n",
     }
-    assert 'name = "openai-codex-cli-bin"' in (staged / "pyproject.toml").read_text()
+    assert 'name = "openai-maplecode-cli-bin"' in (staged / "pyproject.toml").read_text()
     assert 'version = "1.2.3"' in (staged / "pyproject.toml").read_text()
 
 
-def test_normalize_codex_version_accepts_release_tags_and_pep440_versions() -> None:
+def test_normalize_maplecode_version_accepts_release_tags_and_pep440_versions() -> None:
     script = _load_update_script_module()
 
-    assert script.normalize_codex_version("rust-v0.116.0-alpha.1") == "0.116.0a1"
-    assert script.normalize_codex_version("rust-v0.116.0-alpha.1.2") == "0.116.0a1.post2"
-    assert script.normalize_codex_version("v0.116.0-beta.2") == "0.116.0b2"
-    assert script.normalize_codex_version("0.116.0rc3") == "0.116.0rc3"
-    assert script.normalize_codex_version("0.116.0") == "0.116.0"
+    assert script.normalize_maplecode_version("rust-v0.116.0-alpha.1") == "0.116.0a1"
+    assert script.normalize_maplecode_version("rust-v0.116.0-alpha.1.2") == "0.116.0a1.post2"
+    assert script.normalize_maplecode_version("v0.116.0-beta.2") == "0.116.0b2"
+    assert script.normalize_maplecode_version("0.116.0rc3") == "0.116.0rc3"
+    assert script.normalize_maplecode_version("0.116.0") == "0.116.0"
 
 
-def test_release_version_conversions_map_python_versions_to_codex_tags() -> None:
+def test_release_version_conversions_map_python_versions_to_maplecode_tags() -> None:
     release_version = _load_release_version_module()
 
     assert {
-        version: release_version.codex_release_tag(version)
+        version: release_version.maplecode_release_tag(version)
         for version in ["0.116.0", "0.116.0a1", "0.116.0a1.post2"]
     } == {
         "0.116.0": "rust-v0.116.0",
@@ -902,7 +902,7 @@ def test_stage_runtime_release_replaces_existing_staging_dir(tmp_path: Path) -> 
     old_file = staging_dir / "stale.txt"
     old_file.parent.mkdir(parents=True)
     old_file.write_text("stale")
-    package_archive = _write_fake_codex_package_archive(tmp_path, script)
+    package_archive = _write_fake_maplecode_package_archive(tmp_path, script)
 
     staged = script.stage_python_runtime_package(
         staging_dir,
@@ -913,12 +913,12 @@ def test_stage_runtime_release_replaces_existing_staging_dir(tmp_path: Path) -> 
     assert staged == staging_dir
     assert not old_file.exists()
     package_root = script.staged_runtime_package_root(staged)
-    assert (package_root / "bin" / script.runtime_binary_name()).read_text() == "fake codex\n"
+    assert (package_root / "bin" / script.runtime_binary_name()).read_text() == "fake maplecode\n"
 
 
 def test_stage_runtime_release_can_pin_wheel_platform_tag(tmp_path: Path) -> None:
     script = _load_update_script_module()
-    package_archive = _write_fake_codex_package_archive(tmp_path, script)
+    package_archive = _write_fake_maplecode_package_archive(tmp_path, script)
 
     staged = script.stage_python_runtime_package(
         tmp_path / "runtime-stage",
@@ -931,17 +931,17 @@ def test_stage_runtime_release_can_pin_wheel_platform_tag(tmp_path: Path) -> Non
     assert 'platform-tag = "manylinux_2_17_x86_64"' in pyproject
 
 
-@pytest.mark.parametrize("source_name", ["codex-package.tar.gz", "codex-package"])
+@pytest.mark.parametrize("source_name", ["maplecode-package.tar.gz", "maplecode-package"])
 def test_stage_runtime_release_rejects_incomplete_package_layout(
     tmp_path: Path, source_name: str
 ) -> None:
     script = _load_update_script_module()
-    package_dir = tmp_path / "codex-package"
+    package_dir = tmp_path / "maplecode-package"
     (package_dir / "bin").mkdir(parents=True)
-    package_archive = tmp_path / "codex-package.tar.gz"
+    package_archive = tmp_path / "maplecode-package.tar.gz"
     _write_package_archive(package_dir, package_archive)
 
-    with pytest.raises(RuntimeError, match="Missing Codex package layout entries"):
+    with pytest.raises(RuntimeError, match="Missing MapleCode package layout entries"):
         script.stage_python_runtime_package(
             tmp_path / "runtime-stage", "1.2.3", tmp_path / source_name
         )
@@ -949,9 +949,9 @@ def test_stage_runtime_release_rejects_incomplete_package_layout(
 
 def test_stage_runtime_directory_matches_archive(tmp_path: Path) -> None:
     script = _load_update_script_module()
-    package_dir = _write_fake_codex_package(tmp_path / "codex-package", script)
+    package_dir = _write_fake_maplecode_package(tmp_path / "maplecode-package", script)
     (package_dir / "bin" / script.runtime_binary_name()).chmod(0o755)
-    package_archive = tmp_path / "codex-package.tar.gz"
+    package_archive = tmp_path / "maplecode-package.tar.gz"
     _write_package_archive(package_dir, package_archive)
 
     staged_trees = []
@@ -968,8 +968,8 @@ def test_stage_runtime_directory_matches_archive(tmp_path: Path) -> None:
         )
 
     assert staged_trees[0] == staged_trees[1]
-    (script.staged_runtime_package_root(tmp_path / "directory") / "codex-package.json").unlink()
-    assert (package_dir / "codex-package.json").is_file()
+    (script.staged_runtime_package_root(tmp_path / "directory") / "maplecode-package.json").unlink()
+    assert (package_dir / "maplecode-package.json").is_file()
 
 
 @pytest.mark.parametrize("entry_kind", ["file-link", "directory-link", "fifo"])
@@ -977,41 +977,41 @@ def test_stage_runtime_directory_rejects_non_regular_entries(
     tmp_path: Path, entry_kind: str
 ) -> None:
     script = _load_update_script_module()
-    package_dir = _write_fake_codex_package(tmp_path / "codex-package", script)
-    entry = package_dir / "codex-resources" / "invalid"
+    package_dir = _write_fake_maplecode_package(tmp_path / "maplecode-package", script)
+    entry = package_dir / "maplecode-resources" / "invalid"
     if entry_kind == "fifo":
         if not hasattr(os, "mkfifo"):
             pytest.skip("FIFOs are not available on this platform")
         os.mkfifo(entry)
     else:
-        target = package_dir / ("codex-package.json" if entry_kind == "file-link" else "bin")
+        target = package_dir / ("maplecode-package.json" if entry_kind == "file-link" else "bin")
         try:
             entry.symlink_to(target, target_is_directory=target.is_dir())
         except OSError:
             pytest.skip("Symlinks are not available on this platform")
 
-    with pytest.raises(RuntimeError, match="Expected a regular Codex package entry"):
+    with pytest.raises(RuntimeError, match="Expected a regular MapleCode package entry"):
         script.stage_python_runtime_package(tmp_path / "runtime-stage", "1.2.3", package_dir)
 
 
-@pytest.mark.parametrize("staging_path", ["codex-package", "codex-package/stage", "."])
+@pytest.mark.parametrize("staging_path", ["maplecode-package", "maplecode-package/stage", "."])
 def test_stage_runtime_directory_rejects_overlapping_staging(
     tmp_path: Path, staging_path: str
 ) -> None:
     script = _load_update_script_module()
-    package_dir = _write_fake_codex_package(tmp_path / "codex-package", script)
+    package_dir = _write_fake_maplecode_package(tmp_path / "maplecode-package", script)
 
     with pytest.raises(RuntimeError, match="directories must not overlap"):
         script.stage_python_runtime_package(tmp_path / staging_path, "1.2.3", package_dir)
 
-    assert (package_dir / "codex-package.json").is_file()
+    assert (package_dir / "maplecode-package.json").is_file()
 
 
 def test_runtime_package_layout_is_included_by_wheel_config(
     tmp_path: Path,
 ) -> None:
     script = _load_update_script_module()
-    package_archive = _write_fake_codex_package_archive(tmp_path, script)
+    package_archive = _write_fake_maplecode_package_archive(tmp_path, script)
 
     staged = script.stage_python_runtime_package(
         tmp_path / "runtime-stage",
@@ -1021,10 +1021,10 @@ def test_runtime_package_layout_is_included_by_wheel_config(
 
     pyproject = tomllib.loads((staged / "pyproject.toml").read_text())
     assert pyproject["tool"]["hatch"]["build"]["targets"]["wheel"]["include"] == [
-        "src/codex_cli_bin/codex-package.json",
-        "src/codex_cli_bin/bin/**",
-        "src/codex_cli_bin/codex-resources/**",
-        "src/codex_cli_bin/codex-path/**",
+        "src/maplecode_cli_bin/maplecode-package.json",
+        "src/maplecode_cli_bin/bin/**",
+        "src/maplecode_cli_bin/maplecode-resources/**",
+        "src/maplecode_cli_bin/maplecode-path/**",
     ]
 
 
@@ -1036,7 +1036,7 @@ def sdk_release_source(tmp_path: Path) -> Path:
     project = source / "pyproject.toml"
     project.write_text(
         re.sub(
-            r"openai-codex-cli-bin==[^\"\s]+", "openai-codex-cli-bin==0.153.0", project.read_text()
+            r"openai-maplecode-cli-bin==[^\"\s]+", "openai-maplecode-cli-bin==0.153.0", project.read_text()
         )
     )
     return source
@@ -1050,9 +1050,9 @@ def test_stage_sdk_release_packages_reviewed_artifacts(
     staged = tmp_path / "sdk-stage"
     source_project = tomllib.loads((sdk_release_source / "pyproject.toml").read_text())
     generated_paths = [
-        "src/openai_codex/generated/v2_all.py",
-        "src/openai_codex/generated/notification_registry.py",
-        "src/openai_codex/api.py",
+        "src/openai_maplecode/generated/v2_all.py",
+        "src/openai_maplecode/generated/notification_registry.py",
+        "src/openai_maplecode/api.py",
     ]
     reviewed_artifacts = {path: (ROOT / path).read_bytes() for path in generated_paths}
 
@@ -1071,20 +1071,20 @@ def test_stage_sdk_release_packages_reviewed_artifacts(
         "version": pyproject["project"]["version"],
         "dependencies": pyproject["project"]["dependencies"],
     } == {
-        "name": "openai-codex",
+        "name": "openai-maplecode",
         "version": "0.153.0",
         "dependencies": source_project["project"]["dependencies"],
     }
     assert {path: (staged / path).read_bytes() for path in generated_paths} == reviewed_artifacts
     assert (
         '__version__ = "0.147.0"'
-        not in (staged / "src" / "openai_codex" / "__init__.py").read_text()
+        not in (staged / "src" / "openai_maplecode" / "__init__.py").read_text()
     )
     assert (
         'client_version: str = "0.147.0"'
-        not in (staged / "src" / "openai_codex" / "client.py").read_text()
+        not in (staged / "src" / "openai_maplecode" / "client.py").read_text()
     )
-    assert not any((staged / "src" / "openai_codex").glob("bin/**"))
+    assert not any((staged / "src" / "openai_maplecode").glob("bin/**"))
 
 
 @pytest.mark.parametrize("source_runtime", ["0.147.0", "0.153.0"])
@@ -1103,14 +1103,14 @@ def test_built_sdk_uses_explicit_release_versions(
     source_project = project_path.read_bytes()
     expected_dependencies = {
         *tomllib.loads(source_project.decode())["project"]["dependencies"],
-        "openai-codex-cli-bin==0.154.0",
-    } - {f"openai-codex-cli-bin=={source_runtime}"}
+        "openai-maplecode-cli-bin==0.154.0",
+    } - {f"openai-maplecode-cli-bin=={source_runtime}"}
     reviewed_files = {
         path: (sdk_release_source / path).read_bytes()
         for path in (
-            "src/openai_codex/generated/v2_all.py",
-            "src/openai_codex/generated/notification_registry.py",
-            "src/openai_codex/api.py",
+            "src/openai_maplecode/generated/v2_all.py",
+            "src/openai_maplecode/generated/notification_registry.py",
+            "src/openai_maplecode/api.py",
         )
     }
     staged = script.stage_python_sdk_package(tmp_path / "sdk-stage", sdk_version, "rust-v0.154.0")
@@ -1130,7 +1130,7 @@ def test_built_sdk_uses_explicit_release_versions(
             path: wheel.read(path.removeprefix("src/")) for path in reviewed_files
         } == reviewed_files
     with tarfile.open(next(dist.glob("*.tar.gz"))) as sdist:
-        prefix = f"openai_codex-{sdk_version}/"
+        prefix = f"openai_maplecode-{sdk_version}/"
         metadata.append(sdist.extractfile(prefix + "PKG-INFO").read())
         assert {
             path: sdist.extractfile(prefix + path).read() for path in reviewed_files
@@ -1142,7 +1142,7 @@ def test_built_sdk_uses_explicit_release_versions(
             "version": package["Version"],
             "dependencies": set(package.get_all("Requires-Dist")),
         } == {
-            "name": "openai-codex",
+            "name": "openai-maplecode",
             "version": sdk_version,
             "dependencies": expected_dependencies,
         }
@@ -1173,7 +1173,7 @@ def test_sdk_release_matches_stable_runtime(
 ) -> None:
     script = _load_update_script_module()
     monkeypatch.setattr(script, "sdk_root", lambda: sdk_release_source)
-    package_archive = _write_fake_codex_package_archive(tmp_path, script)
+    package_archive = _write_fake_maplecode_package_archive(tmp_path, script)
 
     sdk_stage = script.stage_python_sdk_package(
         tmp_path / "sdk-stage",
@@ -1198,7 +1198,7 @@ def test_sdk_release_matches_stable_runtime(
         "sdk_dependencies": [
             "pydantic>=2.12",
             "packaging>=26.2",
-            "openai-codex-cli-bin==0.153.0",
+            "openai-maplecode-cli-bin==0.153.0",
         ],
     }
 
@@ -1215,7 +1215,7 @@ def test_sdk_release_rejects_unsupported_runtime_even_for_beta(
     project = sdk_release_source / "pyproject.toml"
     project.write_text(project.read_text().replace("==0.153.0", f"=={runtime_version}"))
 
-    with pytest.raises(RuntimeError, match=r"Cannot package.*Codex CLI 0\.151\.0 or newer"):
+    with pytest.raises(RuntimeError, match=r"Cannot package.*MapleCode CLI 0\.151\.0 or newer"):
         script.stage_python_sdk_package(tmp_path / "sdk-stage", "0.1.0b1")
 
 
@@ -1224,7 +1224,7 @@ def test_sdk_runtime_override_is_checked_after_stamping(
 ) -> None:
     script = _load_update_script_module()
     monkeypatch.setattr(script, "sdk_root", lambda: sdk_release_source)
-    with pytest.raises(RuntimeError, match=r"Cannot package.*Codex CLI 0\.151\.0 or newer"):
+    with pytest.raises(RuntimeError, match=r"Cannot package.*MapleCode CLI 0\.151\.0 or newer"):
         script.stage_python_sdk_package(tmp_path / "sdk-stage", "0.1.0b1", "0.149.0")
 
 
@@ -1239,23 +1239,23 @@ def test_sdk_beta_can_use_a_supported_runtime(
     project = tomllib.loads((staged / "pyproject.toml").read_text())["project"]
     assert (project["version"], project["dependencies"]) == (
         "0.1.0b1",
-        ["pydantic>=2.12", "packaging>=26.2", "openai-codex-cli-bin==0.153.0"],
+        ["pydantic>=2.12", "packaging>=26.2", "openai-maplecode-cli-bin==0.153.0"],
     )
 
 
-@pytest.mark.parametrize("source_name", ["codex-package.tar.gz", "codex-package"])
+@pytest.mark.parametrize("source_name", ["maplecode-package.tar.gz", "maplecode-package"])
 def test_stage_runtime_stages_package_without_type_generation(
     tmp_path: Path, source_name: str
 ) -> None:
     script = _load_update_script_module()
-    _write_fake_codex_package_archive(tmp_path, script)
+    _write_fake_maplecode_package_archive(tmp_path, script)
     calls: list[str] = []
     args = script.parse_args(
         [
             "stage-runtime",
             str(tmp_path / "runtime-stage"),
             str(tmp_path / source_name),
-            "--codex-version",
+            "--maplecode-version",
             "rust-v0.116.0-alpha.1",
             "--platform-tag",
             "manylinux_2_17_x86_64",
@@ -1266,17 +1266,17 @@ def test_stage_runtime_stages_package_without_type_generation(
         calls.append("generate_types")
 
     def fake_stage_sdk_package(
-        _staging_dir: Path, _sdk_version: str, _codex_version: str | None
+        _staging_dir: Path, _sdk_version: str, _maplecode_version: str | None
     ) -> Path:
         raise AssertionError("sdk staging should not run for stage-runtime")
 
     def fake_stage_runtime_package(
         _staging_dir: Path,
-        codex_version: str,
+        maplecode_version: str,
         package_archive: Path,
         platform_tag: str | None,
     ) -> Path:
-        calls.append(f"stage_runtime:{codex_version}:{platform_tag}:{package_archive.name}")
+        calls.append(f"stage_runtime:{maplecode_version}:{platform_tag}:{package_archive.name}")
         return tmp_path / "runtime-stage"
 
     ops = script.CliOps(
@@ -1293,24 +1293,24 @@ def test_stage_runtime_stages_package_without_type_generation(
 def test_default_runtime_is_resolved_from_installed_runtime_package(
     tmp_path: Path,
 ) -> None:
-    from openai_codex import client as client_module
+    from openai_maplecode import client as client_module
 
-    fake_binary = tmp_path / ("codex.exe" if client_module.os.name == "nt" else "codex")
+    fake_binary = tmp_path / ("maplecode.exe" if client_module.os.name == "nt" else "maplecode")
     fake_binary.write_text("")
-    ops = client_module.CodexBinResolverOps(
-        installed_codex_path=lambda: fake_binary,
+    ops = client_module.MapleCodeBinResolverOps(
+        installed_maplecode_path=lambda: fake_binary,
         path_exists=lambda path: path == fake_binary,
     )
 
-    config = client_module.CodexConfig()
-    assert config.codex_bin is None
-    assert client_module.resolve_codex_bin(config, ops) == fake_binary
+    config = client_module.MapleCodeConfig()
+    assert config.maplecode_bin is None
+    assert client_module.resolve_maplecode_bin(config, ops) == fake_binary
 
 
 def test_runtime_path_dir_is_prepended_without_duplicates(tmp_path: Path) -> None:
-    from openai_codex import client as client_module
+    from openai_maplecode import client as client_module
 
-    path_dir = tmp_path / "codex-path"
+    path_dir = tmp_path / "maplecode-path"
     env = {"PATH": os.pathsep.join(["/usr/bin", str(path_dir), "/bin"])}
 
     client_module._prepend_path_dirs(env, (path_dir,))
@@ -1322,9 +1322,9 @@ def test_runtime_path_dir_preserves_windows_path_key(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    from openai_codex import client as client_module
+    from openai_maplecode import client as client_module
 
-    path_dir = tmp_path / "codex-path"
+    path_dir = tmp_path / "maplecode-path"
     monkeypatch.setattr(client_module.os, "name", "nt")
     env = {
         "PATH": "/usr/bin",
@@ -1336,50 +1336,50 @@ def test_runtime_path_dir_preserves_windows_path_key(
     assert env == {"Path": os.pathsep.join([str(path_dir), "C\\Windows"])}
 
 
-def test_explicit_codex_bin_override_takes_priority(tmp_path: Path) -> None:
-    from openai_codex import client as client_module
+def test_explicit_maplecode_bin_override_takes_priority(tmp_path: Path) -> None:
+    from openai_maplecode import client as client_module
 
     explicit_binary = tmp_path / (
-        "custom-codex.exe" if client_module.os.name == "nt" else "custom-codex"
+        "custom-maplecode.exe" if client_module.os.name == "nt" else "custom-maplecode"
     )
     explicit_binary.write_text("")
-    ops = client_module.CodexBinResolverOps(
-        installed_codex_path=lambda: (_ for _ in ()).throw(
+    ops = client_module.MapleCodeBinResolverOps(
+        installed_maplecode_path=lambda: (_ for _ in ()).throw(
             AssertionError("packaged runtime should not be used")
         ),
         path_exists=lambda path: path == explicit_binary,
     )
 
-    config = client_module.CodexConfig(codex_bin=str(explicit_binary))
-    assert client_module.resolve_codex_bin(config, ops) == explicit_binary
+    config = client_module.MapleCodeConfig(maplecode_bin=str(explicit_binary))
+    assert client_module.resolve_maplecode_bin(config, ops) == explicit_binary
 
 
-def test_missing_runtime_package_requires_explicit_codex_bin() -> None:
-    from openai_codex import client as client_module
+def test_missing_runtime_package_requires_explicit_maplecode_bin() -> None:
+    from openai_maplecode import client as client_module
 
-    ops = client_module.CodexBinResolverOps(
-        installed_codex_path=lambda: (_ for _ in ()).throw(
+    ops = client_module.MapleCodeBinResolverOps(
+        installed_maplecode_path=lambda: (_ for _ in ()).throw(
             FileNotFoundError("missing packaged runtime")
         ),
         path_exists=lambda _path: False,
     )
 
     with pytest.raises(FileNotFoundError, match="missing packaged runtime"):
-        client_module.resolve_codex_bin(client_module.CodexConfig(), ops)
+        client_module.resolve_maplecode_bin(client_module.MapleCodeConfig(), ops)
 
 
 def test_broken_runtime_package_does_not_fall_back() -> None:
-    from openai_codex import client as client_module
+    from openai_maplecode import client as client_module
 
-    ops = client_module.CodexBinResolverOps(
-        installed_codex_path=lambda: (_ for _ in ()).throw(
+    ops = client_module.MapleCodeBinResolverOps(
+        installed_maplecode_path=lambda: (_ for _ in ()).throw(
             FileNotFoundError("missing packaged binary")
         ),
         path_exists=lambda _path: False,
     )
 
     with pytest.raises(FileNotFoundError) as exc_info:
-        client_module.resolve_codex_bin(client_module.CodexConfig(), ops)
+        client_module.resolve_maplecode_bin(client_module.MapleCodeConfig(), ops)
 
     assert str(exc_info.value) == ("missing packaged binary")
 
@@ -1405,7 +1405,7 @@ def test_release_version_cli_rejects_unsupported_runtime_releases(
     assert not github_output.exists()
 
 
-@pytest.mark.parametrize("runtime_dependency", ["", ', "openai-codex-cli-bin==1.2.3"' * 2])
+@pytest.mark.parametrize("runtime_dependency", ["", ', "openai-maplecode-cli-bin==1.2.3"' * 2])
 def test_stage_sdk_release_rejects_missing_or_duplicate_runtime_pin(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1415,20 +1415,20 @@ def test_stage_sdk_release_rejects_missing_or_duplicate_runtime_pin(
     template = tmp_path / "template"
     template.mkdir()
     (template / "pyproject.toml").write_text(
-        '[project]\nname = "openai-codex"\nversion = "0.0.0"\n'
+        '[project]\nname = "openai-maplecode"\nversion = "0.0.0"\n'
         f'dependencies = ["pydantic>=2.12"{runtime_dependency}]\n'
     )
     monkeypatch.setattr(script, "sdk_root", lambda: template)
-    with pytest.raises(RuntimeError, match="Expected exactly one openai-codex-cli-bin"):
+    with pytest.raises(RuntimeError, match="Expected exactly one openai-maplecode-cli-bin"):
         script.stage_python_sdk_package(tmp_path / "sdk-stage", "1.2.3", "1.2.3")
 
 
 def test_stage_sdk_rejects_empty_runtime_version(tmp_path: Path) -> None:
     script = _load_update_script_module()
     args = script.parse_args(
-        ["stage-sdk", str(tmp_path / "sdk-stage"), "--sdk-version", "1.2.3", "--codex-version", ""]
+        ["stage-sdk", str(tmp_path / "sdk-stage"), "--sdk-version", "1.2.3", "--maplecode-version", ""]
     )
-    with pytest.raises(RuntimeError, match="Could not normalize Codex version"):
+    with pytest.raises(RuntimeError, match="Could not normalize MapleCode version"):
         script.run_command(args, script.default_cli_ops())
 
 
@@ -1438,7 +1438,7 @@ def test_sdk_beta_can_pin_an_independent_runtime(tmp_path: Path) -> None:
     project = tomllib.loads((staged / "pyproject.toml").read_text())["project"]
     assert (project["version"], project["dependencies"]) == (
         "0.1.0b1",
-        ["pydantic>=2.12", "packaging>=26.2", "openai-codex-cli-bin==0.153.0"],
+        ["pydantic>=2.12", "packaging>=26.2", "openai-maplecode-cli-bin==0.153.0"],
     )
 
 
@@ -1454,7 +1454,7 @@ def test_sdk_release_matches_runtime(
     tmp_path: Path, release_tag: str, package_version: str
 ) -> None:
     script = _load_update_script_module()
-    package_archive = _write_fake_codex_package_archive(tmp_path, script)
+    package_archive = _write_fake_maplecode_package_archive(tmp_path, script)
     source_pyproject = (script.sdk_root() / "pyproject.toml").read_text()
 
     sdk_stage = script.stage_python_sdk_package(
@@ -1481,7 +1481,7 @@ def test_sdk_release_matches_runtime(
         "sdk_dependencies": [
             "pydantic>=2.12",
             "packaging>=26.2",
-            f"openai-codex-cli-bin=={package_version}",
+            f"openai-maplecode-cli-bin=={package_version}",
         ],
     }
     assert (script.sdk_root() / "pyproject.toml").read_text() == source_pyproject

@@ -19,11 +19,11 @@ def main():
                         help="prepare the fixture without running socket/process tests")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    workspace = root / "codex-rs"
+    workspace = root / "maplecode-rs"
     debug = workspace / "target/debug"
-    original = debug / "codex"
+    original = debug / "maplecode"
     if not original.is_file():
-        parser.error("native debug executable missing; build codex first")
+        parser.error("native debug executable missing; build maplecode first")
     candidates = sorted(p for p in (debug / "deps").glob("app_server_daemon-*")
                         if p.is_file() and not p.suffix and os.access(p, os.X_OK))
     if len(candidates) != 1:
@@ -33,7 +33,7 @@ def main():
         parser.error("objcopy is required to prepare the separate compact fixture")
     fixture_dir = workspace / "target/maple-test-bin"
     fixture_dir.mkdir(parents=True, exist_ok=True)
-    fixture = fixture_dir / "codex"
+    fixture = fixture_dir / "maplecode"
     if fixture.exists() and fixture.samefile(original):
         parser.error("fixture aliases the original executable; choose a separate fixture path")
     if not fixture.exists() or fixture.stat().st_mtime_ns < original.stat().st_mtime_ns:
@@ -44,7 +44,7 @@ def main():
         print("Fixture prepared; daemon tests have not run.")
         return 0
     test_env = os.environ.copy()
-    test_env["CARGO_BIN_EXE_codex"] = str(fixture)
+    test_env["CARGO_BIN_EXE_maplecode"] = str(fixture)
     print("Running the existing daemon suite with one test at a time.", flush=True)
     return subprocess.run([str(candidates[0]), "--test-threads=1"],
                           cwd=workspace, env=test_env).returncode

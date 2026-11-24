@@ -79,7 +79,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           releases="$(python3 .github/scripts/resolve_exec_server_releases.py)"
-          echo "CODEX_COMPAT_RELEASES=$releases" >> "$GITHUB_ENV"
+          echo "MAPLECODE_COMPAT_RELEASES=$releases" >> "$GITHUB_ENV"
 
       - name: bazel test //...
         shell: bash
@@ -87,7 +87,7 @@ jobs:
           bazel_targets=(
             //...
             # Keep standalone V8 library targets out of the ordinary Bazel CI
-            # path. V8 consumers under `//codex-rs/...` still participate
+            # path. V8 consumers under `//maplecode-rs/...` still participate
             # transitively through `//...`.
             -//third_party/v8:all
           )
@@ -292,10 +292,10 @@ jobs:
           bazel_targets=(
             //...
             # Keep standalone V8 library targets out of the ordinary Bazel CI
-            # path. V8 consumers under `//codex-rs/...` still participate
+            # path. V8 consumers under `//maplecode-rs/...` still participate
             # transitively through `//...`.
             -//third_party/v8:all
-            -//codex-rs/v8-poc:v8-poc-unit-tests
+            -//maplecode-rs/v8-poc:v8-poc-unit-tests
           )
 
           bazel_test_args=(
@@ -389,7 +389,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           releases="$(python3 .github/scripts/resolve_exec_server_releases.py)"
-          echo "CODEX_COMPAT_RELEASES=$releases" >> "$GITHUB_ENV"
+          echo "MAPLECODE_COMPAT_RELEASES=$releases" >> "$GITHUB_ENV"
 
       - name: bazel build --config=clippy lint targets
         shell: bash
@@ -490,7 +490,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           releases="$(python3 .github/scripts/resolve_exec_server_releases.py)"
-          echo "CODEX_COMPAT_RELEASES=$releases" >> "$GITHUB_ENV"
+          echo "MAPLECODE_COMPAT_RELEASES=$releases" >> "$GITHUB_ENV"
 
       - name: bazel build verify-release-build targets
         shell: bash
@@ -542,7 +542,7 @@ jobs:
             --build_metadata=COMMIT_SHA=${GITHUB_SHA} \
             --build_metadata=TAG_job=verify-bwrap \
             -- \
-            //codex-rs/bwrap:bwrap
+            //maplecode-rs/bwrap:bwrap
 
       - name: Upload Bazel execution logs
         if: always() && !cancelled()

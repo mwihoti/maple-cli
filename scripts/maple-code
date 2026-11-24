@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# maple-code: run the Maple build of Codex from any directory.
+# maple-code: run the Maple build of MapleCode from any directory.
 #
 # Install: ln -s "$PWD/scripts/maple-code" ~/.local/bin/maple-code
 #
 # It loads credentials from .env.maple (unless MAPLE_API_KEY is already set),
 # starts a localhost-only Maple Proxy when none is answering, and runs the
 # release build when present (debug build otherwise). Settings live in
-# $MAPLE_CODE_HOME/config.toml, separate from an ordinary ~/.codex.
+# $MAPLE_CODE_HOME/config.toml, separate from an ordinary ~/.maplecode.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 ENV_FILE="$REPO/.env.maple"
-export CODEX_HOME="${MAPLE_CODE_HOME:-$HOME/.maple-code}"
+export MAPLECODE_HOME="${MAPLE_CODE_HOME:-$HOME/.maple-code}"
 
 if [[ -z "${MAPLE_API_KEY:-}" && -f "$ENV_FILE" ]]; then
   saved_base_url="${MAPLE_BASE_URL:-}"
@@ -21,41 +21,41 @@ if [[ -z "${MAPLE_API_KEY:-}" && -f "$ENV_FILE" ]]; then
 fi
 export MAPLE_BASE_URL="${MAPLE_BASE_URL:-http://127.0.0.1:8080/v1}"
 
-# The proxy holds no key (Codex sends it per request) and binds to localhost.
-# Provide the binary as $CODEX_HOME/bin/maple-proxy or on PATH.
+# The proxy holds no key (MapleCode sends it per request) and binds to localhost.
+# Provide the binary as $MAPLECODE_HOME/bin/maple-proxy or on PATH.
 health="${MAPLE_BASE_URL%/v1}/health"
 if ! curl -fs -m 2 "$health" >/dev/null 2>&1; then
-  proxy="$CODEX_HOME/bin/maple-proxy"
+  proxy="$MAPLECODE_HOME/bin/maple-proxy"
   [[ -x "$proxy" ]] || proxy="$(command -v maple-proxy || true)"
   if [[ -z "$proxy" ]]; then
     echo "maple-code: Maple Proxy is not running at $MAPLE_BASE_URL and no maple-proxy binary was found" >&2
     exit 1
   fi
   port="${MAPLE_BASE_URL##*:}"; port="${port%%/*}"
-  mkdir -p "$CODEX_HOME"
+  mkdir -p "$MAPLECODE_HOME"
   MAPLE_HOST=127.0.0.1 MAPLE_PORT="$port" \
   MAPLE_BACKEND_URL="${MAPLE_BACKEND_URL:-https://enclave.trymaple.ai}" \
   MAPLE_PCR0_ENVIRONMENT="${MAPLE_PCR0_ENVIRONMENT:-production}" \
   MAPLE_REQUEST_TIMEOUT_SECS=300 MAPLE_STREAM_IDLE_TIMEOUT_SECS=300 RUST_LOG=warn \
-    setsid nohup "$proxy" >>"$CODEX_HOME/proxy.log" 2>&1 </dev/null &
+    setsid nohup "$proxy" >>"$MAPLECODE_HOME/proxy.log" 2>&1 </dev/null &
   for _ in $(seq 1 40); do
     curl -fs -m 1 "$health" >/dev/null 2>&1 && break
     sleep 0.25
   done
 fi
 
-BIN="$REPO/codex-rs/target/release/codex"
-[[ -x "$BIN" ]] || BIN="$REPO/codex-rs/target/debug/codex"
+BIN="$REPO/maplecode-rs/target/release/maplecode"
+[[ -x "$BIN" ]] || BIN="$REPO/maplecode-rs/target/debug/maplecode"
 
-# Started from $HOME, Codex reads ~/.codex/config.toml as a project config and
+# Started from $HOME, MapleCode reads ~/.maplecode/config.toml as a project config and
 # lets its model settings (for another provider) override ours. Re-assert the
 # Maple settings; an explicit --model or -c on the command line still wins.
 pin=()
-if [[ "$(pwd -P)" == "$(cd "$HOME" && pwd -P)" && -f "$HOME/.codex/config.toml" \
-      && "$CODEX_HOME" != "$HOME/.codex" && -f "$CODEX_HOME/config.toml" ]]; then
+if [[ "$(pwd -P)" == "$(cd "$HOME" && pwd -P)" && -f "$HOME/.maplecode/config.toml" \
+      && "$MAPLECODE_HOME" != "$HOME/.maplecode" && -f "$MAPLECODE_HOME/config.toml" ]]; then
   pin+=(-c 'model_provider="maple"')
   for key in model model_reasoning_effort; do
-    value="$(sed -n "s/^$key *= *\"\(.*\)\" *$/\1/p" "$CODEX_HOME/config.toml" | head -1)"
+    value="$(sed -n "s/^$key *= *\"\(.*\)\" *$/\1/p" "$MAPLECODE_HOME/config.toml" | head -1)"
     [[ -n "$value" ]] && pin+=(-c "$key=\"$value\"")
   done
 fi

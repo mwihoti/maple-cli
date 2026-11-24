@@ -1,0 +1,26 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-plugin"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "maplecode_plugin"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-config = { workspace = true }
+maplecode-core-plugin-common = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+maplecode-utils-plugins = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

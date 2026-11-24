@@ -1,0 +1,54 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-cloud-tasks"
+version.workspace = true
+
+[lib]
+name = "maplecode_cloud_tasks"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-backend-client = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+clap = { workspace = true, features = ["derive"] }
+maplecode-http-client = { workspace = true }
+maplecode-cloud-tasks-client = { workspace = true }
+# TODO: maplecode-cloud-tasks-mock-client should be in dev-dependencies.
+maplecode-cloud-tasks-mock-client = { workspace = true }
+maplecode-core = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-git-utils = { workspace = true }
+maplecode-login = { path = "../login" }
+maplecode-model-provider = { workspace = true }
+maplecode-tui = { workspace = true }
+maplecode-utils-cli = { workspace = true }
+crossterm = { workspace = true, features = ["event-stream"] }
+http = { workspace = true }
+owo-colors = { workspace = true, features = ["supports-colors"] }
+ratatui = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+supports-color = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tokio-stream = { workspace = true }
+tracing = { workspace = true, features = ["log"] }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+unicode-segmentation = { workspace = true }
+unicode-width = { workspace = true }
+
+[dev-dependencies]
+maplecode-agent-identity = { workspace = true }
+core_test_support = { workspace = true }
+base64 = { workspace = true }
+tempfile = { workspace = true }
+maplecode-runtime-agent-instance = { workspace = true }
+uuid = { workspace = true }
+wiremock = { workspace = true }
+insta = { workspace = true }
+pretty_assertions = { workspace = true }

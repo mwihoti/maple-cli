@@ -1,0 +1,29 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-skills"
+version.workspace = true
+build = "build.rs"
+
+[lib]
+doctest = false
+name = "maplecode_skills"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-protocol = { workspace = true }
+maplecode-shell-command = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+include_dir = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_yaml = { workspace = true }
+shlex = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "websocket-auth",
+    crate_name = "maplecode_websocket_auth",
+)

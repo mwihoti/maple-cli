@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "mcp",
+    crate_name = "maplecode_mcp_extension",
+)

@@ -1,0 +1,8 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "maplecode-mcp",
+    crate_name = "maplecode_mcp",
+    extra_binaries = ["//maplecode-rs/cli:maplecode"],
+    test_data_extra = glob(["src/**/snapshots/**"]),
+)

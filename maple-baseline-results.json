@@ -16,13 +16,13 @@
         "test",
         "--locked",
         "-p",
-        "codex-api",
+        "maplecode-api",
         "-p",
-        "codex-model-provider-info",
+        "maplecode-model-provider-info",
         "-p",
-        "codex-protocol",
+        "maplecode-protocol",
         "-p",
-        "codex-cli"
+        "maplecode-cli"
       ],
       "exit_code": 101,
       "log": "../maple-code-full-baseline-tests.log"

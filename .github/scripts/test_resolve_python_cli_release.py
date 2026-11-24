@@ -37,14 +37,14 @@ class ResolvePythonCliReleaseTest(unittest.TestCase):
         self.assets = [
             {"name": name, "state": "uploaded", "size": 100}
             for name in [
-                "openai_codex_cli_bin-1.2.3-py3-none-macosx_10_9_x86_64.whl",
-                "openai_codex_cli_bin-1.2.3-py3-none-macosx_11_0_arm64.whl",
-                "openai_codex_cli_bin-1.2.3-py3-none-manylinux_2_17_aarch64.whl",
-                "openai_codex_cli_bin-1.2.3-py3-none-manylinux_2_17_x86_64.whl",
-                "openai_codex_cli_bin-1.2.3-py3-none-win_amd64.whl",
-                "openai_codex_cli_bin-1.2.3-py3-none-win_arm64.whl",
-                "codex-package-aarch64-unknown-linux-musl.tar.gz",
-                "codex-package-x86_64-unknown-linux-musl.tar.gz",
+                "openai_maplecode_cli_bin-1.2.3-py3-none-macosx_10_9_x86_64.whl",
+                "openai_maplecode_cli_bin-1.2.3-py3-none-macosx_11_0_arm64.whl",
+                "openai_maplecode_cli_bin-1.2.3-py3-none-manylinux_2_17_aarch64.whl",
+                "openai_maplecode_cli_bin-1.2.3-py3-none-manylinux_2_17_x86_64.whl",
+                "openai_maplecode_cli_bin-1.2.3-py3-none-win_amd64.whl",
+                "openai_maplecode_cli_bin-1.2.3-py3-none-win_arm64.whl",
+                "maplecode-package-aarch64-unknown-linux-musl.tar.gz",
+                "maplecode-package-x86_64-unknown-linux-musl.tar.gz",
             ]
         ]
         self.expected = {
@@ -91,7 +91,7 @@ class ResolvePythonCliReleaseTest(unittest.TestCase):
             ("status", "in_progress"),
             ("head_branch", "main"),
             ("head_sha", "main"),
-            ("head_repository", {"full_name": "other/codex"}),
+            ("head_repository", {"full_name": "other/maplecode"}),
         ):
             with self.subTest(field=field, value=value):
                 with patch.object(
@@ -206,7 +206,7 @@ class ResolvePythonCliReleaseTest(unittest.TestCase):
     def test_rejects_invalid_inputs_before_github_access(self) -> None:
         with patch.object(resolver, "github_api") as api:
             for repository, run_id in (
-                ("other/codex", "123"),
+                ("other/maplecode", "123"),
                 ("openai/codex", "../123"),
             ):
                 with self.assertRaises(ValueError):

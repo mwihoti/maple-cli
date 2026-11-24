@@ -1,0 +1,49 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-guardian-reviewer"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "maplecode_guardian_reviewer"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+maplecode-analytics = { workspace = true }
+maplecode-context-fragments = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-feedback = { workspace = true }
+maplecode-file-system = { workspace = true }
+maplecode-guardian-context = { workspace = true }
+maplecode-history = { workspace = true }
+maplecode-mcp = { workspace = true }
+maplecode-otel = { workspace = true }
+maplecode-prompts = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-rmcp-client = { workspace = true }
+maplecode-shell-command = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+maplecode-utils-output-truncation = { workspace = true }
+maplecode-utils-string = { workspace = true }
+rand = { workspace = true }
+rmcp = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true, features = ["rt"] }
+tracing = { workspace = true }
+
+[dev-dependencies]
+maplecode-models-manager = { workspace = true }
+maplecode-context-fragments = { workspace = true }
+maplecode-protocol-test-support = { workspace = true }
+opentelemetry = { workspace = true }
+opentelemetry_sdk = { workspace = true, features = ["experimental_metrics_custom_reader", "metrics"] }
+test-case = "3.3.1"
+pretty_assertions = { workspace = true }

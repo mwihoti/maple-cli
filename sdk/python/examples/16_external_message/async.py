@@ -12,12 +12,12 @@ from _bootstrap import ensure_local_sdk_src, runtime_config
 
 ensure_local_sdk_src()
 
-from openai_codex import AsyncCodex, ExternalMessage, Sandbox
+from openai_maplecode import AsyncMapleCode, ExternalMessage, Sandbox
 
 
 async def main() -> None:
-    async with AsyncCodex(config=runtime_config()) as codex:
-        thread = await codex.thread_start(sandbox=Sandbox.read_only)
+    async with AsyncMapleCode(config=runtime_config()) as maplecode:
+        thread = await maplecode.thread_start(sandbox=Sandbox.read_only)
         await thread.run(
             "When deployment notifications arrive, summarize their status and suggest "
             "what I should check. Do not change files or deploy anything."

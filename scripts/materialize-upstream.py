@@ -13,16 +13,16 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_FILES = [
-    "codex-rs/cli/Cargo.toml", "codex-rs/cli/src/main.rs", "codex-rs/cli/src/maple_cmd.rs",
-    "codex-rs/codex-api/Cargo.toml", "codex-rs/codex-api/src/lib.rs",
-    "codex-rs/codex-api/src/endpoint/models.rs", "codex-rs/codex-api/src/endpoint/responses.rs",
-    "codex-rs/codex-api/src/endpoint/session.rs", "codex-rs/codex-api/src/maple.rs",
-    "codex-rs/codex-api/src/maple_tests.rs", "codex-rs/config/src/config_toml.rs",
-    "codex-rs/model-provider-info/Cargo.toml", "codex-rs/model-provider-info/src/lib.rs",
-    "codex-rs/model-provider-info/src/maple_credentials.rs",
-    "codex-rs/model-provider/src/models_endpoint.rs", "codex-rs/model-provider/src/provider.rs",
-    "codex-rs/protocol/src/shell_environment.rs",
-    "codex-rs/models-manager/src/manager.rs", "codex-rs/models-manager/src/manager_tests.rs",
+    "maplecode-rs/cli/Cargo.toml", "maplecode-rs/cli/src/main.rs", "maplecode-rs/cli/src/maple_cmd.rs",
+    "maplecode-rs/maplecode-api/Cargo.toml", "maplecode-rs/maplecode-api/src/lib.rs",
+    "maplecode-rs/maplecode-api/src/endpoint/models.rs", "maplecode-rs/maplecode-api/src/endpoint/responses.rs",
+    "maplecode-rs/maplecode-api/src/endpoint/session.rs", "maplecode-rs/maplecode-api/src/maple.rs",
+    "maplecode-rs/maplecode-api/src/maple_tests.rs", "maplecode-rs/config/src/config_toml.rs",
+    "maplecode-rs/model-provider-info/Cargo.toml", "maplecode-rs/model-provider-info/src/lib.rs",
+    "maplecode-rs/model-provider-info/src/maple_credentials.rs",
+    "maplecode-rs/model-provider/src/models_endpoint.rs", "maplecode-rs/model-provider/src/provider.rs",
+    "maplecode-rs/protocol/src/shell_environment.rs",
+    "maplecode-rs/models-manager/src/manager.rs", "maplecode-rs/models-manager/src/manager_tests.rs",
 ]
 
 
@@ -54,12 +54,12 @@ def main():
     if not args.skip_baseline:
         for name, command in [
             ("build", ["cargo", "build", "--locked"]),
-            ("tests", ["cargo", "test", "--locked", "-p", "codex-api", "-p", "codex-model-provider-info", "-p", "codex-protocol", "-p", "codex-cli"]),
+            ("tests", ["cargo", "test", "--locked", "-p", "maplecode-api", "-p", "maplecode-model-provider-info", "-p", "maplecode-protocol", "-p", "maplecode-cli"]),
         ]:
             log_path = destination.parent / (destination.name + f"-baseline-{name}.log")
             print(f"Running baseline {name}; log: {log_path}", flush=True)
             with log_path.open("w") as output:
-                result = subprocess.run(command, cwd=destination / "codex-rs", stdout=output, stderr=subprocess.STDOUT)
+                result = subprocess.run(command, cwd=destination / "maplecode-rs", stdout=output, stderr=subprocess.STDOUT)
             results.append({"command": command, "exit_code": result.returncode, "log": str(log_path)})
             outcome = "PASSED" if result.returncode == 0 else "FAILED"
             print(f"Baseline {name}: {outcome} (exit {result.returncode}); log: {log_path}", flush=True)
@@ -81,7 +81,7 @@ def main():
     print("Baseline results are in maple-baseline-results.json. Maple integration is not yet built or validated.")
     if any(result["exit_code"] != 0 for result in results):
         print("WARNING: baseline build/tests failed. Inspect the logs and resolve those failures before interpreting Maple build results.")
-    print("Next: cd " + str(destination / "codex-rs") + " && cargo test -p codex-api -p codex-model-provider-info -p codex-cli")
+    print("Next: cd " + str(destination / "maplecode-rs") + " && cargo test -p maplecode-api -p maplecode-model-provider-info -p maplecode-cli")
     return 0
 
 

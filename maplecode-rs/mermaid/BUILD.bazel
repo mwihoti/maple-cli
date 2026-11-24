@@ -1,0 +1,7 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "mermaid",
+    crate_name = "maplecode_mermaid",
+    test_data_extra = glob(["src/snapshots/**"]),
+)

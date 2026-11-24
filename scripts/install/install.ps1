@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Release = $env:CODEX_RELEASE
+    [string]$Release = $env:MAPLECODE_RELEASE
 )
 
 Set-StrictMode -Version Latest
@@ -11,12 +11,12 @@ if ([string]::IsNullOrWhiteSpace($Release)) {
     $Release = "latest"
 }
 
-$NonInteractive = $env:CODEX_NON_INTERACTIVE -match "^(?i:1|true|yes)$"
+$NonInteractive = $env:MAPLECODE_NON_INTERACTIVE -match "^(?i:1|true|yes)$"
 $DefaultPreferReleasesOpenAICom = $true
-$PreferReleasesOpenAICom = if ([string]::IsNullOrWhiteSpace($env:CODEX_INSTALLER_USE_RELEASES_OPENAI_COM)) {
+$PreferReleasesOpenAICom = if ([string]::IsNullOrWhiteSpace($env:MAPLECODE_INSTALLER_USE_RELEASES_OPENAI_COM)) {
     $DefaultPreferReleasesOpenAICom
 } else {
-    $env:CODEX_INSTALLER_USE_RELEASES_OPENAI_COM -match "^(?i:1|true|yes)$"
+    $env:MAPLECODE_INSTALLER_USE_RELEASES_OPENAI_COM -match "^(?i:1|true|yes)$"
 }
 $ReleasesBaseUri = "https://releases.openai.com/codex"
 $ReleasesMetadataTimeoutSec = 30
@@ -81,7 +81,7 @@ function Assert-ValidReleaseVersion {
     )
 
     if ($Version -cne "latest" -and $Version -cnotmatch "^[0-9]+\.[0-9]+\.[0-9]+(?:-alpha(?:\.[0-9]+){0,2}|-beta(?:\.[0-9]+)?)?$") {
-        throw "Invalid Codex release version: $Version. Expected latest or x.y.z[-alpha[.N[.M]]|-beta[.N]]."
+        throw "Invalid MapleCode release version: $Version. Expected latest or x.y.z[-alpha[.N[.M]]|-beta[.N]]."
     }
 }
 
@@ -164,8 +164,8 @@ function Resolve-ReleaseAssetSelection {
 
     $version = $ResolvedRelease.Version
     $releaseMetadata = $ResolvedRelease.Metadata
-    $packageAsset = "codex-package-$Target.tar.gz"
-    $checksumAsset = "codex-package_SHA256SUMS"
+    $packageAsset = "maplecode-package-$Target.tar.gz"
+    $checksumAsset = "maplecode-package_SHA256SUMS"
     $packageUrl = $null
     $packageFallbackUrl = $null
     $checksumUrl = $null
@@ -188,7 +188,7 @@ function Resolve-ReleaseAssetSelection {
         }
     }
 
-    $packageAsset = "codex-npm-$NpmTag-$version.tgz"
+    $packageAsset = "maplecode-npm-$NpmTag-$version.tgz"
     $packageUrl = $null
     $packageFallbackUrl = $null
     if ($ResolvedRelease.Source -eq "ReleasesOpenAICom") {
@@ -197,7 +197,7 @@ function Resolve-ReleaseAssetSelection {
     }
     $packageMetadata = Find-ReleaseAssetMetadata -AssetName $packageAsset -ReleaseMetadata $releaseMetadata -Url $packageUrl -FallbackUrl $packageFallbackUrl
     if ($null -eq $packageMetadata) {
-        throw "Could not find Codex package or platform npm release assets for Codex $version."
+        throw "Could not find MapleCode package or platform npm release assets for MapleCode $version."
     }
 
     return [PSCustomObject]@{
@@ -230,7 +230,7 @@ function Test-ArchiveDigest {
     }
 
     if ($actualDigest -ne $ExpectedDigest) {
-        throw "Downloaded Codex archive checksum did not match expected digest. Expected $ExpectedDigest but got $actualDigest."
+        throw "Downloaded MapleCode archive checksum did not match expected digest. Expected $ExpectedDigest but got $actualDigest."
     }
 }
 
@@ -248,7 +248,7 @@ function Get-PackageArchiveDigest {
         }
     }
 
-    throw "Could not find SHA-256 digest for $AssetName in codex-package_SHA256SUMS."
+    throw "Could not find SHA-256 digest for $AssetName in maplecode-package_SHA256SUMS."
 }
 
 function Path-Contains {
@@ -331,7 +331,7 @@ function Resolve-VersionFromReleaseMetadata {
     )
 
     if (-not $ReleaseMetadata.tag_name) {
-        throw "Failed to resolve the latest Codex release version."
+        throw "Failed to resolve the latest MapleCode release version."
     }
 
     $resolvedVersion = Normalize-Version -RawVersion $ReleaseMetadata.tag_name
@@ -356,7 +356,7 @@ function Resolve-ReleaseFromGitHub {
     try {
         $releaseMetadata = Invoke-RestMethod -Uri $metadataUri
     } catch {
-        throw "Could not fetch GitHub release metadata for Codex $requestedRelease. GitHub API may be unavailable or rate limited. $($_.Exception.Message)"
+        throw "Could not fetch GitHub release metadata for MapleCode $requestedRelease. GitHub API may be unavailable or rate limited. $($_.Exception.Message)"
     }
 
     if ($NormalizedVersion -eq "latest") {
@@ -385,7 +385,7 @@ function Resolve-ReleaseFromReleases {
         $releaseMetadata = [string]$metadataResponse.Content | ConvertFrom-Json -ErrorAction Stop
         $resolvedVersion = Resolve-VersionFromReleaseMetadata -ReleaseMetadata $releaseMetadata
         if ($NormalizedVersion -ne "latest" -and $resolvedVersion -cne $NormalizedVersion) {
-            throw "Release metadata version did not match requested Codex version $NormalizedVersion."
+            throw "Release metadata version did not match requested MapleCode version $NormalizedVersion."
         }
         $resolvedRelease = [PSCustomObject]@{
             Version = $resolvedVersion
@@ -416,15 +416,15 @@ function Resolve-Release {
 
 function Get-VersionFromBinary {
     param(
-        [string]$CodexPath
+        [string]$MapleCodePath
     )
 
-    if (-not (Test-Path -LiteralPath $CodexPath -PathType Leaf)) {
+    if (-not (Test-Path -LiteralPath $MapleCodePath -PathType Leaf)) {
         return $null
     }
 
     try {
-        $versionOutput = & $CodexPath --version 2>$null
+        $versionOutput = & $MapleCodePath --version 2>$null
     } catch {
         return $null
     }
@@ -441,12 +441,12 @@ function Get-CurrentInstalledVersion {
         [string]$StandaloneCurrentDir
     )
 
-    $standaloneVersion = Get-VersionFromBinary -CodexPath (Join-Path $StandaloneCurrentDir "bin\codex.exe")
+    $standaloneVersion = Get-VersionFromBinary -MapleCodePath (Join-Path $StandaloneCurrentDir "bin\maplecode.exe")
     if (-not [string]::IsNullOrWhiteSpace($standaloneVersion)) {
         return $standaloneVersion
     }
 
-    $standaloneVersion = Get-VersionFromBinary -CodexPath (Join-Path $StandaloneCurrentDir "codex.exe")
+    $standaloneVersion = Get-VersionFromBinary -MapleCodePath (Join-Path $StandaloneCurrentDir "maplecode.exe")
     if (-not [string]::IsNullOrWhiteSpace($standaloneVersion)) {
         return $standaloneVersion
     }
@@ -472,7 +472,7 @@ function Test-OldStandaloneBinLayout {
         return $false
     }
 
-    $requiredFiles = @("codex.exe", "rg.exe")
+    $requiredFiles = @("maplecode.exe", "rg.exe")
     foreach ($fileName in $requiredFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $VisibleBinDir $fileName) -PathType Leaf)) {
             return $false
@@ -480,11 +480,11 @@ function Test-OldStandaloneBinLayout {
     }
 
     $knownFiles = @(
-        "codex.exe",
+        "maplecode.exe",
         "rg.exe",
-        "codex-command-runner.exe",
-        "codex-windows-sandbox.exe",
-        "codex-windows-sandbox-setup.exe"
+        "maplecode-command-runner.exe",
+        "maplecode-windows-sandbox.exe",
+        "maplecode-windows-sandbox-setup.exe"
     )
     foreach ($child in Get-ChildItem -LiteralPath $VisibleBinDir -Force) {
         if ($child.PSIsContainer) {
@@ -508,9 +508,9 @@ function Move-OldStandaloneBinIfApproved {
         return $null
     }
 
-    Write-Step "We found an older Codex install at $VisibleBinDir"
-    Write-WarningStep "To continue, Codex needs to update the install at this path."
-    if (-not (Prompt-YesNo "Replace it with the current Codex setup now?")) {
+    Write-Step "We found an older MapleCode install at $VisibleBinDir"
+    Write-WarningStep "To continue, MapleCode needs to update the install at this path."
+    if (-not (Prompt-YesNo "Replace it with the current MapleCode setup now?")) {
         throw "Cannot replace older standalone install without confirmation: $VisibleBinDir"
     }
 
@@ -522,7 +522,7 @@ function Move-OldStandaloneBinIfApproved {
 
 function Add-JunctionSupportType {
     # Older installer types remain loaded when users rerun irm | iex in one session.
-    if (([System.Management.Automation.PSTypeName]'CodexInstaller.JunctionV3').Type) {
+    if (([System.Management.Automation.PSTypeName]'MapleCodeInstaller.JunctionV3').Type) {
         return
     }
 
@@ -534,7 +534,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
 
-namespace CodexInstaller
+namespace MapleCodeInstaller
 {
     public static class JunctionV3
     {
@@ -689,7 +689,7 @@ function Set-JunctionTarget {
     )
 
     Add-JunctionSupportType
-    [CodexInstaller.JunctionV3]::SetTarget($LinkPath, $TargetPath)
+    [MapleCodeInstaller.JunctionV3]::SetTarget($LinkPath, $TargetPath)
 }
 
 function Test-IsJunction {
@@ -720,14 +720,14 @@ function Ensure-Junction {
     $item = Get-Item -LiteralPath $LinkPath -Force
     if (Test-IsJunction -Path $LinkPath) {
         Add-JunctionSupportType
-        $existingTarget = [CodexInstaller.JunctionV3]::ResolveDirectory($LinkPath)
+        $existingTarget = [MapleCodeInstaller.JunctionV3]::ResolveDirectory($LinkPath)
         if (-not [string]::IsNullOrWhiteSpace($InstallerOwnedTargetPrefix)) {
-            $ownedTargetPrefix = [CodexInstaller.JunctionV3]::ResolveDirectory($InstallerOwnedTargetPrefix) + "\"
+            $ownedTargetPrefix = [MapleCodeInstaller.JunctionV3]::ResolveDirectory($InstallerOwnedTargetPrefix) + "\"
             if (-not $existingTarget.StartsWith($ownedTargetPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
                 throw "Refusing to retarget junction at $LinkPath because it is not managed by this installer."
             }
         }
-        if ($existingTarget.Equals([CodexInstaller.JunctionV3]::ResolveDirectory($TargetPath), [System.StringComparison]::OrdinalIgnoreCase)) {
+        if ($existingTarget.Equals([MapleCodeInstaller.JunctionV3]::ResolveDirectory($TargetPath), [System.StringComparison]::OrdinalIgnoreCase)) {
             return
         }
 
@@ -765,19 +765,19 @@ function Test-PackageContentsAreComplete {
     }
 
     $expectedFiles = @(
-        "codex-package.json",
-        "bin\codex.exe",
-        "bin\codex-code-mode-host.exe",
-        "codex-path\rg.exe",
-        "codex-resources\codex-command-runner.exe",
-        "codex-resources\codex-windows-sandbox-setup.exe"
+        "maplecode-package.json",
+        "bin\maplecode.exe",
+        "bin\maplecode-code-mode-host.exe",
+        "maplecode-path\rg.exe",
+        "maplecode-resources\maplecode-command-runner.exe",
+        "maplecode-resources\maplecode-windows-sandbox-setup.exe"
     )
     try {
-        $metadataPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath((Join-Path $PackageDir "codex-package.json"))
+        $metadataPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath((Join-Path $PackageDir "maplecode-package.json"))
         $metadata = [System.IO.File]::ReadAllText($metadataPath)
         # Older canonical packages do not advertise or contain the executor.
         if ([regex]::IsMatch($metadata, '"execServer"\s*:')) {
-            $expectedFiles += "bin\codex-exec-server.exe"
+            $expectedFiles += "bin\maplecode-exec-server.exe"
         }
     } catch {
         return $false
@@ -801,10 +801,10 @@ function Test-LegacyPlatformNpmContentsAreComplete {
     }
 
     $expectedFiles = @(
-        "codex.exe",
-        "codex-resources\codex-command-runner.exe",
-        "codex-resources\codex-windows-sandbox-setup.exe",
-        "codex-resources\rg.exe"
+        "maplecode.exe",
+        "maplecode-resources\maplecode-command-runner.exe",
+        "maplecode-resources\maplecode-windows-sandbox-setup.exe",
+        "maplecode-resources\rg.exe"
     )
     foreach ($name in $expectedFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $PackageDir $name) -PathType Leaf)) {
@@ -828,25 +828,25 @@ function Test-ReleaseIsComplete {
             if (-not (Test-PackageContentsAreComplete -PackageDir $ReleaseDir)) {
                 return $false
             }
-            $codexPath = Join-Path $ReleaseDir "bin\codex.exe"
+            $maplecodePath = Join-Path $ReleaseDir "bin\maplecode.exe"
         }
         "LegacyPlatformNpm" {
             if (-not (Test-LegacyPlatformNpmContentsAreComplete -PackageDir $ReleaseDir)) {
                 return $false
             }
-            $codexPath = Join-Path $ReleaseDir "codex.exe"
+            $maplecodePath = Join-Path $ReleaseDir "maplecode.exe"
         }
         default {
-            throw "Unknown Codex installer layout: $Layout"
+            throw "Unknown MapleCode installer layout: $Layout"
         }
     }
 
     return (Split-Path -Leaf $ReleaseDir) -eq "$ExpectedVersion-$ExpectedTarget" -and
-        (Get-VersionFromBinary -CodexPath $codexPath) -ceq $ExpectedVersion
+        (Get-VersionFromBinary -MapleCodePath $maplecodePath) -ceq $ExpectedVersion
 }
 
-function Get-ExistingCodexCommand {
-    $existing = Get-Command codex -ErrorAction SilentlyContinue
+function Get-ExistingMapleCodeCommand {
+    $existing = Get-Command maplecode -ErrorAction SilentlyContinue
     if ($null -eq $existing) {
         return $null
     }
@@ -854,7 +854,7 @@ function Get-ExistingCodexCommand {
     return $existing.Source
 }
 
-function Get-ExistingCodexManager {
+function Get-ExistingMapleCodeManager {
     param(
         [string]$ExistingPath,
         [string]$VisibleBinDir
@@ -884,14 +884,14 @@ function Get-ConflictingInstall {
         [string]$VisibleBinDir
     )
 
-    $existingPath = Get-ExistingCodexCommand
-    $manager = Get-ExistingCodexManager -ExistingPath $existingPath -VisibleBinDir $VisibleBinDir
+    $existingPath = Get-ExistingMapleCodeCommand
+    $manager = Get-ExistingMapleCodeManager -ExistingPath $existingPath -VisibleBinDir $VisibleBinDir
     if ($null -eq $manager) {
         return $null
     }
 
-    Write-Step "Detected existing $manager-managed Codex at $existingPath"
-    Write-WarningStep "Multiple managed Codex installs can be ambiguous because PATH order decides which one runs."
+    Write-Step "Detected existing $manager-managed MapleCode at $existingPath"
+    Write-WarningStep "Multiple managed MapleCode installs can be ambiguous because PATH order decides which one runs."
 
     return [PSCustomObject]@{
         Manager = $manager
@@ -917,27 +917,27 @@ function Maybe-HandleConflictingInstall {
     }
     $uninstallCommand = if ($manager -eq "bun") { "bun" } else { "npm" }
 
-    if (Prompt-YesNo "Uninstall the existing $manager-managed Codex now?") {
+    if (Prompt-YesNo "Uninstall the existing $manager-managed MapleCode now?") {
         Write-Step "Running: $uninstallCommand $($uninstallArgs -join ' ')"
         try {
             & $uninstallCommand @uninstallArgs
         } catch {
-            Write-WarningStep "Failed to uninstall the existing $manager-managed Codex. Continuing with the standalone install."
+            Write-WarningStep "Failed to uninstall the existing $manager-managed MapleCode. Continuing with the standalone install."
         }
     } else {
-        Write-WarningStep "Leaving the existing $manager-managed Codex installed. PATH order will determine which codex runs."
+        Write-WarningStep "Leaving the existing $manager-managed MapleCode installed. PATH order will determine which maplecode runs."
     }
 }
 
-function Test-VisibleCodexCommand {
+function Test-VisibleMapleCodeCommand {
     param(
         [string]$VisibleBinDir
     )
 
-    $codexCommand = Join-Path $VisibleBinDir "codex.exe"
-    & $codexCommand --version *> $null
+    $maplecodeCommand = Join-Path $VisibleBinDir "maplecode.exe"
+    & $maplecodeCommand --version *> $null
     if ($LASTEXITCODE -ne 0) {
-        throw "Installed Codex command failed verification: $codexCommand --version"
+        throw "Installed MapleCode command failed verification: $maplecodeCommand --version"
     }
 }
 
@@ -947,7 +947,7 @@ if ($env:OS -ne "Windows_NT") {
 }
 
 if (-not [Environment]::Is64BitOperatingSystem) {
-    Write-Error "Codex requires a 64-bit version of Windows."
+    Write-Error "MapleCode requires a 64-bit version of Windows."
     exit 1
 }
 
@@ -972,16 +972,16 @@ switch ($architecture) {
     }
 }
 
-$codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
-    Join-Path $env:USERPROFILE ".codex"
+$maplecodeHome = if ([string]::IsNullOrWhiteSpace($env:MAPLECODE_HOME)) {
+    Join-Path $env:USERPROFILE ".maplecode"
 } else {
-    $env:CODEX_HOME
+    $env:MAPLECODE_HOME
 }
-$daemonOnly = $env:CODEX_INSTALL_DAEMON_ONLY -eq "1"
-$standaloneRoot = Join-Path $codexHome $(if ($daemonOnly) { "packages\app-server-daemon" } else { "packages\standalone" })
+$daemonOnly = $env:MAPLECODE_INSTALL_DAEMON_ONLY -eq "1"
+$standaloneRoot = Join-Path $maplecodeHome $(if ($daemonOnly) { "packages\app-server-daemon" } else { "packages\standalone" })
 $releasesDir = Join-Path $standaloneRoot "releases"
 $currentDir = Join-Path $standaloneRoot "current"
-$deferSelection = $env:CODEX_INSTALL_DEFER_SELECTION -eq "1"
+$deferSelection = $env:MAPLECODE_INSTALL_DEFER_SELECTION -eq "1"
 if ($deferSelection) {
     if (-not $daemonOnly) { throw "Deferred selection requires a daemon-only installation." }
     $currentDir = Join-Path $standaloneRoot ".migration-current"
@@ -989,11 +989,11 @@ if ($deferSelection) {
 $autoUpdateVersion = Join-Path $standaloneRoot "auto-update-version"
 $lockPath = Join-Path $standaloneRoot "install.lock"
 
-$defaultVisibleBinDir = Join-Path $env:LOCALAPPDATA "Programs\OpenAI\Codex\bin"
-if ([string]::IsNullOrWhiteSpace($env:CODEX_INSTALL_DIR)) {
+$defaultVisibleBinDir = Join-Path $env:LOCALAPPDATA "Programs\OpenAI\MapleCode\bin"
+if ([string]::IsNullOrWhiteSpace($env:MAPLECODE_INSTALL_DIR)) {
     $visibleBinDir = $defaultVisibleBinDir
 } else {
-    $visibleBinDir = $env:CODEX_INSTALL_DIR
+    $visibleBinDir = $env:MAPLECODE_INSTALL_DIR
 }
 
 $currentVersion = Get-CurrentInstalledVersion -StandaloneCurrentDir $currentDir
@@ -1004,11 +1004,11 @@ $releaseName = "$resolvedVersion-$target"
 $releaseDir = Join-Path $releasesDir $releaseName
 
 if (-not [string]::IsNullOrWhiteSpace($currentVersion) -and $currentVersion -ne $resolvedVersion) {
-    Write-Step "Updating Codex CLI from $currentVersion to $resolvedVersion"
+    Write-Step "Updating MapleCode CLI from $currentVersion to $resolvedVersion"
 } elseif (-not [string]::IsNullOrWhiteSpace($currentVersion)) {
-    Write-Step "Updating Codex CLI"
+    Write-Step "Updating MapleCode CLI"
 } else {
-    Write-Step "Installing Codex CLI"
+    Write-Step "Installing MapleCode CLI"
 }
 Write-Step "Detected platform: $platformLabel"
 Write-Step "Resolved version: $resolvedVersion"
@@ -1016,22 +1016,22 @@ Write-Step "Resolved version: $resolvedVersion"
 $conflictingInstall = if ($daemonOnly) { $null } else { Get-ConflictingInstall -VisibleBinDir $visibleBinDir }
 $oldStandaloneBackup = $null
 
-$checksumAsset = "codex-package_SHA256SUMS"
+$checksumAsset = "maplecode-package_SHA256SUMS"
 $assetSelection = Resolve-ReleaseAssetSelection -ResolvedRelease $resolvedRelease -Target $target -NpmTag $npmTag
 $packageAsset = $assetSelection.PackageAsset
 $packageMetadata = $assetSelection.PackageMetadata
 $checksumMetadata = $assetSelection.ChecksumMetadata
 $installLayout = $assetSelection.InstallLayout
-$tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("codex-install-" + [System.Guid]::NewGuid().ToString("N"))
+$tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("maplecode-install-" + [System.Guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
 $guardRejected = $false
 
 try {
     Invoke-WithInstallLock -LockPath $lockPath -Script {
-        $updaterRecord = Join-Path $codexHome "app-server-daemon\app-server-updater.pid"
-        if ($daemonOnly) { $updaterRecord = Join-Path $codexHome "app-server-daemon\daemon-updater.pid" }
+        $updaterRecord = Join-Path $maplecodeHome "app-server-daemon\app-server-updater.pid"
+        if ($daemonOnly) { $updaterRecord = Join-Path $maplecodeHome "app-server-daemon\daemon-updater.pid" }
         $oldUpdaterParent = $false
-        if ($Release -eq "latest" -and $env:CODEX_INSTALL_IF_LATEST -ne "1" -and $env:CODEX_INSTALL_IF_CURRENT -ne "1" -and (Test-Path -LiteralPath $updaterRecord)) {
+        if ($Release -eq "latest" -and $env:MAPLECODE_INSTALL_IF_LATEST -ne "1" -and $env:MAPLECODE_INSTALL_IF_CURRENT -ne "1" -and (Test-Path -LiteralPath $updaterRecord)) {
             $updaterPid = $null
             $updaterStartTime = $null
             try {
@@ -1059,23 +1059,23 @@ try {
                 }
             }
         }
-        if ($env:CODEX_INSTALL_IF_LATEST -eq "1" -or $env:CODEX_INSTALL_IF_CURRENT -eq "1" -or $oldUpdaterParent) {
+        if ($env:MAPLECODE_INSTALL_IF_LATEST -eq "1" -or $env:MAPLECODE_INSTALL_IF_CURRENT -eq "1" -or $oldUpdaterParent) {
             $previousRelease = if ($oldUpdaterParent -and (Test-Path -LiteralPath $autoUpdateVersion)) {
                 [System.IO.File]::ReadAllText($autoUpdateVersion)
             } else {
-                $env:CODEX_UPDATE_FROM_RELEASE
+                $env:MAPLECODE_UPDATE_FROM_RELEASE
             }
             Add-JunctionSupportType
             $currentTarget = if (Test-Path -LiteralPath $currentDir) { (Get-Item -LiteralPath $currentDir).Target } else { $null }
             if ($Release -ne "latest" -or [string]::IsNullOrEmpty($previousRelease) -or [string]::IsNullOrEmpty($currentTarget) -or
                 -not (Test-Path -LiteralPath (Join-Path $releasesDir $previousRelease)) -or
-                [CodexInstaller.JunctionV3]::ResolveDirectory($currentDir) -ne [CodexInstaller.JunctionV3]::ResolveDirectory((Join-Path $releasesDir $previousRelease))) {
-                if ($env:CODEX_INSTALL_IF_CURRENT -eq "1") { throw "Daemon selection changed; retry the update." }
+                [MapleCodeInstaller.JunctionV3]::ResolveDirectory($currentDir) -ne [MapleCodeInstaller.JunctionV3]::ResolveDirectory((Join-Path $releasesDir $previousRelease))) {
+                if ($env:MAPLECODE_INSTALL_IF_CURRENT -eq "1") { throw "Daemon selection changed; retry the update." }
                 $script:guardRejected = $true
                 return
             }
             # Explicit daemon updates may leave a local or pinned release.
-            if ($env:CODEX_INSTALL_IF_CURRENT -ne "1" -and
+            if ($env:MAPLECODE_INSTALL_IF_CURRENT -ne "1" -and
                 (-not (Test-Path -LiteralPath $autoUpdateVersion) -or
                 [System.IO.File]::ReadAllText($autoUpdateVersion) -cne $previousRelease)) {
                 $script:guardRejected = $true
@@ -1094,7 +1094,7 @@ try {
             $checksumPath = Join-Path $tempDir $checksumAsset
             $stagingDir = Join-Path $releasesDir ".staging.$releaseName.$PID"
 
-            Write-Step "Downloading Codex CLI"
+            Write-Step "Downloading MapleCode CLI"
             if ($installLayout -eq "Package") {
                 Invoke-WebRequestWithFallback -Metadata $checksumMetadata -OutFile $checksumPath -ExpectedDigest $checksumMetadata.Sha256 -AssetName $checksumAsset -ReleaseVersion $resolvedVersion -RequiredManifestAsset $packageAsset
                 $expectedPackageDigest = Get-PackageArchiveDigest -ManifestPath $checksumPath -AssetName $packageAsset
@@ -1111,7 +1111,7 @@ try {
             if ($installLayout -eq "Package") {
                 tar -xzf $archivePath -C $stagingDir
                 if (-not (Test-PackageContentsAreComplete -PackageDir $stagingDir)) {
-                    throw "Downloaded Codex package archive did not contain the expected package layout."
+                    throw "Downloaded MapleCode package archive did not contain the expected package layout."
                 }
             } else {
                 $extractDir = Join-Path $tempDir "extract"
@@ -1119,13 +1119,13 @@ try {
                 tar -xzf $archivePath -C $extractDir
 
                 $vendorRoot = Join-Path $extractDir "package/vendor/$target"
-                $resourcesDir = Join-Path $stagingDir "codex-resources"
+                $resourcesDir = Join-Path $stagingDir "maplecode-resources"
                 New-Item -ItemType Directory -Force -Path $resourcesDir | Out-Null
                 $copyMap = @{
-                    "codex/codex.exe" = "codex.exe"
-                    "codex/codex-command-runner.exe" = "codex-resources\codex-command-runner.exe"
-                    "codex/codex-windows-sandbox-setup.exe" = "codex-resources\codex-windows-sandbox-setup.exe"
-                    "path/rg.exe" = "codex-resources\rg.exe"
+                    "maplecode/maplecode.exe" = "maplecode.exe"
+                    "maplecode/maplecode-command-runner.exe" = "maplecode-resources\maplecode-command-runner.exe"
+                    "maplecode/maplecode-windows-sandbox-setup.exe" = "maplecode-resources\maplecode-windows-sandbox-setup.exe"
+                    "path/rg.exe" = "maplecode-resources\rg.exe"
                 }
 
                 foreach ($relativeSource in $copyMap.Keys) {
@@ -1133,7 +1133,7 @@ try {
                 }
 
                 if (-not (Test-LegacyPlatformNpmContentsAreComplete -PackageDir $stagingDir)) {
-                    throw "Downloaded Codex npm archive did not contain the expected legacy platform package layout."
+                    throw "Downloaded MapleCode npm archive did not contain the expected legacy platform package layout."
                 }
             }
 
@@ -1144,7 +1144,7 @@ try {
         }
 
         if (-not (Test-ReleaseIsComplete -ReleaseDir $releaseDir -ExpectedVersion $resolvedVersion -ExpectedTarget $target -Layout $installLayout)) {
-            throw "Installed Codex command did not report expected version $resolvedVersion."
+            throw "Installed MapleCode command did not report expected version $resolvedVersion."
         }
 
         New-Item -ItemType Directory -Force -Path $standaloneRoot | Out-Null
@@ -1152,8 +1152,8 @@ try {
             throw "A dedicated daemon is already selected; retry the update."
         }
         if ($daemonOnly -and -not $deferSelection) {
-            $installedCodex = Join-Path $releaseDir $(if ($installLayout -eq "Package") { "bin\codex.exe" } else { "codex.exe" })
-            & $installedCodex app-server daemon pid-update-loop --check-package-ownership | Out-Null
+            $installedMapleCode = Join-Path $releaseDir $(if ($installLayout -eq "Package") { "bin\maplecode.exe" } else { "maplecode.exe" })
+            & $installedMapleCode app-server daemon pid-update-loop --check-package-ownership | Out-Null
             if ($LASTEXITCODE -ne 0) {
                 throw "The production release does not support daemon-owned packages; the current selection was left unchanged."
             }
@@ -1162,15 +1162,15 @@ try {
         if ($daemonOnly -and -not $deferSelection) {
             Add-JunctionSupportType
             if (Test-Path -LiteralPath $currentDir) {
-                $previousDirectory = [CodexInstaller.JunctionV3]::ResolveDirectory($currentDir)
+                $previousDirectory = [MapleCodeInstaller.JunctionV3]::ResolveDirectory($currentDir)
             }
         }
         Ensure-Junction -LinkPath $currentDir -TargetPath $releaseDir -InstallerOwnedTargetPrefix $releasesDir
         if ($daemonOnly -and -not $deferSelection -and
-            $previousDirectory -cne [CodexInstaller.JunctionV3]::ResolveDirectory($currentDir)) {
+            $previousDirectory -cne [MapleCodeInstaller.JunctionV3]::ResolveDirectory($currentDir)) {
             try {
                 $previousName = if ($null -eq $previousDirectory) { "" } else { Split-Path -Leaf $previousDirectory }
-                $selectionId = [CodexInstaller.JunctionV3]::SelectionIdentity($currentDir)
+                $selectionId = [MapleCodeInstaller.JunctionV3]::SelectionIdentity($currentDir)
                 $history = Join-Path $standaloneRoot "selection-history"
                 [System.IO.File]::WriteAllText("$history.tmp.$PID", "$releaseName`n$previousName`n$selectionId`n")
                 Move-Item -LiteralPath "$history.tmp.$PID" -Destination $history -Force -ErrorAction Stop
@@ -1199,7 +1199,7 @@ try {
         $oldStandaloneBackup = Move-OldStandaloneBinIfApproved -VisibleBinDir $visibleBinDir -DefaultVisibleBinDir $defaultVisibleBinDir
         try {
             Ensure-Junction -LinkPath $visibleBinDir -TargetPath $currentBinDir -InstallerOwnedTargetPrefix $standaloneRoot
-            Test-VisibleCodexCommand -VisibleBinDir $visibleBinDir
+            Test-VisibleMapleCodeCommand -VisibleBinDir $visibleBinDir
         } catch {
             if ($null -ne $oldStandaloneBackup -and (Test-Path -LiteralPath $oldStandaloneBackup)) {
                 if (Test-Path -LiteralPath $visibleBinDir) {
@@ -1255,12 +1255,12 @@ if ($prioritizeVisibleBin) {
     }
 }
 
-Write-Step "Current PowerShell session: codex"
-Write-Step "Future PowerShell windows: open a new PowerShell window and run: codex"
-Write-Host "Codex CLI $resolvedVersion installed successfully."
+Write-Step "Current PowerShell session: maplecode"
+Write-Step "Future PowerShell windows: open a new PowerShell window and run: maplecode"
+Write-Host "MapleCode CLI $resolvedVersion installed successfully."
 
-$codexCommand = Join-Path $visibleBinDir "codex.exe"
-if (Prompt-YesNo "Start Codex now?") {
-    Write-Step "Launching Codex"
-    & $codexCommand
+$maplecodeCommand = Join-Path $visibleBinDir "maplecode.exe"
+if (Prompt-YesNo "Start MapleCode now?") {
+    Write-Step "Launching MapleCode"
+    & $maplecodeCommand
 }

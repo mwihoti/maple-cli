@@ -1,0 +1,24 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-connectors-extension"
+version.workspace = true
+
+[lib]
+name = "maplecode_connectors_extension"
+path = "src/lib.rs"
+doctest = false
+test = false
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-connectors = { workspace = true }
+maplecode-core-plugins = { workspace = true }
+maplecode-file-system = { workspace = true }
+maplecode-plugin = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }

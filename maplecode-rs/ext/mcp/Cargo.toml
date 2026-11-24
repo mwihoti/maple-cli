@@ -1,0 +1,45 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-mcp-extension"
+version.workspace = true
+
+[lib]
+name = "maplecode_mcp_extension"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+maplecode-core = { workspace = true }
+maplecode-core-plugins = { workspace = true }
+maplecode-config = { workspace = true }
+maplecode-connectors = { workspace = true }
+maplecode-connectors-extension = { workspace = true }
+maplecode-exec-server = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-mcp = { workspace = true }
+maplecode-plugin = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true, features = ["sync"] }
+
+[dev-dependencies]
+core_test_support = { workspace = true }
+axum = { workspace = true }
+maplecode-exec-server-test-support = { workspace = true }
+maplecode-login = { workspace = true }
+futures = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "test-util"] }
+tokio-util = { workspace = true, features = ["rt"] }
+wiremock = { workspace = true }

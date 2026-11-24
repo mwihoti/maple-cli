@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "direct-tool-timing",
+    crate_name = "maplecode_direct_tool_timing",
+)

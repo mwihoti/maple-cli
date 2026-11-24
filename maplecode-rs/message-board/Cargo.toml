@@ -1,0 +1,37 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-message-board"
+version.workspace = true
+
+[lib]
+name = "maplecode_message_board"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+base64 = { workspace = true }
+caseless = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+maplecode-protocol = { workspace = true }
+maplecode-state = { workspace = true }
+maplecode-tools = { workspace = true }
+futures = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sqlx = { workspace = true }
+tokio = { workspace = true, features = ["fs", "rt", "sync"] }
+tracing = { workspace = true }
+uuid = { workspace = true, features = ["serde", "v7"] }
+
+[dev-dependencies]
+maplecode-attachment-store = { workspace = true }
+maplecode-message-board-mcp = { workspace = true }
+maplecode-utils-output-truncation = { workspace = true }
+pretty_assertions = { workspace = true }
+rmcp = { workspace = true, features = ["client", "server", "transport-async-rw"] }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["io-util", "macros", "rt-multi-thread"] }

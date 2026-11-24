@@ -1,0 +1,7 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "plugin-host",
+    crate_name = "maplecode_plugin_host",
+    test_only_binaries = ["maplecode-plugin-test-helper"],
+)

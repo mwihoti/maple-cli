@@ -1,0 +1,25 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-features"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "maplecode_features"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-network-proxy = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-utils-redacted-string = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+toml = { workspace = true }
+tracing = { workspace = true, features = ["log"] }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

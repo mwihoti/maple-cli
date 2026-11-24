@@ -1,0 +1,69 @@
+//! Check budgets and prepare response interceptors before sending model requests.
+use maplecode_extension_api::ModelRequestContributor;
+use maplecode_extension_api::ModelRequestInput;
+use maplecode_extension_api::ModelRequestKind;
+use maplecode_extension_api::ModelResponseInterceptor;
+use maplecode_extension_api::ModelResponseStream;
+use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::Result;
+use std::collections::HashMap;
+use std::sync::Arc;
+
+pub(crate) async fn check_budget(
+    contributors: &[Arc<dyn ModelRequestContributor>],
+    thread_id: &str,
+    kind: ModelRequestKind,
+) -> Result<()> {
+    if kind == ModelRequestKind::Warmup {
+        return Ok(());
+    }
+    for contributor in contributors {
+        if contributor.budget_exhausted(thread_id).await {
+            return Err(MapleCodeErr::SessionBudgetExceeded);
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn prepare(
+    contributors: &[Arc<dyn ModelRequestContributor>],
+    thread_id: &str,
+    model: &str,
+    kind: ModelRequestKind,
+    metadata: &mut Option<HashMap<String, String>>,
+) -> Vec<Box<dyn ModelResponseInterceptor>> {
+    contributors
+        .iter()
+        .filter_map(|contributor| {
+            let mut additions = None;
+            let interceptor = contributor.request(ModelRequestInput {
+                kind,
+                thread_id,
+                client_metadata: &mut additions,
+                model,
+            });
+            if let Some(additions) = additions {
+                for (key, value) in crate::responses_metadata::filter_extra_metadata(additions) {
+                    if key != "parent_response_id" {
+                        metadata.get_or_insert_default().entry(key).or_insert(value);
+                    }
+                }
+            }
+            interceptor
+        })
+        .collect()
+}
+
+pub(crate) fn intercept_stream(
+    mut stream: ModelResponseStream,
+    interceptors: Vec<Box<dyn ModelResponseInterceptor>>,
+) -> ModelResponseStream {
+    for interceptor in interceptors {
+        stream = interceptor.intercept(stream);
+    }
+    stream
+}
+
+#[cfg(test)]
+#[path = "model_request_tests.rs"]
+mod tests;

@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "stdio-to-uds",
+    crate_name = "maplecode_stdio_to_uds",
+)

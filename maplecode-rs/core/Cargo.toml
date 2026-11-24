@@ -1,0 +1,193 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-core"
+version.workspace = true
+
+[lib]
+name = "maplecode_core"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-utils-process = { workspace = true }
+anyhow = { workspace = true }
+arc-swap = { workspace = true }
+async-channel = { workspace = true }
+base64 = { workspace = true }
+bm25 = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+maplecode-analytics = { workspace = true }
+maplecode-agent-graph-store = { workspace = true }
+maplecode-agent-roles = { workspace = true }
+maplecode-api = { workspace = true }
+maplecode-app-server-protocol = { workspace = true }
+maplecode-apply-patch = { workspace = true }
+maplecode-async-utils = { workspace = true }
+maplecode-attachment-store = { workspace = true }
+maplecode-client = { workspace = true }
+maplecode-code-mode = { workspace = true }
+maplecode-connectors = { workspace = true }
+maplecode-context-fragments = { workspace = true }
+maplecode-config = { workspace = true }
+maplecode-core-plugins = { workspace = true }
+maplecode-diagnostics = { workspace = true }
+maplecode-direct-tool-timing = { workspace = true }
+maplecode-exec-server = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-extension-items = { workspace = true }
+maplecode-features = { workspace = true }
+maplecode-feedback = { workspace = true }
+maplecode-file-system = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-memories-read = { workspace = true }
+maplecode-mcp = { workspace = true }
+maplecode-model-provider-info = { workspace = true }
+maplecode-models-manager = { workspace = true }
+maplecode-shell-command = { workspace = true }
+maplecode-execpolicy = { workspace = true }
+maplecode-git-utils = { workspace = true }
+maplecode-guardian-context = { workspace = true }
+maplecode-guardian-reviewer = { workspace = true }
+maplecode-history = { workspace = true }
+maplecode-hooks = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-install-context = { workspace = true }
+maplecode-network-proxy = { workspace = true }
+maplecode-otel = { workspace = true }
+maplecode-plugin = { workspace = true }
+maplecode-model-provider = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-response-debug-context = { workspace = true }
+maplecode-prompts = { workspace = true }
+maplecode-rollout = { workspace = true }
+maplecode-rollout-trace = { workspace = true }
+maplecode-runtime-agent-instance = { workspace = true }
+maplecode-rmcp-client = { workspace = true }
+maplecode-sandboxing = { workspace = true }
+maplecode-skills = { workspace = true }
+maplecode-skills-extension = { workspace = true }
+maplecode-state = { workspace = true }
+maplecode-terminal-detection = { workspace = true }
+maplecode-thread-store = { workspace = true }
+maplecode-tools = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-audio = { workspace = true }
+maplecode-utils-cache = { workspace = true }
+maplecode-utils-critical-path = { workspace = true }
+maplecode-utils-git-discovery = { workspace = true }
+maplecode-utils-head-tail-buffer = { workspace = true }
+maplecode-utils-image = { workspace = true }
+maplecode-utils-home-dir = { workspace = true }
+maplecode-utils-output-truncation = { workspace = true }
+maplecode-utils-path = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+maplecode-utils-plugins = { workspace = true }
+maplecode-utils-pty = { workspace = true }
+maplecode-utils-string = { workspace = true }
+maplecode-utils-stream-parser = { workspace = true }
+maplecode-windows-sandbox = { package = "maplecode-windows-sandbox", path = "../windows-sandbox-rs" }
+dirs = { workspace = true }
+dunce = { workspace = true }
+eventsource-stream = { workspace = true }
+futures = { workspace = true }
+http = { workspace = true }
+hyper-util = { workspace = true }
+iana-time-zone = { workspace = true }
+image = { workspace = true, features = ["jpeg", "png", "webp"] }
+indexmap = { workspace = true }
+libc = { workspace = true }
+once_cell = { workspace = true }
+rand = { workspace = true }
+regex-lite = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = [
+    "base64",
+    "macros",
+    "schemars",
+    "server",
+] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha1 = { workspace = true }
+shlex = { workspace = true }
+similar = { workspace = true }
+tempfile = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = [
+    "io-std",
+    "macros",
+    "process",
+    "rt-multi-thread",
+    "signal",
+] }
+tokio-util = { workspace = true, features = ["rt"] }
+toml = { workspace = true }
+toml_edit = { workspace = true }
+tonic = { workspace = true }
+tower = { version = "0.5.3", features = ["util"] }
+tracing = { workspace = true, features = ["log"] }
+url = { workspace = true }
+uuid = { workspace = true, features = ["serde", "v4", "v5", "v7"] }
+which = { workspace = true }
+
+# Build OpenSSL from source for musl builds.
+[target.x86_64-unknown-linux-musl.dependencies]
+openssl-sys = { workspace = true, features = ["vendored"] }
+
+# Build OpenSSL from source for musl builds.
+[target.aarch64-unknown-linux-musl.dependencies]
+openssl-sys = { workspace = true, features = ["vendored"] }
+
+[dev-dependencies]
+maplecode-backend-client = { workspace = true }
+maplecode-message-board = { workspace = true }
+maplecode-agent-message-board-host = { workspace = true }
+assert_cmd = { workspace = true }
+assert_matches = { workspace = true }
+maplecode-exec-server-test-support = { workspace = true }
+maplecode-image-generation-extension = { workspace = true }
+maplecode-home = { workspace = true }
+maplecode-mcp-extension = { workspace = true }
+maplecode-message-board-mcp = { workspace = true }
+maplecode-otel = { workspace = true }
+maplecode-protocol-test-support = { workspace = true }
+maplecode-test-binary-support = { workspace = true }
+maplecode-utils-cargo-bin = { workspace = true }
+maplecode-utils-redacted-string = { workspace = true }
+maplecode-utils-rustls-provider = { workspace = true }
+maplecode-web-search-extension = { workspace = true }
+maplecode-windows-sandbox-test-support = { workspace = true }
+core_test_support = { workspace = true }
+ctor = { workspace = true }
+insta = { workspace = true }
+maplit = { workspace = true }
+opentelemetry = { workspace = true }
+predicates = { workspace = true }
+pretty_assertions = { workspace = true }
+rcgen = { workspace = true }
+test-case = "3.3.1"
+opentelemetry_sdk = { workspace = true, features = [
+    "experimental_metrics_custom_reader",
+    "metrics",
+] }
+serial_test = { workspace = true }
+tempfile = { workspace = true }
+test-log = { workspace = true }
+tokio-rustls = { workspace = true }
+tokio-tungstenite = { workspace = true }
+tracing-opentelemetry = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-test = { workspace = true, features = ["no-env-filter"] }
+walkdir = { workspace = true }
+whoami = { workspace = true }
+wiremock = { workspace = true }
+zstd = { workspace = true }
+
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_Threading"] }
+
+[package.metadata.cargo-shear]
+ignored = ["openssl-sys"]
+ignored-paths = ["tests/remote_env_windows/*.rs"]

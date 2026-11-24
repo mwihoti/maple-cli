@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "fuzzy-match",
+    crate_name = "maplecode_utils_fuzzy_match",
+)

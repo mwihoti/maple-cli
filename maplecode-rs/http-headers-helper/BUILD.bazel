@@ -1,0 +1,6 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "http-headers-helper",
+    crate_name = "maplecode_http_headers_helper",
+)

@@ -1,0 +1,9 @@
+load("//:defs.bzl", "maplecode_rust_crate")
+
+maplecode_rust_crate(
+    name = "memories",
+    compile_data = glob([
+        "templates/**",
+    ]),
+    crate_name = "maplecode_memories_extension",
+)

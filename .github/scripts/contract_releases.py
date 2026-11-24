@@ -1,4 +1,4 @@
-"""Discover and download published Codex packages for contract runners."""
+"""Discover and download published MapleCode packages for contract runners."""
 
 import json
 import random
@@ -12,7 +12,7 @@ from pathlib import Path
 ALPHA_TAG = re.compile(r"rust-v[0-9]+\.[0-9]+\.[0-9]+-alpha(?:\.[0-9]+){0,2}")
 RELEASE_TAG = re.compile(r"rust-v[0-9]+\.[0-9]+\.[0-9]+(?:-alpha(?:\.[0-9]+){0,2})?")
 STABLE_TAG = re.compile(r"rust-v[0-9]+\.[0-9]+\.[0-9]+")
-PACKAGE = "codex-package-x86_64-unknown-linux-musl.tar.gz"
+PACKAGE = "maplecode-package-x86_64-unknown-linux-musl.tar.gz"
 
 
 def github_read(args: list[str]) -> str:

@@ -14,7 +14,7 @@ sandbox and pointer compression.
 
 Local Cargo builds still use upstream prebuilt `rusty_v8` archives by default.
 Selected Cargo CI, release, and package builds override
-`RUSTY_V8_ARCHIVE`/`RUSTY_V8_SRC_BINDING_PATH` with Codex release assets.
+`RUSTY_V8_ARCHIVE`/`RUSTY_V8_SRC_BINDING_PATH` with Maple Code release assets.
 
 Source targets enforce the workspace runtime and sandbox/pointer-compression
 ABI. Release-pair targets enforce either the legacy or sandbox ABI plus
@@ -30,7 +30,7 @@ Current pinned versions:
 
 Use this as the maintainer flow for a version bump:
 
-1. Bump the `v8` crate version and refresh `codex-rs/Cargo.lock`.
+1. Bump the `v8` crate version and refresh `maplecode-rs/Cargo.lock`.
 2. Update the Bazel versioned inputs in `MODULE.bazel` and the source pins
    in `third_party/v8/dependencies.bzl` and `abseil_repository.bzl` using
    [the source dependency update procedure](#updating-source-dependencies).
@@ -41,7 +41,7 @@ Use this as the maintainer flow for a version bump:
    Then refresh the matching checksum manifest and generated checksums below.
 3. Publish a release-candidate PR and validate that `v8-canary` passes.
 4. If the canary is green, publish the release tag and release build.
-5. Independently verify the published Codex-built checksum manifests and record
+5. Independently verify the published MapleCode-built checksum manifests and record
    their SHA-256 digests in
    `third_party/v8/rusty_v8_<version>_release_manifests.sha256`.
 6. Once the release build completes, rerun the build on the candidate branch
@@ -101,7 +101,7 @@ The same run also builds the matching sandbox pair targets:
 The workflow also builds sandbox-enabled
 `x86_64-pc-windows-msvc` and `aarch64-pc-windows-msvc` archive/binding pairs
 from upstream `rusty_v8` source. Those ABI-specific outputs cannot be produced
-by Codex's Bazel Windows GNU toolchain.
+by Maple Code's Bazel Windows GNU toolchain.
 
 The Bazel graph pins the same libc++, libc++abi, and llvm-libc source revisions
 used by `rusty_v8 v152.2.0`. The named release and sandbox-release pair targets
@@ -146,7 +146,7 @@ same V8 source, sandbox configuration and pinned Chromium libc++.
 
 Binding generation uses the published hermeticbuild bindgen v0.0.4
 executables through the standard rules_rs toolchain. Their embedded LLVM
-23.1.2 libclang matches the selected LLVM resource headers; Codex does not
+23.1.2 libclang matches the selected LLVM resource headers; Maple Code does not
 build bindgen or libclang from source.
 
 Binding generation reuses `V8_COPTS`, including native `/std:c++20` on MSVC.
@@ -202,18 +202,18 @@ hardcodes a `v<crate_version>` tag layout, while our artifacts are published
 under `rusty-v8-v<crate_version>`.
 
 Do not mix artifacts across crate versions. The archive and binding must match
-the exact resolved `v8` crate version in `codex-rs/Cargo.lock`.
+the exact resolved `v8` crate version in `maplecode-rs/Cargo.lock`.
 
 ## Source dependency ownership
 
-The Darwin, Linux GNU/musl and Windows source targets consume Codex-owned
+The Darwin, Linux GNU/musl and Windows source targets consume MapleCode-owned
 Abseil, Highway, simdutf, ICU, fast_float, dragonbox and fp16 repositories.
 `dependencies.bzl` declares the pinned imports; the `*.BUILD.bazel` overlays
 here declare the targets V8 uses. Abseil, Highway and simdutf apply their C++ runtime
 settings through `dependency_config.bzl`; ICU defines its settings in its own
 overlay.
 
-`engine_repository.bzl` fetches the V8 source pin and installs Codex's engine
+`engine_repository.bzl` fetches the V8 source pin and installs Maple Code's engine
 BUILD into `@v8`. Source filegroups are read from the pinned upstream BUILD
 each fetch, including added, removed or reordered groups. The importer rejects
 missing boundaries, malformed or empty sections, and new compiled targets. Only
@@ -222,7 +222,7 @@ overlays already supply them. `v8_binary` is valid V8 syntax, but compiled targe
 must be reviewed against the owned engine BUILD on an upgrade.
 The upstream `bazel/config` platform and CPU package is reused; only the CPU
 setting changes from a CLI flag to an internal setting. `v8_defs.patch` records
-that change and the Codex differences to upstream's `bazel/defs.bzl`:
+that change and the Maple Code differences to upstream's `bazel/defs.bzl`:
 internal ABI/runtime settings, their visibility, libc++ headers/runtime, Windows
 compiler and linker settings, and snapshot generation. All engine rules,
 including Torque and V8's test configuration helpers, load from that file.
@@ -231,7 +231,7 @@ CPU settings are selected together by `artifact_profile.bzl` for source and
 release-pair targets.
 
 V8's private Abseil is built from the pinned 20250814.1 sources and uses
-`codex_v8_lts_20250814` for its supported inline-namespace option. Protobuf
+`maplecode_v8_lts_20250814` for its supported inline-namespace option. Protobuf
 keeps the regular shared Abseil module and its `lts_20250814` namespace.
 Both can link into one binary without interposing functions built for different
 C++ runtimes. No V8 dependency needs a hook in shared `rules_cc` libraries.

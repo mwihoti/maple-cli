@@ -1,0 +1,26 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-history"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "maplecode_history"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+maplecode-protocol = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-model-facing-id = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+maplecode-protocol-test-support = { workspace = true }
+anyhow = { workspace = true }
+pretty_assertions = { workspace = true }

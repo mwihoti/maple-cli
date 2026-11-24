@@ -18,9 +18,9 @@ def main(configuration: bundle.ProfileConfiguration | None = None):
     package = args.package.resolve(strict=True)
     if not package.is_dir():
         parser.error("package must be an extracted CLI package directory")
-    repo_root = os.environ.get("CODEX_REPO_ROOT")
+    repo_root = os.environ.get("MAPLECODE_REPO_ROOT")
     if not repo_root:
-        parser.error("CODEX_REPO_ROOT must be set")
+        parser.error("MAPLECODE_REPO_ROOT must be set")
     reports = Path(repo_root) / "signing-verification"
     reports.mkdir(parents=True, exist_ok=True)
     provisioned = os.environ.get("PROVISIONED_MACOS", "false") == "true"
@@ -35,17 +35,17 @@ def main(configuration: bundle.ProfileConfiguration | None = None):
         else:
             bundle.verify(package, reports, os.environ["TARGET"], configuration)
 
-    for relative in ("bin/codex", *bundle.HELPERS):
+    for relative in ("bin/maplecode", *bundle.HELPERS):
         binary = package / relative
         name = binary.name
         target = binary
         identifier = name
         entitlements = bundle.SIGNING / f"{name}.entitlements.plist"
-        if provisioned and relative == "bin/codex":
+        if provisioned and relative == "bin/maplecode":
             binary = package / bundle.EXECUTABLE
             target = package / bundle.APP
             identifier = bundle.CODE_SIGNING_ID
-            entitlements = reports / "codex-provisioned-entitlements.plist"
+            entitlements = reports / "maplecode-provisioned-entitlements.plist"
         if signing:
             command = [
                 "bash",
@@ -66,7 +66,7 @@ def main(configuration: bundle.ProfileConfiguration | None = None):
                     ["--identifier", identifier, "--entitlements", str(entitlements)]
                 )
             else:
-                command.extend(["--identifier", f"com.openai.codex.{name}"])
+                command.extend(["--identifier", f"com.openai.maplecode.{name}"])
             subprocess.run(command, check=True)
             with (reports / f"{name}-signature.yaml").open("wb") as output:
                 subprocess.run(
@@ -108,7 +108,7 @@ def main(configuration: bundle.ProfileConfiguration | None = None):
             requirement += (
                 f' and certificate leaf[subject.OU] = "{configuration.team_id}"'
             )
-            if provisioned and relative == "bin/codex":
+            if provisioned and relative == "bin/maplecode":
                 requirement += f' and identifier "{bundle.CODE_SIGNING_ID}"'
             subprocess.run(
                 [

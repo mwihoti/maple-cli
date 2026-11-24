@@ -23,7 +23,7 @@ profile=()
 # --clean frees the intermediate build output and keeps the built programs, so
 # maple-code still runs. The next build starts from scratch.
 if [[ " $* " == *" --clean "* ]]; then
-  for dir in "$REPO"/codex-rs/target/*/; do
+  for dir in "$REPO"/maplecode-rs/target/*/; do
     [[ -d "$dir/deps" ]] || continue
     rm -rf "$dir/deps" "$dir/build" "$dir/incremental" "$dir/.fingerprint"
     echo "install: cleaned ${dir%/}"
@@ -36,13 +36,13 @@ command -v cargo >/dev/null || {
   exit 1
 }
 
-# A debug build writes about 32 GB under codex-rs/target. The release figure is
+# A debug build writes about 32 GB under maplecode-rs/target. The release figure is
 # a lower bound: a partial release build had written 5 GB. Running out of space part-way crashes the linker.
 kind=debug need_gb=35
 [[ ${#profile[@]} -gt 0 ]] && kind=release need_gb=8
 free_gb=$(($(df -Pk "$REPO" | awk 'NR==2 {print $4}') / 1024 / 1024))
 # A checkout that has been built before only recompiles what changed.
-if [[ -z "${MAPLE_CODE_SKIP_DISK_CHECK:-}" && ! -x "$REPO/codex-rs/target/$kind/codex" ]] &&
+if [[ -z "${MAPLE_CODE_SKIP_DISK_CHECK:-}" && ! -x "$REPO/maplecode-rs/target/$kind/maplecode" ]] &&
   ((free_gb < need_gb)); then
   echo "install: only ${free_gb} GB free; a first $kind build needs at least ${need_gb} GB." >&2
   echo "         Free some space, pass --release for a smaller build, or set" >&2
@@ -53,8 +53,8 @@ fi
 # The incremental cache speeds up repeated edits but grows to tens of gigabytes
 # for this workspace. Set CARGO_INCREMENTAL=1 to turn it back on.
 export CARGO_INCREMENTAL="${CARGO_INCREMENTAL:-0}"
-echo "install: building codex ($kind) ..."
-(cd "$REPO/codex-rs" && cargo build "${profile[@]}" --bin codex)
+echo "install: building maplecode ($kind) ..."
+(cd "$REPO/maplecode-rs" && cargo build "${profile[@]}" --bin maplecode)
 
 mkdir -p "$BIN_DIR" "$HOME_DIR/bin"
 ln -sfn "$REPO/scripts/maple-code" "$BIN_DIR/maple-code"

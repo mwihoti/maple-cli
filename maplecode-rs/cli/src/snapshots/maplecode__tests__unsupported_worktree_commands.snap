@@ -1,0 +1,13 @@
+---
+source: cli/src/main.rs
+assertion_line: 3324
+expression: "errors.join(\"\\n\")"
+---
+maplecode --worktree login: `--worktree` supports new interactive sessions, `maplecode fork`, `maplecode exec`, and `maplecode exec fork`
+maplecode fork --worktree: `maplecode fork --worktree` requires an explicit session ID
+maplecode fork --worktree --last: `maplecode fork --worktree` requires an explicit session ID
+maplecode exec resume --worktree session: `--worktree` cannot resume an existing session; use `maplecode exec fork --worktree`
+maplecode exec review --worktree: `--worktree` is not supported for code review
+maplecode resume --worktree session: `--worktree` supports new interactive sessions, `maplecode fork`, `maplecode exec`, and `maplecode exec fork`
+maplecode archive session --worktree: `--worktree` supports new interactive sessions, `maplecode fork`, `maplecode exec`, and `maplecode exec fork`
+maplecode queue --thread session --message hi --worktree: `--worktree` supports new interactive sessions, `maplecode fork`, `maplecode exec`, and `maplecode exec fork`

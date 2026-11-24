@@ -1,0 +1,43 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "maplecode-image-generation-extension"
+version.workspace = true
+
+[lib]
+name = "maplecode_image_generation_extension"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+base64 = { workspace = true }
+maplecode-api = { workspace = true }
+maplecode-attachment-store = { workspace = true }
+maplecode-core = { workspace = true }
+maplecode-exec-server = { workspace = true }
+maplecode-extension-api = { workspace = true }
+maplecode-extension-items = { workspace = true }
+maplecode-http-client = { workspace = true }
+maplecode-login = { workspace = true }
+maplecode-model-provider = { workspace = true }
+maplecode-model-provider-info = { workspace = true }
+maplecode-protocol = { workspace = true }
+maplecode-tools = { workspace = true }
+maplecode-utils-absolute-path = { workspace = true }
+maplecode-utils-image = { workspace = true }
+maplecode-utils-path-uri = { workspace = true }
+http = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+image = { workspace = true, features = ["png"] }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
