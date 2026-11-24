@@ -63,7 +63,7 @@ pub struct WebSocketConnector {
 #[derive(Clone)]
 pub enum WebSocketTlsMode {
     /// Build an explicit TLS configuration from native roots and configured Maple Code custom CAs.
-    ExplicitMapleCodeTls,
+    ExplicitMaplecodeTls,
     /// Use an existing Rustls configuration.
     Rustls(Arc<ClientConfig>),
     /// Let Tungstenite build its default TLS configuration when the target requires TLS.
@@ -81,7 +81,7 @@ impl WebSocketConnector {
     pub fn new(
         http_client_factory: &HttpClientFactory,
     ) -> Result<Self, BuildCustomCaTransportError> {
-        Self::new_with_tls_mode(http_client_factory, WebSocketTlsMode::ExplicitMapleCodeTls)
+        Self::new_with_tls_mode(http_client_factory, WebSocketTlsMode::ExplicitMaplecodeTls)
     }
 
     /// Creates a connector with the selected WebSocket TLS configuration.
@@ -93,7 +93,7 @@ impl WebSocketConnector {
         tls_mode: WebSocketTlsMode,
     ) -> Result<Self, BuildCustomCaTransportError> {
         let tls_config = match tls_mode {
-            WebSocketTlsMode::ExplicitMapleCodeTls => {
+            WebSocketTlsMode::ExplicitMaplecodeTls => {
                 Some(build_rustls_client_config_with_custom_ca()?)
             }
             WebSocketTlsMode::Rustls(config) => Some(config),

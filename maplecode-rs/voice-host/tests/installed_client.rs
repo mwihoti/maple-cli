@@ -14,7 +14,7 @@ use anyhow::Result;
 use common::voice_host_command;
 use futures::future::BoxFuture;
 use maplecode_install_context::InstallContext;
-use maplecode_install_context::MapleCodePackageLayout;
+use maplecode_install_context::MaplecodePackageLayout;
 use maplecode_realtime_webrtc::SessionDescription;
 use maplecode_realtime_webrtc::VoiceHost;
 use maplecode_utils_cargo_bin::cargo_bin;
@@ -88,7 +88,7 @@ fn install_startup_libraries(runtime: &Path) -> Result<()> {
     Ok(())
 }
 
-fn install_helper(root: &Path) -> Result<MapleCodePackageLayout> {
+fn install_helper(root: &Path) -> Result<MaplecodePackageLayout> {
     let bin = root.join("bin");
     let helper_dir = root.join("maplecode-resources/voice/bin");
     fs::create_dir_all(&bin)?;

@@ -1,4 +1,4 @@
-# What: restore explicit build-script dependency annotations used by MapleCode.
+# What: restore explicit build-script dependency annotations used by Maplecode.
 # Scope: rules_rs crate-universe annotation plumbing only.
 
 diff --git a/rs/extensions.bzl b/rs/extensions.bzl

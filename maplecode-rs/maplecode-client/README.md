@@ -1,6 +1,6 @@
 # maplecode-client
 
-Higher-level request policy layered on `maplecode-http-client` without any MapleCode/OpenAI API awareness.
+Higher-level request policy layered on `maplecode-http-client` without any Maplecode/OpenAI API awareness.
 
 - Provides retry utilities (`RetryPolicy`, `RetryOn`, `run_with_retry`, `backoff`) that callers plug into for unary and streaming calls.
 - Supplies the `sse_stream` helper to turn byte streams into raw SSE `data:` frames with idle timeouts and surfaced stream errors.

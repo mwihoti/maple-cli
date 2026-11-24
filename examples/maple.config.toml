@@ -1,4 +1,4 @@
-# Apply with -c options or add these non-secret settings to your MapleCode config.
+# Apply with -c options or add these non-secret settings to your Maplecode config.
 model_provider = "maple"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"

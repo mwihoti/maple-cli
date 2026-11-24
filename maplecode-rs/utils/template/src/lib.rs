@@ -292,7 +292,7 @@ mod tests {
     fn render_replaces_placeholders_with_and_without_whitespace() {
         let rendered = render(
             "Hello, {{ name }}. You are in {{place}}. {{ name }} is repeated.",
-            [("name", "MapleCode"), ("place", "maplecode-rs")],
+            [("name", "Maplecode"), ("place", "maplecode-rs")],
         )
         .unwrap();
 
@@ -307,7 +307,7 @@ mod tests {
         let template = Template::parse("{{greeting}}, {{ name }}!").unwrap();
 
         assert_eq!(
-            template.render([("greeting", "Hello"), ("name", "MapleCode")]),
+            template.render([("greeting", "Hello"), ("name", "Maplecode")]),
             Ok("Hello, Maple Code!".to_string())
         );
         assert_eq!(
@@ -338,7 +338,7 @@ mod tests {
     fn render_supports_literal_delimiter_escapes() {
         let rendered = render(
             "literal open: {{{{, literal close: }}}}, value: {{ name }}",
-            [("name", "MapleCode")],
+            [("name", "Maplecode")],
         )
         .unwrap();
 
@@ -399,7 +399,7 @@ mod tests {
         let template = Template::parse("Hello, {{ name }}.").unwrap();
 
         assert_eq!(
-            template.render([("name", "MapleCode"), ("unused", "extra")]),
+            template.render([("name", "Maplecode"), ("unused", "extra")]),
             Err(TemplateRenderError::ExtraValue {
                 name: "unused".to_string()
             })
@@ -411,7 +411,7 @@ mod tests {
         let template = Template::parse("Hello, {{ name }}.").unwrap();
 
         assert_eq!(
-            template.render([("name", "MapleCode"), ("name", "other")]),
+            template.render([("name", "Maplecode"), ("name", "other")]),
             Err(TemplateRenderError::DuplicateValue {
                 name: "name".to_string()
             })
@@ -420,7 +420,7 @@ mod tests {
 
     #[test]
     fn render_function_wraps_parse_errors() {
-        let err = render("Hello, }} world.", [("name", "MapleCode")]).unwrap_err();
+        let err = render("Hello, }} world.", [("name", "Maplecode")]).unwrap_err();
 
         assert_eq!(
             err,
@@ -430,7 +430,7 @@ mod tests {
 
     #[test]
     fn render_function_wraps_render_errors() {
-        let err = render("Hello, {{ name }}.", [("extra", "MapleCode")]).unwrap_err();
+        let err = render("Hello, {{ name }}.", [("extra", "Maplecode")]).unwrap_err();
 
         assert_eq!(
             err,

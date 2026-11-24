@@ -541,7 +541,7 @@ mod tests {
     use anyhow::ensure;
     use maplecode_install_context::InstallContext;
     use maplecode_install_context::InstallMethod;
-    use maplecode_install_context::MapleCodePackageLayout;
+    use maplecode_install_context::MaplecodePackageLayout;
     use maplecode_utils_absolute_path::AbsolutePathBuf;
     use pretty_assertions::assert_eq;
     use std::fs;
@@ -584,7 +584,7 @@ mod tests {
         let path_dir = AbsolutePathBuf::from_absolute_path(path_dir.canonicalize()?)?;
         let install_context = InstallContext {
             method: InstallMethod::Other,
-            package_layout: Some(MapleCodePackageLayout {
+            package_layout: Some(MaplecodePackageLayout {
                 package_dir: AbsolutePathBuf::from_absolute_path(package_dir.canonicalize()?)?,
                 bin_dir: AbsolutePathBuf::from_absolute_path(bin_dir.canonicalize()?)?,
                 resources_dir: None,

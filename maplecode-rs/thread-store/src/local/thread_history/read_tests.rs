@@ -2,7 +2,7 @@ use std::fs;
 use std::time::Duration;
 
 use chrono::Utc;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::ThreadTimelineEntry;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::protocol::EventMsg;
@@ -111,7 +111,7 @@ async fn list_turns_pages_projected_rows_and_applies_item_views() {
         first_page.turns[1].error,
         Some(StoredTurnError {
             message: "turn failed".to_string(),
-            maplecode_error_info: Some(MapleCodeErrorInfo::ServerOverloaded),
+            maplecode_error_info: Some(MaplecodeErrorInfo::ServerOverloaded),
             additional_details: Some("retry later".to_string()),
         })
     );

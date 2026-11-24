@@ -2,7 +2,7 @@ use crate::{Error, Result, string};
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
 
-/// Convert the documented Maple models envelope to MapleCode-native metadata.
+/// Convert the documented Maple models envelope to Maplecode-native metadata.
 /// Unknown capability data stays unknown. Only explicitly tool-capable chat
 /// entries appear in the autonomous-agent selector.
 pub fn translate(value: &Value) -> Result<Value> {

@@ -23,7 +23,7 @@ use std::time::Instant;
 use std::time::SystemTime;
 
 use arc_swap::ArcSwapOption;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::mcp::McpServerInfo;
 use serde::Deserialize;
 use serde::Serialize;
@@ -82,10 +82,10 @@ impl ConnectorRuntimeContextKey {
 }
 
 /// Builds the connector runtime context key for the active Maple Code auth.
-pub fn connector_runtime_context_key(auth: Option<&MapleCodeAuth>) -> ConnectorRuntimeContextKey {
-    let account_id = auth.and_then(MapleCodeAuth::get_account_id);
-    let chatgpt_user_id = auth.and_then(MapleCodeAuth::get_chatgpt_user_id);
-    if auth.is_some_and(MapleCodeAuth::is_workspace_account) {
+pub fn connector_runtime_context_key(auth: Option<&MaplecodeAuth>) -> ConnectorRuntimeContextKey {
+    let account_id = auth.and_then(MaplecodeAuth::get_account_id);
+    let chatgpt_user_id = auth.and_then(MaplecodeAuth::get_chatgpt_user_id);
+    if auth.is_some_and(MaplecodeAuth::is_workspace_account) {
         ConnectorRuntimeContextKey::workspace(account_id, chatgpt_user_id)
     } else {
         ConnectorRuntimeContextKey::personal(account_id, chatgpt_user_id)
@@ -95,7 +95,7 @@ pub fn connector_runtime_context_key(auth: Option<&MapleCodeAuth>) -> ConnectorR
 /// Returns the persisted connector runtime tools cache path for the active auth identity.
 pub fn connector_runtime_cache_path(
     maplecode_home: &Path,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> PathBuf {
     let identity = ConnectorRuntimeIdentity {
         maplecode_home: maplecode_home.to_path_buf(),

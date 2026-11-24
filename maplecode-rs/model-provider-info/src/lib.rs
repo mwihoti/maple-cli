@@ -18,8 +18,8 @@ use maplecode_client::RetryConfig as ApiRetryConfig;
 use maplecode_protocol::auth::AuthMode;
 use maplecode_protocol::config_types::ModelProviderAuthInfo;
 use maplecode_protocol::error::EnvVarError;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_utils_redacted_string::RedactedString;
 use schemars::JsonSchema;
 use serde::Deserialize;
@@ -166,7 +166,7 @@ pub struct ModelProviderInfo {
     pub name: String,
     /// Base URL for the provider's OpenAI-compatible API.
     pub base_url: Option<String>,
-    /// Optional full URL for a MapleCode-native model catalog. When unset, OpenAI discovery
+    /// Optional full URL for a Maplecode-native model catalog. When unset, OpenAI discovery
     /// uses the Maple Code backend unless `base_url` overrides the inference endpoint.
     /// The endpoint must serve the Maple Code catalog format, not the public `/v1/models` API.
     ///
@@ -453,7 +453,7 @@ other non-default provider fields are not supported"
     }
 
     /// Resolve configured request headers before choosing credentials or a runtime.
-    pub fn build_header_map(&self) -> MapleCodeResult<HeaderMap> {
+    pub fn build_header_map(&self) -> MaplecodeResult<HeaderMap> {
         let capacity = self.http_headers.as_ref().map_or(0, HashMap::len)
             + self.env_http_headers.as_ref().map_or(0, HashMap::len);
         let mut headers = HeaderMap::with_capacity(capacity);
@@ -483,7 +483,7 @@ other non-default provider fields are not supported"
     }
 
     /// Builds an API provider with managed residency taking precedence over configured headers.
-    pub fn to_api_provider(&self, auth_mode: Option<AuthMode>) -> MapleCodeResult<ApiProvider> {
+    pub fn to_api_provider(&self, auth_mode: Option<AuthMode>) -> MaplecodeResult<ApiProvider> {
         let default_base_url = if matches!(
             auth_mode,
             Some(
@@ -506,9 +506,9 @@ other non-default provider fields are not supported"
         if self.name == MAPLE_PROVIDER_NAME {
             let endpoint =
                 maplecode_http_client::validate_endpoint_url(&base_url, "Maple base_url")
-                    .map_err(MapleCodeErr::InvalidRequest)?;
+                    .map_err(MaplecodeErr::InvalidRequest)?;
             if endpoint.query().is_some() {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "Maple base_url must not contain query parameters".into(),
                 ));
             }
@@ -547,24 +547,24 @@ other non-default provider fields are not supported"
     /// If `env_key` is Some, returns the API key for this provider if present
     /// (and non-empty) in the environment. If `env_key` is required but
     /// cannot be found, returns an error.
-    pub fn api_key(&self) -> MapleCodeResult<Option<String>> {
+    pub fn api_key(&self) -> MaplecodeResult<Option<String>> {
         if self.name == MAPLE_PROVIDER_NAME {
             if let Some(key) = std::env::var("MAPLE_API_KEY")
                 .ok()
                 .filter(|v| !v.trim().is_empty())
             {
-                maple_credentials::validate_key(&key).map_err(MapleCodeErr::InvalidRequest)?;
+                maple_credentials::validate_key(&key).map_err(MaplecodeErr::InvalidRequest)?;
                 return Ok(Some(key));
             }
             let base_url = self
                 .base_url
                 .as_deref()
-                .ok_or_else(|| MapleCodeErr::InvalidRequest("Maple base_url is required".into()))?;
+                .ok_or_else(|| MaplecodeErr::InvalidRequest("Maple base_url is required".into()))?;
             let key =
                 maple_credentials::load(&maplecode_keyring_store::DefaultKeyringStore, base_url)
-                    .map_err(MapleCodeErr::InvalidRequest)?;
+                    .map_err(MaplecodeErr::InvalidRequest)?;
             return key.map(Some).ok_or_else(|| {
-                MapleCodeErr::EnvVar(EnvVarError {
+                MaplecodeErr::EnvVar(EnvVarError {
                     var: "MAPLE_API_KEY".into(),
                     instructions: Some("Set MAPLE_API_KEY or run `maplecode maple login`.".into()),
                 })
@@ -576,7 +576,7 @@ other non-default provider fields are not supported"
                     .ok()
                     .filter(|v| !v.trim().is_empty())
                     .ok_or_else(|| {
-                        MapleCodeErr::EnvVar(EnvVarError {
+                        MaplecodeErr::EnvVar(EnvVarError {
                             var: env_key.clone(),
                             instructions: self.env_key_instructions.clone(),
                         })

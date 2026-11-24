@@ -1,1 +1,1 @@
-#define PACKAGE_STRING "bubblewrap built for MapleCode"
+#define PACKAGE_STRING "bubblewrap built for Maplecode"

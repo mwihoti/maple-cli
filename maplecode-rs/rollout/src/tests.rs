@@ -33,7 +33,7 @@ use crate::list::parse_cursor;
 use crate::list::read_head_for_summary;
 use crate::rollout_date_parts;
 use anyhow::Result;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
@@ -1513,7 +1513,7 @@ async fn read_head_for_summary_omits_harness_metadata() {
         ordinal: None,
         item: RolloutItem::ResponseItem(ResponseItemEnvelope {
             item: response_item.clone(),
-            metadata: Some(MapleCodeHarnessMetadata::default()),
+            metadata: Some(MaplecodeHarnessMetadata::default()),
         }),
     };
     fs::write(

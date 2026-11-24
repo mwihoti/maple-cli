@@ -58,7 +58,7 @@ pub(crate) fn load_cached_connector_runtime_for_identity<T: ConnectorRuntimePayl
 ) -> Option<ConnectorRuntimeSnapshot<T>> {
     let cache_path = tools_cache_path(identity);
     let (bytes, modified_at) = read_bounded_cache_file(&cache_path).ok()?;
-    let cache: MapleCodeAppsToolsDiskCache<T> = serde_json::from_slice(&bytes).ok()?;
+    let cache: MaplecodeAppsToolsDiskCache<T> = serde_json::from_slice(&bytes).ok()?;
     (cache.schema_version == MAPLECODE_APPS_TOOLS_CACHE_SCHEMA_VERSION).then_some(
         ConnectorRuntimeSnapshot {
             tools: cache.tools,
@@ -79,7 +79,7 @@ where
     T: ConnectorRuntimePayload,
 {
     let cache_path = cache_context.tools_cache_path();
-    let bytes = serde_json::to_vec_pretty(&MapleCodeAppsToolsDiskCache {
+    let bytes = serde_json::to_vec_pretty(&MaplecodeAppsToolsDiskCache {
         schema_version: MAPLECODE_APPS_TOOLS_CACHE_SCHEMA_VERSION,
         tools: snapshot.tools.clone(),
         tool_list_meta: snapshot.tool_list_meta.as_deref().cloned(),
@@ -94,7 +94,7 @@ pub(crate) fn load_cached_maplecode_apps_server_info<T: ConnectorRuntimePayload>
     cache_context: &ConnectorRuntimeContext<T>,
 ) -> Option<McpServerInfo> {
     let (bytes, _) = read_bounded_cache_file(&cache_context.server_info_cache_path()).ok()?;
-    let cache: MapleCodeAppsServerInfoDiskCache = serde_json::from_slice(&bytes).ok()?;
+    let cache: MaplecodeAppsServerInfoDiskCache = serde_json::from_slice(&bytes).ok()?;
     (cache.schema_version == MAPLECODE_APPS_SERVER_INFO_CACHE_SCHEMA_VERSION)
         .then_some(cache.server_info)
 }
@@ -104,7 +104,7 @@ fn write_cached_maplecode_apps_server_info<T: ConnectorRuntimePayload>(
     server_info: &McpServerInfo,
 ) -> anyhow::Result<()> {
     let cache_path = cache_context.server_info_cache_path();
-    let bytes = serde_json::to_vec_pretty(&MapleCodeAppsServerInfoDiskCache {
+    let bytes = serde_json::to_vec_pretty(&MaplecodeAppsServerInfoDiskCache {
         schema_version: MAPLECODE_APPS_SERVER_INFO_CACHE_SCHEMA_VERSION,
         server_info: server_info.clone(),
     })
@@ -209,7 +209,7 @@ fn write_maplecode_apps_cache_file(
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct MapleCodeAppsToolsDiskCache<T> {
+struct MaplecodeAppsToolsDiskCache<T> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     tool_list_meta: Option<serde_json::Value>,
     #[serde(default)]
@@ -219,7 +219,7 @@ struct MapleCodeAppsToolsDiskCache<T> {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct MapleCodeAppsServerInfoDiskCache {
+struct MaplecodeAppsServerInfoDiskCache {
     schema_version: u8,
     server_info: McpServerInfo,
 }

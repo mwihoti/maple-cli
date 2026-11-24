@@ -18,7 +18,7 @@ mod imp {
     }
     #[glib::object_subclass]
     impl ObjectSubclass for Sink {
-        const NAME: &'static str = "MapleCodePrivateAudioSink";
+        const NAME: &'static str = "MaplecodePrivateAudioSink";
         type Type = super::Sink;
         type ParentType = audio::gst_base::BaseSink;
     }

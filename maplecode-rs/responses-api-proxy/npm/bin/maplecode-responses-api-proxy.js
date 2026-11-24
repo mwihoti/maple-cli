@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Entry point for the MapleCode responses API proxy binary.
+// Entry point for the Maplecode responses API proxy binary.
 
 import { spawn } from "node:child_process";
 import { closeSync } from "node:fs";

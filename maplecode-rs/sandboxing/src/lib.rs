@@ -63,7 +63,7 @@ pub use windows::resolve_windows_elevated_filesystem_overrides;
 pub use windows::resolve_windows_restricted_token_filesystem_overrides;
 pub use windows::windows_sandbox_uses_elevated_backend;
 
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 
 #[cfg(not(target_os = "linux"))]
 pub fn system_bwrap_warning(
@@ -73,41 +73,41 @@ pub fn system_bwrap_warning(
     None
 }
 
-impl From<SandboxTransformError> for MapleCodeErr {
+impl From<SandboxTransformError> for MaplecodeErr {
     fn from(err: SandboxTransformError) -> Self {
         match err {
             error @ SandboxTransformError::InvalidPolicy(_)
             | error @ SandboxTransformError::InvalidCommandCwd { .. }
             | error @ SandboxTransformError::InvalidSandboxPolicyCwd { .. } => {
-                MapleCodeErr::InvalidRequest(error.to_string())
+                MaplecodeErr::InvalidRequest(error.to_string())
             }
             error @ SandboxTransformError::SandboxUnavailable => {
-                MapleCodeErr::UnsupportedOperation(error.to_string())
+                MaplecodeErr::UnsupportedOperation(error.to_string())
             }
             SandboxTransformError::MissingLinuxSandboxExecutable => {
-                MapleCodeErr::LandlockSandboxExecutableNotProvided
+                MaplecodeErr::LandlockSandboxExecutableNotProvided
             }
             SandboxTransformError::EnvironmentNetworkProxy(message) => {
-                MapleCodeErr::UnsupportedOperation(message)
+                MaplecodeErr::UnsupportedOperation(message)
             }
             SandboxTransformError::WindowsMxcPreparation(message) => {
-                MapleCodeErr::UnsupportedOperation(message)
+                MaplecodeErr::UnsupportedOperation(message)
             }
             #[cfg(target_os = "macos")]
             SandboxTransformError::SeatbeltPreparation(message) => {
-                MapleCodeErr::UnsupportedOperation(message)
+                MaplecodeErr::UnsupportedOperation(message)
             }
             #[cfg(target_os = "linux")]
             SandboxTransformError::Wsl1UnsupportedForBubblewrap => {
-                MapleCodeErr::UnsupportedOperation(crate::bwrap::WSL1_BWRAP_WARNING.to_string())
+                MaplecodeErr::UnsupportedOperation(crate::bwrap::WSL1_BWRAP_WARNING.to_string())
             }
             #[cfg(not(target_os = "macos"))]
-            SandboxTransformError::SeatbeltUnavailable => MapleCodeErr::UnsupportedOperation(
+            SandboxTransformError::SeatbeltUnavailable => MaplecodeErr::UnsupportedOperation(
                 "seatbelt sandbox is only available on macOS".to_string(),
             ),
             #[cfg(target_os = "windows")]
             SandboxTransformError::WindowsSandboxPreparation(message) => {
-                MapleCodeErr::UnsupportedOperation(message)
+                MaplecodeErr::UnsupportedOperation(message)
             }
         }
     }

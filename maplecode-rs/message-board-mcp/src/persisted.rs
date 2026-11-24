@@ -9,7 +9,7 @@ use maplecode_message_board::NotificationDelivery;
 use maplecode_message_board::PostPreview;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use sqlx::SqlitePool;
 
@@ -27,17 +27,17 @@ impl MessageBoardHost for PersistedHost {
                     .fetch_optional(&self.registry)
                     .await
                     .map_err(storage_error)?;
-            let path = match stored.ok_or(MapleCodeErr::ThreadNotFound(caller))? {
-                Some(path) => AgentPath::from_string(path).map_err(MapleCodeErr::InvalidRequest)?,
+            let path = match stored.ok_or(MaplecodeErr::ThreadNotFound(caller))? {
+                Some(path) => AgentPath::from_string(path).map_err(MaplecodeErr::InvalidRequest)?,
                 None if caller == self.root => AgentPath::root(),
                 None => {
-                    return Err(MapleCodeErr::InvalidRequest(
+                    return Err(MaplecodeErr::InvalidRequest(
                         "caller has no persisted agent path".into(),
                     ));
                 }
             };
             if self.resolve_agent(path.clone()).await? != caller {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "caller does not belong to this board".into(),
                 ));
             }
@@ -70,8 +70,8 @@ LIMIT 2
             .map_err(storage_error)?;
             match ids.as_slice() {
                 [id] => ThreadId::from_string(id)
-                    .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string())),
-                _ => Err(MapleCodeErr::InvalidRequest(
+                    .map_err(|error| MaplecodeErr::InvalidRequest(error.to_string())),
+                _ => Err(MaplecodeErr::InvalidRequest(
                     "unknown or ambiguous agent path in this board".into(),
                 )),
             }
@@ -94,6 +94,6 @@ LIMIT 2
     }
 }
 
-fn storage_error(error: sqlx::Error) -> MapleCodeErr {
-    MapleCodeErr::Io(std::io::Error::other(error))
+fn storage_error(error: sqlx::Error) -> MaplecodeErr {
+    MaplecodeErr::Io(std::io::Error::other(error))
 }

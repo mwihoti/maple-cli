@@ -30,9 +30,9 @@ use maplecode_core_api::Feature;
 use maplecode_core_api::Features;
 use maplecode_core_api::GhostSnapshotConfig;
 use maplecode_core_api::History;
-use maplecode_core_api::MapleCodeAppsToolsCache;
-use maplecode_core_api::MapleCodeHomeUserInstructionsProvider;
-use maplecode_core_api::MapleCodeThread;
+use maplecode_core_api::MaplecodeAppsToolsCache;
+use maplecode_core_api::MaplecodeHomeUserInstructionsProvider;
+use maplecode_core_api::MaplecodeThread;
 use maplecode_core_api::MemoriesConfig;
 use maplecode_core_api::ModelAvailabilityNuxConfig;
 use maplecode_core_api::ModelCatalogSettings;
@@ -139,7 +139,7 @@ async fn run_main(arg0_paths: Arg0DispatchPaths) -> anyhow::Result<()> {
         .await?,
     );
     let installation_id = resolve_installation_id(&config.maplecode_home).await?;
-    let user_instructions_provider = Arc::new(MapleCodeHomeUserInstructionsProvider::new(
+    let user_instructions_provider = Arc::new(MaplecodeHomeUserInstructionsProvider::new(
         config.maplecode_home.clone(),
     ));
     let mut extensions = ExtensionRegistryBuilder::<Config>::new();
@@ -157,7 +157,7 @@ async fn run_main(arg0_paths: Arg0DispatchPaths) -> anyhow::Result<()> {
     let thread_manager = ThreadManager::new(
         &config,
         startup,
-        MapleCodeAppsToolsCache::default(),
+        MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         environment_manager,
         Arc::new(extensions.build()),
@@ -431,7 +431,7 @@ async fn new_config(
     Ok(config)
 }
 
-async fn run_turn(thread: &MapleCodeThread, thread_id: &str, prompt: String) -> anyhow::Result<()> {
+async fn run_turn(thread: &MaplecodeThread, thread_id: &str, prompt: String) -> anyhow::Result<()> {
     let submission = thread
         .start_turn_if_idle(TurnInputRequest::user_input(vec![UserInput::Text {
             text: prompt,

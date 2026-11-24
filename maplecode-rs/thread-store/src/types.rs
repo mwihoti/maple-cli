@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use chrono::DateTime;
 use chrono::Utc;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::ThreadTimelineEntry;
 use maplecode_protocol::SanitizedGitUrl;
 use maplecode_protocol::SessionId;
@@ -470,7 +470,7 @@ pub struct StoredTurnError {
     /// User-visible error message.
     pub message: String,
     /// Structured Maple Code error classification, when available.
-    pub maplecode_error_info: Option<MapleCodeErrorInfo>,
+    pub maplecode_error_info: Option<MaplecodeErrorInfo>,
     /// Optional additional detail for clients that expose expanded error context.
     pub additional_details: Option<String>,
 }

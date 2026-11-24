@@ -64,7 +64,7 @@ impl ChatGptEnvironment {
                 && url.query().is_none()
                 && matches!(
                     url.path().trim_end_matches('/'),
-                    "" | "/backend-api" | "/maplecode" | "/backend-api/codex"
+                    "" | "/backend-api" | "/codex" | "/backend-api/codex"
                 ),
             "Agent Identity only supports production and staging ChatGPT environments"
         );

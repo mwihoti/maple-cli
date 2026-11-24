@@ -11,8 +11,8 @@ workspace = true
 anyhow = { workspace = true }
 clap = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-# Keep this sample limited to a single MapleCode workspace dependency.
-# Add new MapleCode surface area to `maplecode-core-api` instead of depending on
+# Keep this sample limited to a single Maplecode workspace dependency.
+# Add new Maplecode surface area to `maplecode-core-api` instead of depending on
 # additional `maplecode-*` crates here.
 maplecode-core-api = { workspace = true }
 tracing = { workspace = true }

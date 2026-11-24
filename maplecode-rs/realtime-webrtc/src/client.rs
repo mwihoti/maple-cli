@@ -6,7 +6,7 @@ use std::time::Duration;
 
 use anyhow::Result;
 use anyhow::ensure;
-use maplecode_install_context::MapleCodePackageLayout;
+use maplecode_install_context::MaplecodePackageLayout;
 use maplecode_utils_pty::ProcessHandle;
 use maplecode_utils_pty::SpawnedProcess;
 use tokio::sync::oneshot;
@@ -170,7 +170,7 @@ impl VoiceHost {
         Ok(self)
     }
 
-    pub async fn connect(package: &MapleCodePackageLayout, build_commit: &str) -> Result<Self> {
+    pub async fn connect(package: &MaplecodePackageLayout, build_commit: &str) -> Result<Self> {
         let root = package.package_dir.as_path().canonicalize()?;
         let name = if cfg!(windows) {
             "maplecode-voice-host.exe"

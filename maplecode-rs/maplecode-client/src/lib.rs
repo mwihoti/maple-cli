@@ -12,6 +12,6 @@ pub use crate::retry::backoff;
 pub use crate::retry::run_with_retry;
 pub use crate::sse::sse_stream;
 pub use crate::telemetry::RequestTelemetry;
-pub use maplecode_http_client::HttpClient as MapleCodeHttpClient;
-pub use maplecode_http_client::RequestBuilder as MapleCodeRequestBuilder;
+pub use maplecode_http_client::HttpClient as MaplecodeHttpClient;
+pub use maplecode_http_client::RequestBuilder as MaplecodeRequestBuilder;
 pub use maplecode_http_client::*;

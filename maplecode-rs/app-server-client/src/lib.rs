@@ -69,7 +69,7 @@ use maplecode_core::config::Config;
 pub use maplecode_core::otel_init::build_provider as build_otel_provider;
 pub use maplecode_exec_server::EnvironmentManager;
 pub use maplecode_exec_server::ExecServerRuntimeOptions;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use serde::de::DeserializeOwned;
@@ -235,7 +235,7 @@ pub struct InProcessClientStartArgs {
     /// Policy shared with transports created by the embedder before startup.
     pub embedded_network_policy: EmbeddedNetworkPolicy,
     /// Feedback sink used by app-server/core telemetry and logs.
-    pub feedback: MapleCodeFeedback,
+    pub feedback: MaplecodeFeedback,
     /// SQLite tracing layer used to flush recently emitted logs before feedback upload.
     pub log_db: Option<LogDbLayer>,
     /// Process-wide SQLite state handle shared with the embedded app-server.
@@ -992,7 +992,7 @@ mod tests {
             strict_config: false,
             cloud_config_bundle: CloudConfigBundleLoader::default(),
             embedded_network_policy: Default::default(),
-            feedback: MapleCodeFeedback::new(),
+            feedback: MaplecodeFeedback::new(),
             log_db: None,
             state_db: Some(state_db),
             environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
@@ -2235,7 +2235,7 @@ mod tests {
             strict_config: false,
             cloud_config_bundle: CloudConfigBundleLoader::default(),
             embedded_network_policy: Default::default(),
-            feedback: MapleCodeFeedback::new(),
+            feedback: MaplecodeFeedback::new(),
             log_db: None,
             state_db: None,
             environment_manager: environment_manager.clone(),

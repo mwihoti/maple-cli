@@ -7,12 +7,12 @@ def exec_server_compat_test(
         comparison_binary = None,
         current_binary = "//maplecode-rs/cli:maplecode",
         release = None):
-    """Tests both executor directions against another MapleCode build or release.
+    """Tests both executor directions against another Maplecode build or release.
 
     Args:
         name: Name of the generated compatibility test target.
-        comparison_binary: Built MapleCode executable to compare with the current build.
-        current_binary: Built MapleCode executable representing the current version.
+        comparison_binary: Built Maplecode executable to compare with the current build.
+        current_binary: Built Maplecode executable representing the current version.
         release: External release repository exposing `:maplecode` and `:package`.
     """
     if (comparison_binary == None) == (release == None):

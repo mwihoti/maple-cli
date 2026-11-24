@@ -1,5 +1,5 @@
 {
-  description = "Development Nix flake for OpenAI MapleCode CLI";
+  description = "Development Nix flake for OpenAI Maplecode CLI";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

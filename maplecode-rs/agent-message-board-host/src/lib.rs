@@ -14,7 +14,7 @@ use maplecode_agent_message_board_client::RemoteAgentMessageBoard;
 use maplecode_agent_message_board_extension::BoardBackend;
 use maplecode_agent_message_board_extension::local_board_options;
 use maplecode_core::MULTI_AGENT_V2_NAMESPACE_DESCRIPTION;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_core::config::Config;
 use maplecode_extension_api::ExtensionRegistryBuilder;
@@ -28,8 +28,8 @@ use maplecode_message_board::PostPreview;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::protocol::InterAgentCommunication;
 use maplecode_protocol::protocol::Op;
@@ -134,11 +134,11 @@ struct LocalBoardHost {
 }
 
 impl LocalBoardHost {
-    async fn actor(&self, caller: ThreadId) -> Result<Arc<MapleCodeThread>> {
+    async fn actor(&self, caller: ThreadId) -> Result<Arc<MaplecodeThread>> {
         let manager = self
             .manager
             .upgrade()
-            .ok_or_else(|| MapleCodeErr::ThreadNotFound(caller))?;
+            .ok_or_else(|| MaplecodeErr::ThreadNotFound(caller))?;
         if let Some(connection) = &self.connection {
             return manager
                 .get_thread_with_extension::<LocalBoardConnection>(caller, |other| {
@@ -153,14 +153,14 @@ impl LocalBoardHost {
                 .get::<LocalBoardConnection>()
                 .is_some()
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "agent belongs to another message board".into(),
             ));
         }
         Ok(actor)
     }
 
-    async fn registered_path(&self, actor: &MapleCodeThread) -> Result<AgentPath> {
+    async fn registered_path(&self, actor: &MaplecodeThread) -> Result<AgentPath> {
         let caller = actor.startup_metadata().thread_id;
         if let Some(connection) = &self.connection {
             return connection.caller_path(caller);
@@ -169,10 +169,10 @@ impl LocalBoardHost {
             .session_source()
             .get_agent_path()
             .or_else(|| (caller == ThreadId::from(self.tree)).then(AgentPath::root))
-            .ok_or_else(|| MapleCodeErr::InvalidRequest("agent has no tree path".into()))?;
+            .ok_or_else(|| MaplecodeErr::InvalidRequest("agent has no tree path".into()))?;
         let resolved = actor.resolve_agent_reference(path.as_str()).await?;
         if resolved != caller {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "agent does not own its tree path".into(),
             ));
         }
@@ -196,7 +196,7 @@ impl MessageBoardHost for LocalBoardHost {
                     .strip_prefix("/root/")
                     .and_then(|id| ThreadId::from_string(id).ok())
                     .ok_or_else(|| {
-                        MapleCodeErr::InvalidRequest("invalid connected board agent path".into())
+                        MaplecodeErr::InvalidRequest("invalid connected board agent path".into())
                     })?;
                 return self
                     .actor(caller)
@@ -225,7 +225,7 @@ impl MessageBoardHost for LocalBoardHost {
             let recipient = match self.actor(recipient_id).await {
                 Ok(thread) => thread,
                 Err(error)
-                    if matches!(error.details(), MapleCodeErrorDetails::ThreadNotFound(_)) =>
+                    if matches!(error.details(), MaplecodeErrorDetails::ThreadNotFound(_)) =>
                 {
                     return Ok(NotificationDelivery::SkippedInactive);
                 }
@@ -247,7 +247,7 @@ impl MessageBoardHost for LocalBoardHost {
                     + communication.recipient.as_str().len()
                     > 1024
             {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "remote board notice exceeds the context budget".into(),
                 ));
             }

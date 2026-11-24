@@ -249,7 +249,7 @@ On 2026-11-22 the remaining interface text in the TUI crate was moved to the
 provider-dependent wording: menus, notices, errors and the permissions picker.
 It passed `cargo check -p maplecode-tui`. The binary could not be relinked because
 the disk was full, so none of this text has been seen in a live session yet.
-Still named MapleCode: Windows-only prompts, sign-in onboarding, a few constants,
+Still named Maple Code: Windows-only prompts, sign-in onboarding, a few constants,
 text sent to the model, and messages produced by other crates.
 
 On 2026-11-23, after disk space was freed, the binary was rebuilt with
