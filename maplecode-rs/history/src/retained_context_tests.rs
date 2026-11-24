@@ -1,5 +1,5 @@
 use super::*;
-use crate::MapleCodeHarnessMetadata;
+use crate::MaplecodeHarnessMetadata;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol_test_support::uuid_v7_item_id_generator_for_test;
@@ -354,7 +354,7 @@ fn restored_input_order_accounts_for_surviving_local_sources() {
                 phase: None,
                 internal_chat_message_metadata_passthrough: None,
             },
-            metadata: Some(MapleCodeHarnessMetadata {
+            metadata: Some(MaplecodeHarnessMetadata {
                 user_input_order,
                 inherited_user_message,
                 ..Default::default()

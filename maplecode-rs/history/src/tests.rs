@@ -178,10 +178,10 @@ fn response_item_envelope_accessors_preserve_item() {
 
 #[test]
 fn mcp_checkpoint_handles_missing_or_unknown_identity() -> Result<()> {
-    let metadata: MapleCodeHarnessMetadata = serde_json::from_value(json!({}))?;
+    let metadata: MaplecodeHarnessMetadata = serde_json::from_value(json!({}))?;
     assert_eq!(metadata.mcp_attribution, None);
 
-    let restored: MapleCodeHarnessMetadata = serde_json::from_value(json!({
+    let restored: MaplecodeHarnessMetadata = serde_json::from_value(json!({
         "mcp_attribution": {
             "status": "complete",
             "sources": [{
@@ -205,7 +205,7 @@ fn mcp_checkpoint_handles_missing_or_unknown_identity() -> Result<()> {
 
 #[test]
 fn mcp_error_diagnostics_do_not_invalidate_checkpoints() -> Result<()> {
-    let metadata = MapleCodeHarnessMetadata {
+    let metadata = MaplecodeHarnessMetadata {
         mcp_attribution: Some(McpAttribution {
             status: McpAttributionStatus::AttributionError,
             error_reason: Some(
@@ -232,7 +232,7 @@ fn mcp_error_diagnostics_do_not_invalidate_checkpoints() -> Result<()> {
         } else {
             attribution.remove("error_reason");
         }
-        let restored: MapleCodeHarnessMetadata = serde_json::from_value(serialized)?;
+        let restored: MaplecodeHarnessMetadata = serde_json::from_value(serialized)?;
         let mut expected = metadata.clone();
         expected
             .mcp_attribution
@@ -334,7 +334,7 @@ fn rollout_ids_preserve_allocations_but_responses_ids_are_strings() -> Result<()
             "revision": stored_id,
             "complete": true
         });
-        let metadata: MapleCodeHarnessMetadata = serde_json::from_value(json!({
+        let metadata: MaplecodeHarnessMetadata = serde_json::from_value(json!({
             "guardian_review_ids": [stored_id], "retained_source": source,
             "guardian_sources": [source]
         }))?;
@@ -362,7 +362,7 @@ fn delivered_assistant_rollout_survives_an_earlier_read_and_rewrite() -> Result<
     enum EarlierRolloutItem {
         ResponseItem {
             payload: ResponseItem,
-            metadata: MapleCodeHarnessMetadata,
+            metadata: MaplecodeHarnessMetadata,
         },
     }
 
@@ -462,7 +462,7 @@ fn response_item_envelope_stores_metadata_beside_rollout_payload() -> Result<()>
         ordinal: Some(7),
         item: RolloutItem::ResponseItem(ResponseItemEnvelope {
             item: response_item.clone(),
-            metadata: Some(MapleCodeHarnessMetadata {
+            metadata: Some(MaplecodeHarnessMetadata {
                 history_sequence: Some(9),
                 sampled_through_sequence: Some(7),
                 client_authored: true,
@@ -498,7 +498,7 @@ fn response_item_envelope_stores_metadata_beside_rollout_payload() -> Result<()>
     };
     assert_eq!(
         envelope.metadata,
-        Some(MapleCodeHarnessMetadata {
+        Some(MaplecodeHarnessMetadata {
             history_sequence: Some(9),
             sampled_through_sequence: Some(7),
             client_authored: true,
@@ -517,7 +517,7 @@ fn response_item_envelope_preserves_harness_authored_configuration_provenance() 
             effort: ReasoningEffort::High,
         },
     };
-    let metadata = MapleCodeHarnessMetadata {
+    let metadata = MaplecodeHarnessMetadata {
         harness_authored_configuration: true,
         ..Default::default()
     };
@@ -579,7 +579,7 @@ fn response_item_envelope_ignores_unknown_harness_metadata_fields() -> Result<()
     let RolloutItem::ResponseItem(envelope) = line else {
         panic!("expected response item");
     };
-    assert_eq!(envelope.metadata, Some(MapleCodeHarnessMetadata::default()));
+    assert_eq!(envelope.metadata, Some(MaplecodeHarnessMetadata::default()));
 
     let compacted = serde_json::from_value::<CompactedItem>(json!({
         "message": "summary",
@@ -588,7 +588,7 @@ fn response_item_envelope_ignores_unknown_harness_metadata_fields() -> Result<()
     }))?;
     assert_eq!(
         compacted.replacement_history.expect("replacement history")[0].metadata,
-        Some(MapleCodeHarnessMetadata::default())
+        Some(MaplecodeHarnessMetadata::default())
     );
     Ok(())
 }
@@ -639,7 +639,7 @@ fn compacted_replacement_history_stores_metadata_in_an_aligned_sidecar() -> Resu
         replacement_history: Some(vec![
             ResponseItemEnvelope {
                 item: developer_message.clone(),
-                metadata: Some(MapleCodeHarnessMetadata {
+                metadata: Some(MaplecodeHarnessMetadata {
                     client_authored: true,
                     ..Default::default()
                 }),
@@ -679,14 +679,14 @@ fn compacted_replacement_history_stores_metadata_in_an_aligned_sidecar() -> Resu
         Some(vec![
             ResponseItemEnvelope {
                 item: developer_message,
-                metadata: Some(MapleCodeHarnessMetadata {
+                metadata: Some(MaplecodeHarnessMetadata {
                     client_authored: true,
                     ..Default::default()
                 }),
             },
             ResponseItemEnvelope {
                 item: compaction_item,
-                metadata: Some(MapleCodeHarnessMetadata::default()),
+                metadata: Some(MaplecodeHarnessMetadata::default()),
             },
         ])
     );
@@ -773,7 +773,7 @@ fn compacted_metadata_remains_compatible_with_legacy_response_item_readers() -> 
     let response_item = response_message("developer");
     let envelope = ResponseItemEnvelope {
         item: response_item.clone(),
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             client_authored: true,
             ..Default::default()
         }),
@@ -1122,7 +1122,7 @@ fn rollout_item_schema_matches_tagged_payload_and_sibling_metadata() -> Result<(
     );
     assert_eq!(
         compacted["properties"]["replacement_history_metadata"]["items"]["$ref"],
-        json!("#/definitions/MapleCodeHarnessMetadata")
+        json!("#/definitions/MaplecodeHarnessMetadata")
     );
     let required = compacted["required"].as_array().expect("required fields");
     assert!(!required.contains(&json!("replacement_history")));

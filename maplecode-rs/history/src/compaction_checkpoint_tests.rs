@@ -1,7 +1,7 @@
 //! Latest-checkpoint selection keeps structural validity and producer provenance together.
 
 use super::*;
-use crate::MapleCodeHarnessMetadata;
+use crate::MaplecodeHarnessMetadata;
 use maplecode_protocol_test_support::uuid_v7_item_id_generator_for_test;
 use pretty_assertions::assert_eq;
 
@@ -13,7 +13,7 @@ fn latest_checkpoint_keeps_its_own_producer_even_when_unusable() {
             encrypted_content: "older checkpoint".to_owned(),
             internal_chat_message_metadata_passthrough: None,
         },
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             compaction_model_hash: Some("producer".to_owned()),
             ..Default::default()
         }),

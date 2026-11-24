@@ -20,7 +20,7 @@ use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::MapleCodeHarnessMetadata;
+use crate::MaplecodeHarnessMetadata;
 use crate::ResponseItemEnvelope;
 use crate::SenderUserMessages;
 
@@ -78,8 +78,8 @@ impl RetainedInputSource {
     }
 }
 
-impl From<Option<&MapleCodeHarnessMetadata>> for RetainedInputSource {
-    fn from(metadata: Option<&MapleCodeHarnessMetadata>) -> Self {
+impl From<Option<&MaplecodeHarnessMetadata>> for RetainedInputSource {
+    fn from(metadata: Option<&MaplecodeHarnessMetadata>) -> Self {
         if metadata.is_some_and(|metadata| metadata.inherited_user_message) {
             Self::Inherited
         } else {
@@ -279,7 +279,7 @@ impl RetainedContext {
     }
 
     /// Retains host metadata with the delivery's acceptance order, including during replay.
-    pub fn record_sender_user_messages(&mut self, metadata: &MapleCodeHarnessMetadata) -> bool {
+    pub fn record_sender_user_messages(&mut self, metadata: &MaplecodeHarnessMetadata) -> bool {
         let Some(messages) = metadata.sender_user_messages.as_deref() else {
             return false;
         };

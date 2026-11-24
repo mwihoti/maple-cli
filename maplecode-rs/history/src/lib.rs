@@ -59,13 +59,13 @@ use serde::de::Error as _;
 #[derive(Debug, Clone, PartialEq)]
 pub struct ResponseItemEnvelope {
     pub item: ResponseItem,
-    pub metadata: Option<MapleCodeHarnessMetadata>,
+    pub metadata: Option<MaplecodeHarnessMetadata>,
 }
 
 /// Metadata owned by the Maple Code harness and persisted with a response item.
 ///
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq, JsonSchema)]
-pub struct MapleCodeHarnessMetadata {
+pub struct MaplecodeHarnessMetadata {
     /// Thread-local append sequence. Compaction keeps the identities of retained inputs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub history_sequence: Option<u64>,
@@ -176,7 +176,7 @@ where
     })))
 }
 
-impl MapleCodeHarnessMetadata {
+impl MaplecodeHarnessMetadata {
     /// Shortened messages no longer prove complete instruction or review delivery.
     pub fn mark_retained_sources_incomplete(&mut self) {
         self.guardian_review_ids.clear();

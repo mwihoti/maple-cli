@@ -9,7 +9,7 @@ use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::MapleCodeHarnessMetadata;
+use crate::MaplecodeHarnessMetadata;
 use crate::ResponseItemEnvelope;
 use crate::rollout_payload::ItemPayload;
 
@@ -30,7 +30,7 @@ struct Entry<'a> {
     #[serde(flatten)]
     item: ItemPayload<'a, ResponseItem>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    guardian_metadata: Option<Cow<'a, MapleCodeHarnessMetadata>>,
+    guardian_metadata: Option<Cow<'a, MaplecodeHarnessMetadata>>,
 }
 
 impl Serialize for GuardianHistoryCheckpoint {

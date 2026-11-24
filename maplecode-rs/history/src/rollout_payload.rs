@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use super::CompactedItem;
 use super::EventMsg;
 use super::InterAgentCommunication;
-use super::MapleCodeHarnessMetadata;
+use super::MaplecodeHarnessMetadata;
 use super::McpResourceOriginCheckpoint;
 use super::RealtimeItem;
 use super::ResponseItem;
@@ -46,7 +46,7 @@ pub(super) enum RolloutItemWire<'a> {
     ResponseItem {
         payload: ItemPayload<'a, ResponseItem>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
-        metadata: Option<Cow<'a, MapleCodeHarnessMetadata>>,
+        metadata: Option<Cow<'a, MaplecodeHarnessMetadata>>,
     },
     InterAgentCommunication {
         payload: ItemPayload<'a, InterAgentCommunication>,
@@ -256,7 +256,7 @@ impl<'a> From<&'a RolloutItem> for RolloutItemWire<'a> {
                         }),
                         id_allocation: None,
                     },
-                    metadata: Some(Cow::Owned(MapleCodeHarnessMetadata {
+                    metadata: Some(Cow::Owned(MaplecodeHarnessMetadata {
                         retained_source: retained_source.clone(),
                         delivered_assistant_message: Some(marker),
                         user_input_order: Some(*acceptance_order),
@@ -377,7 +377,7 @@ pub(super) struct CompactedItemWire<'a> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     replacement_history: Option<Vec<ItemPayload<'a, ResponseItem>>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    replacement_history_metadata: Option<Vec<Cow<'a, MapleCodeHarnessMetadata>>>,
+    replacement_history_metadata: Option<Vec<Cow<'a, MaplecodeHarnessMetadata>>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     guardian_history: Option<Cow<'a, crate::GuardianHistoryCheckpoint>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -412,7 +412,7 @@ impl<'a> From<&'a CompactedItem> for CompactedItemWire<'a> {
                     .iter()
                     .map(|envelope| match envelope.metadata.as_ref() {
                         Some(metadata) => Cow::Borrowed(metadata),
-                        None => Cow::Owned(MapleCodeHarnessMetadata::default()),
+                        None => Cow::Owned(MaplecodeHarnessMetadata::default()),
                     })
                     .collect()
             });
