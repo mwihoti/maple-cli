@@ -564,7 +564,7 @@ fn transcript_original_requires_complete_source_proof_and_survives_budgeting() {
         retained,
         messages: vec![ResponseItemEnvelope {
             item,
-            metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+            metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
                 retained_source: Some(source),
                 ..Default::default()
             }),
@@ -695,7 +695,7 @@ fn transcript_original_requires_complete_source_proof_and_survives_budgeting() {
         /*index*/ 0,
         ResponseItemEnvelope {
             item,
-            metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+            metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
                 retained_source: Some(source),
                 ..Default::default()
             }),
@@ -728,7 +728,7 @@ fn transcript_original_requires_complete_source_proof_and_survives_budgeting() {
     )));
     history.messages.push(ResponseItemEnvelope {
         item,
-        metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+        metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
             retained_source: Some(source),
             ..Default::default()
         }),

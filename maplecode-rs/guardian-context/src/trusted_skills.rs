@@ -14,7 +14,7 @@ use maplecode_protocol::protocol::TruncationPolicy;
 use serde_json::json;
 
 const MAX_TRUSTED_SKILL_TOKENS: usize = 768;
-const TRUSTED_SKILLS_PREFIX: &str = "MapleCode-verified invoked user-owned skill paths:\n";
+const TRUSTED_SKILLS_PREFIX: &str = "Maplecode-verified invoked user-owned skill paths:\n";
 
 /// Host-verified user-owned skill paths for the current Guardian classification.
 #[derive(Clone, PartialEq, Eq)]

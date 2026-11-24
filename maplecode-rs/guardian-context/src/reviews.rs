@@ -14,7 +14,7 @@ use crate::SectionInput;
 use crate::SectionScope;
 use crate::TruncationObservation;
 use crate::truncate_text as truncate_entry;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_protocol::ResponseItemId;
 use maplecode_protocol::models::ContentItem;
@@ -106,7 +106,7 @@ impl PreviousReviews {
         };
         ResponseItemEnvelope {
             item,
-            metadata: Some(MapleCodeHarnessMetadata {
+            metadata: Some(MaplecodeHarnessMetadata {
                 guardian_review_ids: ids,
                 ..Default::default()
             }),

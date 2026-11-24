@@ -10,7 +10,7 @@
 //! Stateful reviewers retain their existing section order.
 
 use maplecode_context_fragments::ContextualUserFragment;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_protocol::models::AudioReference;
 use maplecode_protocol::models::ContentItem;
@@ -578,9 +578,9 @@ impl ComposedContext {
     /// Converts admitted sync content and its host delivery proof in one pass.
     pub fn into_annotated_user_inputs(
         self,
-    ) -> Result<(Vec<UserInput>, Option<MapleCodeHarnessMetadata>), SectionError> {
+    ) -> Result<(Vec<UserInput>, Option<MaplecodeHarnessMetadata>), SectionError> {
         let mut inputs = Vec::new();
-        let mut metadata = MapleCodeHarnessMetadata::default();
+        let mut metadata = MaplecodeHarnessMetadata::default();
         for section in self.sections {
             section.extend_delivery_metadata(&mut metadata);
             let SectionDelivery::UserContent(content) = section.delivery else {
@@ -625,7 +625,7 @@ impl ComposedContext {
     pub fn into_annotated_messages(self) -> Vec<ResponseItemEnvelope> {
         let mut messages = Vec::new();
         let mut user_content = Vec::new();
-        let mut metadata = MapleCodeHarnessMetadata::default();
+        let mut metadata = MaplecodeHarnessMetadata::default();
         for section in self.sections {
             section.extend_delivery_metadata(&mut metadata);
             match section.delivery {
@@ -666,7 +666,7 @@ impl ComposedContext {
 }
 
 impl SectionOutput {
-    fn extend_delivery_metadata(&self, metadata: &mut MapleCodeHarnessMetadata) {
+    fn extend_delivery_metadata(&self, metadata: &mut MaplecodeHarnessMetadata) {
         if let SectionDelivery::UserContent(items) = &self.delivery {
             if self.id == "retained_user_instructions"
                 && items.iter().any(|item| matches!(&item.content, SectionContent::Other(ContentItem::InputText { text })
@@ -688,7 +688,7 @@ impl SectionOutput {
 
 fn delivered_message(
     content: Vec<ContentItem>,
-    metadata: MapleCodeHarnessMetadata,
+    metadata: MaplecodeHarnessMetadata,
 ) -> ResponseItemEnvelope {
     ResponseItemEnvelope {
         item: user_message(content),

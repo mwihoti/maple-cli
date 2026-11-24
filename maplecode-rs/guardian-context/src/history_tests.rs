@@ -233,7 +233,7 @@ fn rollback_discards_assistant_sources_without_ordering_in_old_backups() {
     })).unwrap());
     let boundary = ResponseItemEnvelope {
         item: message("Queued input"),
-        metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+        metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
             user_input_order: Some(1),
             ..Default::default()
         }),
