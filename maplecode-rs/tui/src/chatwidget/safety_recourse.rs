@@ -55,7 +55,7 @@ fn matches_error(domain: Domain, error: &TurnError) -> bool {
     match domain {
         Domain::Bio => super::turn_runtime::is_bio_policy_error(&error.message),
         Domain::Cyber => {
-            error.maplecode_error_info == Some(AppServerMapleCodeErrorInfo::CyberPolicy)
+            error.maplecode_error_info == Some(AppServerMaplecodeErrorInfo::CyberPolicy)
         }
     }
 }

@@ -101,7 +101,7 @@ impl ChatWidget {
             && !matches!(display, SessionConfiguredDisplay::SideConversation);
         #[cfg(target_os = "windows")]
         if self.windows_sandbox_local_server
-            && matches!(self.maplecode_op_target, MapleCodeOpTarget::AppEvent)
+            && matches!(self.maplecode_op_target, MaplecodeOpTarget::AppEvent)
         {
             self.windows_sandbox_config = Default::default();
             self.set_windows_sandbox_mode(/*mode*/ None);

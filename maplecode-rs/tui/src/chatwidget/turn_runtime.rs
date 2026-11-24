@@ -334,11 +334,11 @@ impl ChatWidget {
 
     pub(super) fn handle_app_server_steer_rejected_error(
         &mut self,
-        maplecode_error_info: &AppServerMapleCodeErrorInfo,
+        maplecode_error_info: &AppServerMaplecodeErrorInfo,
     ) -> bool {
         matches!(
             maplecode_error_info,
-            AppServerMapleCodeErrorInfo::ActiveTurnNotSteerable { .. }
+            AppServerMaplecodeErrorInfo::ActiveTurnNotSteerable { .. }
         ) && self.enqueue_rejected_steer()
     }
 
@@ -545,7 +545,7 @@ impl ChatWidget {
     pub(super) fn handle_non_retry_error(
         &mut self,
         message: String,
-        maplecode_error_info: Option<AppServerMapleCodeErrorInfo>,
+        maplecode_error_info: Option<AppServerMaplecodeErrorInfo>,
     ) {
         if maplecode_error_info
             .as_ref()
@@ -558,7 +558,7 @@ impl ChatWidget {
         } else {
             self.take_question_drafts()
         };
-        if maplecode_error_info == Some(AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation) {
+        if maplecode_error_info == Some(AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation) {
             self.on_misalignment_policy_violation();
         } else if maplecode_error_info
             .as_ref()

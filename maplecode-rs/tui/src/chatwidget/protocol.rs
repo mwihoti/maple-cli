@@ -224,7 +224,7 @@ impl ChatWidget {
                     if !from_replay {
                         let error = notification.error;
                         let message =
-                            if let Some(AppServerMapleCodeErrorInfo::ResponseStreamDisconnected {
+                            if let Some(AppServerMaplecodeErrorInfo::ResponseStreamDisconnected {
                                 http_status_code: Some(429),
                             }) = error.maplecode_error_info
                                 && let Some(attempt) =
@@ -243,7 +243,7 @@ impl ChatWidget {
                     ));
                     if !from_replay
                         && notification.error.maplecode_error_info
-                            == Some(AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation)
+                            == Some(AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation)
                     {
                         self.on_misalignment_error(
                             Some(notification.turn_id),
@@ -534,7 +534,7 @@ impl ChatWidget {
                 if let Some(error) = error {
                     if replay_kind.is_none()
                         && error.maplecode_error_info
-                            == Some(AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation)
+                            == Some(AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation)
                     {
                         self.on_misalignment_error(
                             Some(notification.turn.id.clone()),

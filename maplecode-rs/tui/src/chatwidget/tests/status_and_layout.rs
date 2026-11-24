@@ -127,7 +127,7 @@ async fn app_server_cyber_policy_error_renders_dedicated_notice() {
     handle_error(
         &mut chat,
         "server fallback message",
-        Some(MapleCodeErrorInfo::CyberPolicy),
+        Some(MaplecodeErrorInfo::CyberPolicy),
     );
 
     let cells = drain_insert_history(&mut rx);
@@ -188,7 +188,7 @@ async fn daybreak_refusal_offers_enable_for_the_next_turn() {
 
     let error = AppServerTurnError {
         message: "blocked".into(),
-        maplecode_error_info: Some(MapleCodeErrorInfo::CyberPolicy),
+        maplecode_error_info: Some(MaplecodeErrorInfo::CyberPolicy),
         misalignment: None,
         additional_details: None,
     };
@@ -355,7 +355,7 @@ async fn daybreak_refusal_offers_enable_for_the_next_turn() {
     handle_error(
         &mut chat,
         "server fallback message",
-        Some(MapleCodeErrorInfo::CyberPolicy),
+        Some(MaplecodeErrorInfo::CyberPolicy),
     );
     let cells = drain_insert_history(&mut events);
     assert!(chat.bottom_pane.no_modal_or_popup_active());
@@ -758,7 +758,7 @@ async fn configured_pet_load_is_deferred_until_after_construction() {
         has_chatgpt_account: false,
         has_maplecode_backend_auth: false,
         model_catalog: test_model_catalog(&cfg),
-        feedback: maplecode_feedback::MapleCodeFeedback::new(),
+        feedback: maplecode_feedback::MaplecodeFeedback::new(),
         is_first_run: true,
         status_account_display: None,
         initial_plan_type: None,
@@ -2542,7 +2542,7 @@ async fn esc_interrupt_pauses_active_goal_turn() {
 
     chat.handle_key_event(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
 
-    assert_matches!(rx.try_recv(), Ok(AppEvent::MapleCodeOp(Op::Interrupt)));
+    assert_matches!(rx.try_recv(), Ok(AppEvent::MaplecodeOp(Op::Interrupt)));
     assert_goal_paused_event(&mut rx, thread_id);
 
     update_thread_goal(&mut chat, thread_id, AppThreadGoalStatus::Paused);
@@ -2580,7 +2580,7 @@ async fn request_user_input_interrupt_pauses_active_goal_turn() {
 
         chat.handle_key_event(key_event);
 
-        assert_matches!(rx.try_recv(), Ok(AppEvent::MapleCodeOp(Op::Interrupt)));
+        assert_matches!(rx.try_recv(), Ok(AppEvent::MaplecodeOp(Op::Interrupt)));
         assert_goal_paused_event(&mut rx, thread_id);
     }
 }

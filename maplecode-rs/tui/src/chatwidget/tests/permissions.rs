@@ -30,7 +30,7 @@ async fn remote_windows_agent_permission_uses_server_selection() {
         /*return_to_permissions*/ false,
     );
     actions[0](&chat.app_event_tx);
-    assert!(matches!(events.try_recv(), Ok(AppEvent::MapleCodeOp(_))));
+    assert!(matches!(events.try_recv(), Ok(AppEvent::MaplecodeOp(_))));
     assert!(matches!(
         events.try_recv(),
         Ok(AppEvent::UpdateAskForApprovalPolicy(_))
@@ -1390,7 +1390,7 @@ async fn approvals_popup_navigation_skips_disabled() {
     assert!(
         app_events.iter().any(|ev| matches!(
             ev,
-            AppEvent::MapleCodeOp(Op::OverrideTurnContext {
+            AppEvent::MaplecodeOp(Op::OverrideTurnContext {
                 approval_policy: Some(AskForApproval::OnRequest),
                 ..
             })
@@ -1400,7 +1400,7 @@ async fn approvals_popup_navigation_skips_disabled() {
     assert!(
         !app_events.iter().any(|ev| matches!(
             ev,
-            AppEvent::MapleCodeOp(Op::OverrideTurnContext {
+            AppEvent::MaplecodeOp(Op::OverrideTurnContext {
                 approval_policy: Some(AskForApproval::Never),
                 ..
             })
@@ -1781,7 +1781,7 @@ async fn permissions_selection_sends_approvals_reviewer_in_override_turn_context
 
     let op = std::iter::from_fn(|| rx.try_recv().ok())
         .find_map(|event| match event {
-            AppEvent::MapleCodeOp(op @ Op::OverrideTurnContext { .. }) => Some(op),
+            AppEvent::MaplecodeOp(op @ Op::OverrideTurnContext { .. }) => Some(op),
             _ => None,
         })
         .expect("expected OverrideTurnContext op");

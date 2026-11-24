@@ -93,7 +93,7 @@ async fn luna_reserve_selector_supports_arrows_enter_shortcuts_and_escape_withou
         assert!(
             !queued
                 .iter()
-                .any(|event| matches!(event, AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })))
+                .any(|event| matches!(event, AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })))
         );
         assert_eq!(chat.composer_text_with_pending(), "saved draft");
         // A periodic usage reply must not reopen a selector the user just closed.

@@ -253,7 +253,7 @@ pub(super) async fn make_chatwidget_manual_with_auth(
         has_chatgpt_account,
         has_maplecode_backend_auth,
         model_catalog,
-        feedback: maplecode_feedback::MapleCodeFeedback::new(),
+        feedback: maplecode_feedback::MaplecodeFeedback::new(),
         is_first_run: true,
         status_account_display: None,
         initial_plan_type: None,
@@ -264,7 +264,7 @@ pub(super) async fn make_chatwidget_manual_with_auth(
         session_telemetry,
     };
     let mut widget =
-        ChatWidget::new_with_op_target(common, super::MapleCodeOpTarget::Direct(op_tx));
+        ChatWidget::new_with_op_target(common, super::MaplecodeOpTarget::Direct(op_tx));
     widget.test_maplecode_home = Some(maplecode_home);
     widget.clock_format = crate::clock_format::ClockFormat::TwentyFourHour;
     widget.windows_sandbox_host = crate::app::WindowsSandboxHost::Local;
@@ -540,7 +540,7 @@ pub(super) fn handle_token_count(chat: &mut ChatWidget, info: Option<TokenUsageI
 pub(super) fn handle_error(
     chat: &mut ChatWidget,
     message: impl Into<String>,
-    maplecode_error_info: Option<MapleCodeErrorInfo>,
+    maplecode_error_info: Option<MaplecodeErrorInfo>,
 ) {
     chat.handle_server_notification(
         ServerNotification::Error(ErrorNotification {

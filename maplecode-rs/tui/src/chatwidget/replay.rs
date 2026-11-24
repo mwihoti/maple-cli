@@ -220,7 +220,7 @@ impl ChatWidget {
             if Some(&turn_id) != latest_turn_id.as_ref()
                 && error.as_ref().is_some_and(|error| {
                     error.maplecode_error_info
-                        == Some(AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation)
+                        == Some(AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation)
                 })
             {
                 error = None;

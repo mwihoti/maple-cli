@@ -7,7 +7,7 @@ use crate::chatwidget::tests::make_chatwidget_manual_with_sender;
 use crate::status::format_estimated_usd_micros;
 use crate::tui::FrameRequester;
 use maplecode_app_server_protocol::ErrorNotification;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::ServerNotification;
 use maplecode_app_server_protocol::ThreadUsage;
 use maplecode_app_server_protocol::ThreadUsageBreakdownGroup;
@@ -249,7 +249,7 @@ async fn replayed_turn_completions_do_not_start_live_billing_refreshes() {
                 Some(TurnError {
                     misalignment: None,
                     message: "the replayed turn failed".to_string(),
-                    maplecode_error_info: Some(MapleCodeErrorInfo::ServerOverloaded),
+                    maplecode_error_info: Some(MaplecodeErrorInfo::ServerOverloaded),
                     additional_details: None,
                 }),
             ),
@@ -328,7 +328,7 @@ async fn replayed_errors_do_not_start_live_billing_refreshes() {
             error: TurnError {
                 misalignment: None,
                 message: "the replayed turn failed".to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::ServerOverloaded),
+                maplecode_error_info: Some(MaplecodeErrorInfo::ServerOverloaded),
                 additional_details: None,
             },
             will_retry: false,

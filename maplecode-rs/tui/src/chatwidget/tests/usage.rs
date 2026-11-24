@@ -42,7 +42,7 @@ fn detailed_reset_credits(
 fn reset_credit(id: &str, expires_at: Option<i64>) -> RateLimitResetCredit {
     RateLimitResetCredit {
         id: id.to_string(),
-        reset_type: RateLimitResetType::MapleCodeRateLimits,
+        reset_type: RateLimitResetType::MaplecodeRateLimits,
         status: RateLimitResetCreditStatus::Available,
         granted_at: 0,
         expires_at,

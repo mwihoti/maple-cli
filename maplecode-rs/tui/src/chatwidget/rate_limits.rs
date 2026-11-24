@@ -4,7 +4,7 @@ use super::*;
 pub(super) const WORKSPACE_NUDGE_VIEW_ID: &str = "workspace-usage-nudge";
 use crate::bottom_pane::ActionableBanner;
 use crate::model_catalog::LUNA_RESERVE_MODEL;
-use maplecode_app_server_protocol::MapleCodeErrorInfo as AppServerMapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo as AppServerMaplecodeErrorInfo;
 use uuid::Uuid;
 
 pub(super) struct PendingCreditsNudge {
@@ -165,23 +165,23 @@ pub(super) enum RateLimitErrorKind {
 }
 
 pub(super) fn app_server_rate_limit_error_kind(
-    info: &AppServerMapleCodeErrorInfo,
+    info: &AppServerMaplecodeErrorInfo,
 ) -> Option<RateLimitErrorKind> {
     match info {
-        AppServerMapleCodeErrorInfo::ServerOverloaded
-        | AppServerMapleCodeErrorInfo::PolicyCapacityUnavailable => {
+        AppServerMaplecodeErrorInfo::ServerOverloaded
+        | AppServerMaplecodeErrorInfo::PolicyCapacityUnavailable => {
             Some(RateLimitErrorKind::ServerOverloaded)
         }
-        AppServerMapleCodeErrorInfo::UsageLimitExceeded => Some(RateLimitErrorKind::UsageLimit),
-        AppServerMapleCodeErrorInfo::ResponseTooManyFailedAttempts {
+        AppServerMaplecodeErrorInfo::UsageLimitExceeded => Some(RateLimitErrorKind::UsageLimit),
+        AppServerMaplecodeErrorInfo::ResponseTooManyFailedAttempts {
             http_status_code: Some(429),
         } => Some(RateLimitErrorKind::Generic),
         _ => None,
     }
 }
 
-pub(super) fn is_app_server_cyber_policy_error(info: &AppServerMapleCodeErrorInfo) -> bool {
-    matches!(info, AppServerMapleCodeErrorInfo::CyberPolicy)
+pub(super) fn is_app_server_cyber_policy_error(info: &AppServerMaplecodeErrorInfo) -> bool {
+    matches!(info, AppServerMaplecodeErrorInfo::CyberPolicy)
 }
 
 #[derive(Clone, Copy)]
@@ -525,7 +525,7 @@ impl ChatWidget {
         let default_effort: ReasoningEffortConfig = preset.default_reasoning_effort;
 
         let switch_actions: Vec<SelectionAction> = vec![Box::new(move |tx| {
-            tx.send(AppEvent::MapleCodeOp(AppCommand::override_turn_context(
+            tx.send(AppEvent::MaplecodeOp(AppCommand::override_turn_context(
                 /*cwd*/ None,
                 /*approval_policy*/ None,
                 /*approvals_reviewer*/ None,

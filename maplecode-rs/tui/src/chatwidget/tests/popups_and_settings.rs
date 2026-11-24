@@ -46,7 +46,7 @@ async fn experimental_mode_plan_is_ignored_on_startup() {
         has_chatgpt_account: false,
         has_maplecode_backend_auth: false,
         model_catalog: test_model_catalog(&cfg),
-        feedback: maplecode_feedback::MapleCodeFeedback::new(),
+        feedback: maplecode_feedback::MaplecodeFeedback::new(),
         is_first_run: true,
         status_account_display: None,
         initial_plan_type: None,
@@ -3714,7 +3714,7 @@ async fn server_overloaded_error_does_not_switch_models() {
     handle_error(
         &mut chat,
         "server overloaded",
-        Some(MapleCodeErrorInfo::ServerOverloaded),
+        Some(MaplecodeErrorInfo::ServerOverloaded),
     );
 
     while let Ok(event) = rx.try_recv() {

@@ -532,7 +532,7 @@ impl ChatWidget {
             self.clear_recap_loading();
         }
         let render_before_submit =
-            render_in_history && matches!(&self.maplecode_op_target, MapleCodeOpTarget::AppEvent);
+            render_in_history && matches!(&self.maplecode_op_target, MaplecodeOpTarget::AppEvent);
         if render_before_submit {
             self.on_user_message_display(user_message_display_for_history(
                 submitted_message.clone(),

@@ -17,7 +17,7 @@ use std::collections::VecDeque;
 async fn reconnect_queues_enter_and_resumes_ordinary_next_turn_submission() {
     let (mut chat, mut events, _operations) = make_chatwidget_manual(/*model_override*/ None).await;
     chat.thread_id = Some(ThreadId::new());
-    chat.maplecode_op_target = MapleCodeOpTarget::AppEvent;
+    chat.maplecode_op_target = MaplecodeOpTarget::AppEvent;
     chat.thread_stream_disconnected = true;
     chat.apply_external_edit("queued prompt".into());
     chat.handle_key_event(KeyCode::Enter.into());
@@ -25,7 +25,7 @@ async fn reconnect_queues_enter_and_resumes_ordinary_next_turn_submission() {
     assert_eq!(chat.queued_user_message_texts(), ["queued prompt"]);
     assert!(
         !std::iter::from_fn(|| events.try_recv().ok())
-            .any(|event| matches!(event, AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })))
+            .any(|event| matches!(event, AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })))
     );
 
     let frame = render_bottom_popup(&chat, /*width*/ 80);
@@ -48,7 +48,7 @@ async fn reconnect_queues_enter_and_resumes_ordinary_next_turn_submission() {
             AppEvent::InsertHistoryCell(cell) if cell.as_any().is::<UserHistoryCell>() => {
                 sequence.push("prompt")
             }
-            AppEvent::MapleCodeOp(AppCommand::UserTurn {
+            AppEvent::MaplecodeOp(AppCommand::UserTurn {
                 cloud_submission,
                 items,
                 ..
@@ -2006,7 +2006,7 @@ async fn output_free_esc_interrupt_keeps_prompt_and_opens_blank_composer() {
                     saw_prompt = true;
                 }
             }
-            Ok(AppEvent::MapleCodeOp(Op::Interrupt)) => break,
+            Ok(AppEvent::MaplecodeOp(Op::Interrupt)) => break,
             Ok(_) => {}
             Err(error) => panic!("expected Esc interrupt command, got {error:?}"),
         }
@@ -2492,7 +2492,7 @@ fn user_message_display_from_inputs_matches_flattened_user_message_shape() {
 
 #[test]
 fn user_message_display_from_inputs_hides_prompt_context() {
-    let raw_message = "# Context from my IDE setup:\n\n## Active file: src/lib.rs\n\n## My request for MapleCode:\nAsk $figma";
+    let raw_message = "# Context from my IDE setup:\n\n## Active file: src/lib.rs\n\n## My request for Maple Code:\nAsk $figma";
     let mention_start = raw_message.find("$figma").expect("mention in raw message");
     let rendered = ChatWidget::user_message_display_from_inputs(&[UserInput::Text {
         text: raw_message.to_string(),
@@ -2618,7 +2618,7 @@ async fn task_mention_submission_and_transcript_preserve_the_visible_title() {
 async fn committed_user_message_with_hidden_prompt_context_renders_local_images() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
     let local_image = PathBuf::from("/tmp/context-image.png");
-    let raw_message = "# Context from my IDE setup:\n\n## Active file: src/lib.rs\n\n## My request for MapleCode:\n";
+    let raw_message = "# Context from my IDE setup:\n\n## Active file: src/lib.rs\n\n## My request for Maple Code:\n";
 
     complete_user_message_for_inputs(
         &mut chat,
@@ -2850,7 +2850,7 @@ async fn image_submission_is_portable_for_new_turns_and_steers() {
         let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
         chat.thread_id = Some(ThreadId::new());
         chat.snapshot_local_images = true;
-        chat.maplecode_op_target = MapleCodeOpTarget::AppEvent;
+        chat.maplecode_op_target = MaplecodeOpTarget::AppEvent;
         // Repeated identical submissions each render once, across supported receipt shapes.
         for (echo_client_id, omit_media) in [(false, false), (true, false), (true, true)] {
             let mut message = message.clone();
@@ -2874,7 +2874,7 @@ async fn image_submission_is_portable_for_new_turns_and_steers() {
                     AppEvent::InsertHistoryCell(cell) => {
                         rendered.push(cell.display_lines(/*width*/ 80))
                     }
-                    AppEvent::MapleCodeOp(AppCommand::UserTurn {
+                    AppEvent::MaplecodeOp(AppCommand::UserTurn {
                         items,
                         client_user_message_id,
                         ..
@@ -3166,7 +3166,7 @@ fn image_preparation_keeps_input_responsive_and_preserves_pending_input() {
                     }
                     chat.on_images_prepared(id);
                 } else if scenario == "parent_owned" || scenario == "external_writer" {
-                    chat.maplecode_op_target = MapleCodeOpTarget::AppEvent;
+                    chat.maplecode_op_target = MaplecodeOpTarget::AppEvent;
                     if scenario == "parent_owned" {
                         chat.set_parent_owned_thread();
                     } else {

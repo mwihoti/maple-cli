@@ -95,7 +95,7 @@ use maplecode_app_server_protocol::FileChangeRequestApprovalParams;
 use maplecode_app_server_protocol::GuardianApprovalReviewAction;
 use maplecode_app_server_protocol::ItemCompletedNotification;
 use maplecode_app_server_protocol::ItemStartedNotification;
-use maplecode_app_server_protocol::MapleCodeErrorInfo as AppServerMapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo as AppServerMaplecodeErrorInfo;
 use maplecode_app_server_protocol::McpServerElicitationRequest;
 use maplecode_app_server_protocol::McpServerElicitationRequestParams;
 use maplecode_app_server_protocol::McpServerStatusDetail;
@@ -494,7 +494,7 @@ pub(crate) struct ChatWidgetInit {
     pub(crate) requires_openai_auth: bool,
     pub(crate) has_maplecode_backend_auth: bool,
     pub(crate) model_catalog: Arc<ModelCatalog>,
-    pub(crate) feedback: maplecode_feedback::MapleCodeFeedback,
+    pub(crate) feedback: maplecode_feedback::MaplecodeFeedback,
     pub(crate) is_first_run: bool,
     pub(crate) status_account_display: Option<StatusAccountDisplay>,
     pub(crate) initial_plan_type: Option<PlanType>,
@@ -532,7 +532,7 @@ pub(crate) struct ChatWidget {
         std::cell::RefCell<crate::empty_state_animation::EmptyStateAnimation>,
     pub(crate) daybreak_enabled: bool,
     app_event_tx: AppEventSender,
-    maplecode_op_target: MapleCodeOpTarget,
+    maplecode_op_target: MaplecodeOpTarget,
     bottom_pane: BottomPane,
     transcript: TranscriptState,
     config: Config,
@@ -732,7 +732,7 @@ pub(crate) struct ChatWidget {
     turn_runtime_metrics: RuntimeMetricsSummary,
     last_rendered_width: std::cell::Cell<Option<u16>>,
     // Feedback sink for /feedback
-    feedback: maplecode_feedback::MapleCodeFeedback,
+    feedback: maplecode_feedback::MaplecodeFeedback,
     // Current session rollout path (if known)
     current_rollout_path: Option<PathBuf>,
     // Current working directory (if known)
@@ -808,7 +808,7 @@ pub(crate) struct ChatWidget {
 }
 
 #[cfg_attr(not(test), allow(dead_code))]
-enum MapleCodeOpTarget {
+enum MaplecodeOpTarget {
     Direct(UnboundedSender<AppCommand>),
     AppEvent,
 }
@@ -1926,7 +1926,7 @@ impl ChatWidget {
             self.bottom_pane.set_task_running(/*running*/ true);
         }
         match &self.maplecode_op_target {
-            MapleCodeOpTarget::Direct(maplecode_op_tx) => {
+            MaplecodeOpTarget::Direct(maplecode_op_tx) => {
                 crate::session_log::log_outbound_op(&op);
                 let is_review = op.is_review();
                 if let Err(e) = maplecode_op_tx.send(op) {
@@ -1937,8 +1937,8 @@ impl ChatWidget {
                     self.on_review_started();
                 }
             }
-            MapleCodeOpTarget::AppEvent => {
-                self.app_event_tx.send(AppEvent::MapleCodeOp(op));
+            MaplecodeOpTarget::AppEvent => {
+                self.app_event_tx.send(AppEvent::MaplecodeOp(op));
             }
         }
         true

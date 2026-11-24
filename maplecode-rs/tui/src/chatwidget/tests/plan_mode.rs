@@ -1182,7 +1182,7 @@ async fn submit_user_message_queues_while_compaction_turn_is_running() {
     handle_error(
         &mut chat,
         "cannot steer a compact turn",
-        Some(MapleCodeErrorInfo::ActiveTurnNotSteerable {
+        Some(MaplecodeErrorInfo::ActiveTurnNotSteerable {
             turn_kind: NonSteerableTurnKind::Compact,
         }),
     );
@@ -1619,7 +1619,7 @@ async fn make_startup_chat_with_cli_overrides(
         has_chatgpt_account: false,
         has_maplecode_backend_auth: false,
         model_catalog: test_model_catalog(&cfg),
-        feedback: maplecode_feedback::MapleCodeFeedback::new(),
+        feedback: maplecode_feedback::MaplecodeFeedback::new(),
         is_first_run: true,
         status_account_display: None,
         initial_plan_type: None,

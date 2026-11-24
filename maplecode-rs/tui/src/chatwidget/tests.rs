@@ -73,7 +73,7 @@ pub(super) use maplecode_app_server_protocol::ItemCompletedNotification;
 pub(super) use maplecode_app_server_protocol::ItemGuardianApprovalReviewCompletedNotification;
 pub(super) use maplecode_app_server_protocol::ItemGuardianApprovalReviewStartedNotification;
 pub(super) use maplecode_app_server_protocol::ItemStartedNotification;
-pub(super) use maplecode_app_server_protocol::MapleCodeErrorInfo;
+pub(super) use maplecode_app_server_protocol::MaplecodeErrorInfo;
 pub(super) use maplecode_app_server_protocol::MarketplaceAddResponse;
 pub(super) use maplecode_app_server_protocol::MarketplaceInterface;
 pub(super) use maplecode_app_server_protocol::MarketplaceUpgradeErrorInfo;

@@ -2,8 +2,8 @@ use super::helpers::drain_insert_history_transcript;
 use super::*;
 use maplecode_app_server_protocol::AuthRecoveryNotification;
 use maplecode_app_server_protocol::ThreadItem;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use pretty_assertions::assert_eq;
 
 const SAFETY_BUFFERING_HEADER_TEXT: &str = "Giving this request a little extra thought";
@@ -1905,7 +1905,7 @@ async fn live_app_server_stream_recovery_restores_previous_status_header() {
             error: AppServerTurnError {
                 misalignment: None,
                 message: "Reconnecting... 2/5".to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::ResponseStreamDisconnected {
+                maplecode_error_info: Some(MaplecodeErrorInfo::ResponseStreamDisconnected {
                     http_status_code: Some(429),
                 }),
                 additional_details: None,
@@ -1946,13 +1946,13 @@ async fn live_app_server_stream_recovery_restores_previous_status_header() {
 async fn live_app_server_errors_render_upstream_message() {
     for (error, snapshot) in [
         (
-            MapleCodeErr::from(MapleCodeErrorDetails::RateLimitExceeded(
+            MaplecodeErr::from(MaplecodeErrorDetails::RateLimitExceeded(
                 "Please try again in 10s.".to_string(),
             )),
             "rate_limit_exceeded_error",
         ),
         (
-            MapleCodeErr::SessionBudgetExceeded,
+            MaplecodeErr::SessionBudgetExceeded,
             "session_budget_exceeded_error",
         ),
     ] {
@@ -1978,13 +1978,13 @@ async fn live_app_server_errors_render_upstream_message() {
 #[tokio::test]
 async fn live_app_server_server_overloaded_error_renders_error() {
     for (message, error_info) in [
-        ("server overloaded", MapleCodeErrorInfo::ServerOverloaded),
+        ("server overloaded", MaplecodeErrorInfo::ServerOverloaded),
         (
             "server overloaded",
-            MapleCodeErrorInfo::PolicyCapacityUnavailable,
+            MaplecodeErrorInfo::PolicyCapacityUnavailable,
         ),
-        ("", MapleCodeErrorInfo::ServerOverloaded),
-        ("", MapleCodeErrorInfo::PolicyCapacityUnavailable),
+        ("", MaplecodeErrorInfo::ServerOverloaded),
+        ("", MaplecodeErrorInfo::PolicyCapacityUnavailable),
     ] {
         let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
 
@@ -2064,7 +2064,7 @@ async fn live_app_server_cyber_policy_error_renders_dedicated_notice() {
             error: AppServerTurnError {
                 misalignment: None,
                 message: "server fallback message".to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::CyberPolicy),
+                maplecode_error_info: Some(MaplecodeErrorInfo::CyberPolicy),
                 additional_details: None,
             },
             will_retry: false,

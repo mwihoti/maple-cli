@@ -238,14 +238,14 @@ async fn steer_rejection_queues_review_follow_up_before_existing_queued_messages
     handle_error(
         &mut chat,
         "cannot steer a review turn",
-        Some(MapleCodeErrorInfo::ActiveTurnNotSteerable {
+        Some(MaplecodeErrorInfo::ActiveTurnNotSteerable {
             turn_kind: NonSteerableTurnKind::Review,
         }),
     );
     handle_error(
         &mut chat,
         "cannot steer a review turn",
-        Some(MapleCodeErrorInfo::ActiveTurnNotSteerable {
+        Some(MaplecodeErrorInfo::ActiveTurnNotSteerable {
             turn_kind: NonSteerableTurnKind::Review,
         }),
     );
@@ -373,7 +373,7 @@ async fn failed_turn_completion_preserves_queued_review_start() {
         QueuedInputAction::ParseSlash,
         Vec::new(),
     ));
-    handle_error(&mut chat, ERROR, Some(MapleCodeErrorInfo::ServerOverloaded));
+    handle_error(&mut chat, ERROR, Some(MaplecodeErrorInfo::ServerOverloaded));
     assert_matches!(op_rx.try_recv(), Ok(Op::Review { .. }));
     assert!(chat.input_queue.user_turn_pending_start);
     assert!(chat.bottom_pane.is_task_running());
@@ -387,7 +387,7 @@ async fn failed_turn_completion_preserves_queued_review_start() {
                 /*duration_ms*/ None,
                 Some(AppServerTurnError {
                     message: ERROR.to_string(),
-                    maplecode_error_info: Some(MapleCodeErrorInfo::ServerOverloaded),
+                    maplecode_error_info: Some(MaplecodeErrorInfo::ServerOverloaded),
                     additional_details: None,
                     misalignment: None,
                 }),
@@ -1213,10 +1213,10 @@ async fn custom_prompt_submit_sends_review_op() {
     chat.handle_paste("  please audit dependencies  ".to_string());
     chat.handle_key_event(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
 
-    // Expect AppEvent::MapleCodeOp(Op::Review { .. }) with trimmed prompt
+    // Expect AppEvent::MaplecodeOp(Op::Review { .. }) with trimmed prompt
     let evt = rx.try_recv().expect("expected one app event");
     match evt {
-        AppEvent::MapleCodeOp(Op::Review { target }) => {
+        AppEvent::MaplecodeOp(Op::Review { target }) => {
             assert_eq!(
                 target,
                 ReviewTarget::Custom {
@@ -1237,7 +1237,7 @@ async fn custom_prompt_enter_empty_does_not_send() {
     // Enter without any text
     chat.handle_key_event(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
 
-    // No AppEvent::MapleCodeOp should be sent
+    // No AppEvent::MaplecodeOp should be sent
     assert!(rx.try_recv().is_err(), "no app event should be sent");
 }
 
@@ -1542,7 +1542,7 @@ async fn review_queues_user_messages_snapshot() {
     handle_error(
         &mut chat,
         "cannot steer a review turn",
-        Some(MapleCodeErrorInfo::ActiveTurnNotSteerable {
+        Some(MaplecodeErrorInfo::ActiveTurnNotSteerable {
             turn_kind: NonSteerableTurnKind::Review,
         }),
     );

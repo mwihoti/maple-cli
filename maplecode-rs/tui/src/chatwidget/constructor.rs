@@ -4,14 +4,14 @@ use super::*;
 
 impl ChatWidget {
     pub(crate) fn new_with_app_event(common: ChatWidgetInit) -> Self {
-        let mut widget = Self::new_with_op_target(common, MapleCodeOpTarget::AppEvent);
+        let mut widget = Self::new_with_op_target(common, MaplecodeOpTarget::AppEvent);
         widget.bottom_pane.enable_agents_navigation();
         widget
     }
 
     pub(super) fn new_with_op_target(
         common: ChatWidgetInit,
-        maplecode_op_target: MapleCodeOpTarget,
+        maplecode_op_target: MaplecodeOpTarget,
     ) -> Self {
         let ChatWidgetInit {
             config,

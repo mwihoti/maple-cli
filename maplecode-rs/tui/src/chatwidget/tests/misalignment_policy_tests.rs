@@ -15,7 +15,7 @@ async fn misalignment_precaution_retires_voice_and_keeps_late_turn_blocked() {
     handle_error(
         &mut chat,
         ERROR_MESSAGE,
-        Some(MapleCodeErrorInfo::MisalignmentPolicyViolation),
+        Some(MaplecodeErrorInfo::MisalignmentPolicyViolation),
     );
 
     assert!(!chat.realtime_conversation_is_running());
@@ -86,7 +86,7 @@ async fn misalignment_policy_failure_stops_the_thread_and_renders_once() {
     handle_error(
         &mut chat,
         ERROR_MESSAGE,
-        Some(MapleCodeErrorInfo::MisalignmentPolicyViolation),
+        Some(MaplecodeErrorInfo::MisalignmentPolicyViolation),
     );
 
     assert!(!chat.bottom_pane.is_task_running());
@@ -134,7 +134,7 @@ async fn misalignment_policy_failure_stops_the_thread_and_renders_once() {
                 Some(AppServerTurnError {
                     misalignment: None,
                     message: ERROR_MESSAGE.to_string(),
-                    maplecode_error_info: Some(MapleCodeErrorInfo::MisalignmentPolicyViolation),
+                    maplecode_error_info: Some(MaplecodeErrorInfo::MisalignmentPolicyViolation),
                     additional_details: None,
                 }),
             ),
@@ -202,7 +202,7 @@ async fn misalignment_turn_end_discards_history_search_and_question_drafts() {
                 Some(AppServerTurnError {
                     misalignment: Some(review_details()),
                     message: ERROR_MESSAGE.into(),
-                    maplecode_error_info: Some(MapleCodeErrorInfo::MisalignmentPolicyViolation),
+                    maplecode_error_info: Some(MaplecodeErrorInfo::MisalignmentPolicyViolation),
                     additional_details: None,
                 }),
             ),

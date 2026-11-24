@@ -800,7 +800,7 @@ impl ChatWidget {
                 let label = limit_label_for_window(window.window_minutes, is_secondary);
                 self.status_line_limit_display(Some(window), &label)
             }
-            StatusLineItem::MapleCodeVersion => Some(MAPLECODE_CLI_VERSION.to_string()),
+            StatusLineItem::MaplecodeVersion => Some(MAPLECODE_CLI_VERSION.to_string()),
             StatusLineItem::ContextWindowSize => self
                 .status_line_context_window_size()
                 .map(|cws| format!("{} window", format_tokens_compact(cws))),
@@ -882,7 +882,7 @@ impl ChatWidget {
             StatusSurfacePreviewItem::ContextUsed => StatusLineItem::ContextUsed,
             StatusSurfacePreviewItem::FiveHourLimit => StatusLineItem::FiveHourLimit,
             StatusSurfacePreviewItem::WeeklyLimit => StatusLineItem::WeeklyLimit,
-            StatusSurfacePreviewItem::MapleCodeVersion => StatusLineItem::MapleCodeVersion,
+            StatusSurfacePreviewItem::MaplecodeVersion => StatusLineItem::MaplecodeVersion,
             StatusSurfacePreviewItem::ContextWindowSize => StatusLineItem::ContextWindowSize,
             StatusSurfacePreviewItem::UsedTokens => StatusLineItem::UsedTokens,
             StatusSurfacePreviewItem::TotalInputTokens => StatusLineItem::TotalInputTokens,
@@ -944,8 +944,8 @@ impl ChatWidget {
             TerminalTitleItem::WeeklyLimit => self
                 .status_line_value_for_item(StatusLineItem::WeeklyLimit)
                 .map(|value| Self::truncate_terminal_title_part(value, /*max_chars*/ 32)),
-            TerminalTitleItem::MapleCodeVersion => self
-                .status_line_value_for_item(StatusLineItem::MapleCodeVersion)
+            TerminalTitleItem::MaplecodeVersion => self
+                .status_line_value_for_item(StatusLineItem::MaplecodeVersion)
                 .map(|value| Self::truncate_terminal_title_part(value, /*max_chars*/ 32)),
             TerminalTitleItem::UsedTokens => self
                 .status_line_value_for_item(StatusLineItem::UsedTokens)

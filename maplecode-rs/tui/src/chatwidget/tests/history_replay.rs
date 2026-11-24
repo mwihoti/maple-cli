@@ -151,7 +151,7 @@ async fn replayed_failed_turns_preserve_overload_warnings_between_retries() {
             Some(AppServerTurnError {
                 misalignment: None,
                 message: error_message.to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::ServerOverloaded),
+                maplecode_error_info: Some(MaplecodeErrorInfo::ServerOverloaded),
                 additional_details: None,
             }),
         )
