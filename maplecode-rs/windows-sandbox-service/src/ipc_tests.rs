@@ -240,14 +240,14 @@ fn registration_refresh_is_explicit_and_requires_registered_core() {
 
 #[test]
 fn runtime_registration_has_no_unpackaged_or_foreground_identity_exemption() {
-    let service = Some("OpenAI.MapleCode_testpublisher");
+    let service = Some("OpenAI.Maplecode_testpublisher");
     assert!(crate::package_identity::require_runtime_package_family(service, service).is_ok());
     for (client, service) in [
         (None, service),
         (service, None),
         (None, None),
-        (Some("OpenAI.MapleCodeBeta_testpublisher"), service),
-        (Some("OpenAI.MapleCode_otherpublisher"), service),
+        (Some("OpenAI.MaplecodeBeta_testpublisher"), service),
+        (Some("OpenAI.Maplecode_otherpublisher"), service),
     ] {
         assert!(crate::package_identity::require_runtime_package_family(client, service).is_err());
     }
@@ -295,7 +295,7 @@ fn unavailable_response_round_trips_through_provisioning_frame() {
 fn config_parse_errors_are_distinguished_from_policy_and_io_failures() {
     let schema_error = maplecode_core::config::deserialize_config_toml_with_base(
         toml::from_str(r#"model_verbosity = "future-verbosity""#).unwrap(),
-        Path::new(r"C:\MapleCodeTest"),
+        Path::new(r"C:\MaplecodeTest"),
     )
     .unwrap_err();
     let contents = "[";
@@ -343,7 +343,7 @@ fn policy_event_excludes_real_parser_values_but_retains_safe_codes() {
             name: "private-name".into(),
             contents: contents.into(),
         }],
-        &Path::new(r"C:\MapleCodeTest").try_into().unwrap(),
+        &Path::new(r"C:\MaplecodeTest").try_into().unwrap(),
     )
     .unwrap_err();
     for error in [
@@ -605,7 +605,7 @@ fn unpackaged_pipe_clients_are_rejected_before_sending_a_request() {
 
     static NEXT_PIPE_INSTANCE: AtomicU64 = AtomicU64::new(0);
     let name = to_wide(format!(
-        r"\\.\pipe\OpenAI.MapleCodeSandbox.Tests.{}.{}",
+        r"\\.\pipe\OpenAI.MaplecodeSandbox.Tests.{}.{}",
         std::process::id(),
         NEXT_PIPE_INSTANCE.fetch_add(1, Ordering::Relaxed)
     ));
@@ -663,7 +663,7 @@ fn unpackaged_pipe_clients_are_rejected_before_sending_a_request() {
 #[test]
 fn disconnected_pipe_clients_do_not_prevent_subsequent_connections() {
     let pipe_name = format!(
-        r"\\.\pipe\OpenAI.MapleCodeSandbox.DisconnectTests.{}",
+        r"\\.\pipe\OpenAI.MaplecodeSandbox.DisconnectTests.{}",
         std::process::id()
     );
     let name = to_wide(&pipe_name);

@@ -29,7 +29,7 @@ fn recorded_installation(accounts: &[SandboxRuntimeAccount]) -> InstallationReco
         session_id: 0,
         desktop_installation: None,
         runtime: Some(RuntimeRegistration {
-            package_family: "MapleCode.SandboxFixture_8wekyb3d8bbwe".into(),
+            package_family: "Maplecode.SandboxFixture_8wekyb3d8bbwe".into(),
             accounts: accounts
                 .iter()
                 .map(|&account| RuntimeAccountRegistration {
@@ -159,7 +159,7 @@ fn native_successful_sibling_validation() -> Result<()> {
                                     Err(anyhow!("fixture PackageManager query failed"))
                                 } else {
                                     Ok(vec![
-                                        "MapleCode.SandboxFixture_1.0.0.0_x64__8wekyb3d8bbwe"
+                                        "Maplecode.SandboxFixture_1.0.0.0_x64__8wekyb3d8bbwe"
                                             .into(),
                                     ])
                                 }
@@ -186,7 +186,7 @@ fn native_successful_sibling_validation() -> Result<()> {
             LogonUserW(
                 to_wide(account.username()).as_ptr(),
                 to_wide(".").as_ptr(),
-                to_wide("MapleCode-fixture-27967!").as_ptr(),
+                to_wide("Maplecode-fixture-27967!").as_ptr(),
                 LOGON32_LOGON_INTERACTIVE,
                 LOGON32_PROVIDER_DEFAULT,
                 &mut token,
@@ -258,7 +258,7 @@ fn native_successful_sibling_validation() -> Result<()> {
             ),
             "missing" => assert_eq!(
                 attempt(&record),
-                Err("runtime account is not in MapleCodeSandboxUsers".into())
+                Err("runtime account is not in MaplecodeSandboxUsers".into())
             ),
             _ => panic!("unknown fixture group state: {groups}"),
         }

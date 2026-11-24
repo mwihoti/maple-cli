@@ -275,7 +275,7 @@ pub(crate) fn log_error(event_id: u32, message: &str) {
 fn log_event(event_type: u16, event_id: u32, message: &str) {
     let source = SERVICE_STATE
         .get()
-        .map_or("MapleCodeSandboxService", |state| {
+        .map_or("MaplecodeSandboxService", |state| {
             state.service_name.as_str()
         })
         .encode_utf16()

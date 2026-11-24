@@ -116,9 +116,9 @@ pub(crate) fn authorize_client(
 fn is_known_maplecode_package_family(package_family: &str) -> bool {
     matches!(
         package_family,
-        "OpenAI.MapleCode_3k8sg7r9htsxt"
-            | "OpenAI.MapleCodeAlpha_3k8sg7r9htsxt"
-            | "OpenAI.MapleCodeBeta_3k8sg7r9htsxt"
-            | "OpenAI.MapleCodeNightly_3k8sg7r9htsxt"
+        "OpenAI.Maplecode_3k8sg7r9htsxt"
+            | "OpenAI.MaplecodeAlpha_3k8sg7r9htsxt"
+            | "OpenAI.MaplecodeBeta_3k8sg7r9htsxt"
+            | "OpenAI.MaplecodeNightly_3k8sg7r9htsxt"
     )
 }

@@ -91,7 +91,7 @@ pub(super) fn clean_up(
                     // Retained data must not keep permissions for the deleted sandbox group.
                     record_result(
                         "remove maplecode home sandbox permissions",
-                        resolve_sid("MapleCodeSandboxUsers")
+                        resolve_sid("MaplecodeSandboxUsers")
                             .and_then(|mut sid| unsafe {
                                 revoke_ace(home, sid.as_mut_ptr().cast())
                             })
