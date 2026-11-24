@@ -5,7 +5,7 @@ use crate::metrics::MEMORY_STARTUP;
 use crate::phase1;
 use crate::phase2;
 use crate::runtime::MemoryStartupContext;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_core::config::Config;
 use maplecode_features::Feature;
@@ -24,7 +24,7 @@ use tracing::warn;
 pub fn start_memories_startup_task(
     thread_manager: Arc<ThreadManager>,
     thread_id: ThreadId,
-    thread: Arc<MapleCodeThread>,
+    thread: Arc<MaplecodeThread>,
     config: Arc<Config>,
     parent_permission_profile: PermissionProfile,
     source: &SessionSource,

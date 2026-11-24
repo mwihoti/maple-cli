@@ -1,7 +1,7 @@
 use crate::metrics::MEMORY_STORAGE_BYTES;
 use crate::workspace::memory_storage_bytes;
 use futures::StreamExt;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ModelClient;
 use maplecode_core::NewThread;
 use maplecode_core::Prompt;
@@ -17,7 +17,7 @@ use maplecode_core::detached_memory_responses_metadata;
 use maplecode_core::resolve_installation_id;
 use maplecode_features::Feature;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::AgentIdentityAuthPolicy;
 use maplecode_login::auth_env_telemetry::collect_auth_env_telemetry;
 use maplecode_login::default_client::originator;
@@ -46,7 +46,7 @@ use std::time::Duration;
 
 pub(crate) struct SpawnedConsolidationAgent {
     pub(crate) thread_id: ThreadId,
-    pub(crate) thread: Arc<MapleCodeThread>,
+    pub(crate) thread: Arc<MaplecodeThread>,
 }
 
 #[derive(Clone, Debug)]
@@ -80,7 +80,7 @@ impl StageOneRequestContext {
 pub(crate) struct MemoryStartupContext {
     version: MemoryVersion,
     thread_id: ThreadId,
-    thread: Arc<MapleCodeThread>,
+    thread: Arc<MaplecodeThread>,
     thread_manager: Arc<ThreadManager>,
     auth_manager: Arc<AuthManager>,
     provider: SharedModelProvider,
@@ -113,10 +113,10 @@ fn build_session_telemetry(
     let auth = auth_manager.auth_cached();
     let auth = auth.as_ref();
     let auth_mode = auth
-        .map(MapleCodeAuth::auth_mode)
+        .map(MaplecodeAuth::auth_mode)
         .map(TelemetryAuthMode::from);
-    let account_id = auth.and_then(MapleCodeAuth::get_account_id);
-    let account_email = auth.and_then(MapleCodeAuth::get_account_email);
+    let account_id = auth.and_then(MaplecodeAuth::get_account_id);
+    let account_email = auth.and_then(MaplecodeAuth::get_account_email);
     let auth_env_telemetry = collect_auth_env_telemetry(
         &config.model_provider,
         auth_manager.maplecode_api_key_env_enabled(),
@@ -149,7 +149,7 @@ impl MemoryStartupContext {
         thread_manager: Arc<ThreadManager>,
         auth: Arc<ProviderAuthContext>,
         thread_id: ThreadId,
-        thread: Arc<MapleCodeThread>,
+        thread: Arc<MaplecodeThread>,
         config: &Config,
         source: SessionSource,
     ) -> Self {
@@ -170,7 +170,7 @@ impl MemoryStartupContext {
         thread_manager: Arc<ThreadManager>,
         auth_manager: Arc<AuthManager>,
         thread_id: ThreadId,
-        thread: Arc<MapleCodeThread>,
+        thread: Arc<MaplecodeThread>,
         config: &Config,
         source: SessionSource,
         provider: SharedModelProvider,
@@ -190,7 +190,7 @@ impl MemoryStartupContext {
         thread_manager: Arc<ThreadManager>,
         auth_manager: Arc<AuthManager>,
         thread_id: ThreadId,
-        thread: Arc<MapleCodeThread>,
+        thread: Arc<MaplecodeThread>,
         config: &Config,
         source: SessionSource,
         provider: SharedModelProvider,

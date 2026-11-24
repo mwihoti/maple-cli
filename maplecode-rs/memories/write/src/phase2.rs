@@ -339,7 +339,7 @@ mod agent {
             .features
             .disable(Feature::SkillMcpDependencyInstall);
 
-        // Preserve the parent's explicit choice to skip MapleCode-managed sandboxing.
+        // Preserve the parent's explicit choice to skip Maplecode-managed sandboxing.
         let permission_profile = match parent_permission_profile {
             PermissionProfile::Managed { .. } => {
                 // The consolidation agent only needs local memory-root write access and no network.
@@ -503,7 +503,7 @@ mod agent {
         db: MemoryStore,
         token: String,
         thread_id: ThreadId,
-        thread: &maplecode_core::MapleCodeThread,
+        thread: &maplecode_core::MaplecodeThread,
     ) -> AgentStatus {
         let mut heartbeat_interval =
             tokio::time::interval(Duration::from_secs(crate::stage_two::JOB_HEARTBEAT_SECONDS));

@@ -13,7 +13,7 @@ use maplecode_config::types::MemoriesConfig;
 use maplecode_core::Prompt;
 use maplecode_core::config::Config;
 use maplecode_protocol::MemoryVersion;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::BaseInstructions;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
@@ -418,7 +418,7 @@ mod job {
             })
             .collect::<Vec<_>>();
         let serialized = serde_json::to_string(&filtered).map_err(|err| {
-            MapleCodeErr::InvalidRequest(format!("failed to serialize rollout memory: {err}"))
+            MaplecodeErr::InvalidRequest(format!("failed to serialize rollout memory: {err}"))
         })?;
         Ok(redact_secrets(serialized))
     }

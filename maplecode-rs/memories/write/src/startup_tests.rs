@@ -20,8 +20,8 @@ use core_test_support::responses::sse;
 #[cfg(unix)]
 use core_test_support::responses::sse_failed;
 use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_config::test_support::CloudConfigBundleFixture;
@@ -30,7 +30,7 @@ use maplecode_features::Feature;
 use maplecode_git_utils::diff_since_latest_init;
 use maplecode_git_utils::reset_git_repository;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::ModelProvider;
 use maplecode_model_provider::ModelProviderFuture;
 use maplecode_model_provider::ProviderAccountResult;
@@ -1198,13 +1198,13 @@ fn startup_test_memories_config() -> MemoriesConfig {
 async fn build_test_maplecode(
     server: &wiremock::MockServer,
     home: Arc<TempDir>,
-) -> anyhow::Result<TestMapleCode> {
+) -> anyhow::Result<TestMaplecode> {
     memory_test_maplecode(home, startup_test_memories_config())
         .build(server)
         .await
 }
 
-fn memory_test_maplecode(home: Arc<TempDir>, memories: MemoriesConfig) -> TestMapleCodeBuilder {
+fn memory_test_maplecode(home: Arc<TempDir>, memories: MemoriesConfig) -> TestMaplecodeBuilder {
     test_maplecode().with_home(home).with_config(move |config| {
         config
             .features
@@ -1224,7 +1224,7 @@ async fn init_state_db(home: &Arc<TempDir>) -> anyhow::Result<Arc<maplecode_stat
     Ok(db)
 }
 
-async fn trigger_memories_startup(test: &TestMapleCode) {
+async fn trigger_memories_startup(test: &TestMaplecode) {
     let config_snapshot = test.maplecode.config_snapshot().await;
     let mut config = test.config.clone();
     config
@@ -1243,7 +1243,7 @@ async fn trigger_memories_startup(test: &TestMapleCode) {
 }
 
 async fn memory_startup_context_with_provider(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     provider: SharedModelProvider,
 ) -> (
     Arc<MemoryStartupContext>,
@@ -1302,7 +1302,7 @@ impl ModelProvider for MockMemoryModelProvider {
         self.delegate.auth_manager()
     }
 
-    fn auth(&self) -> ModelProviderFuture<'_, Option<MapleCodeAuth>> {
+    fn auth(&self) -> ModelProviderFuture<'_, Option<MaplecodeAuth>> {
         let delegate = Arc::clone(&self.delegate);
         Box::pin(async move { delegate.auth().await })
     }
@@ -1464,7 +1464,7 @@ async fn wait_for_request(mock: &ResponseMock, expected_count: usize) -> Vec<Res
 }
 
 async fn wait_for_service_tier(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     expected_service_tier: Option<String>,
 ) -> anyhow::Result<maplecode_core::ThreadConfigSnapshot> {
     let deadline = Instant::now() + Duration::from_secs(10);
@@ -1577,7 +1577,7 @@ async fn read_rollout_summary_bodies(memory_root: &Path) -> anyhow::Result<Vec<S
     Ok(summaries)
 }
 
-async fn shutdown_test_maplecode(test: &TestMapleCode) -> anyhow::Result<()> {
+async fn shutdown_test_maplecode(test: &TestMaplecode) -> anyhow::Result<()> {
     test.maplecode.submit(Op::Shutdown {}).await?;
     wait_for_event(&test.maplecode, |ev| {
         matches!(ev, EventMsg::ShutdownComplete)
@@ -1660,7 +1660,7 @@ async fn memories_startup_uses_thread_runtime_and_keeps_custom_destinations_inde
     use core_test_support::runtime_auth::run_harness_through_proxy;
     use maplecode_features::RuntimeAuthMode;
     use maplecode_login::AuthManager;
-    use maplecode_login::MapleCodeAuth;
+    use maplecode_login::MaplecodeAuth;
     use maplecode_model_provider::ProviderAuthContext;
     use maplecode_runtime_agent_instance::AgentHostAuthorization;
     use maplecode_runtime_agent_instance::RuntimeAuthManager;
@@ -1686,7 +1686,7 @@ async fn memories_startup_uses_thread_runtime_and_keeps_custom_destinations_inde
     let token = format!("header.{claims}.signature");
     if let Ok(server) = std::env::var(PROBE_SERVER) {
         let credentials =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::from_external_chatgpt_tokens(
+            AuthManager::from_auth_for_testing(MaplecodeAuth::from_external_chatgpt_tokens(
                 &token,
                 "account_id",
                 /*chatgpt_plan_type*/ None,
@@ -1716,7 +1716,7 @@ async fn memories_startup_uses_thread_runtime_and_keeps_custom_destinations_inde
                 let home = Arc::new(TempDir::new()?);
                 let mut test = test_maplecode()
                     .with_home(Arc::clone(&home))
-                    .with_auth(MapleCodeAuth::from_api_key("ambient-key"))
+                    .with_auth(MaplecodeAuth::from_api_key("ambient-key"))
                     .with_config(|config| {
                         config
                             .features
