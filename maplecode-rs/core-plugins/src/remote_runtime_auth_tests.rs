@@ -61,7 +61,7 @@ async fn plugin_runtime_auth_shares_registration_and_strips_cross_origin_auth() 
             .expect(1)
             .mount(&server)
             .await;
-        Mock::given(path("/backend-api/ps/plugins/suggested/maplecode"))
+        Mock::given(path("/backend-api/ps/plugins/suggested/codex"))
             .respond_with(ResponseTemplate::new(307).insert_header("location", destination.uri()))
             .expect(1)
             .mount(&server)
@@ -74,7 +74,7 @@ async fn plugin_runtime_auth_shares_registration_and_strips_cross_origin_auth() 
             "header.{}.signature",
             base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(claims.to_string())
         );
-        let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+        let auth = MaplecodeAuth::from_external_chatgpt_tokens(
             &token,
             "account-a",
             /*chatgpt_plan_type*/ None,
@@ -243,7 +243,7 @@ async fn custom_plugin_backend_keeps_legacy_auth_with_runtime_enabled() {
             /*product_sku*/ None,
             (RuntimeAuthSlot::default(), mode),
         );
-        let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+        let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
         crate::remote_legacy::fetch_remote_featured_plugin_ids(
             &config,
             Some(&auth),
@@ -268,7 +268,7 @@ async fn custom_plugin_backend_keeps_legacy_auth_with_runtime_enabled() {
 async fn unsupported_openai_plugin_backend_fails_before_registration() {
     for mode in [RuntimeAuthMode::DualHeader, RuntimeAuthMode::AssertionOnly] {
         let server = MockServer::start().await;
-        let auth = MapleCodeAuth::from_api_key("key-a");
+        let auth = MaplecodeAuth::from_api_key("key-a");
         let runtime = (
             Arc::new(std::sync::OnceLock::from(Arc::new(
                 RuntimeAuthManager::new(

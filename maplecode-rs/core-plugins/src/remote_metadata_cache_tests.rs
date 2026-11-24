@@ -24,7 +24,7 @@ enabled = true
     let config = load_config(maplecode_home.path(), maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
     let mut remote = remote_installed_plugin("sample");

@@ -17,7 +17,7 @@ use crate::remote_bundle::RemotePluginBundleInstallError;
 use maplecode_app_server_protocol::PluginAuthPolicy;
 use maplecode_app_server_protocol::PluginAvailability;
 use maplecode_app_server_protocol::PluginInstallPolicy;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_plugin::PluginId;
 use maplecode_plugin::PluginTelemetryMetadata;
 use std::sync::Arc;
@@ -85,7 +85,7 @@ impl PluginsManager {
     pub async fn install_remote_plugin(
         self: &Arc<Self>,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         request: RemotePluginInstallRequest,
         on_effective_plugins_changed: Option<EffectivePluginsChangedCallback>,
     ) -> Result<RemotePluginInstallOutcome, RemotePluginOperationError> {
@@ -218,7 +218,7 @@ impl PluginsManager {
     pub async fn uninstall_remote_plugin(
         self: &Arc<Self>,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         remote_plugin_id: &str,
         on_effective_plugins_changed: Option<EffectivePluginsChangedCallback>,
     ) -> Result<RemotePluginUninstallOutcome, RemotePluginOperationError> {

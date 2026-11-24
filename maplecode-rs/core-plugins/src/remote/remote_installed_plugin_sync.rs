@@ -17,7 +17,7 @@ use crate::remote::InstalledPluginDisplayAssets;
 use crate::store::PLUGINS_CACHE_DIR;
 use crate::store::PluginStore;
 use crate::store::PluginStoreError;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_plugin::PluginId;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
@@ -117,7 +117,7 @@ pub(crate) fn remote_installed_plugin_bundle_sync_gate(maplecode_home: &Path) ->
 pub async fn sync_remote_installed_plugin_bundles_once(
     maplecode_home: PathBuf,
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> Result<RemoteInstalledPluginBundleSyncOutcome, RemoteInstalledPluginBundleSyncError> {
     let result = sync_remote_installed_plugin_bundles_once_with_snapshot(
         maplecode_home,
@@ -132,7 +132,7 @@ pub async fn sync_remote_installed_plugin_bundles_once(
 pub(crate) async fn sync_remote_installed_plugin_bundles_once_with_snapshot(
     maplecode_home: PathBuf,
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     previous_plugin_ids: &[PluginId],
 ) -> Result<RemoteInstalledPluginBundleSyncResult, RemoteInstalledPluginBundleSyncError> {
     let auth = ensure_chatgpt_auth(auth)?;
@@ -580,7 +580,7 @@ mod tests {
             crate::test_support::test_http_client_factory(),
             /*product_sku*/ None,
         );
-        let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+        let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
         let outcome = sync_remote_installed_plugin_bundles_once(
             maplecode_home.path().to_path_buf(),
@@ -731,7 +731,7 @@ mod tests {
         let (config, selected_urls) = crate::test_support::recording_remote_plugin_service_config(
             format!("{}/backend-api", server.uri()),
         );
-        let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+        let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
         let outcome = sync_remote_installed_plugin_bundles_once(
             maplecode_home.path().to_path_buf(),

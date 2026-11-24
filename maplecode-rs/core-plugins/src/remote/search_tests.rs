@@ -89,7 +89,7 @@ async fn search_remote_plugins_forwards_parameters_and_converts_results() {
         .await;
     let (config, selected_urls) =
         recording_remote_plugin_service_config(format!("{}/backend-api/", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let result = search_remote_plugins(
         &config,
@@ -177,7 +177,7 @@ async fn search_remote_plugins_omits_optional_scope_and_page_token() {
         .await;
     let (config, _) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     for _ in 0..2 {
         let result = search_remote_plugins(
@@ -208,7 +208,7 @@ async fn search_remote_plugins_forwards_each_supported_scope() {
     let server = MockServer::start().await;
     let (config, _) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     for (scope, expected_scope) in [
         (RemotePluginScope::Global, "GLOBAL"),
@@ -262,7 +262,7 @@ async fn search_remote_plugins_preserves_order_and_canonical_marketplaces() {
         .await;
     let (config, _) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let result = search_remote_plugins(
         &config,
@@ -346,7 +346,7 @@ async fn search_remote_plugins_requires_chatgpt_authentication() {
 async fn search_remote_plugins_rejects_api_key_authentication() {
     let (config, selected_urls) =
         recording_remote_plugin_service_config("https://chatgpt.example/backend-api".to_string());
-    let auth = MapleCodeAuth::from_api_key("test-api-key");
+    let auth = MaplecodeAuth::from_api_key("test-api-key");
 
     let result = search_remote_plugins(
         &config,
@@ -385,7 +385,7 @@ async fn search_remote_plugins_redacts_sensitive_parameters_from_transport_error
     });
     let (config, _) =
         recording_remote_plugin_service_config(format!("http://{address}/backend-api"));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let error = search_remote_plugins(
         &config,
@@ -427,7 +427,7 @@ async fn search_remote_plugins_preserves_upstream_http_errors() {
         .await;
     let (config, _) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let result = search_remote_plugins(
         &config,
@@ -469,7 +469,7 @@ async fn search_remote_plugins_preserves_response_decode_errors() {
         .await;
     let (config, _) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let result = search_remote_plugins(
         &config,

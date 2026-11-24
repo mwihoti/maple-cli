@@ -6,7 +6,7 @@ use super::super::RemotePluginServiceConfig;
 use super::local_paths;
 use maplecode_app_server_protocol::PluginAuthPolicy;
 use maplecode_app_server_protocol::PluginInstallPolicy;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_plugin::PluginId;
 use maplecode_plugin::validate_plugin_segment;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
@@ -36,7 +36,7 @@ pub struct RemotePluginShareCheckoutResult {
 
 pub async fn checkout_remote_plugin_share(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     maplecode_home: &Path,
     remote_plugin_id: &str,
 ) -> Result<RemotePluginShareCheckoutResult, RemotePluginCatalogError> {

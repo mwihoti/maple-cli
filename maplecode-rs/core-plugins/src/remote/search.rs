@@ -8,7 +8,7 @@ use super::build_remote_plugin_summary;
 use super::ensure_chatgpt_auth;
 use super::send_and_decode;
 use http::Method;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use tracing::instrument;
 use url::Url;
 
@@ -36,7 +36,7 @@ pub struct RemotePluginSearchPage {
 )]
 pub async fn search_remote_plugins(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     search: RemotePluginSearchRequest<'_>,
 ) -> Result<RemotePluginSearchPage, RemotePluginCatalogError> {
     let auth = ensure_chatgpt_auth(auth)?;

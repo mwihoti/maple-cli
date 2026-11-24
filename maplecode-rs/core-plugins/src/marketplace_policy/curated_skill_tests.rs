@@ -12,7 +12,7 @@ use maplecode_config::loader::load_config_layers_state;
 use maplecode_exec_server::LOCAL_FS;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::test_support::auth_manager_from_optional_auth;
 use maplecode_protocol::protocol::Product;
 use maplecode_protocol::protocol::SkillScope;
@@ -96,9 +96,9 @@ async fn curated_git_requirements_control_plugin_skills() -> Result<()> {
             /*product_sku*/ None,
         );
         let auth = if name == "openai-curated" {
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()
         } else {
-            MapleCodeAuth::from_api_key("test-api-key")
+            MaplecodeAuth::from_api_key("test-api-key")
         };
         let skills = test_skill_root_loader();
         let manager = PluginsManager::new(
@@ -110,7 +110,7 @@ async fn curated_git_requirements_control_plugin_skills() -> Result<()> {
         let loaded = skills
             .load_roots(SkillRootLoadRequest {
                 roots: plugins.effective_plugin_skill_roots(),
-                restriction_product: Some(Product::MapleCode),
+                restriction_product: Some(Product::Maplecode),
                 snapshots: manager.plugin_skill_snapshots_for_config(&config),
             })
             .await;

@@ -2,7 +2,7 @@ use anyhow::Context;
 use maplecode_app_server_protocol::PluginAvailability;
 use maplecode_app_server_protocol::PluginInstallPolicy;
 use maplecode_config::skill_config_rules_from_stack;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_plugin::PluginId;
 use std::collections::HashSet;
 use tracing::warn;
@@ -71,14 +71,14 @@ impl PluginsManager {
     pub async fn list_tool_suggest_discoverable_plugins(
         &self,
         input: &ToolSuggestPluginDiscoveryInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> anyhow::Result<Vec<ToolSuggestDiscoverablePlugin>> {
         if !input.plugins.plugins_enabled {
             return Ok(Vec::new());
         }
 
         let use_remote_global_catalog = input.plugins.remote_plugin_enabled
-            && auth.is_some_and(MapleCodeAuth::uses_maplecode_backend);
+            && auth.is_some_and(MaplecodeAuth::uses_maplecode_backend);
         let marketplaces = self
             .list_marketplaces_for_config(
                 &input.plugins,

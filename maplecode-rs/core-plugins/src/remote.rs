@@ -28,7 +28,7 @@ use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::RequestBuilder;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_http_client::RouteAwareRequestError;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::default_client::default_headers;
 use maplecode_plugin::AppConnectorId;
 use maplecode_plugin::AppDeclaration;
@@ -230,7 +230,7 @@ impl RemotePluginServiceConfig {
         &'a self,
         method: Method,
         url: &'a str,
-        auth: &'a MapleCodeAuth,
+        auth: &'a MaplecodeAuth,
     ) -> std::pin::Pin<
         Box<
             dyn std::future::Future<Output = Result<RequestBuilder, maplecode_api::AuthError>>
@@ -932,7 +932,7 @@ pub struct RemotePluginInstallResult {
 
 pub async fn fetch_remote_marketplaces(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     sources: &[RemoteMarketplaceSource],
     catalog_cache_root: Option<&Path>,
     catalog_cache_mode: RemotePluginCatalogCacheMode,
@@ -1105,7 +1105,7 @@ pub async fn fetch_remote_marketplaces(
 pub(crate) async fn fetch_and_cache_remote_plugin_catalog(
     maplecode_home: &Path,
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     scope: RemotePluginScope,
 ) -> Result<(), RemotePluginCatalogError> {
     let auth = ensure_chatgpt_auth(auth)?;
@@ -1124,7 +1124,7 @@ pub(crate) async fn fetch_and_cache_remote_plugin_catalog(
 pub async fn fetch_and_cache_global_remote_plugin_catalog(
     maplecode_home: &Path,
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> Result<(), RemotePluginCatalogError> {
     fetch_and_cache_remote_plugin_catalog(maplecode_home, config, auth, RemotePluginScope::Global)
         .await
@@ -1133,7 +1133,7 @@ pub async fn fetch_and_cache_global_remote_plugin_catalog(
 pub fn invalidate_cached_remote_plugin_catalog_scopes(
     maplecode_home: &Path,
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     scopes: &[RemotePluginScope],
 ) {
     let Ok(auth) = ensure_chatgpt_auth(auth) else {
@@ -1162,11 +1162,11 @@ pub fn invalidate_cached_remote_plugin_catalog_scopes(
 #[instrument(level = "trace", skip_all)]
 pub async fn fetch_recommended_plugins(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> Result<RecommendedPluginsMode, RemotePluginCatalogError> {
     let auth = ensure_chatgpt_auth(auth)?;
     let base_url = config.chatgpt_base_url.trim_end_matches('/');
-    let mut url = Url::parse(&format!("{base_url}/ps/plugins/suggested/maplecode"))
+    let mut url = Url::parse(&format!("{base_url}/ps/plugins/suggested/codex"))
         .map_err(RemotePluginCatalogError::InvalidBaseUrl)?;
     url.query_pairs_mut().append_pair("scope", "GLOBAL");
     let url = url.to_string();
@@ -1180,7 +1180,7 @@ pub async fn fetch_recommended_plugins(
 #[instrument(level = "trace", skip_all)]
 pub(crate) async fn fetch_recommended_plugin_install_metadata(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     plugin_id: &str,
 ) -> Result<Option<Vec<String>>, RemotePluginCatalogError> {
     let auth = ensure_chatgpt_auth(auth)?;
@@ -1269,7 +1269,7 @@ fn recommended_plugins_mode(response: RecommendedPluginsResponse) -> Recommended
 pub(crate) fn has_fresh_cached_remote_plugin_catalog(
     maplecode_home: &Path,
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     scope: RemotePluginScope,
 ) -> bool {
     let Ok(auth) = ensure_chatgpt_auth(auth) else {
@@ -1287,7 +1287,7 @@ pub(crate) fn has_fresh_cached_remote_plugin_catalog(
 pub fn cached_global_remote_discoverable_plugins(
     maplecode_home: &Path,
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
 ) -> Vec<RemoteDiscoverablePlugin> {
     catalog_cache::load_cached_directory_plugins(
         maplecode_home,
@@ -1314,7 +1314,7 @@ pub fn cached_global_remote_discoverable_plugins(
 
 pub async fn fetch_openai_curated_remote_collection_marketplace(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     catalog_cache_root: Option<&Path>,
     catalog_cache_mode: RemotePluginCatalogCacheMode,
 ) -> Result<RemoteMarketplaceFetchOutcome, RemotePluginCatalogError> {
@@ -1394,7 +1394,7 @@ pub enum InstalledPluginDisplayAssets {
 
 pub(crate) async fn fetch_remote_installed_plugins(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> Result<Vec<RemoteInstalledPlugin>, RemotePluginCatalogError> {
     fetch_remote_installed_plugins_with_display_assets(
         config,
@@ -1406,7 +1406,7 @@ pub(crate) async fn fetch_remote_installed_plugins(
 
 pub(crate) async fn fetch_remote_installed_plugins_with_display_assets(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     display_assets: InstalledPluginDisplayAssets,
 ) -> Result<Vec<RemoteInstalledPlugin>, RemotePluginCatalogError> {
     let auth = ensure_chatgpt_auth(auth)?;
@@ -1485,7 +1485,7 @@ pub fn group_remote_installed_plugins_by_marketplaces(
 
 pub async fn fetch_remote_plugin_detail(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     marketplace_name: &str,
     plugin_id: &str,
 ) -> Result<RemotePluginDetail, RemotePluginCatalogError> {
@@ -1501,7 +1501,7 @@ pub async fn fetch_remote_plugin_detail(
 
 pub async fn fetch_remote_plugin_share_context(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     plugin_id: &str,
 ) -> Result<Option<RemotePluginShareContext>, RemotePluginCatalogError> {
     let auth = ensure_chatgpt_auth(auth)?;
@@ -1514,7 +1514,7 @@ pub async fn fetch_remote_plugin_share_context(
 
 pub async fn fetch_remote_plugin_detail_with_download_urls(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     marketplace_name: &str,
     plugin_id: &str,
 ) -> Result<RemotePluginDetail, RemotePluginCatalogError> {
@@ -1530,7 +1530,7 @@ pub async fn fetch_remote_plugin_detail_with_download_urls(
 
 pub async fn fetch_remote_plugin_skill_detail(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     marketplace_name: &str,
     plugin_id: &str,
     skill_name: &str,
@@ -1565,7 +1565,7 @@ pub async fn fetch_remote_plugin_skill_detail(
 
 async fn fetch_remote_plugin_detail_with_download_url_option(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     _marketplace_name: &str,
     plugin_id: &str,
     include_download_urls: bool,
@@ -1583,7 +1583,7 @@ async fn fetch_remote_plugin_detail_with_download_url_option(
 
 async fn build_remote_plugin_detail(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemotePluginScope,
     marketplace_name: String,
     plugin_id: &str,
@@ -1667,7 +1667,7 @@ fn app_declarations_from_remote_app_ids(app_ids: &[String]) -> Vec<AppDeclaratio
 
 fn effective_remote_plugin_apps_and_mcp_servers(
     release: &RemotePluginReleaseResponse,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
 ) -> (Vec<String>, Vec<String>) {
     let mut app_declarations = release
         .app_manifest
@@ -1702,7 +1702,7 @@ struct RemotePluginInstallRequest<'a> {
 
 pub async fn install_remote_plugin(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     marketplace_name: &str,
     plugin_id: &str,
 ) -> Result<RemotePluginInstallResult, RemotePluginCatalogError> {
@@ -1718,7 +1718,7 @@ pub async fn install_remote_plugin(
 
 pub async fn install_remote_plugin_with_install_attempt_id(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     marketplace_name: &str,
     plugin_id: &str,
     install_attempt_id: &str,
@@ -1735,7 +1735,7 @@ pub async fn install_remote_plugin_with_install_attempt_id(
 
 async fn install_remote_plugin_inner(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     _marketplace_name: &str,
     plugin_id: &str,
     install_attempt_id: Option<&str>,
@@ -1778,7 +1778,7 @@ async fn install_remote_plugin_inner(
 
 pub async fn resolve_remote_plugin_uninstall_target(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     remote_plugin_id: &str,
 ) -> Result<RemotePluginUninstallTarget, RemotePluginCatalogError> {
     let auth = ensure_chatgpt_auth(auth)?;
@@ -1828,7 +1828,7 @@ pub async fn resolve_remote_plugin_uninstall_target(
 
 pub async fn uninstall_remote_plugin(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     maplecode_home: PathBuf,
     target: RemotePluginUninstallTarget,
 ) -> Result<(), RemotePluginCatalogError> {
@@ -2185,7 +2185,7 @@ struct DirectoryPluginsFetchOutcome {
 async fn fetch_directory_plugins_for_scope_with_cache(
     maplecode_home: Option<&Path>,
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemotePluginScope,
     collection: Option<&str>,
     cache_mode: RemotePluginCatalogCacheMode,
@@ -2232,7 +2232,7 @@ async fn fetch_directory_plugins_for_scope_with_cache(
 
 async fn fetch_directory_plugins_for_scope(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemotePluginScope,
 ) -> Result<Vec<RemotePluginDirectoryItem>, RemotePluginCatalogError> {
     fetch_directory_plugins_for_scope_with_optional_collection(
@@ -2243,7 +2243,7 @@ async fn fetch_directory_plugins_for_scope(
 
 async fn fetch_directory_plugins_for_scope_with_optional_collection(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemotePluginScope,
     collection: Option<&str>,
 ) -> Result<Vec<RemotePluginDirectoryItem>, RemotePluginCatalogError> {
@@ -2273,7 +2273,7 @@ async fn fetch_directory_plugins_for_scope_with_optional_collection(
 
 async fn fetch_shared_workspace_plugins(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
 ) -> Result<Vec<RemotePluginDirectoryItem>, RemotePluginCatalogError> {
     let mut plugins = Vec::new();
     let mut page_token = None;
@@ -2291,7 +2291,7 @@ async fn fetch_shared_workspace_plugins(
 
 async fn fetch_installed_plugins_for_scope(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemotePluginScope,
 ) -> Result<Vec<RemotePluginInstalledItem>, RemotePluginCatalogError> {
     fetch_installed_plugins(
@@ -2306,7 +2306,7 @@ async fn fetch_installed_plugins_for_scope(
 
 async fn fetch_installed_plugins(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemoteInstalledPluginScope,
     include_download_urls: bool,
     display_assets: InstalledPluginDisplayAssets,
@@ -2348,7 +2348,7 @@ async fn fetch_installed_plugins(
 
 async fn get_remote_plugin_list_page(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemotePluginScope,
     page_token: Option<&str>,
     collection: Option<&str>,
@@ -2372,7 +2372,7 @@ async fn get_remote_plugin_list_page(
 
 async fn get_remote_shared_workspace_plugins_page(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     page_token: Option<&str>,
 ) -> Result<RemotePluginListResponse, RemotePluginCatalogError> {
     let base_url = config.chatgpt_base_url.trim_end_matches('/');
@@ -2390,7 +2390,7 @@ async fn get_remote_shared_workspace_plugins_page(
 
 async fn get_remote_plugin_installed_page(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemoteInstalledPluginScope,
     page_token: Option<&str>,
     include_download_urls: bool,
@@ -2423,7 +2423,7 @@ async fn get_remote_plugin_installed_page(
 
 async fn fetch_plugin_detail(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     plugin_id: &str,
     include_download_urls: bool,
 ) -> Result<RemotePluginDirectoryItem, RemotePluginCatalogError> {
@@ -2439,7 +2439,7 @@ async fn fetch_plugin_detail(
 
 async fn fetch_plugin_detail_with_timeout(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     plugin_id: &str,
     include_download_urls: bool,
     timeout: Duration,
@@ -2480,8 +2480,8 @@ fn remote_plugin_skill_detail_url(
 }
 
 fn ensure_chatgpt_auth(
-    auth: Option<&MapleCodeAuth>,
-) -> Result<&MapleCodeAuth, RemotePluginCatalogError> {
+    auth: Option<&MaplecodeAuth>,
+) -> Result<&MaplecodeAuth, RemotePluginCatalogError> {
     let Some(auth) = auth else {
         return Err(RemotePluginCatalogError::AuthRequired);
     };
@@ -2495,7 +2495,7 @@ async fn authenticated_request(
     config: &RemotePluginServiceConfig,
     method: Method,
     url: &str,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
 ) -> Result<RequestBuilder, RemotePluginCatalogError> {
     Ok(config
         .authenticated_request(method, url, auth)

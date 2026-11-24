@@ -1,11 +1,11 @@
 use crate::remote::RemotePluginCatalogError;
 use crate::remote::RemotePluginServiceConfig;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_tools::DiscoverableTool;
 
 pub async fn hydrate_selected_recommended_plugin_install_metadata(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     mut tool: DiscoverableTool,
 ) -> Result<Option<DiscoverableTool>, RemotePluginCatalogError> {
     let DiscoverableTool::Plugin(plugin) = &mut tool else {

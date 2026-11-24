@@ -4,7 +4,7 @@ use super::RemotePluginScope;
 use super::RemotePluginServiceConfig;
 use chrono::DateTime;
 use chrono::Utc;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
@@ -45,7 +45,7 @@ struct RemotePluginCatalogCacheKey {
 impl RemotePluginCatalogCacheKey {
     fn new(
         config: &RemotePluginServiceConfig,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
         scope: RemotePluginScope,
         collection: Option<&str>,
     ) -> Option<Self> {
@@ -92,7 +92,7 @@ pub(super) struct CachedDirectoryPlugins<T> {
 pub(super) fn has_cached_directory_plugins(
     maplecode_home: &Path,
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemotePluginScope,
     cache_mode: RemotePluginCatalogCacheMode,
 ) -> bool {
@@ -111,7 +111,7 @@ pub(super) fn has_cached_directory_plugins(
 pub(super) fn load_cached_directory_plugins<T: DeserializeOwned>(
     maplecode_home: &Path,
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemotePluginScope,
     collection: Option<&str>,
     cache_mode: RemotePluginCatalogCacheMode,
@@ -270,7 +270,7 @@ impl<'de> Visitor<'de> for &mut CatalogHeader {
 pub(crate) fn write_cached_directory_plugins(
     maplecode_home: &Path,
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemotePluginScope,
     collection: Option<&str>,
     plugins: &[RemotePluginDirectoryItem],
@@ -292,7 +292,7 @@ pub(crate) fn write_cached_directory_plugins(
 pub(crate) fn remove_cached_directory_plugins(
     maplecode_home: &Path,
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     scope: RemotePluginScope,
     collection: Option<&str>,
 ) {

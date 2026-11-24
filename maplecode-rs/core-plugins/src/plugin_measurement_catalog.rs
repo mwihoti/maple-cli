@@ -8,7 +8,7 @@ use maplecode_utils_path_uri::PathConvention;
 /// other installed plugins and never publishes to the shared plugin catalog.
 pub(crate) async fn fetch_measurement_reference_bundle(
     config: &RemotePluginServiceConfig,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     target: &crate::script_attribution::PluginMeasurementTarget,
 ) -> anyhow::Result<Option<(String, crate::remote_bundle::ValidatedRemotePluginBundle)>> {
     ensure_chatgpt_auth(Some(auth))?;

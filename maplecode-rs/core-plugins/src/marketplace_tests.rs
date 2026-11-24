@@ -1940,7 +1940,7 @@ fn list_marketplaces_resolves_plugin_interface_paths_to_absolute() {
     );
     assert_eq!(
         marketplaces[0].plugins[0].policy.products,
-        Some(vec![Product::MapleCode, Product::Chatgpt, Product::Atlas])
+        Some(vec![Product::Maplecode, Product::Chatgpt, Product::Atlas])
     );
     assert_eq!(
         marketplaces[0].plugins[0].interface,
@@ -2277,7 +2277,7 @@ fn find_installable_marketplace_plugin_rejects_explicit_empty_products() {
     let err = find_installable_marketplace_plugin(
         &AbsolutePathBuf::try_from(repo_root.join(".agents/plugins/marketplace.json")).unwrap(),
         "disabled-plugin",
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
     )
     .unwrap_err();
 

@@ -27,7 +27,7 @@ use maplecode_login::AuthManager;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::BedrockAccessKeysAuth;
 use maplecode_login::auth::BedrockApiKeyAuth;
 use maplecode_login::test_support::auth_manager_from_optional_auth;
@@ -109,7 +109,7 @@ pub(crate) async fn set_test_auth_mode(auth_manager: &AuthManager, auth_mode: Op
     set_test_auth(auth_manager, test_maplecode_auth(auth_mode)).await;
 }
 
-pub(crate) async fn set_test_auth(auth_manager: &AuthManager, auth: Option<MapleCodeAuth>) {
+pub(crate) async fn set_test_auth(auth_manager: &AuthManager, auth: Option<MaplecodeAuth>) {
     let Some(auth) = auth else {
         auth_manager.clear_external_auth();
         return;
@@ -120,43 +120,43 @@ pub(crate) async fn set_test_auth(auth_manager: &AuthManager, auth: Option<Maple
         .expect("test auth should update");
 }
 
-fn test_maplecode_auth(auth_mode: Option<AuthMode>) -> Option<MapleCodeAuth> {
+fn test_maplecode_auth(auth_mode: Option<AuthMode>) -> Option<MaplecodeAuth> {
     auth_mode.map(|auth_mode| match auth_mode {
-        AuthMode::ApiKey => MapleCodeAuth::from_api_key("test-api-key"),
-        AuthMode::Chatgpt => MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
-        AuthMode::ChatgptAuthTokens => MapleCodeAuth::from_external_chatgpt_tokens(
+        AuthMode::ApiKey => MaplecodeAuth::from_api_key("test-api-key"),
+        AuthMode::Chatgpt => MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        AuthMode::ChatgptAuthTokens => MaplecodeAuth::from_external_chatgpt_tokens(
             "header.e30.test",
             "test-account",
             /*chatgpt_plan_type*/ None,
         )
         .expect("test ChatGPT tokens should parse"),
-        AuthMode::Headers => MapleCodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new())),
-        AuthMode::BedrockApiKey => MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+        AuthMode::Headers => MaplecodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new())),
+        AuthMode::BedrockApiKey => MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
             api_key: "test-api-key".to_string(),
             region: "us-east-1".to_string(),
         }),
-        AuthMode::BedrockAccessKeys => MapleCodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
+        AuthMode::BedrockAccessKeys => MaplecodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
             access_key_id: "test-access-key-id".to_string(),
             secret_access_key: "test-secret-access-key".to_string(),
             session_token: None,
         }),
         AuthMode::AgentIdentity | AuthMode::PersonalAccessToken => {
-            panic!("test auth mode requires a purpose-built MapleCodeAuth")
+            panic!("test auth mode requires a purpose-built MaplecodeAuth")
         }
     })
 }
 
-struct StaticExternalAuth(MapleCodeAuth);
+struct StaticExternalAuth(MaplecodeAuth);
 
 impl ExternalAuth for StaticExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 }

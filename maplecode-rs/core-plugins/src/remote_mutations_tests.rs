@@ -178,7 +178,7 @@ struct PluginTransferTest {
     storage: MockServer,
     config: PluginsConfigInput,
     manager: Arc<PluginsManager>,
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     switch_before_storage: Arc<AtomicBool>,
 }
 
@@ -219,7 +219,7 @@ impl PluginTransferTest {
             "header.{}.signature",
             base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(claims.to_string()),
         );
-        let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+        let auth = MaplecodeAuth::from_external_chatgpt_tokens(
             &token,
             "account-a",
             /*chatgpt_plan_type*/ None,

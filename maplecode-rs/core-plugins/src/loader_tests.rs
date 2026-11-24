@@ -99,7 +99,7 @@ async fn concurrent_plugin_loads_preserve_mcp_precedence_and_hook_warnings() {
     let remote_plugin_id_resolver = RemotePluginIdResolver::default();
     let skill_root_loader = test_skill_root_loader();
     let scope = PluginLoadScope::AllCapabilities {
-        restriction_product: Some(Product::MapleCode),
+        restriction_product: Some(Product::Maplecode),
         skill_config_rules: &skill_config_rules,
         plugin_skill_snapshots: None,
         remote_plugin_id_resolver: &remote_plugin_id_resolver,
@@ -129,7 +129,7 @@ async fn concurrent_plugin_loads_preserve_mcp_precedence_and_hook_warnings() {
         RemoteInstalledPluginsSnapshot::default(),
         &store,
         /*plugin_skill_snapshots*/ None,
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         /*remote_global_catalog_active*/ false,
         &overlap_loader,
     )
@@ -436,7 +436,7 @@ async fn installed_agent_plugin_uses_isolated_data_root_for_stdio_mcp() {
         RemoteInstalledPluginsSnapshot::default(),
         &store,
         /*plugin_skill_snapshots*/ None,
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         /*remote_global_catalog_active*/ false,
         test_skill_root_loader().as_ref(),
     )
@@ -718,7 +718,7 @@ enabled = true
         RemoteInstalledPluginsSnapshot::default(),
         &store,
         /*plugin_skill_snapshots*/ None,
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         /*remote_global_catalog_active*/ false,
         test_skill_root_loader().as_ref(),
     )
@@ -817,7 +817,7 @@ enabled = true
             RemoteInstalledPluginsSnapshot::default(),
             &store,
             /*plugin_skill_snapshots*/ None,
-            Some(Product::MapleCode),
+            Some(Product::Maplecode),
             /*remote_global_catalog_active*/ false,
             test_skill_root_loader().as_ref(),
         )

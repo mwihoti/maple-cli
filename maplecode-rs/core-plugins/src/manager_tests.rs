@@ -48,7 +48,7 @@ use maplecode_config::RequirementsLayerEntry;
 use maplecode_config::SkillConfigRules;
 use maplecode_config::compose_requirements;
 use maplecode_config::types::McpServerTransportConfig;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::test_support::auth_manager_with_agent_identity;
 use maplecode_model_provider::AMAZON_BEDROCK_PROVIDER_ID;
 use maplecode_plugin::AppDeclaration;
@@ -139,7 +139,7 @@ async fn plugins_manager_reads_auth_mode_from_auth_manager() {
     let auth_manager = test_auth_manager(/*auth_mode*/ None);
     let manager = test_plugins_manager_with_auth_manager(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Arc::clone(&auth_manager),
     );
 
@@ -153,7 +153,7 @@ async fn plugins_manager_reads_auth_mode_from_auth_manager() {
 
     let manager_with_auth = test_plugins_manager_with_options(
         tmp.path().join("auth"),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
     assert_eq!(manager_with_auth.auth_mode(), Some(AuthMode::Chatgpt));
@@ -175,7 +175,7 @@ fn curated_repo_sync_stays_deferred_for_remote_chatgpt_catalog() {
     );
     let manager = Arc::new(test_plugins_manager_with_options(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     ));
 
@@ -468,7 +468,7 @@ async fn plugin_auth_projection_hides_apps_without_chatgpt_auth() {
     let config = auth_projection_config(maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::ApiKey),
     );
 
@@ -496,7 +496,7 @@ async fn plugin_auth_projection_hides_matching_mcp_with_chatgpt_apps_route() {
     let config = auth_projection_config(maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
 
@@ -604,7 +604,7 @@ async fn plugin_auth_projection_hides_dual_surface_mcp_with_agent_identity_apps_
     let config = auth_projection_config(maplecode_home.path()).await;
     let manager = test_plugins_manager_with_auth_manager(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         auth_manager_with_agent_identity()
             .await
             .expect("create test Agent Identity auth manager"),
@@ -631,7 +631,7 @@ async fn plugin_auth_projection_keeps_non_conflicting_mcp_with_chatgpt_apps_rout
     let config = auth_projection_config(maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
 
@@ -714,7 +714,7 @@ enabled = true
     let config = load_config(maplecode_home.path(), maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
 
@@ -750,7 +750,7 @@ async fn plugin_auth_projection_reprojects_cached_plugins_when_auth_changes() {
     set_test_auth_mode(&auth_manager, Some(AuthMode::Chatgpt)).await;
     let manager = test_plugins_manager_with_auth_manager(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Arc::clone(&auth_manager),
     );
 
@@ -911,7 +911,7 @@ async fn load_plugins_from_config(
     let config = load_config(maplecode_home, maplecode_home).await;
     test_plugins_manager_with_options(
         maplecode_home.to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         auth_mode,
     )
     .plugins_for_config(&config)
@@ -1292,7 +1292,7 @@ approval_mode = "approve"
     let config = load_config(maplecode_home.path(), maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
     manager.write_remote_installed_plugins_cache(vec![remote_installed_linear_plugin()]);
@@ -1625,7 +1625,7 @@ enabled = true
     let config = load_config(maplecode_home.path(), maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
     manager.write_remote_installed_plugins_cache(vec![
@@ -1662,7 +1662,7 @@ enabled = true
     let config = load_config(maplecode_home.path(), maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
     manager.write_remote_installed_plugins_cache(vec![remote_installed_plugin("linear")]);
@@ -1704,7 +1704,7 @@ enabled = true
     let config = load_config(maplecode_home.path(), maplecode_home.path()).await;
     let manager = test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
     manager.write_remote_installed_plugins_cache(vec![
@@ -1749,7 +1749,7 @@ enabled = true
     set_test_auth_mode(&auth_manager, Some(AuthMode::Chatgpt)).await;
     let manager = test_plugins_manager_with_auth_manager(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Arc::clone(&auth_manager),
     );
     manager.write_remote_installed_plugins_cache(vec![remote_installed_plugin("remote-only")]);
@@ -3225,7 +3225,7 @@ async fn plugin_defaults_resolve_remote_enablement_and_separate_cache_entries() 
     let config_path = maplecode_home.path().join(CONFIG_TOML_FILE);
     let manager = test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
     manager.write_remote_installed_plugins_cache(vec![
@@ -3365,7 +3365,7 @@ enabled = true
         let config = load_config(maplecode_home.path(), maplecode_home.path()).await;
         let manager = test_plugins_manager_with_options(
             maplecode_home.path().to_path_buf(),
-            Some(Product::MapleCode),
+            Some(Product::Maplecode),
             Some(AuthMode::Chatgpt),
         );
         if let Some(installed_plugins) = installed_plugins {
@@ -3405,7 +3405,7 @@ async fn connector_snapshot_combines_plugin_exclusions_with_current_account_owne
     let auth_manager = test_auth_manager(Some(AuthMode::Chatgpt));
     let manager = test_plugins_manager_with_auth_manager(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Arc::clone(&auth_manager),
     );
     let sources = [PluginConnectorSource::from_connector_ids(
@@ -3549,7 +3549,7 @@ async fn plugins_for_config_discards_in_flight_load_after_account_change() {
     let auth_manager = test_auth_manager(Some(AuthMode::ChatgptAuthTokens));
     let manager = Arc::new(test_plugins_manager_with_auth_manager(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Arc::clone(&auth_manager),
     ));
     manager.write_remote_installed_plugins_cache(vec![remote_installed_plugin("remote-only")]);
@@ -3567,7 +3567,7 @@ async fn plugins_for_config_discards_in_flight_load_after_account_change() {
         futures::poll!(load.as_mut()),
         std::task::Poll::Pending
     ));
-    let account_b = MapleCodeAuth::from_external_chatgpt_tokens(
+    let account_b = MaplecodeAuth::from_external_chatgpt_tokens(
         "header.e30.other",
         "other-account",
         /*chatgpt_plan_type*/ None,
@@ -4479,7 +4479,7 @@ plugins = true
 
     let chatgpt_outcome = test_plugins_manager_with_options(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     )
     .read_plugin_for_config(&config, &request)
@@ -4496,7 +4496,7 @@ plugins = true
 
     let api_key_outcome = test_plugins_manager_with_options(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::ApiKey),
     )
     .read_plugin_for_config(&config, &request)
@@ -4510,7 +4510,7 @@ plugins = true
 
     let no_auth_outcome = test_plugins_manager_with_options(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         /*auth_mode*/ None,
     )
     .read_plugin_for_config(&config, &request)
@@ -4562,7 +4562,7 @@ plugins = true
     let config = load_config(tmp.path(), &repo_root).await;
     let manager = test_plugins_manager_with_options(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
     let outcome = manager
@@ -5006,7 +5006,7 @@ enabled = false
     let config = load_config(tmp.path(), &repo_root).await;
     let outcome = test_plugins_manager_with_options(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     )
     .read_plugin_for_config(
@@ -5237,7 +5237,7 @@ plugins = true
     let config = load_config(tmp.path(), tmp.path()).await;
     let marketplaces = test_plugins_manager_with_options(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     )
     .list_marketplaces_for_config(&config, &[], /*include_openai_curated*/ true)
@@ -5358,7 +5358,7 @@ plugins = true
     let config = load_config(tmp.path(), tmp.path()).await;
     let manager = test_plugins_manager_with_options(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::ApiKey),
     );
     let marketplaces = manager
@@ -5459,7 +5459,7 @@ plugins = true
         config.model_provider_id = resolved_provider.to_string();
         let marketplaces = test_plugins_manager_with_options(
             tmp.path().to_path_buf(),
-            Some(Product::MapleCode),
+            Some(Product::Maplecode),
             auth_mode,
         )
         .list_marketplaces_for_config(&config, &[], /*include_openai_curated*/ true)
@@ -5503,7 +5503,7 @@ plugins = true
     let config = load_config(tmp.path(), tmp.path()).await;
     let manager = test_plugins_manager_with_options(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     );
     let marketplaces = manager
@@ -5542,7 +5542,7 @@ plugins = true
     let config = load_config(tmp.path(), tmp.path()).await;
     let manager = test_plugins_manager_with_options(
         tmp.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::BedrockApiKey),
     );
     let outcome = manager
@@ -6115,7 +6115,7 @@ plugins = true
     let featured_plugin_ids = manager
         .featured_plugin_ids_for_config(
             &config,
-            Some(&MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+            Some(&MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
         )
         .await
         .unwrap();
@@ -6169,7 +6169,7 @@ plugins = true
 
     let server = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .and(query_param("scope", "GLOBAL"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "enabled": true,
@@ -6184,7 +6184,7 @@ plugins = true
         .with_plugin_recommendations_enabled(/*enabled*/ true);
     config.chatgpt_base_url = server.uri();
     let manager = std::sync::Arc::new(test_plugins_manager(tmp.path().to_path_buf()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let cache_key = recommended_plugins_cache_key(&config);
 
     manager.maybe_start_remote_plugin_caches_refresh(
@@ -6231,7 +6231,7 @@ plugins = true
 
     let server = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .and(query_param("scope", "GLOBAL"))
         .and(header("authorization", "Bearer Access Token"))
         .and(header("chatgpt-account-id", "account_id"))
@@ -6262,7 +6262,7 @@ plugins = true
     let mut config = load_config(tmp.path(), tmp.path()).await;
     config.chatgpt_base_url = server.uri();
     let manager = test_plugins_manager(tmp.path().to_path_buf());
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let expected = RecommendedPluginsMode::Endpoint {
         plugins: vec![
             RecommendedPlugin {
@@ -6298,7 +6298,7 @@ async fn recommended_plugins_cache_clear_rejects_stale_fetch_completion() {
         &tmp.path().join(CONFIG_TOML_FILE),
         "[features]\nplugins = true\n",
     );
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let server = MockServer::start().await;
     let request_started = Arc::new(tokio::sync::Notify::new());
     let started = Arc::clone(&request_started);
@@ -6309,7 +6309,7 @@ async fn recommended_plugins_cache_clear_rejects_stale_fetch_completion() {
         "plugins": [{"id": "plugin_old", "name": "old", "display_name": "Old"}]
     }));
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .respond_with(move |_: &wiremock::Request| {
             started.notify_one();
             // Wiremock runs its own server thread. Dropping the sender also releases it.
@@ -6321,7 +6321,7 @@ async fn recommended_plugins_cache_clear_rejects_stale_fetch_completion() {
         .mount(&server)
         .await;
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "enabled": true,
             "plugins": []
@@ -6390,7 +6390,7 @@ plugins = true
     );
     let server = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "enabled": true,
             "plugins": [
@@ -6421,7 +6421,7 @@ plugins = true
     let mut installed_linear = remote_installed_plugin("linear");
     installed_linear.id = "plugin_linear".to_string();
     manager.write_remote_installed_plugins_cache(vec![installed_linear]);
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let disabled_tools = [ToolSuggestDisabledTool::plugin(
         "github@openai-curated-remote",
     )];
@@ -6463,7 +6463,7 @@ plugins = true
 
     let server = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "enabled": false,
             "plugins": []
@@ -6475,7 +6475,7 @@ plugins = true
     let mut config = load_config(tmp.path(), tmp.path()).await;
     config.chatgpt_base_url = server.uri();
     let manager = test_plugins_manager(tmp.path().to_path_buf());
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     assert_eq!(
         manager
             .recommended_plugins_mode_for_config(&config, Some(&auth))
@@ -6502,7 +6502,7 @@ plugins = true
 
     let server = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .respond_with(ResponseTemplate::new(500).set_body_string("unavailable"))
         .expect(1)
         .mount(&server)
@@ -6511,7 +6511,7 @@ plugins = true
     let mut config = load_config(tmp.path(), tmp.path()).await;
     config.chatgpt_base_url = server.uri();
     let manager = test_plugins_manager(tmp.path().to_path_buf());
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     assert_eq!(
         manager
             .recommended_plugins_mode_for_config(&config, Some(&auth))
@@ -6521,7 +6521,7 @@ plugins = true
 
     server.reset().await;
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "enabled": true,
             "plugins": []
@@ -7325,7 +7325,7 @@ async fn load_plugins_uses_project_config_files() {
         crate::remote_plugin_id_resolver::RemoteInstalledPluginsSnapshot::default(),
         &PluginStore::new(maplecode_home.path().to_path_buf()),
         /*plugin_skill_snapshots*/ None,
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         /*remote_global_catalog_active*/ false,
         test_skill_root_loader().as_ref(),
     )
@@ -7436,7 +7436,7 @@ enabled = true
     let auth_manager = test_auth_manager(Some(AuthMode::Chatgpt));
     let manager = test_plugins_manager_with_auth_manager(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Arc::clone(&auth_manager),
     );
 
@@ -7593,15 +7593,15 @@ remote_plugin = true
     config.chatgpt_base_url = format!("{}/backend-api", server.uri());
     let first_manager = std::sync::Arc::new(test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     ));
     let second_manager = std::sync::Arc::new(test_plugins_manager_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         Some(AuthMode::Chatgpt),
     ));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     first_manager.maybe_start_remote_installed_plugin_bundle_sync(
         &config,
@@ -7653,7 +7653,7 @@ async fn reconcile_remote_installed_plugins_reports_cached_state_changes() {
     let auth = auth_manager.auth_cached().expect("test ChatGPT auth");
     let manager = test_plugins_manager_with_auth_manager(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         auth_manager,
     );
     let change = RemotePluginChange {
@@ -7822,7 +7822,7 @@ remote_plugin = true
     let auth = auth_manager.auth_cached().expect("test ChatGPT auth");
     let manager = std::sync::Arc::new(test_plugins_manager_with_auth_manager(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         auth_manager,
     ));
     let mut previous_malformed = remote_installed_plugin_in_marketplace(
@@ -7899,7 +7899,7 @@ async fn failed_installed_plugin_pagination_preserves_inventory_and_releases_mut
     let auth = auth_manager.auth_cached().expect("test ChatGPT auth");
     let manager = Arc::new(test_plugins_manager_with_auth_manager(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         auth_manager,
     ));
     let previous_inventory = vec![remote_installed_plugin("retained")];

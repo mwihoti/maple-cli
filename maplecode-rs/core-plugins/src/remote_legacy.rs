@@ -3,7 +3,7 @@ use crate::remote::RemotePluginServiceConfig;
 use http::Method;
 use http::StatusCode;
 use maplecode_http_client::RouteAwareRequestError;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::protocol::Product;
 use serde::Deserialize;
 use std::time::Duration;
@@ -124,7 +124,7 @@ pub enum RemotePluginFetchError {
 
 pub async fn fetch_remote_featured_plugin_ids(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     product: Option<Product>,
 ) -> Result<Vec<String>, RemotePluginFetchError> {
     let base_url = config.chatgpt_base_url.trim_end_matches('/');
@@ -132,7 +132,7 @@ pub async fn fetch_remote_featured_plugin_ids(
         .map_err(RemotePluginFetchError::InvalidBaseUrl)?;
     url.query_pairs_mut().append_pair(
         "platform",
-        product.unwrap_or(Product::MapleCode).to_app_platform(),
+        product.unwrap_or(Product::Maplecode).to_app_platform(),
     );
     let url = url.to_string();
     let request = match auth.filter(|auth| auth.uses_maplecode_backend()) {
@@ -166,7 +166,7 @@ pub async fn fetch_remote_featured_plugin_ids(
 
 pub async fn enable_remote_plugin(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     plugin_id: &str,
 ) -> Result<(), RemotePluginMutationError> {
     post_remote_plugin_mutation(config, auth, plugin_id, "enable").await?;
@@ -175,7 +175,7 @@ pub async fn enable_remote_plugin(
 
 pub async fn uninstall_remote_plugin(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     plugin_id: &str,
 ) -> Result<(), RemotePluginMutationError> {
     post_remote_plugin_mutation(config, auth, plugin_id, "uninstall").await?;
@@ -183,8 +183,8 @@ pub async fn uninstall_remote_plugin(
 }
 
 fn ensure_maplecode_backend_auth(
-    auth: Option<&MapleCodeAuth>,
-) -> Result<&MapleCodeAuth, RemotePluginMutationError> {
+    auth: Option<&MaplecodeAuth>,
+) -> Result<&MaplecodeAuth, RemotePluginMutationError> {
     let Some(auth) = auth else {
         return Err(RemotePluginMutationError::AuthRequired);
     };
@@ -196,7 +196,7 @@ fn ensure_maplecode_backend_auth(
 
 async fn post_remote_plugin_mutation(
     config: &RemotePluginServiceConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     plugin_id: &str,
     action: &str,
 ) -> Result<RemotePluginMutationResponse, RemotePluginMutationError> {

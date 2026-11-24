@@ -27,7 +27,7 @@ async fn remote_plugin_list_routes_the_complete_query_url() {
         .await;
     let (config, selected_urls) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     get_remote_plugin_list_page(
         &config,
@@ -52,7 +52,7 @@ async fn remote_plugin_list_routes_the_complete_query_url() {
 async fn recommended_plugins_requests_maplecode_suggestions_endpoint() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path("/backend-api/ps/plugins/suggested/maplecode"))
+        .and(path("/backend-api/ps/plugins/suggested/codex"))
         .and(query_param("scope", "GLOBAL"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "enabled": true,
@@ -63,7 +63,7 @@ async fn recommended_plugins_requests_maplecode_suggestions_endpoint() {
         .await;
     let (config, selected_urls) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let mode = fetch_recommended_plugins(&config, Some(&auth))
         .await
@@ -78,7 +78,7 @@ async fn recommended_plugins_requests_maplecode_suggestions_endpoint() {
     assert_eq!(
         recorded_http_client_urls(&selected_urls),
         vec![format!(
-            "{}/backend-api/ps/plugins/suggested/maplecode?scope=GLOBAL",
+            "{}/backend-api/ps/plugins/suggested/codex?scope=GLOBAL",
             server.uri()
         )]
     );
@@ -133,7 +133,7 @@ async fn remote_installed_plugins_paginate_across_all_scopes_without_download_ur
         .await;
     let (config, selected_urls) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let installed_plugins = fetch_remote_installed_plugins(&config, Some(&auth))
         .await
@@ -185,7 +185,7 @@ async fn installed_plugins_skip_display_resolution_on_every_page() {
     }
     let (config, selected_urls) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let plugins = fetch_remote_installed_plugins_with_display_assets(
         &config,
@@ -235,7 +235,7 @@ async fn remote_installed_plugins_reject_cyclic_cursors() {
     }
     let (config, _) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let error = fetch_remote_installed_plugins(&config, Some(&auth))
         .await
@@ -272,7 +272,7 @@ async fn remote_installed_plugins_require_a_complete_inventory_within_the_page_l
             .await;
         let (config, _) =
             recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-        let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+        let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
         let result = fetch_remote_installed_plugins(&config, Some(&auth)).await;
 
@@ -319,7 +319,7 @@ async fn remote_installed_plugins_timeout_cancels_a_late_page_after_successful_p
         .await;
     let (config, _) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let fetch = fetch_remote_installed_plugins(&config, Some(&auth));
     tokio::pin!(fetch);
 
@@ -369,7 +369,7 @@ async fn remote_catalog_cache_modes_control_refresh_and_persist_fetched_results(
     let maplecode_home = tempfile::tempdir().expect("create maplecode home");
     let (config, selected_urls) =
         recording_remote_plugin_service_config(format!("{}/backend-api", server.uri()));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     for (mode, expire_cache, expected_refresh_needed, expected_cache_used) in [
         (
@@ -467,7 +467,7 @@ fn catalog_cache_invalidation_clears_global_collections_and_preserves_other_scop
         crate::test_support::test_http_client_factory(),
         /*product_sku*/ None,
     );
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let scopes = [RemotePluginScope::Global, RemotePluginScope::Workspace];
     for scope in scopes {
         catalog_cache::write_cached_directory_plugins(

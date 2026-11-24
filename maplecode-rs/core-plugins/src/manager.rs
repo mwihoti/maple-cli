@@ -114,7 +114,7 @@ use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_plugin::AppConnectorId;
 use maplecode_plugin::PluginCapabilitySummary;
 use maplecode_plugin::PluginId;
@@ -296,7 +296,7 @@ pub struct EffectivePluginsChange {
 pub struct RecommendedPluginCandidatesInput<'a> {
     pub plugins_config: &'a PluginsConfigInput,
     pub loaded_plugins: &'a PluginLoadOutcome,
-    pub auth: Option<&'a MapleCodeAuth>,
+    pub auth: Option<&'a MaplecodeAuth>,
     pub disabled_tools: &'a [ToolSuggestDisabledTool],
     pub app_server_client_name: Option<&'a str>,
 }
@@ -330,12 +330,12 @@ pub(crate) struct RemoteInstalledPluginsAuthIdentity {
 }
 
 impl RemoteInstalledPluginsAuthIdentity {
-    pub(crate) fn from_auth(auth: Option<&MapleCodeAuth>) -> Self {
+    pub(crate) fn from_auth(auth: Option<&MaplecodeAuth>) -> Self {
         Self {
-            auth_mode: auth.map(MapleCodeAuth::api_auth_mode),
-            account_id: auth.and_then(MapleCodeAuth::get_account_id),
-            chatgpt_user_id: auth.and_then(MapleCodeAuth::get_chatgpt_user_id),
-            is_workspace_account: auth.map(MapleCodeAuth::is_workspace_account),
+            auth_mode: auth.map(MaplecodeAuth::api_auth_mode),
+            account_id: auth.and_then(MaplecodeAuth::get_account_id),
+            chatgpt_user_id: auth.and_then(MaplecodeAuth::get_chatgpt_user_id),
+            is_workspace_account: auth.map(MaplecodeAuth::is_workspace_account),
         }
     }
 }
@@ -387,7 +387,7 @@ impl Drop for RemoteInstalledPluginsReconciliationGuard<'_> {
 struct RemoteInstalledPluginsCacheRefreshRequest {
     generation: u64,
     service_config: RemotePluginServiceConfig,
-    auth: Option<MapleCodeAuth>,
+    auth: Option<MaplecodeAuth>,
     notify: RemoteInstalledPluginsCacheRefreshNotify,
     // App-server attaches side effects such as skills metadata invalidation and MCP refreshes when
     // remote installed state changes.
@@ -412,25 +412,25 @@ struct RemoteInstalledPluginsCacheRefreshState {
 
 struct RemoteCatalogCacheRefreshRequest {
     service_config: RemotePluginServiceConfig,
-    auth: Option<MapleCodeAuth>,
+    auth: Option<MaplecodeAuth>,
     scopes: BTreeSet<RemotePluginScope>,
 }
 
 impl RemoteCatalogCacheRefreshRequest {
     fn has_same_cache_identity(&self, other: &Self) -> bool {
         self.service_config == other.service_config
-            && self.auth.as_ref().and_then(MapleCodeAuth::get_account_id)
-                == other.auth.as_ref().and_then(MapleCodeAuth::get_account_id)
+            && self.auth.as_ref().and_then(MaplecodeAuth::get_account_id)
+                == other.auth.as_ref().and_then(MaplecodeAuth::get_account_id)
             && self
                 .auth
                 .as_ref()
-                .and_then(MapleCodeAuth::get_chatgpt_user_id)
+                .and_then(MaplecodeAuth::get_chatgpt_user_id)
                 == other
                     .auth
                     .as_ref()
-                    .and_then(MapleCodeAuth::get_chatgpt_user_id)
-            && self.auth.as_ref().map(MapleCodeAuth::is_workspace_account)
-                == other.auth.as_ref().map(MapleCodeAuth::is_workspace_account)
+                    .and_then(MaplecodeAuth::get_chatgpt_user_id)
+            && self.auth.as_ref().map(MaplecodeAuth::is_workspace_account)
+                == other.auth.as_ref().map(MaplecodeAuth::is_workspace_account)
     }
 }
 
@@ -498,13 +498,13 @@ struct ConfiguredMarketplaceUpgradeState {
 
 fn featured_plugin_ids_cache_key(
     config: &PluginsConfigInput,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> FeaturedPluginIdsCacheKey {
     FeaturedPluginIdsCacheKey {
         chatgpt_base_url: config.chatgpt_base_url.clone(),
-        account_id: auth.and_then(MapleCodeAuth::get_account_id),
-        chatgpt_user_id: auth.and_then(MapleCodeAuth::get_chatgpt_user_id),
-        is_workspace_account: auth.is_some_and(MapleCodeAuth::is_workspace_account),
+        account_id: auth.and_then(MaplecodeAuth::get_account_id),
+        chatgpt_user_id: auth.and_then(MaplecodeAuth::get_chatgpt_user_id),
+        is_workspace_account: auth.is_some_and(MaplecodeAuth::is_workspace_account),
     }
 }
 
@@ -804,7 +804,7 @@ impl PluginsManager {
     ) -> Self {
         Self::new_with_options(
             maplecode_home,
-            Some(Product::MapleCode),
+            Some(Product::Maplecode),
             auth_manager,
             RuntimeAuthSlot::default(),
             skill_root_loader,
@@ -962,7 +962,7 @@ impl PluginsManager {
             let auth_revision = *auth_change_receiver.borrow();
             let remote_global_catalog_active = self.remote_global_catalog_active(config);
             let auth = self.auth_manager.auth_cached();
-            let auth_mode = auth.as_ref().map(MapleCodeAuth::api_auth_mode);
+            let auth_mode = auth.as_ref().map(MaplecodeAuth::api_auth_mode);
             let auth_identity = RemoteInstalledPluginsAuthIdentity::from_auth(auth.as_ref());
             let cache_key = PluginLoadCacheKey::from_config(
                 config,
@@ -1397,7 +1397,7 @@ impl PluginsManager {
 
     fn build_remote_installed_plugin_marketplaces_from_cache_for_auth(
         &self,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         visible_marketplaces: &[&str],
         display_assets: InstalledPluginDisplayAssets,
     ) -> Option<Vec<crate::remote::RemoteMarketplace>> {
@@ -1427,7 +1427,7 @@ impl PluginsManager {
     pub fn cached_global_remote_discoverable_plugins_for_config(
         &self,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> Vec<crate::remote::RemoteDiscoverablePlugin> {
         if !config.plugins_enabled || !config.remote_plugin_enabled {
             return Vec::new();
@@ -1452,7 +1452,7 @@ impl PluginsManager {
     pub async fn build_and_cache_remote_installed_plugin_marketplaces(
         &self,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         visible_marketplaces: &[&str],
         on_effective_plugins_changed: Option<EffectivePluginsChangedCallback>,
     ) -> Result<Vec<crate::remote::RemoteMarketplace>, RemotePluginCatalogError> {
@@ -1470,7 +1470,7 @@ impl PluginsManager {
     pub async fn build_and_cache_remote_installed_plugin_marketplaces_with_display_assets(
         &self,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         visible_marketplaces: &[&str],
         on_effective_plugins_changed: Option<EffectivePluginsChangedCallback>,
         display_assets: InstalledPluginDisplayAssets,
@@ -1525,7 +1525,7 @@ impl PluginsManager {
 
     fn prepare_remote_installed_plugins_cache_generation(
         &self,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> Option<u64> {
         let auth_identity = RemoteInstalledPluginsAuthIdentity::from_auth(auth);
         if !self.remote_installed_plugins_auth_is_current(&auth_identity) {
@@ -1554,7 +1554,7 @@ impl PluginsManager {
 
     fn begin_remote_installed_plugins_reconcile(
         &self,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> Option<u64> {
         let generation = self.prepare_remote_installed_plugins_cache_generation(auth)?;
         let auth_identity = RemoteInstalledPluginsAuthIdentity::from_auth(auth);
@@ -1587,7 +1587,7 @@ impl PluginsManager {
 
     fn remote_installed_plugins_cache_generation_if_current(
         &self,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> Option<u64> {
         let auth_identity = RemoteInstalledPluginsAuthIdentity::from_auth(auth);
         if !self.remote_installed_plugins_auth_is_current(&auth_identity) {
@@ -1604,7 +1604,7 @@ impl PluginsManager {
         &self,
         generation: u64,
         plugins: Vec<RemoteInstalledPlugin>,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         publication: RemoteInstalledPluginsCachePublication,
     ) -> Option<InstalledPluginCacheUpdate> {
         let auth_identity = RemoteInstalledPluginsAuthIdentity::from_auth(auth);
@@ -1730,7 +1730,7 @@ impl PluginsManager {
     pub fn maybe_start_remote_plugin_caches_refresh(
         self: &Arc<Self>,
         config: &PluginsConfigInput,
-        auth: Option<MapleCodeAuth>,
+        auth: Option<MaplecodeAuth>,
         on_effective_plugins_changed: Option<EffectivePluginsChangedCallback>,
     ) {
         self.maybe_start_remote_installed_plugins_cache_refresh_with_notify(
@@ -1757,7 +1757,7 @@ impl PluginsManager {
     fn maybe_start_remote_installed_plugins_cache_refresh_after_mutation(
         self: &Arc<Self>,
         config: &PluginsConfigInput,
-        auth: Option<MapleCodeAuth>,
+        auth: Option<MaplecodeAuth>,
         on_effective_plugins_changed: Option<EffectivePluginsChangedCallback>,
     ) {
         self.maybe_start_remote_installed_plugins_cache_refresh_with_notify(
@@ -1772,7 +1772,7 @@ impl PluginsManager {
     fn maybe_start_remote_installed_plugins_cache_refresh_with_notify(
         self: &Arc<Self>,
         config: &PluginsConfigInput,
-        auth: Option<MapleCodeAuth>,
+        auth: Option<MaplecodeAuth>,
         notify: RemoteInstalledPluginsCacheRefreshNotify,
         on_effective_plugins_changed: Option<EffectivePluginsChangedCallback>,
         change: EffectivePluginsChange,
@@ -1801,7 +1801,7 @@ impl PluginsManager {
     pub fn maybe_start_remote_installed_plugin_bundle_sync(
         self: &Arc<Self>,
         config: &PluginsConfigInput,
-        auth: Option<MapleCodeAuth>,
+        auth: Option<MaplecodeAuth>,
         on_effective_plugins_changed: Option<EffectivePluginsChangedCallback>,
         source: InstalledPluginSyncSource,
     ) {
@@ -1884,7 +1884,7 @@ impl PluginsManager {
     pub async fn reconcile_remote_installed_plugins(
         &self,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> Result<RemoteInstalledPluginBundleSyncOutcome, RemoteInstalledPluginBundleSyncError> {
         let _guard = self.acquire_remote_installed_plugin_sync_guard().await?;
         let (outcome, _) = self
@@ -1896,7 +1896,7 @@ impl PluginsManager {
     async fn reconcile_remote_installed_plugins_after_acquiring_gate(
         &self,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> Result<
         (
             RemoteInstalledPluginBundleSyncOutcome,
@@ -1996,7 +1996,7 @@ impl PluginsManager {
     fn maybe_start_remote_catalog_cache_refresh(
         self: &Arc<Self>,
         config: &PluginsConfigInput,
-        auth: Option<MapleCodeAuth>,
+        auth: Option<MaplecodeAuth>,
         scopes: BTreeSet<RemotePluginScope>,
     ) {
         if !config.plugins_enabled || scopes.is_empty() {
@@ -2013,7 +2013,7 @@ impl PluginsManager {
     pub fn maybe_start_plugin_list_background_tasks(
         self: &Arc<Self>,
         context: &PluginMarketplaceContext,
-        auth: Option<MapleCodeAuth>,
+        auth: Option<MaplecodeAuth>,
         options: PluginListBackgroundTaskOptions,
         on_effective_plugins_changed: Option<EffectivePluginsChangedCallback>,
     ) {
@@ -2087,7 +2087,7 @@ impl PluginsManager {
     pub async fn featured_plugin_ids_for_config(
         &self,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> Result<Vec<String>, RemotePluginFetchError> {
         if !config.plugins_enabled {
             return Ok(Vec::new());
@@ -2118,11 +2118,11 @@ impl PluginsManager {
     pub async fn recommended_plugins_mode_for_config(
         &self,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> RecommendedPluginsMode {
         if !config.plugins_enabled
             || !config.remote_plugin_enabled
-            || !auth.is_some_and(MapleCodeAuth::uses_maplecode_backend)
+            || !auth.is_some_and(MaplecodeAuth::uses_maplecode_backend)
         {
             return RecommendedPluginsMode::Legacy;
         }
@@ -2337,7 +2337,7 @@ impl PluginsManager {
     pub async fn install_plugin_with_remote_sync(
         &self,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         request: PluginInstallRequest,
     ) -> Result<PluginInstallOutcome, PluginInstallError> {
         let resolved = self.resolve_installable_plugin(&config.config_layer_stack, &request)?;
@@ -2543,7 +2543,7 @@ impl PluginsManager {
     pub async fn uninstall_plugin_with_remote_sync(
         &self,
         config: &PluginsConfigInput,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         plugin_id: String,
     ) -> Result<(), PluginUninstallError> {
         // TODO: Remove this legacy remote-sync path once remote plugins have

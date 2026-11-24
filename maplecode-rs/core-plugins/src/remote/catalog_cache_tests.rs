@@ -53,7 +53,7 @@ fn global_catalog_cache_reuses_legacy_cache_file() {
         crate::test_support::test_http_client_factory(),
         /*product_sku*/ None,
     );
-    let auth = MapleCodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new()));
+    let auth = MaplecodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new()));
     let legacy_cache_path = maplecode_home
         .path()
         .join(REMOTE_PLUGIN_CATALOG_DISK_CACHE_DIR)
@@ -102,7 +102,7 @@ fn freshness_probe_defers_plugin_validation_until_full_read() {
         crate::test_support::test_http_client_factory(),
         /*product_sku*/ None,
     );
-    let auth = MapleCodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new()));
+    let auth = MaplecodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new()));
     let scope = RemotePluginScope::Global;
     let key = RemotePluginCatalogCacheKey::new(&config, &auth, scope, /*collection*/ None)
         .expect("global cache key");
@@ -181,7 +181,7 @@ fn header_auth_does_not_cache_private_catalogs_without_a_stable_identity() {
         crate::test_support::test_http_client_factory(),
         /*product_sku*/ None,
     );
-    let auth = MapleCodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new()));
+    let auth = MaplecodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new()));
 
     write_cached_directory_plugins(
         maplecode_home.path(),

@@ -8,7 +8,7 @@ use crate::remote_bundle::download_remote_plugin_bundle;
 use crate::remote_bundle::install_remote_plugin_bundle;
 use crate::script_attribution::PluginMeasurementTarget;
 use maplecode_features::RuntimeAuthMode;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_plugin::PluginId;
 use maplecode_runtime_agent_instance::RuntimeAuthSlot;
 use maplecode_utils_path_uri::PathConvention;
@@ -84,7 +84,7 @@ impl RemotePluginMeasurementCache {
     pub async fn prepare(
         &self,
         config: &PluginsConfigInput,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
         target: &PluginMeasurementTarget,
         runtime_auth: Option<(RuntimeAuthSlot, RuntimeAuthMode)>,
     ) -> anyhow::Result<Option<Arc<PluginMeasurementReference>>> {

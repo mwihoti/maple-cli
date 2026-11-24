@@ -152,7 +152,7 @@ struct Fixture {
     home: TempDir,
     executor: TempDir,
     config: PluginsConfigInput,
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     cache: RemotePluginMeasurementCache,
 }
 
@@ -168,7 +168,7 @@ impl Fixture {
             home,
             executor,
             config,
-            auth: MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            auth: MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
             cache: RemotePluginMeasurementCache::new(),
         })
     }
@@ -298,7 +298,7 @@ async fn narrow_preparation_reuses_versions_and_keeps_old_leases_alive() -> Resu
 
     catalog(&f.server, vec![installed(&f.server, "2.0.0")]).await;
     bundle(&f.server, "2.0.0", /*count*/ 1).await?;
-    f.auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    f.auth = MaplecodeAuth::from_external_chatgpt_tokens(
         "header.e30.other",
         "other-account",
         /*chatgpt_plan_type*/ None,
@@ -460,7 +460,7 @@ async fn preparation_requires_enabled_matching_installed_global_plugin() -> Resu
     f.server.reset().await;
     for (enabled, auth) in [
         (false, f.auth.clone()),
-        (true, MapleCodeAuth::from_api_key("test")),
+        (true, MaplecodeAuth::from_api_key("test")),
     ] {
         f.config.remote_plugin_enabled = enabled;
         f.auth = auth;
@@ -474,7 +474,7 @@ async fn preparation_requires_enabled_matching_installed_global_plugin() -> Resu
     );
     f.config = load_plugins_config(f.home.path(), f.executor.path()).await;
     f.config.chatgpt_base_url = f.server.uri();
-    f.auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    f.auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let mut forced = installed(&f.server, "1.0.0");
     forced["installation_policy"] = json!("INSTALLED_BY_DEFAULT");
     catalog(&f.server, vec![forced]).await;

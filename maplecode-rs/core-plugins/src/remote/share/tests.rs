@@ -4,7 +4,7 @@ use crate::test_support::recording_remote_plugin_service_config;
 use maplecode_app_server_protocol::PluginAuthPolicy;
 use maplecode_app_server_protocol::PluginInstallPolicy;
 use maplecode_app_server_protocol::PluginInterface;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use pretty_assertions::assert_eq;
 use serde_json::json;
@@ -32,8 +32,8 @@ fn test_config(server: &MockServer) -> RemotePluginServiceConfig {
     )
 }
 
-fn test_auth() -> MapleCodeAuth {
-    MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()
+fn test_auth() -> MaplecodeAuth {
+    MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()
 }
 
 fn write_file(path: &Path, contents: &str) {

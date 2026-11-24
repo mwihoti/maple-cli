@@ -4,7 +4,7 @@ use super::PluginsConfigInput;
 use crate::remote::fetch_recommended_plugins;
 use crate::test_support::test_http_client_factory;
 use maplecode_config::ConfigLayerStack;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use wiremock::Mock;
@@ -82,7 +82,7 @@ async fn reused_pool_uses_current_endpoint_product_and_authentication() {
         ),
     ] {
         Mock::given(method("GET"))
-            .and(path("/backend-api/ps/plugins/suggested/maplecode"))
+            .and(path("/backend-api/ps/plugins/suggested/codex"))
             .and(header("authorization", format!("Bearer {token}")))
             .and(header("chatgpt-account-id", account))
             .and(header("oai-product-sku", product_sku))
@@ -105,7 +105,7 @@ async fn reused_pool_uses_current_endpoint_product_and_authentication() {
         /*product_sku*/ None,
     );
     let first = input.remote_plugin_service_config(/*runtime_auth*/ None);
-    let first_auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let first_auth = MaplecodeAuth::from_external_chatgpt_tokens(
         "header.e30.first",
         "first-account",
         /*chatgpt_plan_type*/ None,
@@ -118,7 +118,7 @@ async fn reused_pool_uses_current_endpoint_product_and_authentication() {
     input.chatgpt_base_url = format!("{}/backend-api", second_server.uri());
     input.product_sku = Some("updated".to_string());
     let second = input.remote_plugin_service_config(/*runtime_auth*/ None);
-    let second_auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let second_auth = MaplecodeAuth::from_external_chatgpt_tokens(
         "header.e30.second",
         "second-account",
         /*chatgpt_plan_type*/ None,
