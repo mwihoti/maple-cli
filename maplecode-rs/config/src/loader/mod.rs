@@ -851,14 +851,14 @@ fn windows_maplecode_system_dir() -> PathBuf {
         );
         PathBuf::from(DEFAULT_PROGRAM_DATA_DIR_WINDOWS)
     });
-    program_data.join("OpenAI").join("MapleCode")
+    program_data.join("OpenAI").join("Maplecode")
 }
 
 #[cfg(windows)]
 fn windows_system_requirements_toml_file() -> io::Result<AbsolutePathBuf> {
     if let Ok(path) = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE)
         .open_subkey_with_flags(
-            r"SOFTWARE\Policies\OpenAI\MapleCode",
+            r"SOFTWARE\Policies\OpenAI\Maplecode",
             winreg::enums::KEY_READ | winreg::enums::KEY_WOW64_64KEY,
         )
         .and_then(|key| key.get_value::<std::ffi::OsString, _>("RequirementsPath"))
@@ -2197,9 +2197,9 @@ foo = "xyzzy"
         let expected = windows_program_data_dir_from_known_folder()
             .unwrap_or_else(|_| PathBuf::from(DEFAULT_PROGRAM_DATA_DIR_WINDOWS))
             .join("OpenAI")
-            .join("MapleCode");
+            .join("Maplecode");
         assert_eq!(windows_maplecode_system_dir(), expected);
-        assert!(windows_maplecode_system_dir().ends_with(Path::new("OpenAI").join("MapleCode")));
+        assert!(windows_maplecode_system_dir().ends_with(Path::new("OpenAI").join("Maplecode")));
     }
 
     #[cfg(windows)]
@@ -2208,7 +2208,7 @@ foo = "xyzzy"
         let expected = windows_program_data_dir_from_known_folder()
             .unwrap_or_else(|_| PathBuf::from(DEFAULT_PROGRAM_DATA_DIR_WINDOWS))
             .join("OpenAI")
-            .join("MapleCode")
+            .join("Maplecode")
             .join("config.toml");
         assert_eq!(
             windows_system_config_toml_file()
@@ -2220,7 +2220,7 @@ foo = "xyzzy"
             windows_system_config_toml_file()
                 .expect("config.toml path")
                 .as_path()
-                .ends_with(Path::new("OpenAI").join("MapleCode").join("config.toml"))
+                .ends_with(Path::new("OpenAI").join("Maplecode").join("config.toml"))
         );
     }
 }

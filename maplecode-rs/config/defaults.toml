@@ -1,4 +1,4 @@
-# Fixed defaults for packaged MapleCode clients.
+# Fixed defaults for packaged Maplecode clients.
 include_permissions_instructions = true
 include_apps_instructions = true
 include_collaboration_mode_instructions = true
