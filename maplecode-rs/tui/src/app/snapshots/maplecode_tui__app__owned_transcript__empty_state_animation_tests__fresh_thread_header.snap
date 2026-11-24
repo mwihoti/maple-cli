@@ -4,7 +4,7 @@ expression: "format!(\"enabled:\\n{}\\n---\\ndisabled:\\n{}\", text(after), text
 ---
 enabled:
 
-  >_ Maple Code (v0.0.0)
+  >_ Maple Code (v0.170.0)
      /tmp/project
 
 
@@ -50,7 +50,7 @@ enabled:
 ---
 disabled:
 
-  >_ Maple Code (v0.0.0)
+  >_ Maple Code (v0.170.0)
      /tmp/project
 
 

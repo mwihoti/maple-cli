@@ -1,12 +1,13 @@
 ---
 source: tui/src/bottom_pane/list_selection_view.rs
-assertion_line: 1878
 expression: render_lines(&view)
 ---
   Select Approval Mode                          
                                                 
                                                 
-› 1. Read Only (current)  Maple Code can read files  
-  2. Full Access          Maple Code can edit files  
+› 1. Read Only (current)  Maple Code can read   
+                          files                 
+  2. Full Access          Maple Code can edit   
+                          files                 
                                                 
   Press enter to confirm or esc to go back

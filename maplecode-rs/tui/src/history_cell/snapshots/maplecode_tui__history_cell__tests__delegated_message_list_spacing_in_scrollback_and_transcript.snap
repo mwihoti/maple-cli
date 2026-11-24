@@ -1,8 +1,10 @@
 ---
 source: tui/src/history_cell/tests.rs
+expression: "format!(\"Scrollback\\n{scrollback}\\n\\nRedrawable transcript\\n{transcript}\")"
 ---
 Scrollback
-• Sent by Maple Code from task other
+• Sent by Maple Code from task
+  other
   • One
   • This item has enough words
     to wrap
@@ -10,7 +12,8 @@ Scrollback
   • Three
 
 Redrawable transcript
-• Sent by Maple Code from task other
+• Sent by Maple Code from task
+  other
   • One
 
   • This item has enough words

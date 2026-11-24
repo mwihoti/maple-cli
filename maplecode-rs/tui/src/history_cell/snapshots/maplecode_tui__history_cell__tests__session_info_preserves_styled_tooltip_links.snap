@@ -1,11 +1,11 @@
 ---
 source: tui/src/history_cell/tests.rs
-assertion_line: 824
 expression: "rendered.join(\"\\n\")"
 ---
   Tip: Use /copy or ctrl+y;
-  visit the Maple Code community
-    link 12..27: Maple Code community -> https://example.com
-  forum (https://example.com).
-    link 2..7: forum -> https://example.com
-    link 9..28: https://example.com -> https://example.com
+  visit the Maple Code
+    link 12..22: Maple Code -> https://example.com
+  community forum
+    link 2..17: community forum -> https://example.com
+  (https://example.com).
+    link 3..22: https://example.com -> https://example.com
