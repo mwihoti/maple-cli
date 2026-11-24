@@ -18,8 +18,8 @@ use maplecode_message_board::UpsertChannelRequest;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
@@ -76,7 +76,7 @@ async fn remote_board_preserves_the_host_contract() -> anyhow::Result<()> {
         .mount_as_scoped(&server)
         .await;
     let error = admin.register_members(members.clone()).await.unwrap_err();
-    assert!(matches!(error.details(), MapleCodeErrorDetails::Json(_)));
+    assert!(matches!(error.details(), MaplecodeErrorDetails::Json(_)));
     drop(invalid_registration);
     Mock::given(method("POST"))
         .and(path(format!("{base}/members")))
@@ -98,7 +98,7 @@ async fn remote_board_preserves_the_host_contract() -> anyhow::Result<()> {
                 if available {
                     Ok(now)
                 } else {
-                    Err(MapleCodeErr::Io(std::io::Error::other("clock unavailable")))
+                    Err(MaplecodeErr::Io(std::io::Error::other("clock unavailable")))
                 }
             })
         });
@@ -145,7 +145,7 @@ async fn remote_board_preserves_the_host_contract() -> anyhow::Result<()> {
         .unwrap_err();
     assert!(matches!(
         unsupported.details(),
-        MapleCodeErrorDetails::InvalidRequest(_)
+        MaplecodeErrorDetails::InvalidRequest(_)
     ));
     let unsupported = board_handle
         .upsert_channel(
@@ -159,7 +159,7 @@ async fn remote_board_preserves_the_host_contract() -> anyhow::Result<()> {
         .unwrap_err();
     assert!(matches!(
         unsupported.details(),
-        MapleCodeErrorDetails::InvalidRequest(_)
+        MaplecodeErrorDetails::InvalidRequest(_)
     ));
     assert_eq!(
         server.received_requests().await.unwrap().len(),

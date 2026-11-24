@@ -45,7 +45,7 @@ use maplecode_message_board::UpsertChannelRequest;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use serde::de::DeserializeOwned;
 use std::collections::HashMap;
@@ -289,7 +289,7 @@ impl RemoteAgentMessageBoard {
         };
         let body = serde_json::to_vec(&call)?;
         if body.len() > MAX_BODY {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "board request exceeds the service limit".into(),
             ));
         }
@@ -333,7 +333,7 @@ impl AgentMessageBoard for RemoteAgentMessageBoard {
     ) -> BoxFuture<'_, Result<()>> {
         // The service has no description-update operation; creation has different semantics.
         Box::pin(async {
-            Err(MapleCodeErr::InvalidRequest(
+            Err(MaplecodeErr::InvalidRequest(
                 "remote message boards do not support channel upsert".into(),
             ))
         })
@@ -346,7 +346,7 @@ impl AgentMessageBoard for RemoteAgentMessageBoard {
     ) -> BoxFuture<'_, Result<PostMetadata>> {
         // The remote protocol has no silent write operation. Posting is not equivalent.
         Box::pin(async {
-            Err(MapleCodeErr::InvalidRequest(
+            Err(MaplecodeErr::InvalidRequest(
                 "remote message boards do not support silent append".into(),
             ))
         })
@@ -426,12 +426,12 @@ async fn decode<T: DeserializeOwned>(mut response: HttpResponse) -> Result<T> {
         return Err(if status.is_server_error() {
             transport_error(message)
         } else {
-            MapleCodeErr::InvalidRequest(message)
+            MaplecodeErr::InvalidRequest(message)
         });
     }
-    serde_json::from_slice(&body).map_err(MapleCodeErr::from)
+    serde_json::from_slice(&body).map_err(MaplecodeErr::from)
 }
 
-fn transport_error(error: impl Into<Box<dyn Error + Send + Sync>>) -> MapleCodeErr {
-    MapleCodeErr::Io(std::io::Error::other(error))
+fn transport_error(error: impl Into<Box<dyn Error + Send + Sync>>) -> MaplecodeErr {
+    MaplecodeErr::Io(std::io::Error::other(error))
 }

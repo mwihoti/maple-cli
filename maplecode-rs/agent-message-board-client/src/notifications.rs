@@ -14,7 +14,7 @@ use maplecode_extension_api::TurnStartPhase;
 use maplecode_extension_api::TurnStopInput;
 use maplecode_message_board::MessageBoardHost;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErrKind;
+use maplecode_protocol::error::MaplecodeErrKind;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio_util::task::AbortOnDropHandle;
@@ -57,7 +57,7 @@ impl TurnLifecycleContributor for Notifications {
                                         if let Err(error) = host.notify(caller, notice.post).await {
                                             tracing::warn!(
                                                 %caller, %turn_id,
-                                                error_kind = ?MapleCodeErrKind::from(&error),
+                                                error_kind = ?MaplecodeErrKind::from(&error),
                                                 "Remote board notification delivery failed"
                                             );
                                         }
@@ -66,7 +66,7 @@ impl TurnLifecycleContributor for Notifications {
                                     Err(error) => {
                                         tracing::warn!(
                                             %caller, %turn_id,
-                                            error_kind = ?MapleCodeErrKind::from(&error),
+                                            error_kind = ?MaplecodeErrKind::from(&error),
                                             "Remote board notification stream failed"
                                         );
                                         break;
@@ -76,7 +76,7 @@ impl TurnLifecycleContributor for Notifications {
                             Err(error) => {
                                 tracing::warn!(
                                     %caller, %turn_id,
-                                    error_kind = ?MapleCodeErrKind::from(&error),
+                                    error_kind = ?MaplecodeErrKind::from(&error),
                                     "Remote board notification connection failed"
                                 );
                             }
