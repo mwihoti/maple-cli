@@ -197,7 +197,7 @@ async fn chatgpt_executor_rejects_same_owner_agent_identity() {
     let agent_manager = maplecode_login::test_support::auth_manager_with_agent_identity()
         .await
         .unwrap();
-    let Some(MapleCodeAuth::AgentIdentity(agent)) = agent_manager.auth_cached() else {
+    let Some(MaplecodeAuth::AgentIdentity(agent)) = agent_manager.auth_cached() else {
         panic!("expected agent identity fixture");
     };
     std::fs::write(
@@ -211,7 +211,7 @@ async fn chatgpt_executor_rejects_same_owner_agent_identity() {
     .unwrap();
     // Ensure the fixture is a valid, loadable credential for the same owner.
     assert!(matches!(
-        MapleCodeAuth::from_auth_storage(
+        MaplecodeAuth::from_auth_storage(
             home.path(),
             AuthCredentialsStoreMode::File,
             /*chatgpt_base_url*/ None,
@@ -220,7 +220,7 @@ async fn chatgpt_executor_rejects_same_owner_agent_identity() {
         )
         .await
         .unwrap(),
-        Some(MapleCodeAuth::AgentIdentity(_))
+        Some(MaplecodeAuth::AgentIdentity(_))
     ));
     assert!(provider.apply_auth_headers(HeaderMap::new()).await.is_err());
     assert!(provider.to_auth_headers().is_err());
@@ -340,7 +340,7 @@ async fn executor_concurrent_rotation_checks_identity_before_refresh() {
             let manager = maplecode_login::test_support::auth_manager_with_agent_identity()
                 .await
                 .unwrap();
-            let Some(MapleCodeAuth::AgentIdentity(agent)) = manager.auth_cached() else {
+            let Some(MaplecodeAuth::AgentIdentity(agent)) = manager.auth_cached() else {
                 panic!("agent fixture");
             };
             let mut record = agent.record().clone();

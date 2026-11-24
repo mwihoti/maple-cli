@@ -11,7 +11,7 @@ use maplecode_core::config::bootstrap_auth_config;
 use maplecode_core::config::find_maplecode_home;
 use maplecode_core::config::load_config_toml_with_layer_stack;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::read_maplecode_access_token_from_env;
 use maplecode_protocol::auth::AuthMode;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
@@ -29,7 +29,7 @@ const REMOTE_AUTH_MODES: &[AuthMode] = &[
     AuthMode::PersonalAccessToken,
 ];
 
-pub(super) fn read_chatgpt_stdin_auth(account_id: Option<String>) -> anyhow::Result<MapleCodeAuth> {
+pub(super) fn read_chatgpt_stdin_auth(account_id: Option<String>) -> anyhow::Result<MaplecodeAuth> {
     const MAX_FRAME_BYTES: u64 = 64 * 1024;
     let stdin = maplecode_exec_server::credential_stdin()?;
     #[cfg(unix)]
@@ -56,7 +56,7 @@ pub(super) fn read_chatgpt_stdin_auth(account_id: Option<String>) -> anyhow::Res
     chatgpt_auth_from_line(&line, account_id)
 }
 
-fn chatgpt_auth_from_line(line: &str, account_id: Option<String>) -> anyhow::Result<MapleCodeAuth> {
+fn chatgpt_auth_from_line(line: &str, account_id: Option<String>) -> anyhow::Result<MaplecodeAuth> {
     let token = line
         .strip_suffix('\n')
         .context("expected a bounded, newline-terminated ChatGPT access token")?;
@@ -80,7 +80,7 @@ fn chatgpt_auth_from_line(line: &str, account_id: Option<String>) -> anyhow::Res
         !account_id.is_empty() && account_id.bytes().all(|b| b.is_ascii_graphic()),
         "invalid ChatGPT account ID"
     );
-    MapleCodeAuth::from_external_chatgpt_tokens(token, &account_id, plan_override)
+    MaplecodeAuth::from_external_chatgpt_tokens(token, &account_id, plan_override)
         .map_err(|_| anyhow::anyhow!("invalid ChatGPT access token"))
 }
 
@@ -101,7 +101,7 @@ pub(super) async fn load_exec_server_remote_auth_provider(
                 .auth()
                 .await
                 .ok_or_else(|| anyhow::anyhow!("Agent Identity authentication is unavailable"))?;
-        if !matches!(auth, MapleCodeAuth::AgentIdentity(_)) {
+        if !matches!(auth, MaplecodeAuth::AgentIdentity(_)) {
             anyhow::bail!(
                 "MAPLECODE_ACCESS_TOKEN did not provide permitted Agent Identity authentication"
             );
@@ -140,7 +140,7 @@ pub(super) async fn load_exec_server_remote_auth_provider(
     }
 }
 
-pub(super) fn is_supported_exec_server_remote_auth(auth: &MapleCodeAuth) -> bool {
+pub(super) fn is_supported_exec_server_remote_auth(auth: &MaplecodeAuth) -> bool {
     auth.is_chatgpt_auth() || auth.is_api_key_auth()
 }
 
@@ -182,7 +182,7 @@ pub(super) async fn load_exec_server_config(
     root_config_overrides: &CliConfigOverrides,
     strict_config: bool,
     enable_cloud_config: bool,
-    stdin_auth: Option<&MapleCodeAuth>,
+    stdin_auth: Option<&MaplecodeAuth>,
 ) -> anyhow::Result<maplecode_core::config::Config> {
     let cli_kv_overrides = root_config_overrides
         .parse_overrides()
@@ -252,7 +252,7 @@ pub(super) async fn load_exec_server_config(
 async fn load_exec_server_remote_auth(
     config: &maplecode_core::config::Config,
     missing_auth_error: &'static str,
-) -> anyhow::Result<(Arc<AuthManager>, maplecode_login::MapleCodeAuth)> {
+) -> anyhow::Result<(Arc<AuthManager>, maplecode_login::MaplecodeAuth)> {
     let auth_manager = AuthManager::shared_from_config_with_auth_modes(
         config,
         /*enable_maplecode_api_key_env*/ true,

@@ -5,7 +5,7 @@ use pretty_assertions::assert_eq;
 
 #[test]
 fn exec_server_remote_auth_accepts_api_key_auth() {
-    let auth = MapleCodeAuth::from_api_key("sk-test");
+    let auth = MaplecodeAuth::from_api_key("sk-test");
 
     assert!(is_supported_exec_server_remote_auth(&auth));
 }

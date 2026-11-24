@@ -23,13 +23,13 @@ use maplecode_http_client::Request;
 use maplecode_http_client::RequestBody;
 use maplecode_http_client::RequestCompression;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use tokio::sync::Semaphore;
 
 /// Follows stored credential rotation without allowing an executor's owner to change.
 pub(super) fn chatgpt_auth_provider(
     auth_manager: Arc<AuthManager>,
-    expected_auth: &MapleCodeAuth,
+    expected_auth: &MaplecodeAuth,
 ) -> Result<SharedAuthProvider, AuthError> {
     auth_manager
         .restrict_auth_modes(vec![expected_auth.auth_mode()])
@@ -73,7 +73,7 @@ struct ReloadingChatgptAuthProvider {
 }
 
 impl ReloadingChatgptAuthProvider {
-    fn checked_headers(&self, auth: Option<MapleCodeAuth>) -> Result<HeaderMap, AuthError> {
+    fn checked_headers(&self, auth: Option<MaplecodeAuth>) -> Result<HeaderMap, AuthError> {
         let auth = auth
             .filter(|auth| {
                 auth.is_chatgpt_auth()
