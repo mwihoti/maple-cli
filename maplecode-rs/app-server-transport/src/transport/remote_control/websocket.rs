@@ -1902,7 +1902,7 @@ mod tests {
     use maplecode_login::AuthDotJson;
     use maplecode_login::AuthKeyringBackendKind;
     use maplecode_login::AuthManager;
-    use maplecode_login::MapleCodeAuth;
+    use maplecode_login::MaplecodeAuth;
     use maplecode_login::save_auth;
     use maplecode_login::token_data::TokenData;
     use maplecode_login::token_data::parse_chatgpt_jwt_claims;
@@ -2074,7 +2074,7 @@ mod tests {
     }
 
     pub(super) fn remote_control_auth_manager() -> Arc<AuthManager> {
-        auth_manager_from_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        auth_manager_from_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
     }
 
     pub(super) fn remote_control_url_for_listener(listener: &TcpListener) -> String {

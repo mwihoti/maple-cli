@@ -35,7 +35,7 @@ use maplecode_core::test_support::auth_manager_from_auth_with_home;
 use maplecode_login::AuthDotJson;
 use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::save_auth;
 use maplecode_login::token_data::TokenData;
 use maplecode_login::token_data::parse_chatgpt_jwt_claims;
@@ -78,12 +78,12 @@ const TEST_REFRESHED_REMOTE_CONTROL_SERVER_TOKEN: &str = "Refreshed Remote Contr
 const TEST_REMOTE_CONTROL_SERVER_TOKEN_EXPIRES_AT: &str = "2999-01-01T00:00:00Z";
 
 fn remote_control_auth_manager() -> Arc<AuthManager> {
-    auth_manager_from_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+    auth_manager_from_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
 }
 
 fn remote_control_auth_manager_with_home(maplecode_home: &TempDir) -> Arc<AuthManager> {
     auth_manager_from_auth_with_home(
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         maplecode_home.path().to_path_buf(),
     )
 }

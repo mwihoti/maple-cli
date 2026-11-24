@@ -3,14 +3,14 @@
 use super::*;
 use futures::poll;
 use maplecode_core::test_support::auth_manager_from_auth;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use pretty_assertions::assert_eq;
 use tokio::sync::oneshot;
 
 #[tokio::test]
 async fn cancelled_commit_keeps_its_permit_and_is_drained() -> io::Result<()> {
     let auth = RemoteControlAuth::capture(
-        auth_manager_from_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+        auth_manager_from_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
         /*runtime_auth*/ None,
     )
     .0;

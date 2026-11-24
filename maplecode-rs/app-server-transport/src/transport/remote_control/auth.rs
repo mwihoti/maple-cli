@@ -6,7 +6,7 @@ use axum::http::HeaderValue;
 use maplecode_api::SharedAuthProvider;
 use maplecode_features::RuntimeAuthMode;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::UnauthorizedRecovery;
 use maplecode_runtime_agent_instance::RuntimeAuthSlot;
 use std::io;
@@ -73,7 +73,7 @@ pub(super) use maplecode_http_client::CHATGPT_ACCOUNT_ID_HEADER as REMOTE_CONTRO
 
 pub(super) struct RemoteControlConnectionAuth {
     pub(super) http_client_factory: maplecode_http_client::HttpClientFactory,
-    pub(super) auth: MapleCodeAuth,
+    pub(super) auth: MaplecodeAuth,
     pub(super) runtime_auth: Option<(RuntimeAuthSlot, RuntimeAuthMode)>,
     pub(super) account_id: String,
 }
@@ -334,7 +334,7 @@ mod tests {
     #[tokio::test]
     async fn runtime_requests_reject_unsupported_openai_origins() -> anyhow::Result<()> {
         let credentials = AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         );
         for mode in [RuntimeAuthMode::DualHeader, RuntimeAuthMode::AssertionOnly] {
             let (owner, _) = RemoteControlAuth::capture(
@@ -390,7 +390,7 @@ mod tests {
             .mount(&server)
             .await;
         let credentials = AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         );
         let runtime = Arc::new(RuntimeAuthManager::new(
             Arc::clone(&credentials),
