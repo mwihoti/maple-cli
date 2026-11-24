@@ -15,7 +15,7 @@ fn record() -> InstallationRecord {
             cache_home: PathBuf::from(r"C:\Users\owner\.cache"),
         }),
         runtime: Some(RuntimeRegistration {
-            package_family: "OpenAI.MapleCode_publisher".into(),
+            package_family: "OpenAI.Maplecode_publisher".into(),
             metadata_roots: Vec::new(),
             ready_package: None,
             accounts: vec![RuntimeAccountRegistration {
@@ -35,7 +35,7 @@ fn pending() -> InstallationRecord {
     record
 }
 
-const READY_PACKAGE: &str = "OpenAI.MapleCode_1.0.0.0_arm64__publisher";
+const READY_PACKAGE: &str = "OpenAI.Maplecode_1.0.0.0_arm64__publisher";
 
 fn ready_runtime() -> RuntimeRegistration {
     let mut runtime = record().runtime.unwrap();
@@ -55,7 +55,7 @@ fn readiness_requires_a_receipt_for_the_current_package_version() {
     let mut runtime = ready_runtime();
     assert!(runtime.ready_for_package(READY_PACKAGE));
     assert!(runtime.can_resume_registration());
-    assert!(!runtime.ready_for_package("OpenAI.MapleCode_2.0.0.0_arm64__publisher"));
+    assert!(!runtime.ready_for_package("OpenAI.Maplecode_2.0.0.0_arm64__publisher"));
 
     runtime.ready_package = None;
     assert!(!runtime.ready_for_package(READY_PACKAGE));
@@ -96,11 +96,11 @@ fn readiness_is_revoked_by_the_retirement_fence() {
 
 #[test]
 fn admission_accepts_package_family_casing() {
-    for stored in ["OpenAI.MapleCode_publisher", "openai.maplecode_PUBLISHER"] {
+    for stored in ["OpenAI.Maplecode_publisher", "openai.maplecode_PUBLISHER"] {
         let mut record = record();
         record.runtime_mut().unwrap().package_family = stored.into();
         let expected = record.clone();
-        for requested in ["OpenAI.MapleCode_publisher", "OPENAI.MAPLECODE_PUBLISHER"] {
+        for requested in ["OpenAI.Maplecode_publisher", "OPENAI.MAPLECODE_PUBLISHER"] {
             record.admit_owner(&record.clone(), requested).unwrap();
             assert_eq!(record, expected);
         }
@@ -125,12 +125,12 @@ fn admission_rejects_other_owner_home_and_family() {
         (
             record.maplecode_home.as_path(),
             record.user_sid.as_str(),
-            "OpenAI.MapleCodeBeta_publisher",
+            "OpenAI.MaplecodeBeta_publisher",
         ),
         (
             record.maplecode_home.as_path(),
             record.user_sid.as_str(),
-            "OpenAI.MapleCode_otherpublisher",
+            "OpenAI.Maplecode_otherpublisher",
         ),
     ] {
         let mut requested = record.clone();
@@ -261,7 +261,7 @@ fn interrupted_cleanup_logon_blocks_admission_after_record_reload() {
     assert!(!restored.runtime().unwrap().ready_for_package(READY_PACKAGE));
     assert!(
         restored
-            .admit_owner(&original, "OpenAI.MapleCode_publisher")
+            .admit_owner(&original, "OpenAI.Maplecode_publisher")
             .is_err()
     );
 
@@ -269,7 +269,7 @@ fn interrupted_cleanup_logon_blocks_admission_after_record_reload() {
     assert!(restored.runtime().unwrap().ready_for_package(READY_PACKAGE));
     assert!(
         restored
-            .admit_owner(&original, "OpenAI.MapleCode_publisher")
+            .admit_owner(&original, "OpenAI.Maplecode_publisher")
             .is_ok()
     );
 }

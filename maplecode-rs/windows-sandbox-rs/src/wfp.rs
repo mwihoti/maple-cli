@@ -71,7 +71,7 @@ const SUBLAYER_NAME: &str = "Maple Code Windows Sandbox WFP";
 const SUBLAYER_DESCRIPTION: &str = "Persistent WFP sublayer for Maple Code Windows sandbox filters";
 
 // WFP identifies persistent providers, sublayers, and filters by stable GUIDs.
-// These values are MapleCode-owned identities; do not regenerate them unless we
+// These values are Maplecode-owned identities; do not regenerate them unless we
 // intentionally want to orphan old objects and create a new WFP namespace.
 const PROVIDER_KEY: GUID = GUID::from_u128(0x2e31d31c_3948_4753_9117_e5d1a6496f41);
 const SUBLAYER_KEY: GUID = GUID::from_u128(0xe65054fd_4d32_4c7c_95ef_621f0cf6431a);

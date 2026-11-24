@@ -1315,8 +1315,8 @@ mod tests {
     pub(super) fn payload_json() -> serde_json::Value {
         json!({
             "version": SETUP_VERSION,
-            "offline_username": "MapleCodeSandboxOffline",
-            "online_username": "MapleCodeSandboxOnline",
+            "offline_username": "MaplecodeSandboxOffline",
+            "online_username": "MaplecodeSandboxOnline",
             "maplecode_home": "C:\\maplecode-home",
             "command_cwd": "C:\\workspace",
             "read_roots": [],

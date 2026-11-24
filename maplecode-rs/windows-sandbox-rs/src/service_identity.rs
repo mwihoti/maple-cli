@@ -12,10 +12,10 @@ use crate::package_identity::process_package_family;
 /// the legacy service lookup and may use ordinary elevated setup when it is absent.
 pub fn windows_sandbox_service_name() -> Result<String> {
     let Some(family) = service_package_family()? else {
-        return Ok("MapleCodeSandboxService".into());
+        return Ok("MaplecodeSandboxService".into());
     };
     let (name, _) = family.rsplit_once('_').context("invalid package family")?;
-    Ok(format!("MapleCodeSandboxService.{name}"))
+    Ok(format!("MaplecodeSandboxService.{name}"))
 }
 
 /// The full family, including publisher identity, qualifies the authenticated pipe.

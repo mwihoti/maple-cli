@@ -169,7 +169,7 @@ impl DisabledSandboxUsers {
 
 pub(super) fn remove_sandbox_principal(name: &str) -> Result<()> {
     let name_wide = to_wide(name);
-    let status = if name == "MapleCodeSandboxUsers" {
+    let status = if name == "MaplecodeSandboxUsers" {
         unsafe { network::NetLocalGroupDel(null(), name_wide.as_ptr()) }
     } else {
         unsafe { network::NetUserDel(null(), name_wide.as_ptr()) }

@@ -30,10 +30,10 @@ fn private_desktop_rejects_interactive_and_injected_names() {
     for name in [
         "Default",
         r"Winsta0\Default",
-        "MapleCodeSandboxDesktop-",
-        r"MapleCodeSandboxDesktop-abcd\Default",
-        "MapleCodeSandboxDesktop-abcd\0Default",
-        "MapleCodeSandboxDesktop-0123456789abcdef0123456789abcdef0",
+        "MaplecodeSandboxDesktop-",
+        r"MaplecodeSandboxDesktop-abcd\Default",
+        "MaplecodeSandboxDesktop-abcd\0Default",
+        "MaplecodeSandboxDesktop-0123456789abcdef0123456789abcdef0",
     ] {
         assert!(LaunchDesktop::open_private(name).is_err(), "{name:?}");
     }

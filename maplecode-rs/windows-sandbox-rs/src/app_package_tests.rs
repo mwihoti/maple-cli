@@ -39,9 +39,9 @@ fn only_exact_opt_in_requests_registered_core() {
 fn runner_receipt_distinguishes_incomplete_setup_from_owner_and_removal() {
     let owner = "S-1-5-21-100";
     let home = Path::new(r"C:\Users\owner\.maplecode");
-    let package = "OpenAI.MapleCode_current";
+    let package = "OpenAI.Maplecode_current";
     let runtime = RuntimeRegistration {
-        package_family: "OpenAI.MapleCode_family".to_owned(),
+        package_family: "OpenAI.Maplecode_family".to_owned(),
         accounts: Vec::new(),
         metadata_roots: Vec::new(),
         ready_package: None,
@@ -100,7 +100,7 @@ fn runner_receipt_distinguishes_incomplete_setup_from_owner_and_removal() {
     runtime.ready_package = Some(package.to_owned());
     assert!(authorize_runner_receipt(&record, owner, home, package).is_ok());
     assert_eq!(
-        authorize_runner_receipt(&record, owner, home, "OpenAI.MapleCode_updated")
+        authorize_runner_receipt(&record, owner, home, "OpenAI.Maplecode_updated")
             .unwrap_err()
             .to_string(),
         incomplete

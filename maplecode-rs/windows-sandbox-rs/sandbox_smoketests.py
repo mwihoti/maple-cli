@@ -1,5 +1,5 @@
 # sandbox_smoketests.py
-# Run a suite of smoke tests against the Windows sandbox via the MapleCode CLI
+# Run a suite of smoke tests against the Windows sandbox via the Maplecode CLI
 # Requires: Python 3.8+ on Windows. No pip requirements.
 
 import os
@@ -16,10 +16,10 @@ from urllib.parse import urlsplit
 
 
 def _resolve_maplecode_cmd() -> List[str]:
-    """Resolve the MapleCode CLI to invoke `maplecode sandbox windows`.
+    """Resolve the Maplecode CLI to invoke `maplecode sandbox windows`.
 
     Prefer local builds (debug first), then fall back to PATH.
-    Returns the argv prefix to run MapleCode.
+    Returns the argv prefix to run Maplecode.
     """
     root = Path(__file__).parent
     ws_root = root.parent
@@ -46,7 +46,7 @@ def _resolve_maplecode_cmd() -> List[str]:
         return ["maplecode"]
 
     raise FileNotFoundError(
-        "MapleCode CLI not found. Build it first, e.g.\n"
+        "Maplecode CLI not found. Build it first, e.g.\n"
         "  cargo build -p maplecode-cli --release\n"
         "or for debug:\n"
         "  cargo build -p maplecode-cli\n"
