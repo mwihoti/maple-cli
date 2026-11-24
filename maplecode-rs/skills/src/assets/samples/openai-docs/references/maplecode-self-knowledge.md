@@ -1,6 +1,6 @@
 # Maple Code self-knowledge
 
-Use this manual-first route only for genuinely broad Maple Code setup, orientation, customization, troubleshooting, local-state guidance, or system-map synthesis across skills, plugins, MCP, hooks, `AGENTS.md`, automations, and product surfaces. Mixed Chat/Work/MapleCode comparisons belong to `official-docs.md` instead.
+Use this manual-first route only for genuinely broad Maple Code setup, orientation, customization, troubleshooting, local-state guidance, or system-map synthesis across skills, plugins, MCP, hooks, `AGENTS.md`, automations, and product surfaces. Mixed Chat/Work/Maplecode comparisons belong to `official-docs.md` instead.
 
 Narrow Maple Code documentation questions require official documentation search first, then an actual page open or fetch using an available documentation or official-domain web capability. This includes a single feature such as Maple Code Goals, a specific setting, documented behavior, exact error, or requested page citation. Search and fetch the exact official topic before inspecting local files or bundled references. Do not fetch the manual, read bundled references, inspect local configuration or caches, or turn a targeted documentation lookup into broad product synthesis. Current or latest model questions follow the model-selection route.
 

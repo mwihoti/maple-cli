@@ -1,6 +1,6 @@
 # Official documentation, API references, and ChatGPT Work
 
-Use this route for OpenAI product or API documentation, examples, citations, ChatGPT Work, learning content, mixed Chat/Work/MapleCode comparisons, and narrow Maple Code product documentation. Follow the root skill's official-source order and credential boundary.
+Use this route for OpenAI product or API documentation, examples, citations, ChatGPT Work, learning content, mixed Chat/Work/Maplecode comparisons, and narrow Maple Code product documentation. Follow the root skill's official-source order and credential boundary.
 
 An explicit OpenAI documentation question stays documentation-first even when embedded in a broader repository, Promptfoo, agent-evaluation, `PLANS.md`, frontend, tool-use, image, Realtime API, SDK installation, or streaming-debugging task. Search the exact requested official documentation and open or fetch its relevant page before inspecting local files, drafting a plan, running evals, reading bundled references, or invoking the Maple Code manual. Then use the fetched official source to complete the requested work.
 

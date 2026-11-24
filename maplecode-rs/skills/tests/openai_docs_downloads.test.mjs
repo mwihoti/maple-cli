@@ -10,7 +10,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
-import { fetchMapleCodeManual } from "../src/assets/samples/openai-docs/scripts/fetch-maplecode-manual.mjs";
+import { fetchMaplecodeManual } from "../src/assets/samples/openai-docs/scripts/fetch-maplecode-manual.mjs";
 
 const execFileAsync = promisify(execFile);
 const scripts = new URL(
@@ -20,7 +20,7 @@ const scripts = new URL(
 const resolverScript = fileURLToPath(
   new URL("resolve-latest-model-info.cjs", scripts),
 );
-const manual = "# MapleCode manual\n\n## Getting started\nUse MapleCode.\n";
+const manual = "# Maplecode manual\n\n## Getting started\nUse Maplecode.\n";
 const hash = createHash("sha256").update(manual).digest("hex");
 const markdown =
   "latestModelInfo:\n  model: test-model\n  migrationGuide: /migration\n  promptingGuide: /prompting\n";
@@ -63,7 +63,7 @@ for (const failure of ["timeout", "truncated body"]) {
         },
       }),
     );
-    const result = await fetchMapleCodeManual({
+    const result = await fetchMaplecodeManual({
       manualUrl: url,
       cacheDir,
       timeoutMs: 25,

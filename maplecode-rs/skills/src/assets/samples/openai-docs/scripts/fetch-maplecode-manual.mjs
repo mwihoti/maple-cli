@@ -369,7 +369,7 @@ const buildOutline = (manual) => {
 };
 
 const outlineMarkdown = (outline) =>
-  `# MapleCode Manual Outline\n\n${outline.text}\n`;
+  `# Maplecode Manual Outline\n\n${outline.text}\n`;
 
 const manualStatusLine = (status) =>
   status.cacheStatus === "hit"
@@ -408,7 +408,7 @@ const writeOutline = async (cacheDir, outlineText) => {
   await rename(tmpPath, outlineFilePath(cacheDir));
 };
 
-const fetchMapleCodeManual = async ({
+const fetchMaplecodeManual = async ({
   manualUrl = DEFAULT_MANUAL_URL,
   cacheDir,
   timeoutMs = 30000,
@@ -513,7 +513,7 @@ const parseArgs = (argv) => {
 
 const main = async () => {
   const args = parseArgs(process.argv.slice(2));
-  const { outlineText, status } = await fetchMapleCodeManual(args);
+  const { outlineText, status } = await fetchMaplecodeManual(args);
 
   process.stdout.write(formatResult({ status, outlineText }));
 
@@ -577,4 +577,4 @@ if (isCliEntrypoint()) {
   });
 }
 
-export { DEFAULT_MANUAL_URL, fetchMapleCodeManual };
+export { DEFAULT_MANUAL_URL, fetchMaplecodeManual };
