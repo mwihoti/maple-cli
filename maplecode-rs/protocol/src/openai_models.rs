@@ -245,7 +245,7 @@ pub struct ModelServiceTier {
     pub description: String,
 }
 
-/// Metadata describing a MapleCode-supported model.
+/// Metadata describing a Maplecode-supported model.
 #[derive(Debug, Clone, Deserialize, Serialize, TS, JsonSchema, PartialEq)]
 pub struct ModelPreset {
     /// Stable identifier for the preset.

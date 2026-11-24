@@ -12,7 +12,7 @@ use uuid::Uuid;
 #[ts(type = "string")]
 /// Identifier for a Maple Code thread.
 ///
-/// MapleCode-generated thread IDs are UUIDv7, and some use cases rely on that.
+/// Maplecode-generated thread IDs are UUIDv7, and some use cases rely on that.
 pub struct ThreadId {
     pub(crate) uuid: Uuid,
 }

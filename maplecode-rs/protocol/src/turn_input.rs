@@ -55,7 +55,7 @@ pub struct ResponseItemAnnotations {
 /// One turn input and the context that follows it through submission.
 ///
 /// Callers choose start-or-steer, idle-start, or steer-only behavior through
-/// the corresponding `MapleCodeThread` method.
+/// the corresponding `MaplecodeThread` method.
 #[derive(Clone, Debug)]
 pub struct TurnInputRequest {
     pub input: TurnInput,

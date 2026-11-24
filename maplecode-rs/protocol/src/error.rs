@@ -6,7 +6,7 @@ pub use crate::auth::RefreshTokenFailedReason;
 use crate::exec_output::ExecToolCallOutput;
 use crate::network_policy::NetworkPolicyDecisionPayload;
 use crate::protocol::ErrorEvent;
-use crate::protocol::MapleCodeErrorInfo;
+use crate::protocol::MaplecodeErrorInfo;
 use crate::protocol::MisalignmentErrorDetails;
 use crate::protocol::RateLimitReachedType;
 use crate::protocol::RateLimitSnapshot;
@@ -35,7 +35,7 @@ use tokio::task::JoinError;
 mod agent;
 pub use agent::AgentErrorContext;
 
-pub type Result<T> = std::result::Result<T, MapleCodeErr>;
+pub type Result<T> = std::result::Result<T, MaplecodeErr>;
 
 /// Limit UI error messages to a reasonable size while keeping useful context.
 const ERROR_MESSAGE_UI_MAX_BYTES: usize = 2 * 1024;
@@ -75,8 +75,8 @@ pub enum SandboxErr {
     LandlockRestrict,
 }
 
-pub struct MapleCodeErr {
-    details: MapleCodeErrorDetails,
+pub struct MaplecodeErr {
+    details: MaplecodeErrorDetails,
     retry_after: Option<RetryAfter>,
     agent_context: Option<AgentErrorContext>,
 }
@@ -101,14 +101,14 @@ pub struct ResponseIncompleteError {
     pub token_usage: Option<TokenUsage>,
 }
 
-/// The semantic category and diagnostic payload for a [`MapleCodeErr`].
+/// The semantic category and diagnostic payload for a [`MaplecodeErr`].
 #[derive(Error, Debug, EnumDiscriminants)]
-#[strum_discriminants(name(MapleCodeErrKind))]
+#[strum_discriminants(name(MaplecodeErrKind))]
 #[strum_discriminants(derive(serde::Serialize, strum_macros::IntoStaticStr))]
 #[strum_discriminants(strum(serialize_all = "snake_case"))]
 #[strum_discriminants(serde(rename_all = "snake_case"))]
 #[strum_discriminants(doc = "The payload-free semantic category used for analytics.")]
-pub enum MapleCodeErrorDetails {
+pub enum MaplecodeErrorDetails {
     #[error("turn aborted. Something went wrong? Hit `/feedback` to report the issue.")]
     TurnAborted,
 
@@ -151,7 +151,7 @@ pub enum MapleCodeErrorDetails {
     #[error("request timed out")]
     RequestTimeout,
     /// Returned by run_command_stream when the child could not be spawned (its stdout/stderr pipes
-    /// could not be captured). Analogous to the previous `MapleCodeError::Spawn` variant.
+    /// could not be captured). Analogous to the previous `MaplecodeError::Spawn` variant.
     #[error("spawn failed: child stdout/stderr not captured")]
     Spawn,
     /// Returned by run_command_stream when the user pressed Ctrl-C (SIGINT). Session uses this to
@@ -267,16 +267,16 @@ pub enum MapleCodeErrorDetails {
     EnvVar(EnvVarError),
 }
 
-impl From<&MapleCodeErr> for MapleCodeErrKind {
-    fn from(error: &MapleCodeErr) -> Self {
+impl From<&MaplecodeErr> for MaplecodeErrKind {
+    fn from(error: &MaplecodeErr) -> Self {
         error.details().into()
     }
 }
 
-impl fmt::Debug for MapleCodeErr {
+impl fmt::Debug for MaplecodeErr {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.details {
-            MapleCodeErrorDetails::Stream(message) => formatter
+            MaplecodeErrorDetails::Stream(message) => formatter
                 .debug_tuple("Stream")
                 .field(message)
                 .field(&self.server_retry_delay())
@@ -286,20 +286,20 @@ impl fmt::Debug for MapleCodeErr {
     }
 }
 
-impl fmt::Display for MapleCodeErr {
+impl fmt::Display for MaplecodeErr {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Display::fmt(&self.details, formatter)
     }
 }
 
-impl std::error::Error for MapleCodeErr {
+impl std::error::Error for MaplecodeErr {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         self.details.source()
     }
 }
 
-impl From<MapleCodeErrorDetails> for MapleCodeErr {
-    fn from(details: MapleCodeErrorDetails) -> Self {
+impl From<MaplecodeErrorDetails> for MaplecodeErr {
+    fn from(details: MaplecodeErrorDetails) -> Self {
         Self {
             details,
             retry_after: None,
@@ -308,65 +308,65 @@ impl From<MapleCodeErrorDetails> for MapleCodeErr {
     }
 }
 
-impl From<CancelErr> for MapleCodeErr {
+impl From<CancelErr> for MaplecodeErr {
     fn from(error: CancelErr) -> Self {
-        MapleCodeErrorDetails::from(error).into()
+        MaplecodeErrorDetails::from(error).into()
     }
 }
 
-impl From<SandboxErr> for MapleCodeErr {
+impl From<SandboxErr> for MaplecodeErr {
     fn from(error: SandboxErr) -> Self {
-        MapleCodeErrorDetails::from(error).into()
+        MaplecodeErrorDetails::from(error).into()
     }
 }
 
-impl From<io::Error> for MapleCodeErr {
+impl From<io::Error> for MaplecodeErr {
     fn from(error: io::Error) -> Self {
-        MapleCodeErrorDetails::from(error).into()
+        MaplecodeErrorDetails::from(error).into()
     }
 }
 
-impl From<serde_json::Error> for MapleCodeErr {
+impl From<serde_json::Error> for MaplecodeErr {
     fn from(error: serde_json::Error) -> Self {
-        MapleCodeErrorDetails::from(error).into()
+        MaplecodeErrorDetails::from(error).into()
     }
 }
 
-impl From<JoinError> for MapleCodeErr {
+impl From<JoinError> for MaplecodeErr {
     fn from(error: JoinError) -> Self {
-        MapleCodeErrorDetails::from(error).into()
+        MaplecodeErrorDetails::from(error).into()
     }
 }
 
 #[cfg(target_os = "linux")]
-impl From<landlock::RulesetError> for MapleCodeErr {
+impl From<landlock::RulesetError> for MaplecodeErr {
     fn from(error: landlock::RulesetError) -> Self {
-        MapleCodeErrorDetails::from(error).into()
+        MaplecodeErrorDetails::from(error).into()
     }
 }
 
 #[cfg(target_os = "linux")]
-impl From<landlock::PathFdError> for MapleCodeErr {
+impl From<landlock::PathFdError> for MaplecodeErr {
     fn from(error: landlock::PathFdError) -> Self {
-        MapleCodeErrorDetails::from(error).into()
+        MaplecodeErrorDetails::from(error).into()
     }
 }
 
-impl From<CancelErr> for MapleCodeErrorDetails {
+impl From<CancelErr> for MaplecodeErrorDetails {
     fn from(_: CancelErr) -> Self {
-        MapleCodeErrorDetails::TurnAborted
+        MaplecodeErrorDetails::TurnAborted
     }
 }
 
 // TODO(anp): Remove this compatibility macro once callers construct
-// `MapleCodeErrorDetails` directly.
+// `MaplecodeErrorDetails` directly.
 macro_rules! maplecode_err_unit_constructors {
     ($($variant:ident),* $(,)?) => {
         $(
             #[doc(hidden)]
             #[allow(non_upper_case_globals)]
             pub const $variant: Self = Self {
-                details: MapleCodeErrorDetails::$variant,
+                details: MaplecodeErrorDetails::$variant,
                 retry_after: None,
                 agent_context: None,
             };
@@ -375,7 +375,7 @@ macro_rules! maplecode_err_unit_constructors {
 }
 
 // TODO(anp): Remove this compatibility macro once callers construct
-// `MapleCodeErrorDetails` directly.
+// `MaplecodeErrorDetails` directly.
 macro_rules! maplecode_err_tuple_constructors {
     ($($(#[$attr:meta])* $variant:ident($value:ident: $value_type:ty)),* $(,)?) => {
         $(
@@ -383,13 +383,13 @@ macro_rules! maplecode_err_tuple_constructors {
             #[doc(hidden)]
             #[allow(non_snake_case)]
             pub fn $variant($value: $value_type) -> Self {
-                MapleCodeErrorDetails::$variant($value).into()
+                MaplecodeErrorDetails::$variant($value).into()
             }
         )*
     };
 }
 
-impl MapleCodeErr {
+impl MaplecodeErr {
     maplecode_err_unit_constructors!(
         TurnAborted,
         SessionBudgetExceeded,
@@ -431,20 +431,20 @@ impl MapleCodeErr {
     );
 
     // TODO(anp): Remove this compatibility constructor once callers construct
-    // `MapleCodeErrorDetails` directly.
+    // `MaplecodeErrorDetails` directly.
     #[doc(hidden)]
     #[allow(non_snake_case)]
     pub fn InvalidImageRequest() -> Self {
-        MapleCodeErrorDetails::InvalidImageRequest().into()
+        MaplecodeErrorDetails::InvalidImageRequest().into()
     }
 
     /// Creates an error with no server-provided retry delay.
-    pub fn new(details: MapleCodeErrorDetails) -> Self {
+    pub fn new(details: MaplecodeErrorDetails) -> Self {
         details.into()
     }
 
     /// Returns the semantic failure and its diagnostic payload.
-    pub fn details(&self) -> &MapleCodeErrorDetails {
+    pub fn details(&self) -> &MaplecodeErrorDetails {
         &self.details
     }
 
@@ -470,7 +470,7 @@ impl MapleCodeErr {
 
     fn retry_policy(&self) -> RetryPolicy {
         match self.details() {
-            MapleCodeErrorDetails::UnexpectedStatus(error)
+            MaplecodeErrorDetails::UnexpectedStatus(error)
                 if is_runtime_auth_denial(
                     error.status,
                     &error.body,
@@ -479,59 +479,59 @@ impl MapleCodeErr {
             {
                 RetryPolicy::Never
             }
-            MapleCodeErrorDetails::TurnAborted
-            | MapleCodeErrorDetails::SessionBudgetExceeded
-            | MapleCodeErrorDetails::Interrupted
-            | MapleCodeErrorDetails::EnvVar(_)
-            | MapleCodeErrorDetails::Fatal(_)
-            | MapleCodeErrorDetails::UsageNotIncluded
-            | MapleCodeErrorDetails::QuotaExceeded
-            | MapleCodeErrorDetails::InvalidImageRequest()
-            | MapleCodeErrorDetails::InvalidRequest(_)
-            | MapleCodeErrorDetails::InvalidAudioInput { .. }
-            | MapleCodeErrorDetails::ResponseIncomplete(_)
-            | MapleCodeErrorDetails::ModelNotFound { .. }
-            | MapleCodeErrorDetails::InvalidPrompt { .. }
-            | MapleCodeErrorDetails::InferenceHookDenied { .. }
-            | MapleCodeErrorDetails::ContentPolicyViolation { .. }
-            | MapleCodeErrorDetails::ToolCollision(_)
-            | MapleCodeErrorDetails::RefreshTokenFailed(_)
-            | MapleCodeErrorDetails::GatewayLoginRequired(_)
-            | MapleCodeErrorDetails::UnsupportedOperation(_)
-            | MapleCodeErrorDetails::Sandbox(_)
-            | MapleCodeErrorDetails::LandlockSandboxExecutableNotProvided
-            | MapleCodeErrorDetails::ContextWindowExceeded
-            | MapleCodeErrorDetails::ThreadNotFound(_)
-            | MapleCodeErrorDetails::AgentLimitReached { .. }
-            | MapleCodeErrorDetails::Spawn
-            | MapleCodeErrorDetails::SessionConfiguredNotFirstEvent
-            | MapleCodeErrorDetails::UsageLimitReached(_)
-            | MapleCodeErrorDetails::FlexUnavailable
-            | MapleCodeErrorDetails::CyberPolicy { .. }
-            | MapleCodeErrorDetails::BioPolicy { .. }
-            | MapleCodeErrorDetails::WorkspaceAccessDenied(_)
-            | MapleCodeErrorDetails::AccessProgramNotEnabled(_)
-            | MapleCodeErrorDetails::MisalignmentPolicyViolation { .. } => RetryPolicy::Never,
-            MapleCodeErrorDetails::ServerOverloaded
-            | MapleCodeErrorDetails::PolicyCapacityUnavailable
-            | MapleCodeErrorDetails::RetryLimit(_) => RetryPolicy::ServerDirected,
-            MapleCodeErrorDetails::WebsocketMessageTooLarge => RetryPolicy::FallBackToHttp,
-            MapleCodeErrorDetails::Stream(..)
-            | MapleCodeErrorDetails::ContentFilter
-            | MapleCodeErrorDetails::RateLimitExceeded(_)
-            | MapleCodeErrorDetails::Timeout
-            | MapleCodeErrorDetails::RequestTimeout
-            | MapleCodeErrorDetails::UnexpectedStatus(_)
-            | MapleCodeErrorDetails::ResponseStreamFailed(_)
-            | MapleCodeErrorDetails::ConnectionFailed(_)
-            | MapleCodeErrorDetails::InternalServerError
-            | MapleCodeErrorDetails::InternalAgentDied
-            | MapleCodeErrorDetails::Io(_)
-            | MapleCodeErrorDetails::Json(_)
-            | MapleCodeErrorDetails::TokioJoin(_) => RetryPolicy::Backoff,
+            MaplecodeErrorDetails::TurnAborted
+            | MaplecodeErrorDetails::SessionBudgetExceeded
+            | MaplecodeErrorDetails::Interrupted
+            | MaplecodeErrorDetails::EnvVar(_)
+            | MaplecodeErrorDetails::Fatal(_)
+            | MaplecodeErrorDetails::UsageNotIncluded
+            | MaplecodeErrorDetails::QuotaExceeded
+            | MaplecodeErrorDetails::InvalidImageRequest()
+            | MaplecodeErrorDetails::InvalidRequest(_)
+            | MaplecodeErrorDetails::InvalidAudioInput { .. }
+            | MaplecodeErrorDetails::ResponseIncomplete(_)
+            | MaplecodeErrorDetails::ModelNotFound { .. }
+            | MaplecodeErrorDetails::InvalidPrompt { .. }
+            | MaplecodeErrorDetails::InferenceHookDenied { .. }
+            | MaplecodeErrorDetails::ContentPolicyViolation { .. }
+            | MaplecodeErrorDetails::ToolCollision(_)
+            | MaplecodeErrorDetails::RefreshTokenFailed(_)
+            | MaplecodeErrorDetails::GatewayLoginRequired(_)
+            | MaplecodeErrorDetails::UnsupportedOperation(_)
+            | MaplecodeErrorDetails::Sandbox(_)
+            | MaplecodeErrorDetails::LandlockSandboxExecutableNotProvided
+            | MaplecodeErrorDetails::ContextWindowExceeded
+            | MaplecodeErrorDetails::ThreadNotFound(_)
+            | MaplecodeErrorDetails::AgentLimitReached { .. }
+            | MaplecodeErrorDetails::Spawn
+            | MaplecodeErrorDetails::SessionConfiguredNotFirstEvent
+            | MaplecodeErrorDetails::UsageLimitReached(_)
+            | MaplecodeErrorDetails::FlexUnavailable
+            | MaplecodeErrorDetails::CyberPolicy { .. }
+            | MaplecodeErrorDetails::BioPolicy { .. }
+            | MaplecodeErrorDetails::WorkspaceAccessDenied(_)
+            | MaplecodeErrorDetails::AccessProgramNotEnabled(_)
+            | MaplecodeErrorDetails::MisalignmentPolicyViolation { .. } => RetryPolicy::Never,
+            MaplecodeErrorDetails::ServerOverloaded
+            | MaplecodeErrorDetails::PolicyCapacityUnavailable
+            | MaplecodeErrorDetails::RetryLimit(_) => RetryPolicy::ServerDirected,
+            MaplecodeErrorDetails::WebsocketMessageTooLarge => RetryPolicy::FallBackToHttp,
+            MaplecodeErrorDetails::Stream(..)
+            | MaplecodeErrorDetails::ContentFilter
+            | MaplecodeErrorDetails::RateLimitExceeded(_)
+            | MaplecodeErrorDetails::Timeout
+            | MaplecodeErrorDetails::RequestTimeout
+            | MaplecodeErrorDetails::UnexpectedStatus(_)
+            | MaplecodeErrorDetails::ResponseStreamFailed(_)
+            | MaplecodeErrorDetails::ConnectionFailed(_)
+            | MaplecodeErrorDetails::InternalServerError
+            | MaplecodeErrorDetails::InternalAgentDied
+            | MaplecodeErrorDetails::Io(_)
+            | MaplecodeErrorDetails::Json(_)
+            | MaplecodeErrorDetails::TokioJoin(_) => RetryPolicy::Backoff,
             #[cfg(target_os = "linux")]
-            MapleCodeErrorDetails::LandlockRuleset(_)
-            | MapleCodeErrorDetails::LandlockPathFd(_) => RetryPolicy::Never,
+            MaplecodeErrorDetails::LandlockRuleset(_)
+            | MaplecodeErrorDetails::LandlockPathFd(_) => RetryPolicy::Never,
         }
     }
 
@@ -552,7 +552,7 @@ impl MapleCodeErr {
         self
     }
 
-    /// Minimal shim so that existing `e.downcast_ref::<MapleCodeErr>()` checks continue to compile
+    /// Minimal shim so that existing `e.downcast_ref::<MaplecodeErr>()` checks continue to compile
     /// after replacing `anyhow::Error` in the return signature. This mirrors the behavior of
     /// `anyhow::Error::downcast_ref` but works directly on our concrete error type.
     pub fn downcast_ref<T: std::any::Any>(&self) -> Option<&T> {
@@ -560,64 +560,64 @@ impl MapleCodeErr {
     }
 
     /// Translate core error to client-facing protocol error.
-    pub fn to_maplecode_protocol_error(&self) -> MapleCodeErrorInfo {
+    pub fn to_maplecode_protocol_error(&self) -> MaplecodeErrorInfo {
         match &self.details {
-            MapleCodeErrorDetails::ContextWindowExceeded => {
-                MapleCodeErrorInfo::ContextWindowExceeded
+            MaplecodeErrorDetails::ContextWindowExceeded => {
+                MaplecodeErrorInfo::ContextWindowExceeded
             }
-            MapleCodeErrorDetails::SessionBudgetExceeded => {
-                MapleCodeErrorInfo::SessionBudgetExceeded
+            MaplecodeErrorDetails::SessionBudgetExceeded => {
+                MaplecodeErrorInfo::SessionBudgetExceeded
             }
-            MapleCodeErrorDetails::RateLimitExceeded(_) => MapleCodeErrorInfo::RateLimitExceeded,
-            MapleCodeErrorDetails::UsageLimitReached(_)
-            | MapleCodeErrorDetails::QuotaExceeded
-            | MapleCodeErrorDetails::UsageNotIncluded => MapleCodeErrorInfo::UsageLimitExceeded,
-            MapleCodeErrorDetails::ServerOverloaded => MapleCodeErrorInfo::ServerOverloaded,
-            MapleCodeErrorDetails::PolicyCapacityUnavailable => {
-                MapleCodeErrorInfo::PolicyCapacityUnavailable
+            MaplecodeErrorDetails::RateLimitExceeded(_) => MaplecodeErrorInfo::RateLimitExceeded,
+            MaplecodeErrorDetails::UsageLimitReached(_)
+            | MaplecodeErrorDetails::QuotaExceeded
+            | MaplecodeErrorDetails::UsageNotIncluded => MaplecodeErrorInfo::UsageLimitExceeded,
+            MaplecodeErrorDetails::ServerOverloaded => MaplecodeErrorInfo::ServerOverloaded,
+            MaplecodeErrorDetails::PolicyCapacityUnavailable => {
+                MaplecodeErrorInfo::PolicyCapacityUnavailable
             }
-            MapleCodeErrorDetails::FlexUnavailable => MapleCodeErrorInfo::FlexUnavailable,
-            MapleCodeErrorDetails::InferenceHookDenied { .. } => {
-                MapleCodeErrorInfo::InferenceHookDenied
+            MaplecodeErrorDetails::FlexUnavailable => MaplecodeErrorInfo::FlexUnavailable,
+            MaplecodeErrorDetails::InferenceHookDenied { .. } => {
+                MaplecodeErrorInfo::InferenceHookDenied
             }
-            MapleCodeErrorDetails::CyberPolicy { .. } => MapleCodeErrorInfo::CyberPolicy,
-            MapleCodeErrorDetails::BioPolicy { .. } => MapleCodeErrorInfo::BioPolicy,
-            MapleCodeErrorDetails::ModelNotFound { .. } => MapleCodeErrorInfo::ModelNotFound,
-            MapleCodeErrorDetails::InvalidPrompt { .. }
-            | MapleCodeErrorDetails::ContentPolicyViolation { .. } => {
-                MapleCodeErrorInfo::InvalidPrompt
+            MaplecodeErrorDetails::CyberPolicy { .. } => MaplecodeErrorInfo::CyberPolicy,
+            MaplecodeErrorDetails::BioPolicy { .. } => MaplecodeErrorInfo::BioPolicy,
+            MaplecodeErrorDetails::ModelNotFound { .. } => MaplecodeErrorInfo::ModelNotFound,
+            MaplecodeErrorDetails::InvalidPrompt { .. }
+            | MaplecodeErrorDetails::ContentPolicyViolation { .. } => {
+                MaplecodeErrorInfo::InvalidPrompt
             }
-            MapleCodeErrorDetails::MisalignmentPolicyViolation { .. } => {
-                MapleCodeErrorInfo::MisalignmentPolicyViolation
+            MaplecodeErrorDetails::MisalignmentPolicyViolation { .. } => {
+                MaplecodeErrorInfo::MisalignmentPolicyViolation
             }
-            MapleCodeErrorDetails::RetryLimit(_) => {
-                MapleCodeErrorInfo::ResponseTooManyFailedAttempts {
+            MaplecodeErrorDetails::RetryLimit(_) => {
+                MaplecodeErrorInfo::ResponseTooManyFailedAttempts {
                     http_status_code: self.http_status_code_value(),
                 }
             }
-            MapleCodeErrorDetails::ConnectionFailed(_)
-            | MapleCodeErrorDetails::WorkspaceAccessDenied(_)
-            | MapleCodeErrorDetails::AccessProgramNotEnabled(_)
-            | MapleCodeErrorDetails::UnexpectedStatus(_) => {
-                MapleCodeErrorInfo::HttpConnectionFailed {
+            MaplecodeErrorDetails::ConnectionFailed(_)
+            | MaplecodeErrorDetails::WorkspaceAccessDenied(_)
+            | MaplecodeErrorDetails::AccessProgramNotEnabled(_)
+            | MaplecodeErrorDetails::UnexpectedStatus(_) => {
+                MaplecodeErrorInfo::HttpConnectionFailed {
                     http_status_code: self.http_status_code_value(),
                 }
             }
-            MapleCodeErrorDetails::ResponseStreamFailed(_) => {
-                MapleCodeErrorInfo::ResponseStreamConnectionFailed {
+            MaplecodeErrorDetails::ResponseStreamFailed(_) => {
+                MaplecodeErrorInfo::ResponseStreamConnectionFailed {
                     http_status_code: self.http_status_code_value(),
                 }
             }
-            MapleCodeErrorDetails::RefreshTokenFailed(_) => MapleCodeErrorInfo::Unauthorized,
-            MapleCodeErrorDetails::SessionConfiguredNotFirstEvent
-            | MapleCodeErrorDetails::InternalServerError
-            | MapleCodeErrorDetails::InternalAgentDied => MapleCodeErrorInfo::InternalServerError,
-            MapleCodeErrorDetails::InvalidAudioInput { .. }
-            | MapleCodeErrorDetails::UnsupportedOperation(_)
-            | MapleCodeErrorDetails::ThreadNotFound(_)
-            | MapleCodeErrorDetails::AgentLimitReached { .. } => MapleCodeErrorInfo::BadRequest,
-            MapleCodeErrorDetails::Sandbox(_) => MapleCodeErrorInfo::SandboxError,
-            _ => MapleCodeErrorInfo::Other,
+            MaplecodeErrorDetails::RefreshTokenFailed(_) => MaplecodeErrorInfo::Unauthorized,
+            MaplecodeErrorDetails::SessionConfiguredNotFirstEvent
+            | MaplecodeErrorDetails::InternalServerError
+            | MaplecodeErrorDetails::InternalAgentDied => MaplecodeErrorInfo::InternalServerError,
+            MaplecodeErrorDetails::InvalidAudioInput { .. }
+            | MaplecodeErrorDetails::UnsupportedOperation(_)
+            | MaplecodeErrorDetails::ThreadNotFound(_)
+            | MaplecodeErrorDetails::AgentLimitReached { .. } => MaplecodeErrorInfo::BadRequest,
+            MaplecodeErrorDetails::Sandbox(_) => MaplecodeErrorInfo::SandboxError,
+            _ => MaplecodeErrorInfo::Other,
         }
     }
 
@@ -632,7 +632,7 @@ impl MapleCodeErr {
             maplecode_error_info: Some(self.to_maplecode_protocol_error()),
             rejected_audio_file_ids: Vec::new(),
             misalignment: match &self.details {
-                MapleCodeErrorDetails::MisalignmentPolicyViolation { misalignment, .. } => {
+                MaplecodeErrorDetails::MisalignmentPolicyViolation { misalignment, .. } => {
                     misalignment.clone()
                 }
                 _ => None,
@@ -642,15 +642,15 @@ impl MapleCodeErr {
 
     pub fn http_status_code_value(&self) -> Option<u16> {
         let http_status_code = match &self.details {
-            MapleCodeErrorDetails::FlexUnavailable => Some(StatusCode::TOO_MANY_REQUESTS),
-            MapleCodeErrorDetails::ModelNotFound { status, .. }
-            | MapleCodeErrorDetails::ContentPolicyViolation { status, .. } => *status,
-            MapleCodeErrorDetails::RetryLimit(err) => Some(err.status),
-            MapleCodeErrorDetails::WorkspaceAccessDenied(err)
-            | MapleCodeErrorDetails::AccessProgramNotEnabled(ProviderRejection::Http(err))
-            | MapleCodeErrorDetails::UnexpectedStatus(err) => Some(err.status),
-            MapleCodeErrorDetails::ConnectionFailed(err) => err.source.status(),
-            MapleCodeErrorDetails::ResponseStreamFailed(err) => err.source.status(),
+            MaplecodeErrorDetails::FlexUnavailable => Some(StatusCode::TOO_MANY_REQUESTS),
+            MaplecodeErrorDetails::ModelNotFound { status, .. }
+            | MaplecodeErrorDetails::ContentPolicyViolation { status, .. } => *status,
+            MaplecodeErrorDetails::RetryLimit(err) => Some(err.status),
+            MaplecodeErrorDetails::WorkspaceAccessDenied(err)
+            | MaplecodeErrorDetails::AccessProgramNotEnabled(ProviderRejection::Http(err))
+            | MaplecodeErrorDetails::UnexpectedStatus(err) => Some(err.status),
+            MaplecodeErrorDetails::ConnectionFailed(err) => err.source.status(),
+            MaplecodeErrorDetails::ResponseStreamFailed(err) => err.source.status(),
             _ => None,
         };
         http_status_code.as_ref().map(StatusCode::as_u16)
@@ -1043,9 +1043,9 @@ impl std::fmt::Display for EnvVarError {
     }
 }
 
-pub fn get_error_message_ui(e: &MapleCodeErr) -> String {
+pub fn get_error_message_ui(e: &MaplecodeErr) -> String {
     let message = match e.details() {
-        MapleCodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
+        MaplecodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
             let aggregated = output.aggregated_output.text.trim();
             if !aggregated.is_empty() {
                 output.aggregated_output.text.clone()
@@ -1064,7 +1064,7 @@ pub fn get_error_message_ui(e: &MapleCodeErr) -> String {
             }
         }
         // Timeouts are not sandbox errors from a UX perspective; present them plainly.
-        MapleCodeErrorDetails::Sandbox(SandboxErr::Timeout { output }) => {
+        MaplecodeErrorDetails::Sandbox(SandboxErr::Timeout { output }) => {
             format!(
                 "error: command timed out after {} ms",
                 output.duration.as_millis()

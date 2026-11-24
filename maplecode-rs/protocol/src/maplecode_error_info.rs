@@ -1,7 +1,7 @@
 //! Decodes unknown error classifications as `Other` so enclosing records stay readable.
 //! The wire definition keeps serialization exhaustive and known payload validation strict.
 
-use crate::protocol::MapleCodeErrorInfo;
+use crate::protocol::MaplecodeErrorInfo;
 use crate::protocol::NonSteerableTurnKind;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -12,11 +12,11 @@ use serde_json::Value;
 
 #[derive(Serialize, Deserialize)]
 #[serde(
-    remote = "MapleCodeErrorInfo",
-    rename = "MapleCodeErrorInfo",
+    remote = "MaplecodeErrorInfo",
+    rename = "MaplecodeErrorInfo",
     rename_all = "snake_case"
 )]
-enum MapleCodeErrorInfoWire {
+enum MaplecodeErrorInfoWire {
     ContextWindowExceeded,
     SessionBudgetExceeded,
     UsageLimitExceeded,
@@ -56,16 +56,16 @@ enum MapleCodeErrorInfoWire {
     Other,
 }
 
-impl Serialize for MapleCodeErrorInfo {
+impl Serialize for MaplecodeErrorInfo {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        MapleCodeErrorInfoWire::serialize(self, serializer)
+        MaplecodeErrorInfoWire::serialize(self, serializer)
     }
 }
 
-impl<'de> Deserialize<'de> for MapleCodeErrorInfo {
+impl<'de> Deserialize<'de> for MaplecodeErrorInfo {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -78,12 +78,12 @@ impl<'de> Deserialize<'de> for MapleCodeErrorInfo {
             && let Some(kind) = fields.keys().next()
             && kind != "other"
             && matches!(
-                MapleCodeErrorInfoWire::deserialize(Value::String(kind.clone())),
+                MaplecodeErrorInfoWire::deserialize(Value::String(kind.clone())),
                 Ok(Self::Other)
             )
         {
             return Ok(Self::Other);
         }
-        MapleCodeErrorInfoWire::deserialize(value).map_err(D::Error::custom)
+        MaplecodeErrorInfoWire::deserialize(value).map_err(D::Error::custom)
     }
 }

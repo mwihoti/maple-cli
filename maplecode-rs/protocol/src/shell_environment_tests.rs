@@ -25,7 +25,7 @@ fn tool_call_id_replaces_platform_equivalent_names() {
                 "stale-call".to_string(),
             ),
             (
-                "MapleCode_Tool_Call_Id".to_string(),
+                "Maplecode_Tool_Call_Id".to_string(),
                 "mixed-case-call".to_string(),
             ),
             (
@@ -41,7 +41,7 @@ fn tool_call_id_replaces_platform_equivalent_names() {
         #[cfg(not(windows))]
         expected.extend([
             (
-                "MapleCode_Tool_Call_Id".to_string(),
+                "Maplecode_Tool_Call_Id".to_string(),
                 "mixed-case-call".to_string(),
             ),
             (
@@ -96,7 +96,7 @@ fn non_inheritable_environment_is_removed_after_policy_overrides() {
                 "/run/identity-token".to_string(),
             ),
             (
-                "MapleCode_Exec_Server_Noise_Auth_Token".to_string(),
+                "Maplecode_Exec_Server_Noise_Auth_Token".to_string(),
                 "configured-noise-token".to_string(),
             ),
         ]),
@@ -116,7 +116,7 @@ fn command_scrubber_removes_names_from_real_child_environment() {
             .args([TEST_NAME, "--exact", "--nocapture"])
             .env(CHILD_MODE_ENV_VAR, "1")
             .env(
-                "MapleCode_Guardian_Decisions_Api_Key",
+                "Maplecode_Guardian_Decisions_Api_Key",
                 "synthetic-inherited-key",
             )
             .env("Node_Repl_Auth_Token", "inherited-token")
@@ -126,7 +126,7 @@ fn command_scrubber_removes_names_from_real_child_environment() {
                 r#"{"instance_id":"box-one"}"#,
             )
             .env(
-                "MapleCode_Exec_Server_Noise_Auth_Token",
+                "Maplecode_Exec_Server_Noise_Auth_Token",
                 "inherited-noise-token",
             )
             .output()

@@ -14,12 +14,12 @@ use std::time::Duration;
 #[tokio::test(start_paused = true)]
 async fn maplecode_err_debug_preserves_legacy_shape() {
     let actual = [
-        MapleCodeErr::Timeout,
-        MapleCodeErr::Stream("disconnected".to_string()),
-        MapleCodeErr::Stream("retry later".to_string()).with_retry_after(
+        MaplecodeErr::Timeout,
+        MaplecodeErr::Stream("disconnected".to_string()),
+        MaplecodeErr::Stream("retry later".to_string()).with_retry_after(
             RetryAfter::from_delay(Duration::from_secs(2)).expect("retry deadline"),
         ),
-        MapleCodeErr::InternalServerError.with_retry_after(
+        MaplecodeErr::InternalServerError.with_retry_after(
             RetryAfter::from_delay(Duration::from_secs(3)).expect("retry deadline"),
         ),
     ]
@@ -39,26 +39,26 @@ async fn maplecode_err_debug_preserves_legacy_shape() {
 #[test]
 fn retryability_preserves_error_details_distinctions() {
     let errors = [
-        (MapleCodeErr::ServerOverloaded, false),
+        (MaplecodeErr::ServerOverloaded, false),
         (
-            MapleCodeErr::new(MapleCodeErrorDetails::ContentFilter),
+            MaplecodeErr::new(MaplecodeErrorDetails::ContentFilter),
             true,
         ),
         (
-            MapleCodeErr::new(MapleCodeErrorDetails::RateLimitExceeded(
+            MaplecodeErr::new(MaplecodeErrorDetails::RateLimitExceeded(
                 "retry later".into(),
             )),
             true,
         ),
         (
-            MapleCodeErr::RetryLimit(RetryLimitReachedError {
+            MaplecodeErr::RetryLimit(RetryLimitReachedError {
                 status: StatusCode::TOO_MANY_REQUESTS,
                 request_id: None,
             }),
             false,
         ),
         (
-            MapleCodeErr::UnexpectedStatus(UnexpectedResponseError {
+            MaplecodeErr::UnexpectedStatus(UnexpectedResponseError {
                 status: StatusCode::TOO_MANY_REQUESTS,
                 body: String::new(),
                 user_message: None,
@@ -71,10 +71,10 @@ fn retryability_preserves_error_details_distinctions() {
             true,
         ),
         (
-            MapleCodeErrorDetails::ToolCollision("functions.update_plan".to_string()).into(),
+            MaplecodeErrorDetails::ToolCollision("functions.update_plan".to_string()).into(),
             false,
         ),
-        (MapleCodeErr::InternalServerError, true),
+        (MaplecodeErr::InternalServerError, true),
     ];
 
     for (err, expected) in errors {
@@ -90,7 +90,7 @@ fn retryability_preserves_error_details_distinctions() {
 /// make a terminal error retryable.
 #[test]
 fn retry_delay_distinguishes_server_advice_backoff_and_terminal_errors() {
-    let error = MapleCodeErr::InternalServerError;
+    let error = MaplecodeErr::InternalServerError;
     for (retry_count, expected_millis) in [(1, 180..220), (3, 720..880)] {
         let delay = error.retry_delay(retry_count).expect("retryable error");
         assert!(expected_millis.contains(&delay.as_millis()));
@@ -109,7 +109,7 @@ fn retry_delay_distinguishes_server_advice_backoff_and_terminal_errors() {
         (Some(advice), Some(advice), Some(advice)),
     );
 
-    let error = MapleCodeErr::QuotaExceeded.with_retry_after(retry_after);
+    let error = MaplecodeErr::QuotaExceeded.with_retry_after(retry_after);
     assert_eq!(
         (
             error.retry_delay(/*retry_count*/ 1),
@@ -216,10 +216,10 @@ fn usage_limit_reached_error_formats_rate_limit_reached_types() {
 
 #[test]
 fn server_overloaded_maps_to_protocol() {
-    let err = MapleCodeErr::ServerOverloaded;
+    let err = MaplecodeErr::ServerOverloaded;
     assert_eq!(
         err.to_maplecode_protocol_error(),
-        MapleCodeErrorInfo::ServerOverloaded
+        MaplecodeErrorInfo::ServerOverloaded
     );
 }
 
@@ -233,7 +233,7 @@ fn sandbox_denied_uses_aggregated_output_when_stderr_empty() {
         duration: Duration::from_millis(10),
         timed_out: false,
     };
-    let err = MapleCodeErr::Sandbox(SandboxErr::Denied {
+    let err = MaplecodeErr::Sandbox(SandboxErr::Denied {
         output: Box::new(output),
         network_policy_decision: None,
     });
@@ -250,7 +250,7 @@ fn sandbox_denied_reports_both_streams_when_available() {
         duration: Duration::from_millis(10),
         timed_out: false,
     };
-    let err = MapleCodeErr::Sandbox(SandboxErr::Denied {
+    let err = MaplecodeErr::Sandbox(SandboxErr::Denied {
         output: Box::new(output),
         network_policy_decision: None,
     });
@@ -267,7 +267,7 @@ fn sandbox_denied_reports_stdout_when_no_stderr() {
         duration: Duration::from_millis(8),
         timed_out: false,
     };
-    let err = MapleCodeErr::Sandbox(SandboxErr::Denied {
+    let err = MaplecodeErr::Sandbox(SandboxErr::Denied {
         output: Box::new(output),
         network_policy_decision: None,
     });
@@ -284,7 +284,7 @@ fn to_error_event_handles_response_stream_failed() {
         .error_for_status_ref()
         .unwrap_err();
     *source.url_mut().unwrap() = "http://example.com".parse().unwrap();
-    let err = MapleCodeErr::ResponseStreamFailed(ResponseStreamFailed {
+    let err = MaplecodeErr::ResponseStreamFailed(ResponseStreamFailed {
         source,
         request_id: Some("req-123".to_string()),
     });
@@ -297,7 +297,7 @@ fn to_error_event_handles_response_stream_failed() {
     );
     assert_eq!(
         event.maplecode_error_info,
-        Some(MapleCodeErrorInfo::ResponseStreamConnectionFailed {
+        Some(MaplecodeErrorInfo::ResponseStreamConnectionFailed {
             http_status_code: Some(429)
         })
     );
@@ -313,7 +313,7 @@ fn sandbox_denied_reports_exit_code_when_no_output_available() {
         duration: Duration::from_millis(5),
         timed_out: false,
     };
-    let err = MapleCodeErr::Sandbox(SandboxErr::Denied {
+    let err = MaplecodeErr::Sandbox(SandboxErr::Denied {
         output: Box::new(output),
         network_policy_decision: None,
     });

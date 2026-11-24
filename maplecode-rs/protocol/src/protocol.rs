@@ -33,7 +33,7 @@ use crate::dynamic_tools::DynamicToolCallOutputContentItem;
 use crate::dynamic_tools::DynamicToolCallRequest;
 use crate::dynamic_tools::DynamicToolResponse;
 use crate::dynamic_tools::DynamicToolSpec;
-use crate::error::Result as MapleCodeResult;
+use crate::error::Result as MaplecodeResult;
 use crate::items::AgentMessageDelivery;
 use crate::items::AsyncUserInputQuestion;
 use crate::items::TurnItem;
@@ -150,7 +150,7 @@ pub const CONTEXT_WINDOW_OPEN_TAG: &str = "<context_window>";
 pub const CONTEXT_WINDOW_CLOSE_TAG: &str = "</context_window>";
 pub const CONTEXT_WINDOW_GUIDANCE_OPEN_TAG: &str = "<context_window_guidance>";
 pub const CONTEXT_WINDOW_GUIDANCE_CLOSE_TAG: &str = "</context_window_guidance>";
-pub const USER_MESSAGE_BEGIN: &str = "## My request for MapleCode:";
+pub const USER_MESSAGE_BEGIN: &str = "## My request for Maple Code:";
 
 /// Removes the model-context prefix from a user message before displaying it.
 pub fn strip_user_message_prefix(text: &str) -> &str {
@@ -197,7 +197,7 @@ pub struct ConversationStartParams {
     pub maplecode_response_item_prefix: Option<String>,
     /// Selects how automatic Maple Code handoffs are routed in Frameless Bidi sessions.
     /// Realtime V1 and V2 ignore this setting.
-    pub maplecode_response_handoff_mode: MapleCodeResponseHandoffMode,
+    pub maplecode_response_handoff_mode: MaplecodeResponseHandoffMode,
     /// Relays public reasoning summaries as quiet context for realtime V3 delegations.
     pub backend_reasoning_status: bool,
     /// Optional client-selected BEM prefixes keyed by `analysis`, `commentary`, and `final`.
@@ -741,14 +741,14 @@ pub enum Op {
     RealtimeConversationAttach {
         params: ConversationStartParams,
         options: RealtimeAttachmentOptions,
-        reply: oneshot::Sender<MapleCodeResult<()>>,
+        reply: oneshot::Sender<MaplecodeResult<()>>,
     },
 
     /// Attach an existing call using caller-provided I/O without opening a socket.
     RealtimeConversationAttachStream {
         params: ConversationStartParams,
         transport: RealtimeSidebandTransport,
-        reply: oneshot::Sender<MapleCodeResult<()>>,
+        reply: oneshot::Sender<MaplecodeResult<()>>,
     },
 
     /// Send audio input to the running realtime conversation stream.
@@ -769,7 +769,7 @@ pub enum Op {
     /// Close only the matching session after earlier start operations finish.
     RealtimeConversationDetach {
         realtime_session_id: String,
-        reply: oneshot::Sender<MapleCodeResult<()>>,
+        reply: oneshot::Sender<MaplecodeResult<()>>,
     },
 
     /// Request the list of voices supported by realtime conversation streams.
@@ -780,7 +780,7 @@ pub enum Op {
     TurnInput {
         request: Box<TurnInputRequest>,
         mode: TurnInputMode,
-        reply: oneshot::Sender<MapleCodeResult<TurnInputSubmission>>,
+        reply: oneshot::Sender<MaplecodeResult<TurnInputSubmission>>,
     },
 
     /// Resume an interrupted regular turn.
@@ -788,13 +788,13 @@ pub enum Op {
     RecoverTurn {
         thread_settings: ThreadSettingsOverrides,
         start_options: TurnStartOptions,
-        reply: oneshot::Sender<MapleCodeResult<TurnInputSubmission>>,
+        reply: oneshot::Sender<MaplecodeResult<TurnInputSubmission>>,
     },
 
     /// Stop the active root turn without recording a terminal turn event.
     #[debug("SuspendTurnAndShutdown")]
     SuspendTurnAndShutdown {
-        reply: oneshot::Sender<MapleCodeResult<SuspendTurnOutcome>>,
+        reply: oneshot::Sender<MaplecodeResult<SuspendTurnOutcome>>,
     },
 
     /// Apply thread-settings overrides without starting a turn.
@@ -807,14 +807,14 @@ pub enum Op {
         thread_settings: ThreadSettingsOverrides,
         /// When present, report validation errors here instead of emitting an error event.
         /// Successful updates still emit `ThreadSettingsApplied` for all callers.
-        reply: Option<oneshot::Sender<MapleCodeResult<()>>>,
+        reply: Option<oneshot::Sender<MaplecodeResult<()>>>,
     },
 
     /// Replace the dynamic tool catalog without starting a turn.
     #[debug("ReplaceDynamicTools")]
     ReplaceDynamicTools {
         tools: Vec<DynamicToolSpec>,
-        reply: oneshot::Sender<MapleCodeResult<()>>,
+        reply: oneshot::Sender<MaplecodeResult<()>>,
     },
 
     /// Update only the named running turn, without changing future settings.
@@ -1968,7 +1968,7 @@ pub enum RealtimeConversationVersion {
 #[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(rename_all = "camelCase")]
-pub enum MapleCodeResponseHandoffMode {
+pub enum MaplecodeResponseHandoffMode {
     #[default]
     Thinking,
     Commentary,
@@ -2098,7 +2098,7 @@ pub enum NonSteerableTurnKind {
 #[derive(Clone, Debug, PartialEq, Eq, JsonSchema, TS)]
 #[schemars(rename_all = "snake_case")]
 #[ts(rename_all = "snake_case")]
-pub enum MapleCodeErrorInfo {
+pub enum MaplecodeErrorInfo {
     ContextWindowExceeded,
     SessionBudgetExceeded,
     UsageLimitExceeded,
@@ -2144,7 +2144,7 @@ pub enum MapleCodeErrorInfo {
     Other,
 }
 
-impl MapleCodeErrorInfo {
+impl MaplecodeErrorInfo {
     /// Whether this error should mark the current turn as failed when replaying history.
     pub fn affects_turn_status(&self) -> bool {
         match self {
@@ -2353,7 +2353,7 @@ impl fmt::Debug for MisalignmentSteer {
 pub struct ErrorEvent {
     pub message: String,
     #[serde(default)]
-    pub maplecode_error_info: Option<MapleCodeErrorInfo>,
+    pub maplecode_error_info: Option<MaplecodeErrorInfo>,
     /// Host-only file identities proven rejected against the submitted request.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     #[schemars(skip)]
@@ -2371,7 +2371,7 @@ impl ErrorEvent {
     pub fn affects_turn_status(&self) -> bool {
         self.maplecode_error_info
             .as_ref()
-            .is_none_or(MapleCodeErrorInfo::affects_turn_status)
+            .is_none_or(MaplecodeErrorInfo::affects_turn_status)
     }
 }
 
@@ -3382,7 +3382,7 @@ impl SessionSource {
             | SessionSource::VSCode
             | SessionSource::Exec
             | SessionSource::Mcp
-            | SessionSource::Unknown => Some(Product::MapleCode),
+            | SessionSource::Unknown => Some(Product::Maplecode),
             SessionSource::Internal(_) | SessionSource::SubAgent(_) => None,
         }
     }
@@ -4124,7 +4124,7 @@ pub struct ThreadRolledBackEvent {
 pub struct StreamErrorEvent {
     pub message: String,
     #[serde(default)]
-    pub maplecode_error_info: Option<MapleCodeErrorInfo>,
+    pub maplecode_error_info: Option<MaplecodeErrorInfo>,
     /// Optional details about the underlying stream failure (often the same
     /// human-readable message that is surfaced as the terminal error if retries
     /// are exhausted).
@@ -4272,7 +4272,7 @@ pub enum Product {
     #[serde(alias = "CHATGPT")]
     Chatgpt,
     #[serde(alias = "MAPLECODE")]
-    MapleCode,
+    Maplecode,
     #[serde(alias = "ATLAS")]
     Atlas,
 }
@@ -4280,7 +4280,7 @@ impl Product {
     pub fn to_app_platform(self) -> &'static str {
         match self {
             Self::Chatgpt => "chat",
-            Self::MapleCode => "maplecode",
+            Self::Maplecode => "maplecode",
             Self::Atlas => "atlas",
         }
     }
@@ -4289,7 +4289,7 @@ impl Product {
         let normalized = value.trim().to_ascii_lowercase();
         match normalized.as_str() {
             "chatgpt" => Some(Self::Chatgpt),
-            "maplecode" => Some(Self::MapleCode),
+            "maplecode" => Some(Self::Maplecode),
             "atlas" => Some(Self::Atlas),
             _ => None,
         }
@@ -5217,23 +5217,23 @@ mod tests {
     fn session_source_restriction_product_defaults_non_subagent_sources_to_maplecode() {
         assert_eq!(
             SessionSource::Cli.restriction_product(),
-            Some(Product::MapleCode)
+            Some(Product::Maplecode)
         );
         assert_eq!(
             SessionSource::VSCode.restriction_product(),
-            Some(Product::MapleCode)
+            Some(Product::Maplecode)
         );
         assert_eq!(
             SessionSource::Exec.restriction_product(),
-            Some(Product::MapleCode)
+            Some(Product::Maplecode)
         );
         assert_eq!(
             SessionSource::Mcp.restriction_product(),
-            Some(Product::MapleCode)
+            Some(Product::Maplecode)
         );
         assert_eq!(
             SessionSource::Unknown.restriction_product(),
-            Some(Product::MapleCode)
+            Some(Product::Maplecode)
         );
     }
 
@@ -5262,7 +5262,7 @@ mod tests {
         );
         assert_eq!(
             SessionSource::Custom("maplecode".to_string()).restriction_product(),
-            Some(Product::MapleCode)
+            Some(Product::Maplecode)
         );
         assert_eq!(
             SessionSource::Custom("atlas-dev".to_string()).restriction_product(),
@@ -5278,9 +5278,9 @@ mod tests {
         );
         assert!(
             !SessionSource::Custom("chatgpt".to_string())
-                .matches_product_restriction(&[Product::MapleCode])
+                .matches_product_restriction(&[Product::Maplecode])
         );
-        assert!(SessionSource::VSCode.matches_product_restriction(&[Product::MapleCode]));
+        assert!(SessionSource::VSCode.matches_product_restriction(&[Product::Maplecode]));
         assert!(
             !SessionSource::Custom("atlas-dev".to_string())
                 .matches_product_restriction(&[Product::Atlas])
@@ -6292,7 +6292,7 @@ mod tests {
         let event = ErrorEvent {
             misalignment: None,
             message: "rollback failed".into(),
-            maplecode_error_info: Some(MapleCodeErrorInfo::ThreadRollbackFailed),
+            maplecode_error_info: Some(MaplecodeErrorInfo::ThreadRollbackFailed),
             rejected_audio_file_ids: Vec::new(),
         };
         assert!(!event.affects_turn_status());
@@ -6303,7 +6303,7 @@ mod tests {
         let event = ErrorEvent {
             misalignment: None,
             message: "cannot steer a review turn".into(),
-            maplecode_error_info: Some(MapleCodeErrorInfo::ActiveTurnNotSteerable {
+            maplecode_error_info: Some(MaplecodeErrorInfo::ActiveTurnNotSteerable {
                 turn_kind: NonSteerableTurnKind::Review,
             }),
             rejected_audio_file_ids: Vec::new(),
@@ -6316,7 +6316,7 @@ mod tests {
         let event = ErrorEvent {
             misalignment: None,
             message: "generic".into(),
-            maplecode_error_info: Some(MapleCodeErrorInfo::Other),
+            maplecode_error_info: Some(MaplecodeErrorInfo::Other),
             rejected_audio_file_ids: Vec::new(),
         };
         assert!(event.affects_turn_status());
@@ -6326,7 +6326,7 @@ mod tests {
     fn misalignment_explanation_and_steer_are_never_serialized_into_error_events() {
         let event = ErrorEvent {
             message: "This request violated the misalignment policy.".to_string(),
-            maplecode_error_info: Some(MapleCodeErrorInfo::MisalignmentPolicyViolation),
+            maplecode_error_info: Some(MaplecodeErrorInfo::MisalignmentPolicyViolation),
             rejected_audio_file_ids: Vec::new(),
             misalignment: Some(MisalignmentErrorDetails {
                 error_type: Some("unauthorized_data_transfer".to_string()),
@@ -6360,7 +6360,7 @@ mod tests {
     fn rejected_audio_identity_round_trips_for_host_recovery() {
         let event = ErrorEvent {
             message: "invalid recording".to_string(),
-            maplecode_error_info: Some(MapleCodeErrorInfo::BadRequest),
+            maplecode_error_info: Some(MaplecodeErrorInfo::BadRequest),
             rejected_audio_file_ids: vec!["file_audio".to_string()],
             misalignment: None,
         };
