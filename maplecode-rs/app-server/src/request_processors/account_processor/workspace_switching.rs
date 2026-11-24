@@ -23,7 +23,7 @@ impl AccountRequestProcessor {
         .filter(|_| !self.auth_manager.has_external_auth());
         let session_id = auth
             .as_ref()
-            .and_then(MapleCodeAuth::managed_account_session_id);
+            .and_then(MaplecodeAuth::managed_account_session_id);
         let (Some(auth), Some(session_id)) = (auth, session_id) else {
             return Ok(AccountSessionsResponse {
                 active_session_id: None,
@@ -67,7 +67,7 @@ impl AccountRequestProcessor {
             if self.auth_manager.has_external_auth()
                 || current
                     .as_ref()
-                    .and_then(MapleCodeAuth::managed_account_session_id)
+                    .and_then(MaplecodeAuth::managed_account_session_id)
                     .as_deref()
                     != Some(&session_id)
                 || current.and_then(|auth| auth.get_account_id()) != account_id
@@ -95,7 +95,7 @@ impl AccountRequestProcessor {
 
     async fn workspace_memberships(
         &self,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
     ) -> Result<maplecode_backend_client::AccountsCheckResponse, JSONRPCErrorError> {
         let client = BackendClient::from_auth(
             self.config.chatgpt_base_url.clone(),

@@ -118,7 +118,7 @@ impl McpRequestProcessor {
     pub(super) async fn load_thread(
         &self,
         thread_id: &str,
-    ) -> Result<(ThreadId, Arc<MapleCodeThread>), JSONRPCErrorError> {
+    ) -> Result<(ThreadId, Arc<MaplecodeThread>), JSONRPCErrorError> {
         let thread_id = ThreadId::from_string(thread_id)
             .map_err(|err| invalid_request(format!("invalid thread id: {err}")))?;
 
@@ -406,7 +406,7 @@ impl McpRequestProcessor {
     async fn list_mcp_server_status_response(
         &self,
         params: ListMcpServerStatusParams,
-        thread: Option<Arc<maplecode_core::MapleCodeThread>>,
+        thread: Option<Arc<maplecode_core::MaplecodeThread>>,
     ) -> Result<ListMcpServerStatusResponse, JSONRPCErrorError> {
         let detail = match params.detail.unwrap_or(McpServerStatusDetail::Full) {
             McpServerStatusDetail::Full => McpSnapshotDetail::Full,

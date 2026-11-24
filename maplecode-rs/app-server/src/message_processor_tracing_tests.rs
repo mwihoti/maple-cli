@@ -29,7 +29,7 @@ use maplecode_config::LoaderOverrides;
 use maplecode_core::config::Config;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_exec_server::EnvironmentManager;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_login::AuthManager;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::W3cTraceContext;
@@ -275,7 +275,7 @@ pub(super) async fn build_test_processor(
         config,
         config_manager,
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: None,
         config_warnings: Vec::new(),

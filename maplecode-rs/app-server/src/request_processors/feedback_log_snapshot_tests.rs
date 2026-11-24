@@ -26,7 +26,7 @@ async fn feedback_includes_flush_and_query_failures_in_the_same_submission() -> 
         let sqlite = &config.sqlite;
         let runtime = StateRuntime::init(sqlite.clone(), "test-provider".to_string()).await?;
         let pool = sqlite.open_read_write_pool(&sqlite.logs_db_path()).await?;
-        let feedback = MapleCodeFeedback::new();
+        let feedback = MaplecodeFeedback::new();
         let writer =
             maplecode_state::log_db::start(runtime.clone(), std::sync::Arc::new(feedback.clone()));
         let _guard = tracing_subscriber::registry()
@@ -139,7 +139,7 @@ async fn feedback_preserves_legacy_logs_when_the_directory_is_unset_or_current_l
             .sqlite
             .open_read_write_pool(&config.sqlite.logs_db_path())
             .await?;
-        let feedback = MapleCodeFeedback::new();
+        let feedback = MaplecodeFeedback::new();
         for current_has_logs in [false, true] {
             if current_has_logs {
                 sqlx::query(

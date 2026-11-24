@@ -44,7 +44,7 @@ impl AppsRequestProcessor {
             .map_err(|error| internal_error(error.to_string()))?;
         if !config.features.apps_enabled_for_auth(
             auth.as_ref()
-                .is_some_and(MapleCodeAuth::uses_maplecode_backend),
+                .is_some_and(MaplecodeAuth::uses_maplecode_backend),
         ) {
             let response = AppsReadResponse {
                 apps: Vec::new(),

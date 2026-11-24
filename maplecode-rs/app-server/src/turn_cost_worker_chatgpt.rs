@@ -7,13 +7,13 @@ use super::ApiKeyTurnCostStatus;
 use super::BackendClient;
 use super::RequestError;
 use super::WorkerRuntime;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use std::collections::BTreeMap;
 
 impl WorkerRuntime {
     pub(super) async fn query_chatgpt_turn_costs(
         &self,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
         http_client_factory: maplecode_http_client::HttpClientFactory,
         turn_ids: &[String],
     ) -> Result<Vec<ApiKeyTurnCost>, RequestError> {

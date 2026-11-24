@@ -133,7 +133,7 @@ fn rate_limit_reset_credit_from_backend(
     credit: BackendRateLimitResetCreditDetails,
 ) -> Result<RateLimitResetCredit, String> {
     let reset_type = match credit.reset_type.as_str() {
-        "maplecode_rate_limits" => RateLimitResetType::MapleCodeRateLimits,
+        "maplecode_rate_limits" => RateLimitResetType::MaplecodeRateLimits,
         _ => RateLimitResetType::Unknown,
     };
     let status = match credit.status.as_str() {

@@ -711,7 +711,7 @@ impl CatalogRequestProcessor {
                     continue;
                 }
             };
-            let hooks_enabled = config.features.enabled(Feature::MapleCodeHooks);
+            let hooks_enabled = config.features.enabled(Feature::MaplecodeHooks);
             let plugin_hooks = if hooks_enabled && config.features.enabled(Feature::Plugins) {
                 let plugins_input = config.plugins_config_input();
                 let plugin_outcome = plugins_manager.plugins_for_config(&plugins_input).await;

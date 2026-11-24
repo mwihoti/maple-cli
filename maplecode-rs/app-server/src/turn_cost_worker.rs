@@ -471,7 +471,7 @@ impl WorkerRuntime {
                 .await
                 .map_err(|error| RequestError::Other(error.into()))?;
                 let provider = resolved.api_provider;
-                let endpoint = provider.url_for_path("analytics/maplecode/turn-costs");
+                let endpoint = provider.url_for_path("analytics/codex/turn-costs");
                 let client =
                     BackendClient::new(provider.base_url.clone(), resolved.http_client_factory)
                         .with_auth_provider(resolved.api_auth)

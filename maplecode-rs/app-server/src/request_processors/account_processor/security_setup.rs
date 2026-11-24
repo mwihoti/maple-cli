@@ -36,7 +36,7 @@ impl AccountRequestProcessor {
                 .await
                 .ok()
                 .flatten()?;
-            if !matches!(saved, MapleCodeAuth::Chatgpt(_)) || saved.is_fedramp_account() {
+            if !matches!(saved, MaplecodeAuth::Chatgpt(_)) || saved.is_fedramp_account() {
                 return None;
             }
             if auth.auth_mode() != maplecode_protocol::auth::AuthMode::Chatgpt

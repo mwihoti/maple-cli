@@ -22,23 +22,23 @@ use maplecode_login::AuthManager;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::DEFAULT_CHATGPT_BASE_URL;
 use maplecode_protocol::config_types::TrustLevel;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 
-struct BootstrapExternalAuth(MapleCodeAuth);
+struct BootstrapExternalAuth(MaplecodeAuth);
 
 impl ExternalAuth for BootstrapExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -87,7 +87,7 @@ async fn bootstrap_discovery_survives_identity_installation_but_account_access_i
             }))?),
         );
         let auth =
-            MapleCodeAuth::from_external_chatgpt_tokens(&token, identity, Some("enterprise"))?;
+            MaplecodeAuth::from_external_chatgpt_tokens(&token, identity, Some("enterprise"))?;
         manager
             .set_external_auth(Arc::new(BootstrapExternalAuth(auth)))
             .await?;
@@ -202,7 +202,7 @@ async fn startup_reloads_the_callers_selected_project() -> anyhow::Result<()> {
     );
     assert_eq!(config.chatgpt_base_url, selected_url);
 
-    let marked = MapleCodeAuth::from_api_key("sk-proj-fedramp-test-key");
+    let marked = MaplecodeAuth::from_api_key("sk-proj-fedramp-test-key");
     for (configured_url, expected_url) in [
         (None, "https://gov.chatgpt.com/backend-api/"),
         (Some(DEFAULT_CHATGPT_BASE_URL), DEFAULT_CHATGPT_BASE_URL),

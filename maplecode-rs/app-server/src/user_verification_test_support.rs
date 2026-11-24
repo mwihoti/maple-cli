@@ -24,7 +24,7 @@ use maplecode_config::LoaderOverrides;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_exec_server::EnvironmentManager;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_protocol::protocol::SessionSource;
 use pretty_assertions::assert_eq;
 use serde_json::json;
@@ -163,7 +163,7 @@ impl Harness {
             config,
             config_manager,
             environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
-            feedback: MapleCodeFeedback::new(),
+            feedback: MaplecodeFeedback::new(),
             log_db: None,
             state_db: None,
             config_warnings: Vec::new(),

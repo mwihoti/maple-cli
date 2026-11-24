@@ -6,7 +6,7 @@ use crate::mcp_refresh::reload_mcp_config;
 use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_core::config::ConfigOverrides;
 use maplecode_exec_server::EnvironmentManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
@@ -31,7 +31,7 @@ async fn reloads_accept_a_provider_supplied_by_thread_overrides() -> anyhow::Res
         .await?;
     let threads = Arc::new(
         maplecode_core::test_support::thread_manager_with_models_provider_and_home(
-            MapleCodeAuth::from_api_key("dummy"),
+            MaplecodeAuth::from_api_key("dummy"),
             initial.model_provider.clone(),
             initial.maplecode_home.to_path_buf(),
             Arc::new(EnvironmentManager::default_for_tests()),
@@ -95,7 +95,7 @@ async fn user_reload_promotes_plugin_and_feature_requirements_without_server_cha
         .await?;
     let threads = Arc::new(
         maplecode_core::test_support::thread_manager_with_models_provider_and_home(
-            MapleCodeAuth::from_api_key("dummy"),
+            MaplecodeAuth::from_api_key("dummy"),
             initial.model_provider.clone(),
             initial.maplecode_home.to_path_buf(),
             Arc::new(EnvironmentManager::default_for_tests()),
@@ -191,7 +191,7 @@ async fn mcp_refresh_rejects_superseded_app_server_policy(
         .load_latest_config(Some(home.path().to_path_buf()))
         .await?;
     let threads = maplecode_core::test_support::thread_manager_with_models_provider_and_home(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         initial.model_provider.clone(),
         initial.maplecode_home.to_path_buf(),
         Arc::new(EnvironmentManager::default_for_tests()),

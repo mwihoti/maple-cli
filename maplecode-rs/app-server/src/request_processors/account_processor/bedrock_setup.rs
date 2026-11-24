@@ -14,7 +14,7 @@ use maplecode_app_server_protocol::BedrockSetupParams;
 use maplecode_app_server_protocol::BedrockSetupResponse;
 use maplecode_app_server_protocol::ClientResponsePayload;
 use maplecode_app_server_protocol::JSONRPCErrorError;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::is_supported_amazon_bedrock_region;
 
 const AWS_ACCESS_KEY_ID: &str = "AWS_ACCESS_KEY_ID";
@@ -88,11 +88,11 @@ impl AccountRequestProcessor {
         if profile.is_none()
             && matches!(
                 self.auth_manager.auth_cached(),
-                Some(MapleCodeAuth::BedrockApiKey(_) | MapleCodeAuth::BedrockAccessKeys(_))
+                Some(MaplecodeAuth::BedrockApiKey(_) | MaplecodeAuth::BedrockAccessKeys(_))
             )
         {
             return Err(invalid_request(
-                "MapleCode-managed Bedrock credentials are already configured and take priority over AWS environment credentials. Run `maplecode logout` and try again.",
+                "Maplecode-managed Bedrock credentials are already configured and take priority over AWS environment credentials. Run `maplecode logout` and try again.",
             ));
         }
 

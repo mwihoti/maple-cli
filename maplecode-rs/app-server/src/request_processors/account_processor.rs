@@ -260,9 +260,9 @@ impl AccountRequestProcessor {
         AccountUpdatedNotification {
             auth_mode: auth
                 .as_ref()
-                .map(MapleCodeAuth::api_auth_mode)
+                .map(MaplecodeAuth::api_auth_mode)
                 .map(auth_mode_to_api),
-            plan_type: auth.as_ref().and_then(MapleCodeAuth::account_plan_type),
+            plan_type: auth.as_ref().and_then(MaplecodeAuth::account_plan_type),
         }
     }
 
@@ -283,7 +283,7 @@ impl AccountRequestProcessor {
     async fn maybe_refresh_plugin_caches_for_current_config(
         config_manager: &ConfigManager,
         thread_manager: &Arc<ThreadManager>,
-        auth: Option<MapleCodeAuth>,
+        auth: Option<MaplecodeAuth>,
     ) {
         thread_manager
             .plugins_manager()
@@ -376,7 +376,7 @@ impl AccountRequestProcessor {
             } => {
                 let login_success_page = if use_hosted_login_success_page {
                     let app_brand = match app_brand.unwrap_or_default() {
-                        LoginAppBrand::MapleCode => LoginSuccessPageBrand::MapleCode,
+                        LoginAppBrand::Maplecode => LoginSuccessPageBrand::Maplecode,
                         LoginAppBrand::Chatgpt => LoginSuccessPageBrand::Chatgpt,
                     };
                     LoginSuccessPage::Hosted {
@@ -938,7 +938,7 @@ impl AccountRequestProcessor {
             )));
         }
 
-        let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+        let auth = MaplecodeAuth::from_external_chatgpt_tokens(
             &access_token,
             &chatgpt_account_id,
             chatgpt_plan_type.as_deref(),
@@ -1072,7 +1072,7 @@ impl AccountRequestProcessor {
             .auth_manager
             .auth_cached()
             .as_ref()
-            .map(MapleCodeAuth::api_auth_mode)
+            .map(MaplecodeAuth::api_auth_mode)
             .map(auth_mode_to_api))
     }
 
@@ -1150,9 +1150,9 @@ impl AccountRequestProcessor {
                         if self.auth_manager.is_workload_identity_selected()
                             || matches!(
                                 auth,
-                                MapleCodeAuth::Headers(_)
-                                    | MapleCodeAuth::AgentIdentity(_)
-                                    | MapleCodeAuth::PersonalAccessToken(_)
+                                MaplecodeAuth::Headers(_)
+                                    | MaplecodeAuth::AgentIdentity(_)
+                                    | MaplecodeAuth::PersonalAccessToken(_)
                             )
                             || include_token && permanent_refresh_failure
                         {

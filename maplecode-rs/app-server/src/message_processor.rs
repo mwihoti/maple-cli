@@ -86,9 +86,9 @@ use maplecode_core::config::ThreadStoreConfig;
 use maplecode_exec_server::EnvironmentManager;
 use maplecode_extension_api::TurnStartAdmission;
 use maplecode_features::Feature;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_goal_extension::GoalService;
-use maplecode_home::MapleCodeHomeUserInstructionsProvider;
+use maplecode_home::MaplecodeHomeUserInstructionsProvider;
 use maplecode_login::AuthManager;
 use maplecode_models_manager::manager::ModelCatalogSettings;
 use maplecode_otel::auth_storage::AuthStorageOriginator;
@@ -269,7 +269,7 @@ pub(crate) struct MessageProcessorArgs {
     pub(crate) startup_cwd: Option<std::path::PathBuf>,
     pub(crate) config_manager: ConfigManager,
     pub(crate) environment_manager: Arc<EnvironmentManager>,
-    pub(crate) feedback: MapleCodeFeedback,
+    pub(crate) feedback: MaplecodeFeedback,
     pub(crate) log_db: Option<LogDbLayer>,
     pub(crate) state_db: Option<StateDbHandle>,
     pub(crate) config_warnings: Vec<ConfigWarningNotification>,
@@ -386,7 +386,7 @@ impl MessageProcessor {
             let manager = ThreadManager::new(
                 config.as_ref(),
                 startup,
-                maplecode_core::MapleCodeAppsToolsCache::default(),
+                maplecode_core::MaplecodeAppsToolsCache::default(),
                 session_source,
                 environment_manager,
                 thread_extensions(
@@ -408,7 +408,7 @@ impl MessageProcessor {
                         turn_start_admission: Some(Arc::clone(&turn_start_admission)),
                     },
                 ),
-                Arc::new(MapleCodeHomeUserInstructionsProvider::new(
+                Arc::new(MaplecodeHomeUserInstructionsProvider::new(
                     config.maplecode_home.clone(),
                 )),
                 Some(analytics_events_client.clone()),

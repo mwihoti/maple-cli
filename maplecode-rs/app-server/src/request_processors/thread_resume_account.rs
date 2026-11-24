@@ -6,7 +6,7 @@ use maplecode_app_server_protocol::JSONRPCErrorError;
 use maplecode_features::Feature;
 use maplecode_features::Features;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_thread_store::StoredThread;
 
 pub(super) fn check(
@@ -24,7 +24,7 @@ pub(super) fn check(
     }
     let Some(auth) = auth_manager
         .auth_cached()
-        .filter(MapleCodeAuth::is_chatgpt_auth)
+        .filter(MaplecodeAuth::is_chatgpt_auth)
     else {
         // API keys and other auth modes do not identify a comparable ChatGPT account.
         return Ok(());

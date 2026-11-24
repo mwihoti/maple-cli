@@ -87,7 +87,7 @@ async fn background_routing_skips_config_until_chatgpt_sign_in(
     );
     let threads = Arc::new(
         maplecode_core::test_support::thread_manager_with_models_provider_and_home(
-            MapleCodeAuth::from_api_key("dummy"),
+            MaplecodeAuth::from_api_key("dummy"),
             config.model_provider.clone(),
             config.maplecode_home.to_path_buf(),
             Arc::new(EnvironmentManager::default_for_tests()),

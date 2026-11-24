@@ -44,7 +44,7 @@ async fn embedded_transports_stay_blocked_until_the_same_policy_is_published() -
         .build()
         .await?;
     config.chatgpt_base_url = server.uri();
-    let cloud_endpoint = format!("{}/api/maplecode/config/bundle", server.uri());
+    let cloud_endpoint = format!("{}/api/codex/config/bundle", server.uri());
     let policy = EmbeddedNetworkPolicy::load(&overrides).await;
     let bootstrap_auth = policy.bind_bootstrap_auth(config.auth_config());
     let bootstrap = bootstrap_auth

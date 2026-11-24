@@ -45,7 +45,7 @@ use maplecode_extension_api::ExtensionDataInit;
 use maplecode_extension_api::ThreadIdleCause;
 use maplecode_protocol::SanitizedGitUrl;
 use maplecode_protocol::config_types::MultiAgentMode;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_protocol::mcp::plain_output_text;
 use maplecode_protocol::protocol::ThreadHistoryMode;
@@ -126,7 +126,7 @@ struct PreparedResumeConfig {
 
 struct ThreadRevertRuntimeSnapshot {
     config: Config,
-    settings: MapleCodeThreadSettingsOverrides,
+    settings: MaplecodeThreadSettingsOverrides,
     client_mcp_extensions: ClientMcpExtensions,
 }
 
@@ -1097,7 +1097,7 @@ impl ThreadRequestProcessor {
     pub(super) async fn load_thread(
         &self,
         thread_id: &str,
-    ) -> Result<(ThreadId, Arc<MapleCodeThread>), JSONRPCErrorError> {
+    ) -> Result<(ThreadId, Arc<MaplecodeThread>), JSONRPCErrorError> {
         // Resolve the core conversation handle from a v2 thread id string.
         let thread_id = ThreadId::from_string(thread_id)
             .map_err(|err| invalid_request(format!("invalid thread id: {err}")))?;
@@ -1123,7 +1123,7 @@ impl ThreadRequestProcessor {
     }
 
     async fn set_app_server_client_info(
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         app_server_client_name: Option<String>,
         app_server_client_version: Option<String>,
     ) -> Result<(), JSONRPCErrorError> {
@@ -1245,7 +1245,7 @@ impl ThreadRequestProcessor {
     async fn ensure_listener_task_running(
         &self,
         conversation_id: ThreadId,
-        conversation: Arc<MapleCodeThread>,
+        conversation: Arc<MaplecodeThread>,
         thread_state: Arc<Mutex<ThreadState>>,
     ) -> Result<(), JSONRPCErrorError> {
         super::thread_lifecycle::ensure_listener_task_running(
@@ -1435,9 +1435,9 @@ impl ThreadRequestProcessor {
     async fn submit_core_op(
         &self,
         request_id: &ConnectionRequestId,
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         op: Op,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         thread
             .submit_with_trace(op, self.request_trace_context(request_id).await)
             .await
@@ -1669,10 +1669,10 @@ impl ThreadRequestProcessor {
                     .await;
                 remove_pending_thread_metadata(thread_store.as_ref(), reserved_thread_id).await;
                 return Err(match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                    MaplecodeErrorDetails::InvalidRequest(message) => {
                         invalid_request(message.clone())
                     }
-                    MapleCodeErrorDetails::UnsupportedOperation(message) => {
+                    MaplecodeErrorDetails::UnsupportedOperation(message) => {
                         method_not_found(message.clone())
                     }
                     _ => internal_error(format!("error creating thread: {err}")),
@@ -1963,7 +1963,7 @@ impl ThreadRequestProcessor {
             .decrement_out_of_band_elicitation_count()
             .await
             .map_err(|err| match err.details() {
-                MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+                MaplecodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
                 _ => internal_error(format!(
                     "failed to decrement out-of-band elicitation counter: {err}"
                 )),
@@ -3299,7 +3299,7 @@ impl ThreadRequestProcessor {
         &self,
         thread_id: ThreadId,
         include_turns: bool,
-        loaded_thread: &MapleCodeThread,
+        loaded_thread: &MaplecodeThread,
         persisted_thread: Option<Thread>,
     ) -> Result<Thread, ThreadReadViewError> {
         let config_snapshot = loaded_thread.config_snapshot().await;
@@ -3332,7 +3332,7 @@ impl ThreadRequestProcessor {
         thread_id: ThreadId,
         thread: &mut Thread,
         include_turns: bool,
-        loaded_thread: &MapleCodeThread,
+        loaded_thread: &MaplecodeThread,
     ) -> Result<(), ThreadReadViewError> {
         self.attach_thread_name(thread_id, thread).await;
 
@@ -3953,7 +3953,7 @@ impl ThreadRequestProcessor {
     pub(crate) async fn try_attach_thread_listener(
         &self,
         thread_id: ThreadId,
-        thread: Arc<MapleCodeThread>,
+        thread: Arc<MaplecodeThread>,
         connection_ids: Vec<ConnectionId>,
     ) {
         super::thread_lifecycle::attach_created_thread_listener(
@@ -4628,7 +4628,7 @@ impl ThreadRequestProcessor {
             }
             Err(err) => {
                 let error = match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                    MaplecodeErrorDetails::InvalidRequest(message) => {
                         invalid_request(message.clone())
                     }
                     _ => internal_error(format!("error resuming thread: {err}")),
@@ -5186,7 +5186,7 @@ impl ThreadRequestProcessor {
     async fn load_thread_from_resume_source_or_send_internal(
         &self,
         thread_id: ThreadId,
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         thread_history: &InitialHistory,
         rollout_path: &Path,
         resume_source_thread: Option<StoredThread>,
@@ -5417,7 +5417,7 @@ impl ThreadRequestProcessor {
             })
             .await
             .map_err(|err| match err.details() {
-                MapleCodeErrorDetails::ThreadNotFound(_) => {
+                MaplecodeErrorDetails::ThreadNotFound(_) => {
                     invalid_request("`experimentalPredictionMode` requires a loaded parent")
                 }
                 _ => internal_error(format!("failed to inherit parent state: {err}")),
@@ -5797,10 +5797,10 @@ impl ThreadRequestProcessor {
                 remove_pending_thread_metadata(self.thread_store.as_ref(), reserved_thread_id)
                     .await;
                 return Err(match err.details() {
-                    MapleCodeErrorDetails::Io(_) | MapleCodeErrorDetails::Json(_) => {
+                    MaplecodeErrorDetails::Io(_) | MaplecodeErrorDetails::Json(_) => {
                         invalid_request(format!("failed to load thread {source_thread_id}: {err}"))
                     }
-                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                    MaplecodeErrorDetails::InvalidRequest(message) => {
                         invalid_request(message.clone())
                     }
                     _ => internal_error(format!("error forking thread: {err}")),
@@ -6061,12 +6061,12 @@ impl ThreadRequestProcessor {
             return None;
         }
         let auth = self.auth_manager.auth_cached();
-        if auth.as_ref().is_some_and(MapleCodeAuth::is_api_key_auth) {
+        if auth.as_ref().is_some_and(MaplecodeAuth::is_api_key_auth) {
             return None;
         }
         Some(LocalHistoryAccount {
-            user_id: auth.as_ref().and_then(MapleCodeAuth::get_chatgpt_user_id),
-            account_id: auth.as_ref().and_then(MapleCodeAuth::get_account_id),
+            user_id: auth.as_ref().and_then(MaplecodeAuth::get_chatgpt_user_id),
+            account_id: auth.as_ref().and_then(MaplecodeAuth::get_account_id),
         })
     }
 
@@ -6711,13 +6711,13 @@ fn conversation_summary_rollout_path_read_error(
     }
 }
 
-pub(super) fn core_thread_write_error(operation: &str, err: MapleCodeErr) -> JSONRPCErrorError {
+pub(super) fn core_thread_write_error(operation: &str, err: MaplecodeErr) -> JSONRPCErrorError {
     match err.details() {
-        MapleCodeErrorDetails::ThreadNotFound(thread_id) => {
+        MaplecodeErrorDetails::ThreadNotFound(thread_id) => {
             invalid_request(format!("thread not found: {thread_id}"))
         }
-        MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
-        MapleCodeErrorDetails::UnsupportedOperation(message) => method_not_found(message.clone()),
+        MaplecodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+        MaplecodeErrorDetails::UnsupportedOperation(message) => method_not_found(message.clone()),
         _ => internal_error(format!("failed to {operation}: {err}")),
     }
 }
@@ -7039,7 +7039,7 @@ fn paginate_background_terminals(
 fn build_thread_from_loaded_snapshot(
     thread_id: ThreadId,
     config_snapshot: &ThreadConfigSnapshot,
-    loaded_thread: &MapleCodeThread,
+    loaded_thread: &MaplecodeThread,
 ) -> Thread {
     build_thread_from_snapshot(
         thread_id,

@@ -72,7 +72,7 @@ async fn background_routing_call_sites_skip_config(api_key: Option<&str>) -> any
         config,
         config_manager,
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: None,
         config_warnings: Vec::new(),

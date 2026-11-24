@@ -3,7 +3,7 @@ use maplecode_backend_client::ApiKeyResponseCost;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthKeyringBackendKind;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::login_with_api_key;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::ModelProviderInfo;
@@ -23,7 +23,7 @@ use wiremock::matchers::header;
 use wiremock::matchers::method;
 use wiremock::matchers::path;
 
-const TURN_COST_PATH: &str = "/v1/analytics/maplecode/turn-costs";
+const TURN_COST_PATH: &str = "/v1/analytics/codex/turn-costs";
 
 #[path = "turn_cost_worker_chatgpt_tests.rs"]
 mod chatgpt;
@@ -52,7 +52,7 @@ async fn worker_starts_with_otlp_metrics_exporter_without_log_exporter() {
         headers: HashMap::new(),
         tls: None,
     };
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("sk-test"));
+    let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("sk-test"));
 
     let worker = TurnCostWorker::spawn(Arc::new(config), auth_manager, /*runtime_auth*/ None)
         .expect("OTLP metrics exporter should enable turn-cost collection");
@@ -164,14 +164,14 @@ async fn worker_waits_for_late_api_key_login() {
 async fn custom_provider_auth_failure_retries_without_auth_changes() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
-        .and(path("/analytics/maplecode/turn-costs"))
+        .and(path("/analytics/codex/turn-costs"))
         .and(header("authorization", "Bearer sk-old"))
         .respond_with(ResponseTemplate::new(401))
         .expect(1)
         .mount(&server)
         .await;
     Mock::given(method("POST"))
-        .and(path("/analytics/maplecode/turn-costs"))
+        .and(path("/analytics/codex/turn-costs"))
         .and(header("authorization", "Bearer sk-new-token"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "turns": []
@@ -232,12 +232,12 @@ async fn custom_provider_auth_failure_retries_without_auth_changes() {
 async fn custom_provider_does_not_send_chatgpt_auth_for_turn_costs() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
-        .and(path("/analytics/maplecode/turn-costs"))
+        .and(path("/analytics/codex/turn-costs"))
         .respond_with(ResponseTemplate::new(500))
         .mount(&server)
         .await;
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let maplecode_home = TempDir::new().expect("temporary Maple Code home");
     let mut config = ConfigBuilder::default()
         .maplecode_home(maplecode_home.path().to_path_buf())
@@ -275,7 +275,7 @@ async fn transient_probe_failure_keeps_worker_alive() {
         .expect(1)
         .mount(&server)
         .await;
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("sk-test"));
+    let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("sk-test"));
     let runtime = test_runtime(&server, Arc::clone(&auth_manager)).await;
     let backend_availability = runtime.probe_backend().await;
     assert_eq!(backend_availability, BackendAvailability::RetryProbe);
@@ -304,7 +304,7 @@ async fn transient_probe_failure_keeps_worker_alive() {
 #[tokio::test]
 async fn priced_cost_uses_telemetry_captured_before_thread_removal() {
     let server = MockServer::start().await;
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("sk-test"));
+    let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("sk-test"));
     let mut runtime = test_runtime(&server, auth_manager).await;
     let thread_id = ThreadId::new();
     let turn_id = "turn-1";
@@ -349,7 +349,7 @@ async fn priced_cost_uses_telemetry_captured_before_thread_removal() {
 #[tokio::test]
 async fn priced_cost_waits_for_every_response_when_response_costs_are_available() {
     let server = MockServer::start().await;
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("sk-test"));
+    let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("sk-test"));
     let mut runtime = test_runtime(&server, auth_manager).await;
     let thread_id = ThreadId::new();
     let turn_id = "turn-1";
@@ -473,7 +473,7 @@ async fn turn_cost_failures_do_not_log_response_bodies(status: u16) {
         .await;
     let mut runtime = test_runtime(
         &server,
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("sk-test")),
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("sk-test")),
     )
     .await;
     let capture = tempfile::NamedTempFile::new().expect("log capture");

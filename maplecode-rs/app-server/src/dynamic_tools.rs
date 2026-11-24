@@ -1,6 +1,6 @@
 use maplecode_app_server_protocol::DynamicToolCallOutputContentItem;
 use maplecode_app_server_protocol::DynamicToolCallResponse;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_protocol::dynamic_tools::DynamicToolCallOutputContentItem as CoreDynamicToolCallOutputContentItem;
 use maplecode_protocol::dynamic_tools::DynamicToolResponse as CoreDynamicToolResponse;
 use maplecode_protocol::protocol::Op;
@@ -18,7 +18,7 @@ const INVALID_AUDIO_URL_ERROR: &str = "audio URLs must use an inline data URL";
 pub(crate) async fn on_call_response(
     call_id: String,
     receiver: oneshot::Receiver<ClientRequestResult>,
-    conversation: Arc<MapleCodeThread>,
+    conversation: Arc<MaplecodeThread>,
 ) {
     let response = receiver.await;
     let (response, _error) = match response {

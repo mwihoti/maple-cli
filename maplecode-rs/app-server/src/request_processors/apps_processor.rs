@@ -84,7 +84,7 @@ impl AppsRequestProcessor {
         let auth = auth_manager.auth().await;
         if !config.features.apps_enabled_for_auth(
             auth.as_ref()
-                .is_some_and(MapleCodeAuth::uses_maplecode_backend),
+                .is_some_and(MaplecodeAuth::uses_maplecode_backend),
         ) {
             let response = AppsListResponse {
                 data: Vec::new(),
@@ -366,7 +366,7 @@ impl AppsRequestProcessor {
     async fn load_thread(
         &self,
         thread_id: &str,
-    ) -> Result<(ThreadId, Arc<MapleCodeThread>), JSONRPCErrorError> {
+    ) -> Result<(ThreadId, Arc<MaplecodeThread>), JSONRPCErrorError> {
         let thread_id = ThreadId::from_string(thread_id)
             .map_err(|err| invalid_request(format!("invalid thread id: {err}")))?;
 

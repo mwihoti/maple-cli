@@ -1,6 +1,6 @@
 use crate::config_manager::ConfigManager;
 use maplecode_core::ConfigRefreshOutcome;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_core::config::Config;
 use std::io;
@@ -49,7 +49,7 @@ async fn reload_mcp_config_with_policy(
     config_manager.revoke_mcp_ema_startups();
     let mut rejected = false;
     let mut load_error = None;
-    let mut completed: Vec<Arc<MapleCodeThread>> = Vec::new();
+    let mut completed: Vec<Arc<MaplecodeThread>> = Vec::new();
     // Bound both discovery and stale-owner retries so concurrent churn cannot
     // keep the reload request alive indefinitely. Completed publications remain valid.
     for pass in 0..3 {
@@ -183,9 +183,9 @@ mod tests {
     use maplecode_core::init_state_db;
     use maplecode_exec_server::EnvironmentManager;
     use maplecode_extension_api::NoopExtensionEventSink;
-    use maplecode_home::MapleCodeHomeUserInstructionsProvider;
+    use maplecode_home::MaplecodeHomeUserInstructionsProvider;
     use maplecode_login::AuthManager;
-    use maplecode_login::MapleCodeAuth;
+    use maplecode_login::MaplecodeAuth;
     use maplecode_models_manager::manager::ModelCatalogSettings;
     use maplecode_protocol::protocol::SessionSource;
     use maplecode_utils_absolute_path::AbsolutePathBuf;
@@ -521,7 +521,7 @@ enabled = false
             )
             .await?;
 
-        let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("dummy"));
+        let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("dummy"));
         let state_db = init_state_db(&good_config)
             .await
             .expect("refresh tests require state db");
@@ -544,7 +544,7 @@ enabled = false
                         good_config.maplecode_home.to_path_buf(),
                     )),
                 ),
-                maplecode_core::MapleCodeAppsToolsCache::default(),
+                maplecode_core::MaplecodeAppsToolsCache::default(),
                 SessionSource::Exec,
                 Arc::clone(&environment_manager),
                 thread_extensions(
@@ -569,7 +569,7 @@ enabled = false
                         turn_start_admission: None,
                     },
                 ),
-                Arc::new(MapleCodeHomeUserInstructionsProvider::new(
+                Arc::new(MaplecodeHomeUserInstructionsProvider::new(
                     good_config.maplecode_home.clone(),
                 )),
                 /*analytics_events_client*/ None,
@@ -612,7 +612,7 @@ enabled = false
         bad_cwd: AbsolutePathBuf,
         good_loads: AtomicUsize,
         bad_loads: AtomicUsize,
-        churn_thread: std::sync::Mutex<Option<Arc<MapleCodeThread>>>,
+        churn_thread: std::sync::Mutex<Option<Arc<MaplecodeThread>>>,
     }
 
     impl CountingThreadConfigLoader {

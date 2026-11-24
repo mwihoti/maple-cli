@@ -7,7 +7,7 @@ use maplecode_app_server_protocol::McpServerEventNotification;
 use maplecode_app_server_protocol::McpServerEventStreamNotification;
 use maplecode_app_server_protocol::McpServerEventStreamStartParams;
 use maplecode_app_server_protocol::ServerNotification;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_login::AuthManager;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::McpEventStream;
@@ -184,7 +184,7 @@ async fn forward_events(
     connection_id: ConnectionId,
     params: &McpServerEventStreamStartParams,
     outgoing: &OutgoingMessageSender,
-    thread: Arc<MapleCodeThread>,
+    thread: Arc<MaplecodeThread>,
     mut stream: McpEventStream,
     mut auth_changes: McpEventStreamAuthChanges,
     ready: oneshot::Sender<Result<(), JSONRPCErrorError>>,

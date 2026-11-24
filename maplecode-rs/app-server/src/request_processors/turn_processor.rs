@@ -7,7 +7,7 @@ use maplecode_app_server_protocol::ThreadGuardianReviewResponse;
 use maplecode_app_server_protocol::ThreadItem;
 use maplecode_app_server_protocol::ThreadPrepareApprovedPlanParams;
 use maplecode_app_server_protocol::ThreadPrepareApprovedPlanResponse;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::FunctionCallOutputBody;
 use maplecode_protocol::models::FunctionCallOutputContentItem;
@@ -213,7 +213,7 @@ impl TurnRequestProcessor {
                 .guardian_review(cancellation)
                 .await
                 .map_err(|err| match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                    MaplecodeErrorDetails::InvalidRequest(message) => {
                         invalid_request(message.clone())
                     }
                     _ => internal_error(format!("Guardian review failed: {err}")),
@@ -265,7 +265,7 @@ impl TurnRequestProcessor {
             .prepare_approved_plan(attachment_path.as_ref(), &params.markdown)
             .await
             .map_err(|err| match err.details() {
-                MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+                MaplecodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
                 _ => internal_error(format!("failed to prepare the approved plan: {err}")),
             })?;
         Ok(Some(ThreadPrepareApprovedPlanResponse { prompt }.into()))
@@ -454,7 +454,7 @@ impl TurnRequestProcessor {
     async fn load_thread(
         &self,
         thread_id: &str,
-    ) -> Result<(ThreadId, Arc<MapleCodeThread>), JSONRPCErrorError> {
+    ) -> Result<(ThreadId, Arc<MaplecodeThread>), JSONRPCErrorError> {
         // Resolve the core conversation handle from a v2 thread id string.
         let thread_id = ThreadId::from_string(thread_id)
             .map_err(|err| invalid_request(format!("invalid thread id: {err}")))?;
@@ -471,7 +471,7 @@ impl TurnRequestProcessor {
     async fn ensure_direct_input_allowed(
         &self,
         request_id: &ConnectionRequestId,
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
     ) -> Result<(), JSONRPCErrorError> {
         ensure_direct_input_allowed(thread)
             .await
@@ -546,9 +546,9 @@ impl TurnRequestProcessor {
     async fn submit_core_op(
         &self,
         request_id: &ConnectionRequestId,
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         op: Op,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         thread
             .submit_with_trace(op, self.request_trace_context(request_id).await)
             .await
@@ -740,7 +740,7 @@ impl TurnRequestProcessor {
             .await
             .map_err(|err| {
                 let error = match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                    MaplecodeErrorDetails::InvalidRequest(message) => {
                         invalid_request(message.clone())
                     }
                     _ => internal_error(format!("failed to submit turn input: {err}")),
@@ -807,7 +807,7 @@ impl TurnRequestProcessor {
 
     async fn build_environment_override(
         &self,
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         cwd: Option<AbsolutePathBuf>,
         workspace_roots: Option<Vec<AbsolutePathBuf>>,
         environment_requests: Option<Vec<TurnEnvironmentRequest>>,
@@ -865,7 +865,7 @@ impl TurnRequestProcessor {
 
     async fn build_thread_settings_overrides(
         &self,
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         params: ThreadSettingsBuildParams,
     ) -> Result<maplecode_protocol::protocol::ThreadSettingsOverrides, JSONRPCErrorError> {
         let ThreadSettingsBuildParams {
@@ -960,7 +960,7 @@ impl TurnRequestProcessor {
 
         if has_any_overrides {
             thread
-                .preview_thread_settings_overrides(MapleCodeThreadSettingsOverrides {
+                .preview_thread_settings_overrides(MaplecodeThreadSettingsOverrides {
                     turn_extension_init: None,
                     disabled_plugin_ids: disabled_plugin_ids.clone(),
                     environments: environment_requests.clone(),
@@ -1062,7 +1062,7 @@ impl TurnRequestProcessor {
                 .await
                 .map_err(|_| internal_error("thread settings operation ended before replying"))?
                 .map_err(|err| match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                    MaplecodeErrorDetails::InvalidRequest(message) => {
                         invalid_request(message.clone())
                     }
                     _ => internal_error(format!("failed to update thread settings: {err}")),
@@ -1097,14 +1097,14 @@ impl TurnRequestProcessor {
             .inject_response_items(items)
             .await
             .map_err(|err| match err.details() {
-                MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+                MaplecodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
                 _ => internal_error(format!("failed to inject response items: {err}")),
             })?;
         Ok(ThreadInjectItemsResponse {})
     }
 
     async fn set_app_server_client_info(
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         app_server_client_name: Option<String>,
         app_server_client_version: Option<String>,
     ) -> Result<(), JSONRPCErrorError> {
@@ -1168,7 +1168,7 @@ impl TurnRequestProcessor {
             .await
             .map_err(|err| {
                 let error = match err.details() {
-                    MapleCodeErrorDetails::InvalidRequest(message) => {
+                    MaplecodeErrorDetails::InvalidRequest(message) => {
                         invalid_request(message.clone())
                     }
                     _ => internal_error(format!("failed to steer turn: {err}")),
@@ -1212,7 +1212,7 @@ impl TurnRequestProcessor {
                             misalignment: None,
                             message: message.clone(),
                             maplecode_error_info: Some(
-                                MapleCodeErrorInfo::ActiveTurnNotSteerable {
+                                MaplecodeErrorInfo::ActiveTurnNotSteerable {
                                     turn_kind: turn_kind.into(),
                                 },
                             ),
@@ -1267,7 +1267,7 @@ impl TurnRequestProcessor {
         &self,
         request_id: &ConnectionRequestId,
         thread_id: &str,
-    ) -> Result<Option<(ThreadId, Arc<MapleCodeThread>)>, JSONRPCErrorError> {
+    ) -> Result<Option<(ThreadId, Arc<MaplecodeThread>)>, JSONRPCErrorError> {
         let (thread_id, thread) = self.load_thread(thread_id).await?;
         self.ensure_direct_input_allowed(request_id, thread.as_ref())
             .await?;

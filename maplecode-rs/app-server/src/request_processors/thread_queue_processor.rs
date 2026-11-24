@@ -23,7 +23,7 @@ use maplecode_app_server_protocol::Turn;
 use maplecode_app_server_protocol::TurnItemsView;
 use maplecode_app_server_protocol::TurnStatus;
 use maplecode_app_server_protocol::UserInput;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::NotSubmittedReason;
 use maplecode_core::StartIfIdleSubmission;
 use maplecode_core::ThreadManager;
@@ -255,7 +255,7 @@ impl ThreadQueueRequestProcessor {
     async fn require_thread(
         &self,
         raw_thread_id: &str,
-    ) -> Result<(ThreadId, Option<Arc<MapleCodeThread>>, SessionSource), JSONRPCErrorError> {
+    ) -> Result<(ThreadId, Option<Arc<MaplecodeThread>>, SessionSource), JSONRPCErrorError> {
         let thread_id = ThreadId::from_string(raw_thread_id)
             .map_err(|error| invalid_request(format!("invalid thread id: {error}")))?;
         let (loaded_thread, source) = if let Ok(thread) =
@@ -296,7 +296,7 @@ impl ThreadQueueRequestProcessor {
 }
 
 fn ensure_direct_input_allowed(
-    loaded_thread: Option<&MapleCodeThread>,
+    loaded_thread: Option<&MaplecodeThread>,
     source: &SessionSource,
 ) -> Result<(), JSONRPCErrorError> {
     match loaded_thread {

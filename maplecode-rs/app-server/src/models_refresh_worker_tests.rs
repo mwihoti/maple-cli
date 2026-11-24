@@ -9,7 +9,7 @@ use maplecode_config::LoaderOverrides;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_core::config::ConfigOverrides;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_models_manager::manager::ModelCatalogSettings;
 use maplecode_models_manager::manager::ModelsEndpointClient;
@@ -17,7 +17,7 @@ use maplecode_models_manager::manager::ModelsEndpointFuture;
 use maplecode_models_manager::manager::ModelsEndpointResponse;
 use maplecode_models_manager::manager::OpenAiModelsManager;
 use maplecode_models_manager::manager::SharedModelsManager;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result as CoreResult;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 use pretty_assertions::assert_eq;
@@ -49,7 +49,7 @@ fn test_thread_manager(
     Arc::new(maplecode_core::ThreadManager::new(
         config,
         startup,
-        maplecode_core::MapleCodeAppsToolsCache::default(),
+        maplecode_core::MaplecodeAppsToolsCache::default(),
         maplecode_protocol::protocol::SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         maplecode_extension_api::empty_extension_registry(),
@@ -123,7 +123,7 @@ impl ModelsEndpointClient for TestModelsEndpoint {
             let fetch_index = self.fetch_count.fetch_add(1, Ordering::SeqCst);
             self.fetched.notify_one();
             if fetch_index == 0 {
-                return Err(MapleCodeErr::Io(std::io::Error::other("test failure")));
+                return Err(MaplecodeErr::Io(std::io::Error::other("test failure")));
             }
             if fetch_index == 1 {
                 self.release_second_fetch.notified().await;
@@ -271,7 +271,7 @@ async fn background_refresh_blocks_invalid_requirements_then_recovers() -> anyho
         Arc::clone(&config),
         test_thread_manager(&config, Some(models_manager), auth_manager),
     ));
-    let feedback = MapleCodeFeedback::new();
+    let feedback = MaplecodeFeedback::new();
     // This test uses Tokio's current-thread runtime, so spawned refreshes share the subscriber.
     let _subscriber_guard = tracing::subscriber::set_default(
         tracing_subscriber::registry().with(feedback.logger_layer()),

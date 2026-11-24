@@ -65,7 +65,7 @@ use maplecode_core::config::find_maplecode_home;
 use maplecode_exec_server::EnvironmentManager;
 use maplecode_exec_server::ExecServerRuntimeOptions;
 use maplecode_features::Feature;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_rollout::state_db as rollout_state_db;
 use maplecode_state::log_db;
@@ -737,7 +737,7 @@ pub async fn run_main_with_transport_options(
         outgoing_tx,
         analytics_events_client.clone(),
     ));
-    let feedback = MapleCodeFeedback::new();
+    let feedback = MaplecodeFeedback::new();
 
     // Install a simple subscriber so `tracing` output is visible. Users can
     // control the log level with `RUST_LOG` and switch to JSON logs with

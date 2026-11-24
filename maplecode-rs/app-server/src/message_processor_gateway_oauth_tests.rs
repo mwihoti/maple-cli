@@ -17,7 +17,7 @@ use maplecode_app_server_protocol::JSONRPCErrorError;
 use maplecode_app_server_protocol::ServerNotification;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::test_support::seed_gateway_auth;
 use pretty_assertions::assert_eq;
 use serde_json::json;
@@ -91,7 +91,7 @@ delivery = {{ kind = "header", name = "X-Gateway-Authorization" }}
             .await?,
     );
     let auth_manager = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("primary"),
+        MaplecodeAuth::from_api_key("primary"),
         home.path().to_path_buf(),
     );
     let observer = seed_gateway_auth(
@@ -237,7 +237,7 @@ delivery = {{ kind = "header", name = "X-Gateway-Authorization" }}
         url = server.uri(),
     ))?;
     let auth_manager = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("primary"),
+        MaplecodeAuth::from_api_key("primary"),
         home.path().to_path_buf(),
     );
     let _gateway = seed_gateway_auth(
@@ -336,7 +336,7 @@ delivery = {{ kind = "header", name = "X-Gateway-Authorization" }}
             .await?,
     );
     let auth = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("primary"),
+        MaplecodeAuth::from_api_key("primary"),
         home.path().to_path_buf(),
     );
     let mut changes = maplecode_login::subscribe_gateway_auth_status(&auth.runtime_config());

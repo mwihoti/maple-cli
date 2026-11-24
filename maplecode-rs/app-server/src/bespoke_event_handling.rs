@@ -33,7 +33,7 @@ use maplecode_app_server_protocol::HookCompletedNotification;
 use maplecode_app_server_protocol::HookStartedNotification;
 use maplecode_app_server_protocol::ItemCompletedNotification;
 use maplecode_app_server_protocol::ItemStartedNotification;
-use maplecode_app_server_protocol::MapleCodeErrorInfo as V2MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo as V2MaplecodeErrorInfo;
 use maplecode_app_server_protocol::McpServerElicitationAction;
 use maplecode_app_server_protocol::McpServerElicitationRequestParams;
 use maplecode_app_server_protocol::McpServerElicitationRequestResponse;
@@ -89,7 +89,7 @@ use maplecode_app_server_protocol::WarningNotification;
 use maplecode_app_server_protocol::build_item_from_guardian_event;
 use maplecode_app_server_protocol::guardian_auto_approval_review_notification;
 use maplecode_app_server_protocol::item_event_to_server_notification;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_features::Feature;
 use maplecode_protocol::ThreadId;
@@ -148,7 +148,7 @@ struct CommandExecutionCompletionItem {
 pub(crate) async fn apply_bespoke_event_handling(
     event: Event,
     conversation_id: ThreadId,
-    conversation: Arc<MapleCodeThread>,
+    conversation: Arc<MaplecodeThread>,
     thread_manager: Arc<ThreadManager>,
     outgoing: ThreadScopedOutgoingMessageSender,
     thread_state: Arc<tokio::sync::Mutex<ThreadState>>,
@@ -1068,7 +1068,7 @@ pub(crate) async fn apply_bespoke_event_handling(
             let turn_error = TurnError {
                 misalignment: ev.misalignment.map(Into::into),
                 message: ev.message,
-                maplecode_error_info: ev.maplecode_error_info.map(V2MapleCodeErrorInfo::from),
+                maplecode_error_info: ev.maplecode_error_info.map(V2MaplecodeErrorInfo::from),
                 additional_details: None,
             };
             handle_error_notification(
@@ -1086,7 +1086,7 @@ pub(crate) async fn apply_bespoke_event_handling(
             let turn_error = TurnError {
                 misalignment: None,
                 message: ev.message,
-                maplecode_error_info: ev.maplecode_error_info.map(V2MapleCodeErrorInfo::from),
+                maplecode_error_info: ev.maplecode_error_info.map(V2MaplecodeErrorInfo::from),
                 additional_details: ev.additional_details,
             };
             outgoing
@@ -1709,7 +1709,7 @@ async fn on_request_user_input_response(
     event_turn_id: String,
     pending_request_id: RequestId,
     receiver: oneshot::Receiver<ClientRequestResult>,
-    conversation: Arc<MapleCodeThread>,
+    conversation: Arc<MaplecodeThread>,
     thread_state: Arc<Mutex<ThreadState>>,
     user_input_guard: ThreadWatchActiveGuard,
 ) {
@@ -1797,7 +1797,7 @@ async fn on_mcp_server_elicitation_response(
     request_id: maplecode_protocol::mcp::RequestId,
     pending_request_id: RequestId,
     pending: PendingMcpElicitationResponse,
-    conversation: Arc<MapleCodeThread>,
+    conversation: Arc<MaplecodeThread>,
     thread_state: Arc<Mutex<ThreadState>>,
     permission_guard: ThreadWatchActiveGuard,
 ) {
@@ -1883,7 +1883,7 @@ fn mcp_server_elicitation_response_from_client_result(
 
 async fn on_request_permissions_response(
     pending_response: PendingRequestPermissionsResponse,
-    conversation: Arc<MapleCodeThread>,
+    conversation: Arc<MaplecodeThread>,
     thread_state: Arc<Mutex<ThreadState>>,
 ) {
     let PendingRequestPermissionsResponse {
@@ -2018,7 +2018,7 @@ async fn on_file_change_request_approval_response(
     turn_id: String,
     pending_request_id: RequestId,
     receiver: oneshot::Receiver<ClientRequestResult>,
-    maplecode: Arc<MapleCodeThread>,
+    maplecode: Arc<MaplecodeThread>,
     thread_state: Arc<Mutex<ThreadState>>,
     permission_guard: ThreadWatchActiveGuard,
 ) {
@@ -2068,7 +2068,7 @@ async fn on_command_execution_request_approval_response(
     completion_item: Option<CommandExecutionCompletionItem>,
     pending_request_id: RequestId,
     receiver: oneshot::Receiver<ClientRequestResult>,
-    conversation: Arc<MapleCodeThread>,
+    conversation: Arc<MaplecodeThread>,
     outgoing: ThreadScopedOutgoingMessageSender,
     thread_state: Arc<Mutex<ThreadState>>,
     permission_guard: Option<ThreadWatchActiveGuard>,
@@ -2223,7 +2223,7 @@ mod tests {
     use maplecode_app_server_protocol::ServerRequest;
     use maplecode_app_server_protocol::ThreadStatus;
     use maplecode_app_server_protocol::TurnPlanStepStatus;
-    use maplecode_login::MapleCodeAuth;
+    use maplecode_login::MaplecodeAuth;
     use maplecode_protocol::AgentPath;
     use maplecode_protocol::items::AgentMessageContent as CoreAgentMessageContent;
     use maplecode_protocol::items::AgentMessageItem as CoreAgentMessageItem;
@@ -2377,7 +2377,7 @@ mod tests {
 
     struct GuardianAssessmentTestContext {
         conversation_id: ThreadId,
-        conversation: Arc<MapleCodeThread>,
+        conversation: Arc<MaplecodeThread>,
         thread_manager: Arc<ThreadManager>,
         outgoing: ThreadScopedOutgoingMessageSender,
         thread_state: Arc<Mutex<ThreadState>>,
@@ -2720,7 +2720,7 @@ mod tests {
         let config = load_default_config_for_test(&maplecode_home).await;
         let thread_manager = Arc::new(
             maplecode_core::test_support::thread_manager_with_models_provider_and_home(
-                MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+                MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
                 config.model_provider.clone(),
                 config.maplecode_home.to_path_buf(),
                 Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -3141,7 +3141,7 @@ mod tests {
             TurnError {
                 misalignment: None,
                 message: "boom".to_string(),
-                maplecode_error_info: Some(V2MapleCodeErrorInfo::InternalServerError),
+                maplecode_error_info: Some(V2MaplecodeErrorInfo::InternalServerError),
                 additional_details: None,
             },
             &thread_state,
@@ -3154,7 +3154,7 @@ mod tests {
             Some(TurnError {
                 misalignment: None,
                 message: "boom".to_string(),
-                maplecode_error_info: Some(V2MapleCodeErrorInfo::InternalServerError),
+                maplecode_error_info: Some(V2MaplecodeErrorInfo::InternalServerError),
                 additional_details: None,
             })
         );
@@ -3167,7 +3167,7 @@ mod tests {
         let config = load_default_config_for_test(&maplecode_home).await;
         let thread_manager = Arc::new(
             maplecode_core::test_support::thread_manager_with_models_provider_and_home(
-                MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+                MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
                 config.model_provider.clone(),
                 config.maplecode_home.to_path_buf(),
                 Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -3304,7 +3304,7 @@ mod tests {
         let config = load_default_config_for_test(&maplecode_home).await;
         let thread_manager = Arc::new(
             maplecode_core::test_support::thread_manager_with_models_provider_and_home(
-                MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+                MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
                 config.model_provider.clone(),
                 config.maplecode_home.to_path_buf(),
                 Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -3401,7 +3401,7 @@ mod tests {
         let config = load_default_config_for_test(&maplecode_home).await;
         let thread_manager = Arc::new(
             maplecode_core::test_support::thread_manager_with_models_provider_and_home(
-                MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+                MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
                 config.model_provider.clone(),
                 config.maplecode_home.to_path_buf(),
                 Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -3499,7 +3499,7 @@ mod tests {
             TurnError {
                 misalignment: None,
                 message: "conversation is not running".to_string(),
-                maplecode_error_info: Some(V2MapleCodeErrorInfo::Other),
+                maplecode_error_info: Some(V2MaplecodeErrorInfo::Other),
                 additional_details: None,
             },
             &thread_state,
@@ -3678,7 +3678,7 @@ mod tests {
             TurnError {
                 misalignment: None,
                 message: "bad".to_string(),
-                maplecode_error_info: Some(V2MapleCodeErrorInfo::Other),
+                maplecode_error_info: Some(V2MaplecodeErrorInfo::Other),
                 additional_details: None,
             },
             &thread_state,
@@ -3714,7 +3714,7 @@ mod tests {
                     Some(TurnError {
                         misalignment: None,
                         message: "bad".to_string(),
-                        maplecode_error_info: Some(V2MapleCodeErrorInfo::Other),
+                        maplecode_error_info: Some(V2MaplecodeErrorInfo::Other),
                         additional_details: None,
                     })
                 );
@@ -3929,7 +3929,7 @@ mod tests {
             TurnError {
                 misalignment: None,
                 message: "a1".to_string(),
-                maplecode_error_info: Some(V2MapleCodeErrorInfo::BadRequest),
+                maplecode_error_info: Some(V2MaplecodeErrorInfo::BadRequest),
                 additional_details: None,
             },
             &thread_state,
@@ -3988,7 +3988,7 @@ mod tests {
                     Some(TurnError {
                         misalignment: None,
                         message: "a1".to_string(),
-                        maplecode_error_info: Some(V2MapleCodeErrorInfo::BadRequest),
+                        maplecode_error_info: Some(V2MaplecodeErrorInfo::BadRequest),
                         additional_details: None,
                     })
                 );

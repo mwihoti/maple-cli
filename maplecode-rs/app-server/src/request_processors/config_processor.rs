@@ -991,7 +991,7 @@ mod tests {
     use maplecode_config::types::FeedbackConfigToml;
     use maplecode_config::types::ToolSuggestDisabledTool;
     use maplecode_exec_server::EnvironmentManager;
-    use maplecode_login::MapleCodeAuth;
+    use maplecode_login::MaplecodeAuth;
     use maplecode_protocol::config_types::ForcedLoginMethod;
     use maplecode_protocol::openai_models::ReasoningEffort;
     use maplecode_utils_absolute_path::AbsolutePathBuf;
@@ -1036,7 +1036,7 @@ client_id = "mcp-client"
             .await?;
         let thread_manager =
             maplecode_core::test_support::thread_manager_with_models_provider_and_home(
-                MapleCodeAuth::from_api_key("dummy"),
+                MaplecodeAuth::from_api_key("dummy"),
                 initial.model_provider.clone(),
                 initial.maplecode_home.to_path_buf(),
                 Arc::new(EnvironmentManager::default_for_tests()),

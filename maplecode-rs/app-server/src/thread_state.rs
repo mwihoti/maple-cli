@@ -9,7 +9,7 @@ use maplecode_app_server_protocol::ThreadSettings;
 use maplecode_app_server_protocol::Turn;
 use maplecode_app_server_protocol::TurnError;
 use maplecode_app_server_protocol::TurnItemsView;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ThreadConfigSnapshot;
 use maplecode_file_watcher::WatchRegistration;
 use maplecode_protocol::ThreadId;
@@ -140,7 +140,7 @@ pub(crate) struct ThreadState {
     current_turn_history: ThreadHistoryBuilder,
     history_mode: ThreadHistoryMode,
     evict_superseded_agent_text: bool,
-    listener_thread: Option<Weak<MapleCodeThread>>,
+    listener_thread: Option<Weak<MaplecodeThread>>,
     watch_registration: WatchRegistration,
 }
 
@@ -151,7 +151,7 @@ impl ThreadState {
         lock.lock_owned().await
     }
 
-    pub(crate) fn listener_matches(&self, conversation: &Arc<MapleCodeThread>) -> bool {
+    pub(crate) fn listener_matches(&self, conversation: &Arc<MaplecodeThread>) -> bool {
         self.listener_thread
             .as_ref()
             .and_then(Weak::upgrade)
@@ -170,7 +170,7 @@ impl ThreadState {
         &mut self,
         cancel_tx: oneshot::Sender<()>,
         shutdown_drain: watch::Receiver<bool>,
-        conversation: &Arc<MapleCodeThread>,
+        conversation: &Arc<MaplecodeThread>,
         watch_registration: WatchRegistration,
         thread_settings_baseline: ThreadSettings,
         history_mode: ThreadHistoryMode,

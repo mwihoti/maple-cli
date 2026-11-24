@@ -26,7 +26,7 @@ pub(crate) struct FeedbackRequestProcessor {
     auth_manager: Arc<AuthManager>,
     thread_manager: Arc<ThreadManager>,
     config: Arc<Config>,
-    feedback: MapleCodeFeedback,
+    feedback: MaplecodeFeedback,
     log_db: Option<LogDbLayer>,
     state_db: Option<StateDbHandle>,
     uploads: Arc<Semaphore>,
@@ -37,7 +37,7 @@ impl FeedbackRequestProcessor {
         auth_manager: Arc<AuthManager>,
         thread_manager: Arc<ThreadManager>,
         config: Arc<Config>,
-        feedback: MapleCodeFeedback,
+        feedback: MaplecodeFeedback,
         log_db: Option<LogDbLayer>,
         state_db: Option<StateDbHandle>,
     ) -> Self {
@@ -146,13 +146,13 @@ impl FeedbackRequestProcessor {
 
         if let Some(chatgpt_user_id) = auth
             .as_ref()
-            .and_then(maplecode_login::MapleCodeAuth::get_chatgpt_user_id)
+            .and_then(maplecode_login::MaplecodeAuth::get_chatgpt_user_id)
         {
             tracing::info!(target: "feedback_tags", chatgpt_user_id);
         }
         if let Some(account_id) = auth
             .as_ref()
-            .and_then(maplecode_login::MapleCodeAuth::get_account_id)
+            .and_then(maplecode_login::MaplecodeAuth::get_account_id)
         {
             tracing::info!(target: "feedback_tags", account_id);
         }
@@ -502,7 +502,7 @@ fn normalized_prompt_hash(prompt: &str) -> String {
 fn tool_cache_feedback_attachments(
     maplecode_home: &Path,
     chatgpt_base_url: &str,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> Vec<FeedbackAttachmentPath> {
     let mut attachments = Vec::with_capacity(2);
     let tools_cache_path = connector_runtime_cache_path(maplecode_home, auth);
@@ -563,7 +563,7 @@ fn windows_sandbox_log_attachment(_maplecode_home: &Path) -> Option<FeedbackAtta
 
 // Refresh logs after SQLite collection without changing the earlier metadata snapshot.
 async fn collect_feedback_logs(
-    feedback: &MapleCodeFeedback,
+    feedback: &MaplecodeFeedback,
     log_db: Option<&LogDbLayer>,
     state_db: Option<&StateDbHandle>,
     config: &Config,
@@ -885,7 +885,7 @@ mod tests {
     #[test]
     fn tool_cache_feedback_attachments_include_existing_active_cache_files() {
         let maplecode_home = tempfile::tempdir().expect("create tempdir");
-        let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+        let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
         let tools_cache_path = connector_runtime_cache_path(maplecode_home.path(), Some(&auth));
         std::fs::create_dir_all(tools_cache_path.parent().expect("tools cache parent"))
             .expect("create tools cache directory");
@@ -937,7 +937,7 @@ mod tests {
     #[test]
     fn tool_cache_feedback_attachments_include_directory_cache_without_account_id() {
         let maplecode_home = tempfile::tempdir().expect("create tempdir");
-        let auth = MapleCodeAuth::Headers(maplecode_login::AuthHeaders::new(HeaderMap::new()));
+        let auth = MaplecodeAuth::Headers(maplecode_login::AuthHeaders::new(HeaderMap::new()));
         let directory_cache_context = ConnectorDirectoryCacheContext::new(
             maplecode_home.path().to_path_buf(),
             ConnectorDirectoryCacheKey::new(

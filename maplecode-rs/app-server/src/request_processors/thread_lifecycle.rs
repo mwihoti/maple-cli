@@ -189,7 +189,7 @@ impl ListenerStartOutcome {
 pub(super) async fn attach_created_thread_listener(
     listener_task_context: ListenerTaskContext,
     thread_id: ThreadId,
-    thread: Arc<MapleCodeThread>,
+    thread: Arc<MaplecodeThread>,
     connection_ids: Vec<ConnectionId>,
 ) {
     let config_snapshot = thread.config_snapshot().await;
@@ -308,7 +308,7 @@ pub(super) fn log_listener_attach_result(
 pub(super) async fn ensure_listener_task_running(
     listener_task_context: ListenerTaskContext,
     conversation_id: ThreadId,
-    conversation: Arc<MapleCodeThread>,
+    conversation: Arc<MaplecodeThread>,
     thread_state: Arc<Mutex<ThreadState>>,
 ) -> Result<(), JSONRPCErrorError> {
     start_listener(
@@ -330,7 +330,7 @@ pub(super) async fn ensure_listener_task_running(
 async fn start_listener(
     listener_task_context: ListenerTaskContext,
     conversation_id: ThreadId,
-    conversation: Arc<MapleCodeThread>,
+    conversation: Arc<MaplecodeThread>,
     listener_state: ListenerStateCandidate,
     startup: ListenerStartup<'_>,
 ) -> ListenerStartOutcome {
@@ -847,7 +847,7 @@ async fn start_listener(
 }
 
 pub(super) async fn wait_for_thread_shutdown(
-    thread: &Arc<MapleCodeThread>,
+    thread: &Arc<MaplecodeThread>,
 ) -> ThreadShutdownResult {
     match tokio::time::timeout(Duration::from_secs(10), thread.shutdown_and_wait()).await {
         Ok(Ok(())) => ThreadShutdownResult::Complete,
@@ -863,7 +863,7 @@ pub(super) async fn unload_thread_without_subscribers(
     thread_state_manager: ThreadStateManager,
     thread_watch_manager: ThreadWatchManager,
     thread_id: ThreadId,
-    thread: Arc<MapleCodeThread>,
+    thread: Arc<MaplecodeThread>,
 ) {
     info!("thread {thread_id} has no subscribers and is idle; shutting down");
 
@@ -926,7 +926,7 @@ pub(super) async fn unload_thread_without_subscribers(
 #[allow(clippy::too_many_arguments)]
 pub(super) async fn handle_thread_listener_command(
     conversation_id: ThreadId,
-    conversation: Option<&Arc<MapleCodeThread>>,
+    conversation: Option<&Arc<MaplecodeThread>>,
     maplecode_home: &Path,
     thread_state_manager: &ThreadStateManager,
     thread_state: &Arc<Mutex<ThreadState>>,
@@ -1024,7 +1024,7 @@ pub(super) async fn handle_thread_listener_command(
 )]
 pub(super) async fn handle_pending_thread_resume_request(
     conversation_id: ThreadId,
-    conversation: &Arc<MapleCodeThread>,
+    conversation: &Arc<MaplecodeThread>,
     _maplecode_home: &Path,
     thread_state_manager: &ThreadStateManager,
     thread_state: &Arc<Mutex<ThreadState>>,

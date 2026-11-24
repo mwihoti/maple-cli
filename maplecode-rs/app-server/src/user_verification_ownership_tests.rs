@@ -5,7 +5,7 @@ use maplecode_app_server_protocol::McpServerElicitationRequest;
 use maplecode_app_server_protocol::McpServerElicitationRequestParams;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::future::Future;
@@ -174,7 +174,7 @@ async fn verification_without_a_connected_app_has_no_pending_callback() {
 
 async fn auth_manager(home: &std::path::Path) -> Arc<AuthManager> {
     let auth = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         home.to_path_buf(),
     );
     write_auth(home, "token-1", "account-1");

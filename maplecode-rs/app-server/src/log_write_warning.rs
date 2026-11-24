@@ -6,7 +6,7 @@ use std::sync::atomic::Ordering;
 use maplecode_app_server_protocol::ServerNotification;
 use maplecode_app_server_protocol::WarningNotification;
 use maplecode_core::config::Config;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_state::LogWriteFailureReporter;
 
 use crate::outgoing_message::OutgoingMessageSender;
@@ -15,7 +15,7 @@ const LOG_WRITE_WARNING_WITH_FEEDBACK: &str = "Maple Code couldn't save diagnost
 const LOG_WRITE_WARNING_WITHOUT_FEEDBACK: &str = "Maple Code couldn't save diagnostic logs to its local database. Run `maplecode doctor` for diagnostics.";
 
 pub(crate) struct LogWriteWarningReporter {
-    feedback: MapleCodeFeedback,
+    feedback: MaplecodeFeedback,
     outgoing: Weak<OutgoingMessageSender>,
     /// Permanently set by the first failure; limits warning delivery to one attempt
     /// for this reporter, even if later SQLite writes succeed.
@@ -25,7 +25,7 @@ pub(crate) struct LogWriteWarningReporter {
 
 impl LogWriteWarningReporter {
     pub(crate) fn new(
-        feedback: MapleCodeFeedback,
+        feedback: MaplecodeFeedback,
         outgoing: &Arc<OutgoingMessageSender>,
         config: &Config,
     ) -> Arc<Self> {

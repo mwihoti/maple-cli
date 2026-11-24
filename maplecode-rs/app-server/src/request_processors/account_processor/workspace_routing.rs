@@ -220,7 +220,7 @@ impl AccountRequestProcessor {
             .auth_manager
             .auth_cached()
             .as_ref()
-            .is_some_and(MapleCodeAuth::is_chatgpt_auth)
+            .is_some_and(MaplecodeAuth::is_chatgpt_auth)
         {
             return Ok(None);
         }
@@ -323,7 +323,7 @@ impl AccountRequestProcessor {
                         .auth_manager
                         .auth_cached()
                         .as_ref()
-                        .is_some_and(MapleCodeAuth::is_chatgpt_auth) =>
+                        .is_some_and(MaplecodeAuth::is_chatgpt_auth) =>
                 {
                     self.config.as_ref().clone()
                 }
@@ -350,7 +350,7 @@ impl AccountRequestProcessor {
                         Some(ProviderAccount::Chatgpt { .. })
                     )
                 })
-                .and_then(MapleCodeAuth::get_chatgpt_user_id);
+                .and_then(MaplecodeAuth::get_chatgpt_user_id);
             let mut workspace_routing = if let Some((auth, account_id)) = auth
                 .as_ref()
                 .filter(|auth| {

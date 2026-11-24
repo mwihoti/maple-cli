@@ -6,7 +6,7 @@ use maplecode_app_server_protocol::ChatgptAuthTokensRefreshReason;
 use maplecode_app_server_protocol::ChatgptAuthTokensRefreshResponse;
 use maplecode_app_server_protocol::ServerRequestPayload;
 use maplecode_login::ExternalAuthFuture;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::ExternalAuth;
 use maplecode_login::auth::ExternalAuthRefreshContext;
 use maplecode_login::auth::ExternalAuthRefreshReason;
@@ -19,18 +19,18 @@ const EXTERNAL_AUTH_REFRESH_TIMEOUT: Duration = Duration::from_secs(10);
 
 pub(crate) struct ExternalAuthBridge {
     outgoing: Arc<OutgoingMessageSender>,
-    auth: RwLock<MapleCodeAuth>,
+    auth: RwLock<MaplecodeAuth>,
 }
 
 impl ExternalAuthBridge {
-    pub(crate) fn new(outgoing: Arc<OutgoingMessageSender>, auth: MapleCodeAuth) -> Self {
+    pub(crate) fn new(outgoing: Arc<OutgoingMessageSender>, auth: MaplecodeAuth) -> Self {
         Self {
             outgoing,
             auth: RwLock::new(auth),
         }
     }
 
-    async fn refresh(&self, context: ExternalAuthRefreshContext) -> std::io::Result<MapleCodeAuth> {
+    async fn refresh(&self, context: ExternalAuthRefreshContext) -> std::io::Result<MaplecodeAuth> {
         let reason = match context.reason {
             ExternalAuthRefreshReason::Unauthorized => ChatgptAuthTokensRefreshReason::Unauthorized,
         };
@@ -66,7 +66,7 @@ impl ExternalAuthBridge {
         // Don't propagate parser error messages because they may contain a token.
         let response: ChatgptAuthTokensRefreshResponse = serde_json::from_value(result)
             .map_err(|_| std::io::Error::other("invalid auth refresh response"))?;
-        let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+        let auth = MaplecodeAuth::from_external_chatgpt_tokens(
             response.access_token.as_str(),
             response.chatgpt_account_id.as_str(),
             response.chatgpt_plan_type.as_deref(),
@@ -83,7 +83,7 @@ impl ExternalAuthBridge {
 }
 
 impl ExternalAuth for ExternalAuthBridge {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             self.auth
                 .read()
@@ -95,7 +95,7 @@ impl ExternalAuth for ExternalAuthBridge {
     fn refresh(
         &self,
         context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(ExternalAuthBridge::refresh(self, context))
     }
 }

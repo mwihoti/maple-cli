@@ -1,9 +1,9 @@
 use super::*;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 
-pub(super) fn environment_selection_error(err: MapleCodeErr) -> JSONRPCErrorError {
+pub(super) fn environment_selection_error(err: MaplecodeErr) -> JSONRPCErrorError {
     match err.details() {
-        MapleCodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
+        MaplecodeErrorDetails::InvalidRequest(message) => invalid_request(message.clone()),
         _ => internal_error(format!("failed to validate environment selections: {err}")),
     }
 }

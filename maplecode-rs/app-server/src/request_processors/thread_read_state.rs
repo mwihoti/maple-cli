@@ -92,7 +92,7 @@ pub(super) async fn notify(
 pub(super) async fn publish(
     event: &maplecode_protocol::protocol::Event,
     id: ThreadId,
-    conversation: &Arc<MapleCodeThread>,
+    conversation: &Arc<MaplecodeThread>,
     summary: &crate::thread_state::TurnSummary,
 ) -> Option<StateDbHandle> {
     let db = conversation.state_db()?;

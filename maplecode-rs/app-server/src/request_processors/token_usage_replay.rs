@@ -17,7 +17,7 @@ use maplecode_app_server_protocol::ThreadTokenUsage;
 use maplecode_app_server_protocol::ThreadTokenUsageUpdatedNotification;
 use maplecode_app_server_protocol::Turn;
 use maplecode_app_server_protocol::TurnStatus;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_rollout::RolloutItem;
@@ -36,7 +36,7 @@ pub(super) async fn send_thread_token_usage_update_to_connection(
     outgoing: &Arc<OutgoingMessageSender>,
     connection_id: ConnectionId,
     thread_id: ThreadId,
-    conversation: &MapleCodeThread,
+    conversation: &MaplecodeThread,
     token_usage_turn_id: String,
 ) {
     if token_usage_turn_id.is_empty() {

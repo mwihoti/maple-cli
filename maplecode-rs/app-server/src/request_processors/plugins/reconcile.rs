@@ -24,7 +24,7 @@ impl PluginRequestProcessor {
         if !plugins_input.plugins_enabled
             || !auth
                 .as_ref()
-                .is_some_and(MapleCodeAuth::uses_maplecode_backend)
+                .is_some_and(MaplecodeAuth::uses_maplecode_backend)
         {
             return Ok(Some(PluginReconcileResponse::default().into()));
         }

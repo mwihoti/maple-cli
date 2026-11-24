@@ -1,6 +1,6 @@
 use super::invalid_request;
 use maplecode_app_server_protocol::JSONRPCErrorError;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
@@ -21,7 +21,7 @@ pub(super) fn can_accept_direct_input(
 }
 
 pub(super) async fn ensure_direct_input_allowed(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
 ) -> Result<(), JSONRPCErrorError> {
     let config_snapshot = thread.config_snapshot().await;
     if !can_accept_direct_input(

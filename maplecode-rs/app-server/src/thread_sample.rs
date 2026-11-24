@@ -11,7 +11,7 @@ use maplecode_app_server_protocol::ThreadSampleParams;
 use maplecode_app_server_protocol::ThreadSampleResponse;
 use maplecode_app_server_protocol::TurnStatus;
 use maplecode_core::ForkSnapshot;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_extension_api::ModelRequestContributor;
 use maplecode_extension_api::ModelRequestInput;
@@ -72,7 +72,7 @@ pub(crate) struct SampleThread;
 pub(crate) struct SampleTask {
     pub(crate) manager: Arc<ThreadManager>,
     pub(crate) store: Arc<dyn ThreadStore>,
-    pub(crate) parent: Arc<MapleCodeThread>,
+    pub(crate) parent: Arc<MaplecodeThread>,
     pub(crate) samples: Arc<SampleResponseRegistry>,
     pub(crate) params: ThreadSampleParams,
     pub(crate) trace: Option<W3cTraceContext>,

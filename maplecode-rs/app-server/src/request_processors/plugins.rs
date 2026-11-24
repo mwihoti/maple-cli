@@ -592,7 +592,7 @@ impl PluginRequestProcessor {
             return Ok(empty_response());
         }
         let auth = self.auth_manager.auth().await;
-        let auth_mode = auth.as_ref().map(MapleCodeAuth::api_auth_mode);
+        let auth_mode = auth.as_ref().map(MaplecodeAuth::api_auth_mode);
         if include_local
             && force_refetch
             && plugins_manager
@@ -871,7 +871,7 @@ impl PluginRequestProcessor {
             return Ok(empty_response());
         }
         let auth = self.auth_manager.auth().await;
-        let auth_mode = auth.as_ref().map(MapleCodeAuth::api_auth_mode);
+        let auth_mode = auth.as_ref().map(MaplecodeAuth::api_auth_mode);
 
         let use_remote_global_catalog = context.remote_plugins_enabled()
             && auth_mode.is_some_and(DomainAuthMode::uses_maplecode_backend);
@@ -998,7 +998,7 @@ impl PluginRequestProcessor {
         plugins_manager: Arc<maplecode_core_plugins::PluginsManager>,
         plugins_input: &maplecode_core_plugins::PluginsConfigInput,
         visible_marketplaces: &[&str],
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> Vec<PluginMarketplaceEntry> {
         let plugin_policy = &plugins_input.plugins;
         let remote_marketplaces = if let Some(remote_marketplaces) = plugins_manager
@@ -1509,7 +1509,7 @@ impl PluginRequestProcessor {
 
     async fn load_plugin_share_config_and_auth(
         &self,
-    ) -> Result<(Config, Option<MapleCodeAuth>), JSONRPCErrorError> {
+    ) -> Result<(Config, Option<MaplecodeAuth>), JSONRPCErrorError> {
         let config = self.load_latest_config(/*fallback_cwd*/ None).await?;
         if !config.features.enabled(Feature::Plugins) {
             return Err(invalid_request("plugin sharing is not enabled"));
@@ -1600,7 +1600,7 @@ impl PluginRequestProcessor {
 
         let plugin_mcp_servers = load_configured_plugin_mcp_servers(
             result.installed_path.as_path(),
-            auth.as_ref().map(MapleCodeAuth::auth_mode),
+            auth.as_ref().map(MaplecodeAuth::auth_mode),
             &result.plugin_id,
             &config.config_layer_stack,
             config.maplecode_home.as_path(),
@@ -1745,7 +1745,7 @@ impl PluginRequestProcessor {
 
         let plugin_mcp_servers = load_configured_plugin_mcp_servers(
             result.installed_path.as_path(),
-            auth.as_ref().map(MapleCodeAuth::auth_mode),
+            auth.as_ref().map(MaplecodeAuth::auth_mode),
             &result.plugin_id,
             &config.config_layer_stack,
             config.maplecode_home.as_path(),
@@ -1762,7 +1762,7 @@ impl PluginRequestProcessor {
             .await;
         }
 
-        let is_chatgpt_auth = auth.as_ref().is_some_and(MapleCodeAuth::is_chatgpt_auth);
+        let is_chatgpt_auth = auth.as_ref().is_some_and(MaplecodeAuth::is_chatgpt_auth);
         let apps_needing_auth =
             if let Some(app_ids_needing_auth) = installation.app_ids_needing_auth {
                 if app_ids_needing_auth.is_empty()
@@ -1845,14 +1845,14 @@ impl PluginRequestProcessor {
     async fn plugin_apps_needing_auth_for_install(
         &self,
         config: &Config,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         plugin_id: &str,
         plugin_app_declarations: &[maplecode_plugin::AppDeclaration],
     ) -> Vec<AppSummary> {
         if plugin_app_declarations.is_empty()
             || !config
                 .features
-                .apps_enabled_for_auth(auth.is_some_and(MapleCodeAuth::is_chatgpt_auth))
+                .apps_enabled_for_auth(auth.is_some_and(MaplecodeAuth::is_chatgpt_auth))
         {
             return Vec::new();
         }
@@ -2203,7 +2203,7 @@ impl PluginRequestProcessor {
 async fn load_plugin_app_summaries(
     thread_manager: &ThreadManager,
     config: &Config,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     plugin_apps: &[maplecode_plugin::AppConnectorId],
     app_category_by_id: &HashMap<String, String>,
 ) -> Vec<AppSummary> {

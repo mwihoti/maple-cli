@@ -3,7 +3,7 @@ use crate::outgoing_message::OutgoingEnvelope;
 use crate::outgoing_message::OutgoingMessage;
 use maplecode_analytics::AnalyticsEventsClient;
 use maplecode_core::config::ConfigBuilder;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_state::LogWriteFailureReporter;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
@@ -18,7 +18,7 @@ async fn log_write_warning_is_broadcast_once() -> anyhow::Result<()> {
         .await?;
     for feedback_enabled in [true, false] {
         config.feedback_enabled = feedback_enabled;
-        let feedback = MapleCodeFeedback::new();
+        let feedback = MaplecodeFeedback::new();
         let (tx, mut rx) = mpsc::channel(/*buffer*/ 4);
         let outgoing = Arc::new(OutgoingMessageSender::new(
             tx,
@@ -67,7 +67,7 @@ async fn log_write_warning_keeps_feedback_when_sender_is_gone() -> anyhow::Resul
         .maplecode_home(home.path().to_path_buf())
         .build()
         .await?;
-    let feedback = MapleCodeFeedback::new();
+    let feedback = MaplecodeFeedback::new();
     let (tx, mut rx) = mpsc::channel(/*buffer*/ 4);
     let outgoing = Arc::new(OutgoingMessageSender::new(
         tx,
@@ -106,7 +106,7 @@ async fn log_write_warning_reports_failed_sqlite_flush() -> anyhow::Result<()> {
             .maplecode_home(home.path().to_path_buf())
             .build()
             .await?;
-        let feedback = MapleCodeFeedback::new();
+        let feedback = MaplecodeFeedback::new();
         let runtime = maplecode_state::StateRuntime::init(
             config.sqlite_config().clone(),
             "test-provider".to_string(),

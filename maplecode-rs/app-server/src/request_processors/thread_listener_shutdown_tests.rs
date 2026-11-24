@@ -16,7 +16,7 @@ use crate::thread_state::resolve_server_request_on_thread_listener;
 use anyhow::Context;
 use anyhow::Result;
 use core_test_support::responses;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_analytics::AnalyticsEventsClient;
@@ -41,7 +41,7 @@ use tokio::sync::Semaphore;
 use tokio::sync::mpsc;
 
 async fn test_processor(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
 ) -> Result<(ThreadRequestProcessor, mpsc::Receiver<OutgoingEnvelope>)> {
     let config = Arc::new(test.config.clone());
     let auth = AuthManager::shared_from_config(

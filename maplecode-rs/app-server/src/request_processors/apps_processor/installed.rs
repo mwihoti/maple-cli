@@ -64,7 +64,7 @@ impl AppsRequestProcessor {
             let auth = auth_manager.auth().await;
             let runtime_enabled = config
                 .features
-                .apps_enabled_for_auth(auth.as_ref().is_some_and(MapleCodeAuth::uses_maplecode_backend));
+                .apps_enabled_for_auth(auth.as_ref().is_some_and(MaplecodeAuth::uses_maplecode_backend));
 
             let cache_key = connector_runtime_context_key(auth.as_ref());
             let previous_snapshot = mcp_manager

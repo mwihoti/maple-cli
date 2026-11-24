@@ -89,7 +89,7 @@ use maplecode_core::check_execpolicy_for_warnings;
 use maplecode_core::config::Config;
 use maplecode_core::resolve_installation_id;
 use maplecode_exec_server::EnvironmentManager;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_protocol::protocol::SessionSource;
 pub use maplecode_rollout::StateDbHandle;
 pub use maplecode_state::log_db::LogDbLayer;
@@ -157,7 +157,7 @@ pub struct InProcessStartArgs {
     /// Loader used to fetch typed thread config sources before a thread starts.
     pub thread_config_loader: Arc<dyn ThreadConfigLoader>,
     /// Feedback sink used by app-server/core telemetry and logs.
-    pub feedback: MapleCodeFeedback,
+    pub feedback: MaplecodeFeedback,
     /// SQLite tracing layer used to flush recently emitted logs before feedback upload.
     pub log_db: Option<LogDbLayer>,
     /// Process-wide SQLite state handle shared with embedded app-server consumers.
@@ -956,7 +956,7 @@ mod tests {
             cloud_config_bundle: CloudConfigBundleLoader::default(),
             embedded_network_policy: Default::default(),
             thread_config_loader: Arc::new(maplecode_config::NoopThreadConfigLoader),
-            feedback: MapleCodeFeedback::new(),
+            feedback: MaplecodeFeedback::new(),
             log_db: None,
             state_db: Some(state_db),
             environment_manager: Arc::new(EnvironmentManager::default_for_tests()),

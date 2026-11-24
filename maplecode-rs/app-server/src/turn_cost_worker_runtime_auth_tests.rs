@@ -41,7 +41,7 @@ async fn turn_costs_register_with_requested_organization(openai_alias: bool) {
             .expect(if openai_alias { 2 } else { 0 })
             .mount(&server)
             .await;
-        let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("key-a"));
+        let credentials = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("key-a"));
         let mut worker = test_runtime(&server, credentials.clone()).await;
         let owner = Arc::new(RuntimeAuthManager::new(
             credentials.clone(),

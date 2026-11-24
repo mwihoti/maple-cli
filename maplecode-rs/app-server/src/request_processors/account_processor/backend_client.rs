@@ -8,7 +8,7 @@ impl AccountRequestProcessor {
     #[inline(never)]
     pub(super) fn backend_client<'a>(
         &'a self,
-        auth: &'a MapleCodeAuth,
+        auth: &'a MaplecodeAuth,
         http_client_factory: maplecode_http_client::HttpClientFactory,
     ) -> BoxFuture<'a, Result<BackendClient, JSONRPCErrorError>> {
         Box::pin(async move {
