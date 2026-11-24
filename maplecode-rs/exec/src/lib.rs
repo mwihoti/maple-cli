@@ -19,7 +19,7 @@ pub use cli::ReviewArgs;
 use event_processor_with_human_output::EventProcessorWithHumanOutput;
 pub use event_processor_with_jsonl_output::CollectedThreadEvents;
 pub use event_processor_with_jsonl_output::EventProcessorWithJsonOutput;
-pub use event_processor_with_jsonl_output::MapleCodeStatus;
+pub use event_processor_with_jsonl_output::MaplecodeStatus;
 pub use exec_events::AgentMessageItem;
 pub use exec_events::CollabAgentState;
 pub use exec_events::CollabAgentStatus;
@@ -122,7 +122,7 @@ use maplecode_core::format_exec_policy_error_with_source;
 use maplecode_core::path_utils;
 use maplecode_core::read_session_meta_line;
 use maplecode_features::Feature;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_git_utils::get_git_repo_root;
 use maplecode_history::RolloutItem;
 use maplecode_history::RolloutLine;
@@ -811,7 +811,7 @@ pub async fn run_main(cli: Cli, arg0_paths: Arg0DispatchPaths) -> anyhow::Result
         strict_config,
         cloud_config_bundle,
         embedded_network_policy,
-        feedback: MapleCodeFeedback::new(),
+        feedback: MaplecodeFeedback::new(),
         log_db: None,
         state_db: state_db.clone(),
         environment_manager: std::sync::Arc::new(environment_manager),
@@ -1463,8 +1463,8 @@ async fn run_exec_session(args: ExecRunArgs) -> anyhow::Result<()> {
                     .await;
 
                     match event_processor.process_server_notification(notification) {
-                        MapleCodeStatus::Running => {}
-                        MapleCodeStatus::InitiateShutdown => {
+                        MaplecodeStatus::Running => {}
+                        MaplecodeStatus::InitiateShutdown => {
                             if let Err(err) = request_shutdown(
                                 &client,
                                 &mut request_ids,

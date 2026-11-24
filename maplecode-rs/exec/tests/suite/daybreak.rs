@@ -1,6 +1,6 @@
 use anyhow::Context;
 use core_test_support::responses;
-use core_test_support::test_maplecode_exec::TestMapleCodeExecBuilder;
+use core_test_support::test_maplecode_exec::TestMaplecodeExecBuilder;
 use core_test_support::test_maplecode_exec::test_maplecode_exec;
 use predicates::prelude::*;
 use pretty_assertions::assert_eq;
@@ -160,7 +160,7 @@ async fn exec_custom_provider_daybreak_uses_capability() -> anyhow::Result<()> {
 }
 
 async fn configured_daybreak_exec()
--> anyhow::Result<(TestMapleCodeExecBuilder, wiremock::MockServer)> {
+-> anyhow::Result<(TestMaplecodeExecBuilder, wiremock::MockServer)> {
     let test = test_maplecode_exec();
     let server = responses::start_mock_server().await;
     let token = concat!(

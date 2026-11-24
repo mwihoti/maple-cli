@@ -19,7 +19,7 @@ use owo_colors::OwoColorize;
 use owo_colors::Style;
 
 use crate::event_processor::EventProcessor;
-use crate::event_processor::MapleCodeStatus;
+use crate::event_processor::MaplecodeStatus;
 use crate::event_processor::handle_last_message;
 
 pub(crate) struct EventProcessorWithHumanOutput {
@@ -228,7 +228,7 @@ impl EventProcessor for EventProcessorWithHumanOutput {
         eprintln!("{}\n{}", "user".style(self.cyan), prompt);
     }
 
-    fn process_server_notification(&mut self, notification: ServerNotification) -> MapleCodeStatus {
+    fn process_server_notification(&mut self, notification: ServerNotification) -> MaplecodeStatus {
         match notification {
             ServerNotification::ConfigWarning(notification) => {
                 let details = notification
@@ -241,16 +241,16 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                     notification.summary,
                     details
                 );
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::Warning(notification) => self.process_warning(notification.message),
             ServerNotification::AuthRecoveryStarted(notification) => {
                 eprintln!("{}", notification.message);
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::AuthRecoveryCompleted(notification) => {
                 eprintln!("{}", notification.message.style(self.green));
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::Error(notification) => {
                 eprintln!(
@@ -258,7 +258,7 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                     "ERROR:".style(self.red).style(self.bold),
                     notification.error
                 );
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::DeprecationNotice(notification) => {
                 eprintln!(
@@ -269,7 +269,7 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                 if let Some(details) = notification.details {
                     eprintln!("{}", details.style(self.dimmed));
                 }
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::HookStarted(notification) => {
                 eprintln!(
@@ -277,7 +277,7 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                     "hook:".style(self.bold),
                     format!("{:?}", notification.run.event_name).style(self.dimmed)
                 );
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::HookCompleted(notification) => {
                 eprintln!(
@@ -286,15 +286,15 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                     format!("{:?}", notification.run.event_name).style(self.dimmed),
                     notification.run.status
                 );
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::ItemStarted(notification) => {
                 self.render_item_started(&notification.item.payload);
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::ItemCompleted(notification) => {
                 self.render_item_completed(notification.item.payload);
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::ModelRerouted(notification) => {
                 eprintln!(
@@ -303,12 +303,12 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                     notification.from_model,
                     notification.to_model
                 );
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
-            ServerNotification::ModelVerification(_) => MapleCodeStatus::Running,
+            ServerNotification::ModelVerification(_) => MaplecodeStatus::Running,
             ServerNotification::ThreadTokenUsageUpdated(notification) => {
                 self.last_total_token_usage = Some(notification.token_usage);
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::TurnCompleted(notification) => match notification.turn.status {
                 TurnStatus::Completed => {
@@ -324,7 +324,7 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                         self.final_message = Some(final_message);
                     }
                     self.emit_final_message_on_shutdown = true;
-                    MapleCodeStatus::InitiateShutdown
+                    MaplecodeStatus::InitiateShutdown
                 }
                 TurnStatus::Failed => {
                     self.final_message = None;
@@ -333,16 +333,16 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                     if let Some(error) = notification.turn.error {
                         eprintln!("{} {}", "ERROR:".style(self.red).style(self.bold), error);
                     }
-                    MapleCodeStatus::InitiateShutdown
+                    MaplecodeStatus::InitiateShutdown
                 }
                 TurnStatus::Interrupted => {
                     self.final_message = None;
                     self.final_message_rendered = false;
                     self.emit_final_message_on_shutdown = false;
                     eprintln!("{}", "turn interrupted".style(self.dimmed));
-                    MapleCodeStatus::InitiateShutdown
+                    MaplecodeStatus::InitiateShutdown
                 }
-                TurnStatus::InProgress => MapleCodeStatus::Running,
+                TurnStatus::InProgress => MaplecodeStatus::Running,
             },
             ServerNotification::TurnDiffUpdated(notification) => {
                 if notification.diff != self.last_turn_diff && !notification.diff.trim().is_empty()
@@ -351,7 +351,7 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                 }
                 // Remember empty updates too, so a restored diff is rendered again.
                 self.last_turn_diff = notification.diff;
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::TurnPlanUpdated(notification) => {
                 if let Some(explanation) = notification.explanation {
@@ -374,22 +374,22 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                         }
                     }
                 }
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::TurnStarted(_) => {
                 self.last_turn_diff.clear();
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
-            _ => MapleCodeStatus::Running,
+            _ => MaplecodeStatus::Running,
         }
     }
 
-    fn process_warning(&mut self, message: String) -> MapleCodeStatus {
+    fn process_warning(&mut self, message: String) -> MaplecodeStatus {
         eprintln!(
             "{} {message}",
             "warning:".style(self.yellow).style(self.bold)
         );
-        MapleCodeStatus::Running
+        MaplecodeStatus::Running
     }
 
     fn print_final_output(&mut self, output: Option<BoundOutput>) -> anyhow::Result<()> {

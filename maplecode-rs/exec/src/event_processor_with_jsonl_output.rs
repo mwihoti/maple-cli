@@ -21,7 +21,7 @@ use maplecode_protocol::protocol::SessionConfiguredEvent;
 use serde_json::json;
 
 use crate::event_processor::EventProcessor;
-pub use crate::event_processor::MapleCodeStatus;
+pub use crate::event_processor::MaplecodeStatus;
 use crate::event_processor::handle_last_message;
 use crate::exec_events::AgentMessageItem;
 use crate::exec_events::CollabAgentState;
@@ -77,7 +77,7 @@ struct RunningTodoList {
 #[derive(Debug, PartialEq)]
 pub struct CollectedThreadEvents {
     pub events: Vec<ThreadEvent>,
-    pub status: MapleCodeStatus,
+    pub status: MaplecodeStatus,
 }
 
 impl EventProcessorWithJsonOutput {
@@ -417,7 +417,7 @@ impl EventProcessorWithJsonOutput {
                     details: ThreadItemDetails::Error(ErrorItem { message }),
                 },
             })],
-            status: MapleCodeStatus::Running,
+            status: MaplecodeStatus::Running,
         }
     }
 
@@ -440,7 +440,7 @@ impl EventProcessorWithJsonOutput {
                         details: ThreadItemDetails::Error(ErrorItem { message }),
                     },
                 }));
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::Warning(notification) => {
                 let warning = self.collect_warning(notification.message);
@@ -457,7 +457,7 @@ impl EventProcessorWithJsonOutput {
                 let error = ThreadErrorEvent { message };
                 self.last_critical_error = Some(error.clone());
                 events.push(ThreadEvent::Error(error));
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::DeprecationNotice(notification) => {
                 let message = match notification.details {
@@ -472,16 +472,16 @@ impl EventProcessorWithJsonOutput {
                         details: ThreadItemDetails::Error(ErrorItem { message }),
                     },
                 }));
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::HookStarted(_) | ServerNotification::HookCompleted(_) => {
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::ItemStarted(notification) => {
                 if let Some(item) = self.map_started_item(notification.item.payload) {
                     events.push(ThreadEvent::ItemStarted(ItemStartedEvent { item }));
                 }
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::ItemCompleted(notification) => {
                 if let Some(item) = self.map_completed_item_mut(notification.item.payload) {
@@ -492,7 +492,7 @@ impl EventProcessorWithJsonOutput {
                     }
                     events.push(ThreadEvent::ItemCompleted(ItemCompletedEvent { item }));
                 }
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::ModelRerouted(notification) => {
                 events.push(ThreadEvent::ItemCompleted(ItemCompletedEvent {
@@ -506,12 +506,12 @@ impl EventProcessorWithJsonOutput {
                         }),
                     },
                 }));
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
-            ServerNotification::ModelVerification(_) => MapleCodeStatus::Running,
+            ServerNotification::ModelVerification(_) => MaplecodeStatus::Running,
             ServerNotification::ThreadTokenUsageUpdated(notification) => {
                 self.last_total_token_usage = Some(notification.token_usage);
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::TurnCompleted(notification) => {
                 if let Some(running) = self.running_todo_list.take() {
@@ -536,7 +536,7 @@ impl EventProcessorWithJsonOutput {
                         events.push(ThreadEvent::TurnCompleted(TurnCompletedEvent {
                             usage: self.usage_from_last_total(),
                         }));
-                        MapleCodeStatus::InitiateShutdown
+                        MaplecodeStatus::InitiateShutdown
                     }
                     TurnStatus::Failed => {
                         self.final_message = None;
@@ -557,17 +557,17 @@ impl EventProcessorWithJsonOutput {
                                 message: "turn failed".to_string(),
                             });
                         events.push(ThreadEvent::TurnFailed(TurnFailedEvent { error }));
-                        MapleCodeStatus::InitiateShutdown
+                        MaplecodeStatus::InitiateShutdown
                     }
                     TurnStatus::Interrupted => {
                         self.final_message = None;
                         self.emit_final_message_on_shutdown = false;
-                        MapleCodeStatus::InitiateShutdown
+                        MaplecodeStatus::InitiateShutdown
                     }
-                    TurnStatus::InProgress => MapleCodeStatus::Running,
+                    TurnStatus::InProgress => MaplecodeStatus::Running,
                 }
             }
-            ServerNotification::TurnDiffUpdated(_) => MapleCodeStatus::Running,
+            ServerNotification::TurnDiffUpdated(_) => MaplecodeStatus::Running,
             ServerNotification::TurnPlanUpdated(notification) => {
                 let items = Self::map_todo_items(&notification.plan);
                 if let Some(running) = self.running_todo_list.as_mut() {
@@ -592,13 +592,13 @@ impl EventProcessorWithJsonOutput {
                         },
                     }));
                 }
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
             ServerNotification::TurnStarted(_) => {
                 events.push(ThreadEvent::TurnStarted(TurnStartedEvent {}));
-                MapleCodeStatus::Running
+                MaplecodeStatus::Running
             }
-            _ => MapleCodeStatus::Running,
+            _ => MaplecodeStatus::Running,
         };
 
         CollectedThreadEvents { events, status }
@@ -615,7 +615,7 @@ impl EventProcessor for EventProcessorWithJsonOutput {
         self.emit(Self::thread_started_event(session_configured));
     }
 
-    fn process_server_notification(&mut self, notification: ServerNotification) -> MapleCodeStatus {
+    fn process_server_notification(&mut self, notification: ServerNotification) -> MaplecodeStatus {
         let collected = self.collect_thread_events(notification);
         for event in collected.events {
             self.emit(event);
@@ -623,7 +623,7 @@ impl EventProcessor for EventProcessorWithJsonOutput {
         collected.status
     }
 
-    fn process_warning(&mut self, message: String) -> MapleCodeStatus {
+    fn process_warning(&mut self, message: String) -> MaplecodeStatus {
         let collected = self.collect_warning(message);
         for event in collected.events {
             self.emit(event);

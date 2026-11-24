@@ -29,7 +29,7 @@ fn failed_turn_does_not_overwrite_output_last_message_file() {
         ),
     ));
 
-    assert_eq!(collected.status, MapleCodeStatus::Running);
+    assert_eq!(collected.status, MaplecodeStatus::Running);
     assert_eq!(processor.final_message(), Some("partial answer"));
 
     let status = processor.process_server_notification(ServerNotification::TurnCompleted(
@@ -54,7 +54,7 @@ fn failed_turn_does_not_overwrite_output_last_message_file() {
         },
     ));
 
-    assert_eq!(status, MapleCodeStatus::InitiateShutdown);
+    assert_eq!(status, MaplecodeStatus::InitiateShutdown);
     assert_eq!(processor.final_message(), None);
 
     let output = BoundOutput::open(&output_path).expect("bind output");
@@ -88,7 +88,7 @@ fn runtime_warning_emits_a_non_fatal_error_item() {
                     }),
                 },
             })],
-            status: MapleCodeStatus::Running,
+            status: MaplecodeStatus::Running,
         }
     );
 }
@@ -125,7 +125,7 @@ fn mcp_tool_call_result_preserves_meta_in_jsonl_event() {
         ),
     ));
 
-    assert_eq!(collected.status, MapleCodeStatus::Running);
+    assert_eq!(collected.status, MaplecodeStatus::Running);
     assert_eq!(collected.events.len(), 1);
 
     let ThreadEvent::ItemCompleted(ItemCompletedEvent { item }) = &collected.events[0] else {

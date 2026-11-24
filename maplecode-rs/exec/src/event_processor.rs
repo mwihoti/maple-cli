@@ -7,7 +7,7 @@ use maplecode_exec_server::BoundOutput;
 use maplecode_protocol::protocol::SessionConfiguredEvent;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum MapleCodeStatus {
+pub enum MaplecodeStatus {
     Running,
     InitiateShutdown,
 }
@@ -22,10 +22,10 @@ pub(crate) trait EventProcessor {
     );
 
     /// Handle a single typed app-server notification emitted by the agent.
-    fn process_server_notification(&mut self, notification: ServerNotification) -> MapleCodeStatus;
+    fn process_server_notification(&mut self, notification: ServerNotification) -> MaplecodeStatus;
 
     /// Handle a local exec warning that is not represented as an app-server notification.
-    fn process_warning(&mut self, message: String) -> MapleCodeStatus;
+    fn process_warning(&mut self, message: String) -> MaplecodeStatus;
 
     fn print_final_output(&mut self, output: Option<BoundOutput>) -> anyhow::Result<()>;
 }
