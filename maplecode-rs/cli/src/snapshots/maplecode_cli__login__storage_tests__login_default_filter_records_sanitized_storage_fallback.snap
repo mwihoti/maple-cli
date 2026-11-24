@@ -1,6 +1,5 @@
 ---
 source: cli/src/login_storage_tests.rs
-assertion_line: 47
 expression: "logs.replace(home.path().join(\"secrets\").to_str().unwrap(),\n\"[SECRETS_PATH]\").replace(&cause, \"[OS_ERROR]\")"
 ---
  WARN maplecode_login::auth::storage: failed to save auth to keyring, falling back to file storage: failed to write OAuth tokens to encrypted auth storage: failed to create secrets dir [SECRETS_PATH]: [OS_ERROR]

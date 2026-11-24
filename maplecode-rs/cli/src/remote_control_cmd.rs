@@ -732,8 +732,8 @@ mod tests {
                 "daemon": {
                     "status": "started",
                     "pid": 42,
-                    "managedMapleCodePath": "/opt/maplecode/bin/maplecode",
-                    "managedMapleCodeVersion": "1.0.0",
+                    "managedMaplecodePath": "/opt/maplecode/bin/maplecode",
+                    "managedMaplecodeVersion": "1.0.0",
                     "socketPath": "/tmp/app-server-control.sock",
                     "cliVersion": "1.0.0",
                     "appServerVersion": "2.0.0",

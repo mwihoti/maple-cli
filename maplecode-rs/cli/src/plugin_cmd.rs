@@ -31,7 +31,7 @@ use maplecode_core_plugins::remote::RemoteMarketplaceSource;
 use maplecode_core_plugins::remote::RemotePluginCatalogCacheMode;
 use maplecode_core_plugins::remote::RemotePluginSummary;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_plugin::PluginId;
 use maplecode_plugin::validate_plugin_segment;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
@@ -763,7 +763,7 @@ struct PluginCommandContext {
     maplecode_home: PathBuf,
     plugins_input: PluginsConfigInput,
     manager: Arc<PluginsManager>,
-    auth: Option<MapleCodeAuth>,
+    auth: Option<MaplecodeAuth>,
 }
 
 async fn load_plugin_command_context(
@@ -780,7 +780,7 @@ async fn load_plugin_command_context(
     let uses_remote_catalog = plugins_input.plugins_enabled
         && auth
             .as_ref()
-            .is_some_and(MapleCodeAuth::uses_maplecode_backend)
+            .is_some_and(MaplecodeAuth::uses_maplecode_backend)
         && marketplace_name.is_none_or(|name| name == REMOTE_GLOBAL_MARKETPLACE_NAME);
     let manager = Arc::new(if uses_remote_catalog {
         plugins_manager_for_config_with_runtime(&config, Arc::clone(&auth_manager)).await?
@@ -864,7 +864,7 @@ async fn fetch_remote_marketplaces(
         return Ok(RemoteMarketplaceListing::default());
     }
     let auth = context.auth.as_ref();
-    if !auth.is_some_and(MapleCodeAuth::uses_maplecode_backend) {
+    if !auth.is_some_and(MaplecodeAuth::uses_maplecode_backend) {
         ensure!(
             marketplace_name.is_none(),
             "chatgpt authentication required for remote plugin catalog"

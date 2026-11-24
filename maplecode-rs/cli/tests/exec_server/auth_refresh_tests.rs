@@ -26,7 +26,7 @@ async fn executor_startup_rejects_agent_identity_before_cloud_config() -> Result
         .mount(&server)
         .await;
     let manager = maplecode_login::test_support::auth_manager_with_agent_identity().await?;
-    let Some(maplecode_login::MapleCodeAuth::AgentIdentity(agent)) = manager.auth_cached() else {
+    let Some(maplecode_login::MaplecodeAuth::AgentIdentity(agent)) = manager.auth_cached() else {
         anyhow::bail!("expected Agent Identity fixture");
     };
     let mut record = agent.record().clone();

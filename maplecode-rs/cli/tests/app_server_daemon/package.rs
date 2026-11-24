@@ -100,7 +100,7 @@ fn packaged_daemon_launch(action: &str, initial: InitialDaemon) -> Result<()> {
         InitialDaemon::Legacy => (&standalone, "app-server.pid"),
     };
     assert_eq!(
-        output["managedMapleCodePath"],
+        output["managedMaplecodePath"],
         initial_root
             .canonicalize()?
             .join("current/bin/maplecode")
@@ -169,7 +169,7 @@ fn packaged_daemon_launch(action: &str, initial: InitialDaemon) -> Result<()> {
         assert!(!state.join("app-server.pid").exists());
         assert!(!state.join("app-server-updater.pid").exists());
         assert_eq!(
-            output["managedMapleCodePath"],
+            output["managedMaplecodePath"],
             current
                 .join("bin/maplecode")
                 .to_str()

@@ -54,7 +54,7 @@ fn each_endpoint_product_requires_vendor_specific_app_exclusions() {
             .to_ascii_lowercase();
         assert_eq!(
             remediation,
-            "ask your security administrator to verify maplecode exclusions and required helper allowances",
+            "ask your security administrator to verify maple code exclusions and required helper allowances",
             "{product}"
         );
         assert!(

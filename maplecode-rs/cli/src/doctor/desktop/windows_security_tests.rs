@@ -49,10 +49,10 @@ fn defender_distinguishes_detection_and_remediation() {
 fn only_trusted_maplecode_executables_are_reported() {
     for (path, expected) in [
         ("maplecode.exe", true),
-        (r"OpenAI.MapleCode_2p2nqsd0c76g0\ChatGPT.exe", true),
+        (r"OpenAI.Maplecode_2p2nqsd0c76g0\ChatGPT.exe", true),
         ("evil-maplecode.exe", false),
         (r"C:\Other\ChatGPT.exe", false),
-        (r"OpenAI.MapleCodeEvil_1\ChatGPT.exe", false),
+        (r"OpenAI.MaplecodeEvil_1\ChatGPT.exe", false),
     ] {
         let events = parse_events(&fixture(/*id*/ 1121, path, &[]), CHANNELS[0]);
         assert_eq!(!events.is_empty(), expected, "misclassified {path}");

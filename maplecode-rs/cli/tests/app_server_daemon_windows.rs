@@ -18,7 +18,7 @@ fn winget_package_starts_and_reselects_daemon() -> Result<()> {
     }
     let temp = tempfile::tempdir()?;
     let home = temp.path().join("home");
-    let package = temp.path().join("WinGet/Packages/OpenAI.MapleCode");
+    let package = temp.path().join("WinGet/Packages/OpenAI.Maplecode");
     let target = format!("{}-pc-windows-msvc", std::env::consts::ARCH);
     let entrypoint = format!("maplecode-{target}.exe");
     let maplecode = package.join(&entrypoint);

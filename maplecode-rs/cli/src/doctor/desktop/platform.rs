@@ -149,7 +149,7 @@ pub(super) fn desktop_check(
 
 #[cfg(target_os = "windows")]
 fn installed_windows_app() -> Result<Option<InstalledApp>, DiscoveryError> {
-    const PACKAGE_FAMILY: &str = "OpenAI.MapleCode_2p2nqsd0c76g0";
+    const PACKAGE_FAMILY: &str = "OpenAI.Maplecode_2p2nqsd0c76g0";
 
     let family = PACKAGE_FAMILY
         .encode_utf16()
@@ -200,7 +200,7 @@ fn installed_windows_app() -> Result<Option<InstalledApp>, DiscoveryError> {
         .ok_or(DiscoveryError)?;
     let package = String::from_utf16(&buffer[..end]).map_err(|_| DiscoveryError)?;
     let version = package
-        .strip_prefix("OpenAI.MapleCode_")
+        .strip_prefix("OpenAI.Maplecode_")
         .and_then(|name| name.split('_').next())
         .filter(|version| {
             version
@@ -210,7 +210,7 @@ fn installed_windows_app() -> Result<Option<InstalledApp>, DiscoveryError> {
         .ok_or(DiscoveryError)?;
 
     Ok(Some(InstalledApp {
-        identity: "OpenAI.MapleCode",
+        identity: "OpenAI.Maplecode",
         version: version.to_string(),
         package_family: PACKAGE_FAMILY,
     }))
@@ -221,7 +221,7 @@ async fn installed_macos_app() -> Result<Option<InstalledApp>, DiscoveryError> {
     let applications = std::iter::once(PathBuf::from("/Applications"))
         .chain(std::env::var_os("HOME").map(|home| PathBuf::from(home).join("Applications")))
         .flat_map(|directory| {
-            ["ChatGPT.app", "MapleCode.app"]
+            ["ChatGPT.app", "Maplecode.app"]
                 .into_iter()
                 .map(move |application| directory.join(application))
         });

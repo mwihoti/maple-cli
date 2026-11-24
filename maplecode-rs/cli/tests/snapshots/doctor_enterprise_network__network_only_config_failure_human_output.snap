@@ -2,7 +2,7 @@
 source: cli/tests/doctor_enterprise_network.rs
 expression: stdout
 ---
-Maple Code Doctor v0.0.0
+Maple Code Doctor v0.170.0
 
 Notes
    [XX] config       config could not be loaded - Fix the reported config error, then rerun maplecode doctor.

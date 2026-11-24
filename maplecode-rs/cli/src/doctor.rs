@@ -51,13 +51,13 @@ use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_install_context::InstallContext;
 use maplecode_install_context::InstallMethod;
-use maplecode_install_context::MapleCodePackageLayout;
+use maplecode_install_context::MaplecodePackageLayout;
 use maplecode_install_context::StandalonePlatform;
 use maplecode_login::AuthDotJson;
 use maplecode_login::AuthManager;
 use maplecode_login::MAPLECODE_ACCESS_TOKEN_ENV_VAR;
 use maplecode_login::MAPLECODE_API_KEY_ENV_VAR;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::OPENAI_API_KEY_ENV_VAR;
 use maplecode_login::default_client::create_client_without_request_logging;
 use maplecode_login::default_client::default_headers;
@@ -1076,7 +1076,7 @@ fn describe_install_context(context: &InstallContext) -> String {
 
 fn describe_method_with_package_layout(
     method: &str,
-    package_layout: Option<&MapleCodePackageLayout>,
+    package_layout: Option<&MaplecodePackageLayout>,
 ) -> String {
     match package_layout {
         Some(package_layout) => {
@@ -2567,7 +2567,7 @@ fn close_reason_detail(reason: &str) -> &'static str {
     }
 }
 
-fn auth_mode_name(auth: &MapleCodeAuth) -> &'static str {
+fn auth_mode_name(auth: &MaplecodeAuth) -> &'static str {
     match auth.auth_mode() {
         AuthMode::ApiKey => "api_key",
         AuthMode::Chatgpt => "chatgpt",
@@ -2770,11 +2770,7 @@ fn provider_reachability_plan_from_parts(
         }],
         (ProviderAuthReachabilityMode::Chatgpt, None) => vec![ReachabilityEndpoint {
             label: "ChatGPT".to_string(),
-            url: provider_url_for_path(
-                chatgpt_base_url,
-                "maplecode/responses",
-                provider_query_params,
-            ),
+            url: provider_url_for_path(chatgpt_base_url, "codex/responses", provider_query_params),
             required: true,
             route_probe_url: None,
         }],

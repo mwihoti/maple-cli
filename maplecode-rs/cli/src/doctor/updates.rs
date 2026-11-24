@@ -297,7 +297,7 @@ fn windows_store_update(
         serde_json::from_slice(manifest).map_err(|_| "invalid Windows Store update manifest")?;
     if manifest.schema_version == 0
         || manifest.store_product_id != "9PLM9XGG6VKS"
-        || manifest.package_identity != "OpenAI.MapleCode"
+        || manifest.package_identity != "OpenAI.Maplecode"
     {
         return Err("Windows Store update manifest does not target the production application");
     }
@@ -645,7 +645,7 @@ mod tests {
             "schemaVersion": 1,
             "buildVersion": "26.803.5235.1",
             "storeProductId": "9PLM9XGG6VKS",
-            "packageIdentity": "OpenAI.MapleCode",
+            "packageIdentity": "OpenAI.Maplecode",
         });
         assert_eq!(
             windows_store_update(&serde_json::to_vec(&manifest).unwrap(), "26.803.5235.0"),

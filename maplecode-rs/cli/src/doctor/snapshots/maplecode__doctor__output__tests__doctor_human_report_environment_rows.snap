@@ -27,7 +27,7 @@ Environment
   ⚠ security     Microsoft Defender can interfere with Maple Code. Verify Maple Code exclusions.
       endpoint products        Microsoft Defender
       exclusion targets        verified Maple Code app and required helpers
-    ▸ Maple Code exclusions         not verified (expected Maple Code application and helper exclusions)
+    ▸ Maple Code exclusions    not verified (expected Maple Code application and helper exclusions)
     → Microsoft Defender: Add a certificate or executable-path exclusion for Maple Code and its helpers. If Attack Surface Reduction blocks Maple Code, add a rule exclusion. If Controlled Folder Access blocks Maple Code, allow the app.
   ✓ runtime      running local build on darwin-arm64
   ✓ install      consistent

@@ -13,7 +13,7 @@ fn only_matching_enforced_apple_security_events_are_failures() {
     for (event, expected) in [
         ("denied com.openai.maplecode", Evidence::Blocked),
         (
-            "denied /Applications/MapleCode.app/Contents/MacOS/MapleCode",
+            "denied /Applications/Maplecode.app/Contents/MacOS/Maplecode",
             Evidence::Blocked,
         ),
         ("malware detected ChatGPT.app", Evidence::Malware),

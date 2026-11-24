@@ -68,7 +68,7 @@ fn is_apple_silicon_mac() -> bool {
 fn find_existing_maplecode_app_path(applications_dirs: &[PathBuf]) -> Option<PathBuf> {
     applications_dirs
         .iter()
-        .flat_map(|dir| ["ChatGPT.app", "MapleCode.app"].map(|app_name| dir.join(app_name)))
+        .flat_map(|dir| ["ChatGPT.app", "Maplecode.app"].map(|app_name| dir.join(app_name)))
         .find(|candidate| is_maplecode_app_bundle(candidate))
 }
 
@@ -166,7 +166,7 @@ async fn download_and_install_maplecode_to_user_applications(
     let tmp_root = temp_dir.path().to_path_buf();
     let _temp_dir = temp_dir;
 
-    let dmg_path = tmp_root.join("MapleCode.dmg");
+    let dmg_path = tmp_root.join("Maplecode.dmg");
     download_dmg(dmg_url, &dmg_path).await?;
 
     eprintln!("Mounting Desktop app installer...");
@@ -177,7 +177,7 @@ async fn download_and_install_maplecode_to_user_applications(
     );
     let result = async {
         let app_in_volume = find_maplecode_app_in_mount(&mount_point)
-            .context("failed to locate MapleCode.app in mounted dmg")?;
+            .context("failed to locate Maplecode.app in mounted dmg")?;
         verify_maplecode_app_bundle(&app_in_volume)
             .await
             .context("refusing to install an unverified Desktop app")?;
@@ -209,7 +209,7 @@ async fn install_maplecode_app_bundle(app_in_volume: &Path) -> anyhow::Result<Pa
             )
         })?;
 
-        let dest_app = applications_dir.join("MapleCode.app");
+        let dest_app = applications_dir.join("Maplecode.app");
         if dest_app.is_dir() {
             return Ok(dest_app);
         }
@@ -218,14 +218,14 @@ async fn install_maplecode_app_bundle(app_in_volume: &Path) -> anyhow::Result<Pa
             Ok(()) => return Ok(dest_app),
             Err(err) => {
                 eprintln!(
-                    "warning: failed to install MapleCode.app to {applications_dir}: {err}",
+                    "warning: failed to install Maplecode.app to {applications_dir}: {err}",
                     applications_dir = applications_dir.display()
                 );
             }
         }
     }
 
-    anyhow::bail!("failed to install MapleCode.app to any applications directory");
+    anyhow::bail!("failed to install Maplecode.app to any applications directory");
 }
 
 fn candidate_applications_dirs() -> anyhow::Result<Vec<PathBuf>> {
@@ -294,7 +294,7 @@ async fn detach_dmg(mount_point: &Path) -> anyhow::Result<()> {
 }
 
 fn find_maplecode_app_in_mount(mount_point: &Path) -> anyhow::Result<PathBuf> {
-    let direct = mount_point.join("MapleCode.app");
+    let direct = mount_point.join("Maplecode.app");
     if direct.is_dir() {
         return Ok(direct);
     }
@@ -390,7 +390,7 @@ mod tests {
     fn ignores_classic_chatgpt_app() {
         let temp_dir = tempfile::tempdir().expect("create temp dir");
         write_app_bundle(&temp_dir.path().join("ChatGPT.app"), "com.openai.chat");
-        let maplecode_app_path = temp_dir.path().join("MapleCode.app");
+        let maplecode_app_path = temp_dir.path().join("Maplecode.app");
         write_app_bundle(&maplecode_app_path, "com.openai.maplecode");
 
         assert_eq!(
@@ -402,7 +402,7 @@ mod tests {
     #[tokio::test]
     async fn rejects_unsigned_app_with_maplecode_bundle_identifier() {
         let temp_dir = tempfile::tempdir().expect("create temp dir");
-        let app_path = temp_dir.path().join("MapleCode.app");
+        let app_path = temp_dir.path().join("Maplecode.app");
         write_app_bundle(&app_path, "com.openai.maplecode");
 
         let err = verify_maplecode_app_bundle(&app_path)
@@ -419,16 +419,16 @@ mod tests {
     #[tokio::test]
     async fn rejects_valid_signature_without_openai_signing_identity() {
         let temp_dir = tempfile::tempdir().expect("create temp dir");
-        let app_path = temp_dir.path().join("MapleCode.app");
+        let app_path = temp_dir.path().join("Maplecode.app");
         let contents_path = app_path.join("Contents");
-        let executable_path = contents_path.join("MacOS/MapleCode");
+        let executable_path = contents_path.join("MacOS/Maplecode");
         fs::create_dir_all(executable_path.parent().expect("executable parent"))
             .expect("create executable directory");
         maplecode_utils_cargo_bin::copy_executable(Path::new("/usr/bin/true"), &executable_path)
             .expect("copy executable into app bundle");
         fs::write(
             contents_path.join("Info.plist"),
-            r#"<?xml version="1.0"?><plist version="1.0"><dict><key>CFBundleIdentifier</key><string>com.openai.maplecode</string><key>CFBundleExecutable</key><string>MapleCode</string></dict></plist>"#,
+            r#"<?xml version="1.0"?><plist version="1.0"><dict><key>CFBundleIdentifier</key><string>com.openai.maplecode</string><key>CFBundleExecutable</key><string>Maplecode</string></dict></plist>"#,
         )
         .expect("write Info.plist");
 
@@ -460,7 +460,7 @@ mod tests {
     #[tokio::test]
     async fn refuses_to_launch_unsigned_existing_maplecode_app() {
         let temp_dir = tempfile::tempdir().expect("create temp dir");
-        let app_path = temp_dir.path().join("MapleCode.app");
+        let app_path = temp_dir.path().join("Maplecode.app");
         write_app_bundle(&app_path, "com.openai.maplecode");
 
         let err = open_maplecode_app(&app_path, temp_dir.path())
@@ -476,19 +476,19 @@ mod tests {
 
     #[test]
     fn parses_mount_point_from_tab_separated_hdiutil_output() {
-        let output = "/dev/disk2s1\tApple_HFS\tMapleCode\t/Volumes/MapleCode\n";
+        let output = "/dev/disk2s1\tApple_HFS\tMaplecode\t/Volumes/Maplecode\n";
         assert_eq!(
             parse_hdiutil_attach_mount_point(output).as_deref(),
-            Some("/Volumes/MapleCode")
+            Some("/Volumes/Maplecode")
         );
     }
 
     #[test]
     fn parses_mount_point_with_spaces() {
-        let output = "/dev/disk2s1\tApple_HFS\tMapleCode Installer\t/Volumes/MapleCode Installer\n";
+        let output = "/dev/disk2s1\tApple_HFS\tMaplecode Installer\t/Volumes/Maplecode Installer\n";
         assert_eq!(
             parse_hdiutil_attach_mount_point(output).as_deref(),
-            Some("/Volumes/MapleCode Installer")
+            Some("/Volumes/Maplecode Installer")
         );
     }
 

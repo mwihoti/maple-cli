@@ -31,12 +31,12 @@ pub async fn run_windows_app_open_or_install(
 }
 
 async fn maplecode_app_is_installed() -> anyhow::Result<bool> {
-    // This package identity is stable across MapleCode- and ChatGPT-branded builds.
+    // This package identity is stable across Maplecode- and ChatGPT-branded builds.
     let output = Command::new("powershell.exe")
         .arg("-NoProfile")
         .arg("-Command")
         .arg(
-            "Get-StartApps | Where-Object AppID -Like 'OpenAI.MapleCode_*!App' | Select-Object -First 1 -ExpandProperty AppID",
+            "Get-StartApps | Where-Object AppID -Like 'OpenAI.Maplecode_*!App' | Select-Object -First 1 -ExpandProperty AppID",
         )
         .output()
         .await

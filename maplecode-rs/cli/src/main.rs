@@ -101,7 +101,7 @@ use maplecode_core::config::resolve_profile_v2_config_path;
 use maplecode_features::FEATURES;
 use maplecode_features::Stage;
 use maplecode_features::is_known_feature_key;
-use maplecode_home::MapleCodeHomeUserInstructionsProvider;
+use maplecode_home::MaplecodeHomeUserInstructionsProvider;
 use maplecode_login::AuthManager;
 use maplecode_memories_write::clear_memory_roots_contents;
 use maplecode_models_manager::bundled_models_response;
@@ -196,7 +196,7 @@ enum Subcommand {
     /// Diagnose local Maple Code installation, config, auth, and runtime health.
     Doctor(DoctorCommand),
 
-    /// Run commands within a MapleCode-provided sandbox.
+    /// Run commands within a Maplecode-provided sandbox.
     Sandbox(SandboxCommand),
 
     /// Debugging tools.
@@ -2202,7 +2202,7 @@ async fn run_debug_prompt_input_command(
         });
     }
 
-    let user_instructions_provider = Arc::new(MapleCodeHomeUserInstructionsProvider::new(
+    let user_instructions_provider = Arc::new(MaplecodeHomeUserInstructionsProvider::new(
         config.maplecode_home.clone(),
     ));
     let auth_manager =
