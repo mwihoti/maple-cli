@@ -3929,7 +3929,7 @@ mod tests {
 
         while let Ok(ev) = rx.try_recv() {
             assert!(
-                !matches!(ev, AppEvent::MapleCodeOp(Op::Interrupt)),
+                !matches!(ev, AppEvent::MaplecodeOp(Op::Interrupt)),
                 "expected Esc to not send Op::Interrupt when dismissing skill popup"
             );
         }
@@ -3990,7 +3990,7 @@ mod tests {
 
         while let Ok(ev) = rx.try_recv() {
             assert!(
-                !matches!(ev, AppEvent::MapleCodeOp(Op::Interrupt)),
+                !matches!(ev, AppEvent::MaplecodeOp(Op::Interrupt)),
                 "expected Esc to not send Op::Interrupt while command popup is active"
             );
         }
@@ -4038,7 +4038,7 @@ mod tests {
 
         while let Ok(ev) = rx.try_recv() {
             assert!(
-                !matches!(ev, AppEvent::MapleCodeOp(Op::Interrupt)),
+                !matches!(ev, AppEvent::MaplecodeOp(Op::Interrupt)),
                 "expected Esc to not send Op::Interrupt while typing `/subagents`"
             );
         }
@@ -4084,7 +4084,7 @@ mod tests {
 
         while let Ok(ev) = rx.try_recv() {
             assert!(
-                !matches!(ev, AppEvent::MapleCodeOp(Op::Interrupt)),
+                !matches!(ev, AppEvent::MaplecodeOp(Op::Interrupt)),
                 "expected Esc release after dismissing agent picker to not interrupt"
             );
         }
@@ -4115,7 +4115,7 @@ mod tests {
         pane.handle_key_event(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
 
         assert!(
-            matches!(rx.try_recv(), Ok(AppEvent::MapleCodeOp(Op::Interrupt))),
+            matches!(rx.try_recv(), Ok(AppEvent::MaplecodeOp(Op::Interrupt))),
             "expected Esc to send Op::Interrupt while a task is running"
         );
 
@@ -4123,7 +4123,7 @@ mod tests {
         pane.handle_key_event(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
         assert!(matches!(
             rx.try_recv(),
-            Ok(AppEvent::MapleCodeOp(Op::Interrupt))
+            Ok(AppEvent::MaplecodeOp(Op::Interrupt))
         ));
     }
 
@@ -4146,7 +4146,7 @@ mod tests {
 
         pane.handle_key_event(KeyEvent::new(KeyCode::F(12), KeyModifiers::NONE));
         assert!(
-            matches!(rx.try_recv(), Ok(AppEvent::MapleCodeOp(Op::Interrupt))),
+            matches!(rx.try_recv(), Ok(AppEvent::MaplecodeOp(Op::Interrupt))),
             "expected configured key to interrupt while `/subagents` is being edited"
         );
 
@@ -4154,7 +4154,7 @@ mod tests {
         pane.handle_key_event(KeyEvent::new(KeyCode::F(12), KeyModifiers::NONE));
         assert!(matches!(
             rx.try_recv(),
-            Ok(AppEvent::MapleCodeOp(Op::Interrupt))
+            Ok(AppEvent::MaplecodeOp(Op::Interrupt))
         ));
     }
 

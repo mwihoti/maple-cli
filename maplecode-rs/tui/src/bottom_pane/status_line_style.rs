@@ -64,7 +64,7 @@ impl StatusLineAccent {
             | StatusLineItem::ThreadCredits
             | StatusLineItem::EstimatedThreadCost => Self::Usage,
             StatusLineItem::FiveHourLimit | StatusLineItem::WeeklyLimit => Self::Limit,
-            StatusLineItem::MapleCodeVersion
+            StatusLineItem::MaplecodeVersion
             | StatusLineItem::Hostname
             | StatusLineItem::SessionId
             | StatusLineItem::Profile => Self::Metadata,

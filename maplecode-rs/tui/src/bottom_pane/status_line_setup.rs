@@ -115,7 +115,7 @@ pub(crate) enum StatusLineItem {
     WeeklyLimit,
 
     /// Maple Code application version.
-    MapleCodeVersion,
+    MaplecodeVersion,
 
     /// Total context window size in tokens.
     ContextWindowSize,
@@ -204,7 +204,7 @@ impl StatusLineItem {
             StatusLineItem::WeeklyLimit => {
                 "Remaining usage on the secondary usage limit (omitted when unavailable)"
             }
-            StatusLineItem::MapleCodeVersion => crate::history_cell::branded(
+            StatusLineItem::MaplecodeVersion => crate::history_cell::branded(
                 "Maple Code application version",
                 "Maple Code application version",
             ),
@@ -257,7 +257,7 @@ impl StatusLineItem {
             StatusLineItem::ContextUsed => StatusSurfacePreviewItem::ContextUsed,
             StatusLineItem::FiveHourLimit => StatusSurfacePreviewItem::FiveHourLimit,
             StatusLineItem::WeeklyLimit => StatusSurfacePreviewItem::WeeklyLimit,
-            StatusLineItem::MapleCodeVersion => StatusSurfacePreviewItem::MapleCodeVersion,
+            StatusLineItem::MaplecodeVersion => StatusSurfacePreviewItem::MaplecodeVersion,
             StatusLineItem::ContextWindowSize => StatusSurfacePreviewItem::ContextWindowSize,
             StatusLineItem::UsedTokens => StatusSurfacePreviewItem::UsedTokens,
             StatusLineItem::TotalInputTokens => StatusSurfacePreviewItem::TotalInputTokens,

@@ -67,7 +67,7 @@ pub(crate) enum TerminalTitleItem {
     /// Remaining usage on the secondary rate limit.
     WeeklyLimit,
     /// Maple Code application version.
-    MapleCodeVersion,
+    MaplecodeVersion,
     /// Total tokens used in the current session.
     UsedTokens,
     /// Total input tokens consumed.
@@ -125,7 +125,7 @@ impl TerminalTitleItem {
             TerminalTitleItem::WeeklyLimit => {
                 "Remaining usage on the secondary usage limit (omitted when unavailable)"
             }
-            TerminalTitleItem::MapleCodeVersion => crate::history_cell::branded(
+            TerminalTitleItem::MaplecodeVersion => crate::history_cell::branded(
                 "Maple Code application version",
                 "Maple Code application version",
             ),
@@ -166,7 +166,7 @@ impl TerminalTitleItem {
             TerminalTitleItem::ContextUsed => Some(StatusSurfacePreviewItem::ContextUsed),
             TerminalTitleItem::FiveHourLimit => Some(StatusSurfacePreviewItem::FiveHourLimit),
             TerminalTitleItem::WeeklyLimit => Some(StatusSurfacePreviewItem::WeeklyLimit),
-            TerminalTitleItem::MapleCodeVersion => Some(StatusSurfacePreviewItem::MapleCodeVersion),
+            TerminalTitleItem::MaplecodeVersion => Some(StatusSurfacePreviewItem::MaplecodeVersion),
             TerminalTitleItem::UsedTokens => Some(StatusSurfacePreviewItem::UsedTokens),
             TerminalTitleItem::TotalInputTokens => Some(StatusSurfacePreviewItem::TotalInputTokens),
             TerminalTitleItem::TotalOutputTokens => {
@@ -617,7 +617,7 @@ mod tests {
                 TerminalTitleItem::ModelWithReasoning,
                 TerminalTitleItem::Reasoning,
                 TerminalTitleItem::WeeklyLimit,
-                TerminalTitleItem::MapleCodeVersion,
+                TerminalTitleItem::MaplecodeVersion,
                 TerminalTitleItem::UsedTokens,
                 TerminalTitleItem::TotalInputTokens,
                 TerminalTitleItem::TotalOutputTokens,

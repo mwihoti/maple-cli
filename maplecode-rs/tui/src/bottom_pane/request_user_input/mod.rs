@@ -1557,8 +1557,8 @@ mod tests {
 
     fn expect_interrupt_only(rx: &mut tokio::sync::mpsc::UnboundedReceiver<AppEvent>) {
         let event = rx.try_recv().expect("expected interrupt AppEvent");
-        let AppEvent::MapleCodeOp(op) = event else {
-            panic!("expected MapleCodeOp");
+        let AppEvent::MaplecodeOp(op) = event else {
+            panic!("expected MaplecodeOp");
         };
         assert!(matches!(op, Op::Interrupt));
         assert!(
