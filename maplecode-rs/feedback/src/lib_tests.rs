@@ -28,7 +28,7 @@ use wiremock::matchers::path;
 
 #[test]
 fn ring_buffer_drops_front_when_full() {
-    let fb = MapleCodeFeedback::with_capacity(/*max_bytes*/ 8);
+    let fb = MaplecodeFeedback::with_capacity(/*max_bytes*/ 8);
     {
         let mut w = fb.make_writer().make_writer();
         w.write_all(b"abcdefgh").unwrap();
@@ -41,7 +41,7 @@ fn ring_buffer_drops_front_when_full() {
 
 #[test]
 fn logger_layer_filters_noisy_trace_payloads() {
-    let fb = MapleCodeFeedback::new();
+    let fb = MaplecodeFeedback::new();
     let _guard = tracing_subscriber::registry()
         // Keep another TRACE subscriber interested so bridged records are
         // emitted; feedback must still reject them with its own filter.
@@ -95,7 +95,7 @@ fn logger_layer_filters_noisy_trace_payloads() {
 
 #[test]
 fn metadata_layer_records_tags_from_feedback_target() {
-    let fb = MapleCodeFeedback::new();
+    let fb = MaplecodeFeedback::new();
     let _guard = tracing_subscriber::registry()
         .with(fb.metadata_layer())
         .set_default();
@@ -108,7 +108,7 @@ fn metadata_layer_records_tags_from_feedback_target() {
 }
 
 async fn upload_test_feedback(
-    feedback: &MapleCodeFeedback,
+    feedback: &MaplecodeFeedback,
     dsn: &str,
     extra_attachments: Vec<FeedbackAttachment>,
 ) -> Result<()> {
@@ -151,7 +151,7 @@ async fn feedback_upload_allows_slow_reports() {
         content_type: None,
         buffer: b"later diagnostic".to_vec(),
     };
-    upload_test_feedback(&MapleCodeFeedback::new(), &dsn, vec![attachment])
+    upload_test_feedback(&MaplecodeFeedback::new(), &dsn, vec![attachment])
         .await
         .expect("all three envelopes should finish across twelve seconds of network waits");
 }
@@ -182,7 +182,7 @@ async fn feedback_upload_deadline_stops_retries_and_later_attachments() {
         content_type: None,
         buffer: filename.as_bytes().to_vec(),
     });
-    let snapshot = MapleCodeFeedback::new()
+    let snapshot = MaplecodeFeedback::new()
         .snapshot(/*session_id*/ None)
         .with_feedback_diagnostics(FeedbackDiagnostics::default());
     let error = tokio::time::timeout(
@@ -252,7 +252,7 @@ async fn feedback_upload_retries_diagnostics_without_replaying_core() {
         buffer: filename.as_bytes().to_vec(),
     });
     let started = Instant::now();
-    upload_test_feedback(&MapleCodeFeedback::new(), &dsn, attachments.into())
+    upload_test_feedback(&MaplecodeFeedback::new(), &dsn, attachments.into())
         .await
         .expect_err("legacy uploads report incomplete diagnostics");
     assert!(started.elapsed() >= Duration::from_secs(2));
@@ -325,7 +325,7 @@ async fn feedback_upload_delivers_large_files_intact() {
         .mount(&server)
         .await;
 
-    MapleCodeFeedback::new()
+    MaplecodeFeedback::new()
         .snapshot(/*session_id*/ None)
         .upload_feedback_with_dsn(
             FeedbackUploadOptions {
@@ -425,7 +425,7 @@ async fn feedback_upload_reports_unreadable_or_oversized_attachments() {
         oversized_path.clone(),
         oversized_path.with_extension("missing"),
     ] {
-        let result = MapleCodeFeedback::new()
+        let result = MaplecodeFeedback::new()
             .snapshot(/*session_id*/ None)
             .upload_feedback_with_dsn(
                 FeedbackUploadOptions {
@@ -514,7 +514,7 @@ async fn feedback_upload_stops_diagnostics_for_sentry_rate_limits() {
             content_type: None,
             buffer: b"later diagnostic".to_vec(),
         };
-        upload_test_feedback(&MapleCodeFeedback::new(), &dsn, vec![later])
+        upload_test_feedback(&MaplecodeFeedback::new(), &dsn, vec![later])
             .await
             .expect_err("legacy uploads report rate-limited diagnostics");
     }
@@ -530,7 +530,7 @@ async fn feedback_upload_reports_rejected_sentry_response_without_exposing_feedb
         .mount(&server)
         .await;
 
-    let feedback = MapleCodeFeedback::new();
+    let feedback = MaplecodeFeedback::new();
     let dsn = format!("http://public@{}/42", server.address());
 
     let error = upload_test_feedback(&feedback, &dsn, Vec::new())
@@ -556,7 +556,7 @@ async fn feedback_upload_does_not_forward_private_data_to_redirect_target() {
         .mount(&sentry_server)
         .await;
     let dsn = format!("http://public@{}/42", sentry_server.address());
-    let error = upload_test_feedback(&MapleCodeFeedback::new(), &dsn, Vec::new())
+    let error = upload_test_feedback(&MaplecodeFeedback::new(), &dsn, Vec::new())
         .await
         .expect_err("redirected feedback uploads must be rejected");
 
@@ -580,7 +580,7 @@ async fn feedback_upload_reports_transport_failures() {
     drop(listener);
 
     let dsn = format!("http://public@{address}/42");
-    let error = upload_test_feedback(&MapleCodeFeedback::new(), &dsn, Vec::new())
+    let error = upload_test_feedback(&MaplecodeFeedback::new(), &dsn, Vec::new())
         .await
         .expect_err("transport failures must fail feedback uploads");
 
@@ -601,7 +601,7 @@ fn feedback_attachments_gate_connectivity_diagnostics() {
     };
     fs::write(&extra_path, "rollout").expect("extra attachment should be written");
 
-    let snapshot_with_diagnostics = MapleCodeFeedback::new()
+    let snapshot_with_diagnostics = MaplecodeFeedback::new()
         .snapshot(/*session_id*/ None)
         .with_feedback_diagnostics(FeedbackDiagnostics::new(vec![FeedbackDiagnostic {
             headline: "Proxy environment variables are set and may affect connectivity."
@@ -654,7 +654,7 @@ fn feedback_attachments_gate_connectivity_diagnostics() {
         OsStr::new(attachments_with_diagnostics[3].filename.as_str()),
         OsStr::new(extra_filename.as_str())
     );
-    let attachments_without_diagnostics = MapleCodeFeedback::new()
+    let attachments_without_diagnostics = MaplecodeFeedback::new()
         .snapshot(/*session_id*/ None)
         .with_feedback_diagnostics(FeedbackDiagnostics::default())
         .feedback_attachments(
@@ -690,7 +690,7 @@ fn path_backed_attachments_use_binary_content_types() {
     fs::write(&gzip_path, gzip_bytes).expect("gzip attachment should be written");
     fs::write(&unknown_path, unknown_bytes).expect("unknown attachment should be written");
 
-    let attachments = MapleCodeFeedback::new()
+    let attachments = MaplecodeFeedback::new()
         .snapshot(/*session_id*/ None)
         .feedback_attachments(
             &sentry::protocol::EnvelopeHeaders::default(),

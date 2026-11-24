@@ -1,6 +1,6 @@
 use super::*;
 use crate::FeedbackUploadOptions;
-use crate::MapleCodeFeedback;
+use crate::MaplecodeFeedback;
 use pretty_assertions::assert_eq;
 use std::fs::File;
 use std::io::Read;
@@ -123,7 +123,7 @@ fn save_preserves_report_and_log_consent() -> Result<()> {
     let directory = tempfile::tempdir()?;
     for include_logs in [false, true] {
         let path = directory.path().join(format!("{include_logs}.zip"));
-        MapleCodeFeedback::new()
+        MaplecodeFeedback::new()
             .snapshot(/*session_id*/ None)
             .save_feedback(
                 FeedbackUploadOptions {
@@ -159,7 +159,7 @@ fn save_preserves_report_and_log_consent() -> Result<()> {
 fn save_rejects_oversized_events_without_publishing() -> Result<()> {
     let directory = tempfile::tempdir()?;
     let reason = "x".repeat(crate::MAX_EVENT_BYTES);
-    let error = MapleCodeFeedback::new()
+    let error = MaplecodeFeedback::new()
         .snapshot(/*session_id*/ None)
         .save_feedback(
             FeedbackUploadOptions {

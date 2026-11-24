@@ -199,11 +199,11 @@ pub fn emit_feedback_request_tags_with_auth_env(
 }
 
 #[derive(Clone)]
-pub struct MapleCodeFeedback {
+pub struct MaplecodeFeedback {
     inner: Arc<FeedbackInner>,
 }
 
-impl LogWriteFailureReporter for MapleCodeFeedback {
+impl LogWriteFailureReporter for MaplecodeFeedback {
     fn report_failure(&self, diagnostic: &str) {
         // Bypass tracing so this diagnostic cannot return to the SQLite writer.
         self.inner
@@ -214,13 +214,13 @@ impl LogWriteFailureReporter for MapleCodeFeedback {
     }
 }
 
-impl Default for MapleCodeFeedback {
+impl Default for MaplecodeFeedback {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl MapleCodeFeedback {
+impl MaplecodeFeedback {
     pub fn new() -> Self {
         Self::with_capacity(DEFAULT_MAX_BYTES)
     }
@@ -554,7 +554,7 @@ pub struct FeedbackUploadOptions<'a> {
 
 impl FeedbackSnapshot {
     /// Refreshes log bytes while preserving the captured metadata and thread identity.
-    pub fn refresh_logs(&mut self, feedback: &MapleCodeFeedback) {
+    pub fn refresh_logs(&mut self, feedback: &MaplecodeFeedback) {
         self.bytes = feedback
             .inner
             .ring

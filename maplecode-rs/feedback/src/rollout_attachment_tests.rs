@@ -73,7 +73,7 @@ async fn feedback_upload_archives_readable_rollouts_and_undecodable_sources() ->
         .mount(&server)
         .await;
     let dsn = format!("http://public@{}/42", server.address());
-    MapleCodeFeedback::new()
+    MaplecodeFeedback::new()
         .snapshot(/*session_id*/ None)
         .with_feedback_diagnostics(FeedbackDiagnostics::default())
         .upload_feedback_with_dsn(

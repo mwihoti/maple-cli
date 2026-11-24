@@ -91,7 +91,7 @@ fn save_preserves_duplicate_names_and_rejects_missing_selected_files() -> Result
     assert!(format!("{error:#}").contains("selected attachment"));
     assert_eq!(fs::read_dir(output.path())?.count(), 0);
     // Upload still uses its existing best-effort aggregation and skips the missing rollout.
-    let snapshot = MapleCodeFeedback::new().snapshot(/*session_id*/ None);
+    let snapshot = MaplecodeFeedback::new().snapshot(/*session_id*/ None);
     let uploaded = snapshot
         .feedback_attachments(
             &sentry::protocol::EnvelopeHeaders::default(),

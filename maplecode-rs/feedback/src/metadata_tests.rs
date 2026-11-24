@@ -1,6 +1,6 @@
 //! Exercise dynamic tag collection, upload serialization, and bounded updates.
 
-use crate::MapleCodeFeedback;
+use crate::MaplecodeFeedback;
 use crate::*;
 use pretty_assertions::assert_eq;
 use sentry::protocol::Envelope;
@@ -10,7 +10,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 
 #[test]
 fn refreshing_logs_preserves_captured_metadata() {
-    let feedback = MapleCodeFeedback::new();
+    let feedback = MaplecodeFeedback::new();
     let _guard = tracing_subscriber::registry()
         .with(feedback.metadata_layer())
         .set_default();
@@ -36,7 +36,7 @@ fn refreshing_logs_preserves_captured_metadata() {
 
 #[test]
 fn dynamic_tags_survive_upload_alongside_static_fields() {
-    let feedback = MapleCodeFeedback::new();
+    let feedback = MaplecodeFeedback::new();
     let _guard = tracing_subscriber::registry()
         .with(feedback.metadata_layer())
         .set_default();
@@ -77,7 +77,7 @@ fn dynamic_tags_survive_upload_alongside_static_fields() {
 
 #[test]
 fn bounded_dynamic_tags_still_update_existing_values() {
-    let feedback = MapleCodeFeedback::new();
+    let feedback = MaplecodeFeedback::new();
     let _guard = tracing_subscriber::registry()
         .with(feedback.metadata_layer())
         .set_default();

@@ -1,7 +1,7 @@
 //! Feedback event contracts for titles, report grouping, and lossless comment bodies.
 
 use crate::FeedbackUploadOptions;
-use crate::MapleCodeFeedback;
+use crate::MaplecodeFeedback;
 use crate::UPLOAD_TIMEOUT;
 use flate2::read::GzDecoder;
 use http::StatusCode;
@@ -26,7 +26,7 @@ use wiremock::matchers::path;
 
 #[test]
 fn custom_titles_preserve_comments_and_keep_submissions_separate() {
-    let snapshot = MapleCodeFeedback::new().snapshot(/*session_id*/ None);
+    let snapshot = MaplecodeFeedback::new().snapshot(/*session_id*/ None);
     let tags = BTreeMap::from([
         (
             "feedback_title".to_string(),
@@ -86,7 +86,7 @@ fn custom_titles_preserve_comments_and_keep_submissions_separate() {
 
 #[test]
 fn missing_or_blank_titles_preserve_session_titles_and_default_grouping() {
-    let snapshot = MapleCodeFeedback::new().snapshot(/*session_id*/ None);
+    let snapshot = MaplecodeFeedback::new().snapshot(/*session_id*/ None);
     let reason = "  Feedback\nwith 🌍 context.  ";
     for custom_title in [None, Some(""), Some(" \t\n\u{2003} ")] {
         let tags = custom_title
@@ -133,7 +133,7 @@ fn missing_or_blank_titles_preserve_session_titles_and_default_grouping() {
 
 #[test]
 fn reason_tag_previews_preserve_full_comments_in_the_exception() {
-    let snapshot = MapleCodeFeedback::new().snapshot(/*session_id*/ None);
+    let snapshot = MaplecodeFeedback::new().snapshot(/*session_id*/ None);
     let title = format!("[Bug]: Maple Code session {}", snapshot.thread_id);
     for (reason, preview) in [
         ("A short comment".to_string(), "A short comment".to_string()),
@@ -190,7 +190,7 @@ async fn feedback_upload_sends_safe_reason_tag_and_full_comment() {
         .mount(&server)
         .await;
 
-    let snapshot = MapleCodeFeedback::new().snapshot(/*session_id*/ None);
+    let snapshot = MaplecodeFeedback::new().snapshot(/*session_id*/ None);
     let reason = format!("first\r\nsecond\n{}tail", "界🌍".repeat(120));
     let tags = BTreeMap::from([("reason".to_string(), "caller override\n".to_string())]);
     snapshot
