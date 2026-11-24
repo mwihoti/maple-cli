@@ -120,7 +120,7 @@ pub enum Feature {
     /// Allow registration of the built-in sleep tool.
     SleepTool,
     /// Enable Claude-style lifecycle hooks loaded from hooks.json files.
-    MapleCodeHooks,
+    MaplecodeHooks,
     /// Store CLI auth in the encrypted local secrets backend when keyring storage is selected.
     SecretAuthStorage,
 
@@ -243,7 +243,7 @@ pub enum Feature {
     CredentialMasking,
     /// Removed compatibility flag. Managed worktrees and repository-aware sessions are always available.
     Worktrees,
-    /// Respect host system proxy settings for MapleCode-owned network clients.
+    /// Respect host system proxy settings for Maplecode-owned network clients.
     RespectSystemProxy,
     /// Retry eligible bootstrap requests through the system proxy after normal routing fails.
     SystemProxyFallback,
@@ -293,7 +293,7 @@ pub enum Feature {
     /// Keep same-named HTTP servers discovered on different executors separate.
     MultiEnvironmentMcp,
     /// Enable MCP protocol version 2026-07-28 for the host-owned Maple Code Apps server.
-    MapleCodeAppsMcp20260728,
+    MaplecodeAppsMcp20260728,
     /// Let host-owned Apps catalog reads overlap the initial tool inventory.
     AppsEarlyResourceDiscovery,
     /// Let RMCP coordinate OAuth refresh through the configured credential store.
@@ -546,7 +546,7 @@ pub enum Feature {
     /// Legacy remote models flag kept for backward compatibility.
     RemoteModels,
     /// Removed legacy git commit attribution guidance flag.
-    MapleCodeGitCommit,
+    MaplecodeGitCommit,
     /// Persist rollout metadata to a local SQLite database.
     Sqlite,
     /// Removed compatibility flag for the deleted apply_patch fallback feature.
@@ -1425,7 +1425,7 @@ pub const FEATURES: &[FeatureSpec] = &[
         default_enabled: false,
     },
     FeatureSpec {
-        id: Feature::MapleCodeGitCommit,
+        id: Feature::MaplecodeGitCommit,
         key: "maplecode_git_commit",
         stage: Stage::Removed,
         default_enabled: false,
@@ -1515,7 +1515,7 @@ pub const FEATURES: &[FeatureSpec] = &[
         default_enabled: true,
     },
     FeatureSpec {
-        id: Feature::MapleCodeHooks,
+        id: Feature::MaplecodeHooks,
         key: "hooks",
         stage: Stage::Stable,
         default_enabled: true,
@@ -1775,7 +1775,7 @@ pub const FEATURES: &[FeatureSpec] = &[
         default_enabled: false,
     },
     FeatureSpec {
-        id: Feature::MapleCodeAppsMcp20260728,
+        id: Feature::MaplecodeAppsMcp20260728,
         key: "maplecode_apps_mcp_2026_07_28",
         stage: Stage::UnderDevelopment,
         default_enabled: false,

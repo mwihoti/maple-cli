@@ -120,7 +120,7 @@ fn cwd_relative_turn_diffs_is_an_opt_in_map_feature() {
 #[test]
 fn maplecode_apps_mcp_protocol_can_be_enabled_independently_of_generic_mcp() {
     let features_toml = FeaturesToml::from(BTreeMap::from([
-        (Feature::MapleCodeAppsMcp20260728.key().to_string(), true),
+        (Feature::MaplecodeAppsMcp20260728.key().to_string(), true),
         (Feature::Mcp20260728.key().to_string(), false),
     ]));
     let features = Features::from_sources(
@@ -134,7 +134,7 @@ fn maplecode_apps_mcp_protocol_can_be_enabled_independently_of_generic_mcp() {
 
     assert_eq!(
         (
-            features.enabled(Feature::MapleCodeAppsMcp20260728),
+            features.enabled(Feature::MaplecodeAppsMcp20260728),
             features.enabled(Feature::Mcp20260728),
         ),
         (true, false),
@@ -568,10 +568,10 @@ fn collab_is_legacy_alias_for_multi_agent() {
 
 #[test]
 fn maplecode_hooks_is_legacy_alias_for_hooks() {
-    assert_eq!(feature_for_key("hooks"), Some(Feature::MapleCodeHooks));
+    assert_eq!(feature_for_key("hooks"), Some(Feature::MaplecodeHooks));
     assert_eq!(
         feature_for_key("maplecode_hooks"),
-        Some(Feature::MapleCodeHooks)
+        Some(Feature::MaplecodeHooks)
     );
 }
 

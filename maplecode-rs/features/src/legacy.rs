@@ -47,7 +47,7 @@ const ALIASES: &[Alias] = &[
     },
     Alias {
         legacy_key: "maplecode_hooks",
-        feature: Feature::MapleCodeHooks,
+        feature: Feature::MaplecodeHooks,
     },
 ];
 
