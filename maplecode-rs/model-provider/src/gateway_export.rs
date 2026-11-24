@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use maplecode_http_client::NetworkPolicy;
 use maplecode_model_provider_info::CredentialExportConfig;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use tokio::sync::Mutex;
 
@@ -46,21 +46,21 @@ impl GatewayExport {
         let policy = self.policy.clone().for_current_account();
         let permit = policy
             .acquire_for_unsupported_sdk()
-            .map_err(|error| MapleCodeErr::Fatal(error.to_string()))?;
+            .map_err(|error| MaplecodeErr::Fatal(error.to_string()))?;
         let output = permit
             .run(maplecode_login::run_credential_export(
                 &self.command,
                 "Gateway",
             ))
             .await
-            .map_err(|error| MapleCodeErr::Fatal(error.to_string()))?
-            .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string()))?;
+            .map_err(|error| MaplecodeErr::Fatal(error.to_string()))?
+            .map_err(|error| MaplecodeErr::InvalidRequest(error.to_string()))?;
         let token = std::str::from_utf8(&output)
             .ok()
             .map(str::trim)
             .filter(|value| !value.is_empty() && value.bytes().all(|b| b.is_ascii_graphic()))
             .ok_or_else(|| {
-                MapleCodeErr::InvalidRequest(
+                MaplecodeErr::InvalidRequest(
                     "Gateway credential export must print one access token".into(),
                 )
             })?;

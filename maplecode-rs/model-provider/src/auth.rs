@@ -18,12 +18,12 @@ use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::AgentIdentityAuth;
 use maplecode_login::auth::AgentIdentityAuthError;
 use maplecode_login::auth::AgentIdentityAuthPolicy;
 use maplecode_model_provider_info::ModelProviderInfo;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_runtime_agent_instance::RuntimeAuth;
 use maplecode_runtime_agent_instance::RuntimeAuthError;
@@ -78,7 +78,7 @@ impl AgentIdentitySessionFallback {
 #[derive(Clone)]
 pub struct ResolvedProviderAuth {
     /// Login selected with these headers; routing must use the same credential.
-    pub credential: Option<MapleCodeAuth>,
+    pub credential: Option<MaplecodeAuth>,
     pub auth: SharedAuthProvider,
     pub agent_identity_telemetry: Option<AgentIdentityTelemetry>,
     pub runtime: Option<RuntimeAuth>,
@@ -208,18 +208,18 @@ struct AuthManagerAuthProvider {
     auth_manager: Arc<AuthManager>,
     // Startup auth is only the account-scoped identity anchor. Request
     // headers always come from the current AuthManager snapshot below.
-    expected_auth: MapleCodeAuth,
+    expected_auth: MaplecodeAuth,
 }
 
 impl AuthManagerAuthProvider {
-    fn is_expected_auth(&self, auth: &MapleCodeAuth) -> bool {
+    fn is_expected_auth(&self, auth: &MaplecodeAuth) -> bool {
         auth.uses_maplecode_backend()
             && auth.get_account_id() == self.expected_auth.get_account_id()
             && auth.get_chatgpt_user_id() == self.expected_auth.get_chatgpt_user_id()
             && auth.is_workspace_account() == self.expected_auth.is_workspace_account()
     }
 
-    fn current_auth(&self) -> Option<MapleCodeAuth> {
+    fn current_auth(&self) -> Option<MaplecodeAuth> {
         self.auth_manager
             .auth_cached()
             .filter(|auth| self.is_expected_auth(auth))
@@ -341,7 +341,7 @@ pub(crate) fn auth_manager_for_provider(
 }
 
 pub(crate) fn resolve_provider_auth(
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     provider: &ModelProviderInfo,
 ) -> maplecode_protocol::error::Result<SharedAuthProvider> {
     if let Some(auth) = bearer_auth_for_provider(provider)? {
@@ -354,9 +354,9 @@ pub(crate) fn resolve_provider_auth(
 
     if matches!(
         auth,
-        Some(MapleCodeAuth::BedrockApiKey(_) | MapleCodeAuth::BedrockAccessKeys(_))
+        Some(MaplecodeAuth::BedrockApiKey(_) | MaplecodeAuth::BedrockAccessKeys(_))
     ) {
-        return Err(MapleCodeErr::UnsupportedOperation(
+        return Err(MaplecodeErr::UnsupportedOperation(
             BEDROCK_API_KEY_UNSUPPORTED_MESSAGE.to_string(),
         ));
     }
@@ -369,7 +369,7 @@ pub(crate) fn resolve_provider_auth(
 
 pub(crate) async fn resolve_provider_auth_for_scope(
     auth_manager: Option<Arc<AuthManager>>,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     provider: &ModelProviderInfo,
     scope: ProviderAuthScope,
 ) -> maplecode_protocol::error::Result<ResolvedProviderAuth> {
@@ -378,7 +378,7 @@ pub(crate) async fn resolve_provider_auth_for_scope(
         session_source,
         agent_identity_session_fallback,
     } = scope;
-    if let Some(MapleCodeAuth::AgentIdentity(agent_identity_auth)) = auth {
+    if let Some(MaplecodeAuth::AgentIdentity(agent_identity_auth)) = auth {
         return Ok(ResolvedProviderAuth::for_agent_identity(
             agent_identity_auth.clone(),
         ));
@@ -429,10 +429,10 @@ pub(crate) async fn resolve_provider_auth_for_scope(
 
 fn should_bootstrap_chatgpt_agent_identity(
     agent_identity_policy: AgentIdentityAuthPolicy,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> bool {
     agent_identity_policy == AgentIdentityAuthPolicy::ChatGptAuth
-        && matches!(auth, Some(MapleCodeAuth::Chatgpt(_)))
+        && matches!(auth, Some(MaplecodeAuth::Chatgpt(_)))
 }
 
 pub(crate) fn bearer_auth_for_provider(
@@ -452,7 +452,7 @@ pub(crate) fn bearer_auth_for_provider(
 /// Whether the selected API key enables OpenAI's default FedRAMP endpoints.
 /// Command-backed providers retain their configured routing across token refreshes.
 pub(crate) fn uses_fedramp_api_key(
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     provider: &ModelProviderInfo,
 ) -> maplecode_protocol::error::Result<bool> {
     if !provider.is_openai() || provider.has_command_auth() {
@@ -462,13 +462,13 @@ pub(crate) fn uses_fedramp_api_key(
         return Ok(auth.is_fedramp_account);
     }
     Ok(provider.requires_openai_auth
-        && matches!(auth, Some(MapleCodeAuth::ApiKey(_)))
-        && auth.is_some_and(MapleCodeAuth::is_fedramp_account))
+        && matches!(auth, Some(MaplecodeAuth::ApiKey(_)))
+        && auth.is_some_and(MaplecodeAuth::is_fedramp_account))
 }
 
 /// Select the shared runtime without changing the identity of captured request data.
 pub async fn auth_provider_for_request(
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     runtime: Option<&(Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
     headers: &HeaderMap,
 ) -> Result<ResolvedProviderAuth, RuntimeAuthError> {
@@ -521,19 +521,19 @@ pub(crate) async fn observe_auth_selection<T, E>(
 }
 
 /// Builds request-header auth for a first-party Maple Code credential.
-pub fn auth_provider_from_auth(auth: &MapleCodeAuth) -> SharedAuthProvider {
+pub fn auth_provider_from_auth(auth: &MaplecodeAuth) -> SharedAuthProvider {
     match auth {
-        MapleCodeAuth::AgentIdentity(auth) => {
+        MaplecodeAuth::AgentIdentity(auth) => {
             Arc::new(AgentIdentityAuthProvider { auth: auth.clone() })
         }
-        MapleCodeAuth::Headers(auth) => Arc::new(HeaderAuthProvider { auth: auth.clone() }),
-        MapleCodeAuth::BedrockApiKey(_) | MapleCodeAuth::BedrockAccessKeys(_) => {
+        MaplecodeAuth::Headers(auth) => Arc::new(HeaderAuthProvider { auth: auth.clone() }),
+        MaplecodeAuth::BedrockApiKey(_) | MaplecodeAuth::BedrockAccessKeys(_) => {
             unreachable!("{BEDROCK_API_KEY_UNSUPPORTED_MESSAGE}")
         }
-        MapleCodeAuth::ApiKey(_)
-        | MapleCodeAuth::Chatgpt(_)
-        | MapleCodeAuth::ChatgptAuthTokens(_)
-        | MapleCodeAuth::PersonalAccessToken(_) => Arc::new(BearerAuthProvider {
+        MaplecodeAuth::ApiKey(_)
+        | MaplecodeAuth::Chatgpt(_)
+        | MaplecodeAuth::ChatgptAuthTokens(_)
+        | MaplecodeAuth::PersonalAccessToken(_) => Arc::new(BearerAuthProvider {
             token: auth.get_token().ok(),
             account_id: auth.get_account_id(),
             is_fedramp_account: auth.is_fedramp_account(),
@@ -548,7 +548,7 @@ pub fn auth_provider_from_auth(auth: &MapleCodeAuth) -> SharedAuthProvider {
 /// that state so a later account switch cannot reuse it.
 pub fn auth_provider_from_auth_manager(
     auth_manager: Arc<AuthManager>,
-    expected_auth: &MapleCodeAuth,
+    expected_auth: &MaplecodeAuth,
 ) -> SharedAuthProvider {
     Arc::new(AuthManagerAuthProvider {
         auth_manager,

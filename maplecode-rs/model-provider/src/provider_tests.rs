@@ -116,8 +116,8 @@ fn remote_model(slug: &str) -> ModelInfo {
     .expect("valid model")
 }
 
-fn bedrock_api_key_auth() -> MapleCodeAuth {
-    MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+fn bedrock_api_key_auth() -> MaplecodeAuth {
+    MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
         api_key: "bedrock-api-key-test".to_string(),
         region: "us-east-1".to_string(),
     })
@@ -211,7 +211,7 @@ fn configured_provider_uses_luna_for_approval_review_with_api_key_auth() {
     let provider = create_model_provider(
         ModelProviderInfo::create_openai_provider(/*base_url*/ None),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::from_api_key("openai-api-key"),
+            MaplecodeAuth::from_api_key("openai-api-key"),
         )),
     );
 
@@ -223,7 +223,7 @@ fn configured_provider_uses_default_approval_review_model_with_chatgpt_auth() {
     let provider = create_model_provider(
         ModelProviderInfo::create_openai_provider(/*base_url*/ None),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         )),
     );
 
@@ -236,21 +236,21 @@ fn configured_provider_uses_default_approval_review_model_with_chatgpt_auth() {
 struct RotatingAuth(AtomicUsize);
 
 impl maplecode_login::ExternalAuth for RotatingAuth {
-    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async move {
             let key = if self.0.fetch_add(1, Ordering::SeqCst).is_multiple_of(2) {
                 "sk-proj-fedramp-synthetic-test-key"
             } else {
                 "commercial-key"
             };
-            Ok(MapleCodeAuth::from_api_key(key))
+            Ok(MaplecodeAuth::from_api_key(key))
         })
     }
 
     fn refresh(
         &self,
         _context: maplecode_login::ExternalAuthRefreshContext,
-    ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -281,7 +281,7 @@ async fn configured_provider_resolves_default_and_explicit_endpoints() {
 
     let home = tempfile::tempdir().unwrap();
     let auth = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("initial-key"),
+        MaplecodeAuth::from_api_key("initial-key"),
         home.path().to_path_buf(),
     );
     let provider = create_model_provider(
@@ -379,7 +379,7 @@ fn create_model_provider_does_not_use_openai_auth_manager_for_amazon_bedrock_pro
             auth_refresh: None,
         })),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::from_api_key("openai-api-key"),
+            MaplecodeAuth::from_api_key("openai-api-key"),
         )),
     );
 
@@ -456,7 +456,7 @@ async fn shared_bedrock_auth_refresh_is_reused_only_for_matching_configuration()
     let first = create_model_provider(
         provider_info.clone(),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::from_api_key("openai-api-key"),
+            MaplecodeAuth::from_api_key("openai-api-key"),
         )),
     );
     let second = create_model_provider(provider_info.clone(), /*auth_manager*/ None);
@@ -652,7 +652,7 @@ fn openai_provider_returns_api_key_account_state() {
     let provider = create_model_provider(
         ModelProviderInfo::create_openai_provider(/*base_url*/ None),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::from_api_key("openai-api-key"),
+            MaplecodeAuth::from_api_key("openai-api-key"),
         )),
     );
 
@@ -670,7 +670,7 @@ fn openai_provider_returns_chatgpt_account_state_without_email() {
     let provider = create_model_provider(
         ModelProviderInfo::create_openai_provider(/*base_url*/ None),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         )),
     );
 
@@ -919,7 +919,7 @@ async fn configured_provider_models_manager_uses_provider_bearer_token() {
     )]));
     for auth in [
         None,
-        Some(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+        Some(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
     ] {
         // Disabled discovery must ignore the catalog cached by the enabled run.
         for enabled in [true, false] {

@@ -116,7 +116,7 @@ async fn api_key_discovery_respects_provider_routing() {
         ),
     ] {
         let capture = Arc::new(CaptureModelsUrl(Mutex::new(/*t*/ None)));
-        let auth = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(api_key));
+        let auth = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key(api_key));
         let endpoint = Arc::new(OpenAiModelsEndpoint {
             provider_info: ModelProviderInfo {
                 name: name.to_string(),
@@ -161,13 +161,13 @@ async fn provider_api_key_without_endpoint_overrides_uses_maplecode_backend() {
         ),
         (
             "provider-key",
-            Some(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+            Some(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
             CHATGPT_MAPLECODE_BASE_URL,
             CHATGPT_MAPLECODE_BASE_URL,
         ),
         (
             "provider-key",
-            Some(MapleCodeAuth::from_api_key("sk-proj-fedramp-ambient-key")),
+            Some(MaplecodeAuth::from_api_key("sk-proj-fedramp-ambient-key")),
             CHATGPT_MAPLECODE_BASE_URL,
             "https://api.openai.com/v1",
         ),
@@ -179,13 +179,13 @@ async fn provider_api_key_without_endpoint_overrides_uses_maplecode_backend() {
         ),
         (
             "sk-svcacct-fedramp-provider-key",
-            Some(MapleCodeAuth::from_api_key("legacy-ambient-key")),
+            Some(MaplecodeAuth::from_api_key("legacy-ambient-key")),
             "https://gov.chatgpt.com/backend-api/codex",
             "https://gov.api.openai.com/v1",
         ),
         (
             "sk-proj-fedramp-provider-key",
-            Some(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+            Some(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
             "https://gov.chatgpt.com/backend-api/codex",
             "https://gov.api.openai.com/v1",
         ),
@@ -254,7 +254,7 @@ fn command_auth_provider_reports_command_auth_without_cached_auth() {
     );
 
     assert!(endpoint.has_command_auth());
-    let auth = MapleCodeAuth::from_api_key("sk-proj-fedramp-command-key");
+    let auth = MaplecodeAuth::from_api_key("sk-proj-fedramp-command-key");
     assert_eq!(
         resolve_api_provider(&endpoint.provider_info, Some(&auth))
             .unwrap()
@@ -369,17 +369,17 @@ async fn model_discovery_enforces_managed_residency_over_provider_headers() {
 struct RotatingAuth(std::sync::atomic::AtomicUsize);
 
 impl maplecode_login::ExternalAuth for RotatingAuth {
-    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async move {
             let generation = self.0.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-            Ok(MapleCodeAuth::from_api_key(&format!("token-{generation}")))
+            Ok(MaplecodeAuth::from_api_key(&format!("token-{generation}")))
         })
     }
 
     fn refresh(
         &self,
         _context: maplecode_login::ExternalAuthRefreshContext,
-    ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -391,7 +391,7 @@ async fn command_auth_refresh_fetches_a_catalog_for_the_current_credentials() {
     use maplecode_models_manager::manager::RefreshStrategy;
 
     let server = MockServer::start().await;
-    let auth = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("initial"));
+    let auth = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("initial"));
     auth.set_external_auth(Arc::new(RotatingAuth(std::sync::atomic::AtomicUsize::new(
         0,
     ))))
@@ -484,10 +484,10 @@ async fn command_auth_refresh_fetches_a_catalog_for_the_current_credentials() {
 #[tokio::test]
 async fn explicit_catalog_reuses_auth_headers_and_query_parameters() {
     for auth in [
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
-        MapleCodeAuth::from_api_key("test-key"),
-        MapleCodeAuth::from_api_key("sk-proj-fedramp-synthetic-test-key"),
-        MapleCodeAuth::from_api_key("sk-svcacct-fedramp-synthetic-test-key"),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::from_api_key("test-key"),
+        MaplecodeAuth::from_api_key("sk-proj-fedramp-synthetic-test-key"),
+        MaplecodeAuth::from_api_key("sk-svcacct-fedramp-synthetic-test-key"),
     ] {
         let server = MockServer::start().await;
         let mut model = model_info_from_slug("provider-model");
@@ -498,7 +498,7 @@ async fn explicit_catalog_reuses_auth_headers_and_query_parameters() {
             models: vec![model],
         };
         Mock::given(method("GET"))
-            .and(path("/maplecode/models"))
+            .and(path("/codex/models"))
             .and(header(
                 "authorization",
                 format!("Bearer {}", auth.get_token().unwrap()),
@@ -513,9 +513,7 @@ async fn explicit_catalog_reuses_auth_headers_and_query_parameters() {
         let auth_manager = AuthManager::from_auth_for_testing(auth);
         // The parallel residency test must not change this catalog's cache identity.
         let provider = ModelProviderInfo {
-            model_catalog_url: Some(
-                format!("{}/maplecode/models?deployment=one", server.uri()).into(),
-            ),
+            model_catalog_url: Some(format!("{}/codex/models?deployment=one", server.uri()).into()),
             query_params: Some(std::collections::HashMap::from([(
                 "api-version".to_string(),
                 "2026-09".into(),
@@ -567,14 +565,14 @@ async fn explicit_catalog_requires_unique_nonempty_slugs() {
             models: slugs.into_iter().map(model_info_from_slug).collect(),
         };
         Mock::given(method("GET"))
-            .and(path("/maplecode/models"))
+            .and(path("/codex/models"))
             .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(catalog))
             .expect(1)
             .mount(&server)
             .await;
         let endpoint = OpenAiModelsEndpoint::new(
             ModelProviderInfo {
-                model_catalog_url: Some(format!("{}/maplecode/models", server.uri()).into()),
+                model_catalog_url: Some(format!("{}/codex/models", server.uri()).into()),
                 ..ModelProviderInfo::default()
             },
             /*auth_manager*/ None,
@@ -599,13 +597,10 @@ async fn explicit_catalog_rejects_redirects_without_forwarding_provider_credenti
     let server = MockServer::start().await;
     let destination = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path("/maplecode/models"))
+        .and(path("/codex/models"))
         .respond_with(
             ResponseTemplate::new(/*s*/ 302)
-                .insert_header(
-                    "location",
-                    format!("{}/maplecode/models", destination.uri()),
-                )
+                .insert_header("location", format!("{}/codex/models", destination.uri()))
                 .set_body_string("catalog-secret"),
         )
         .expect(1)
@@ -615,7 +610,7 @@ async fn explicit_catalog_rejects_redirects_without_forwarding_provider_credenti
         ModelProviderInfo {
             base_url: Some(server.uri()),
             model_catalog_url: Some(
-                format!("{}/maplecode/models?token=catalog-secret", server.uri()).into(),
+                format!("{}/codex/models?token=catalog-secret", server.uri()).into(),
             ),
             experimental_bearer_token: Some("provider-key".into()),
             ..ModelProviderInfo::default()

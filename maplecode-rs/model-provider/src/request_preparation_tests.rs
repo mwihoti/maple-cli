@@ -3,7 +3,7 @@ use crate::create_model_provider;
 use crate::provider_uses_first_party_auth_path;
 use base64::Engine;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use pretty_assertions::assert_eq;
 use serde_json::json;
@@ -15,7 +15,7 @@ async fn explicit_provider_token_survives_a_workspace_switch_during_setup() {
     let claims = json!({"https://api.openai.com/auth": {"chatgpt_user_id": "user-a"}});
     let payload = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(claims.to_string());
     let token = format!("header.{payload}.signature");
-    let initial = MapleCodeAuth::from_external_chatgpt_tokens(
+    let initial = MaplecodeAuth::from_external_chatgpt_tokens(
         &token,
         "workspace-a",
         /*chatgpt_plan_type*/ None,
@@ -59,7 +59,7 @@ async fn explicit_provider_token_survives_a_workspace_switch_during_setup() {
         resolved
             .credential
             .as_ref()
-            .and_then(MapleCodeAuth::api_key),
+            .and_then(MaplecodeAuth::api_key),
         Some("provider-token")
     );
     assert_eq!(

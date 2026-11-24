@@ -11,7 +11,7 @@ use maplecode_model_provider_info::WireApi;
 use maplecode_model_provider_info::create_oss_provider_with_base_url;
 use maplecode_protocol::account::PlanType;
 use maplecode_protocol::config_types::ModelProviderAuthInfo;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::num::NonZeroU64;
@@ -91,7 +91,7 @@ fn write_chatgpt_auth_json(maplecode_home: &Path) {
 
 async fn chatgpt_auth_manager(
     agent_identity_authapi_base_url: String,
-) -> (PathBuf, Arc<AuthManager>, MapleCodeAuth) {
+) -> (PathBuf, Arc<AuthManager>, MaplecodeAuth) {
     let maplecode_home = test_maplecode_home();
     write_chatgpt_auth_json(&maplecode_home);
     let auth_manager = AuthManager::shared(
@@ -150,8 +150,8 @@ fn custom_provider_does_not_inherit_ambient_auth_headers() {
         HeaderValue::from_static("account-123"),
     );
     for ambient_auth in [
-        MapleCodeAuth::Headers(AuthHeaders::new(ambient_headers)),
-        MapleCodeAuth::from_api_key("sk-proj-fedramp-synthetic-test-key"),
+        MaplecodeAuth::Headers(AuthHeaders::new(ambient_headers)),
+        MaplecodeAuth::from_api_key("sk-proj-fedramp-synthetic-test-key"),
     ] {
         let auth =
             resolve_provider_auth(Some(&ambient_auth), &provider).expect("auth should resolve");
@@ -163,7 +163,7 @@ fn custom_provider_does_not_inherit_ambient_auth_headers() {
 fn custom_provider_does_not_inherit_ambient_bedrock_auth() {
     let provider =
         create_oss_provider_with_base_url("http://localhost:11434/v1", WireApi::Responses);
-    let ambient_auth = MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+    let ambient_auth = MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
         api_key: "bedrock-api-key-test".to_string(),
         region: "us-east-1".to_string(),
     });
@@ -178,7 +178,7 @@ fn custom_provider_uses_explicit_bearer_instead_of_ambient_auth() {
     let mut provider =
         create_oss_provider_with_base_url("http://localhost:11434/v1", WireApi::Responses);
     provider.experimental_bearer_token = Some("provider-token".into());
-    let ambient_auth = MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+    let ambient_auth = MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
         api_key: "bedrock-api-key-test".to_string(),
         region: "us-east-1".to_string(),
     });
@@ -211,7 +211,7 @@ fn api_key_fedramp_routing_follows_the_selected_provider_credential() {
     ] {
         let mut provider = ModelProviderInfo::create_openai_provider(/*base_url*/ None);
         provider.experimental_bearer_token = provider_key.map(Into::into);
-        let ambient_auth = MapleCodeAuth::from_api_key(ambient_key);
+        let ambient_auth = MaplecodeAuth::from_api_key(ambient_key);
 
         let headers = resolve_provider_auth(Some(&ambient_auth), &provider)
             .expect("auth should resolve")
@@ -244,7 +244,7 @@ fn custom_provider_uses_command_resolved_auth() {
             .try_into()
             .expect("current directory should be absolute"),
     });
-    let command_auth = MapleCodeAuth::from_api_key("command-token");
+    let command_auth = MaplecodeAuth::from_api_key("command-token");
 
     let headers = resolve_provider_auth(Some(&command_auth), &provider)
         .expect("auth should resolve")
@@ -269,7 +269,7 @@ fn openai_provider_preserves_ambient_auth_headers() {
         "ChatGPT-Account-ID",
         HeaderValue::from_static("account-123"),
     );
-    let ambient_auth = MapleCodeAuth::Headers(AuthHeaders::new(expected.clone()));
+    let ambient_auth = MaplecodeAuth::Headers(AuthHeaders::new(expected.clone()));
 
     let auth = resolve_provider_auth(Some(&ambient_auth), &provider).expect("auth should resolve");
 
@@ -284,7 +284,7 @@ fn header_auth_adds_predefined_headers() {
         HeaderValue::from_static("Bearer external"),
     );
     expected.insert("x-external-auth", HeaderValue::from_static("enabled"));
-    let auth = MapleCodeAuth::Headers(AuthHeaders::new(expected.clone()));
+    let auth = MaplecodeAuth::Headers(AuthHeaders::new(expected.clone()));
 
     let actual = auth_provider_from_auth(&auth).to_auth_headers().unwrap();
 
@@ -294,14 +294,14 @@ fn header_auth_adds_predefined_headers() {
 #[test]
 fn openai_provider_rejects_bedrock_api_key_auth() {
     let provider = ModelProviderInfo::create_openai_provider(/*base_url*/ None);
-    let auth = MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+    let auth = MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
         api_key: "bedrock-api-key-test".to_string(),
         region: "us-east-1".to_string(),
     });
 
     match resolve_provider_auth(Some(&auth), &provider) {
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::UnsupportedOperation(message) => {
+            MaplecodeErrorDetails::UnsupportedOperation(message) => {
                 assert_eq!(message, BEDROCK_API_KEY_UNSUPPORTED_MESSAGE);
             }
             details => panic!("unexpected auth error: {details:?}"),
@@ -407,20 +407,20 @@ enum RefreshFailure {
 }
 
 struct FailingRefreshAuth {
-    auth: tokio::sync::watch::Receiver<MapleCodeAuth>,
+    auth: tokio::sync::watch::Receiver<MaplecodeAuth>,
     barrier: tokio::sync::Barrier,
     failure: RefreshFailure,
 }
 
 impl maplecode_login::ExternalAuth for FailingRefreshAuth {
-    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.auth.borrow().clone()) })
     }
 
     fn refresh(
         &self,
         _context: maplecode_login::ExternalAuthRefreshContext,
-    ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             self.barrier.wait().await;
             self.barrier.wait().await;
@@ -455,7 +455,7 @@ async fn failed_refresh_retries_only_with_newer_credentials() {
             ("Bearer new", "account", true),
             ("Bearer new", "other-account", false),
         ] {
-            let initial = MapleCodeAuth::Headers(AuthHeaders::new(HeaderMap::from_iter([
+            let initial = MaplecodeAuth::Headers(AuthHeaders::new(HeaderMap::from_iter([
                 (AUTHORIZATION, HeaderValue::from_static("Bearer old")),
                 (
                     http::HeaderName::from_static("chatgpt-account-id"),
@@ -475,7 +475,7 @@ async fn failed_refresh_retries_only_with_newer_credentials() {
             let recovery = provider.refresh_after_unauthorized(rejected);
             let concurrent_update = async {
                 external.barrier.wait().await;
-                updates.send_replace(MapleCodeAuth::Headers(AuthHeaders::new(
+                updates.send_replace(MaplecodeAuth::Headers(AuthHeaders::new(
                     HeaderMap::from_iter([
                         (AUTHORIZATION, HeaderValue::from_static(token)),
                         (
@@ -499,7 +499,7 @@ async fn failed_refresh_retries_only_with_newer_credentials() {
 
 #[tokio::test]
 async fn first_party_run_scope_uses_agent_assertion_and_exposes_telemetry() {
-    let auth = MapleCodeAuth::AgentIdentity(
+    let auth = MaplecodeAuth::AgentIdentity(
         agent_identity_auth(/*chatgpt_account_is_fedramp*/ false).await,
     );
     let provider = ModelProviderInfo::create_openai_provider(/*base_url*/ None);
@@ -535,7 +535,7 @@ async fn first_party_run_scope_uses_agent_assertion_and_exposes_telemetry() {
 #[tokio::test]
 async fn agent_identity_auth_provider_preserves_account_routing_headers() {
     let auth = agent_identity_auth(/*chatgpt_account_is_fedramp*/ true).await;
-    let provider = auth_provider_from_auth(&MapleCodeAuth::AgentIdentity(auth));
+    let provider = auth_provider_from_auth(&MaplecodeAuth::AgentIdentity(auth));
 
     let headers = provider.to_auth_headers().unwrap();
 

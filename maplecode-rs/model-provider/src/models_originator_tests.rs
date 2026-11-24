@@ -41,7 +41,7 @@ async fn originator_managers_share_api_key_discovery_policy() {
             .mount(&server)
             .await;
     }
-    let auth = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-key"));
+    let auth = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("test-key"));
     let endpoint = Arc::new(OpenAiModelsEndpoint::new(
         provider,
         Some(Arc::clone(&auth)),
@@ -135,7 +135,7 @@ async fn originator_catalogs_are_isolated_and_reused_from_disk() {
     let client = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault);
     for _ in 0..2 {
         let auth = AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         );
         let endpoint = Arc::new(OpenAiModelsEndpoint::new(
             provider.clone(),

@@ -4,11 +4,11 @@ use base64::Engine;
 use maplecode_features::RuntimeAuthMode;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthKeyringBackendKind;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::BedrockApiKeyAuth;
 use maplecode_login::auth::RefreshTokenFailedReason;
 use maplecode_protocol::config_types::ModelProviderAuthInfo;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_runtime_agent_instance::AgentHostAuthorization;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
 use maplecode_runtime_agent_instance::RuntimeRegistrationMetadata;
@@ -58,7 +58,7 @@ async fn explicit_keys_and_commands_use_their_own_shared_runtime() {
         let server = MockServer::start().await;
         let home = tempfile::tempdir().unwrap();
         let credentials = AuthManager::from_auth_for_testing_with_home(
-            MapleCodeAuth::from_api_key("ambient-key"),
+            MaplecodeAuth::from_api_key("ambient-key"),
             home.path().to_path_buf(),
         );
         let context = context(&server, credentials, mode).await;
@@ -153,7 +153,7 @@ async fn explicit_provider_key_keeps_the_requested_project_scope() {
     for mode in [RuntimeAuthMode::DualHeader, RuntimeAuthMode::AssertionOnly] {
         let server = MockServer::start().await;
         let credentials =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("ambient-key"));
+            AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("ambient-key"));
         let context = context(&server, credentials, mode).await;
         server.reset().await;
         Mock::given(method("POST"))
@@ -199,7 +199,7 @@ async fn explicit_provider_key_keeps_the_requested_project_scope() {
 async fn bedrock_auth_stays_independent_when_openai_runtime_auth_is_enabled() {
     let server = MockServer::start().await;
     let credentials =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+        AuthManager::from_auth_for_testing(MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
             api_key: "bedrock-key".into(),
             region: "us-east-1".into(),
         }));
@@ -251,7 +251,7 @@ async fn bedrock_auth_stays_independent_when_openai_runtime_auth_is_enabled() {
 #[tokio::test]
 async fn runtime_denial_recovery_is_scoped_to_openai() {
     let server = MockServer::start().await;
-    let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("actor-key"));
+    let credentials = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("actor-key"));
     let context = context(&server, credentials, RuntimeAuthMode::AssertionOnly).await;
     for (url, has_runtime) in [
         ("https://api.openai.com/v1", true),
@@ -373,7 +373,7 @@ async fn permanent_runtime_refresh_failure_preserves_sign_in_error() {
                     .refresh_failure_for_auth(&original)
                     .expect("permanent refresh rejection is cached");
                 assert_eq!(failure.reason, RefreshTokenFailedReason::Revoked);
-                let MapleCodeErrorDetails::RefreshTokenFailed(actual) = error.details() else {
+                let MaplecodeErrorDetails::RefreshTokenFailed(actual) = error.details() else {
                     panic!("expected sign-in error for {mode:?}/{last_refresh}, got {error:?}");
                 };
                 assert_eq!(actual, &failure);

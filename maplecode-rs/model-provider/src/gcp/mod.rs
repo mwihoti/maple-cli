@@ -6,13 +6,13 @@ use std::sync::Arc;
 use maplecode_api::Provider;
 use maplecode_api::SharedAuthProvider;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_models_manager::manager::SharedModelsManager;
 use maplecode_models_manager::manager::StaticModelsManager;
 use maplecode_protocol::account::ProviderAccount;
 use maplecode_protocol::error::EnvVarError;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::openai_models::ModelsResponse;
 use maplecode_protocol::openai_models::ToolMode;
@@ -49,7 +49,7 @@ impl GcpModelProvider {
         }
     }
 
-    async fn auth(&self) -> Option<MapleCodeAuth> {
+    async fn auth(&self) -> Option<MaplecodeAuth> {
         match self.auth_manager.as_ref() {
             Some(auth_manager) => auth_manager.auth().await,
             None => None,
@@ -105,7 +105,7 @@ impl ModelProvider for GcpModelProvider {
         self.auth_manager.clone()
     }
 
-    fn auth(&self) -> ModelProviderFuture<'_, Option<MapleCodeAuth>> {
+    fn auth(&self) -> ModelProviderFuture<'_, Option<MaplecodeAuth>> {
         Box::pin(GcpModelProvider::auth(self))
     }
 
@@ -123,7 +123,7 @@ impl ModelProvider for GcpModelProvider {
     fn api_auth(&self) -> ModelProviderFuture<'_, Result<SharedAuthProvider>> {
         Box::pin(async move {
             let auth = self.auth().await.ok_or_else(|| {
-                MapleCodeErr::InvalidRequest(
+                MaplecodeErr::InvalidRequest(
                     "Google Cloud credentials are unavailable or expired. Run \
 `gcloud auth application-default login` to reauthenticate."
                         .to_string(),
@@ -198,7 +198,7 @@ fn vertex_base_url(
                 .filter(|project| !project.is_empty())
         })
         .ok_or_else(|| {
-            MapleCodeErr::EnvVar(EnvVarError {
+            MaplecodeErr::EnvVar(EnvVarError {
                 var: GOOGLE_CLOUD_PROJECT_ENV_VAR.to_string(),
                 instructions: Some(
                     "Set model_providers.gcp.project_id or GOOGLE_CLOUD_PROJECT to your Google \
@@ -241,7 +241,7 @@ Cloud project ID, or configure model_providers.gcp.base_url."
                 .chars()
                 .all(|character| character.is_ascii_alphanumeric() || character == '-')
         {
-            return Err(MapleCodeErr::InvalidRequest(format!(
+            return Err(MaplecodeErr::InvalidRequest(format!(
                 "{name} must be non-empty and contain only ASCII letters, digits, and hyphens"
             )));
         }

@@ -1,7 +1,7 @@
 //! Resolves ChatGPT backend defaults from the credentials used for a request.
 //! Explicit endpoints remain authoritative across credential changes.
 
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 
 pub const DEFAULT_CHATGPT_BASE_URL: &str = "https://chatgpt.com/backend-api/";
 const FEDRAMP_CHATGPT_BASE_URL: &str = "https://gov.chatgpt.com/backend-api/";
@@ -16,7 +16,7 @@ pub enum ChatgptBaseUrl {
 
 impl ChatgptBaseUrl {
     /// Resolve with the same captured credentials that will authenticate the request.
-    pub fn resolve(&self, auth: &MapleCodeAuth) -> &str {
+    pub fn resolve(&self, auth: &MaplecodeAuth) -> &str {
         match self {
             Self::Configured(url) => url,
             Self::Default if auth.is_api_key_auth() && auth.is_fedramp_account() => {

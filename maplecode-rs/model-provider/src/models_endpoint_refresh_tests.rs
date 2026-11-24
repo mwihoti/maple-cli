@@ -231,7 +231,7 @@ async fn check_timeout_preserves_refreshed_tokens(caller: Caller) {
                     .unwrap_err();
                 assert!(matches!(
                     error.details(),
-                    maplecode_protocol::error::MapleCodeErrorDetails::RequestTimeout
+                    maplecode_protocol::error::MaplecodeErrorDetails::RequestTimeout
                 ));
             }
         }

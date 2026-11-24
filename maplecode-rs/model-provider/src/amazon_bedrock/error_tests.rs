@@ -10,7 +10,7 @@ use maplecode_http_client::RetryAfter;
 use maplecode_model_provider_info::AwsCredentialExportConfig;
 use maplecode_model_provider_info::ModelProviderAwsAuthInfo;
 use maplecode_model_provider_info::ModelProviderInfo;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use pretty_assertions::assert_eq;
 
 use super::AmazonBedrockModelProvider;
@@ -41,7 +41,7 @@ fn expired_signature_has_actionable_guidance() {
         "Signature expired: 20260609T133205Z is now earlier than 20260614T062525Z",
     ));
 
-    let MapleCodeErrorDetails::UnexpectedStatus(response) = error.details() else {
+    let MaplecodeErrorDetails::UnexpectedStatus(response) = error.details() else {
         panic!("expected unexpected status error, got {error:?}");
     };
     assert_eq!(
@@ -77,7 +77,7 @@ fn other_unauthorized_errors_remain_generic() {
         "The security token included in the request is invalid",
     ));
 
-    let MapleCodeErrorDetails::UnexpectedStatus(response) = error.details() else {
+    let MaplecodeErrorDetails::UnexpectedStatus(response) = error.details() else {
         panic!("expected unexpected status error, got {error:?}");
     };
     assert_eq!(response.user_message, None);
@@ -96,7 +96,7 @@ fn signature_errors_with_other_statuses_remain_generic() {
         "Signature expired: old is now earlier than new",
     ));
 
-    let MapleCodeErrorDetails::UnexpectedStatus(response) = error.details() else {
+    let MaplecodeErrorDetails::UnexpectedStatus(response) = error.details() else {
         panic!("expected unexpected status error, got {error:?}");
     };
     assert_eq!(response.user_message, None);

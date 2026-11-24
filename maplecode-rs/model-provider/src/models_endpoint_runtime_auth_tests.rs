@@ -26,7 +26,7 @@ async fn provider_auth_rejects_selectors_that_do_not_match_the_registered_actor(
                     base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(claims.to_string())
                 );
                 (
-                    MapleCodeAuth::from_external_chatgpt_tokens(
+                    MaplecodeAuth::from_external_chatgpt_tokens(
                         &token,
                         "workspace-a",
                         /*chatgpt_plan_type*/ None,
@@ -37,7 +37,7 @@ async fn provider_auth_rejects_selectors_that_do_not_match_the_registered_actor(
                 )
             } else {
                 (
-                    MapleCodeAuth::from_api_key("key-a"),
+                    MaplecodeAuth::from_api_key("key-a"),
                     json!({"kind":"platform", "user_id":"user-a", "organization_id":"org-a", "project_id":"project-a"}),
                     "org-a",
                 )
@@ -80,7 +80,7 @@ async fn provider_auth_rejects_selectors_that_do_not_match_the_registered_actor(
                 .expect("mismatched selector must be rejected");
             assert!(matches!(
                 error.details(),
-                maplecode_protocol::error::MapleCodeErrorDetails::UnsupportedOperation(_)
+                maplecode_protocol::error::MaplecodeErrorDetails::UnsupportedOperation(_)
             ));
             assert!(error.to_string().contains(selector));
             assert!(!server.received_requests().await.unwrap().is_empty());
@@ -108,7 +108,7 @@ async fn model_requests_keep_the_selected_project_while_reusing_one_runtime() {
             .expect(4)
             .mount(&server)
             .await;
-        let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("key-a"));
+        let credentials = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("key-a"));
         let runtime = runtime_manager(&server, Arc::clone(&credentials));
         let context = crate::ProviderAuthContext {
             runtime_auth: Some((Arc::clone(&runtime), mode)),
@@ -263,7 +263,7 @@ async fn runtime_registration_environment_matches_inference_and_catalog() {
             let error = provider.request_auth(/*scope*/ None).await.err().unwrap();
             assert!(matches!(
                 error.details(),
-                maplecode_protocol::error::MapleCodeErrorDetails::InvalidRequest(_)
+                maplecode_protocol::error::MaplecodeErrorDetails::InvalidRequest(_)
             ));
 
             let mut catalog_info = info;
@@ -280,7 +280,7 @@ async fn runtime_registration_environment_matches_inference_and_catalog() {
             let error = catalog.list_models("0.0.0", factory).await.unwrap_err();
             assert!(matches!(
                 error.details(),
-                maplecode_protocol::error::MapleCodeErrorDetails::InvalidRequest(_)
+                maplecode_protocol::error::MaplecodeErrorDetails::InvalidRequest(_)
             ));
         }
     }
@@ -290,7 +290,7 @@ async fn runtime_registration_environment_matches_inference_and_catalog() {
 async fn unsupported_openai_destinations_do_not_fall_back_to_bearer_auth() {
     for mode in [RuntimeAuthMode::DualHeader, RuntimeAuthMode::AssertionOnly] {
         let server = MockServer::start().await;
-        let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("key-a"));
+        let credentials = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("key-a"));
         let runtime = runtime_manager(&server, Arc::clone(&credentials));
         let factory = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault);
         for destination in [
@@ -371,7 +371,7 @@ async fn catalog_timeout_keeps_registration_alive_for_the_next_request() {
         .expect(1)
         .mount(&server)
         .await;
-    let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("key-a"));
+    let credentials = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("key-a"));
     let runtime = runtime_manager(&server, Arc::clone(&credentials));
     let mut provider = ModelProviderInfo::create_openai_provider(Some(server.uri()));
     provider.env_http_headers = None;
@@ -390,7 +390,7 @@ async fn catalog_timeout_keeps_registration_alive_for_the_next_request() {
     .expect("catalog timeout must precede the registration client's timeout");
     assert!(matches!(
         result.unwrap_err().details(),
-        maplecode_protocol::error::MapleCodeErrorDetails::RequestTimeout
+        maplecode_protocol::error::MaplecodeErrorDetails::RequestTimeout
     ));
     endpoint.list_models("0.0.0", factory).await.unwrap();
     let requests = server.received_requests().await.unwrap();
@@ -445,7 +445,7 @@ async fn runtime_catalog_follows_redirects_without_forwarding_credentials_to_ano
                 .mount(&target)
                 .await;
             let credentials =
-                AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("key-a"));
+                AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("key-a"));
             let runtime = runtime_manager(&server, Arc::clone(&credentials));
             let mut info = ModelProviderInfo::create_openai_provider(Some(server.uri()));
             info.env_http_headers = None;

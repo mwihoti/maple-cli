@@ -16,7 +16,7 @@ use maplecode_api::Provider;
 use maplecode_api::SharedAuthProvider;
 use maplecode_api::TransportError;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::AMAZON_BEDROCK_GPT_5_6_LUNA_MODEL_ID;
 use maplecode_model_provider_info::AMAZON_BEDROCK_GPT_5_6_TERRA_MODEL_ID;
 use maplecode_model_provider_info::AMAZON_BEDROCK_RUNTIME_GLOBAL_GPT_5_6_LUNA_MODEL_ID;
@@ -26,7 +26,7 @@ use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_models_manager::manager::SharedModelsManager;
 use maplecode_models_manager::manager::StaticModelsManager;
 use maplecode_protocol::account::ProviderAccount;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::MessagePhase;
@@ -139,7 +139,7 @@ impl AmazonBedrockModelProvider {
         auth::auth_source(&self.info, self.auth_manager.as_deref(), std::env::var)
     }
 
-    fn managed_auth(&self) -> Option<MapleCodeAuth> {
+    fn managed_auth(&self) -> Option<MaplecodeAuth> {
         let source = self.auth_source();
         self.auth_manager
             .as_deref()
@@ -149,10 +149,10 @@ impl AmazonBedrockModelProvider {
                     (source, auth),
                     (
                         auth::BedrockAuthSource::ManagedBearerToken,
-                        MapleCodeAuth::BedrockApiKey(_)
+                        MaplecodeAuth::BedrockApiKey(_)
                     ) | (
                         auth::BedrockAuthSource::ManagedAccessKeys,
-                        MapleCodeAuth::BedrockAccessKeys(_)
+                        MaplecodeAuth::BedrockAccessKeys(_)
                     )
                 )
             })
@@ -168,7 +168,7 @@ impl AmazonBedrockModelProvider {
                 ))
     }
 
-    async fn auth(&self) -> Option<MapleCodeAuth> {
+    async fn auth(&self) -> Option<MaplecodeAuth> {
         match self.auth_source() {
             auth::BedrockAuthSource::CommandBearerToken => match self.auth_manager.as_ref() {
                 Some(auth_manager) => auth_manager.auth().await,
@@ -387,7 +387,7 @@ impl ModelProvider for AmazonBedrockModelProvider {
                 .for_current_account();
             let permit = network_policy
                 .acquire_for_unsupported_sdk()
-                .map_err(|error| MapleCodeErr::Fatal(error.to_string()))?;
+                .map_err(|error| MaplecodeErr::Fatal(error.to_string()))?;
             let result: std::io::Result<()> = permit
                 .run(async {
                     if let Some(recovery) = &self.auth_recovery {
@@ -399,7 +399,7 @@ impl ModelProvider for AmazonBedrockModelProvider {
                     Ok(())
                 })
                 .await
-                .map_err(|error| MapleCodeErr::Fatal(error.to_string()))?;
+                .map_err(|error| MaplecodeErr::Fatal(error.to_string()))?;
             result.map_err(|error| {
                 if matches!(
                     error.kind(),
@@ -408,16 +408,16 @@ impl ModelProvider for AmazonBedrockModelProvider {
                         | std::io::ErrorKind::NotFound
                         | std::io::ErrorKind::PermissionDenied
                 ) {
-                    MapleCodeErr::InvalidRequest(error.to_string())
+                    MaplecodeErr::InvalidRequest(error.to_string())
                 } else {
-                    MapleCodeErr::Io(error)
+                    MaplecodeErr::Io(error)
                 }
             })?;
             Ok(ProviderUnauthorizedRecovery::Recovered)
         })
     }
 
-    fn auth(&self) -> ModelProviderFuture<'_, Option<MapleCodeAuth>> {
+    fn auth(&self) -> ModelProviderFuture<'_, Option<MaplecodeAuth>> {
         Box::pin(AmazonBedrockModelProvider::auth(self))
     }
 
@@ -434,7 +434,7 @@ impl ModelProvider for AmazonBedrockModelProvider {
         })
     }
 
-    fn map_api_error(&self, error: ApiError) -> MapleCodeErr {
+    fn map_api_error(&self, error: ApiError) -> MaplecodeErr {
         error::map_api_error(error)
     }
 
@@ -589,7 +589,7 @@ mod tests {
             region: "us-east-1".to_string(),
         };
         let auth_manager =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::BedrockApiKey(managed_auth.clone()));
+            AuthManager::from_auth_for_testing(MaplecodeAuth::BedrockApiKey(managed_auth.clone()));
         let aws = ModelProviderAwsAuthInfo {
             profile: None,
             region: Some("us-west-2".to_string()),
@@ -613,7 +613,7 @@ mod tests {
         ));
         assert_eq!(
             provider.auth().await,
-            Some(MapleCodeAuth::BedrockApiKey(managed_auth))
+            Some(MaplecodeAuth::BedrockApiKey(managed_auth))
         );
         assert_eq!(
             provider.account_state(),
@@ -644,7 +644,7 @@ mod tests {
         assert!(!provider.uses_aws_auth_recovery());
 
         let access_keys_auth_manager = AuthManager::from_auth_for_testing(
-            MapleCodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
+            MaplecodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
                 access_key_id: "managed-access-key-id".to_string(),
                 secret_access_key: "managed-secret-access-key".to_string(),
                 session_token: None,
@@ -697,7 +697,7 @@ mod tests {
         let provider = AmazonBedrockModelProvider::new(
             ModelProviderInfo::create_amazon_bedrock_provider(/*aws*/ None),
             Some(AuthManager::from_auth_for_testing(
-                MapleCodeAuth::from_api_key("openai-api-key"),
+                MaplecodeAuth::from_api_key("openai-api-key"),
             )),
         );
 
@@ -759,7 +759,7 @@ mod tests {
             region: "eu-west-1".to_string(),
         };
         let auth_manager =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::BedrockApiKey(managed_auth));
+            AuthManager::from_auth_for_testing(MaplecodeAuth::BedrockApiKey(managed_auth));
         let provider = AmazonBedrockModelProvider::new(
             ModelProviderInfo::create_amazon_bedrock_runtime_provider(/*aws*/ None),
             Some(auth_manager),

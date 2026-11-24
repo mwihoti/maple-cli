@@ -15,7 +15,7 @@ use maplecode_api::AuthProviderFuture;
 use maplecode_api::SharedAuthProvider;
 use maplecode_model_provider_info::GatewayOAuthDelivery;
 use maplecode_model_provider_info::ModelProviderInfo;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 
 pub(crate) async fn compose_auth(
@@ -26,13 +26,13 @@ pub(crate) async fn compose_auth(
     let Some(config) = provider.gateway_oauth.as_ref() else {
         return Ok(resolved);
     };
-    provider.validate().map_err(MapleCodeErr::InvalidRequest)?;
+    provider.validate().map_err(MaplecodeErr::InvalidRequest)?;
     let manager = manager.ok_or_else(|| {
-        MapleCodeErr::InvalidRequest("gateway_oauth requires auth runtime configuration".into())
+        MaplecodeErr::InvalidRequest("gateway_oauth requires auth runtime configuration".into())
     })?;
     let manager = manager
         .as_ref()
-        .map_err(|error| MapleCodeErr::InvalidRequest(error.clone()))?;
+        .map_err(|error| MaplecodeErr::InvalidRequest(error.clone()))?;
     let token = manager.resolve_access_token().await?;
     let (name, value) = gateway_header(config.delivery(), &token)?;
     resolved.auth = Arc::new(CombinedAuth {
@@ -48,20 +48,20 @@ fn gateway_header(
     token: &str,
 ) -> Result<(HeaderName, HeaderValue)> {
     if token.is_empty() {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "gateway access token is empty".into(),
         ));
     }
     let (name, value) = match delivery {
         GatewayOAuthDelivery::Header { name, scheme } => (
             HeaderName::from_bytes(name.as_bytes())
-                .map_err(|_| MapleCodeErr::InvalidRequest("invalid gateway header".into()))?,
+                .map_err(|_| MaplecodeErr::InvalidRequest("invalid gateway header".into()))?,
             format!("{scheme} {token}"),
         ),
         GatewayOAuthDelivery::Cookie { name } => (http::header::COOKIE, format!("{name}={token}")),
     };
     let mut value = HeaderValue::from_str(&value)
-        .map_err(|_| MapleCodeErr::InvalidRequest("invalid gateway OAuth token header".into()))?;
+        .map_err(|_| MaplecodeErr::InvalidRequest("invalid gateway OAuth token header".into()))?;
     value.set_sensitive(true);
     Ok((name, value))
 }

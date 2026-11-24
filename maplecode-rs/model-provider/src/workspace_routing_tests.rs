@@ -8,7 +8,7 @@ use std::sync::Arc;
 use crate::ACCOUNT_ROUTING_HEADER;
 use crate::WorkspaceRoutingContext;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::WorkspaceRouting;
 use maplecode_login::WorkspaceRoutingRequest;
 use maplecode_login::WorkspaceRoutingResolver;
@@ -54,7 +54,7 @@ impl WorkspaceRoutingResolver for ChangedBootstrap {
 async fn concurrent_discovery_cannot_forget_established_routing() {
     let context = WorkspaceRoutingContext::new("https://chatgpt.com/backend-api".into());
     let auth =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let resolver = Arc::new(ChangedBootstrap {
         first_lookup: std::sync::atomic::AtomicBool::new(true),
         release_first: tokio::sync::Notify::new(),
@@ -108,7 +108,7 @@ impl WorkspaceRoutingResolver for Routing {
 async fn workspace_routing_preserves_paths_and_excludes_other_providers() {
     let routing_context = WorkspaceRoutingContext::new("https://chatgpt.com/backend-api".into());
     let auth =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let resolver: Arc<dyn WorkspaceRoutingResolver> = Arc::new(Routing(WorkspaceRouting {
         chatgpt_account_id: "account_id".into(),
         backend_origin: "https://gov.chatgpt.com:8443".into(),
@@ -159,7 +159,7 @@ async fn workspace_routing_preserves_paths_and_excludes_other_providers() {
             )
         );
     }
-    let api_auth = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("api-key"));
+    let api_auth = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("api-key"));
     api_auth.set_workspace_routing_resolver(Arc::downgrade(&resolver));
     let api = create_model_provider(info, Some(api_auth))
         .responses_api_provider(&routing_context)
@@ -173,7 +173,7 @@ async fn workspace_routing_preserves_paths_and_excludes_other_providers() {
 async fn missing_routing_owner_and_wrong_workspace_fail_closed() {
     let routing_context = WorkspaceRoutingContext::new("https://chatgpt.com/backend-api".into());
     let auth =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let resolver: Arc<dyn WorkspaceRoutingResolver> = Arc::new(Routing(WorkspaceRouting {
         chatgpt_account_id: "other-account".into(),
         backend_origin: "https://chatgpt.com".into(),

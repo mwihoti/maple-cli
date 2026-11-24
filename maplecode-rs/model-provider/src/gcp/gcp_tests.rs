@@ -204,21 +204,21 @@ async fn credential_files_scope_token_caches_and_refreshes() {
     first_info.credential_file = Some(first_file.clone());
     let mut second_info = first_info.clone();
     second_info.credential_file = Some(second_file);
-    let primary = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("openai-key"));
+    let primary = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("openai-key"));
     let first = GcpModelProvider::new(first_info, Some(Arc::clone(&primary)));
     let second = GcpModelProvider::new(second_info, Some(primary));
 
     assert_eq!(
         (first.auth().await, second.auth().await),
         (
-            Some(MapleCodeAuth::from_api_key("first-token")),
-            Some(MapleCodeAuth::from_api_key("second-token")),
+            Some(MaplecodeAuth::from_api_key("first-token")),
+            Some(MaplecodeAuth::from_api_key("second-token")),
         ),
     );
     std::fs::write(first_file, "refreshed-token").unwrap();
     assert_eq!(
         first.auth().await,
-        Some(MapleCodeAuth::from_api_key("first-token"))
+        Some(MaplecodeAuth::from_api_key("first-token"))
     );
     first
         .auth_manager()
@@ -230,8 +230,8 @@ async fn credential_files_scope_token_caches_and_refreshes() {
     assert_eq!(
         (first.auth().await, second.auth().await),
         (
-            Some(MapleCodeAuth::from_api_key("refreshed-token")),
-            Some(MapleCodeAuth::from_api_key("second-token")),
+            Some(MaplecodeAuth::from_api_key("refreshed-token")),
+            Some(MaplecodeAuth::from_api_key("second-token")),
         ),
     );
 }

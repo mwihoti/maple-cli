@@ -3,7 +3,7 @@
 //! rotation does not discard a catalog for the same account, user, and plan.
 //! Header auth with an account ID uses that identity instead of opaque auth headers.
 
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_protocol::error::Result as CoreResult;
 use sha2::Digest;
@@ -14,7 +14,7 @@ use crate::provider::resolve_api_provider;
 
 pub(crate) fn identity(
     provider_info: &ModelProviderInfo,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> CoreResult<String> {
     // Provider bearer overrides replace the login credential and its account metadata.
     let auth =
@@ -48,7 +48,7 @@ pub(crate) fn identity(
     }
     field(&[u8::from(provider_info.requires_openai_auth)]);
     field(&[u8::from(provider_info.has_command_auth())]);
-    field(format!("{:?}", auth.map(MapleCodeAuth::api_auth_mode)).as_bytes());
+    field(format!("{:?}", auth.map(MaplecodeAuth::api_auth_mode)).as_bytes());
     if let Some(auth) = auth {
         field(format!("{:?}", auth.get_account_id()).as_bytes());
         field(format!("{:?}", auth.get_chatgpt_user_id()).as_bytes());
@@ -67,14 +67,14 @@ pub(crate) fn identity(
     }
     let has_stable_account = auth.is_some_and(|auth| {
         auth.get_account_id().is_some()
-            && if matches!(auth, MapleCodeAuth::Headers(_)) {
+            && if matches!(auth, MaplecodeAuth::Headers(_)) {
                 !provider_info.has_command_auth()
             } else {
                 matches!(
                     auth,
-                    MapleCodeAuth::Chatgpt(_)
-                        | MapleCodeAuth::ChatgptAuthTokens(_)
-                        | MapleCodeAuth::AgentIdentity(_)
+                    MaplecodeAuth::Chatgpt(_)
+                        | MaplecodeAuth::ChatgptAuthTokens(_)
+                        | MaplecodeAuth::AgentIdentity(_)
                 ) && (auth.get_chatgpt_user_id().is_some() || auth.get_account_email().is_some())
             }
     });

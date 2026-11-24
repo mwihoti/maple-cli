@@ -9,10 +9,10 @@ use maplecode_http_client::OPENAI_PROJECT_HEADER;
 use maplecode_http_client::OpenAiDestination;
 use maplecode_http_client::classify_openai_api_url;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_runtime_agent_instance::ActorInfo;
 use maplecode_runtime_agent_instance::PlatformResourceSelection;
 use maplecode_runtime_agent_instance::RuntimeAuth;
@@ -25,7 +25,7 @@ use std::sync::Arc;
 pub(crate) async fn select_runtime_auth(
     manager: &Arc<RuntimeAuthBinding>,
     headers: &HeaderMap,
-) -> MapleCodeResult<RuntimeAuth> {
+) -> MaplecodeResult<RuntimeAuth> {
     let selection = resource_selection(headers).map_err(map_runtime_auth_error)?;
     manager
         .auth_with_selection(&selection)
@@ -36,9 +36,9 @@ pub(crate) async fn select_runtime_auth(
 /// Select the request's resource scope while preserving captured credential ownership.
 pub async fn select_runtime_auth_for(
     binding: &Arc<RuntimeAuthBinding>,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     headers: &HeaderMap,
-) -> MapleCodeResult<RuntimeAuth> {
+) -> MaplecodeResult<RuntimeAuth> {
     let selection = resource_selection(headers).map_err(map_runtime_auth_error)?;
     binding
         .auth_for(auth, &selection)
@@ -46,9 +46,9 @@ pub async fn select_runtime_auth_for(
         .map_err(map_runtime_auth_error)
 }
 
-fn map_runtime_auth_error(error: RuntimeAuthError) -> MapleCodeErr {
+fn map_runtime_auth_error(error: RuntimeAuthError) -> MaplecodeErr {
     match error {
-        RuntimeAuthError::RefreshTokenFailed(error) => MapleCodeErr::RefreshTokenFailed(error),
+        RuntimeAuthError::RefreshTokenFailed(error) => MaplecodeErr::RefreshTokenFailed(error),
         error => maplecode_api::map_api_error(AuthError::from(error).into()),
     }
 }
@@ -100,9 +100,9 @@ pub fn select_runtime_provider(
     info: &ModelProviderInfo,
     credentials: Option<&Arc<AuthManager>>,
     runtime: &Arc<RuntimeAuthManager>,
-) -> MapleCodeResult<Arc<RuntimeAuthBinding>> {
+) -> MaplecodeResult<Arc<RuntimeAuthBinding>> {
     let unsupported = || {
-        MapleCodeErr::UnsupportedOperation(
+        MaplecodeErr::UnsupportedOperation(
             "runtime auth requires the model provider's selected OpenAI credential".to_string(),
         )
     };
@@ -121,10 +121,10 @@ pub fn select_runtime_provider(
 }
 
 /// An unrecognized OpenAI origin must not silently fall back to legacy auth.
-pub fn validate_runtime_destination(destination: Option<&str>) -> MapleCodeResult<()> {
+pub fn validate_runtime_destination(destination: Option<&str>) -> MaplecodeResult<()> {
     if destination.is_some_and(|url| classify_openai_api_url(url) == OpenAiDestination::Unsupported)
     {
-        return Err(MapleCodeErr::UnsupportedOperation(
+        return Err(MaplecodeErr::UnsupportedOperation(
             "runtime auth does not support this OpenAI endpoint".to_string(),
         ));
     }
@@ -135,10 +135,10 @@ pub fn validate_runtime_destination(destination: Option<&str>) -> MapleCodeResul
 pub fn validate_runtime_environment(
     runtime: &RuntimeAuthManager,
     destination: Option<&str>,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let registration_url = runtime
         .registration_url()
-        .map_err(|err| MapleCodeErr::InvalidRequest(err.to_string()))?;
+        .map_err(|err| MaplecodeErr::InvalidRequest(err.to_string()))?;
     let registration_is_staging = match registration_url
         .host_str()
         .map(|host| host.trim_end_matches('.'))
@@ -151,7 +151,7 @@ pub fn validate_runtime_environment(
     let destination_is_staging = match destination {
         Some(destination) => {
             let destination = url::Url::parse(destination).map_err(|_| {
-                MapleCodeErr::InvalidRequest("invalid runtime auth destination".into())
+                MaplecodeErr::InvalidRequest("invalid runtime auth destination".into())
             })?;
             let host = destination
                 .host_str()
@@ -166,7 +166,7 @@ pub fn validate_runtime_environment(
         None => false,
     };
     if registration_is_staging != destination_is_staging {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "Requests must use the same production or staging environment as runtime registration"
                 .into(),
         ));
@@ -178,7 +178,7 @@ pub fn validate_runtime_environment(
 pub fn runtime_auth_for_url<'a>(
     runtime: Option<&'a (Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
     url: &str,
-) -> MapleCodeResult<Option<&'a (Arc<RuntimeAuthManager>, RuntimeAuthMode)>> {
+) -> MaplecodeResult<Option<&'a (Arc<RuntimeAuthManager>, RuntimeAuthMode)>> {
     if runtime.is_some() {
         validate_runtime_destination(Some(url))?;
     }
@@ -191,12 +191,12 @@ pub fn runtime_auth_for_url<'a>(
 
 /// Account and organization selectors must agree with the registered actor.
 /// API project access is authorized by the backend for each request.
-pub fn validate_runtime_selectors(headers: &HeaderMap, actor: &ActorInfo) -> MapleCodeResult<()> {
+pub fn validate_runtime_selectors(headers: &HeaderMap, actor: &ActorInfo) -> MaplecodeResult<()> {
     let validate = |name: &str, expected: Option<&str>| {
         if let Some(value) = headers.get(name)
             && value.to_str().ok() != expected
         {
-            return Err(MapleCodeErr::UnsupportedOperation(format!(
+            return Err(MaplecodeErr::UnsupportedOperation(format!(
                 "configured {name} does not match the registered runtime"
             )));
         }

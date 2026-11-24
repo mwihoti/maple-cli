@@ -1,8 +1,8 @@
 use http::StatusCode;
 use maplecode_api::ApiError;
 use maplecode_api::TransportError;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 
 pub(super) const CREDENTIAL_EXPORT_CONFIG_ERROR_PREFIX: &str =
     "AWS credential export configuration error:";
@@ -13,20 +13,20 @@ pub(super) const BEDROCK_EXPIRED_SIGNATURE_MESSAGE: &str = concat!(
     "update or unset it, then restart Maple Code",
 );
 
-pub(super) fn map_api_error(error: ApiError) -> MapleCodeErr {
+pub(super) fn map_api_error(error: ApiError) -> MaplecodeErr {
     if let ApiError::Transport(TransportError::Build(message)) = &error
         && message.starts_with(CREDENTIAL_EXPORT_CONFIG_ERROR_PREFIX)
     {
-        return MapleCodeErr::InvalidRequest(message.clone());
+        return MaplecodeErr::InvalidRequest(message.clone());
     }
     let error = maplecode_api::map_api_error(error);
-    if let MapleCodeErrorDetails::UnexpectedStatus(response) = error.details()
+    if let MaplecodeErrorDetails::UnexpectedStatus(response) = error.details()
         && response.status == StatusCode::UNAUTHORIZED
         && response.body.contains("Signature expired:")
     {
         let mut response = response.clone();
         response.user_message = Some(BEDROCK_EXPIRED_SIGNATURE_MESSAGE.to_string());
-        let mapped_error = MapleCodeErr::new(MapleCodeErrorDetails::UnexpectedStatus(response));
+        let mapped_error = MaplecodeErr::new(MaplecodeErrorDetails::UnexpectedStatus(response));
         return match error.retry_after() {
             Some(retry_after) => mapped_error.with_retry_after(retry_after),
             None => mapped_error,

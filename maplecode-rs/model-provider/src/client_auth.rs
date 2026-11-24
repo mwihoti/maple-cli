@@ -6,8 +6,8 @@ use maplecode_api::AuthError;
 use maplecode_api::SharedAuthProvider;
 use maplecode_features::RuntimeAuthMode;
 use maplecode_http_client::HttpClientFactory;
-use maplecode_login::MapleCodeAuth;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_login::MaplecodeAuth;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_runtime_agent_instance::RuntimeAuthBinding;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
 use std::sync::Arc;
@@ -39,7 +39,7 @@ impl ClientAuth {
     /// Select the auth source and matching transport for a reusable client's request headers.
     /// The caller selects runtime auth only for a supported OpenAI destination.
     pub async fn for_auth(
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
         runtime: Option<&(Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
         factory: HttpClientFactory,
         headers: &HeaderMap,
@@ -97,7 +97,7 @@ impl ClientAuth {
     }
 
     /// Allow OpenAI requests and the original origin, never an unrelated provider.
-    pub fn validate_destination(&self, base_url: &str, url: &str) -> MapleCodeResult<()> {
+    pub fn validate_destination(&self, base_url: &str, url: &str) -> MaplecodeResult<()> {
         if matches!(&self.source, ClientAuthSource::Provider(_)) {
             return Ok(());
         }

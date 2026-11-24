@@ -6,7 +6,7 @@ use maplecode_features::RuntimeAuthMode;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::ProviderAuthContext;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_models_manager::manager::RefreshStrategy;
@@ -174,7 +174,7 @@ async fn production_catalog_uses_runtime_auth_and_preserves_provider_isolation()
 async fn check_catalog(server: &str) {
     for mode in [RuntimeAuthMode::DualHeader, RuntimeAuthMode::AssertionOnly] {
         let credentials =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("catalog-key"));
+            AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("catalog-key"));
         let runtime = Arc::new(RuntimeAuthManager::new(
             Arc::clone(&credentials),
             AgentHostAuthorization::InstallationId {

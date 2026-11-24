@@ -1,6 +1,6 @@
 use super::*;
 use maplecode_http_client::OutboundProxyPolicy;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use wiremock::Mock;
 use wiremock::MockServer;
 use wiremock::ResponseTemplate;
@@ -61,7 +61,7 @@ async fn catalog_deadline_returns_request_timeout() {
     tokio::time::resume();
 
     assert!(
-        matches!(error.details(), MapleCodeErrorDetails::RequestTimeout),
+        matches!(error.details(), MaplecodeErrorDetails::RequestTimeout),
         "{error}"
     );
 }

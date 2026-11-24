@@ -1,5 +1,5 @@
 use maplecode_aws_auth::AwsAuthConfig;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderAwsAuthInfo;
 use maplecode_protocol::error::Result;
 
@@ -24,7 +24,7 @@ pub(super) fn base_url(region: &str) -> String {
 
 pub(super) async fn bedrock_runtime_base_url(
     source: BedrockAuthSource,
-    managed_auth: Option<&MapleCodeAuth>,
+    managed_auth: Option<&MaplecodeAuth>,
     aws: &ModelProviderAwsAuthInfo,
     http_client_factory: &maplecode_http_client::HttpClientFactory,
 ) -> Result<String> {

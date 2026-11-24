@@ -21,7 +21,7 @@ use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AuthEnvTelemetry;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::collect_auth_env_telemetry;
 use maplecode_login::default_client::ClientRedirectPolicy;
 use maplecode_login::default_client::create_client_for_route_async;
@@ -33,7 +33,7 @@ use maplecode_models_manager::manager::ModelsEndpointClient;
 use maplecode_models_manager::manager::ModelsEndpointFuture;
 use maplecode_models_manager::manager::ModelsEndpointResponse;
 use maplecode_otel::TelemetryAuthMode;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result as CoreResult;
 use maplecode_response_debug_context::extract_response_debug_context;
 use maplecode_response_debug_context::telemetry_transport_error_message;
@@ -123,7 +123,7 @@ impl OpenAiModelsEndpoint {
         self
     }
 
-    async fn auth(&self) -> Option<MapleCodeAuth> {
+    async fn auth(&self) -> Option<MaplecodeAuth> {
         let auth_manager = self.auth_manager.clone()?;
         // Catalog startup has its own deadline. Let rotating credentials finish
         // saving even when that caller stops waiting.
@@ -140,7 +140,7 @@ impl OpenAiModelsEndpoint {
         self.auth()
             .await
             .as_ref()
-            .is_some_and(MapleCodeAuth::uses_maplecode_backend)
+            .is_some_and(MaplecodeAuth::uses_maplecode_backend)
     }
 
     async fn list_models(
@@ -159,7 +159,7 @@ impl OpenAiModelsEndpoint {
             self.fetch_models(client_version, http_client_factory),
         )
         .await
-        .map_err(|_| MapleCodeErr::RequestTimeout)?
+        .map_err(|_| MaplecodeErr::RequestTimeout)?
     }
 
     async fn fetch_models(
@@ -182,7 +182,7 @@ impl OpenAiModelsEndpoint {
         .await?;
         let auth = resolved.credential.clone();
         let metric_auth_mode = if self.has_provider_api_key()
-            || auth.as_ref().is_some_and(MapleCodeAuth::is_api_key_auth)
+            || auth.as_ref().is_some_and(MaplecodeAuth::is_api_key_auth)
         {
             "api_key"
         } else if auth.is_some() {
@@ -195,9 +195,9 @@ impl OpenAiModelsEndpoint {
             &[("auth_mode", metric_auth_mode)],
         );
         let identity = crate::models_identity::identity(&self.provider_info, auth.as_ref())?;
-        let auth_mode = auth.as_ref().map(MapleCodeAuth::auth_mode);
+        let auth_mode = auth.as_ref().map(MaplecodeAuth::auth_mode);
         let mut api_provider = resolve_api_provider(&self.provider_info, auth.as_ref())?;
-        if (auth.as_ref().is_some_and(MapleCodeAuth::is_api_key_auth)
+        if (auth.as_ref().is_some_and(MaplecodeAuth::is_api_key_auth)
             || self.has_provider_api_key())
             && self.supports_api_key_models()
             && self.provider_info.base_url.is_none()
@@ -234,7 +234,7 @@ impl OpenAiModelsEndpoint {
         let auth_telemetry = auth_header_telemetry(api_auth.as_ref())
             .map_err(|error| map_api_error(error.into()))?;
         let agent_identity_telemetry =
-            if let Some(MapleCodeAuth::AgentIdentity(auth)) = auth.as_ref() {
+            if let Some(MaplecodeAuth::AgentIdentity(auth)) = auth.as_ref() {
                 Some(agent_identity_telemetry(auth))
             } else {
                 None
@@ -295,7 +295,7 @@ impl OpenAiModelsEndpoint {
                 .iter()
                 .any(|model| model.slug.trim().is_empty() || !slugs.insert(&model.slug))
             {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "model catalog must contain unique, non-empty model slugs".to_string(),
                 ));
             }

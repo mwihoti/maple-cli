@@ -1,7 +1,7 @@
 use maplecode_aws_auth::AwsAuthConfig;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderAwsAuthInfo;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 
 use super::BedrockEndpoint;
@@ -55,7 +55,7 @@ pub(super) fn base_url(region: &str) -> Result<String> {
     if is_supported_amazon_bedrock_region(region) {
         Ok(format!("https://bedrock-mantle.{region}.api.aws/openai/v1"))
     } else {
-        Err(MapleCodeErr::Fatal(format!(
+        Err(MaplecodeErr::Fatal(format!(
             "Amazon Bedrock does not support region `{region}`"
         )))
     }
@@ -63,7 +63,7 @@ pub(super) fn base_url(region: &str) -> Result<String> {
 
 pub(super) async fn bedrock_mantle_runtime_base_url(
     source: BedrockAuthSource,
-    managed_auth: Option<&MapleCodeAuth>,
+    managed_auth: Option<&MaplecodeAuth>,
     aws: &ModelProviderAwsAuthInfo,
     http_client_factory: &maplecode_http_client::HttpClientFactory,
 ) -> Result<String> {

@@ -17,7 +17,7 @@ use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_http_client::ReqwestTransport;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::AgentIdentityAuthPolicy;
 use maplecode_login::default_client::ClientRedirectPolicy;
 use maplecode_login::default_client::create_client_for_route;
@@ -27,8 +27,8 @@ use maplecode_model_provider_info::GatewayOAuthSettings;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_model_provider_info::OAuthCredentialsStore;
 use maplecode_models_manager::manager::RefreshStrategy;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::SessionSource;
 use pretty_assertions::assert_eq;
 use serde_json::json;
@@ -93,7 +93,7 @@ async fn gateway_credentials_accompany_primary_auth_in_models_and_responses() {
         );
         primary_headers.insert("chatgpt-account-id", HeaderValue::from_static("account"));
         let primary = AuthManager::from_auth_for_testing_with_home(
-            MapleCodeAuth::Headers(AuthHeaders::new(primary_headers)),
+            MaplecodeAuth::Headers(AuthHeaders::new(primary_headers)),
             home.path().to_path_buf(),
         );
         let manager = seed_gateway_auth(
@@ -214,7 +214,7 @@ async fn gateway_preserves_runtime_auth_and_rejects_header_collisions() {
             .mount(&server)
             .await;
         let primary = AuthManager::from_auth_for_testing_with_home(
-            MapleCodeAuth::from_api_key("primary-token"),
+            MaplecodeAuth::from_api_key("primary-token"),
             home.path().to_path_buf(),
         );
         let info = ModelProviderInfo {
@@ -317,7 +317,7 @@ async fn gateway_refresh_preserves_primary_auth_and_hides_issuer_errors() {
         let server = MockServer::start().await;
         let home = tempfile::tempdir().unwrap();
         let primary = AuthManager::from_auth_for_testing_with_home(
-            MapleCodeAuth::from_api_key("primary-token"),
+            MaplecodeAuth::from_api_key("primary-token"),
             home.path().to_path_buf(),
         );
         let info = ModelProviderInfo {
@@ -384,7 +384,7 @@ async fn gateway_refresh_preserves_primary_auth_and_hides_issuer_errors() {
         }
         assert_eq!(
             primary.auth_cached(),
-            Some(MapleCodeAuth::from_api_key("primary-token"))
+            Some(MaplecodeAuth::from_api_key("primary-token"))
         );
         let requests = server.received_requests().await.unwrap();
         assert!(!requests[0].headers.contains_key("authorization"));
@@ -408,7 +408,7 @@ async fn models_cache_is_reused_only_for_matching_gateway_configuration() {
     let server = MockServer::start().await;
     let home = tempfile::tempdir().unwrap();
     let primary = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("primary-token"),
+        MaplecodeAuth::from_api_key("primary-token"),
         home.path().to_path_buf(),
     );
     let mut info = ModelProviderInfo {
@@ -497,7 +497,7 @@ async fn models_observe_gateway_rotation(instance: ProviderInstance) {
     let server = MockServer::start().await;
     let home = tempfile::tempdir().unwrap();
     let primary = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("primary-token"),
+        MaplecodeAuth::from_api_key("primary-token"),
         home.path().to_path_buf(),
     );
     let info = ModelProviderInfo {
@@ -645,7 +645,7 @@ async fn gateway_setup_errors_are_reported_when_authentication_is_requested() {
         "gateway_oauth requires auth runtime configuration"
     );
 
-    let primary = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("primary"));
+    let primary = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("primary"));
     let endpoint = crate::models_endpoint::OpenAiModelsEndpoint::new(
         info.clone(),
         Some(primary),
@@ -667,7 +667,7 @@ async fn gateway_setup_errors_are_reported_when_authentication_is_requested() {
         unreachable!()
     };
     settings.client_id.clear();
-    let primary = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("primary"));
+    let primary = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("primary"));
     let error = create_model_provider(info, Some(primary))
         .api_auth()
         .await
@@ -675,7 +675,7 @@ async fn gateway_setup_errors_are_reported_when_authentication_is_requested() {
         .unwrap();
     assert!(matches!(
         error.details(),
-        maplecode_protocol::error::MapleCodeErrorDetails::InvalidRequest(_)
+        maplecode_protocol::error::MaplecodeErrorDetails::InvalidRequest(_)
     ));
     assert!(server.received_requests().await.unwrap().is_empty());
 }
@@ -685,7 +685,7 @@ async fn gateway_login_required_invalidates_the_last_successful_catalog() {
     let server = MockServer::start().await;
     let home = tempfile::tempdir().unwrap();
     let primary = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("primary-token"),
+        MaplecodeAuth::from_api_key("primary-token"),
         home.path().to_path_buf(),
     );
     let info = ModelProviderInfo {
@@ -774,7 +774,7 @@ async fn gateway_login_states_stop_request_retries() {
     let server = MockServer::start().await;
     let home = tempfile::tempdir().unwrap();
     let primary = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("primary-token"),
+        MaplecodeAuth::from_api_key("primary-token"),
         home.path().to_path_buf(),
     );
     let info = ModelProviderInfo {
@@ -802,7 +802,7 @@ async fn gateway_login_states_stop_request_retries() {
     let error = provider.api_auth().await.err().expect("login required");
     assert!(matches!(
         error.details(),
-        MapleCodeErrorDetails::GatewayLoginRequired(_)
+        MaplecodeErrorDetails::GatewayLoginRequired(_)
     ));
     assert_eq!(
         (
@@ -813,7 +813,7 @@ async fn gateway_login_states_stop_request_retries() {
         (
             maplecode_login::GatewayAuthError::LoginRequired.to_string(),
             None,
-            MapleCodeErrorInfo::Other
+            MaplecodeErrorInfo::Other
         ),
     );
     let cancel = tokio::sync::Notify::new();
@@ -827,7 +827,7 @@ async fn gateway_login_states_stop_request_retries() {
         let error = provider.api_auth().await.err().expect("login in progress");
         assert!(matches!(
             error.details(),
-            MapleCodeErrorDetails::InvalidRequest(_)
+            MaplecodeErrorDetails::InvalidRequest(_)
         ));
         assert_eq!(
             (error.to_string(), error.retry_delay(/*retry_count*/ 1)),

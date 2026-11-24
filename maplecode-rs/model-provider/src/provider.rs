@@ -13,7 +13,7 @@ use maplecode_features::RuntimeAuthMode;
 use maplecode_login::AuthManager;
 use maplecode_login::AuthManagerConfig;
 use maplecode_login::AuthManagerInitializationError;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::WorkspaceRoutingRequest;
 use maplecode_login::default_client::ClientRedirectPolicy;
 use maplecode_model_provider_info::ModelProviderInfo;
@@ -24,7 +24,7 @@ use maplecode_models_manager::manager::SharedModelsManager;
 use maplecode_models_manager::manager::StaticModelsManager;
 use maplecode_protocol::account::ProviderAccount;
 use maplecode_protocol::auth::RefreshTokenFailedError;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ModelsResponse;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
@@ -214,13 +214,13 @@ pub trait ModelProvider: fmt::Debug + Send + Sync {
     }
 
     /// Returns the current provider-scoped auth value, if one is configured.
-    fn auth(&self) -> ModelProviderFuture<'_, Option<MapleCodeAuth>>;
+    fn auth(&self) -> ModelProviderFuture<'_, Option<MaplecodeAuth>>;
 
     /// Returns the current app-visible account state for this provider.
     fn account_state(&self) -> ProviderAccountResult;
 
     /// Maps an API client error into the provider's user-facing error representation.
-    fn map_api_error(&self, error: ApiError) -> MapleCodeErr {
+    fn map_api_error(&self, error: ApiError) -> MaplecodeErr {
         maplecode_api::map_api_error(error)
     }
 
@@ -256,7 +256,7 @@ pub trait ModelProvider: fmt::Debug + Send + Sync {
     fn route_responses_api_provider<'a>(
         &'a self,
         mut provider: Provider,
-        auth: Option<&'a MapleCodeAuth>,
+        auth: Option<&'a MaplecodeAuth>,
         routing_context: &'a WorkspaceRoutingContext,
     ) -> ModelProviderFuture<'a, maplecode_protocol::error::Result<ResolvedResponsesProvider>> {
         Box::pin(async move {
@@ -279,7 +279,7 @@ pub trait ModelProvider: fmt::Debug + Send + Sync {
                     )
                     .await
                     .map_err(|error| match error.downcast::<RefreshTokenFailedError>() {
-                        Ok(rejection) => MapleCodeErr::RefreshTokenFailed(rejection),
+                        Ok(rejection) => MaplecodeErr::RefreshTokenFailed(rejection),
                         Err(error) => error.into(),
                     })?
                 {
@@ -298,7 +298,7 @@ pub trait ModelProvider: fmt::Debug + Send + Sync {
     /// Adapt routing from the same frozen credential selected for the request.
     fn api_provider_for_auth(
         &self,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> maplecode_protocol::error::Result<Provider> {
         resolve_api_provider(self.info(), auth)
     }
@@ -426,9 +426,9 @@ pub type SharedModelProvider = Arc<dyn ModelProvider>;
 /// Resolve credential-dependent defaults without changing configured endpoints.
 pub fn resolve_api_provider(
     info: &ModelProviderInfo,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> maplecode_protocol::error::Result<Provider> {
-    let mut provider = info.to_api_provider(auth.map(MapleCodeAuth::auth_mode))?;
+    let mut provider = info.to_api_provider(auth.map(MaplecodeAuth::auth_mode))?;
     if info.base_url.is_none() && uses_fedramp_api_key(auth, info)? {
         provider.base_url = FEDRAMP_API_BASE_URL.to_string();
     }
@@ -613,7 +613,7 @@ impl ModelProvider for ConfiguredModelProvider {
             .is_some_and(|auth| auth.is_chatgpt_auth())
     }
 
-    fn auth(&self) -> ModelProviderFuture<'_, Option<MapleCodeAuth>> {
+    fn auth(&self) -> ModelProviderFuture<'_, Option<MaplecodeAuth>> {
         Box::pin(async move {
             match self.auth_manager.as_ref() {
                 Some(auth_manager) => auth_manager.auth().await,
@@ -680,21 +680,21 @@ impl ModelProvider for ConfiguredModelProvider {
                     if auth_manager.refresh_failure_for_auth(&auth).is_some() {
                         return None;
                     }
-                    if matches!(auth, MapleCodeAuth::Headers(_)) {
+                    if matches!(auth, MaplecodeAuth::Headers(_)) {
                         return None;
                     }
                     Some(auth)
                 })
                 .map(|auth| match &auth {
-                    MapleCodeAuth::ApiKey(_) => Ok(ProviderAccount::ApiKey),
-                    MapleCodeAuth::BedrockApiKey(_) | MapleCodeAuth::BedrockAccessKeys(_) => {
+                    MaplecodeAuth::ApiKey(_) => Ok(ProviderAccount::ApiKey),
+                    MaplecodeAuth::BedrockApiKey(_) | MaplecodeAuth::BedrockAccessKeys(_) => {
                         Err(ProviderAccountError::UnsupportedBedrockApiKeyAuth)
                     }
-                    MapleCodeAuth::Chatgpt(_)
-                    | MapleCodeAuth::ChatgptAuthTokens(_)
-                    | MapleCodeAuth::Headers(_)
-                    | MapleCodeAuth::AgentIdentity(_)
-                    | MapleCodeAuth::PersonalAccessToken(_) => {
+                    MaplecodeAuth::Chatgpt(_)
+                    | MaplecodeAuth::ChatgptAuthTokens(_)
+                    | MaplecodeAuth::Headers(_)
+                    | MaplecodeAuth::AgentIdentity(_)
+                    | MaplecodeAuth::PersonalAccessToken(_) => {
                         let email = auth.get_account_email();
                         let plan_type = auth.account_plan_type();
 

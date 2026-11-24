@@ -1,6 +1,6 @@
 //! Fixtures for integration tests that seed provider credentials and model caches.
 
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_models_manager::cache::ModelsCacheEntry;
 use maplecode_protocol::openai_models::ModelInfo;
@@ -8,7 +8,7 @@ use maplecode_protocol::openai_models::ModelInfo;
 /// Constructs a cache fixture matching the supplied test provider and authentication.
 pub fn models_cache_entry(
     provider_info: &ModelProviderInfo,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     models: Vec<ModelInfo>,
 ) -> ModelsCacheEntry {
     ModelsCacheEntry {

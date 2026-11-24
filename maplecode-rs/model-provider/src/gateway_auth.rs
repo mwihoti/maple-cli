@@ -9,8 +9,8 @@ use maplecode_login::GatewayAuthError;
 use maplecode_login::OAuthSessionManager;
 use maplecode_model_provider_info::GatewayOAuthConfig;
 use maplecode_model_provider_info::ModelProviderInfo;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::Result;
 
 /// Resolves gateway request credentials and exposes the optional interactive OAuth session.
@@ -86,23 +86,23 @@ impl GatewayAuthManager {
     }
 }
 
-fn gateway_auth_error(error: std::io::Error) -> MapleCodeErr {
+fn gateway_auth_error(error: std::io::Error) -> MaplecodeErr {
     if let Some(login_error) = error
         .get_ref()
         .and_then(|source| source.downcast_ref::<GatewayAuthError>())
     {
         return match login_error {
             GatewayAuthError::LoginRequired => {
-                MapleCodeErrorDetails::GatewayLoginRequired(login_error.to_string()).into()
+                MaplecodeErrorDetails::GatewayLoginRequired(login_error.to_string()).into()
             }
             GatewayAuthError::LoginInProgress => {
-                MapleCodeErr::InvalidRequest(login_error.to_string())
+                MaplecodeErr::InvalidRequest(login_error.to_string())
             }
         };
     }
     // Issuer errors may echo arbitrary credentials from configured URLs. Keep the
     // diagnostic safe and bounded, preserving retries for transient failures.
-    MapleCodeErr::Io(std::io::Error::new(
+    MaplecodeErr::Io(std::io::Error::new(
         error.kind(),
         "Gateway OAuth authentication failed; check the gateway configuration and credential store.",
     ))

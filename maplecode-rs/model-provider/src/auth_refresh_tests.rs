@@ -8,7 +8,7 @@ use maplecode_login::AuthHeaders;
 use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::AuthManager;
 use maplecode_login::ExternalAuth;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::RefreshTokenError;
 use maplecode_login::auth::RefreshTokenFailedError;
 use maplecode_login::auth::RefreshTokenFailedReason;
@@ -43,14 +43,14 @@ struct RotatingExternalAuth {
 }
 
 impl ExternalAuth for RotatingExternalAuth {
-    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             let token = if self.refreshes.load(Ordering::SeqCst) == 0 {
                 "Bearer initial"
             } else {
                 "Bearer replacement"
             };
-            Ok(MapleCodeAuth::Headers(AuthHeaders::new(
+            Ok(MaplecodeAuth::Headers(AuthHeaders::new(
                 HeaderMap::from_iter([(
                     http::header::AUTHORIZATION,
                     HeaderValue::from_static(token),
@@ -62,7 +62,7 @@ impl ExternalAuth for RotatingExternalAuth {
     fn refresh(
         &self,
         _context: maplecode_login::ExternalAuthRefreshContext,
-    ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             if self.refreshes.fetch_add(1, Ordering::SeqCst) != 0 {
                 return Err(std::io::Error::other("redundant refresh rejected"));

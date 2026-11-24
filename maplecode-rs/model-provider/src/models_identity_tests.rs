@@ -11,13 +11,13 @@ fn chatgpt_auth(
     account: &str,
     plan: &str,
     signature: &str,
-) -> MapleCodeAuth {
+) -> MaplecodeAuth {
     let claims = serde_json::json!({
         "email": email,
         "https://api.openai.com/auth": {"chatgpt_user_id": user}
     });
     let payload = URL_SAFE_NO_PAD.encode(serde_json::to_vec(&claims).unwrap());
-    MapleCodeAuth::from_external_chatgpt_tokens(
+    MaplecodeAuth::from_external_chatgpt_tokens(
         &format!("e30.{payload}.{signature}"),
         account,
         Some(plan),
@@ -42,7 +42,7 @@ fn cache_identity_tracks_account_email_user_plan_and_auth_mode_but_not_token_ref
         chatgpt_auth("one@example.com", "other", "account", "team", "first"),
         chatgpt_auth("one@example.com", "user", "other", "team", "first"),
         chatgpt_auth("one@example.com", "user", "account", "plus", "first"),
-        MapleCodeAuth::from_api_key("api-key"),
+        MaplecodeAuth::from_api_key("api-key"),
     ] {
         assert_ne!(identity(&provider, Some(&auth)).unwrap(), key);
     }
@@ -51,10 +51,10 @@ fn cache_identity_tracks_account_email_user_plan_and_auth_mode_but_not_token_ref
 
 #[test]
 fn cache_identity_tracks_provider_routing_and_effective_api_credentials() {
-    let auth = MapleCodeAuth::from_api_key("sk-proj-fedramp-synthetic-test-key");
+    let auth = MaplecodeAuth::from_api_key("sk-proj-fedramp-synthetic-test-key");
     let provider = ModelProviderInfo::create_openai_provider(Some("https://one.example/v1".into()));
     let key = identity(&provider, Some(&auth)).unwrap();
-    let other_key = MapleCodeAuth::from_api_key("sk-proj-fedramp-rotated-test-key");
+    let other_key = MaplecodeAuth::from_api_key("sk-proj-fedramp-rotated-test-key");
     assert_ne!(identity(&provider, Some(&other_key)).unwrap(), key);
     let mut other_provider = provider.clone();
     other_provider.base_url = Some("https://two.example/v1".into());
@@ -108,7 +108,7 @@ fn cache_identity_distinguishes_auth_requirements_and_unknown_plans() {
 
 #[test]
 fn cache_identity_tracks_catalog_url() {
-    let auth = MapleCodeAuth::from_api_key("test-key");
+    let auth = MaplecodeAuth::from_api_key("test-key");
     let mut provider =
         ModelProviderInfo::create_openai_provider(Some("https://gateway.example/v1".into()));
     let bundled = identity(&provider, Some(&auth)).unwrap();
@@ -132,7 +132,7 @@ fn provider_key_catalog_identity_does_not_depend_on_unused_login() {
     provider.requires_openai_auth = false;
     provider.experimental_bearer_token = Some("provider-key".into());
     let identity_without_login = identity(&provider, /*auth*/ None).unwrap();
-    let selected_key = MapleCodeAuth::from_api_key("provider-key");
+    let selected_key = MaplecodeAuth::from_api_key("provider-key");
     let unused_login = chatgpt_auth("user@example.com", "user", "workspace", "team", "token");
     for auth in [&selected_key, &unused_login] {
         assert_eq!(

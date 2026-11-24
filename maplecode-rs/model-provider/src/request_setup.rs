@@ -16,7 +16,7 @@ use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AuthManager;
 use maplecode_login::AuthOwner;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::default_client::ClientRedirectPolicy;
 use maplecode_login::default_client::create_client_for_route;
 use maplecode_model_provider_info::GatewayOAuthConfig;
@@ -55,7 +55,7 @@ pub(crate) async fn resolve_request_auth(
                 }
 
                 if let Some(bearer) = bearer_auth_for_provider(&info)? {
-                    let credential = bearer.token.as_deref().map(MapleCodeAuth::from_api_key);
+                    let credential = bearer.token.as_deref().map(MaplecodeAuth::from_api_key);
                     let mut resolved = ResolvedProviderAuth::new(Arc::new(bearer));
                     resolved.credential = credential;
                     return Ok(resolved);
@@ -99,7 +99,7 @@ pub fn request_auth_owner(provider: &dyn ModelProvider) -> Option<AuthOwner> {
 }
 
 pub struct ResolvedProviderRequest {
-    pub auth: Option<MapleCodeAuth>,
+    pub auth: Option<MaplecodeAuth>,
     pub auth_owner: Option<AuthOwner>,
     pub auth_revision: Option<u64>,
     pub api_provider: Provider,

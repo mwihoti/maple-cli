@@ -12,10 +12,10 @@ use maplecode_http_client::Request;
 use maplecode_http_client::RequestBody;
 use maplecode_http_client::RequestCompression;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderAwsAuthInfo;
 use maplecode_model_provider_info::ModelProviderInfo;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 
 use crate::BearerAuthProvider;
@@ -71,12 +71,12 @@ pub(super) fn auth_source(
         BedrockAuthSource::ConfiguredAwsProfile
     } else if matches!(
         auth_manager.and_then(AuthManager::auth_cached),
-        Some(MapleCodeAuth::BedrockApiKey(_))
+        Some(MaplecodeAuth::BedrockApiKey(_))
     ) {
         BedrockAuthSource::ManagedBearerToken
     } else if matches!(
         auth_manager.and_then(AuthManager::auth_cached),
-        Some(MapleCodeAuth::BedrockAccessKeys(_))
+        Some(MaplecodeAuth::BedrockAccessKeys(_))
     ) {
         BedrockAuthSource::ManagedAccessKeys
     } else if non_empty_env_var_from(AWS_BEARER_TOKEN_BEDROCK_ENV_VAR, env_var).is_some() {
@@ -92,13 +92,13 @@ pub(super) fn auth_source(
 
 pub(super) async fn resolve_auth_method(
     source: BedrockAuthSource,
-    managed_auth: Option<&MapleCodeAuth>,
+    managed_auth: Option<&MaplecodeAuth>,
     aws: &ModelProviderAwsAuthInfo,
     endpoint: BedrockEndpoint,
     http_client_factory: &maplecode_http_client::HttpClientFactory,
 ) -> Result<BedrockAuthMethod> {
     match source {
-        BedrockAuthSource::CommandBearerToken => Err(MapleCodeErr::Fatal(
+        BedrockAuthSource::CommandBearerToken => Err(MaplecodeErr::Fatal(
             "Amazon Bedrock command authentication must be resolved by the model provider"
                 .to_string(),
         )),
@@ -110,7 +110,7 @@ pub(super) async fn resolve_auth_method(
             let credential_export = process_shared_state()
                 .aws_credential_export(aws)
                 .ok_or_else(|| {
-                    MapleCodeErr::Fatal(
+                    MaplecodeErr::Fatal(
                         "selected Amazon Bedrock credential exporter is no longer configured"
                             .to_string(),
                     )
@@ -125,9 +125,9 @@ pub(super) async fn resolve_auth_method(
             Ok(BedrockAuthMethod::AwsSdkAuth { context })
         }
         BedrockAuthSource::ManagedBearerToken => {
-            let Some(MapleCodeAuth::BedrockApiKey(auth)) = managed_auth else {
-                return Err(MapleCodeErr::Fatal(
-                    "selected MapleCode-managed Amazon Bedrock API key is no longer available"
+            let Some(MaplecodeAuth::BedrockApiKey(auth)) = managed_auth else {
+                return Err(MaplecodeErr::Fatal(
+                    "selected Maplecode-managed Amazon Bedrock API key is no longer available"
                         .to_string(),
                 ));
             };
@@ -139,7 +139,7 @@ pub(super) async fn resolve_auth_method(
         BedrockAuthSource::EnvBearerToken => {
             let token = non_empty_env_var_from(AWS_BEARER_TOKEN_BEDROCK_ENV_VAR, std::env::var)
                 .ok_or_else(|| {
-                    MapleCodeErr::Fatal(
+                    MaplecodeErr::Fatal(
                         "selected `AWS_BEARER_TOKEN_BEDROCK` credential is no longer available"
                             .to_string(),
                     )
@@ -158,9 +158,9 @@ pub(super) async fn resolve_auth_method(
             Ok(BedrockAuthMethod::AwsSdkAuth { context })
         }
         BedrockAuthSource::ManagedAccessKeys => {
-            let Some(MapleCodeAuth::BedrockAccessKeys(auth)) = managed_auth else {
-                return Err(MapleCodeErr::Fatal(
-                    "selected MapleCode-managed Amazon Bedrock access keys are no longer available"
+            let Some(MaplecodeAuth::BedrockAccessKeys(auth)) = managed_auth else {
+                return Err(MaplecodeErr::Fatal(
+                    "selected Maplecode-managed Amazon Bedrock access keys are no longer available"
                         .to_string(),
                 ));
             };
@@ -197,7 +197,7 @@ pub(super) async fn resolve_auth_method(
 
 pub(super) async fn resolve_provider_auth(
     source: BedrockAuthSource,
-    managed_auth: Option<&MapleCodeAuth>,
+    managed_auth: Option<&MaplecodeAuth>,
     aws: &ModelProviderAwsAuthInfo,
     endpoint: BedrockEndpoint,
     http_client_factory: &maplecode_http_client::HttpClientFactory,
@@ -217,7 +217,7 @@ pub(super) async fn resolve_provider_auth(
 
 pub(super) async fn resolve_region(
     source: BedrockAuthSource,
-    managed_auth: Option<&MapleCodeAuth>,
+    managed_auth: Option<&MaplecodeAuth>,
     aws: &ModelProviderAwsAuthInfo,
     endpoint: BedrockEndpoint,
     http_client_factory: &maplecode_http_client::HttpClientFactory,
@@ -258,7 +258,7 @@ pub(super) fn bearer_token_region(
         .or_else(|| non_empty_env_var_from(AWS_REGION_ENV_VAR, env_var))
         .or_else(|| non_empty_env_var_from(AWS_DEFAULT_REGION_ENV_VAR, env_var))
         .ok_or_else(|| {
-            MapleCodeErr::Fatal(
+            MaplecodeErr::Fatal(
                 "Amazon Bedrock bearer token auth requires \
 `model_providers.amazon-bedrock.aws.region`, `AWS_REGION`, or `AWS_DEFAULT_REGION`"
                     .to_string(),
@@ -266,8 +266,8 @@ pub(super) fn bearer_token_region(
         })
 }
 
-fn aws_auth_error_to_maplecode_error(error: AwsAuthError) -> MapleCodeErr {
-    MapleCodeErr::Fatal(format!("failed to resolve Amazon Bedrock auth: {error}"))
+fn aws_auth_error_to_maplecode_error(error: AwsAuthError) -> MaplecodeErr {
+    MaplecodeErr::Fatal(format!("failed to resolve Amazon Bedrock auth: {error}"))
 }
 
 fn aws_auth_error_to_auth_error(error: AwsAuthError) -> AuthError {
@@ -390,12 +390,12 @@ mod tests {
                 auth_refresh: None,
             }));
         let managed_auth =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+            AuthManager::from_auth_for_testing(MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
                 api_key: "managed-bedrock-api-key".to_string(),
                 region: "us-east-1".to_string(),
             }));
         let managed_access_keys = AuthManager::from_auth_for_testing(
-            MapleCodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
+            MaplecodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
                 access_key_id: "managed-access-key-id".to_string(),
                 secret_access_key: "managed-secret-access-key".to_string(),
                 session_token: None,
