@@ -57,7 +57,7 @@ async fn helpers_use_captured_auth_and_strip_cross_origin_proofs() {
             .unwrap();
         config.chatgpt_base_url = server.uri();
         let token = actor_token();
-        let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+        let auth = MaplecodeAuth::from_external_chatgpt_tokens(
             &token,
             "workspace-a",
             /*chatgpt_plan_type*/ None,
@@ -231,7 +231,7 @@ async fn connector_requests_reject_unsupported_openai_destinations() {
                 .unwrap();
             config.chatgpt_base_url = base_url.to_string();
             config.features.enable(Feature::Apps).unwrap();
-            let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+            let auth = MaplecodeAuth::from_external_chatgpt_tokens(
                 &actor_token(),
                 "workspace-a",
                 /*chatgpt_plan_type*/ None,
@@ -284,10 +284,10 @@ async fn connector_requests_reject_unsupported_openai_destinations() {
                 assert!(
                     matches!(
                         error
-                            .downcast_ref::<maplecode_protocol::error::MapleCodeErr>()
-                            .map(maplecode_protocol::error::MapleCodeErr::details),
+                            .downcast_ref::<maplecode_protocol::error::MaplecodeErr>()
+                            .map(maplecode_protocol::error::MaplecodeErr::details),
                         Some(
-                            maplecode_protocol::error::MapleCodeErrorDetails::UnsupportedOperation(
+                            maplecode_protocol::error::MaplecodeErrorDetails::UnsupportedOperation(
                                 _
                             )
                         )
@@ -318,8 +318,8 @@ async fn standalone_apply_rejects_unsupported_openai_destination() {
         .unwrap_err();
     assert!(matches!(
         error
-            .downcast_ref::<maplecode_protocol::error::MapleCodeErr>()
-            .map(maplecode_protocol::error::MapleCodeErr::details),
-        Some(maplecode_protocol::error::MapleCodeErrorDetails::UnsupportedOperation(_))
+            .downcast_ref::<maplecode_protocol::error::MaplecodeErr>()
+            .map(maplecode_protocol::error::MaplecodeErr::details),
+        Some(maplecode_protocol::error::MaplecodeErrorDetails::UnsupportedOperation(_))
     ));
 }

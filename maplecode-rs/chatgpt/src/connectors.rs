@@ -24,7 +24,7 @@ pub use maplecode_core::connectors::list_accessible_connectors_from_mcp_tools_wi
 pub use maplecode_core::connectors::list_cached_accessible_connectors_from_mcp_tools;
 use maplecode_features::RuntimeAuthMode;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_plugin::AppConnectorId;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
 use serde::Deserialize;
@@ -41,7 +41,7 @@ async fn apps_enabled(config: &Config) -> anyhow::Result<bool> {
     let auth = auth_manager.auth().await;
     Ok(config.features.apps_enabled_for_auth(
         auth.as_ref()
-            .is_some_and(MapleCodeAuth::uses_maplecode_backend),
+            .is_some_and(MaplecodeAuth::uses_maplecode_backend),
     ))
 }
 
@@ -82,12 +82,12 @@ pub async fn list_all_connectors(config: &Config) -> anyhow::Result<Vec<AppInfo>
 
 pub fn list_cached_all_connectors(
     config: &Config,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     plugin_apps: &[AppConnectorId],
 ) -> Option<Vec<AppInfo>> {
     if !config
         .features
-        .apps_enabled_for_auth(auth.is_some_and(MapleCodeAuth::uses_maplecode_backend))
+        .apps_enabled_for_auth(auth.is_some_and(MaplecodeAuth::uses_maplecode_backend))
     {
         return Some(Vec::new());
     }
@@ -103,14 +103,14 @@ pub fn list_cached_all_connectors(
 
 pub async fn list_all_connectors_with_options(
     config: &Config,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     runtime: Option<&(Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
     force_refetch: bool,
     plugin_apps: &[AppConnectorId],
 ) -> anyhow::Result<Vec<AppInfo>> {
     if !config
         .features
-        .apps_enabled_for_auth(auth.is_some_and(MapleCodeAuth::uses_maplecode_backend))
+        .apps_enabled_for_auth(auth.is_some_and(MaplecodeAuth::uses_maplecode_backend))
     {
         return Ok(Vec::new());
     }
@@ -153,7 +153,7 @@ pub struct ConnectorMetadataReadResult {
 /// `AuthManager::auth_with_http_client_factory` so the request retains that account's policy.
 pub async fn read_connector_metadata(
     config: &Config,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     runtime: Option<&(Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
     app_ids: &[String],
     include_tools: bool,
@@ -321,7 +321,7 @@ fn batch_app_to_metadata(app: BatchApp) -> ConnectorMetadata {
 
 fn connector_directory_cache_context(
     config: &Config,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
 ) -> ConnectorDirectoryCacheContext {
     ConnectorDirectoryCacheContext::new(
         config.maplecode_home.to_path_buf(),

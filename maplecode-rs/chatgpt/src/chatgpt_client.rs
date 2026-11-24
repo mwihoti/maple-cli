@@ -4,7 +4,7 @@ use maplecode_features::RuntimeAuthMode;
 use maplecode_http_client::HttpClient;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::default_client::RESIDENCY_HEADER_NAME;
 use maplecode_login::default_client::create_client_with_chatgpt_cookies;
 use maplecode_login::default_client::default_headers;
@@ -74,7 +74,7 @@ pub(crate) async fn chatgpt_get_request<T: DeserializeOwned>(
 pub(crate) async fn standalone_auth(
     config: &mut Config,
 ) -> anyhow::Result<(
-    MapleCodeAuth,
+    MaplecodeAuth,
     Option<(Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
 )> {
     // Standalone commands create one owner. Freeze the caller's account policy before loading
@@ -107,7 +107,7 @@ pub(crate) async fn standalone_auth(
 
 pub(crate) async fn chatgpt_get_request_with_timeout<T: DeserializeOwned>(
     config: &Config,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     runtime: Option<&(Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
     path: String,
     timeout: Option<Duration>,
@@ -166,7 +166,7 @@ pub(crate) async fn chatgpt_post_request_with_timeout<
     TRequest: Serialize + ?Sized,
 >(
     config: &Config,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     path: String,
     body: &TRequest,
     timeout: Duration,
@@ -220,7 +220,7 @@ pub(crate) async fn chatgpt_post_request_with_timeout<
 /// Keep request credentials and the transport bound to the same account snapshot.
 async fn prepare_client_auth(
     config: &Config,
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     runtime: Option<&(Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
     url: &str,
 ) -> anyhow::Result<(HttpClient, maplecode_model_provider::ResolvedProviderAuth)> {
