@@ -51,8 +51,8 @@ use maplecode_protocol::ThreadId;
 use maplecode_protocol::ToolName;
 use maplecode_protocol::config_types::ReasoningSummary;
 use maplecode_protocol::config_types::ToolResultLogConfig;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrKind;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrKind;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ReasoningEffort;
@@ -305,14 +305,14 @@ impl SessionTelemetry {
     pub fn record_multi_agent_spawn_failure(
         &self,
         reason: &'static str,
-        err: &MapleCodeErr,
+        err: &MaplecodeErr,
         call_id: &str,
         turn_id: &str,
         fork_mode: &'static str,
         multi_agent_version: &'static str,
     ) {
         let detail = err.agent_context().map_or("unknown", <&str>::from);
-        let error_kind: &'static str = MapleCodeErrKind::from(err).into();
+        let error_kind: &'static str = MaplecodeErrKind::from(err).into();
         // Only bounded classifications and correlation IDs belong in trace-safe diagnostics.
         trace_event!(
             self,

@@ -12,7 +12,7 @@ use strum_macros::AsRefStr;
 #[derive(Clone, Copy, Debug, AsRefStr)]
 #[strum(serialize_all = "snake_case")]
 pub enum CredentialKind {
-    MapleCode,
+    Maplecode,
     Mcp,
 }
 

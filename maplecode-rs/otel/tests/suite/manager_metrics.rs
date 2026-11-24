@@ -14,7 +14,7 @@ use maplecode_otel::TelemetryAuthMode;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::ToolName;
 use maplecode_protocol::error::AgentErrorContext;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::protocol::SessionSource;
 use opentelemetry_sdk::metrics::data::AggregatedMetrics;
 use opentelemetry_sdk::metrics::data::MetricData;
@@ -390,7 +390,7 @@ fn spawn_failure_metrics_preserve_reason_and_bound_diagnostic_labels() -> Result
     ] {
         // Distinct messages and correlation IDs must aggregate into the same bounded series.
         for id in ["private-first", "private-second"] {
-            let mut err = MapleCodeErr::from(std::io::Error::other(id));
+            let mut err = MaplecodeErr::from(std::io::Error::other(id));
             if let Some(context) = context {
                 err = err
                     .with_agent_context(context)

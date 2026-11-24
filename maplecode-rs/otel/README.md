@@ -78,7 +78,7 @@ warnings.
 ## SessionTelemetry (events)
 
 `SessionTelemetry` adds consistent metadata to tracing events and helps record
-MapleCode-specific session events. Rich session/business events should go through
+Maplecode-specific session events. Rich session/business events should go through
 `SessionTelemetry`; subsystem-owned audit events can stay with the owning subsystem.
 
 ```rust
@@ -191,7 +191,7 @@ unset, empty, or unrecognized values retain the delta default. This setting does
 the built-in Statsig exporter or on-demand runtime snapshots.
 
 `maplecode-otel` also provides `OtelExporter::Statsig`, a shorthand for exporting OTLP/HTTP JSON metrics
-to Statsig using MapleCode-internal defaults.
+to Statsig using Maplecode-internal defaults.
 
 Statsig ingestion (OTLP/HTTP JSON) example:
 

@@ -38,7 +38,7 @@ fn startup_fallback_exports_one_logical_operation_without_error_contents() -> cr
     let mut telemetry =
         AuthStorageOriginator::from_client_name("Maple Code Desktop").sync_scope(|| {
             StorageTelemetry::new(
-                CredentialKind::MapleCode,
+                CredentialKind::Maplecode,
                 StoreMode::Auto,
                 Store::Secrets,
                 Operation::Save,
@@ -127,7 +127,7 @@ fn startup_fallback_exports_one_logical_operation_without_error_contents() -> cr
     );
     assert_eq!(durations, vec![1]);
     drop(StorageTelemetry::new(
-        CredentialKind::MapleCode,
+        CredentialKind::Maplecode,
         StoreMode::Auto,
         Store::Secrets,
         Operation::Save,
@@ -198,7 +198,7 @@ fn secure_error_classification_is_independent_of_attempt_recording_order() {
     for store in [Store::DirectKeyring, Store::Secrets] {
         for classify_first in [true, false] {
             let mut telemetry = StorageTelemetry::new(
-                CredentialKind::MapleCode,
+                CredentialKind::Maplecode,
                 StoreMode::Auto,
                 store,
                 Operation::Save,
