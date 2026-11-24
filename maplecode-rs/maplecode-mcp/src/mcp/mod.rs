@@ -33,7 +33,7 @@ use maplecode_connectors::ConnectorRuntimeManager;
 use maplecode_connectors::ConnectorSnapshot;
 use maplecode_connectors::connector_runtime_context_key;
 use maplecode_exec_server::FileSystemSandboxContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::CHATGPT_MAPLECODE_BASE_URL;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_protocol::mcp::McpServerInfo;
@@ -393,8 +393,8 @@ impl ToolPluginContext {
     }
 }
 
-pub fn host_owned_maplecode_apps_enabled(config: &McpConfig, auth: Option<&MapleCodeAuth>) -> bool {
-    config.apps_enabled && auth.is_some_and(MapleCodeAuth::uses_maplecode_backend)
+pub fn host_owned_maplecode_apps_enabled(config: &McpConfig, auth: Option<&MaplecodeAuth>) -> bool {
+    config.apps_enabled && auth.is_some_and(MaplecodeAuth::uses_maplecode_backend)
 }
 
 pub fn configured_mcp_servers(config: &McpConfig) -> HashMap<String, McpServerConfig> {
@@ -437,7 +437,7 @@ pub(crate) fn is_trusted_chatgpt_mcp_server(
 /// Materializes auth-gated registrations, keyed by catalog identity rather than display name.
 pub fn effective_mcp_servers(
     config: &McpConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> HashMap<McpServerKey, EffectiveMcpServer> {
     let mut servers = config
         .mcp_server_catalog
@@ -473,7 +473,7 @@ pub fn tool_plugin_context(config: &McpConfig) -> ToolPluginContext {
 #[allow(clippy::too_many_arguments)]
 pub async fn read_mcp_resource(
     config: &McpConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     runtime_auth: Option<(
         maplecode_runtime_agent_instance::RuntimeAuthSlot,
         maplecode_features::RuntimeAuthMode,
@@ -542,7 +542,7 @@ pub struct McpServerStatusSnapshot {
 #[allow(clippy::too_many_arguments)]
 pub async fn collect_mcp_server_status_snapshot_with_detail(
     config: &McpConfig,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     auth_manager: Option<&Arc<maplecode_login::AuthManager>>,
     runtime_auth: Option<(
         maplecode_runtime_agent_instance::RuntimeAuthSlot,
@@ -686,10 +686,10 @@ fn normalize_maplecode_apps_base_url(base_url: &str) -> String {
 
 fn maplecode_apps_mcp_url_for_base_url(base_url: &str) -> String {
     let base_url = normalize_maplecode_apps_base_url(base_url);
-    let base_url = if base_url.contains("/backend-api") || base_url.contains("/api/maplecode") {
+    let base_url = if base_url.contains("/backend-api") || base_url.contains("/api/codex") {
         base_url
     } else {
-        format!("{base_url}/api/maplecode")
+        format!("{base_url}/api/codex")
     };
     format!("{base_url}/ps/mcp")
 }

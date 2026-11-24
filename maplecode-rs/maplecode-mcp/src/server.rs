@@ -17,7 +17,7 @@ use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_config::types::OAuthCredentialsStoreMode;
 use maplecode_connectors::ConnectorRuntimeContextKey;
 use maplecode_exec_server::Environment;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_rmcp_client::McpOAuthRefreshMode;
 use maplecode_rmcp_client::McpProtocolMode;
@@ -177,7 +177,7 @@ pub(crate) struct McpServerConnectionIdentity {
     resolved_environment: Result<Option<Arc<Environment>>, String>,
     local_stdio_fallback_cwd: Option<PathBuf>,
     referenced_environment_variables: Vec<(String, Option<OsString>)>,
-    runtime_auth: Option<MapleCodeAuth>,
+    runtime_auth: Option<MaplecodeAuth>,
     runtime_auth_token: Option<String>,
     runtime_auth_mode: Option<maplecode_features::RuntimeAuthMode>,
     maplecode_apps_cache_identity: Option<(PathBuf, ConnectorRuntimeContextKey)>,
@@ -200,7 +200,7 @@ impl McpServerConnectionIdentity {
         runtime_context: &McpRuntimeContext,
         runtime_auth_provider: Option<&McpAuthProvider>,
         runtime_auth_mode: Option<maplecode_features::RuntimeAuthMode>,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         maplecode_apps_cache_identity: Option<(PathBuf, ConnectorRuntimeContextKey)>,
         client_elicitation_capability: ElicitationCapability,
         client_mcp_extensions: ClientMcpExtensions,
@@ -321,8 +321,8 @@ impl McpServerConnectionIdentity {
     pub(crate) fn has_same_connection_config(&self, other: &Self) -> bool {
         let same_runtime_auth = match (&self.runtime_auth, &other.runtime_auth) {
             (
-                Some(MapleCodeAuth::AgentIdentity(left)),
-                Some(MapleCodeAuth::AgentIdentity(right)),
+                Some(MaplecodeAuth::AgentIdentity(left)),
+                Some(MaplecodeAuth::AgentIdentity(right)),
             ) => left.record() == right.record(),
             (Some(left), Some(right)) => {
                 left == right

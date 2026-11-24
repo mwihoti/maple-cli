@@ -9,7 +9,7 @@ use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_config::types::OAuthCredentialsStoreMode;
 use maplecode_exec_server::Environment;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_rmcp_client::ElicitationResponse;
 use maplecode_rmcp_client::McpOAuthRefreshMode;
@@ -37,7 +37,7 @@ pub(crate) struct EventStreamConnectionSettings {
     pub resolved_environment: std::result::Result<Option<Arc<Environment>>, String>,
     pub auth_provider: Option<McpAuthProvider>,
     pub auth_manager: Option<Arc<AuthManager>>,
-    pub auth: Option<MapleCodeAuth>,
+    pub auth: Option<MaplecodeAuth>,
     pub protocol_mode: McpProtocolMode,
     pub client_mcp_extensions: ClientMcpExtensions,
 }
@@ -138,14 +138,14 @@ impl McpEventStreamOpener {
         }
     }
 
-    fn matches_auth(&self, current: Option<&MapleCodeAuth>) -> bool {
+    fn matches_auth(&self, current: Option<&MaplecodeAuth>) -> bool {
         match (self.connection.auth.as_ref(), current) {
             (
-                Some(MapleCodeAuth::AgentIdentity(expected)),
-                Some(MapleCodeAuth::AgentIdentity(current)),
+                Some(MaplecodeAuth::AgentIdentity(expected)),
+                Some(MaplecodeAuth::AgentIdentity(current)),
             ) => expected.record() == current.record(),
-            (Some(MapleCodeAuth::AgentIdentity(_)), _)
-            | (_, Some(MapleCodeAuth::AgentIdentity(_))) => false,
+            (Some(MaplecodeAuth::AgentIdentity(_)), _)
+            | (_, Some(MaplecodeAuth::AgentIdentity(_))) => false,
             (Some(expected), Some(current)) => {
                 expected.get_account_id() == current.get_account_id()
                     && expected.get_chatgpt_user_id() == current.get_chatgpt_user_id()

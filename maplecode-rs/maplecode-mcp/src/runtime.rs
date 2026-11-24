@@ -37,7 +37,7 @@ use maplecode_exec_server::EnvironmentManager;
 use maplecode_exec_server::HttpClient;
 use maplecode_exec_server::RouteAwareHttpClient;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::capabilities::SelectedCapabilityRoot;
 use maplecode_protocol::mcp::CallToolResult;
@@ -59,7 +59,7 @@ use crate::McpConfig;
 use crate::McpServerKey;
 use crate::binding::McpBinding;
 use crate::binding::PreparedMcpCall;
-use crate::client_tool_catalog::MapleCodeAppsToolSnapshot;
+use crate::client_tool_catalog::MaplecodeAppsToolSnapshot;
 use crate::connection_manager::BindingCatalogRevision;
 use crate::connection_manager::McpConnectionSet;
 use crate::connection_manager::PreviousMcpConnections;
@@ -112,7 +112,7 @@ pub struct McpRuntimeInput {
     pub tool_catalog_cache: McpToolCatalogCache,
     pub maplecode_apps_tools_cache_key: ConnectorRuntimeContextKey,
     pub client_mcp_extensions: ClientMcpExtensions,
-    pub auth: Option<MapleCodeAuth>,
+    pub auth: Option<MaplecodeAuth>,
     pub auth_manager: Option<Arc<AuthManager>>,
     pub runtime_auth: Option<(
         maplecode_runtime_agent_instance::RuntimeAuthSlot,
@@ -149,7 +149,7 @@ struct EventStreamCancellation {
 struct PublishedMcpRuntime {
     connections: Arc<McpConnectionSet>,
     config: Option<Arc<McpConfig>>,
-    auth: Option<MapleCodeAuth>,
+    auth: Option<MaplecodeAuth>,
     auth_token: Option<String>,
     auth_manager: Option<Arc<AuthManager>>,
     auth_owner: Option<AuthOwner>,
@@ -169,7 +169,7 @@ struct AuthOwner {
 }
 
 impl AuthOwner {
-    fn capture(auth: Option<&MapleCodeAuth>, manager: Option<&AuthManager>) -> Option<Self> {
+    fn capture(auth: Option<&MaplecodeAuth>, manager: Option<&AuthManager>) -> Option<Self> {
         let auth = auth?;
         Some(Self {
             generation: manager?.auth_change_state_for(auth)?.owner_generation,
@@ -199,7 +199,7 @@ fn ensure_host_owned_apps_registration(
 
 impl PublishedMcpRuntime {
     // Shared by dirty detection and cache-key publication so their auth rules agree.
-    fn auth_matches(&self, auth: Option<&MapleCodeAuth>) -> bool {
+    fn auth_matches(&self, auth: Option<&MaplecodeAuth>) -> bool {
         match (self.auth.as_ref(), auth) {
             (Some(previous), Some(latest)) => {
                 previous == latest
@@ -637,7 +637,7 @@ impl McpRuntime {
     }
 
     /// Returns whether the published snapshot still belongs to the current credentials.
-    pub fn current_auth_matches(&self, auth: Option<&MapleCodeAuth>) -> bool {
+    pub fn current_auth_matches(&self, auth: Option<&MaplecodeAuth>) -> bool {
         self.current.load().auth_matches(auth)
     }
 
@@ -772,7 +772,7 @@ impl McpRuntime {
     /// Await the returned fetch after releasing the permit. A stale result is skipped.
     pub fn capture_apps_tool_refresh(
         &self,
-    ) -> impl Future<Output = anyhow::Result<Option<MapleCodeAppsToolSnapshot>>> + Send {
+    ) -> impl Future<Output = anyhow::Result<Option<MaplecodeAppsToolSnapshot>>> + Send {
         let (generation, current) = {
             let generation = self
                 .catalog_publication

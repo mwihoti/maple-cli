@@ -11,7 +11,7 @@ use maplecode_exec_server::HttpHeader;
 use maplecode_exec_server::HttpRedirectPolicy;
 use maplecode_exec_server::HttpRequestParams;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::auth::AuthMode;
 use serde::Deserialize;
 use serde::Serialize;
@@ -110,7 +110,7 @@ enum VerifiedAccessSource {
 /// Fetches account-bound verified access for trusted, host-owned MCP metadata.
 /// Callers must authorize the receiving plugin and tool before attaching it.
 pub struct TrustedAccessContext {
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     auth_manager: Arc<AuthManager>,
     chatgpt_base_url: String,
     http_client: Arc<dyn HttpClient>,
@@ -149,7 +149,7 @@ impl TrustedAccessContext {
     }
 
     pub fn new(
-        auth: MapleCodeAuth,
+        auth: MaplecodeAuth,
         auth_manager: Arc<AuthManager>,
         chatgpt_base_url: String,
         http_client: Arc<dyn HttpClient>,

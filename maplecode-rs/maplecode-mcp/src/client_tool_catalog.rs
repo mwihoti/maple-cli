@@ -32,7 +32,7 @@ type ToolCatalogUpdates = watch::Receiver<Option<Arc<ConnectorRuntimeSnapshot<To
 const NOTIFICATION_REFRESH_COOLDOWN: Duration = Duration::from_secs(5);
 
 /// The exact Apps catalog returned by an awaited refresh of one published runtime.
-pub struct MapleCodeAppsToolSnapshot {
+pub struct MaplecodeAppsToolSnapshot {
     /// Raw installed tools, including tools hidden or disabled for the model.
     pub tools: Vec<ToolInfo>,
     /// Raw MCP tool names allowed by the same runtime's generic MCP policy.

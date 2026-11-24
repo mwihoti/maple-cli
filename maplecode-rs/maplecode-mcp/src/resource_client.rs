@@ -43,7 +43,7 @@ pub struct McpResourcePage {
 /// the filter to each request separately.
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MapleCodeAppsResourceListParams {
+pub struct MaplecodeAppsResourceListParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cursor: Option<String>,
     pub mime_type: String,
@@ -302,7 +302,7 @@ impl McpResourceClient {
     /// Lists one Maple Code Apps resource page using plugin-service's top-level `mimeType` parameter.
     pub async fn list_maplecode_apps_resources(
         &self,
-        params: MapleCodeAppsResourceListParams,
+        params: MaplecodeAppsResourceListParams,
     ) -> Result<McpResourcePage> {
         let catalog = matches!(params.mime_type.as_str(), "mcp/plugin" | "mcp/skill");
         let params = serde_json::to_value(params)

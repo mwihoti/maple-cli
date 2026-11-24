@@ -11,7 +11,7 @@ use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_config::types::OAuthCredentialsStoreMode;
 use maplecode_exec_server::HttpClient;
 use maplecode_login::AccountOAuthGrant;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_rmcp_client::McpAuthState;
 use maplecode_rmcp_client::McpLoginRequirement;
 use maplecode_rmcp_client::McpOAuthCallbackMode;
@@ -201,7 +201,7 @@ pub async fn compute_auth_statuses<'a, I>(
     servers: I,
     store_mode: OAuthCredentialsStoreMode,
     keyring_backend_kind: AuthKeyringBackendKind,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     auth_manager: Option<&std::sync::Arc<maplecode_login::AuthManager>>,
     ema_state: &crate::EmaState,
     runtime_context: &McpRuntimeContext,
@@ -259,7 +259,7 @@ async fn compute_auth_status(
     config: &McpServerConfig,
     store_mode: OAuthCredentialsStoreMode,
     keyring_backend_kind: AuthKeyringBackendKind,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     auth_manager: Option<&std::sync::Arc<maplecode_login::AuthManager>>,
     account_grant: &OnceCell<std::io::Result<Option<AccountOAuthGrant>>>,
     ema_state: &crate::EmaState,
@@ -279,7 +279,7 @@ async fn compute_auth_status(
         let Some(scope) = crate::ema_auth_scope(auth) else {
             return Ok(McpAuthState::LoggedOut(McpLoginRequirement::Login));
         };
-        if matches!(auth, Some(MapleCodeAuth::Chatgpt(_)))
+        if matches!(auth, Some(MaplecodeAuth::Chatgpt(_)))
             && auth
                 .and_then(|auth| auth.get_token_data().ok())
                 .is_none_or(|tokens| tokens.login_owner_id.as_ref().is_none_or(String::is_empty))
@@ -328,7 +328,7 @@ async fn compute_auth_status(
     }
 
     let has_runtime_auth = matches!(config.auth, McpServerAuth::ChatGpt)
-        && auth.is_some_and(MapleCodeAuth::uses_maplecode_backend)
+        && auth.is_some_and(MaplecodeAuth::uses_maplecode_backend)
         && matches!(
             &config.transport,
             McpServerTransportConfig::StreamableHttp {

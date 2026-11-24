@@ -6,7 +6,7 @@ pub use binding::SearchDiscovery;
 pub use binding::is_model_search_tool;
 pub use binding_clients::McpResourceListing;
 pub use client_capabilities::client_mcp_extensions;
-pub use client_tool_catalog::MapleCodeAppsToolSnapshot;
+pub use client_tool_catalog::MaplecodeAppsToolSnapshot;
 pub use connection_manager::NetworkPolicyMetadata;
 pub use connection_manager::NetworkPolicyMetadataProvider;
 pub use connection_manager::tool_is_model_visible;
@@ -19,7 +19,7 @@ pub use elicitation::ElicitationReviewerHandle;
 pub use ema_auth::ema_auth_scope;
 pub use event_stream::McpEventStreamOpener;
 pub use maplecode_rmcp_client::McpProtocolMode;
-pub use resource_client::MapleCodeAppsResourceListParams;
+pub use resource_client::MaplecodeAppsResourceListParams;
 pub use resource_client::McpEventCatalogSnapshot;
 pub use resource_client::McpEventDefinition;
 pub use resource_client::McpEventNotification;
@@ -50,9 +50,9 @@ pub use tools::ToolInfo;
 pub use trusted_access::TrustedAccessContext;
 
 /// Backward-compatible name for the shared Maple Code Apps tools runtime.
-pub type MapleCodeAppsToolsCache = maplecode_connectors::ConnectorRuntimeManager<ToolInfo>;
+pub type MaplecodeAppsToolsCache = maplecode_connectors::ConnectorRuntimeManager<ToolInfo>;
 /// Backward-compatible name for the Maple Code Apps runtime context key.
-pub type MapleCodeAppsToolsCacheKey = maplecode_connectors::ConnectorRuntimeContextKey;
+pub type MaplecodeAppsToolsCacheKey = maplecode_connectors::ConnectorRuntimeContextKey;
 
 pub use catalog::McpCatalogBuilder;
 pub use catalog::McpEnvironmentAuthority;
@@ -73,9 +73,9 @@ pub use mcp::ToolPluginContext;
 pub use server::EffectiveMcpServer;
 
 pub use auth_elicitation::MCP_TOOL_MAPLECODE_APPS_META_KEY;
-pub use auth_elicitation::MapleCodeAppsAuthElicitation;
-pub use auth_elicitation::MapleCodeAppsAuthElicitationPlan;
-pub use auth_elicitation::MapleCodeAppsConnectorAuthFailure;
+pub use auth_elicitation::MaplecodeAppsAuthElicitation;
+pub use auth_elicitation::MaplecodeAppsAuthElicitationPlan;
+pub use auth_elicitation::MaplecodeAppsConnectorAuthFailure;
 pub use auth_elicitation::auth_elicitation_completed_result;
 pub use auth_elicitation::auth_elicitation_id;
 pub use auth_elicitation::build_auth_elicitation;

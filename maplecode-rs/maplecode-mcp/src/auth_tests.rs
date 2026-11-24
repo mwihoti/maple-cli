@@ -24,17 +24,17 @@ use wiremock::MockServer;
 use wiremock::ResponseTemplate;
 use wiremock::matchers::path;
 
-struct RotatingAuth(std::sync::RwLock<MapleCodeAuth>);
+struct RotatingAuth(std::sync::RwLock<MaplecodeAuth>);
 
 impl maplecode_login::ExternalAuth for RotatingAuth {
-    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.read().unwrap().clone()) })
     }
 
     fn refresh(
         &self,
         _: maplecode_login::ExternalAuthRefreshContext,
-    ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -63,7 +63,7 @@ async fn deferred_connection_keeps_runtime_source_and_captured_account_policy() 
             });
             let payload =
                 base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(claims.to_string());
-            MapleCodeAuth::from_external_chatgpt_tokens(
+            MaplecodeAuth::from_external_chatgpt_tokens(
                 &format!("header.{payload}.signature"),
                 "workspace-a",
                 /*chatgpt_plan_type*/ None,
@@ -121,10 +121,10 @@ async fn deferred_connection_keeps_runtime_source_and_captured_account_policy() 
             .expect("unsupported OpenAI destination must fail before registration");
         assert!(
             error
-                .downcast_ref::<maplecode_protocol::error::MapleCodeErr>()
+                .downcast_ref::<maplecode_protocol::error::MaplecodeErr>()
                 .is_some_and(|error| matches!(
                     error.details(),
-                    maplecode_protocol::error::MapleCodeErrorDetails::UnsupportedOperation(_)
+                    maplecode_protocol::error::MaplecodeErrorDetails::UnsupportedOperation(_)
                 ))
         );
         assert!(server.received_requests().await.unwrap().is_empty());

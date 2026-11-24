@@ -17,7 +17,7 @@ use crate::rmcp_client::AsyncManagedClient;
 use crate::rmcp_client::MAPLECODE_APPS_RECONNECT_INITIAL_BACKOFF;
 use crate::rmcp_client::ManagedClient;
 use crate::rmcp_client::ManagedClientFuture;
-use crate::rmcp_client::MapleCodeAppsStartupReconnect;
+use crate::rmcp_client::MaplecodeAppsStartupReconnect;
 use crate::rmcp_client::StartupOutcomeError;
 use crate::rmcp_client::list_tools_for_client_uncached;
 use crate::runtime::McpRuntimeContext;
@@ -52,7 +52,7 @@ use maplecode_exec_server::HttpResponseBodyStream;
 use maplecode_exec_server_test_support::environment_manager_without_environments;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::ToolName;
 use maplecode_protocol::approvals::ElicitationRequest;
 use maplecode_protocol::mcp::ClientMcpExtensions;
@@ -566,7 +566,7 @@ async fn prepared_call_timeout_includes_trusted_access_lookup() {
         .server_permissions
         .insert(key.clone(), McpServerPermissions::Thread);
     manager.tool_plugin_context = Arc::new(crate::tool_plugin_context(&config));
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     manager.trusted_access = Some(TrustedAccessContext::new(
         auth.clone(),
         AuthManager::from_auth_for_testing(auth),
@@ -976,7 +976,7 @@ fn create_test_manager_with_failed_apps_startup(
             tool_catalog_cache_context: None,
             startup_complete: Arc::new(std::sync::atomic::AtomicBool::new(true)),
             connection_slot: None,
-            startup_reconnect: Some(Arc::new(MapleCodeAppsStartupReconnect::new(
+            startup_reconnect: Some(Arc::new(MaplecodeAppsStartupReconnect::new(
                 reconnect_factory,
             ))),
             cancel_token: CancellationToken::new(),
@@ -1352,7 +1352,7 @@ async fn assert_disabled_permissions_surface_requested_user_input(
     assert_eq!(reviewer.review_count.load(Ordering::SeqCst), 0);
 
     let maplecode_protocol::mcp::RequestId::String(request_id) = request.id else {
-        panic!("expected MapleCode-owned string request ID");
+        panic!("expected Maplecode-owned string request ID");
     };
     let user_response = ElicitationResponse {
         action: ElicitationAction::Accept,
@@ -1633,7 +1633,7 @@ async fn shared_elicitation_router_targets_the_exact_pending_request() {
         maplecode_protocol::mcp::RequestId::String(request_b_id),
     ) = (request_a.id, request_b.id)
     else {
-        panic!("expected MapleCode-owned string request IDs");
+        panic!("expected Maplecode-owned string request IDs");
     };
     assert_ne!(request_a_id, request_b_id);
 
@@ -1734,7 +1734,7 @@ async fn cancelled_elicitation_is_removed_without_affecting_other_pending_reques
         maplecode_protocol::mcp::RequestId::String(pending_id),
     ) = (cancelled_request.id, pending_request.id)
     else {
-        panic!("expected MapleCode-owned string request IDs");
+        panic!("expected Maplecode-owned string request IDs");
     };
 
     cancelled.abort();
@@ -4908,7 +4908,7 @@ fn server_metadata_preserves_tool_approval_policy() {
 
 #[test]
 fn hosted_actor_credentials_are_only_available_to_host_owned_mcp_servers() {
-    let bootstrap_auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let bootstrap_auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let mut actor_headers = Default::default();
     maplecode_model_provider::auth_provider_from_auth(&bootstrap_auth)
         .add_auth_headers(&mut actor_headers)
@@ -4919,7 +4919,7 @@ fn hosted_actor_credentials_are_only_available_to_host_owned_mcp_servers() {
             .parse()
             .expect("valid actor authorization header"),
     );
-    let hosted_auth = MapleCodeAuth::Headers(AuthHeaders::new(actor_headers));
+    let hosted_auth = MaplecodeAuth::Headers(AuthHeaders::new(actor_headers));
     let provider = maplecode_model_provider::auth_provider_from_auth(&hosted_auth);
     let mut local_config = crate::maplecode_apps_mcp_server_config(
         "https://chatgpt.com",
@@ -4953,7 +4953,7 @@ fn hosted_actor_credentials_are_only_available_to_host_owned_mcp_servers() {
 #[test]
 fn gov_maplecode_apps_retain_local_chatgpt_auth_provider() -> anyhow::Result<()> {
     let maplecode_home = tempdir()?;
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let provider = maplecode_model_provider::auth_provider_from_auth(&auth);
     let mut config = crate::mcp::tests::test_mcp_config(maplecode_home.path().to_path_buf());
     config.chatgpt_base_url = "https://gov.chatgpt.com/backend-api/".to_string();
@@ -5031,7 +5031,7 @@ async fn executor_owned_chatgpt_mcp_accepts_only_safe_explicit_authorization() -
     )?;
     let runtime_context =
         McpRuntimeContext::new(Arc::clone(&environment_manager), PathBuf::from("/tmp"));
-    let bootstrap_auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let bootstrap_auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let mut actor_headers = Default::default();
     maplecode_model_provider::auth_provider_from_auth(&bootstrap_auth)
         .add_auth_headers(&mut actor_headers)
@@ -5042,7 +5042,7 @@ async fn executor_owned_chatgpt_mcp_accepts_only_safe_explicit_authorization() -
             .parse()
             .expect("valid actor authorization header"),
     );
-    let hosted_auth = MapleCodeAuth::Headers(AuthHeaders::new(actor_headers));
+    let hosted_auth = MaplecodeAuth::Headers(AuthHeaders::new(actor_headers));
     let runtime_config = crate::mcp::tests::test_mcp_config(maplecode_home.path().to_path_buf());
     let cases = [
         ("missing", None, None, None, false),
@@ -6952,7 +6952,7 @@ async fn reconciliation_updates_elicitation_policy_without_restarting_ready_serv
                 panic!("expected MCP elicitation");
             };
             let maplecode_protocol::mcp::RequestId::String(request_id) = request.id else {
-                panic!("expected MapleCode-owned string request ID");
+                panic!("expected Maplecode-owned string request ID");
             };
             router
                 .resolve(
@@ -7198,17 +7198,17 @@ async fn connection_identity_distinguishes_accounts_with_the_same_token() -> any
     let config = reusable_server_config("http://127.0.0.1:1");
     let server = EffectiveMcpServer::from_host_config(config);
     let access_token = "header.e30.same";
-    let previous_auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let previous_auth = MaplecodeAuth::from_external_chatgpt_tokens(
         access_token,
         "account-a",
         /*chatgpt_plan_type*/ None,
     )?;
-    let changed_auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let changed_auth = MaplecodeAuth::from_external_chatgpt_tokens(
         access_token,
         "account-b",
         /*chatgpt_plan_type*/ None,
     )?;
-    let connection_identity = |auth: &MapleCodeAuth| {
+    let connection_identity = |auth: &MaplecodeAuth| {
         let provider = maplecode_model_provider::auth_provider_from_auth(auth);
         McpServerConnectionIdentity::new(
             "docs",
@@ -7255,7 +7255,7 @@ async fn connection_identity_distinguishes_agent_account_runtime_and_task() -> a
         task_id: Some("task-a".to_string()),
     };
     let auth_route_config = maplecode_login::test_support::transport_default_auth_route_config();
-    let previous_auth = MapleCodeAuth::AgentIdentity(
+    let previous_auth = MaplecodeAuth::AgentIdentity(
         maplecode_login::auth::AgentIdentityAuth::from_record(
             record.clone(),
             "https://auth.openai.com/api/accounts",
@@ -7263,7 +7263,7 @@ async fn connection_identity_distinguishes_agent_account_runtime_and_task() -> a
         )
         .await?,
     );
-    let connection_identity = |auth: &MapleCodeAuth| {
+    let connection_identity = |auth: &MaplecodeAuth| {
         let provider = maplecode_model_provider::auth_provider_from_auth(auth);
         McpServerConnectionIdentity::new(
             MAPLECODE_APPS_MCP_SERVER_NAME,
@@ -7307,7 +7307,7 @@ async fn connection_identity_distinguishes_agent_account_runtime_and_task() -> a
             ..record.clone()
         },
     ] {
-        let changed_auth = MapleCodeAuth::AgentIdentity(
+        let changed_auth = MaplecodeAuth::AgentIdentity(
             maplecode_login::auth::AgentIdentityAuth::from_record(
                 changed_record,
                 "https://auth.openai.com/api/accounts",

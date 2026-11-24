@@ -7,7 +7,7 @@ use tokio::sync::Notify;
 #[tokio::test]
 async fn stale_apps_refresh_does_not_publish() -> anyhow::Result<()> {
     let home = tempfile::tempdir()?;
-    let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let auth = MaplecodeAuth::from_external_chatgpt_tokens(
         "header.e30.token",
         "account",
         /*chatgpt_plan_type*/ None,

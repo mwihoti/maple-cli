@@ -634,7 +634,7 @@ impl McpConnectionSet {
                         configured_config.auth,
                         maplecode_config::McpServerAuth::ChatGpt
                     )
-                    && auth.is_some_and(maplecode_login::MapleCodeAuth::uses_maplecode_backend)
+                    && auth.is_some_and(maplecode_login::MaplecodeAuth::uses_maplecode_backend)
                     && matches!(&configured_config.transport,
                         McpServerTransportConfig::StreamableHttp { url, .. }
                             if maplecode_http_client::classify_openai_api_url(url)
@@ -684,7 +684,7 @@ impl McpConnectionSet {
                 static_chatgpt_auth_provider.clone()
             };
             // If Maple Code Apps has an env bearer token, that is its auth path. Do
-            // not also attach the ambient MapleCodeAuth provider.
+            // not also attach the ambient MaplecodeAuth provider.
             let runtime_auth_provider =
                 if server_name == MAPLECODE_APPS_MCP_SERVER_NAME && uses_env_bearer_token {
                     None

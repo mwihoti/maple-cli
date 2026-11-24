@@ -139,7 +139,7 @@ pub(crate) type ManagedClientFuture =
 type StartupShutdown = Shared<BoxFuture<'static, Result<(), String>>>;
 
 #[derive(Default)]
-struct MapleCodeAppsStartupReconnectState {
+struct MaplecodeAppsStartupReconnectState {
     current_client: Option<ManagedClient>,
     last_error: Option<StartupOutcomeError>,
     reconnect_in_flight: Option<ManagedClientFuture>,
@@ -148,23 +148,23 @@ struct MapleCodeAppsStartupReconnectState {
 }
 
 #[derive(Clone)]
-struct MapleCodeAppsStartupStatusContext {
+struct MaplecodeAppsStartupStatusContext {
     submit_id: String,
     server_name: String,
     tx_event: Sender<Event>,
 }
 
-pub(crate) struct MapleCodeAppsStartupReconnect {
+pub(crate) struct MaplecodeAppsStartupReconnect {
     factory: Arc<dyn Fn() -> ManagedClientFuture + Send + Sync>,
-    state: StdMutex<MapleCodeAppsStartupReconnectState>,
-    startup_status_context: Option<MapleCodeAppsStartupStatusContext>,
+    state: StdMutex<MaplecodeAppsStartupReconnectState>,
+    startup_status_context: Option<MaplecodeAppsStartupStatusContext>,
 }
 
-impl MapleCodeAppsStartupReconnect {
+impl MaplecodeAppsStartupReconnect {
     pub(crate) fn new(factory: Arc<dyn Fn() -> ManagedClientFuture + Send + Sync>) -> Self {
         Self {
             factory,
-            state: StdMutex::new(MapleCodeAppsStartupReconnectState::default()),
+            state: StdMutex::new(MaplecodeAppsStartupReconnectState::default()),
             startup_status_context: None,
         }
     }
@@ -175,7 +175,7 @@ impl MapleCodeAppsStartupReconnect {
         server_name: String,
         tx_event: Option<Sender<Event>>,
     ) -> Self {
-        self.startup_status_context = tx_event.map(|tx_event| MapleCodeAppsStartupStatusContext {
+        self.startup_status_context = tx_event.map(|tx_event| MaplecodeAppsStartupStatusContext {
             submit_id,
             server_name,
             tx_event,
@@ -468,7 +468,7 @@ pub(crate) struct AsyncManagedClient {
     pub(crate) maplecode_apps_tools_cache_context: Option<ConnectorRuntimeContext<ToolInfo>>,
     pub(crate) tool_catalog_cache_context: Option<McpToolCatalogCacheContext>,
     pub(crate) startup_complete: Arc<AtomicBool>,
-    pub(crate) startup_reconnect: Option<Arc<MapleCodeAppsStartupReconnect>>,
+    pub(crate) startup_reconnect: Option<Arc<MaplecodeAppsStartupReconnect>>,
     pub(crate) connection_slot: Option<Arc<ConnectionSlot>>,
     pub(crate) cancel_token: CancellationToken,
 }
@@ -609,7 +609,7 @@ impl AsyncManagedClient {
         let startup_reconnect = is_maplecode_apps_mcp_server.then(|| {
             let startup = Arc::clone(&startup);
             Arc::new(
-                MapleCodeAppsStartupReconnect::new(Arc::new(move || {
+                MaplecodeAppsStartupReconnect::new(Arc::new(move || {
                     startup.start(/*sharing_declined*/ None, /*publish_apps*/ None)
                 }))
                 .with_startup_status_context(
@@ -1395,7 +1395,7 @@ pub(crate) fn mcp_initialize_request_params(
     InitializeRequestParams::new(
         capabilities,
         Implementation::new("maplecode-mcp-client", env!("CARGO_PKG_VERSION"))
-            .with_title("MapleCode"),
+            .with_title("Maple Code"),
     )
     .with_protocol_version(ProtocolVersion::V_2025_06_18)
 }

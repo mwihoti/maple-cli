@@ -531,7 +531,7 @@ async fn elicitation_without_an_automatic_decision_prompts() {
             };
             assert!(!pending.is_finished());
             let ProtocolRequestId::String(request_id) = request.id else {
-                panic!("expected MapleCode-owned string request ID");
+                panic!("expected Maplecode-owned string request ID");
             };
             let response = ElicitationResponse {
                 action: ElicitationAction::Accept,
@@ -753,7 +753,7 @@ async fn reused_elicitation_senders_follow_each_servers_latest_permission_author
     config.approval_policy = maplecode_config::Constrained::allow_any(AskForApproval::Never);
     config.permission_profile = PermissionProfile::Disabled;
     config.apps_enabled = true;
-    let auth = maplecode_login::MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = maplecode_login::MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let hosted_server = crate::maplecode_apps_mcp_server_config(
         "https://example.com",

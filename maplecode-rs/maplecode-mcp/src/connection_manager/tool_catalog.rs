@@ -25,7 +25,7 @@ use crate::binding::PreparedMcpCall;
 use crate::binding::PreparedToolInfo;
 use crate::binding_clients::McpBindingClients;
 use crate::client_tool_catalog::ClientToolCatalogRevision;
-use crate::client_tool_catalog::MapleCodeAppsToolSnapshot;
+use crate::client_tool_catalog::MaplecodeAppsToolSnapshot;
 use crate::client_tool_catalog::ToolCatalogSnapshot;
 use crate::mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use crate::rmcp_client::MAPLECODE_APPS_REFRESH_DURATION_METRIC;
@@ -653,7 +653,7 @@ impl McpConnectionSet {
         &self,
         config: &crate::McpConfig,
         validate: impl FnOnce() -> Option<G>,
-    ) -> Result<Option<MapleCodeAppsToolSnapshot>> {
+    ) -> Result<Option<MaplecodeAppsToolSnapshot>> {
         let refresh_start = Instant::now();
         let view = self
             .servers
@@ -682,7 +682,7 @@ impl McpConnectionSet {
             refresh_start.elapsed(),
             &[("path", "legacy"), ("trigger", "explicit")],
         );
-        Ok(Some(MapleCodeAppsToolSnapshot {
+        Ok(Some(MaplecodeAppsToolSnapshot {
             tools,
             model_visible_tool_names,
         }))

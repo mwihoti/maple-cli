@@ -20,7 +20,7 @@ use maplecode_exec_server::HttpRequestParams;
 use maplecode_exec_server::HttpRequestResponse;
 use maplecode_exec_server::HttpResponseBodyStream;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_rmcp_client::EmaAuthFailure;
 use maplecode_rmcp_client::EmaAuthenticatedHttpClient;
 use maplecode_rmcp_client::EmaErrorDetail;
@@ -49,7 +49,7 @@ pub(crate) struct EmaConnectionAuth {
     pub(crate) authority: EmaRequestAuthority,
 }
 
-pub fn ema_auth_scope(auth: Option<&MapleCodeAuth>) -> Option<McpEmaAuthScope> {
+pub fn ema_auth_scope(auth: Option<&MaplecodeAuth>) -> Option<McpEmaAuthScope> {
     let auth = auth?;
     McpEmaAuthScope::new(auth.get_chatgpt_user_id()?, auth.get_account_id()?)
 }
@@ -59,7 +59,7 @@ pub(crate) struct EmaAuth {
     pub(crate) scope: McpEmaAuthScope,
     pub(crate) config: Arc<McpConfig>,
     pub(crate) manager: Arc<AuthManager>,
-    pub(crate) account: MapleCodeAuth,
+    pub(crate) account: MaplecodeAuth,
     pub(crate) authority: EmaRequestAuthority,
     _revocation: AbortOnDropHandle<()>,
 }
@@ -67,7 +67,7 @@ pub(crate) struct EmaAuth {
 impl EmaAuth {
     pub(crate) fn new(
         config: Arc<McpConfig>,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         auth_manager: Option<&Arc<AuthManager>>,
     ) -> Result<Arc<Self>> {
         let scope = ema_auth_scope(auth).ok_or(EmaAuthFailure::ReauthenticationRequired)?;

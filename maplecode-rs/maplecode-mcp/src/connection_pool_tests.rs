@@ -11,7 +11,7 @@ use crate::runtime::McpRuntimeContext;
 use futures::future::BoxFuture;
 use maplecode_config::McpServerConfig;
 use maplecode_exec_server::EnvironmentManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_rmcp_client::Elicitation;
 use maplecode_rmcp_client::InProcessTransportFactory;
 use maplecode_rmcp_client::RmcpClient;
@@ -702,7 +702,7 @@ async fn callback_during_startup_releases_waiting_chats_without_sharing_authorit
 #[tokio::test]
 async fn connection_key_changes_with_the_owner_but_survives_credential_refresh() {
     let manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let mut original = key(&context(), &config());
     original.auth_state = Some((manager, AuthChangeState::default()));
     let mut refreshed = original.clone();

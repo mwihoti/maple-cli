@@ -6,7 +6,7 @@ use std::sync::Mutex;
 use maplecode_config::McpEmaRegistration;
 use maplecode_config::McpServerIdpOAuthConfig;
 use maplecode_login::AccountOAuthGrantRevision;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::TokenData;
 use maplecode_rmcp_client::account_oidc_identity_is_usable;
 use maplecode_rmcp_client::account_oidc_issuer_hint;
@@ -52,10 +52,10 @@ impl EmaState {
 
     pub(crate) fn account_is_usable(
         &self,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
         registration: &McpEmaRegistration,
     ) -> bool {
-        matches!(auth, MapleCodeAuth::Chatgpt(_))
+        matches!(auth, MaplecodeAuth::Chatgpt(_))
             && auth.get_token_data().is_ok_and(|tokens| {
                 account_grant_is_usable(&tokens, registration.idp())
                     && !self.requires_sign_in(registration, &tokens)
@@ -90,7 +90,7 @@ pub(crate) fn account_grant_is_usable(tokens: &TokenData, idp: &McpServerIdpOAut
 }
 
 pub(crate) fn account_configuration_issue(
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     idp: &McpServerIdpOAuthConfig,
 ) -> Option<&'static str> {
     let tokens = auth.get_token_data().ok()?;

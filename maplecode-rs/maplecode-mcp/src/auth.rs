@@ -9,7 +9,7 @@ use maplecode_api::SharedAuthProvider;
 use maplecode_exec_server::RouteAwareHttpClient;
 use maplecode_features::RuntimeAuthMode;
 use maplecode_http_client::HttpClientFactory;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::ClientAuth;
 use maplecode_rmcp_client::AuthProviderResolver;
 use maplecode_runtime_agent_instance::RuntimeAuthSlot;
@@ -28,7 +28,7 @@ pub(crate) enum McpAuthProvider {
 pub(crate) struct RuntimeMcpAuth {
     slot: RuntimeAuthSlot,
     mode: RuntimeAuthMode,
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     client_auth: OnceCell<ClientAuth>,
 }
 
@@ -40,7 +40,7 @@ struct RuntimeMcpRequestAuth {
 impl McpAuthProvider {
     pub(crate) fn runtime(
         (slot, mode): (RuntimeAuthSlot, RuntimeAuthMode),
-        auth: MapleCodeAuth,
+        auth: MaplecodeAuth,
     ) -> Self {
         Self::Runtime(Arc::new(RuntimeMcpAuth {
             slot,

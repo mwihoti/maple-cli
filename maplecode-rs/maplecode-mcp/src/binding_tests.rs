@@ -521,7 +521,7 @@ async fn sandbox_executable_requires_local_stdio_and_a_full_cli() -> anyhow::Res
         (
             serde_json::json!({"command": "mcp"}),
             "local",
-            Some(std::ffi::OsStr::from_bytes(b"/non-utf8-\xff/maplecode").into()),
+            Some(std::ffi::OsStr::from_bytes(b"/non-utf8-\xff/codex").into()),
             None,
         ),
         (

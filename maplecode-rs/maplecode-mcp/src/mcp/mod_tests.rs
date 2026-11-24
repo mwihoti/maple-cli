@@ -16,7 +16,7 @@ use maplecode_config::types::AuthKeyringBackendKind;
 use maplecode_exec_server_test_support::environment_manager_without_environments;
 use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_plugin::AppConnectorId;
 use maplecode_plugin::PluginCapabilitySummary;
 use maplecode_protocol::models::ManagedFileSystemPermissions;
@@ -802,7 +802,7 @@ async fn effective_mcp_servers_preserve_runtime_servers() {
     let maplecode_home = tempfile::tempdir().expect("tempdir");
     let mut config = test_mcp_config(maplecode_home.path().to_path_buf());
     config.apps_enabled = true;
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
 
     let mut catalog = ResolvedMcpCatalog::builder();
     catalog.register(McpServerRegistration::from_config(
