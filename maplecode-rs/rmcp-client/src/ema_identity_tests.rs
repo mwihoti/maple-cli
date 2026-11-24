@@ -32,7 +32,7 @@ use crate::WrappedOAuthTokenResponse;
 use crate::oauth::RefreshCredentialLock;
 use crate::oauth::ResolvedOAuthCredentialStore;
 use crate::oauth::StoredOAuthCredentialSnapshot;
-use crate::oauth::test_support::TempMapleCodeHome;
+use crate::oauth::test_support::TempMaplecodeHome;
 
 fn credentials(issuer: &str, subject: &str, expires_at: u64) -> StoredOAuthTokens {
     let assertion = format!(
@@ -243,7 +243,7 @@ impl KeyringStore for GatedKeyringStore {
 
 #[tokio::test(flavor = "current_thread")]
 async fn refresh_subject_reread_is_cancellable_and_releases_guard_on_failure() -> Result<()> {
-    let _home = TempMapleCodeHome::new();
+    let _home = TempMaplecodeHome::new();
     let (_server, issuer) = discovery().await;
     let store = ResolvedOAuthCredentialStore::keyring(AuthKeyringBackendKind::Direct);
     let stored = credentials(&issuer, "user", /*expires_at*/ 0);
@@ -311,7 +311,7 @@ async fn refresh_subject_reread_is_cancellable_and_releases_guard_on_failure() -
                 );
             }
         }
-        // Drain the detached read before TempMapleCodeHome changes the process environment.
+        // Drain the detached read before TempMaplecodeHome changes the process environment.
         let _released = tokio::time::timeout(
             REREAD_TEST_TIMEOUT,
             RefreshCredentialLock::acquire_for_server(&stored.server_name, &issuer),
@@ -323,7 +323,7 @@ async fn refresh_subject_reread_is_cancellable_and_releases_guard_on_failure() -
 
 #[tokio::test]
 async fn refresh_subject_rereads_pinned_credentials_after_id_token_expiry() -> Result<()> {
-    let _home = TempMapleCodeHome::new();
+    let _home = TempMaplecodeHome::new();
     let (_server, issuer) = discovery().await;
     let store = ResolvedOAuthCredentialStore::keyring(AuthKeyringBackendKind::Direct);
     let stored = credentials(&issuer, "user", /*expires_at*/ 0);
@@ -342,7 +342,7 @@ async fn refresh_subject_rereads_pinned_credentials_after_id_token_expiry() -> R
 
 #[tokio::test]
 async fn refresh_subject_rejects_removed_replaced_or_missing_credentials() -> Result<()> {
-    let _home = TempMapleCodeHome::new();
+    let _home = TempMaplecodeHome::new();
     let (server, issuer) = discovery().await;
     let now = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
     let store = ResolvedOAuthCredentialStore::keyring(AuthKeyringBackendKind::Direct);

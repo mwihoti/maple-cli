@@ -39,7 +39,7 @@ use wiremock::matchers::method;
 use wiremock::matchers::path;
 
 use super::MockKeyringStore;
-use super::TempMapleCodeHome;
+use super::TempMaplecodeHome;
 use super::assert_tokens_match_without_expiry;
 use super::sample_tokens;
 use crate::http_client_adapter::StreamableHttpClientAdapter;
@@ -1035,8 +1035,8 @@ async fn persistor_for(tokens: &StoredOAuthTokens) -> Result<OAuthPersistor> {
     ))
 }
 
-pub(super) async fn test_context() -> Result<(TempMapleCodeHome, MockServer, StoredOAuthTokens)> {
-    let env = TempMapleCodeHome::new();
+pub(super) async fn test_context() -> Result<(TempMaplecodeHome, MockServer, StoredOAuthTokens)> {
+    let env = TempMaplecodeHome::new();
     let server = MockServer::start().await;
     mount_oauth_metadata(&server).await;
     let tokens = expired_tokens(&format!("{}/mcp", server.uri()));

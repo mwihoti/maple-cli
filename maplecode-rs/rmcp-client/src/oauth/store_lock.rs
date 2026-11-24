@@ -89,7 +89,7 @@ impl OAuthStoreLock {
         // those stores already cannot operate. A future provider-backed credential store should
         // provide its own matching lock authority instead of using this local path.
         let maplecode_home = find_maplecode_home()
-            .map_err(|source| OAuthStoreLockFailure::MapleCodeHome { store, source })?;
+            .map_err(|source| OAuthStoreLockFailure::MaplecodeHome { store, source })?;
         Self::acquire_in_with_mode(&maplecode_home, store, acquire_timeout, mode)
     }
 
@@ -166,7 +166,7 @@ impl OAuthStoreLock {
 #[derive(Debug, thiserror::Error)]
 pub(super) enum OAuthStoreLockFailure {
     #[error("failed to resolve MAPLECODE_HOME for MCP OAuth {store} aggregate-store lock")]
-    MapleCodeHome {
+    MaplecodeHome {
         store: OAuthStore,
         #[source]
         source: io::Error,

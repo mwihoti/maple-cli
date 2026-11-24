@@ -33,12 +33,12 @@ pub(crate) async fn warm_http_client(
 ///
 /// Keep OAuth tests on this one guard instead of defining per-module helpers; otherwise
 /// concurrently running test modules can point File/Secrets storage at different homes.
-pub(crate) struct TempMapleCodeHome {
+pub(crate) struct TempMaplecodeHome {
     _guard: MutexGuard<'static, ()>,
     _dir: tempfile::TempDir,
 }
 
-impl TempMapleCodeHome {
+impl TempMaplecodeHome {
     pub(crate) fn new() -> Self {
         static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
         let guard = LOCK
@@ -60,7 +60,7 @@ impl TempMapleCodeHome {
     }
 }
 
-impl Drop for TempMapleCodeHome {
+impl Drop for TempMaplecodeHome {
     fn drop(&mut self) {
         unsafe {
             std::env::remove_var("MAPLECODE_HOME");

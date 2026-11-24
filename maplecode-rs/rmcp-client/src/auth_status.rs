@@ -642,7 +642,7 @@ mod tests {
 
     #[tokio::test]
     async fn determine_auth_status_preserves_transient_http_errors() {
-        let _home = crate::oauth::test_support::TempMapleCodeHome::new();
+        let _home = crate::oauth::test_support::TempMaplecodeHome::new();
         for status in [
             StatusCode::REQUEST_TIMEOUT,
             StatusCode::TOO_EARLY,

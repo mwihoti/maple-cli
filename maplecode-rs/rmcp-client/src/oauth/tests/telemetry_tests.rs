@@ -16,7 +16,7 @@ fn policy_and_pinned_operations_keep_distinct_outcomes_and_originator() -> Resul
     if isolated_process()? {
         return Ok(());
     }
-    let _env = TempMapleCodeHome::new();
+    let _env = TempMaplecodeHome::new();
     keyring::set_default_credential_builder(keyring::mock::default_credential_builder());
     let metrics = test_metrics()?;
     let store = MockKeyringStore::default();
@@ -205,7 +205,7 @@ fn cleanup_failure_retains_policy_and_remains_best_effort() -> Result<()> {
     if isolated_process()? {
         return Ok(());
     }
-    let _env = TempMapleCodeHome::new();
+    let _env = TempMaplecodeHome::new();
     let metrics = test_metrics()?;
     let tokens = sample_tokens();
     let key = compute_store_key(&tokens.server_name, &tokens.url)?;
@@ -307,7 +307,7 @@ async fn coordinated_refresh_persistence_records_success_and_failure() -> Result
     if isolated_process()? {
         return Ok(());
     }
-    let _env = TempMapleCodeHome::new();
+    let _env = TempMaplecodeHome::new();
     let metrics = test_metrics()?;
     for fail_save in [false, true] {
         let keyring = MockKeyringStore::default();

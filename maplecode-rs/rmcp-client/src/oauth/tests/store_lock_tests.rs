@@ -41,7 +41,7 @@ use crate::oauth::save_oauth_tokens_to_secrets_keyring_with_lock_held;
 use crate::oauth::save_oauth_tokens_with_keyring;
 use crate::oauth::save_oauth_tokens_with_keyring_with_fallback_to_file;
 use crate::oauth::stored_oauth_credential_snapshot;
-use crate::oauth::test_support::TempMapleCodeHome;
+use crate::oauth::test_support::TempMaplecodeHome;
 use maplecode_config::types::OAuthCredentialsStoreMode;
 
 const STORE_LOCK_CONTENTION_EVENT_TARGET: &str =
@@ -113,7 +113,7 @@ fn sample_tokens() -> StoredOAuthTokens {
 
 #[test]
 fn file_credentials_keep_repeated_local_prefixes_isolated() -> Result<()> {
-    let _env = TempMapleCodeHome::new();
+    let _env = TempMaplecodeHome::new();
     let config: maplecode_config::McpServerConfig = serde_json::from_value(serde_json::json!({
         "url": "https://example.test",
     }))?;
@@ -145,7 +145,7 @@ fn file_credentials_keep_repeated_local_prefixes_isolated() -> Result<()> {
 
 #[test]
 fn legacy_rmcp_oauth_keyring_credentials_remain_readable() -> Result<()> {
-    let _env = TempMapleCodeHome::new();
+    let _env = TempMaplecodeHome::new();
     let keyring_store = MockKeyringStore::default();
     let mut expected = sample_tokens();
     expected.expires_at = None;
@@ -190,7 +190,7 @@ const LOCK_HOLDER_READY_PATH_ENV: &str = "MAPLECODE_OAUTH_STORE_LOCK_CHILD_READY
 
 #[test]
 fn store_lock_is_released_when_holder_process_exits() -> Result<()> {
-    let env = TempMapleCodeHome::new();
+    let env = TempMaplecodeHome::new();
     let ready_file = env.path().join("lock-holder-ready");
     let mut child = Command::new(std::env::current_exe()?)
         .arg("--exact")
@@ -263,7 +263,7 @@ fn store_lock_is_released_when_holder_process_exits_child() -> Result<()> {
 
 #[test]
 fn auto_save_secrets_lock_failure_does_not_fall_back_to_file() -> Result<()> {
-    let env = TempMapleCodeHome::new();
+    let env = TempMaplecodeHome::new();
     let lock_dir = env.path().join("mcp-oauth-locks");
     std::fs::create_dir_all(&lock_dir)?;
     // Break only the Secrets lock path. The distinct File lock remains usable, so Auto would
@@ -292,7 +292,7 @@ fn auto_save_secrets_lock_failure_does_not_fall_back_to_file() -> Result<()> {
 
 #[test]
 fn auto_load_secrets_lock_failure_does_not_fall_back_to_file() -> Result<()> {
-    let env = TempMapleCodeHome::new();
+    let env = TempMaplecodeHome::new();
     let keyring_store = MockKeyringStore::default();
     let tokens = sample_tokens();
     save_oauth_tokens_to_file(&tokens)?;
@@ -317,7 +317,7 @@ fn auto_load_secrets_lock_failure_does_not_fall_back_to_file() -> Result<()> {
 
 #[test]
 fn oauth_credential_probes_skip_contended_file_and_secrets_stores() -> Result<()> {
-    let _env = TempMapleCodeHome::new();
+    let _env = TempMaplecodeHome::new();
     let tokens = sample_tokens();
     let file = OAuthCredentialsStoreMode::File;
     let auto = OAuthCredentialsStoreMode::Auto;
@@ -460,7 +460,7 @@ where
 
 #[test]
 fn aggregate_store_readers_share_access_while_writers_remain_exclusive() -> Result<()> {
-    let env = TempMapleCodeHome::new();
+    let env = TempMaplecodeHome::new();
 
     for store in [OAuthStore::File, OAuthStore::Secrets] {
         let readers = (0..2)
@@ -501,7 +501,7 @@ fn aggregate_store_readers_share_access_while_writers_remain_exclusive() -> Resu
 
 #[test]
 fn aggregate_store_credential_loads_can_share_an_existing_reader() -> Result<()> {
-    let env = TempMapleCodeHome::new();
+    let env = TempMaplecodeHome::new();
     let keyring_store = MockKeyringStore::default();
     let tokens = sample_tokens();
     save_oauth_tokens_to_file(&tokens)?;
@@ -544,7 +544,7 @@ fn aggregate_store_credential_loads_can_share_an_existing_reader() -> Result<()>
 
 #[test]
 fn file_store_lock_preserves_updates_for_different_servers() -> Result<()> {
-    let env = TempMapleCodeHome::new();
+    let env = TempMaplecodeHome::new();
     let first = sample_tokens();
     let mut second = sample_tokens();
     second.server_name = "second-server".to_string();
@@ -569,7 +569,7 @@ fn file_store_lock_preserves_updates_for_different_servers() -> Result<()> {
 
 #[test]
 fn file_store_load_and_delete_observe_aggregate_lock() -> Result<()> {
-    let env = TempMapleCodeHome::new();
+    let env = TempMaplecodeHome::new();
     let tokens = sample_tokens();
     save_oauth_tokens_to_file(&tokens)?;
 
@@ -600,7 +600,7 @@ fn file_store_load_and_delete_observe_aggregate_lock() -> Result<()> {
 
 #[test]
 fn secrets_store_lock_preserves_updates_for_different_servers() -> Result<()> {
-    let env = TempMapleCodeHome::new();
+    let env = TempMaplecodeHome::new();
     let keyring_store = MockKeyringStore::default();
     let first = sample_tokens();
     let mut second = sample_tokens();
@@ -652,7 +652,7 @@ fn secrets_store_lock_preserves_updates_for_different_servers() -> Result<()> {
 
 #[test]
 fn secrets_store_load_and_delete_observe_aggregate_lock() -> Result<()> {
-    let env = TempMapleCodeHome::new();
+    let env = TempMaplecodeHome::new();
     let keyring_store = MockKeyringStore::default();
     let tokens = sample_tokens();
     save_oauth_tokens_with_keyring(

@@ -1340,11 +1340,11 @@ mod tests {
     #[path = "telemetry_tests.rs"]
     mod telemetry_tests;
 
-    use super::test_support::TempMapleCodeHome;
+    use super::test_support::TempMaplecodeHome;
 
     #[test]
     fn stored_oauth_credentials_ignore_derived_expiration_and_track_token_changes() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let mut tokens = sample_tokens();
         let credentials = super::normalized_oauth_credentials(Some(&tokens));
         tokens
@@ -1385,7 +1385,7 @@ mod tests {
 
     #[test]
     fn resolve_oauth_tokens_from_store_policy_uses_keyring_when_available() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let expected = tokens.clone();
@@ -1411,7 +1411,7 @@ mod tests {
 
     #[test]
     fn load_oauth_tokens_falls_back_when_missing_in_keyring() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let expected = tokens.clone();
@@ -1433,7 +1433,7 @@ mod tests {
 
     #[test]
     fn load_oauth_tokens_falls_back_when_keyring_errors() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let expected = tokens.clone();
@@ -1457,7 +1457,7 @@ mod tests {
 
     #[test]
     fn exact_store_operations_do_not_adopt_or_mutate_the_other_store() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let file_tokens = sample_tokens();
         let mut keyring_tokens = file_tokens.clone();
@@ -1486,7 +1486,7 @@ mod tests {
 
     #[test]
     fn save_oauth_tokens_prefers_keyring_when_available() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let key = super::compute_store_key(&tokens.server_name, &tokens.url)?;
@@ -1509,7 +1509,7 @@ mod tests {
 
     #[test]
     fn save_oauth_tokens_writes_fallback_when_keyring_fails() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let key = super::compute_store_key(&tokens.server_name, &tokens.url)?;
@@ -1559,7 +1559,7 @@ mod tests {
             return Ok(());
         }
 
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let path = fallback_file_path()?;
         let file = open_fallback_file_for_write(&path)?;
         assert_eq!(file.metadata()?.permissions().mode() & 0o777, 0o600);
@@ -1571,7 +1571,7 @@ mod tests {
         #[cfg(unix)]
         use std::os::unix::fs::PermissionsExt;
 
-        let env = TempMapleCodeHome::new();
+        let env = TempMaplecodeHome::new();
         save_oauth_tokens_to_file(&sample_tokens())?;
         let path = fallback_file_path()?;
         let original = env.path().join("original-file");
@@ -1601,7 +1601,7 @@ mod tests {
         #[cfg(windows)]
         use std::os::windows::fs::symlink_file as symlink;
 
-        let env = TempMapleCodeHome::new();
+        let env = TempMaplecodeHome::new();
         let path = fallback_file_path()?;
         let target = env.path().join("symlink-target");
         fs::write(&target, "synthetic credentials")?;
@@ -1625,7 +1625,7 @@ mod tests {
 
     #[test]
     fn save_oauth_tokens_with_secrets_backend_writes_encrypted_storage() -> Result<()> {
-        let env = TempMapleCodeHome::new();
+        let env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let key = super::compute_store_key(&tokens.server_name, &tokens.url)?;
@@ -1660,7 +1660,7 @@ mod tests {
 
     #[test]
     fn load_oauth_tokens_with_secrets_backend_reads_encrypted_storage() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let expected = tokens.clone();
@@ -1685,7 +1685,7 @@ mod tests {
 
     #[test]
     fn load_oauth_tokens_with_secrets_backend_ignores_direct_entry() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let key = super::compute_store_key(&tokens.server_name, &tokens.url)?;
@@ -1706,7 +1706,7 @@ mod tests {
     #[test]
     fn save_oauth_tokens_with_secrets_backend_falls_back_to_file_when_keyring_fails() -> Result<()>
     {
-        let env = TempMapleCodeHome::new();
+        let env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         store.set_error(
             &compute_keyring_account(env.path(), LocalSecretsNamespace::McpOAuth),
@@ -1729,7 +1729,7 @@ mod tests {
 
     #[test]
     fn delete_oauth_tokens_with_secrets_backend_removes_secrets_and_file() -> Result<()> {
-        let env = TempMapleCodeHome::new();
+        let env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let serialized = serde_json::to_string(&tokens)?;
@@ -1768,7 +1768,7 @@ mod tests {
 
     #[test]
     fn delete_oauth_tokens_removes_all_storage() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let serialized = serde_json::to_string(&tokens)?;
@@ -1804,7 +1804,7 @@ mod tests {
 
     #[test]
     fn enterprise_file_cleanup_preserves_legacy_local_credentials() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let mut tokens = sample_tokens();
         tokens.server_name = "ema-idp:demo".to_string();
         let key = compute_store_key(&tokens.server_name, &tokens.url)?;
@@ -1827,7 +1827,7 @@ mod tests {
 
     #[test]
     fn delete_oauth_tokens_file_mode_removes_keyring_only_entry() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let serialized = serde_json::to_string(&tokens)?;
@@ -1850,7 +1850,7 @@ mod tests {
 
     #[test]
     fn delete_oauth_tokens_propagates_keyring_errors() -> Result<()> {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let store = MockKeyringStore::default();
         let tokens = sample_tokens();
         let key = super::compute_store_key(&tokens.server_name, &tokens.url)?;

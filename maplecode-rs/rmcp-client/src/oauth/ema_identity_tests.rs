@@ -13,7 +13,7 @@ use super::*;
 use crate::ema_auth_policy::EmaAuthFailure;
 use crate::oauth::RefreshCredentialLock;
 use crate::oauth::compute_store_key;
-use crate::oauth::test_support::TempMapleCodeHome;
+use crate::oauth::test_support::TempMaplecodeHome;
 
 #[derive(Clone, Debug, Default)]
 struct TracingKeyringStore(MockKeyringStore);
@@ -49,7 +49,7 @@ impl KeyringStore for TracingKeyringStore {
 
 #[tokio::test]
 async fn invalidation_rereads_under_exclusive_lock_and_preserves_newer_grants() -> Result<()> {
-    let _home = TempMapleCodeHome::new();
+    let _home = TempMaplecodeHome::new();
     for replacement in [
         None,
         Some("refresh_token"),
@@ -143,7 +143,7 @@ fn versioned_tokens() -> Result<StoredOAuthTokens> {
 
 #[tokio::test]
 async fn cached_credentials_require_the_current_version_after_waiting_for_a_writer() -> Result<()> {
-    let home = TempMapleCodeHome::new();
+    let home = TempMaplecodeHome::new();
     for change in ["replacement", "missing", "corrupt"] {
         let tokens = versioned_tokens()?;
         let keyring = MockKeyringStore::default();
@@ -194,7 +194,7 @@ async fn cached_credentials_require_the_current_version_after_waiting_for_a_writ
 
 #[tokio::test]
 async fn pinning_does_not_bind_a_stale_record_to_a_new_credential_version() -> Result<()> {
-    let _home = TempMapleCodeHome::new();
+    let _home = TempMaplecodeHome::new();
     let tokens = versioned_tokens()?;
     let keyring = MockKeyringStore::default();
     let store = ResolvedOAuthCredentialStore::keyring(AuthKeyringBackendKind::Direct);
@@ -224,7 +224,7 @@ async fn pinning_does_not_bind_a_stale_record_to_a_new_credential_version() -> R
 
 #[tokio::test]
 async fn admitted_credentials_do_not_block_a_new_pin() -> Result<()> {
-    let _home = TempMapleCodeHome::new();
+    let _home = TempMaplecodeHome::new();
     let tokens = versioned_tokens()?;
     let keyring = MockKeyringStore::default();
     let store = ResolvedOAuthCredentialStore::keyring(AuthKeyringBackendKind::Direct);
@@ -245,7 +245,7 @@ async fn admitted_credentials_do_not_block_a_new_pin() -> Result<()> {
 
 #[tokio::test]
 async fn keyring_failure_does_not_reuse_the_pinned_refresh_token() -> Result<()> {
-    let _home = TempMapleCodeHome::new();
+    let _home = TempMaplecodeHome::new();
     let tokens: StoredOAuthTokens = serde_json::from_value(json!({
         "server_name": "ema-idp:keyring-failure",
         "url": "https://idp.example",
@@ -282,7 +282,7 @@ async fn keyring_failure_does_not_reuse_the_pinned_refresh_token() -> Result<()>
 #[traced_test]
 #[tokio::test]
 async fn enterprise_credential_errors_and_keyring_traces_hide_account_key() -> Result<()> {
-    let home = TempMapleCodeHome::new();
+    let home = TempMaplecodeHome::new();
     let sentinel = "private-workspace-sentinel";
     let mut tokens = versioned_tokens()?;
     tokens.server_name = format!("ema-idp:{sentinel}");
@@ -370,7 +370,7 @@ async fn enterprise_credential_errors_and_keyring_traces_hide_account_key() -> R
 
 #[test]
 fn ordinary_oauth_names_cannot_alias_enterprise_credential_keys() -> Result<()> {
-    let _home = TempMapleCodeHome::new();
+    let _home = TempMaplecodeHome::new();
     let issuer = "https://idp.example";
     let enterprise_name = "ema-idp:synthetic-identity";
     let ordinary: maplecode_config::McpServerConfig = serde_json::from_value(json!({

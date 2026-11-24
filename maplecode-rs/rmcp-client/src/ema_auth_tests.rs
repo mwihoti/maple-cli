@@ -24,7 +24,7 @@ use crate::oauth::RefreshCredentialLock;
 use crate::oauth::ResolvedOAuthCredentialStore;
 use crate::oauth::StoredOAuthCredentialSnapshot;
 use crate::oauth::StoredOAuthTokens;
-use crate::oauth::test_support::TempMapleCodeHome;
+use crate::oauth::test_support::TempMaplecodeHome;
 
 fn request<'a>(resource: &'a str, issuer: Option<&'a str>) -> EmaAuthTokenExchangeRequest<'a> {
     let client: Arc<dyn HttpClient> = Arc::new(RouteAwareHttpClient::new(HttpClientFactory::new(
@@ -398,7 +398,7 @@ fn discovery_rejects_private_or_ambiguous_issuer_destinations() -> Result<()> {
 
 #[tokio::test]
 async fn rejected_grants_preserve_their_source_and_release_the_credential_lease() -> Result<()> {
-    let _home = TempMapleCodeHome::new();
+    let _home = TempMaplecodeHome::new();
     for failure_source in [
         EmaInvalidGrantSource::EnterpriseIdentity,
         EmaInvalidGrantSource::ResourceAuthorization,

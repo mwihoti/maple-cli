@@ -15,7 +15,7 @@ use rmcp::transport::auth::AuthError;
 use rmcp::transport::auth::CredentialStore;
 
 use super::MockKeyringStore;
-use super::TempMapleCodeHome;
+use super::TempMaplecodeHome;
 use super::assert_tokens_match_without_expiry;
 use super::sample_tokens;
 use crate::oauth::OAuthCredentialStore;
@@ -32,7 +32,7 @@ use crate::oauth::store_lock::OAuthStoreLock;
 #[tokio::test(flavor = "current_thread")]
 async fn mutations_require_and_retain_the_transaction_guard() -> Result<()> {
     for clear in [false, true] {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let initial = sample_tokens();
         save_oauth_tokens_to_file(&initial)?;
         let store = OAuthCredentialStore::new(
@@ -95,7 +95,7 @@ async fn mutations_require_and_retain_the_transaction_guard() -> Result<()> {
 #[tokio::test(flavor = "current_thread")]
 async fn save_publishes_only_persisted_credentials() -> Result<()> {
     for fail_save in [false, true] {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let initial = sample_tokens();
         let keyring = MockKeyringStore::default();
         let authority = ResolvedOAuthCredentialStore::keyring(AuthKeyringBackendKind::Direct);
@@ -160,7 +160,7 @@ async fn save_publishes_only_persisted_credentials() -> Result<()> {
 
 #[tokio::test(flavor = "current_thread")]
 async fn pinned_read_failure_does_not_adopt_fallback_credentials() -> Result<()> {
-    let _env = TempMapleCodeHome::new();
+    let _env = TempMaplecodeHome::new();
     let initial = sample_tokens();
     save_oauth_tokens_to_file(&initial)?;
     let keyring = MockKeyringStore::default();
@@ -190,7 +190,7 @@ async fn pinned_read_failure_does_not_adopt_fallback_credentials() -> Result<()>
 
 #[tokio::test(flavor = "current_thread")]
 async fn replacement_or_removal_does_not_acknowledge_a_new_runtime_snapshot() -> Result<()> {
-    let _env = TempMapleCodeHome::new();
+    let _env = TempMaplecodeHome::new();
     let initial = sample_tokens();
     save_oauth_tokens_to_file(&initial)?;
     let store = OAuthCredentialStore::new(
@@ -234,7 +234,7 @@ async fn replacement_or_removal_does_not_acknowledge_a_new_runtime_snapshot() ->
 
 #[tokio::test(flavor = "current_thread")]
 async fn storage_roundtrip_preserves_absolute_and_unknown_expiry() -> Result<()> {
-    let _env = TempMapleCodeHome::new();
+    let _env = TempMaplecodeHome::new();
     let initial = sample_tokens();
     save_oauth_tokens_to_file(&initial)?;
     let store = OAuthCredentialStore::new(
@@ -293,7 +293,7 @@ async fn storage_roundtrip_preserves_absolute_and_unknown_expiry() -> Result<()>
 
 #[tokio::test(flavor = "current_thread")]
 async fn cancelled_rejection_retains_guard_and_preserves_replacement() -> Result<()> {
-    let _env = TempMapleCodeHome::new();
+    let _env = TempMaplecodeHome::new();
     let initial = sample_tokens();
     save_oauth_tokens_to_file(&initial)?;
     let store = OAuthCredentialStore::new(
@@ -344,7 +344,7 @@ async fn keyring_rejection_respects_credential_scope() -> Result<()> {
         AuthKeyringBackendKind::Direct,
         AuthKeyringBackendKind::Secrets,
     ] {
-        let _env = TempMapleCodeHome::new();
+        let _env = TempMaplecodeHome::new();
         let initial = sample_tokens();
         let keyring = MockKeyringStore::default();
         let authority = ResolvedOAuthCredentialStore::keyring(kind);
