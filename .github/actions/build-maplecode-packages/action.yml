@@ -1,5 +1,5 @@
 name: build-maplecode-packages
-description: Build and smoke-test unsigned MapleCode CLI and app-server release packages.
+description: Build and smoke-test unsigned Maplecode CLI and app-server release packages.
 inputs:
   target:
     description: Rust release target triple to build and test.
@@ -118,7 +118,7 @@ runs:
           --archive-dir "../symbols-dist/${TARGET}" \
           --binaries "$NEEDED_BINARIES"
 
-    - name: Build MapleCode package archives
+    - name: Build Maplecode package archives
       shell: bash
       working-directory: maplecode-rs
       env:

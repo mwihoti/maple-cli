@@ -43,7 +43,7 @@ if ((Test-Path "D:\") -and (Test-DevDrive "D:")) {
         $Disk = $Mounted | Get-Disk -ErrorAction Stop
         $Disk | Initialize-Disk -PartitionStyle GPT -ErrorAction Stop
         $Partition = $Disk | New-Partition -AssignDriveLetter -UseMaximumSize -ErrorAction Stop
-        $Volume = $Partition | Format-Volume -FileSystem ReFS -NewFileSystemLabel "MapleCodeDevDrive" -DevDrive -Confirm:$false -Force -ErrorAction Stop
+        $Volume = $Partition | Format-Volume -FileSystem ReFS -NewFileSystemLabel "MaplecodeDevDrive" -DevDrive -Confirm:$false -Force -ErrorAction Stop
 
         $Drive = "$($Volume.DriveLetter):"
 

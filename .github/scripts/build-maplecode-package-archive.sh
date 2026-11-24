@@ -124,7 +124,7 @@ case "$bundle" in
     archive_stem="maplecode-app-server-package"
     ;;
   *)
-    echo "No MapleCode package variant for bundle: $bundle" >&2
+    echo "No Maplecode package variant for bundle: $bundle" >&2
     exit 1
     ;;
 esac

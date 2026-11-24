@@ -18,7 +18,7 @@ jobs:
     outputs:
       maplecode_output: ${{ steps.maplecode-all.outputs.final-message }}
     steps:
-      - name: Prepare MapleCode inputs
+      - name: Prepare Maplecode inputs
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -154,7 +154,7 @@ jobs:
 
   gather-duplicates-open:
     name: Identify potential duplicates (open issues fallback)
-    # Pass 1 MapleCode execution drops sudo on its runner, so run the fallback in a fresh job.
+    # Pass 1 Maplecode execution drops sudo on its runner, so run the fallback in a fresh job.
     needs: normalize-duplicates-all
     if: ${{ needs.normalize-duplicates-all.result == 'success' && needs.normalize-duplicates-all.outputs.has_matches != 'true' }}
     runs-on: ubuntu-latest
@@ -164,7 +164,7 @@ jobs:
     outputs:
       maplecode_output: ${{ steps.maplecode-open.outputs.final-message }}
     steps:
-      - name: Prepare MapleCode inputs
+      - name: Prepare Maplecode inputs
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -373,7 +373,7 @@ jobs:
             try {
               parsed = JSON.parse(raw);
             } catch (error) {
-              core.info(`MapleCode output was not valid JSON. Raw output: ${raw}`);
+              core.info(`Maplecode output was not valid JSON. Raw output: ${raw}`);
               core.info(`Parse error: ${error.message}`);
               return;
             }
@@ -393,7 +393,7 @@ jobs:
             const filteredIssues = [...new Set(issues.map((value) => String(value)))].filter((value) => value !== currentIssueNumber).slice(0, 5);
 
             if (filteredIssues.length === 0) {
-              core.info('MapleCode reported no potential duplicates.');
+              core.info('Maplecode reported no potential duplicates.');
               return;
             }
 
@@ -402,7 +402,7 @@ jobs:
               '',
               ...filteredIssues.map((value) => `- #${String(value)}`),
               '',
-              '*Powered by [MapleCode Action](https://github.com/openai/codex-action)*'];
+              '*Powered by [Maplecode Action](https://github.com/openai/codex-action)*'];
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,

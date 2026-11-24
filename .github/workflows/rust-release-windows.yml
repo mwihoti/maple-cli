@@ -526,7 +526,7 @@ jobs:
               "$dest/${binary}-${{ matrix.target }}.exe"
           done
 
-      - name: Build MapleCode package archives
+      - name: Build Maplecode package archives
         shell: bash
         run: |
           set -euo pipefail

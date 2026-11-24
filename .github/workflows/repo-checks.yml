@@ -40,7 +40,7 @@ jobs:
       - name: Test PyPI release verification
         run: uv run --no-project --with packaging==26.2 python -m unittest discover -s .github/scripts -p 'test_verify_pypi_release.py'
 
-      - name: Test MapleCode package builder
+      - name: Test Maplecode package builder
         run: python3 -m unittest discover -s scripts/maplecode_package -p 'test_*.py'
 
       - name: Test standalone installer

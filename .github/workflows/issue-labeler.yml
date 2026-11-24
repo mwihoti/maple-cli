@@ -32,7 +32,7 @@ jobs:
         run: python3 .github/scripts/issue_labeler.py >> "$GITHUB_OUTPUT"
 
   apply-labels:
-    name: Apply labels from MapleCode output
+    name: Apply labels from Maplecode output
     needs: gather-labels
     if: ${{ !cancelled() && needs.gather-labels.result != 'skipped' }}
     runs-on: ubuntu-latest

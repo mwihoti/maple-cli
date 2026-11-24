@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mirror a MapleCode GitHub Release to Cloudflare R2.
+"""Mirror a Maplecode GitHub Release to Cloudflare R2.
 
 Cloudflare R2 exposes an S3-compatible API, so the built-in AWS CLI uses
 standard AWS credentials and the R2 endpoint from ``AWS_ENDPOINT_URL``.

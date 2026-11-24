@@ -1,4 +1,4 @@
-"""Discover and download published MapleCode packages for contract runners."""
+"""Discover and download published Maplecode packages for contract runners."""
 
 import json
 import random

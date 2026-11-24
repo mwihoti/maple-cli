@@ -103,7 +103,7 @@ jobs:
             --certificate-sha256 "$CERTIFICATE_SHA256" --team-id "$TEAM_ID"
           mkdir signed
           tar -czf "signed/maplecode-provisioned-package-$TARGET$ARTIFACT_SUFFIX.tar.gz" -C package \
-            bin maplecode-resources maplecode-path maplecode-package.json MapleCodeCLI.app
+            bin maplecode-resources maplecode-path maplecode-package.json MaplecodeCLI.app
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: provisioned-macos-signed-candidate-${{ matrix.target }}${{ env.ARTIFACT_SUFFIX }}
@@ -176,13 +176,13 @@ jobs:
             --profile-sha256 "$PROFILE_SHA256" --certificate-sha256 "$CERTIFICATE_SHA256"
             --team-id "$TEAM_ID")
           python3 .github/scripts/macos-signing/sign_macos_cli_package.py verify package "${profile_args[@]}"
-          xcrun stapler staple package/MapleCodeCLI.app
-          xcrun stapler validate package/MapleCodeCLI.app
-          spctl --assess --type execute --verbose=4 package/MapleCodeCLI.app
+          xcrun stapler staple package/MaplecodeCLI.app
+          xcrun stapler validate package/MaplecodeCLI.app
+          spctl --assess --type execute --verbose=4 package/MaplecodeCLI.app
           python3 .github/scripts/macos-signing/sign_macos_cli_package.py verify package "${profile_args[@]}"
           mkdir verified
           tar -czf "verified/maplecode-provisioned-package-$TARGET$ARTIFACT_SUFFIX.tar.gz" -C package \
-            bin maplecode-resources maplecode-path maplecode-package.json MapleCodeCLI.app
+            bin maplecode-resources maplecode-path maplecode-package.json MaplecodeCLI.app
           (cd verified && shasum -a 256 "maplecode-provisioned-package-$TARGET$ARTIFACT_SUFFIX.tar.gz" > SHA256SUMS)
       - uses: ./.github/actions/setup-ci
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2

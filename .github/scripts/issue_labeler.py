@@ -9,18 +9,18 @@ from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 TYPES = {
-    "bug": "Reproducible defects in MapleCode products (CLI, VS Code extension, web, auth).",
+    "bug": "Reproducible defects in Maplecode products (CLI, VS Code extension, web, auth).",
     "enhancement": "Feature requests or usability improvements that ask for new capabilities, better ergonomics, or quality-of-life tweaks.",
     "documentation": "Updates or corrections needed in docs/README/config references (broken links, missing examples, outdated keys, clarification requests).",
 }
 
 PRODUCTS = {
-    "CLI": "the MapleCode command line interface.",
+    "CLI": "the Maplecode command line interface.",
     "extension": "VS Code (or other IDE) extension-specific issues.",
-    "app": "Issues related to the MapleCode desktop application.",
-    "maplecode-web": "Issues targeting the MapleCode web UI/Cloud experience.",
-    "github-action": "Issues with the MapleCode GitHub action.",
-    "iOS": "Issues with the MapleCode iOS app.",
+    "app": "Issues related to the Maplecode desktop application.",
+    "maplecode-web": "Issues targeting the Maplecode web UI/Cloud experience.",
+    "github-action": "Issues with the Maplecode GitHub action.",
+    "iOS": "Issues with the Maplecode iOS app.",
 }
 
 AREAS = {
@@ -48,7 +48,7 @@ AREAS = {
     "config": "Issues involving config.toml, config keys, config key merging, config updates, profiles, hooks config, project config, agent role TOMLs, instruction/personality config, and config schema behavior.",
     "plan": "Issues involving plan mode, planning workflows, or plan-specific tools/behavior.",
     "computer-use": "Issues involving agentic computer use or SkyComputerUseService.",
-    "browser": "Issues involving agentic browser use, IAB, or the built-in browser within the MapleCode app.",
+    "browser": "Issues involving agentic browser use, IAB, or the built-in browser within the Maplecode app.",
     "memory": "Issues involving agentic memory storage and retrieval.",
     "imagen": "Issues involving image generation.",
     "remote": "Issues involving remote access, remote control, or SSH.",

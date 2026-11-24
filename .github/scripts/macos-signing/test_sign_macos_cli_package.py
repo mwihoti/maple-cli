@@ -32,7 +32,7 @@ if name == "codesign":
         sys.exit(1)
     if "--entitlements" in args:
         target = Path(args[-1]).name
-        if target == "MapleCodeCLI.app":
+        if target == "MaplecodeCLI.app":
             source = Path(os.environ["MAPLECODE_REPO_ROOT"]) / "signing-verification/maplecode-provisioned-entitlements.plist"
         elif target in ("maplecode", "maplecode-code-mode-host", "maplecode-exec-server"):
             source = Path(os.environ["MOCK_SIGNING_SCRIPTS"]) / (target + ".entitlements.plist")
@@ -259,7 +259,7 @@ class MacosSigningTests(ProvisioningTestCase):
                     )
                     with zipfile.ZipFile(root / "provisioned-cli.zip") as archive:
                         info = plistlib.loads(
-                            archive.read("MapleCodeCLI.app/Contents/Info.plist")
+                            archive.read("MaplecodeCLI.app/Contents/Info.plist")
                         )
                         self.assertEqual(
                             info["CFBundleIdentifier"], "com.openai.maplecode.cli"
@@ -288,7 +288,7 @@ class MacosSigningTests(ProvisioningTestCase):
                         )
                         self.assertEqual(
                             archive.read(
-                                "MapleCodeCLI.app/Contents/embedded.provisionprofile"
+                                "MaplecodeCLI.app/Contents/embedded.provisionprofile"
                             ),
                             self.configuration.profile.read_bytes(),
                         )

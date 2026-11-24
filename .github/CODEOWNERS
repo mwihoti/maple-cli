@@ -8,7 +8,7 @@
 /maplecode-rs/prompts/ @openai/codex-core-agent-team
 /maplecode-rs/utils/path-uri/ @openai/codex-core-agent-team
 
-# Keep macOS AKV signing changes reviewed by MapleCode maintainers.
+# Keep macOS AKV signing changes reviewed by Maplecode maintainers.
 /.github/actions/setup-akv-pkcs11-codesigning/ @openai/codex-core-agent-team
 /.github/scripts/macos-signing/ @openai/codex-core-agent-team
 /.github/workflows/rust-release.yml @openai/codex-core-agent-team

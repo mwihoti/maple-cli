@@ -16,7 +16,7 @@ BUNDLE_ID = "com.openai.maplecode.cli"
 # Existing login-keychain ACLs identify the CLI by its code-signing identifier.
 # Keep this stable independently of the bundle and provisioned App ID.
 CODE_SIGNING_ID = "maplecode"
-APP = Path("MapleCodeCLI.app")
+APP = Path("MaplecodeCLI.app")
 EXECUTABLE = APP / "Contents/MacOS/maplecode"
 SIGNING = Path(__file__).resolve().parent
 HELPERS = ("bin/maplecode-code-mode-host", "bin/maplecode-exec-server", "maplecode-path/rg")
@@ -29,7 +29,7 @@ while [ -L "$entry" ]; do
   case "$entry" in /*) ;; *) entry="$parent/$entry" ;; esac
 done
 bin_dir=$(CDPATH= cd -P -- "$(dirname -- "$entry")" && pwd)
-exec "$bin_dir/../MapleCodeCLI.app/Contents/MacOS/maplecode" "$@"
+exec "$bin_dir/../MaplecodeCLI.app/Contents/MacOS/maplecode" "$@"
 """
 
 

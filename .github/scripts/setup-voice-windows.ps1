@@ -1,4 +1,4 @@
-# CI-only prerequisites. Never install these tools into a MapleCode package.
+# CI-only prerequisites. Never install these tools into a Maplecode package.
 param(
     [Parameter(Mandatory = $true)][string]$Target,
     [Parameter(Mandatory = $true)][string]$SnapshotArchive

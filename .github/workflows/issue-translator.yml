@@ -17,7 +17,7 @@ jobs:
     outputs:
       maplecode_output: ${{ steps.maplecode.outputs.final-message }}
     steps:
-      - name: Prepare MapleCode input
+      - name: Prepare Maplecode input
         run: jq '.issue | {title, body}' "$GITHUB_EVENT_PATH" > maplecode-current-issue.json
 
       - id: maplecode
@@ -80,13 +80,13 @@ jobs:
             try {
               parsed = JSON.parse(raw);
             } catch (error) {
-              core.info(`MapleCode output was not valid JSON. Raw output: ${raw}`);
+              core.info(`Maplecode output was not valid JSON. Raw output: ${raw}`);
               core.info(`Parse error: ${error.message}`);
               return;
             }
 
             if (parsed?.requires_translation !== true) {
-              core.info('MapleCode determined that the issue does not require translation.');
+              core.info('Maplecode determined that the issue does not require translation.');
               return;
             }
 
@@ -98,7 +98,7 @@ jobs:
               : '';
 
             if (!translatedTitle) {
-              core.info('MapleCode did not return a translated title.');
+              core.info('Maplecode did not return a translated title.');
               return;
             }
 

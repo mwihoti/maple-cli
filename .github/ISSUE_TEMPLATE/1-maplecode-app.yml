@@ -1,5 +1,5 @@
-name: 🖥️ MapleCode App Bug
-description: Report an issue with the MapleCode App
+name: 🖥️ Maplecode App Bug
+description: Report an issue with the Maplecode App
 labels:
   - app
 body:
@@ -12,7 +12,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: What version of the MapleCode App are you using (From “About MapleCode” dialog)?
+      label: What version of the Maplecode App are you using (From “About Maplecode” dialog)?
     validations:
       required: true
   - type: input

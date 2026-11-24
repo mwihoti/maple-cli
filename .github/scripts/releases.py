@@ -1,4 +1,4 @@
-"""Validate MapleCode releases and check whether their GitHub channel pointers can advance."""
+"""Validate Maplecode releases and check whether their GitHub channel pointers can advance."""
 
 import argparse
 import json

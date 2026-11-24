@@ -108,13 +108,13 @@ runs:
         cargo build --target "${TARGET}" --release --timings --bin bwrap
 
         bwrap_path="${CARGO_TARGET_DIR}/${TARGET}/release/bwrap"
-        # MapleCode embeds this digest at build time and verifies the packaged
+        # Maplecode embeds this digest at build time and verifies the packaged
         # bwrap at runtime, so hash its final stripped bytes first.
         strip --strip-debug --strip-unneeded "$bwrap_path"
         digest="$(sha256sum "$bwrap_path" | awk '{print $1}')"
         echo "MAPLECODE_BWRAP_SHA256=${digest}" >> "$GITHUB_ENV"
 
-    - name: Build MapleCode package binaries
+    - name: Build Maplecode package binaries
       shell: bash
       working-directory: maplecode-rs
       env:
