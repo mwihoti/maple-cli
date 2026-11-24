@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Black-box MCP compliance runner for a supplied MapleCode binary."""
+"""Black-box MCP compliance runner for a supplied Maplecode binary."""
 
 import argparse
 import importlib.util
@@ -154,7 +154,7 @@ class AppServerError(RuntimeError):
 
 
 class AppServerClient:
-    """Minimal JSONL client for the MapleCode app-server protocol."""
+    """Minimal JSONL client for the Maplecode app-server protocol."""
 
     def __init__(
         self,
@@ -228,7 +228,7 @@ class AppServerClient:
     def _send(self, message: Mapping[str, object]) -> None:
         if self.process.poll() is not None:
             raise AppServerError(
-                f"MapleCode app-server exited with code {self.process.returncode}"
+                f"Maplecode app-server exited with code {self.process.returncode}"
             )
         assert self.process.stdin is not None
         encoded = json.dumps(message, ensure_ascii=False, separators=(",", ":"))
@@ -266,7 +266,7 @@ class AppServerClient:
                 ) from exc
             if message is None:
                 raise AppServerError(
-                    f"MapleCode app-server closed stdout while handling {method}"
+                    f"Maplecode app-server closed stdout while handling {method}"
                 )
             if message.get("id") == request_id and "method" not in message:
                 return message
@@ -304,7 +304,7 @@ class AppServerClient:
                 ) from exc
             if message is None:
                 raise AppServerError(
-                    f"MapleCode app-server closed stdout while waiting for {method}"
+                    f"Maplecode app-server closed stdout while waiting for {method}"
                 )
             if "id" in message and isinstance(message.get("method"), str):
                 self._handle_server_request(message)
@@ -1467,7 +1467,7 @@ def _required_regression_checks(
 
     version_check = report.get("versionCheck")
     if not isinstance(version_check, dict) or version_check.get("success") is not True:
-        errors.append(f"{label} does not contain a successful MapleCode version check")
+        errors.append(f"{label} does not contain a successful Maplecode version check")
     if report.get("modernFeatureEnablement") is not True:
         errors.append(f"{label} did not enable the modern MCP feature")
 
@@ -1839,7 +1839,7 @@ def _print_table(headers: Sequence[str], rows: Sequence[Sequence[str]]) -> None:
 
 def _print_human_report(report: Mapping[str, object]) -> None:
     success = report.get("success") is True
-    print(f"MapleCode MCP compliance: {'PASS' if success else 'FAIL'}")
+    print(f"Maplecode MCP compliance: {'PASS' if success else 'FAIL'}")
     print(f"Binary: {report.get('maplecodeBinary')}")
     print(f"Version: {report.get('maplecodeVersion') or 'unknown'}")
     failure_details: list[tuple[str, str, str]] = []
@@ -1980,7 +1980,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Run the full versioned official MCP client conformance suite against a "
-            "supplied MapleCode binary, plus the supplemental local stdio suite."
+            "supplied Maplecode binary, plus the supplemental local stdio suite."
         )
     )
     parser.add_argument("maplecode_binary", type=Path)
@@ -2009,7 +2009,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         "--adapter-script",
         type=Path,
         default=Path(__file__).resolve().with_name("maplecode_conformance_adapter.py"),
-        help="Path to the MapleCode adapter used by the official client suite.",
+        help="Path to the Maplecode adapter used by the official client suite.",
     )
     parser.add_argument(
         "--conformance-cli",
@@ -2040,7 +2040,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         "--require-automatic-auth",
         action="store_true",
         help=(
-            "Require MapleCode to recover from OAuth scope escalation and "
+            "Require Maplecode to recover from OAuth scope escalation and "
             "authorization-server migration without harness-injected re-login; "
             "also exercise production client-metadata selection."
         ),
@@ -2086,12 +2086,12 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument(
         "--artifact-parent",
         type=Path,
-        help="Parent directory for isolated temporary MapleCode homes.",
+        help="Parent directory for isolated temporary Maplecode homes.",
     )
     parser.add_argument(
         "--keep-artifacts",
         action="store_true",
-        help="Keep isolated MapleCode homes and include their path in the report.",
+        help="Keep isolated Maplecode homes and include their path in the report.",
     )
     parser.add_argument(
         "--enable-modern-feature",
@@ -2117,7 +2117,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     transports = ("stdio", "http") if args.transport == "all" else (args.transport,)
     if not maplecode_binary.is_file() or not os.access(maplecode_binary, os.X_OK):
-        print(f"error: MapleCode binary is not executable: {maplecode_binary}", file=sys.stderr)
+        print(f"error: Maplecode binary is not executable: {maplecode_binary}", file=sys.stderr)
         return 2
     if "stdio" in transports and not server_script.is_file():
         print(f"error: fixture server does not exist: {server_script}", file=sys.stderr)

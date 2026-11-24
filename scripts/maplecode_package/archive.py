@@ -1,4 +1,4 @@
-"""Archive writers for canonical MapleCode package directories."""
+"""Archive writers for canonical Maplecode package directories."""
 
 import shutil
 import subprocess

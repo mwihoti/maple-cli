@@ -93,7 +93,7 @@ Windows packages. This keeps package archive creation as a pure staging step
 after signing instead of rebuilding resources.
 
 When the builder source-builds an entrypoint for a Darwin or Linux target, it
-downloads and verifies the matching MapleCode-built V8 release pair before invoking
+downloads and verifies the matching Maplecode-built V8 release pair before invoking
 Cargo and sets `RUSTY_V8_ARCHIVE` plus `RUSTY_V8_SRC_BINDING_PATH` for that
 build. Windows targets keep Cargo's release-build MSVC artifact path. Explicit
 overrides remain authoritative when both variables are already set. Set

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# maple-code: run the Maple build of MapleCode from any directory.
+# maple-code: run the Maple build of Maplecode from any directory.
 #
 # Install: ln -s "$PWD/scripts/maple-code" ~/.local/bin/maple-code
 #
@@ -21,7 +21,7 @@ if [[ -z "${MAPLE_API_KEY:-}" && -f "$ENV_FILE" ]]; then
 fi
 export MAPLE_BASE_URL="${MAPLE_BASE_URL:-http://127.0.0.1:8080/v1}"
 
-# The proxy holds no key (MapleCode sends it per request) and binds to localhost.
+# The proxy holds no key (Maplecode sends it per request) and binds to localhost.
 # Provide the binary as $MAPLECODE_HOME/bin/maple-proxy or on PATH.
 health="${MAPLE_BASE_URL%/v1}/health"
 if ! curl -fs -m 2 "$health" >/dev/null 2>&1; then
@@ -56,7 +56,7 @@ if [[ -x "$BIN" && ! "$named" -ef "$BIN" ]]; then
 fi
 [[ -x "$named" ]] && BIN="$named"
 
-# Started from $HOME, MapleCode reads ~/.maplecode/config.toml as a project config and
+# Started from $HOME, Maplecode reads ~/.maplecode/config.toml as a project config and
 # lets its model settings (for another provider) override ours. Re-assert the
 # Maple settings; an explicit --model or -c on the command line still wins.
 pin=()

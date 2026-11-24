@@ -14,7 +14,7 @@ from maplecode_package import v8
 from maplecode_package.targets import TARGET_SPECS, TargetSpec
 
 
-class FetchMapleCodeV8ArtifactsTest(unittest.TestCase):
+class FetchMaplecodeV8ArtifactsTest(unittest.TestCase):
     version = "152.2.0"
 
     def setUp(self) -> None:

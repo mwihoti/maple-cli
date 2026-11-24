@@ -51,7 +51,7 @@ class SmokePackage:
             )
         )
 
-        # Isolate package configuration and state from the user's MapleCode setup.
+        # Isolate package configuration and state from the user's Maplecode setup.
         environment["MAPLECODE_HOME"] = str(config_dir)
         # Shell startup files can replace PATH and hide the packaged ripgrep.
         environment.pop("BASH_ENV", None)
@@ -181,7 +181,7 @@ def responses_server(package: SmokePackage) -> Iterator[MockResponsesServer]:
     original_config = config_path.read_text()
     with MockResponsesServer() as server:
         # Direct CLI commands and SDK-launched servers must share a provider;
-        # MapleCodeConfig only controls how the SDK launches its server process.
+        # MaplecodeConfig only controls how the SDK launches its server process.
         config_path.write_text(
             f"""model = "package-smoke"
 model_provider = "package_smoke"

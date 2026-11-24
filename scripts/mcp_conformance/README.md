@@ -11,7 +11,7 @@ Use the Node.js version in the repository's `.nvmrc` and Python 3.10 or later.
 
 ## Run the conformance gate
 
-First install the frozen workspace dependencies and build MapleCode:
+First install the frozen workspace dependencies and build Maple Code:
 
 ```bash
 pnpm install --frozen-lockfile

@@ -1,4 +1,4 @@
-"""MapleCode-built V8 artifact overrides for package Cargo builds."""
+"""Maplecode-built V8 artifact overrides for package Cargo builds."""
 
 from __future__ import annotations
 
@@ -193,7 +193,7 @@ def ensure_valid_artifact(artifact: Path, checksum: str, url: str) -> None:
 
     artifact.unlink(missing_ok=True)
     raise RuntimeError(
-        f"MapleCode-built V8 artifact {artifact} failed checksum validation."
+        f"Maplecode-built V8 artifact {artifact} failed checksum validation."
     )
 
 

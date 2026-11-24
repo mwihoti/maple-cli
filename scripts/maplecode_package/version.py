@@ -1,4 +1,4 @@
-"""Version discovery for MapleCode packages."""
+"""Version discovery for Maplecode packages."""
 
 import re
 

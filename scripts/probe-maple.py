@@ -3,7 +3,7 @@
 
 Uses only Python's standard library. API keys come from MAPLE_API_KEY, never
 arguments or files. Tool validation computes a real sum and returns it to the
-model; it does not pretend to validate the MapleCode coding agent.
+model; it does not pretend to validate the Maplecode coding agent.
 """
 import argparse
 import json

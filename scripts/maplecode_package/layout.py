@@ -1,4 +1,4 @@
-"""Canonical MapleCode package directory layout."""
+"""Canonical Maplecode package directory layout."""
 
 import json
 import shutil

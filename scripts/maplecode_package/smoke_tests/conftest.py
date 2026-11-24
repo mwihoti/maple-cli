@@ -7,7 +7,7 @@ __all__ = ["code_mode_host_debug_symbols", "package", "responses_server"]
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
-    group = parser.getgroup("MapleCode package smoke")
+    group = parser.getgroup("Maplecode package smoke")
     group.addoption(
         "--compression",
         choices=("gzip", "zstd"),
@@ -23,7 +23,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         "--cli-archive",
         type=Path,
         required=True,
-        help="Assembled MapleCode CLI package archive in the selected format.",
+        help="Assembled Maplecode CLI package archive in the selected format.",
     )
     group.addoption(
         "--app-server-archive",

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set "chatgpt.cliExecutable": "/Users/<USERNAME>/code/maplecode/scripts/debug-maplecode.sh" in VSCode settings to always get the 
-# latest maplecode-rs binary when debugging MapleCode Extension.
+# latest maplecode-rs binary when debugging Maplecode Extension.
 
 
 set -euo pipefail

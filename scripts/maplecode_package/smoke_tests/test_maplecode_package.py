@@ -36,7 +36,7 @@ from app_server_harness import (
     ev_response_created,
     sse,
 )
-from openai_maplecode import ApprovalMode, MapleCode, MapleCodeConfig, Sandbox
+from openai_maplecode import ApprovalMode, Maplecode, MaplecodeConfig, Sandbox
 
 from fixtures import SmokePackage
 
@@ -91,7 +91,7 @@ def test_packaged_executor_initializes_and_enforces_sandbox(
     environment = {**package.environment, "MAPLECODE_HOME": str(home)}
     if windows:
         # Elevated mode must discover the setup/runner in this package's resources.
-        # Exclude build outputs and host MapleCode installations from helper fallback.
+        # Exclude build outputs and host Maplecode installations from helper fallback.
         environment["PATH"] = str(Path(os.environ["SystemRoot"]) / "System32")
     sandbox = {
         "permissions": {
@@ -379,7 +379,7 @@ def test_app_server_runs_code_mode_through_python_sdk(
         executable = package.cli
         package_root = package.cli_root
         package_path_dir = package.cli_path_dir
-        config = MapleCodeConfig(
+        config = MaplecodeConfig(
             maplecode_bin=str(executable),
             config_overrides=sandbox_config[1:],
             cwd=str(package.directory),
@@ -389,7 +389,7 @@ def test_app_server_runs_code_mode_through_python_sdk(
         executable = package.app_server
         package_root = package.app_server_root
         package_path_dir = package.app_server_path_dir
-        config = MapleCodeConfig(
+        config = MaplecodeConfig(
             launch_args_override=(str(executable), *sandbox_config),
             cwd=str(package.directory),
             env=package.environment,
@@ -425,7 +425,7 @@ def test_app_server_runs_code_mode_through_python_sdk(
         )
     )
     responses_server.enqueue_assistant_message("Done", response_id="code-mode-done")
-    with MapleCode(config=config) as client:
+    with Maplecode(config=config) as client:
         turn = client.thread_start(
             ephemeral=True,
             approval_mode=ApprovalMode.deny_all,

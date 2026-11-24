@@ -1,1 +1,1 @@
-"""Helpers for building canonical MapleCode package archives."""
+"""Helpers for building canonical Maplecode package archives."""

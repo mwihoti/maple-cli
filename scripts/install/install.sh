@@ -75,7 +75,7 @@ validate_version() {
   fi
 
   if ! printf '%s\n' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-alpha(\.[0-9]+){0,2}|-beta(\.[0-9]+)?)?$'; then
-    echo "Invalid MapleCode release version: $version. Expected latest or x.y.z[-alpha[.N[.M]]|-beta[.N]]." >&2
+    echo "Invalid Maplecode release version: $version. Expected latest or x.y.z[-alpha[.N[.M]]|-beta[.N]]." >&2
     return 1
   fi
 }
@@ -140,7 +140,7 @@ download_file() {
     return
   fi
 
-  echo "curl or wget is required to install MapleCode." >&2
+  echo "curl or wget is required to install Maplecode." >&2
   exit 1
 }
 
@@ -171,7 +171,7 @@ download_text() {
     return
   fi
 
-  echo "curl or wget is required to install MapleCode." >&2
+  echo "curl or wget is required to install Maplecode." >&2
   exit 1
 }
 
@@ -340,7 +340,7 @@ parse_downloaded_release_metadata() {
   requested_release="$1"
   source_name="$2"
   if ! release_metadata="$(printf '%s\n' "$release_json" | parse_release_metadata)"; then
-    echo "Could not parse $source_name release metadata for MapleCode $requested_release." >&2
+    echo "Could not parse $source_name release metadata for Maplecode $requested_release." >&2
     return 1
   fi
 }
@@ -352,7 +352,7 @@ resolve_metadata_version() {
     *) metadata_version="" ;;
   esac
   if [ -z "$metadata_version" ]; then
-    echo "Failed to resolve the latest MapleCode release version." >&2
+    echo "Failed to resolve the latest Maplecode release version." >&2
     return 1
   fi
   validate_version "$metadata_version"
@@ -370,7 +370,7 @@ resolve_release_from_github() {
   fi
 
   if ! release_json="$(download_text "$metadata_url")"; then
-    echo "Could not fetch GitHub release metadata for MapleCode $requested_release. GitHub API may be unavailable or rate limited." >&2
+    echo "Could not fetch GitHub release metadata for Maplecode $requested_release. GitHub API may be unavailable or rate limited." >&2
     exit 1
   fi
 
@@ -406,7 +406,7 @@ resolve_release_from_releases() {
     return 1
   fi
   if [ "$normalized_version" != "latest" ] && [ "$metadata_version" != "$normalized_version" ]; then
-    echo "Release metadata version did not match requested MapleCode version $normalized_version." >&2
+    echo "Release metadata version did not match requested Maplecode version $normalized_version." >&2
     return 1
   fi
   resolved_version="$metadata_version"
@@ -487,7 +487,7 @@ select_release_assets() {
     install_layout="legacy-platform-npm"
     asset="maplecode-npm-$npm_tag-$resolved_version.tgz"
   else
-    echo "Could not find MapleCode package or platform npm release assets for MapleCode $resolved_version." >&2
+    echo "Could not find Maplecode package or platform npm release assets for Maplecode $resolved_version." >&2
     return 1
   fi
 
@@ -549,7 +549,7 @@ file_sha256() {
     return
   fi
 
-  echo "sha256sum, shasum, or openssl is required to verify the MapleCode download." >&2
+  echo "sha256sum, shasum, or openssl is required to verify the Maplecode download." >&2
   exit 1
 }
 
@@ -559,7 +559,7 @@ verify_archive_digest() {
   actual_digest="$(file_sha256 "$archive_path")"
 
   if [ "$actual_digest" != "$expected_digest" ]; then
-    echo "Downloaded MapleCode archive checksum did not match expected digest." >&2
+    echo "Downloaded Maplecode archive checksum did not match expected digest." >&2
     echo "expected: $expected_digest" >&2
     echo "actual:   $actual_digest" >&2
     return 1
@@ -568,7 +568,7 @@ verify_archive_digest() {
 
 require_command() {
   if ! command -v "$1" >/dev/null 2>&1; then
-    echo "$1 is required to install MapleCode." >&2
+    echo "$1 is required to install Maplecode." >&2
     exit 1
   fi
 }
@@ -609,8 +609,8 @@ add_to_path() {
 
   profile="$(pick_profile)"
   path_profile="$profile"
-  begin_marker="# >>> MapleCode installer >>>"
-  end_marker="# <<< MapleCode installer <<<"
+  begin_marker="# >>> Maplecode installer >>>"
+  end_marker="# <<< Maplecode installer <<<"
   path_line="export PATH=\"$BIN_DIR:\$PATH\""
 
   if [ -f "$profile" ] && grep -F "$begin_marker" "$profile" >/dev/null 2>&1; then
@@ -775,7 +775,7 @@ record_standalone_releases_in_use() {
         printf 'n%s\n' "$executable" >> "$tmp_dir/in-use" || return 1
       elif [ -d "$process" ]; then
         # Even same-user ssh-agent/systemd processes may deny exe inspection.
-        # Only an unreadable MapleCode or bundled helper prevents safe pruning.
+        # Only an unreadable Maplecode or bundled helper prevents safe pruning.
         process_name="$(cat "$process/comm" 2>/dev/null)" || {
           [ ! -d "$process" ] && continue
           return 1
@@ -794,7 +794,7 @@ record_standalone_releases_in_use() {
   else
     # macOS lsof silently omits other users' processes, even with no errors.
     # ps can still report their executable names. As on Linux, decline to
-    # prune when an uninspectable MapleCode or helper may be using a release.
+    # prune when an uninspectable Maplecode or helper may be using a release.
     current_uid="$(id -u)" || return 1
     ps -axo uid=,comm= > "$tmp_dir/processes" || return 1
     [ -s "$tmp_dir/processes" ] || return 1
@@ -1062,8 +1062,8 @@ print_launch_instructions() {
 }
 
 maybe_launch_maplecode_now() {
-  if prompt_yes_no "Start MapleCode now?"; then
-    step "Launching MapleCode"
+  if prompt_yes_no "Start Maplecode now?"; then
+    step "Launching Maplecode"
     "$BIN_PATH"
   fi
 }
@@ -1078,8 +1078,8 @@ detect_conflicting_install() {
 
   conflict_manager="$manager"
   conflict_path="$existing_path"
-  step "Detected existing $manager-managed MapleCode at $existing_path"
-  warn "Multiple managed MapleCode installs can be ambiguous because PATH order decides which one runs."
+  step "Detected existing $manager-managed Maplecode at $existing_path"
+  warn "Multiple managed Maplecode installs can be ambiguous because PATH order decides which one runs."
 }
 
 handle_conflicting_install() {
@@ -1099,13 +1099,13 @@ handle_conflicting_install() {
       ;;
   esac
 
-  if prompt_yes_no "Uninstall the existing $conflict_manager-managed MapleCode now?"; then
+  if prompt_yes_no "Uninstall the existing $conflict_manager-managed Maplecode now?"; then
     step "Running: $uninstall_cmd"
     if ! sh -c "$uninstall_cmd"; then
-      warn "Failed to uninstall the existing $conflict_manager-managed MapleCode. Continuing with the standalone install."
+      warn "Failed to uninstall the existing $conflict_manager-managed Maplecode. Continuing with the standalone install."
     fi
   else
-    warn "Leaving the existing $conflict_manager-managed MapleCode installed. PATH order will determine which maplecode runs."
+    warn "Leaving the existing $conflict_manager-managed Maplecode installed. PATH order will determine which maplecode runs."
   fi
 }
 
@@ -1314,11 +1314,11 @@ release_dir="$RELEASES_DIR/$release_name"
 current_version="$(current_installed_version)"
 
 if [ -n "$current_version" ] && [ "$current_version" != "$resolved_version" ]; then
-  step "Updating MapleCode CLI from $current_version to $resolved_version"
+  step "Updating Maplecode CLI from $current_version to $resolved_version"
 elif [ -n "$current_version" ]; then
-  step "Updating MapleCode CLI"
+  step "Updating Maplecode CLI"
 else
-  step "Installing MapleCode CLI"
+  step "Installing Maplecode CLI"
 fi
 step "Detected platform: $platform_label"
 step "Resolved version: $resolved_version"
@@ -1409,7 +1409,7 @@ if ! release_dir_is_complete "$release_dir" "$resolved_version" "$vendor_target"
   archive_path="$tmp_dir/$asset"
   checksum_path="$tmp_dir/$checksum_asset"
 
-  step "Downloading MapleCode CLI"
+  step "Downloading Maplecode CLI"
   if [ "$install_layout" = "package" ]; then
     checksum_digest="$(release_asset_digest "$checksum_asset")"
     download_file_with_fallback "$checksum_url" "$checksum_fallback_url" "$checksum_path" "$checksum_digest" "$checksum_asset" "$asset"
@@ -1427,7 +1427,7 @@ if ! release_dir_is_complete "$release_dir" "$resolved_version" "$vendor_target"
   fi
 fi
 if ! release_dir_is_complete "$release_dir" "$resolved_version" "$vendor_target" "$install_layout"; then
-  echo "Installed MapleCode command did not report expected version $resolved_version." >&2
+  echo "Installed Maplecode command did not report expected version $resolved_version." >&2
   exit 1
 fi
 if [ "$DAEMON_ONLY" = "1" ] && [ "${MAPLECODE_INSTALL_DEFER_SELECTION:-0}" != "1" ]; then
@@ -1475,7 +1475,7 @@ update_visible_command "$release_dir"
 add_to_path
 verify_visible_command
 if ! prune_standalone_releases; then
-  warn "Could not safely inspect old MapleCode releases; skipped remaining cleanup."
+  warn "Could not safely inspect old Maplecode releases; skipped remaining cleanup."
 fi
 release_install_lock
 handle_conflicting_install
@@ -1496,5 +1496,5 @@ case "$path_action" in
     ;;
 esac
 
-printf 'MapleCode CLI %s installed successfully.\n' "$resolved_version"
+printf 'Maplecode CLI %s installed successfully.\n' "$resolved_version"
 maybe_launch_maplecode_now

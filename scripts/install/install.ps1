@@ -81,7 +81,7 @@ function Assert-ValidReleaseVersion {
     )
 
     if ($Version -cne "latest" -and $Version -cnotmatch "^[0-9]+\.[0-9]+\.[0-9]+(?:-alpha(?:\.[0-9]+){0,2}|-beta(?:\.[0-9]+)?)?$") {
-        throw "Invalid MapleCode release version: $Version. Expected latest or x.y.z[-alpha[.N[.M]]|-beta[.N]]."
+        throw "Invalid Maplecode release version: $Version. Expected latest or x.y.z[-alpha[.N[.M]]|-beta[.N]]."
     }
 }
 
@@ -197,7 +197,7 @@ function Resolve-ReleaseAssetSelection {
     }
     $packageMetadata = Find-ReleaseAssetMetadata -AssetName $packageAsset -ReleaseMetadata $releaseMetadata -Url $packageUrl -FallbackUrl $packageFallbackUrl
     if ($null -eq $packageMetadata) {
-        throw "Could not find MapleCode package or platform npm release assets for MapleCode $version."
+        throw "Could not find Maplecode package or platform npm release assets for Maplecode $version."
     }
 
     return [PSCustomObject]@{
@@ -230,7 +230,7 @@ function Test-ArchiveDigest {
     }
 
     if ($actualDigest -ne $ExpectedDigest) {
-        throw "Downloaded MapleCode archive checksum did not match expected digest. Expected $ExpectedDigest but got $actualDigest."
+        throw "Downloaded Maplecode archive checksum did not match expected digest. Expected $ExpectedDigest but got $actualDigest."
     }
 }
 
@@ -331,7 +331,7 @@ function Resolve-VersionFromReleaseMetadata {
     )
 
     if (-not $ReleaseMetadata.tag_name) {
-        throw "Failed to resolve the latest MapleCode release version."
+        throw "Failed to resolve the latest Maplecode release version."
     }
 
     $resolvedVersion = Normalize-Version -RawVersion $ReleaseMetadata.tag_name
@@ -356,7 +356,7 @@ function Resolve-ReleaseFromGitHub {
     try {
         $releaseMetadata = Invoke-RestMethod -Uri $metadataUri
     } catch {
-        throw "Could not fetch GitHub release metadata for MapleCode $requestedRelease. GitHub API may be unavailable or rate limited. $($_.Exception.Message)"
+        throw "Could not fetch GitHub release metadata for Maplecode $requestedRelease. GitHub API may be unavailable or rate limited. $($_.Exception.Message)"
     }
 
     if ($NormalizedVersion -eq "latest") {
@@ -385,7 +385,7 @@ function Resolve-ReleaseFromReleases {
         $releaseMetadata = [string]$metadataResponse.Content | ConvertFrom-Json -ErrorAction Stop
         $resolvedVersion = Resolve-VersionFromReleaseMetadata -ReleaseMetadata $releaseMetadata
         if ($NormalizedVersion -ne "latest" -and $resolvedVersion -cne $NormalizedVersion) {
-            throw "Release metadata version did not match requested MapleCode version $NormalizedVersion."
+            throw "Release metadata version did not match requested Maplecode version $NormalizedVersion."
         }
         $resolvedRelease = [PSCustomObject]@{
             Version = $resolvedVersion
@@ -416,15 +416,15 @@ function Resolve-Release {
 
 function Get-VersionFromBinary {
     param(
-        [string]$MapleCodePath
+        [string]$MaplecodePath
     )
 
-    if (-not (Test-Path -LiteralPath $MapleCodePath -PathType Leaf)) {
+    if (-not (Test-Path -LiteralPath $MaplecodePath -PathType Leaf)) {
         return $null
     }
 
     try {
-        $versionOutput = & $MapleCodePath --version 2>$null
+        $versionOutput = & $MaplecodePath --version 2>$null
     } catch {
         return $null
     }
@@ -441,12 +441,12 @@ function Get-CurrentInstalledVersion {
         [string]$StandaloneCurrentDir
     )
 
-    $standaloneVersion = Get-VersionFromBinary -MapleCodePath (Join-Path $StandaloneCurrentDir "bin\maplecode.exe")
+    $standaloneVersion = Get-VersionFromBinary -MaplecodePath (Join-Path $StandaloneCurrentDir "bin\maplecode.exe")
     if (-not [string]::IsNullOrWhiteSpace($standaloneVersion)) {
         return $standaloneVersion
     }
 
-    $standaloneVersion = Get-VersionFromBinary -MapleCodePath (Join-Path $StandaloneCurrentDir "maplecode.exe")
+    $standaloneVersion = Get-VersionFromBinary -MaplecodePath (Join-Path $StandaloneCurrentDir "maplecode.exe")
     if (-not [string]::IsNullOrWhiteSpace($standaloneVersion)) {
         return $standaloneVersion
     }
@@ -508,9 +508,9 @@ function Move-OldStandaloneBinIfApproved {
         return $null
     }
 
-    Write-Step "We found an older MapleCode install at $VisibleBinDir"
-    Write-WarningStep "To continue, MapleCode needs to update the install at this path."
-    if (-not (Prompt-YesNo "Replace it with the current MapleCode setup now?")) {
+    Write-Step "We found an older Maplecode install at $VisibleBinDir"
+    Write-WarningStep "To continue, Maplecode needs to update the install at this path."
+    if (-not (Prompt-YesNo "Replace it with the current Maplecode setup now?")) {
         throw "Cannot replace older standalone install without confirmation: $VisibleBinDir"
     }
 
@@ -522,7 +522,7 @@ function Move-OldStandaloneBinIfApproved {
 
 function Add-JunctionSupportType {
     # Older installer types remain loaded when users rerun irm | iex in one session.
-    if (([System.Management.Automation.PSTypeName]'MapleCodeInstaller.JunctionV3').Type) {
+    if (([System.Management.Automation.PSTypeName]'MaplecodeInstaller.JunctionV3').Type) {
         return
     }
 
@@ -534,7 +534,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
 
-namespace MapleCodeInstaller
+namespace MaplecodeInstaller
 {
     public static class JunctionV3
     {
@@ -689,7 +689,7 @@ function Set-JunctionTarget {
     )
 
     Add-JunctionSupportType
-    [MapleCodeInstaller.JunctionV3]::SetTarget($LinkPath, $TargetPath)
+    [MaplecodeInstaller.JunctionV3]::SetTarget($LinkPath, $TargetPath)
 }
 
 function Test-IsJunction {
@@ -720,14 +720,14 @@ function Ensure-Junction {
     $item = Get-Item -LiteralPath $LinkPath -Force
     if (Test-IsJunction -Path $LinkPath) {
         Add-JunctionSupportType
-        $existingTarget = [MapleCodeInstaller.JunctionV3]::ResolveDirectory($LinkPath)
+        $existingTarget = [MaplecodeInstaller.JunctionV3]::ResolveDirectory($LinkPath)
         if (-not [string]::IsNullOrWhiteSpace($InstallerOwnedTargetPrefix)) {
-            $ownedTargetPrefix = [MapleCodeInstaller.JunctionV3]::ResolveDirectory($InstallerOwnedTargetPrefix) + "\"
+            $ownedTargetPrefix = [MaplecodeInstaller.JunctionV3]::ResolveDirectory($InstallerOwnedTargetPrefix) + "\"
             if (-not $existingTarget.StartsWith($ownedTargetPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
                 throw "Refusing to retarget junction at $LinkPath because it is not managed by this installer."
             }
         }
-        if ($existingTarget.Equals([MapleCodeInstaller.JunctionV3]::ResolveDirectory($TargetPath), [System.StringComparison]::OrdinalIgnoreCase)) {
+        if ($existingTarget.Equals([MaplecodeInstaller.JunctionV3]::ResolveDirectory($TargetPath), [System.StringComparison]::OrdinalIgnoreCase)) {
             return
         }
 
@@ -837,15 +837,15 @@ function Test-ReleaseIsComplete {
             $maplecodePath = Join-Path $ReleaseDir "maplecode.exe"
         }
         default {
-            throw "Unknown MapleCode installer layout: $Layout"
+            throw "Unknown Maplecode installer layout: $Layout"
         }
     }
 
     return (Split-Path -Leaf $ReleaseDir) -eq "$ExpectedVersion-$ExpectedTarget" -and
-        (Get-VersionFromBinary -MapleCodePath $maplecodePath) -ceq $ExpectedVersion
+        (Get-VersionFromBinary -MaplecodePath $maplecodePath) -ceq $ExpectedVersion
 }
 
-function Get-ExistingMapleCodeCommand {
+function Get-ExistingMaplecodeCommand {
     $existing = Get-Command maplecode -ErrorAction SilentlyContinue
     if ($null -eq $existing) {
         return $null
@@ -854,7 +854,7 @@ function Get-ExistingMapleCodeCommand {
     return $existing.Source
 }
 
-function Get-ExistingMapleCodeManager {
+function Get-ExistingMaplecodeManager {
     param(
         [string]$ExistingPath,
         [string]$VisibleBinDir
@@ -884,14 +884,14 @@ function Get-ConflictingInstall {
         [string]$VisibleBinDir
     )
 
-    $existingPath = Get-ExistingMapleCodeCommand
-    $manager = Get-ExistingMapleCodeManager -ExistingPath $existingPath -VisibleBinDir $VisibleBinDir
+    $existingPath = Get-ExistingMaplecodeCommand
+    $manager = Get-ExistingMaplecodeManager -ExistingPath $existingPath -VisibleBinDir $VisibleBinDir
     if ($null -eq $manager) {
         return $null
     }
 
-    Write-Step "Detected existing $manager-managed MapleCode at $existingPath"
-    Write-WarningStep "Multiple managed MapleCode installs can be ambiguous because PATH order decides which one runs."
+    Write-Step "Detected existing $manager-managed Maplecode at $existingPath"
+    Write-WarningStep "Multiple managed Maplecode installs can be ambiguous because PATH order decides which one runs."
 
     return [PSCustomObject]@{
         Manager = $manager
@@ -917,19 +917,19 @@ function Maybe-HandleConflictingInstall {
     }
     $uninstallCommand = if ($manager -eq "bun") { "bun" } else { "npm" }
 
-    if (Prompt-YesNo "Uninstall the existing $manager-managed MapleCode now?") {
+    if (Prompt-YesNo "Uninstall the existing $manager-managed Maplecode now?") {
         Write-Step "Running: $uninstallCommand $($uninstallArgs -join ' ')"
         try {
             & $uninstallCommand @uninstallArgs
         } catch {
-            Write-WarningStep "Failed to uninstall the existing $manager-managed MapleCode. Continuing with the standalone install."
+            Write-WarningStep "Failed to uninstall the existing $manager-managed Maplecode. Continuing with the standalone install."
         }
     } else {
-        Write-WarningStep "Leaving the existing $manager-managed MapleCode installed. PATH order will determine which maplecode runs."
+        Write-WarningStep "Leaving the existing $manager-managed Maplecode installed. PATH order will determine which maplecode runs."
     }
 }
 
-function Test-VisibleMapleCodeCommand {
+function Test-VisibleMaplecodeCommand {
     param(
         [string]$VisibleBinDir
     )
@@ -937,7 +937,7 @@ function Test-VisibleMapleCodeCommand {
     $maplecodeCommand = Join-Path $VisibleBinDir "maplecode.exe"
     & $maplecodeCommand --version *> $null
     if ($LASTEXITCODE -ne 0) {
-        throw "Installed MapleCode command failed verification: $maplecodeCommand --version"
+        throw "Installed Maplecode command failed verification: $maplecodeCommand --version"
     }
 }
 
@@ -947,7 +947,7 @@ if ($env:OS -ne "Windows_NT") {
 }
 
 if (-not [Environment]::Is64BitOperatingSystem) {
-    Write-Error "MapleCode requires a 64-bit version of Windows."
+    Write-Error "Maplecode requires a 64-bit version of Windows."
     exit 1
 }
 
@@ -989,7 +989,7 @@ if ($deferSelection) {
 $autoUpdateVersion = Join-Path $standaloneRoot "auto-update-version"
 $lockPath = Join-Path $standaloneRoot "install.lock"
 
-$defaultVisibleBinDir = Join-Path $env:LOCALAPPDATA "Programs\OpenAI\MapleCode\bin"
+$defaultVisibleBinDir = Join-Path $env:LOCALAPPDATA "Programs\OpenAI\Maplecode\bin"
 if ([string]::IsNullOrWhiteSpace($env:MAPLECODE_INSTALL_DIR)) {
     $visibleBinDir = $defaultVisibleBinDir
 } else {
@@ -1004,11 +1004,11 @@ $releaseName = "$resolvedVersion-$target"
 $releaseDir = Join-Path $releasesDir $releaseName
 
 if (-not [string]::IsNullOrWhiteSpace($currentVersion) -and $currentVersion -ne $resolvedVersion) {
-    Write-Step "Updating MapleCode CLI from $currentVersion to $resolvedVersion"
+    Write-Step "Updating Maplecode CLI from $currentVersion to $resolvedVersion"
 } elseif (-not [string]::IsNullOrWhiteSpace($currentVersion)) {
-    Write-Step "Updating MapleCode CLI"
+    Write-Step "Updating Maplecode CLI"
 } else {
-    Write-Step "Installing MapleCode CLI"
+    Write-Step "Installing Maplecode CLI"
 }
 Write-Step "Detected platform: $platformLabel"
 Write-Step "Resolved version: $resolvedVersion"
@@ -1069,7 +1069,7 @@ try {
             $currentTarget = if (Test-Path -LiteralPath $currentDir) { (Get-Item -LiteralPath $currentDir).Target } else { $null }
             if ($Release -ne "latest" -or [string]::IsNullOrEmpty($previousRelease) -or [string]::IsNullOrEmpty($currentTarget) -or
                 -not (Test-Path -LiteralPath (Join-Path $releasesDir $previousRelease)) -or
-                [MapleCodeInstaller.JunctionV3]::ResolveDirectory($currentDir) -ne [MapleCodeInstaller.JunctionV3]::ResolveDirectory((Join-Path $releasesDir $previousRelease))) {
+                [MaplecodeInstaller.JunctionV3]::ResolveDirectory($currentDir) -ne [MaplecodeInstaller.JunctionV3]::ResolveDirectory((Join-Path $releasesDir $previousRelease))) {
                 if ($env:MAPLECODE_INSTALL_IF_CURRENT -eq "1") { throw "Daemon selection changed; retry the update." }
                 $script:guardRejected = $true
                 return
@@ -1094,7 +1094,7 @@ try {
             $checksumPath = Join-Path $tempDir $checksumAsset
             $stagingDir = Join-Path $releasesDir ".staging.$releaseName.$PID"
 
-            Write-Step "Downloading MapleCode CLI"
+            Write-Step "Downloading Maplecode CLI"
             if ($installLayout -eq "Package") {
                 Invoke-WebRequestWithFallback -Metadata $checksumMetadata -OutFile $checksumPath -ExpectedDigest $checksumMetadata.Sha256 -AssetName $checksumAsset -ReleaseVersion $resolvedVersion -RequiredManifestAsset $packageAsset
                 $expectedPackageDigest = Get-PackageArchiveDigest -ManifestPath $checksumPath -AssetName $packageAsset
@@ -1111,7 +1111,7 @@ try {
             if ($installLayout -eq "Package") {
                 tar -xzf $archivePath -C $stagingDir
                 if (-not (Test-PackageContentsAreComplete -PackageDir $stagingDir)) {
-                    throw "Downloaded MapleCode package archive did not contain the expected package layout."
+                    throw "Downloaded Maplecode package archive did not contain the expected package layout."
                 }
             } else {
                 $extractDir = Join-Path $tempDir "extract"
@@ -1133,7 +1133,7 @@ try {
                 }
 
                 if (-not (Test-LegacyPlatformNpmContentsAreComplete -PackageDir $stagingDir)) {
-                    throw "Downloaded MapleCode npm archive did not contain the expected legacy platform package layout."
+                    throw "Downloaded Maplecode npm archive did not contain the expected legacy platform package layout."
                 }
             }
 
@@ -1144,7 +1144,7 @@ try {
         }
 
         if (-not (Test-ReleaseIsComplete -ReleaseDir $releaseDir -ExpectedVersion $resolvedVersion -ExpectedTarget $target -Layout $installLayout)) {
-            throw "Installed MapleCode command did not report expected version $resolvedVersion."
+            throw "Installed Maplecode command did not report expected version $resolvedVersion."
         }
 
         New-Item -ItemType Directory -Force -Path $standaloneRoot | Out-Null
@@ -1152,8 +1152,8 @@ try {
             throw "A dedicated daemon is already selected; retry the update."
         }
         if ($daemonOnly -and -not $deferSelection) {
-            $installedMapleCode = Join-Path $releaseDir $(if ($installLayout -eq "Package") { "bin\maplecode.exe" } else { "maplecode.exe" })
-            & $installedMapleCode app-server daemon pid-update-loop --check-package-ownership | Out-Null
+            $installedMaplecode = Join-Path $releaseDir $(if ($installLayout -eq "Package") { "bin\maplecode.exe" } else { "maplecode.exe" })
+            & $installedMaplecode app-server daemon pid-update-loop --check-package-ownership | Out-Null
             if ($LASTEXITCODE -ne 0) {
                 throw "The production release does not support daemon-owned packages; the current selection was left unchanged."
             }
@@ -1162,15 +1162,15 @@ try {
         if ($daemonOnly -and -not $deferSelection) {
             Add-JunctionSupportType
             if (Test-Path -LiteralPath $currentDir) {
-                $previousDirectory = [MapleCodeInstaller.JunctionV3]::ResolveDirectory($currentDir)
+                $previousDirectory = [MaplecodeInstaller.JunctionV3]::ResolveDirectory($currentDir)
             }
         }
         Ensure-Junction -LinkPath $currentDir -TargetPath $releaseDir -InstallerOwnedTargetPrefix $releasesDir
         if ($daemonOnly -and -not $deferSelection -and
-            $previousDirectory -cne [MapleCodeInstaller.JunctionV3]::ResolveDirectory($currentDir)) {
+            $previousDirectory -cne [MaplecodeInstaller.JunctionV3]::ResolveDirectory($currentDir)) {
             try {
                 $previousName = if ($null -eq $previousDirectory) { "" } else { Split-Path -Leaf $previousDirectory }
-                $selectionId = [MapleCodeInstaller.JunctionV3]::SelectionIdentity($currentDir)
+                $selectionId = [MaplecodeInstaller.JunctionV3]::SelectionIdentity($currentDir)
                 $history = Join-Path $standaloneRoot "selection-history"
                 [System.IO.File]::WriteAllText("$history.tmp.$PID", "$releaseName`n$previousName`n$selectionId`n")
                 Move-Item -LiteralPath "$history.tmp.$PID" -Destination $history -Force -ErrorAction Stop
@@ -1199,7 +1199,7 @@ try {
         $oldStandaloneBackup = Move-OldStandaloneBinIfApproved -VisibleBinDir $visibleBinDir -DefaultVisibleBinDir $defaultVisibleBinDir
         try {
             Ensure-Junction -LinkPath $visibleBinDir -TargetPath $currentBinDir -InstallerOwnedTargetPrefix $standaloneRoot
-            Test-VisibleMapleCodeCommand -VisibleBinDir $visibleBinDir
+            Test-VisibleMaplecodeCommand -VisibleBinDir $visibleBinDir
         } catch {
             if ($null -ne $oldStandaloneBackup -and (Test-Path -LiteralPath $oldStandaloneBackup)) {
                 if (Test-Path -LiteralPath $visibleBinDir) {
@@ -1257,10 +1257,10 @@ if ($prioritizeVisibleBin) {
 
 Write-Step "Current PowerShell session: maplecode"
 Write-Step "Future PowerShell windows: open a new PowerShell window and run: maplecode"
-Write-Host "MapleCode CLI $resolvedVersion installed successfully."
+Write-Host "Maplecode CLI $resolvedVersion installed successfully."
 
 $maplecodeCommand = Join-Path $visibleBinDir "maplecode.exe"
-if (Prompt-YesNo "Start MapleCode now?") {
-    Write-Step "Launching MapleCode"
+if (Prompt-YesNo "Start Maplecode now?") {
+    Write-Step "Launching Maplecode"
     & $maplecodeCommand
 }

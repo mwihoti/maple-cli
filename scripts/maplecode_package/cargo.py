@@ -1,4 +1,4 @@
-"""Cargo builds for source-built MapleCode package artifacts."""
+"""Cargo builds for source-built Maplecode package artifacts."""
 
 import os
 import subprocess

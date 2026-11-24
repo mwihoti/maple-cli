@@ -33,10 +33,10 @@ class InstallShTest(unittest.TestCase):
             ],
         )
         self.assertIn(
-            f"Could not fetch GitHub release metadata for MapleCode {VERSION}",
+            f"Could not fetch GitHub release metadata for Maplecode {VERSION}",
             result.stderr,
         )
-        self.assertNotIn("Could not find MapleCode package", result.stderr)
+        self.assertNotIn("Could not find Maplecode package", result.stderr)
 
     def test_exact_release_opt_out_uses_github_metadata_once(self) -> None:
         result, requests = run_installer(VERSION, use_mirror=False)
@@ -153,7 +153,7 @@ class InstallShTest(unittest.TestCase):
 
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn(
-                "Leaving the existing npm-managed MapleCode installed", result.stderr
+                "Leaving the existing npm-managed Maplecode installed", result.stderr
             )
 
     def test_releases_latest_installs_verified_package_by_default(self) -> None:
@@ -395,7 +395,7 @@ class InstallShTest(unittest.TestCase):
             system = os.uname()
             if system.sysname == "Linux":
                 # The race requires pruning to proceed. A live but unreadable
-                # MapleCode/helper (e.g. the agent's sandbox) must prevent that.
+                # Maplecode/helper (e.g. the agent's sandbox) must prevent that.
                 for process in Path("/proc").glob("[0-9]*"):
                     try:
                         (process / "exe").readlink()
@@ -992,7 +992,7 @@ class InstallShTest(unittest.TestCase):
                     f"rust-v{VERSION}",
                 ],
             )
-            self.assertNotIn("Downloading MapleCode CLI", second_result.stdout)
+            self.assertNotIn("Downloading Maplecode CLI", second_result.stdout)
 
 
 def run_installer(

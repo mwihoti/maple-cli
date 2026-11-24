@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage one or more MapleCode npm packages for release."""
+"""Stage one or more Maplecode npm packages for release."""
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -334,7 +334,7 @@ def install_maplecode_package_archives(
         return
 
     print(
-        "Installing MapleCode package archives for targets: " + ", ".join(targets),
+        "Installing Maplecode package archives for targets: " + ", ".join(targets),
         flush=True,
     )
     max_workers = min(len(targets), max(1, (os.cpu_count() or 1)))
