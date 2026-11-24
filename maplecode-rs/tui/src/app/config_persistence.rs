@@ -251,7 +251,7 @@ impl App {
         self.sync_active_thread_permission_settings_to_cached_session()
             .await;
         self.app_event_tx
-            .send(AppEvent::MapleCodeOp(AppCommand::override_turn_context(
+            .send(AppEvent::MaplecodeOp(AppCommand::override_turn_context(
                 /*cwd*/ None,
                 approval_policy,
                 approvals_reviewer,

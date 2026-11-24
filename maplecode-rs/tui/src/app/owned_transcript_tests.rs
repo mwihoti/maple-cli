@@ -773,7 +773,7 @@ async fn owned_details_escape_interrupts_work_without_starting_backtrack() -> Re
     )
     .await?;
     let interrupts = std::iter::from_fn(|| events.try_recv().ok())
-        .filter(|event| matches!(event, AppEvent::MapleCodeOp(AppCommand::Interrupt)))
+        .filter(|event| matches!(event, AppEvent::MaplecodeOp(AppCommand::Interrupt)))
         .count();
     assert_eq!(
         (

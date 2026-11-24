@@ -16,7 +16,7 @@ use maplecode_app_server_protocol::FeedbackSaveResponse;
 use maplecode_app_server_protocol::FeedbackUploadParams;
 use maplecode_app_server_protocol::FeedbackUploadResponse;
 use maplecode_app_server_protocol::RequestId;
-use maplecode_feedback::MapleCodeFeedback;
+use maplecode_feedback::MaplecodeFeedback;
 use maplecode_utils_path_uri::LegacyAppPathString;
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -29,7 +29,7 @@ pub(super) async fn deliver_feedback(
     request_handle: AppServerRequestHandle,
     maplecode_home: Option<AppServerPath>,
     mut params: FeedbackUploadParams,
-    feedback: MapleCodeFeedback,
+    feedback: MaplecodeFeedback,
     destination: FeedbackDestination,
 ) -> Result<FeedbackReceipt> {
     let fs = AppServerFileSystem { request_handle };

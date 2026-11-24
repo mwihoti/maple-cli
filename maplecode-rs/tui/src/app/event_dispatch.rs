@@ -1293,9 +1293,9 @@ impl App {
                 self.chat_widget.on_images_prepared(id);
             }
             // The Cloud preview does not have a skills catalog.
-            AppEvent::MapleCodeOp(AppCommand::ListSkills { .. })
+            AppEvent::MaplecodeOp(AppCommand::ListSkills { .. })
                 if app_server.thread_params_mode() == crate::ThreadParamsMode::Cloud => {}
-            AppEvent::MapleCodeOp(AppCommand::ListSkills { cwds, force_reload: true })
+            AppEvent::MaplecodeOp(AppCommand::ListSkills { cwds, force_reload: true })
                 if self.awaiting_side_replay(tui)
                     && let Some(thread_id) = self.active_thread_id
                     && self.side_pair_key(thread_id).is_some()
@@ -1323,7 +1323,7 @@ impl App {
                     });
                 }
             }
-            AppEvent::MapleCodeOp(mut op) => {
+            AppEvent::MaplecodeOp(mut op) => {
                 if let AppCommand::OverrideTurnContext {
                     cwd,
                     approval_policy,
@@ -2876,7 +2876,7 @@ impl App {
                                     self.app_event_tx.send(AppEvent::SettingsSelectionClosed);
                                 }
                             } else {
-                                self.app_event_tx.send(AppEvent::MapleCodeOp(
+                                self.app_event_tx.send(AppEvent::MaplecodeOp(
                                     AppCommand::override_turn_context(
                                         /*cwd*/ None,
                                         Some(AskForApproval::from(preset.approval)),

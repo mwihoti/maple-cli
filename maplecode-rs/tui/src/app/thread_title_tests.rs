@@ -436,7 +436,7 @@ async fn check_thread_title_generation(scenario: TitleScenario) -> color_eyre::R
                 let name = "Keep this title".to_string();
                 let event = match scenario {
                     TitleScenario::ManualRename => {
-                        AppEvent::MapleCodeOp(AppCommand::set_thread_name(name))
+                        AppEvent::MaplecodeOp(AppCommand::set_thread_name(name))
                     }
                     TitleScenario::OverviewRename => {
                         AppEvent::RenameAgentsOverviewThread { thread_id, name }
@@ -674,7 +674,7 @@ fn recent_conversation_messages_escape_markup_and_ignore_commentary() {
 fn recent_conversation_messages_strip_ide_context_before_escaping() {
     let ide_context = "x".repeat(THREAD_TITLE_PROMPT_MAX_BYTES + 1);
     let user_message = format!(
-        "# Context from my IDE setup:\n{ide_context}\n## My request for MapleCode:\n\nEarlier request\n## My request for MapleCode:\n  Fix <login> & retries  "
+        "# Context from my IDE setup:\n{ide_context}\n## My request for Maple Code:\n\nEarlier request\n## My request for Maple Code:\n  Fix <login> & retries  "
     );
     let items = vec![title_user_message("user-1", &user_message)];
 

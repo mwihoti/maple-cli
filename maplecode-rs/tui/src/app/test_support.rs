@@ -98,7 +98,7 @@ pub(crate) async fn make_test_app() -> Box<App> {
         skill_load_warnings: SkillLoadWarningState::default(),
         backtrack: BacktrackState::default(),
         backtrack_render_pending: false,
-        feedback: maplecode_feedback::MapleCodeFeedback::new(),
+        feedback: maplecode_feedback::MaplecodeFeedback::new(),
         feedback_audience: FeedbackAudience::External,
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
         app_server_target: crate::AppServerTarget::Embedded,

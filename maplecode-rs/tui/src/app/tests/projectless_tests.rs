@@ -134,7 +134,7 @@ sandbox = "unelevated"
         .handle_key_event(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
     let op = std::iter::from_fn(|| events.try_recv().ok())
         .find_map(|event| match event {
-            AppEvent::MapleCodeOp(op @ AppCommand::UserTurn { .. }) => Some(op),
+            AppEvent::MaplecodeOp(op @ AppCommand::UserTurn { .. }) => Some(op),
             _ => None,
         })
         .expect("user turn");

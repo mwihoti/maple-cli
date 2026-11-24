@@ -5,7 +5,7 @@ use maplecode_app_server_protocol::AccountRateLimitsUpdatedNotification;
 use maplecode_app_server_protocol::CreditsSnapshot;
 use maplecode_app_server_protocol::ErrorNotification;
 use maplecode_app_server_protocol::GetAccountRateLimitsResponse;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::RateLimitReachedType;
 use maplecode_app_server_protocol::RateLimitResetCreditsSummary;
 use maplecode_app_server_protocol::RateLimitSnapshot;
@@ -94,7 +94,7 @@ fn deliver_usage_limit_error(app: &mut App) {
             error: AppServerTurnError {
                 misalignment: None,
                 message: "Usage limit reached.".to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::UsageLimitExceeded),
+                maplecode_error_info: Some(MaplecodeErrorInfo::UsageLimitExceeded),
                 additional_details: None,
             },
             will_retry: false,

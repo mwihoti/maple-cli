@@ -77,7 +77,7 @@ impl App {
                             && (n.turn_id == review.turn_id
                                 || n.error.maplecode_error_info
                                     == Some(
-                                        AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation,
+                                        AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation,
                                     )) =>
                     {
                         (&n.turn_id, Some(&n.error))
@@ -89,7 +89,7 @@ impl App {
                 };
                 if turn_id != &review.turn_id
                     || error.maplecode_error_info
-                        != Some(AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation)
+                        != Some(AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation)
                 {
                     return Some(false);
                 }

@@ -86,13 +86,13 @@ async fn lost_mutation_reply_preserves_work_without_resubmitting() -> Result<()>
     app.chat_widget.show_selection_view(SelectionViewParams {
         items: vec![SelectionItem {
             name: "Stale server action".into(),
-            actions: vec![Box::new(|tx| tx.send(AppEvent::MapleCodeOp(Op::Interrupt)))],
+            actions: vec![Box::new(|tx| tx.send(AppEvent::MaplecodeOp(Op::Interrupt)))],
             ..Default::default()
         }],
         ..Default::default()
     });
     assert!(matches!(
-        app.handle_event(&mut tui, &mut session, AppEvent::MapleCodeOp(op))
+        app.handle_event(&mut tui, &mut session, AppEvent::MaplecodeOp(op))
             .await?,
         AppRunControl::Continue
     ));
@@ -395,7 +395,7 @@ async fn remote_disconnect_retires_voice_before_reconnecting() -> Result<()> {
     app.handle_event(
         &mut tui,
         &mut session,
-        AppEvent::MapleCodeOp(Op::RealtimeConversationStop { thread_id }),
+        AppEvent::MaplecodeOp(Op::RealtimeConversationStop { thread_id }),
     )
     .await?;
     assert_eq!(
@@ -683,7 +683,7 @@ async fn rejected_initial_thread_start_reconnects_and_submits_prompt_once() -> R
         }
         let submitted = std::iter::from_fn(|| events.try_recv().ok())
             .filter_map(|event| match event {
-                AppEvent::MapleCodeOp(Op::UserTurn { items, .. }) => Some(items),
+                AppEvent::MaplecodeOp(Op::UserTurn { items, .. }) => Some(items),
                 _ => None,
             })
             .collect::<Vec<_>>();

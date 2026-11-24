@@ -12,7 +12,7 @@ use pretty_assertions::assert_eq;
 fn policy_error() -> AppServerTurnError {
     AppServerTurnError {
         message: "Chat paused".into(),
-        maplecode_error_info: Some(AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation),
+        maplecode_error_info: Some(AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation),
         additional_details: None,
         misalignment: Some(MisalignmentErrorDetails {
             review_target: Some("RB".to_string()),
@@ -220,7 +220,7 @@ async fn misalignment_continuation_requires_current_review_and_submits_once() ->
                 thread_id,
                 "settings-update",
                 AppServerTurnError {
-                    maplecode_error_info: Some(AppServerMapleCodeErrorInfo::BadRequest),
+                    maplecode_error_info: Some(AppServerMaplecodeErrorInfo::BadRequest),
                     ..policy_error()
                 },
             ),

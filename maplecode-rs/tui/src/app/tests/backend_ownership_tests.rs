@@ -163,7 +163,7 @@ async fn startup_fallback_requires_no_established_backend() -> Result<()> {
             loader,
             /*strict_config*/ false,
             crate::CloudConfigBundleLoader::default(),
-            maplecode_feedback::MapleCodeFeedback::new(),
+            maplecode_feedback::MaplecodeFeedback::new(),
             /*log_db*/ None,
             &mut state_db,
             Arc::clone(&app.environment_manager),

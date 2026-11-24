@@ -132,7 +132,7 @@ async fn backend_banner_fallback_updates_task_settings_and_keeps_notice() -> Res
         insta::assert_snapshot!("backend_banner_fallback_notice", notices[0]);
         assert!(!queued.iter().any(|event| matches!(
             event,
-            AppEvent::PersistModelSelection { .. } | AppEvent::MapleCodeOp(_)
+            AppEvent::PersistModelSelection { .. } | AppEvent::MaplecodeOp(_)
         )));
         assert!(ops.try_recv().is_err(), "switch must not replay a turn");
         app.chat_widget
@@ -342,7 +342,7 @@ async fn backend_banner_fallback_handles_settings_failure_and_queued_manual_sele
             Some(
                 std::iter::from_fn(|| events.try_recv().ok())
                     .find(|event| {
-                        matches!(event, AppEvent::MapleCodeOp(AppCommand::UserTurn { .. }))
+                        matches!(event, AppEvent::MaplecodeOp(AppCommand::UserTurn { .. }))
                     })
                     .expect("turn already queued before the failed switch"),
             )
@@ -422,7 +422,7 @@ async fn backend_banner_fallback_handles_settings_failure_and_queued_manual_sele
             assert!(
                 !std::iter::from_fn(|| events.try_recv().ok()).any(|event| matches!(
                     event,
-                    AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })
+                    AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })
                 ))
             );
         }

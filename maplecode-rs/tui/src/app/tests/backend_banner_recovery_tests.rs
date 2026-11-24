@@ -5,7 +5,7 @@ use app_test_support::ChatGptAuthFixture;
 use app_test_support::write_chatgpt_auth;
 use maplecode_app_server_protocol::ErrorNotification;
 use maplecode_app_server_protocol::GetAccountRateLimitsResponse;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_config::types::AuthCredentialsStoreMode;
 use pretty_assertions::assert_eq;
 use serde_json::json;
@@ -72,7 +72,7 @@ async fn luna_reserve_periodic_refresh_adapts_without_an_experiment_banner() -> 
     for (used, seconds) in [(10, 60), (75, 30), (90, 15), (99, 5), (20, 60)] {
         backend.reset().await;
         Mock::given(method("GET"))
-            .and(path("/api/maplecode/usage"))
+            .and(path("/api/codex/usage"))
             .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(json!({
                 "account_id": "workspace-a", "user_id": "user-a", "plan_type": "plus",
                 "rate_limit": {"allowed": true, "limit_reached": false,
@@ -84,7 +84,7 @@ async fn luna_reserve_periodic_refresh_adapts_without_an_experiment_banner() -> 
             .mount(&backend)
             .await;
         Mock::given(method("GET"))
-            .and(path("/api/maplecode/rate-limit-reset-credits"))
+            .and(path("/api/codex/rate-limit-reset-credits"))
             .respond_with(ResponseTemplate::new(/*s*/ 200))
             .expect(/*r*/ 0)
             .mount(&backend)
@@ -112,7 +112,7 @@ async fn luna_reserve_periodic_refresh_adapts_without_an_experiment_banner() -> 
         let requests = backend.received_requests().await.unwrap();
         let usage = requests
             .iter()
-            .find(|request| request.url.path() == "/api/maplecode/usage")
+            .find(|request| request.url.path() == "/api/codex/usage")
             .unwrap();
         assert!(
             usage
@@ -160,7 +160,7 @@ async fn backend_banner_limit_error_refreshes_again_after_intervening_rolling_ha
             .contains("Selected model usage exhausted")
     );
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/usage"))
+        .and(path("/api/codex/usage"))
         .respond_with(
             ResponseTemplate::new(200)
                 .set_delay(std::time::Duration::from_millis(/*millis*/ 100))
@@ -175,7 +175,7 @@ async fn backend_banner_limit_error_refreshes_again_after_intervening_rolling_ha
         .mount(&server)
         .await;
     Mock::given(method("GET"))
-        .and(path("/api/maplecode/rate-limit-reset-credits"))
+        .and(path("/api/codex/rate-limit-reset-credits"))
         .respond_with(
             ResponseTemplate::new(200).set_body_json(json!({"available_count":0,"credits":[]})),
         )
@@ -190,7 +190,7 @@ async fn backend_banner_limit_error_refreshes_again_after_intervening_rolling_ha
             error: AppServerTurnError {
                 misalignment: None,
                 message: "credits exhausted".into(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::UsageLimitExceeded),
+                maplecode_error_info: Some(MaplecodeErrorInfo::UsageLimitExceeded),
                 additional_details: None,
             },
             will_retry: false,

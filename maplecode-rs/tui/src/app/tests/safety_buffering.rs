@@ -88,7 +88,7 @@ fn next_user_turn_event(
     app_event_rx: &mut tokio::sync::mpsc::UnboundedReceiver<AppEvent>,
 ) -> AppCommand {
     while let Ok(event) = app_event_rx.try_recv() {
-        if let AppEvent::MapleCodeOp(turn @ AppCommand::UserTurn { .. }) = event {
+        if let AppEvent::MaplecodeOp(turn @ AppCommand::UserTurn { .. }) = event {
             return turn;
         }
     }
@@ -672,7 +672,7 @@ stream_max_retries = 0
     insta::assert_snapshot!(app.chat_widget.composer_text_with_pending(), @"");
     assert!(
         std::iter::from_fn(|| app_event_rx.try_recv().ok())
-            .all(|event| !matches!(event, AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })))
+            .all(|event| !matches!(event, AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })))
     );
     let source = app_server
         .thread_read(thread_id, /*include_turns*/ true)

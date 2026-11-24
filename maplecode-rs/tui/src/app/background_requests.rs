@@ -1422,7 +1422,7 @@ mod tests {
         )];
         app.config.cli_auth_credentials_store_mode = AuthCredentialsStoreMode::File;
         wiremock::Mock::given(wiremock::matchers::method("GET"))
-            .and(wiremock::matchers::path("/api/maplecode/config/bundle"))
+            .and(wiremock::matchers::path("/api/codex/config/bundle"))
             .respond_with(wiremock::ResponseTemplate::new(/*s*/ 200).set_body_string("{}"))
             .mount(&server)
             .await;
@@ -1457,7 +1457,7 @@ mod tests {
 
         wiremock::Mock::given(wiremock::matchers::method("POST"))
             .and(wiremock::matchers::path(
-                "/api/maplecode/usage/thread_usage/query",
+                "/api/codex/usage/thread_usage/query",
             ))
             .and(wiremock::matchers::header(
                 "authorization",

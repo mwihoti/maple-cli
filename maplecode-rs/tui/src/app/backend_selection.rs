@@ -64,12 +64,12 @@ impl BackendPreferenceContext {
             .ok()?;
         let user = if let Some(id) = auth
             .as_ref()
-            .and_then(maplecode_login::MapleCodeAuth::get_chatgpt_user_id)
+            .and_then(maplecode_login::MaplecodeAuth::get_chatgpt_user_id)
         {
             format!("chatgpt:{id}")
         } else if auth
             .as_ref()
-            .is_some_and(maplecode_login::MapleCodeAuth::is_chatgpt_auth)
+            .is_some_and(maplecode_login::MaplecodeAuth::is_chatgpt_auth)
         {
             return None;
         } else {

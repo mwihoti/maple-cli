@@ -31,7 +31,7 @@ async fn rejected_voice_start_does_not_leave_local_capture_active() -> Result<()
         Box::pin(app.handle_event(
             &mut tui,
             &mut app_server,
-            AppEvent::MapleCodeOp(Op::RealtimeConversationStart {
+            AppEvent::MaplecodeOp(Op::RealtimeConversationStart {
                 thread_id,
                 attempt_id: 1,
                 offer_sdp: String::from("v=0\r\n").into(),
@@ -89,7 +89,7 @@ async fn rejected_voice_stop_clears_the_owned_session() -> Result<()> {
         Box::pin(app.handle_event(
             &mut tui,
             &mut app_server,
-            AppEvent::MapleCodeOp(Op::RealtimeConversationStop { thread_id }),
+            AppEvent::MaplecodeOp(Op::RealtimeConversationStop { thread_id }),
         ))
         .await?;
 

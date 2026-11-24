@@ -718,7 +718,7 @@ async fn command_center_new_preserves_only_selected_server_profiles() -> Result<
         LoaderOverrides::default(),
         /*strict_config*/ false,
         CloudConfigBundleLoader::default(),
-        maplecode_feedback::MapleCodeFeedback::new(),
+        maplecode_feedback::MaplecodeFeedback::new(),
         /*log_db*/ None,
         state_db,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -978,7 +978,7 @@ async fn command_center_new_restores_blank_drafts_and_builtin_permissions() -> R
         )
         .await;
         while let Ok(event) = events.try_recv() {
-            if matches!(event, AppEvent::MapleCodeOp(_)) {
+            if matches!(event, AppEvent::MaplecodeOp(_)) {
                 Box::pin(app.handle_event(&mut tui, &mut server, event)).await?;
             }
         }

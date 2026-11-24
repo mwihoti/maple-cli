@@ -1139,7 +1139,7 @@ async fn startup_draft_handoff_recognizes_late_user_input_as_new_protected_view(
     assert_eq!(app.chat_widget.composer_text_with_pending(), "x");
     while let Ok(event) = app_event_rx.try_recv() {
         assert!(
-            !matches!(event, AppEvent::MapleCodeOp(Op::UserInputAnswer { .. })),
+            !matches!(event, AppEvent::MaplecodeOp(Op::UserInputAnswer { .. })),
             "showing the protected user input request must not submit an answer: {event:?}"
         );
     }
@@ -1981,7 +1981,7 @@ async fn read_only_startup_keeps_initial_prompt_as_draft() -> Result<()> {
                 AppEvent::SubmitThreadOp {
                     op: Op::UserTurn { .. },
                     ..
-                } | AppEvent::MapleCodeOp(Op::UserTurn { .. })
+                } | AppEvent::MaplecodeOp(Op::UserTurn { .. })
             )
         }));
     }

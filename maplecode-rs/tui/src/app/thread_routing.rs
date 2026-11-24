@@ -1148,7 +1148,7 @@ impl App {
                     .as_ref()
                     .and_then(|error| error.maplecode_error_info.as_ref()),
                 _ => None,
-            } == Some(&AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation);
+            } == Some(&AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation);
         if misalignment_policy_violation && self.active_side_parent_thread_id() == Some(thread_id) {
             if self.chat_widget.is_user_turn_pending_or_running() {
                 self.chat_widget.submit_op(AppCommand::Interrupt);

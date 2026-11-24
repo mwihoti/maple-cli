@@ -599,7 +599,7 @@ async fn plan_implementation_reads_approved_plan_file_in_fresh_session() -> Resu
                 user_rows
                     .push(lines_to_single_string(&cell.raw_lines()).replace(path, "<PLAN_FILE>"));
             }
-            event @ (AppEvent::SubmitThreadOp { .. } | AppEvent::MapleCodeOp(_)) => {
+            event @ (AppEvent::SubmitThreadOp { .. } | AppEvent::MaplecodeOp(_)) => {
                 Box::pin(app.handle_event(&mut tui, &mut server, event)).await?;
             }
             _ => {}
@@ -705,7 +705,7 @@ async fn assert_plan_implementation_with_unavailable_attachment(
         while let Ok(event) = events.try_recv() {
             if matches!(
                 event,
-                AppEvent::SubmitThreadOp { .. } | AppEvent::MapleCodeOp(_)
+                AppEvent::SubmitThreadOp { .. } | AppEvent::MaplecodeOp(_)
             ) {
                 crate::boxed_future!(app.handle_event(&mut tui, &mut server, event)).await?;
             }
@@ -1484,7 +1484,7 @@ async fn provider_continuation_starts_current_provider_and_drafts_saved_referenc
                         assert_eq!(thread_id, new_id);
                         submissions.push(items);
                     }
-                    AppEvent::MapleCodeOp(Op::UserTurn { items, .. }) => submissions.push(items),
+                    AppEvent::MaplecodeOp(Op::UserTurn { items, .. }) => submissions.push(items),
                     event => {
                         Box::pin(app.handle_event(&mut tui, &mut server, event)).await?;
                     }
@@ -1527,7 +1527,7 @@ async fn provider_continuation_starts_current_provider_and_drafts_saved_referenc
                         assert_eq!(thread_id, new_id);
                         submissions.push(items);
                     }
-                    AppEvent::MapleCodeOp(Op::UserTurn { items, .. }) => submissions.push(items),
+                    AppEvent::MaplecodeOp(Op::UserTurn { items, .. }) => submissions.push(items),
                     event => {
                         Box::pin(app.handle_event(&mut tui, &mut server, event)).await?;
                     }
@@ -1688,7 +1688,7 @@ async fn cloud_switch_wait_keeps_draft_editable_without_submitting_to_local() ->
     assert!(
         !std::iter::from_fn(|| app_events.try_recv().ok()).any(|event| matches!(
             event,
-            AppEvent::MapleCodeOp(AppCommand::UserTurn { .. }) | AppEvent::UpdateReasoningEffort(_)
+            AppEvent::MaplecodeOp(AppCommand::UserTurn { .. }) | AppEvent::UpdateReasoningEffort(_)
         ))
     );
     Ok(())

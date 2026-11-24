@@ -3191,7 +3191,7 @@ async fn overview_fork_keeps_idle_source_input_queued() -> Result<()> {
         while let Ok(event) = events.try_recv() {
             assert!(!matches!(
                 event,
-                AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })
+                AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })
             ));
             if matches!(event, AppEvent::ForkAgentsOverviewThreadReady { .. }) {
                 ready = Some(event);

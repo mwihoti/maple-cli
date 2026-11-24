@@ -904,7 +904,7 @@ fn set_test_initial_prompt(app: &mut App, initial_prompt: String) {
         has_chatgpt_account: false,
         has_maplecode_backend_auth: false,
         model_catalog: app.model_catalog.clone(),
-        feedback: maplecode_feedback::MapleCodeFeedback::new(),
+        feedback: maplecode_feedback::MaplecodeFeedback::new(),
         is_first_run: false,
         status_account_display: None,
         initial_plan_type: None,
@@ -957,7 +957,7 @@ async fn enqueue_primary_thread_session_replays_turns_before_initial_prompt_subm
                 assert_eq!(op_thread_id, thread_id);
                 submitted_items = Some(items);
             }
-            AppEvent::MapleCodeOp(Op::UserTurn { items, .. }) => {
+            AppEvent::MaplecodeOp(Op::UserTurn { items, .. }) => {
                 assert!(
                     saw_optimistic_prompt,
                     "expected optimistic prompt before turn submission"
@@ -3086,7 +3086,7 @@ fn selected_and_resumed_threads_use_server_capability_for_v1_and_v2_children() -
             .handle_key_event(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
         assert!(
             std::iter::from_fn(|| app_event_rx.try_recv().ok())
-                .any(|event| matches!(event, AppEvent::MapleCodeOp(Op::UserTurn { .. })))
+                .any(|event| matches!(event, AppEvent::MaplecodeOp(Op::UserTurn { .. })))
         );
 
         app.select_agent_thread(&mut tui, &mut app_server, child_thread_ids[1])
@@ -3101,7 +3101,7 @@ fn selected_and_resumed_threads_use_server_capability_for_v1_and_v2_children() -
         assert_eq!(app.chat_widget.composer_text_with_pending(), draft);
         assert!(
             !std::iter::from_fn(|| app_event_rx.try_recv().ok())
-                .any(|event| matches!(event, AppEvent::MapleCodeOp(Op::UserTurn { .. })))
+                .any(|event| matches!(event, AppEvent::MaplecodeOp(Op::UserTurn { .. })))
         );
 
         let resumed = Box::pin(app_server.resume_thread(
@@ -3129,7 +3129,7 @@ fn selected_and_resumed_threads_use_server_capability_for_v1_and_v2_children() -
         assert_eq!(app.chat_widget.composer_text_with_pending(), draft);
         assert!(
             !std::iter::from_fn(|| app_event_rx.try_recv().ok())
-                .any(|event| matches!(event, AppEvent::MapleCodeOp(Op::UserTurn { .. })))
+                .any(|event| matches!(event, AppEvent::MaplecodeOp(Op::UserTurn { .. })))
         );
         Ok(())
     }))
@@ -3286,7 +3286,7 @@ async fn docked_replay_finishes_while_skills_refresh_is_pending() -> Result<()> 
         app.active_thread_id = Some(thread_id);
         app.pending_thread_switch_resets = 1;
         app.app_event_tx
-            .send(AppEvent::MapleCodeOp(AppCommand::list_skills(
+            .send(AppEvent::MaplecodeOp(AppCommand::list_skills(
                 vec![cwd.clone()],
                 /*force_reload*/ true,
             )));
@@ -3651,16 +3651,16 @@ async fn reopen_saved_side_chat(during: DuringOpen) -> Result<()> {
 
     let reply = format!(
         "<send_user_message_question_reply>{}</send_user_message_question_reply>",
-        serde_json::json!({"questionItemId": "choice", "question": "Which branch?", "answer": "Keep ## My request for MapleCode: literal"})
+        serde_json::json!({"questionItemId": "choice", "question": "Which branch?", "answer": "Keep ## My request for Maple Code: literal"})
     );
     for (prompt, expected) in [
         (
-            "# Context\n## My request for MapleCode:\nOld context\n## My request for MapleCode:\nActual request",
+            "# Context\n## My request for Maple Code:\nOld context\n## My request for Maple Code:\nActual request",
             "Actual request",
         ),
         (
             reply.as_str(),
-            "> Which branch? Keep ## My request for MapleCode: literal",
+            "> Which branch? Keep ## My request for Maple Code: literal",
         ),
     ] {
         side_chat_policy_tests::ask(&mut server, &model, sibling, prompt).await?;
@@ -4269,7 +4269,7 @@ async fn handle_start_side_seeds_navigation_before_thread_started() -> Result<()
     while let Ok(event) = app_event_rx.try_recv() {
         assert!(!matches!(
             event,
-            AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })
+            AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })
         ));
         boxed_future!(app.handle_event(&mut tui, &mut app_server, event)).await?;
     }
@@ -6271,8 +6271,8 @@ default_permissions = "locked-down"
             .approvals_reviewer
     );
     let op = match app_event_rx.try_recv() {
-        Ok(AppEvent::MapleCodeOp(op)) => op,
-        other => panic!("expected MapleCodeOp event, got {other:?}"),
+        Ok(AppEvent::MaplecodeOp(op)) => op,
+        other => panic!("expected MaplecodeOp event, got {other:?}"),
     };
     assert_eq!(
         op,
@@ -9091,7 +9091,7 @@ async fn make_test_app() -> Box<App> {
         skill_load_warnings: SkillLoadWarningState::default(),
         backtrack: BacktrackState::default(),
         backtrack_render_pending: false,
-        feedback: maplecode_feedback::MapleCodeFeedback::new(),
+        feedback: maplecode_feedback::MaplecodeFeedback::new(),
         feedback_audience: FeedbackAudience::External,
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
         app_server_target: crate::AppServerTarget::Embedded,
@@ -9233,7 +9233,7 @@ pub(super) async fn make_test_app_with_channels() -> (
             skill_load_warnings: SkillLoadWarningState::default(),
             backtrack: BacktrackState::default(),
             backtrack_render_pending: false,
-            feedback: maplecode_feedback::MapleCodeFeedback::new(),
+            feedback: maplecode_feedback::MaplecodeFeedback::new(),
             feedback_audience: FeedbackAudience::External,
             environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
             app_server_target: crate::AppServerTarget::Embedded,
@@ -10756,7 +10756,7 @@ fn active_turn_not_steerable_turn_error_extracts_structured_server_error() {
     let turn_error = AppServerTurnError {
         misalignment: None,
         message: "cannot steer a review turn".to_string(),
-        maplecode_error_info: Some(AppServerMapleCodeErrorInfo::ActiveTurnNotSteerable {
+        maplecode_error_info: Some(AppServerMaplecodeErrorInfo::ActiveTurnNotSteerable {
             turn_kind: AppServerNonSteerableTurnKind::Review,
         }),
         additional_details: None,

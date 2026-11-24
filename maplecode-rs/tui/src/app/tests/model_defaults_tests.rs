@@ -324,7 +324,7 @@ async fn model_default_saves_report_server_outcomes_and_target_server_profile() 
             loader_overrides,
             /*strict_config*/ false,
             maplecode_config::CloudConfigBundleLoader::default(),
-            maplecode_feedback::MapleCodeFeedback::new(),
+            maplecode_feedback::MaplecodeFeedback::new(),
             /*log_db*/ None,
             /*state_db*/ None,
             Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),

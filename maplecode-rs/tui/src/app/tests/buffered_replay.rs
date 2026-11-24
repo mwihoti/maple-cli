@@ -775,7 +775,7 @@ async fn misalignment_buffered_replay_preserves_input_after_continuation() {
     let error = AppServerTurnError {
         misalignment: None,
         message: "Chat stopped".into(),
-        maplecode_error_info: Some(AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation),
+        maplecode_error_info: Some(AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation),
         additional_details: None,
     };
     let failed_turn = Turn {
@@ -880,7 +880,7 @@ async fn misalignment_replay_blocks_when_turn_start_was_evicted() {
     let error = AppServerTurnError {
         misalignment: None,
         message: "Chat stopped".into(),
-        maplecode_error_info: Some(AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation),
+        maplecode_error_info: Some(AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation),
         additional_details: None,
     };
     let previous_turn = test_turn("old-turn", TurnStatus::Completed, Vec::new());
@@ -912,7 +912,7 @@ async fn misalignment_replay_blocks_when_turn_start_was_evicted() {
                 thread_id: thread_id.to_string(),
                 turn_id: "settings-update".into(),
                 error: AppServerTurnError {
-                    maplecode_error_info: Some(AppServerMapleCodeErrorInfo::BadRequest),
+                    maplecode_error_info: Some(AppServerMaplecodeErrorInfo::BadRequest),
                     ..error
                 },
                 will_retry: false,

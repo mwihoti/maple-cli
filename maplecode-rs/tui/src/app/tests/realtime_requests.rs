@@ -194,7 +194,7 @@ async fn check_remote_voice_start(
     Box::pin(app.handle_event(
         &mut tui,
         &mut app_server,
-        AppEvent::MapleCodeOp(Op::RealtimeConversationStart {
+        AppEvent::MaplecodeOp(Op::RealtimeConversationStart {
             thread_id,
             attempt_id: 1,
             offer_sdp: String::from("v=0\r\n").into(),
@@ -292,7 +292,7 @@ async fn voice_cancel_restart_only_attaches_the_new_attempt() -> Result<()> {
                 thread_id,
                 attempt_id,
             );
-            let command = AppEvent::MapleCodeOp(Op::RealtimeConversationStart {
+            let command = AppEvent::MaplecodeOp(Op::RealtimeConversationStart {
                 thread_id,
                 attempt_id,
                 offer_sdp: String::from("v=0").into(),
@@ -511,7 +511,7 @@ async fn switching_agent_threads_preserves_backend_voice_and_routes_pending_spee
     assert_eq!(app.chat_widget.thread_id(), Some(target));
     assert_eq!(app.voice_owner_thread_id(), Some(source));
     assert!(recorded_params(&requests, "thread/realtime/stop").is_empty());
-    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(speech))).await?;
+    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(speech))).await?;
     assert_eq!(app.active_thread_id, Some(target));
     assert_eq!(app.chat_widget.thread_id(), Some(target));
     // The newer user caption interrupted this queued answer, even across navigation.
@@ -540,7 +540,7 @@ async fn switching_agent_threads_preserves_backend_voice_and_routes_pending_spee
     }
     assert_eq!(app.voice_owner_thread_id(), None);
     let stop = ops.try_recv()?;
-    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(stop))).await?;
+    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(stop))).await?;
     assert_eq!(
         recorded_params(&requests, "thread/realtime/stop"),
         vec![serde_json::json!({"threadId": source.to_string()})]
@@ -1399,7 +1399,7 @@ async fn rejected_realtime_speech_restores_the_delegated_final_answer() -> Resul
     };
     while events.try_recv().is_ok() {}
     let mut tui = crate::tui::test_support::make_test_tui()?;
-    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(speech))).await?;
+    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(speech))).await?;
     assert_eq!(
         recorded_params(&requests, "thread/realtime/appendSpeech").len(),
         1
@@ -1516,7 +1516,7 @@ async fn switching_threads_retains_undelivered_voice_answer_after_replay_evictio
     app.app_event_tx = crate::app_event_sender::AppEventSender::new(replacement_tx);
 
     let mut tui = crate::tui::test_support::make_test_tui()?;
-    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(speech))).await?;
+    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(speech))).await?;
     assert!(recorded_params(&requests, "thread/realtime/appendSpeech").is_empty());
     while let Ok(event) = side_events.try_recv() {
         if let AppEvent::InsertHistoryCell(cell) = event {
@@ -1794,7 +1794,7 @@ async fn delegated_final_speech_reaches_app_server_once_and_stale_speech_is_reje
     Box::pin(app.handle_event(
         &mut tui,
         &mut app_server,
-        AppEvent::MapleCodeOp(speech.clone()),
+        AppEvent::MaplecodeOp(speech.clone()),
     ))
     .await?;
     assert!(!app.chat_widget.has_pending_realtime_speech(delivery_id));
@@ -1811,7 +1811,7 @@ async fn delegated_final_speech_reaches_app_server_once_and_stale_speech_is_reje
         typed,
         ItemEventKind::Started,
     );
-    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(speech))).await?;
+    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(speech))).await?;
     assert_eq!(
         recorded_params(&requests, "thread/realtime/appendSpeech").len(),
         1
@@ -1875,7 +1875,7 @@ async fn delegated_final_speech_reaches_app_server_once_and_stale_speech_is_reje
         !app.chat_widget
             .has_pending_realtime_speech(queued_delivery_id)
     );
-    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(queued))).await?;
+    Box::pin(app.handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(queued))).await?;
     assert_eq!(
         recorded_params(&requests, "thread/realtime/appendSpeech").len(),
         1
@@ -2180,7 +2180,7 @@ async fn remote_voice_catalog_success_and_failure() -> Result<()> {
                         Box::pin(app.handle_event(
                             &mut tui,
                             &mut server,
-                            AppEvent::MapleCodeOp(Op::RealtimeConversationStart {
+                            AppEvent::MaplecodeOp(Op::RealtimeConversationStart {
                                 thread_id,
                                 attempt_id: 1,
                                 offer_sdp: String::from("v=0\r\n").into(),
@@ -2257,7 +2257,7 @@ async fn overridden_voice_save_keeps_effective_voice() -> Result<()> {
             maplecode_config::LoaderOverrides::without_managed_config_for_tests(),
             /*strict_config*/ false,
             maplecode_config::CloudConfigBundleLoader::default(),
-            maplecode_feedback::MapleCodeFeedback::new(),
+            maplecode_feedback::MaplecodeFeedback::new(),
             /*log_db*/ None,
             /*state_db*/ None,
             Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),

@@ -421,7 +421,7 @@ async fn reconnect_restores_history_permissions_and_resumes_unsent_input() -> Re
             .join("\n");
         if deferred_notice {
             assert_snapshot!(notices, @r###"
-⚠ A background Maple Code service is running v2.0.0, older than your Maple Code CLI
+⚠ A background Maple Code service is running v2.0.0, older than your Maple Code
 "###);
         } else if edit_offline {
             assert!(notices.contains("unacknowledged prompt"));
@@ -615,7 +615,7 @@ async fn reconnect_reconciles_offscreen_pending_profile_before_restoring_permiss
     app.chat_widget
         .handle_key_event(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
     while let Ok(event) = events.try_recv() {
-        if matches!(event, AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })) {
+        if matches!(event, AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })) {
             app.handle_event(&mut tui, &mut session, event).await?;
         }
     }
@@ -798,7 +798,7 @@ pub(super) async fn drain_history(
         if matches!(
             event,
             AppEvent::InsertHistoryCell(_)
-                | AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })
+                | AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })
                 | AppEvent::BeginThreadSwitchHistoryReplayBuffer
                 | AppEvent::EndInitialHistoryReplayBuffer
         ) {

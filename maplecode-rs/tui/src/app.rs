@@ -116,7 +116,7 @@ use maplecode_app_server_protocol::GetAccountRateLimitsResponse;
 use maplecode_app_server_protocol::HooksListEntry;
 use maplecode_app_server_protocol::ListMcpServerStatusParams;
 use maplecode_app_server_protocol::ListMcpServerStatusResponse;
-use maplecode_app_server_protocol::MapleCodeErrorInfo as AppServerMapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo as AppServerMaplecodeErrorInfo;
 #[cfg(test)]
 use maplecode_app_server_protocol::McpAuthStatus;
 use maplecode_app_server_protocol::McpServerStatus;
@@ -626,7 +626,7 @@ pub(crate) struct App {
     ///
     /// This keeps scrollback consistent with the retained transcript after backtracking.
     pub(crate) backtrack_render_pending: bool,
-    pub(crate) feedback: maplecode_feedback::MapleCodeFeedback,
+    pub(crate) feedback: maplecode_feedback::MaplecodeFeedback,
     feedback_audience: FeedbackAudience,
     environment_manager: Arc<EnvironmentManager>,
     app_server_target: AppServerTarget,

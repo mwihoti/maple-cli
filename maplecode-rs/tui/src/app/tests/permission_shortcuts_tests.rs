@@ -31,7 +31,7 @@ async fn permission_shortcut_rejections_leave_state_unchanged() -> Result<()> {
             LoaderOverrides::without_managed_config_for_tests(),
             /*strict_config*/ false,
             CloudConfigBundleLoader::default(),
-            maplecode_feedback::MapleCodeFeedback::new(),
+            maplecode_feedback::MaplecodeFeedback::new(),
             /*log_db*/ None,
             /*state_db*/ None,
             Arc::clone(&app.environment_manager),

@@ -497,7 +497,7 @@ fn windows_desktop_app_launch_script(url: &str) -> String {
 $ErrorActionPreference = 'Stop'
 $url = {url}
 
-$package = Get-AppxPackage -Name OpenAI.MapleCode -ErrorAction SilentlyContinue
+$package = Get-AppxPackage -Name OpenAI.Maplecode -ErrorAction SilentlyContinue
 if ($null -eq $package) {{
     Write-Error 'Desktop app package is not installed'
     exit 1

@@ -295,7 +295,7 @@ impl ThreadEventStore {
                 if self.active_turn_id.is_none()
                     && !n.will_retry
                     && n.error.maplecode_error_info
-                        == Some(AppServerMapleCodeErrorInfo::MisalignmentPolicyViolation) =>
+                        == Some(AppServerMaplecodeErrorInfo::MisalignmentPolicyViolation) =>
             {
                 self.latest_turn_id = Some(n.turn_id.clone());
             }

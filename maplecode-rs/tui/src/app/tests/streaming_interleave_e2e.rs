@@ -107,7 +107,7 @@ async fn command_start_before_message_completion_does_not_duplicate_preamble() -
         ));
     let turn = std::iter::from_fn(|| app_events.try_recv().ok())
         .find_map(|event| match event {
-            AppEvent::MapleCodeOp(turn @ Op::UserTurn { .. }) => Some(turn),
+            AppEvent::MaplecodeOp(turn @ Op::UserTurn { .. }) => Some(turn),
             _ => None,
         })
         .expect("composer submission should emit a user turn");

@@ -44,7 +44,7 @@ pub(super) async fn run_startup_for_test(
         /*initial_prompt*/ None,
         Vec::new(),
         selection,
-        maplecode_feedback::MapleCodeFeedback::new(),
+        maplecode_feedback::MaplecodeFeedback::new(),
         /*is_first_run*/ false,
         /*should_prompt_windows_sandbox_nux_at_startup*/ false,
         app_server_target,

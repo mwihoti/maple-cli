@@ -67,7 +67,7 @@ async fn cloud_skips_skills_refresh_and_ignores_stale_local_result() -> Result<(
     let mut tui = crate::tui::test_support::make_test_tui()?;
     while events.try_recv().is_ok() {}
     for event in [
-        AppEvent::MapleCodeOp(refresh),
+        AppEvent::MaplecodeOp(refresh),
         AppEvent::SkillsListLoaded {
             cwd,
             result: Err("stale local skills refresh".into()),
@@ -707,7 +707,7 @@ async fn conventional_steer_defers_review_and_holds_a_lost_reply() -> Result<()>
                 let error = AppServerTurnError {
                     message: message.into(),
                     maplecode_error_info: Some(
-                        AppServerMapleCodeErrorInfo::ActiveTurnNotSteerable {
+                        AppServerMaplecodeErrorInfo::ActiveTurnNotSteerable {
                             turn_kind: NonSteerableTurnKind::Review,
                         },
                     ),
@@ -1408,7 +1408,7 @@ pub(super) async fn start_recording_app_server_with_realtime_speech(
         loader_overrides,
         /*strict_config*/ false,
         maplecode_config::CloudConfigBundleLoader::default(),
-        maplecode_feedback::MapleCodeFeedback::new(),
+        maplecode_feedback::MaplecodeFeedback::new(),
         /*log_db*/ None,
         state_db,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),

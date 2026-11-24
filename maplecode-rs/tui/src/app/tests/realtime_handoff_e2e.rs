@@ -182,7 +182,7 @@ async fn delegated_core_events_keep_private_output_hidden_and_deliver_final_spee
                     if matches!(op, Op::RealtimeConversationSpeech { .. }) {
                         break Ok::<_, color_eyre::Report>(op);
                     }
-                    app.handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(op)).await?;
+                    app.handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(op)).await?;
                 }
             }
         }
@@ -192,7 +192,7 @@ async fn delegated_core_events_keep_private_output_hidden_and_deliver_final_spee
         matches!(&speech, Op::RealtimeConversationSpeech { text, .. } if text.as_str() == "[ANALYSIS] is the marker you asked about."),
         "unexpected speech: {speech:?}"
     );
-    app.handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(speech))
+    app.handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(speech))
         .await?;
     assert_eq!(
         timeout(
@@ -292,7 +292,7 @@ async fn delegated_core_events_keep_private_output_hidden_and_deliver_final_spee
                 op = ops.recv(), if !ops.is_closed() => {
                     let op = op.expect("TUI command stream should stay open");
                     assert!(!matches!(op, Op::RealtimeConversationSpeech { .. }), "typed answer must not be spoken");
-                    app.handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(op)).await?;
+                    app.handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(op)).await?;
                 }
             }
         }

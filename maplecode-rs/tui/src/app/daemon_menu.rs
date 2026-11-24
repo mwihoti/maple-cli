@@ -185,7 +185,7 @@ impl App {
                 format!("Use this CLI package v{version} from {}. Copy the complete package and pin it against automatic updates.", executable.display())
             }
         };
-        explanation.push_str("\nThis may restart the daemon and interrupt active or queued work.\nMapleCode exits to update in this terminal. Relaunch it afterward.");
+        explanation.push_str("\nThis may restart the daemon and interrupt active or queued work.\nMaple Code exits to update in this terminal. Relaunch it afterward.");
         let mut header = vec![Line::from(
             crate::history_cell::branded(
                 "Update daemon and exit Maple Code?",

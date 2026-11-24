@@ -1,6 +1,6 @@
 //! Helpers for deciding which buffered events to replay when switching threads.
 
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::ServerNotification;
 use maplecode_app_server_protocol::ServerRequest;
 use maplecode_app_server_protocol::ThreadItemPayload;
@@ -36,7 +36,7 @@ pub(super) fn omit_resolved_misalignment_errors(
         ThreadBufferedEvent::Notification(notification)
             if matches!(notification.as_ref(), ServerNotification::Error(n)
                 if n.turn_id != latest_turn
-                    && n.error.maplecode_error_info == Some(MapleCodeErrorInfo::MisalignmentPolicyViolation))
+                    && n.error.maplecode_error_info == Some(MaplecodeErrorInfo::MisalignmentPolicyViolation))
     ));
     let completed_turns = snapshot.events.iter_mut().filter_map(|event| match event {
         ThreadBufferedEvent::Notification(notification) => match notification.as_mut() {
@@ -48,7 +48,7 @@ pub(super) fn omit_resolved_misalignment_errors(
     for turn in snapshot.turns.iter_mut().chain(completed_turns) {
         if turn.id != latest_turn
             && turn.error.as_ref().is_some_and(|error| {
-                error.maplecode_error_info == Some(MapleCodeErrorInfo::MisalignmentPolicyViolation)
+                error.maplecode_error_info == Some(MaplecodeErrorInfo::MisalignmentPolicyViolation)
             })
         {
             turn.error = None;

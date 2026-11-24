@@ -502,7 +502,7 @@ async fn reconnect_daemon_command_center_after_socket_replacement_without_a_conv
             assert!(
                 !std::iter::from_fn(|| events.try_recv().ok()).any(|event| matches!(
                     event,
-                    AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })
+                    AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })
                 ))
             );
             app.handle_tui_event(&mut tui, &mut session, TuiEvent::Paste("!".into()))
@@ -607,7 +607,7 @@ async fn reconnect_daemon_command_center_after_socket_replacement_without_a_conv
             )
             .await?;
             while let Ok(event) = events.try_recv() {
-                if matches!(event, AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })) {
+                if matches!(event, AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })) {
                     Box::pin(app.handle_event(&mut tui, &mut session, event)).await?;
                 }
             }

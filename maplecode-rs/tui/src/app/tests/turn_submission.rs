@@ -1,7 +1,7 @@
 use super::*;
 use crate::chatwidget::UserMessage;
 use maplecode_app_server_protocol::ErrorNotification;
-use maplecode_app_server_protocol::MapleCodeErrorInfo;
+use maplecode_app_server_protocol::MaplecodeErrorInfo;
 use maplecode_app_server_protocol::ThreadGoalStatus;
 use maplecode_protocol::models::ManagedFileSystemPermissions;
 use maplecode_protocol::permissions::FileSystemAccessMode;
@@ -192,7 +192,7 @@ async fn turn_start_failure_is_shown_without_exiting() -> Result<()> {
     }
 
     let control = app
-        .handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(op))
+        .handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(op))
         .await?;
 
     assert!(matches!(control, AppRunControl::Continue));
@@ -274,7 +274,7 @@ async fn misalignment_policy_blocks_queued_turns_and_goal_resumption() -> Result
         error: Some(AppServerTurnError {
             misalignment: None,
             message: "misalignment policy violation".to_string(),
-            maplecode_error_info: Some(MapleCodeErrorInfo::MisalignmentPolicyViolation),
+            maplecode_error_info: Some(MaplecodeErrorInfo::MisalignmentPolicyViolation),
             additional_details: None,
         }),
         ..test_turn("turn-1", TurnStatus::Failed, Vec::new())
@@ -289,8 +289,8 @@ async fn misalignment_policy_blocks_queued_turns_and_goal_resumption() -> Result
     app.maybe_prompt_resume_paused_goal_after_resume(&mut app_server, thread_id)
         .await;
     for event in [
-        AppEvent::MapleCodeOp(queued_turn),
-        AppEvent::MapleCodeOp(crate::app_command::AppCommand::ExecApproval {
+        AppEvent::MaplecodeOp(queued_turn),
+        AppEvent::MaplecodeOp(crate::app_command::AppCommand::ExecApproval {
             id: "queued-approval".to_string(),
             turn_id: None,
             decision: maplecode_app_server_protocol::CommandExecutionApprovalDecision::Accept,
@@ -371,7 +371,7 @@ async fn misalignment_policy_in_parent_stops_active_side_conversation() -> Resul
             error: AppServerTurnError {
                 misalignment: None,
                 message: "misalignment policy violation".to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::MisalignmentPolicyViolation),
+                maplecode_error_info: Some(MaplecodeErrorInfo::MisalignmentPolicyViolation),
                 additional_details: None,
             },
             will_retry: false,
@@ -485,7 +485,7 @@ async fn unsupported_legacy_permissions_are_shown_without_exiting() -> Result<()
     }
 
     let control = app
-        .handle_event(&mut tui, &mut app_server, AppEvent::MapleCodeOp(op))
+        .handle_event(&mut tui, &mut app_server, AppEvent::MaplecodeOp(op))
         .await?;
 
     assert!(matches!(control, AppRunControl::Continue));

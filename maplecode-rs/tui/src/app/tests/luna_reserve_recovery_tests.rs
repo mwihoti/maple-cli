@@ -133,7 +133,7 @@ async fn luna_reserve_entry_dispatches_an_already_queued_turn_with_accepted_sett
         app.chat_widget
             .handle_key_event(KeyEvent::from(KeyCode::Enter));
         let pending = std::iter::from_fn(|| events.try_recv().ok())
-            .find(|event| matches!(event, AppEvent::MapleCodeOp(AppCommand::UserTurn { .. })))
+            .find(|event| matches!(event, AppEvent::MaplecodeOp(AppCommand::UserTurn { .. })))
             .expect("queued turn before the usage response");
         requests.lock().unwrap().clear();
         let mut tui = crate::tui::test_support::make_test_tui()?;
@@ -220,7 +220,7 @@ async fn luna_reserve_recovery_restores_task_and_pending_turn_after_fresh_backen
             .handle_key_event(KeyEvent::from(KeyCode::Enter));
         let mut pending = std::iter::from_fn(|| events.try_recv().ok())
             .find_map(|event| match event {
-                AppEvent::MapleCodeOp(op @ AppCommand::UserTurn { .. }) => Some(op),
+                AppEvent::MaplecodeOp(op @ AppCommand::UserTurn { .. }) => Some(op),
                 _ => None,
             })
             .expect("queued user turn");
@@ -284,7 +284,7 @@ async fn luna_reserve_recovery_restores_task_and_pending_turn_after_fresh_backen
         assert!(
             !queued.iter().any(|event| matches!(
                 event,
-                AppEvent::MapleCodeOp(_) | AppEvent::PersistModelSelection { .. }
+                AppEvent::MaplecodeOp(_) | AppEvent::PersistModelSelection { .. }
             )),
             "recovery must not replay a turn or change global defaults"
         );
