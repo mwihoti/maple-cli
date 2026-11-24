@@ -222,7 +222,7 @@ fn detects_package_layout_independently_from_install_method() -> std::io::Result
     let canonical_resources_dir =
         AbsolutePathBuf::from_absolute_path(resources_dir.canonicalize()?)?;
     let canonical_path_dir = AbsolutePathBuf::from_absolute_path(path_dir.canonicalize()?)?;
-    let package_layout = MapleCodePackageLayout {
+    let package_layout = MaplecodePackageLayout {
         package_dir: canonical_package_dir,
         bin_dir: canonical_bin_dir.clone(),
         resources_dir: Some(canonical_resources_dir.clone()),
@@ -244,7 +244,7 @@ fn detects_package_layout_independently_from_install_method() -> std::io::Result
     );
     assert_eq!(
         context.package_manifest(),
-        Some(MapleCodePackageManifest {
+        Some(MaplecodePackageManifest {
             version: Version::new(1, 2, 3),
         })
     );
@@ -344,7 +344,7 @@ fn standalone_package_layout_keeps_standalone_install_method() -> std::io::Resul
                 resources_dir: Some(canonical_resources_dir.clone()),
                 platform: standalone_platform(),
             },
-            package_layout: Some(MapleCodePackageLayout {
+            package_layout: Some(MaplecodePackageLayout {
                 package_dir: canonical_package_dir,
                 bin_dir: canonical_bin_dir,
                 resources_dir: Some(canonical_resources_dir.clone()),

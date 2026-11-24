@@ -27,7 +27,7 @@ pub enum StandalonePlatform {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct MapleCodePackageLayout {
+pub struct MaplecodePackageLayout {
     /// The package root that contains the metadata file and layout directories.
     pub package_dir: AbsolutePathBuf,
     /// Directory containing the Maple Code entrypoint executable.
@@ -40,14 +40,14 @@ pub struct MapleCodePackageLayout {
 
 /// Version metadata recorded in a bundled Maple Code runtime package.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
-pub struct MapleCodePackageManifest {
+pub struct MaplecodePackageManifest {
     pub version: Version,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct InstallContext {
     pub method: InstallMethod,
-    pub package_layout: Option<MapleCodePackageLayout>,
+    pub package_layout: Option<MaplecodePackageLayout>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -102,7 +102,7 @@ impl InstallContext {
         method_override: Option<InstallMethod>,
         maplecode_home: Option<&Path>,
     ) -> Self {
-        let package_layout = current_exe.and_then(MapleCodePackageLayout::from_exe);
+        let package_layout = current_exe.and_then(MaplecodePackageLayout::from_exe);
         let method = if let Some(method) = method_override {
             method
         } else if let Some(exe_path) = current_exe {
@@ -140,7 +140,7 @@ impl InstallContext {
     }
 
     /// Read the manifest for the package that contains the current executable.
-    pub fn package_manifest(&self) -> Option<MapleCodePackageManifest> {
+    pub fn package_manifest(&self) -> Option<MaplecodePackageManifest> {
         let package_layout = self.package_layout.as_ref()?;
         let manifest =
             std::fs::read_to_string(package_layout.package_dir.join(PACKAGE_METADATA_FILENAME))
@@ -229,7 +229,7 @@ impl InstallContext {
     }
 }
 
-impl MapleCodePackageLayout {
+impl MaplecodePackageLayout {
     fn from_exe(exe_path: &Path) -> Option<Self> {
         let canonical_exe = canonical_absolute_path(exe_path)?;
         let exe_dir = canonical_exe.parent()?;
@@ -260,7 +260,7 @@ impl MapleCodePackageLayout {
                 let contents = exe_dir.parent()?;
                 let bundle = contents.parent()?;
                 if contents.file_name()? != OsStr::new("Contents")
-                    || bundle.file_name()? != OsStr::new("MapleCodeCLI.app")
+                    || bundle.file_name()? != OsStr::new("MaplecodeCLI.app")
                 {
                     return None;
                 }
@@ -291,7 +291,7 @@ impl MapleCodePackageLayout {
 fn install_method_from_exe(
     exe_path: &Path,
     maplecode_home: Option<&Path>,
-    package_layout: Option<&MapleCodePackageLayout>,
+    package_layout: Option<&MaplecodePackageLayout>,
     is_macos: bool,
 ) -> InstallMethod {
     if let Some(standalone_method) =
@@ -310,7 +310,7 @@ fn install_method_from_exe(
 fn standalone_install_method(
     exe_path: &Path,
     maplecode_home: Option<&Path>,
-    package_layout: Option<&MapleCodePackageLayout>,
+    package_layout: Option<&MaplecodePackageLayout>,
 ) -> Option<InstallMethod> {
     let canonical_maplecode_home = canonical_absolute_path(maplecode_home?)?;
     let release_dir = if let Some(package_layout) = package_layout {

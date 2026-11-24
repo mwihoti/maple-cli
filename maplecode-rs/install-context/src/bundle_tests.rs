@@ -8,7 +8,7 @@ use std::fs;
 fn bundle_executable_preserves_package_layout_and_install_method() -> std::io::Result<()> {
     let home = tempfile::tempdir()?;
     let package = home.path().join("packages/standalone/releases/test");
-    let executable = package.join("MapleCodeCLI.app/Contents/MacOS/maplecode");
+    let executable = package.join("MaplecodeCLI.app/Contents/MacOS/maplecode");
     fs::create_dir_all(executable.parent().unwrap())?;
     fs::write(&executable, "")?;
     for directory in [BIN_DIRNAME, RESOURCES_DIRNAME, PATH_DIRNAME] {
@@ -36,7 +36,7 @@ fn bundle_executable_preserves_package_layout_and_install_method() -> std::io::R
                 resources_dir: Some(resources_dir.clone()),
                 platform: standalone_platform(),
             },
-            package_layout: Some(MapleCodePackageLayout {
+            package_layout: Some(MaplecodePackageLayout {
                 package_dir: package,
                 bin_dir,
                 resources_dir: Some(resources_dir),
@@ -58,20 +58,20 @@ fn winget_root_requires_metadata_for_the_actual_executable() -> std::io::Result<
     for directory in [RESOURCES_DIRNAME, PATH_DIRNAME] {
         fs::create_dir_all(package.join(directory))?;
     }
-    assert_eq!(MapleCodePackageLayout::from_exe(executable.as_path()), None);
+    assert_eq!(MaplecodePackageLayout::from_exe(executable.as_path()), None);
     for entrypoint in ["other.exe", "bin/maplecode.exe", name] {
         fs::write(
             package.join(PACKAGE_METADATA_FILENAME),
             serde_json::json!({"layoutVersion": 1, "entrypoint": entrypoint}).to_string(),
         )?;
-        let expected = (entrypoint == name).then(|| MapleCodePackageLayout {
+        let expected = (entrypoint == name).then(|| MaplecodePackageLayout {
             package_dir: package.clone(),
             bin_dir: package.clone(),
             resources_dir: Some(package.join(RESOURCES_DIRNAME)),
             path_dir: Some(package.join(PATH_DIRNAME)),
         });
         assert_eq!(
-            MapleCodePackageLayout::from_exe(executable.as_path()),
+            MaplecodePackageLayout::from_exe(executable.as_path()),
             expected
         );
     }
