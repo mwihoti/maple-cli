@@ -58,7 +58,8 @@ echo "install: building maplecode ($kind) ..."
 
 mkdir -p "$BIN_DIR" "$HOME_DIR/bin"
 ln -sfn "$REPO/scripts/maple-code" "$BIN_DIR/maple-code"
-echo "install: linked $BIN_DIR/maple-code"
+ln -sfn "$REPO/scripts/maple-code" "$BIN_DIR/maplecode"
+echo "install: linked $BIN_DIR/maple-code and $BIN_DIR/maplecode"
 
 if [[ ! -e "$HOME_DIR/config.toml" ]]; then
   cp "$REPO/examples/maple-code.config.toml" "$HOME_DIR/config.toml"

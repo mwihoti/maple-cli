@@ -47,6 +47,15 @@ fi
 BIN="$REPO/maplecode-rs/target/release/maplecode"
 [[ -x "$BIN" ]] || BIN="$REPO/maplecode-rs/target/debug/maplecode"
 
+# Terminals title a tab after the program file, so run it through a hard link
+# named maple-code. The link shares the file's storage and is refreshed when
+# the build replaces the original.
+named="$(dirname "$BIN")/maple-code"
+if [[ -x "$BIN" && ! "$named" -ef "$BIN" ]]; then
+  ln -f "$BIN" "$named" 2>/dev/null || named="$BIN"
+fi
+[[ -x "$named" ]] && BIN="$named"
+
 # Started from $HOME, MapleCode reads ~/.maplecode/config.toml as a project config and
 # lets its model settings (for another provider) override ours. Re-assert the
 # Maple settings; an explicit --model or -c on the command line still wins.
