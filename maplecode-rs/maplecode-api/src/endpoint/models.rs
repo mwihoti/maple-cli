@@ -262,7 +262,7 @@ mod tests {
     #[test]
     fn catalog_request_url_rejects_relative_urls() {
         let provider = provider("https://gateway.example/v1");
-        for catalog_url in ["/maplecode/models", "maplecode/models"] {
+        for catalog_url in ["/codex/models", "maplecode/models"] {
             let error = ModelsClient::<CapturingTransport>::catalog_request_url(
                 &provider,
                 catalog_url,

@@ -11,7 +11,7 @@ use http::HeaderMap;
 use http::StatusCode;
 use maplecode_client::StreamResponse;
 use maplecode_http_client::RetryAfter;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::time::Duration;
@@ -50,7 +50,7 @@ fn audio_validation_codes_map_to_non_retryable_audio_input_errors_on_all_transpo
             assert_eq!(error.retry_delay(/*retry_count*/ 1), None);
             assert!(matches!(
                 error.details(),
-                maplecode_protocol::error::MapleCodeErrorDetails::InvalidAudioInput { .. }
+                maplecode_protocol::error::MaplecodeErrorDetails::InvalidAudioInput { .. }
             ));
             assert_eq!(error.to_string(), "Invalid recording.");
         }
@@ -64,17 +64,17 @@ async fn policy_capacity_classification_preserves_overload_retry_behavior() {
         (
             "policy_capacity_unavailable",
             None,
-            MapleCodeErrorInfo::PolicyCapacityUnavailable,
+            MaplecodeErrorInfo::PolicyCapacityUnavailable,
         ),
         (
             "server_is_overloaded",
             Some("policy_error"),
-            MapleCodeErrorInfo::ServerOverloaded,
+            MaplecodeErrorInfo::ServerOverloaded,
         ),
         (
             "server_is_overloaded",
             None,
-            MapleCodeErrorInfo::ServerOverloaded,
+            MaplecodeErrorInfo::ServerOverloaded,
         ),
     ] {
         for retry_after in [Some("3"), None] {
@@ -97,7 +97,7 @@ async fn policy_capacity_classification_preserves_overload_retry_behavior() {
                 (
                     expected.clone(),
                     retry_after.map(|_| Duration::from_secs(3)),
-                    if expected == MapleCodeErrorInfo::PolicyCapacityUnavailable {
+                    if expected == MaplecodeErrorInfo::PolicyCapacityUnavailable {
                         "Policy-restricted capacity is unavailable. Please try again later."
                     } else {
                         "Selected model is at capacity. Please try a different model."
@@ -113,25 +113,25 @@ async fn policy_capacity_classification_preserves_overload_retry_behavior() {
 #[tokio::test(start_paused = true)]
 async fn terminal_failure_with_retry_header_ends_stream_immediately() {
     for (code, expected) in [
-        ("flex_unavailable", MapleCodeErrorInfo::FlexUnavailable),
-        ("budget_reached", MapleCodeErrorInfo::SessionBudgetExceeded),
+        ("flex_unavailable", MaplecodeErrorInfo::FlexUnavailable),
+        ("budget_reached", MaplecodeErrorInfo::SessionBudgetExceeded),
         (
             "inference_hook_denied",
-            MapleCodeErrorInfo::InferenceHookDenied,
+            MaplecodeErrorInfo::InferenceHookDenied,
         ),
         (
             "context_length_exceeded",
-            MapleCodeErrorInfo::ContextWindowExceeded,
+            MaplecodeErrorInfo::ContextWindowExceeded,
         ),
-        ("invalid_access_program", MapleCodeErrorInfo::Other),
-        ("unsupported_access_program", MapleCodeErrorInfo::Other),
+        ("invalid_access_program", MaplecodeErrorInfo::Other),
+        ("unsupported_access_program", MaplecodeErrorInfo::Other),
         (
             "content_policy_violation",
-            MapleCodeErrorInfo::InvalidPrompt,
+            MaplecodeErrorInfo::InvalidPrompt,
         ),
         (
             "access_program_not_enabled",
-            MapleCodeErrorInfo::HttpConnectionFailed {
+            MaplecodeErrorInfo::HttpConnectionFailed {
                 http_status_code: None,
             },
         ),
@@ -193,7 +193,7 @@ fn statusless_model_errors_have_no_http_status() {
                 error.to_maplecode_protocol_error(),
                 error.http_status_code_value()
             ),
-            (MapleCodeErrorInfo::ModelNotFound, None)
+            (MaplecodeErrorInfo::ModelNotFound, None)
         );
     }
 }
@@ -254,9 +254,9 @@ async fn streamed_retry_after_uses_http_header_validation() {
 #[tokio::test(start_paused = true)]
 async fn retry_header_survives_other_failed_responses() {
     for (code, expected_code) in [
-        ("server_is_overloaded", MapleCodeErrorInfo::ServerOverloaded),
-        ("safety_violation", MapleCodeErrorInfo::Other),
-        ("unknown_failure", MapleCodeErrorInfo::Other),
+        ("server_is_overloaded", MaplecodeErrorInfo::ServerOverloaded),
+        ("safety_violation", MaplecodeErrorInfo::Other),
+        ("unknown_failure", MaplecodeErrorInfo::Other),
     ] {
         let event = serde_json::from_value(json!({
             "type": "response.failed",

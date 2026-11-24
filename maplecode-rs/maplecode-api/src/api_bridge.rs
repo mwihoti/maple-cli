@@ -10,8 +10,8 @@ use chrono::Utc;
 use http::HeaderMap;
 use maplecode_protocol::auth::PlanType;
 use maplecode_protocol::error::ConnectionFailedError;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::ProviderRejection;
 use maplecode_protocol::error::RetryLimitReachedError;
 use maplecode_protocol::error::UnexpectedResponseError;
@@ -20,7 +20,7 @@ use maplecode_protocol::protocol::MisalignmentErrorDetails;
 use serde::Deserialize;
 use serde_json::Value;
 
-pub fn map_api_error(err: ApiError) -> MapleCodeErr {
+pub fn map_api_error(err: ApiError) -> MaplecodeErr {
     let retry_after = match &err {
         ApiError::Retryable { retry_after, .. }
         | ApiError::RateLimitExceeded { retry_after, .. }
@@ -57,32 +57,32 @@ pub fn map_api_error(err: ApiError) -> MapleCodeErr {
     }
 }
 
-fn map_api_error_details(err: ApiError) -> MapleCodeErr {
+fn map_api_error_details(err: ApiError) -> MaplecodeErr {
     match err {
-        ApiError::ContextWindowExceeded => MapleCodeErr::ContextWindowExceeded,
-        ApiError::QuotaExceeded => MapleCodeErr::QuotaExceeded,
-        ApiError::UsageNotIncluded => MapleCodeErr::UsageNotIncluded,
-        ApiError::SessionBudgetExceeded => MapleCodeErr::SessionBudgetExceeded,
-        ApiError::Retryable { message, .. } => MapleCodeErr::Stream(message),
+        ApiError::ContextWindowExceeded => MaplecodeErr::ContextWindowExceeded,
+        ApiError::QuotaExceeded => MaplecodeErr::QuotaExceeded,
+        ApiError::UsageNotIncluded => MaplecodeErr::UsageNotIncluded,
+        ApiError::SessionBudgetExceeded => MaplecodeErr::SessionBudgetExceeded,
+        ApiError::Retryable { message, .. } => MaplecodeErr::Stream(message),
         ApiError::RateLimitExceeded { message, .. } => {
-            MapleCodeErr::new(MapleCodeErrorDetails::RateLimitExceeded(message))
+            MaplecodeErr::new(MaplecodeErrorDetails::RateLimitExceeded(message))
         }
-        ApiError::Stream(msg) => MapleCodeErr::Stream(msg),
+        ApiError::Stream(msg) => MaplecodeErr::Stream(msg),
         ApiError::WebsocketMessageTooLarge => {
-            MapleCodeErr::new(MapleCodeErrorDetails::WebsocketMessageTooLarge)
+            MaplecodeErr::new(MaplecodeErrorDetails::WebsocketMessageTooLarge)
         }
-        ApiError::ContentFilter => MapleCodeErr::new(MapleCodeErrorDetails::ContentFilter),
+        ApiError::ContentFilter => MaplecodeErr::new(MaplecodeErrorDetails::ContentFilter),
         ApiError::ResponseIncomplete(incomplete) => {
-            MapleCodeErr::new(MapleCodeErrorDetails::ResponseIncomplete(incomplete))
+            MaplecodeErr::new(MaplecodeErrorDetails::ResponseIncomplete(incomplete))
         }
-        ApiError::ServerOverloaded { .. } => MapleCodeErr::ServerOverloaded,
+        ApiError::ServerOverloaded { .. } => MaplecodeErr::ServerOverloaded,
         ApiError::PolicyCapacityUnavailable { .. } => {
-            MapleCodeErr::new(MapleCodeErrorDetails::PolicyCapacityUnavailable)
+            MaplecodeErr::new(MaplecodeErrorDetails::PolicyCapacityUnavailable)
         }
-        ApiError::FlexUnavailable => MapleCodeErr::new(MapleCodeErrorDetails::FlexUnavailable),
+        ApiError::FlexUnavailable => MaplecodeErr::new(MaplecodeErrorDetails::FlexUnavailable),
         ApiError::Api { status, message } => {
             let user_message = api_error_user_message(status, &message);
-            MapleCodeErr::UnexpectedStatus(UnexpectedResponseError {
+            MaplecodeErr::UnexpectedStatus(UnexpectedResponseError {
                 status,
                 body: message,
                 user_message,
@@ -93,40 +93,40 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
                 identity_error_code: None,
             })
         }
-        ApiError::InvalidRequest { message } => MapleCodeErr::InvalidRequest(message),
+        ApiError::InvalidRequest { message } => MaplecodeErr::InvalidRequest(message),
         ApiError::AccessProgramNotEnabled { message } => {
-            MapleCodeErrorDetails::AccessProgramNotEnabled(ProviderRejection::Stream(message))
+            MaplecodeErrorDetails::AccessProgramNotEnabled(ProviderRejection::Stream(message))
                 .into()
         }
         ApiError::InvalidAudioInput {
             message,
             per_recording,
-        } => MapleCodeErr::new(MapleCodeErrorDetails::InvalidAudioInput {
+        } => MaplecodeErr::new(MaplecodeErrorDetails::InvalidAudioInput {
             message,
             per_recording,
         }),
         ApiError::ModelNotFound { message, status } => {
-            MapleCodeErr::new(MapleCodeErrorDetails::ModelNotFound { message, status })
+            MaplecodeErr::new(MaplecodeErrorDetails::ModelNotFound { message, status })
         }
         ApiError::InvalidPrompt { message } => {
-            MapleCodeErr::new(MapleCodeErrorDetails::InvalidPrompt { message })
+            MaplecodeErr::new(MaplecodeErrorDetails::InvalidPrompt { message })
         }
         ApiError::InferenceHookDenied { message } => {
-            MapleCodeErr::new(MapleCodeErrorDetails::InferenceHookDenied { message })
+            MaplecodeErr::new(MaplecodeErrorDetails::InferenceHookDenied { message })
         }
         ApiError::ContentPolicyViolation { message, status } => {
-            MapleCodeErrorDetails::ContentPolicyViolation { message, status }.into()
+            MaplecodeErrorDetails::ContentPolicyViolation { message, status }.into()
         }
         ApiError::CyberPolicy { message } => {
-            MapleCodeErr::new(MapleCodeErrorDetails::CyberPolicy { message })
+            MaplecodeErr::new(MaplecodeErrorDetails::CyberPolicy { message })
         }
         ApiError::BioPolicy { message } => {
-            MapleCodeErr::new(MapleCodeErrorDetails::BioPolicy { message })
+            MaplecodeErr::new(MaplecodeErrorDetails::BioPolicy { message })
         }
         ApiError::MisalignmentPolicyViolation {
             message,
             misalignment,
-        } => MapleCodeErr::new(MapleCodeErrorDetails::MisalignmentPolicyViolation {
+        } => MaplecodeErr::new(MaplecodeErrorDetails::MisalignmentPolicyViolation {
             message,
             misalignment,
         }),
@@ -150,13 +150,13 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
                 {
                     match error.get("code").and_then(Value::as_str) {
                         Some("policy_capacity_unavailable") => {
-                            return MapleCodeErr::new(
-                                MapleCodeErrorDetails::PolicyCapacityUnavailable,
+                            return MaplecodeErr::new(
+                                MaplecodeErrorDetails::PolicyCapacityUnavailable,
                             );
                         }
-                        Some("server_is_overloaded") => return MapleCodeErr::ServerOverloaded,
+                        Some("server_is_overloaded") => return MaplecodeErr::ServerOverloaded,
                         Some("slow_down") => {
-                            return MapleCodeErr::new(MapleCodeErrorDetails::RateLimitExceeded(
+                            return MaplecodeErr::new(MaplecodeErrorDetails::RateLimitExceeded(
                                 error
                                     .get("message")
                                     .and_then(Value::as_str)
@@ -182,7 +182,7 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
                         .unwrap_or_else(|| {
                             MISALIGNMENT_POLICY_VIOLATION_FALLBACK_MESSAGE.to_string()
                         });
-                    return MapleCodeErr::new(MapleCodeErrorDetails::MisalignmentPolicyViolation {
+                    return MaplecodeErr::new(MaplecodeErrorDetails::MisalignmentPolicyViolation {
                         message,
                         misalignment: error.get("misalignment").cloned().and_then(|details| {
                             serde_json::from_value::<MisalignmentErrorDetails>(details).ok()
@@ -212,21 +212,21 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
                             .map(str::to_string)
                             .unwrap_or_else(|| fallback_message.to_string());
                         if code == BIO_POLICY_ERROR_CODE {
-                            MapleCodeErr::new(MapleCodeErrorDetails::BioPolicy { message })
+                            MaplecodeErr::new(MaplecodeErrorDetails::BioPolicy { message })
                         } else if code == INVALID_PROMPT_ERROR_CODE {
-                            MapleCodeErr::new(MapleCodeErrorDetails::InvalidPrompt { message })
+                            MaplecodeErr::new(MaplecodeErrorDetails::InvalidPrompt { message })
                         } else {
-                            MapleCodeErr::new(MapleCodeErrorDetails::CyberPolicy { message })
+                            MaplecodeErr::new(MaplecodeErrorDetails::CyberPolicy { message })
                         }
                     } else if body_text
                         .contains("The image data you provided does not represent a valid image")
                     {
-                        MapleCodeErr::InvalidImageRequest()
+                        MaplecodeErr::InvalidImageRequest()
                     } else {
-                        MapleCodeErr::InvalidRequest(body_text)
+                        MaplecodeErr::InvalidRequest(body_text)
                     }
                 } else if status == http::StatusCode::INTERNAL_SERVER_ERROR {
-                    MapleCodeErr::InternalServerError
+                    MaplecodeErr::InternalServerError
                 } else if status == http::StatusCode::TOO_MANY_REQUESTS {
                     if let Ok(err) = serde_json::from_str::<UsageErrorResponse>(&body_text) {
                         if err.error.error_type.as_deref() == Some("usage_limit_reached") {
@@ -247,7 +247,7 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
                                 .error
                                 .resets_at
                                 .and_then(|seconds| DateTime::<Utc>::from_timestamp(seconds, 0));
-                            return MapleCodeErr::UsageLimitReached(UsageLimitReachedError {
+                            return MaplecodeErr::UsageLimitReached(UsageLimitReachedError {
                                 plan_type: err.error.plan_type,
                                 resets_at,
                                 limit_window_minutes: err
@@ -261,7 +261,7 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
                                 rate_limit_reached_type,
                             });
                         } else if err.error.error_type.as_deref() == Some("usage_not_included") {
-                            return MapleCodeErr::UsageNotIncluded;
+                            return MaplecodeErr::UsageNotIncluded;
                         } else if err.error.error_type.as_deref() == Some("insufficient_quota")
                             || matches!(
                                 err.error.code.as_deref(),
@@ -274,11 +274,11 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
                                 )
                             )
                         {
-                            return MapleCodeErr::QuotaExceeded;
+                            return MaplecodeErr::QuotaExceeded;
                         }
                     }
 
-                    MapleCodeErr::RetryLimit(RetryLimitReachedError {
+                    MaplecodeErr::RetryLimit(RetryLimitReachedError {
                         status,
                         request_id: extract_request_tracking_id(headers.as_ref()),
                     })
@@ -308,32 +308,32 @@ fn map_api_error_details(err: ApiError) -> MapleCodeErr {
                             Some(
                                 "invalid_workspace_selected" | "maplecode_workspace_access_denied",
                             ),
-                        ) => MapleCodeErrorDetails::WorkspaceAccessDenied(response).into(),
+                        ) => MaplecodeErrorDetails::WorkspaceAccessDenied(response).into(),
                         (http::StatusCode::FORBIDDEN, Some("access_program_not_enabled")) => {
-                            MapleCodeErrorDetails::AccessProgramNotEnabled(ProviderRejection::Http(
+                            MaplecodeErrorDetails::AccessProgramNotEnabled(ProviderRejection::Http(
                                 response,
                             ))
                             .into()
                         }
-                        _ => MapleCodeErr::UnexpectedStatus(response),
+                        _ => MaplecodeErr::UnexpectedStatus(response),
                     }
                 }
             }
-            TransportError::RetryLimit => MapleCodeErr::RetryLimit(RetryLimitReachedError {
+            TransportError::RetryLimit => MaplecodeErr::RetryLimit(RetryLimitReachedError {
                 status: http::StatusCode::INTERNAL_SERVER_ERROR,
                 request_id: None,
             }),
-            TransportError::Timeout => MapleCodeErr::RequestTimeout,
-            TransportError::Policy(denied) => MapleCodeErr::Fatal(denied.to_string()),
+            TransportError::Timeout => MaplecodeErr::RequestTimeout,
+            TransportError::Policy(denied) => MaplecodeErr::Fatal(denied.to_string()),
             TransportError::Connection(source) => {
-                MapleCodeErr::ConnectionFailed(ConnectionFailedError { source })
+                MaplecodeErr::ConnectionFailed(ConnectionFailedError { source })
             }
-            TransportError::Network(msg) | TransportError::Build(msg) => MapleCodeErr::Stream(msg),
+            TransportError::Network(msg) | TransportError::Build(msg) => MaplecodeErr::Stream(msg),
             error @ TransportError::ResponseTooLarge { .. } => {
-                MapleCodeErr::InvalidRequest(error.to_string())
+                MaplecodeErr::InvalidRequest(error.to_string())
             }
         },
-        ApiError::RateLimit(msg) => MapleCodeErr::Stream(msg),
+        ApiError::RateLimit(msg) => MaplecodeErr::Stream(msg),
     }
 }
 

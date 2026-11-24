@@ -1,7 +1,7 @@
 use super::*;
 use base64::Engine;
 use maplecode_http_client::RetryAfter;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::RateLimitReachedType;
 use pretty_assertions::assert_eq;
 
@@ -10,7 +10,7 @@ fn map_api_error_maps_server_overloaded() {
     let err = map_api_error(ApiError::ServerOverloaded { retry_after: None });
     assert!(matches!(
         err.details(),
-        MapleCodeErrorDetails::ServerOverloaded
+        MaplecodeErrorDetails::ServerOverloaded
     ));
 }
 
@@ -20,9 +20,9 @@ async fn http_policy_capacity_preserves_retry_advice_and_terminal_behavior() {
     for (code, expected) in [
         (
             "policy_capacity_unavailable",
-            MapleCodeErrorInfo::PolicyCapacityUnavailable,
+            MaplecodeErrorInfo::PolicyCapacityUnavailable,
         ),
-        ("server_is_overloaded", MapleCodeErrorInfo::ServerOverloaded),
+        ("server_is_overloaded", MaplecodeErrorInfo::ServerOverloaded),
     ] {
         for advice in [RetryAfter::from_delay(Duration::from_secs(3)), None] {
             let error = map_api_error(ApiError::Transport(TransportError::Http {
@@ -58,7 +58,7 @@ fn map_api_error_preserves_content_filter_retry_and_public_error() {
     let err = map_api_error(ApiError::ContentFilter);
     assert!(matches!(
         err.details(),
-        MapleCodeErrorDetails::ContentFilter
+        MaplecodeErrorDetails::ContentFilter
     ));
     assert_eq!(
         (
@@ -68,7 +68,7 @@ fn map_api_error_preserves_content_filter_retry_and_public_error() {
         ),
         (
             true,
-            MapleCodeErrorInfo::Other,
+            MaplecodeErrorInfo::Other,
             "stream disconnected before completion: Incomplete response returned, reason: content_filter"
                 .to_string(),
         )
@@ -85,7 +85,7 @@ async fn map_api_error_preserves_retry_delay() {
                 message: "retry later".to_string(),
                 retry_after: Some(retry_after),
             },
-            MapleCodeErrorInfo::Other,
+            MaplecodeErrorInfo::Other,
             "stream disconnected before completion: retry later",
         ),
         (
@@ -93,7 +93,7 @@ async fn map_api_error_preserves_retry_delay() {
                 message: "retry later".to_string(),
                 retry_after: Some(retry_after),
             },
-            MapleCodeErrorInfo::RateLimitExceeded,
+            MaplecodeErrorInfo::RateLimitExceeded,
             "rate limit exceeded: retry later",
         ),
     ] {
@@ -158,7 +158,7 @@ async fn http_retry_deadline_survives_mapping_and_respects_terminal_errors() {
                     error.to_string()
                 ),
                 (
-                    MapleCodeErrorInfo::ResponseTooManyFailedAttempts {
+                    MaplecodeErrorInfo::ResponseTooManyFailedAttempts {
                         http_status_code: Some(429),
                     },
                     Some(429),
@@ -171,25 +171,25 @@ async fn http_retry_deadline_survives_mapping_and_respects_terminal_errors() {
 
 #[test]
 fn map_http_error_classifies_provider_codes() {
-    use MapleCodeErrorInfo::ModelNotFound;
+    use MaplecodeErrorInfo::ModelNotFound;
 
     for (status, code, expected, retryable) in [
         (
             503,
             "server_is_overloaded",
-            MapleCodeErrorInfo::ServerOverloaded,
+            MaplecodeErrorInfo::ServerOverloaded,
             false,
         ),
         (
             503,
             "slow_down",
-            MapleCodeErrorInfo::RateLimitExceeded,
+            MaplecodeErrorInfo::RateLimitExceeded,
             true,
         ),
         (
             503,
             "unknown_error",
-            MapleCodeErrorInfo::HttpConnectionFailed {
+            MaplecodeErrorInfo::HttpConnectionFailed {
                 http_status_code: Some(503),
             },
             true,
@@ -198,7 +198,7 @@ fn map_http_error_classifies_provider_codes() {
         (
             400,
             "budget_reached",
-            MapleCodeErrorInfo::SessionBudgetExceeded,
+            MaplecodeErrorInfo::SessionBudgetExceeded,
             false,
         ),
         (403, "model_not_found", ModelNotFound, false),
@@ -206,7 +206,7 @@ fn map_http_error_classifies_provider_codes() {
         (
             404,
             "resource_not_found",
-            MapleCodeErrorInfo::HttpConnectionFailed {
+            MaplecodeErrorInfo::HttpConnectionFailed {
                 http_status_code: Some(404),
             },
             true,
@@ -248,8 +248,8 @@ fn map_api_error_maps_cloudflare_blocked_response_to_user_message() {
         ),
     }));
 
-    let MapleCodeErrorDetails::UnexpectedStatus(err) = err.details() else {
-        panic!("expected MapleCodeErrorDetails::UnexpectedStatus, got {err:?}");
+    let MaplecodeErrorDetails::UnexpectedStatus(err) = err.details() else {
+        panic!("expected MaplecodeErrorDetails::UnexpectedStatus, got {err:?}");
     };
     assert_eq!(
         err.user_message.as_deref(),
@@ -282,8 +282,8 @@ fn map_api_error_maps_cyber_policy_from_400_body() {
         body: Some(body),
     }));
 
-    let MapleCodeErrorDetails::CyberPolicy { message } = err.details() else {
-        panic!("expected MapleCodeErrorDetails::CyberPolicy, got {err:?}");
+    let MaplecodeErrorDetails::CyberPolicy { message } = err.details() else {
+        panic!("expected MaplecodeErrorDetails::CyberPolicy, got {err:?}");
     };
     assert_eq!(
         message,
@@ -311,8 +311,8 @@ fn map_api_error_maps_wrapped_websocket_cyber_policy_from_400_body() {
         body: Some(body),
     }));
 
-    let MapleCodeErrorDetails::CyberPolicy { message } = err.details() else {
-        panic!("expected MapleCodeErrorDetails::CyberPolicy, got {err:?}");
+    let MaplecodeErrorDetails::CyberPolicy { message } = err.details() else {
+        panic!("expected MaplecodeErrorDetails::CyberPolicy, got {err:?}");
     };
     assert_eq!(message, "This websocket request was flagged.");
 }
@@ -333,8 +333,8 @@ fn map_api_error_uses_cyber_policy_fallback_for_missing_message() {
         body: Some(body),
     }));
 
-    let MapleCodeErrorDetails::CyberPolicy { message } = err.details() else {
-        panic!("expected MapleCodeErrorDetails::CyberPolicy, got {err:?}");
+    let MaplecodeErrorDetails::CyberPolicy { message } = err.details() else {
+        panic!("expected MaplecodeErrorDetails::CyberPolicy, got {err:?}");
     };
     assert_eq!(
         message,
@@ -350,19 +350,19 @@ fn map_api_error_preserves_typed_errors() {
             ApiError::InferenceHookDenied {
                 message: message.to_string(),
             },
-            MapleCodeErrorInfo::InferenceHookDenied,
+            MaplecodeErrorInfo::InferenceHookDenied,
         ),
         (
             ApiError::BioPolicy {
                 message: message.to_string(),
             },
-            MapleCodeErrorInfo::BioPolicy,
+            MaplecodeErrorInfo::BioPolicy,
         ),
         (
             ApiError::InvalidPrompt {
                 message: message.to_string(),
             },
-            MapleCodeErrorInfo::InvalidPrompt,
+            MaplecodeErrorInfo::InvalidPrompt,
         ),
     ] {
         let err = map_api_error(error);
@@ -378,25 +378,25 @@ fn map_api_error_maps_http_and_wrapped_websocket_typed_errors() {
         (
             http::StatusCode::BAD_REQUEST,
             "content_policy_violation",
-            MapleCodeErrorInfo::InvalidPrompt,
+            MaplecodeErrorInfo::InvalidPrompt,
             "The input was rejected by the content policy.",
         ),
         (
             http::StatusCode::BAD_REQUEST,
             "bio_policy",
-            MapleCodeErrorInfo::BioPolicy,
+            MaplecodeErrorInfo::BioPolicy,
             "This content was flagged for possible biological risk.",
         ),
         (
             http::StatusCode::BAD_REQUEST,
             "invalid_prompt",
-            MapleCodeErrorInfo::InvalidPrompt,
+            MaplecodeErrorInfo::InvalidPrompt,
             "Invalid request.",
         ),
         (
             http::StatusCode::FORBIDDEN,
             "inference_hook_denied",
-            MapleCodeErrorInfo::InferenceHookDenied,
+            MaplecodeErrorInfo::InferenceHookDenied,
             "Your workspace inference hook blocked this request.",
         ),
     ] {
@@ -461,12 +461,12 @@ fn assert_misalignment_policy_violation_from_http_body(status: http::StatusCode)
         body: Some(body),
     }));
 
-    let MapleCodeErrorDetails::MisalignmentPolicyViolation {
+    let MaplecodeErrorDetails::MisalignmentPolicyViolation {
         message,
         misalignment,
     } = err.details()
     else {
-        panic!("expected MapleCodeErrorDetails::MisalignmentPolicyViolation, got {err:?}");
+        panic!("expected MaplecodeErrorDetails::MisalignmentPolicyViolation, got {err:?}");
     };
     assert_eq!(message, "This request violated the misalignment policy.");
     assert_eq!(misalignment, &None);
@@ -496,12 +496,12 @@ fn map_api_error_preserves_misalignment_details_from_403_body() {
         body: Some(body),
     }));
 
-    let MapleCodeErrorDetails::MisalignmentPolicyViolation {
+    let MaplecodeErrorDetails::MisalignmentPolicyViolation {
         message,
         misalignment,
     } = err.details()
     else {
-        panic!("expected MapleCodeErrorDetails::MisalignmentPolicyViolation, got {err:?}");
+        panic!("expected MaplecodeErrorDetails::MisalignmentPolicyViolation, got {err:?}");
     };
     assert_eq!(message, "This request violated the misalignment policy.");
     assert_eq!(
@@ -543,12 +543,12 @@ fn map_api_error_preserves_misalignment_details_from_wrapped_websocket_error() {
         body: Some(body),
     }));
 
-    let MapleCodeErrorDetails::MisalignmentPolicyViolation {
+    let MaplecodeErrorDetails::MisalignmentPolicyViolation {
         message,
         misalignment,
     } = err.details()
     else {
-        panic!("expected MapleCodeErrorDetails::MisalignmentPolicyViolation, got {err:?}");
+        panic!("expected MaplecodeErrorDetails::MisalignmentPolicyViolation, got {err:?}");
     };
     assert_eq!(
         message,
@@ -586,8 +586,8 @@ fn map_api_error_keeps_other_400_errors_generic() {
             body: Some(body.clone()),
         }));
 
-        let MapleCodeErrorDetails::InvalidRequest(message) = err.details() else {
-            panic!("expected MapleCodeErrorDetails::InvalidRequest, got {err:?}");
+        let MaplecodeErrorDetails::InvalidRequest(message) = err.details() else {
+            panic!("expected MaplecodeErrorDetails::InvalidRequest, got {err:?}");
         };
         assert_eq!(message, &body);
     }
@@ -606,11 +606,11 @@ fn map_api_error_distinguishes_http_quota_errors_from_rate_limits() {
         serde_json::json!({"type": "rate_limit_error", "code": "slow_down"}),
     ] {
         let expected = if error["type"] == "rate_limit_error" {
-            MapleCodeErrorInfo::ResponseTooManyFailedAttempts {
+            MaplecodeErrorInfo::ResponseTooManyFailedAttempts {
                 http_status_code: Some(429),
             }
         } else {
-            MapleCodeErrorInfo::UsageLimitExceeded
+            MaplecodeErrorInfo::UsageLimitExceeded
         };
         let err = map_api_error(ApiError::Transport(TransportError::Http {
             retry_after: None,
@@ -655,13 +655,13 @@ fn map_api_error_preserves_optional_usage_limit_window() {
             body: Some(body.to_string()),
         }));
 
-        let MapleCodeErrorDetails::UsageLimitReached(usage_limit) = err.details() else {
+        let MaplecodeErrorDetails::UsageLimitReached(usage_limit) = err.details() else {
             panic!("expected usage-limit error for {window:?}, got {err:?}");
         };
         assert_eq!(usage_limit.limit_window_minutes, expected, "{window:?}");
         assert_eq!(
             err.to_maplecode_protocol_error(),
-            MapleCodeErrorInfo::UsageLimitExceeded
+            MaplecodeErrorInfo::UsageLimitExceeded
         );
     }
 }
@@ -692,8 +692,8 @@ fn map_api_error_maps_usage_limit_limit_name_header() {
         body: Some(body),
     }));
 
-    let MapleCodeErrorDetails::UsageLimitReached(usage_limit) = err.details() else {
-        panic!("expected MapleCodeErrorDetails::UsageLimitReached, got {err:?}");
+    let MaplecodeErrorDetails::UsageLimitReached(usage_limit) = err.details() else {
+        panic!("expected MaplecodeErrorDetails::UsageLimitReached, got {err:?}");
     };
     assert_eq!(
         usage_limit
@@ -726,8 +726,8 @@ fn map_api_error_does_not_fallback_limit_name_to_limit_id() {
         body: Some(body),
     }));
 
-    let MapleCodeErrorDetails::UsageLimitReached(usage_limit) = err.details() else {
-        panic!("expected MapleCodeErrorDetails::UsageLimitReached, got {err:?}");
+    let MaplecodeErrorDetails::UsageLimitReached(usage_limit) = err.details() else {
+        panic!("expected MaplecodeErrorDetails::UsageLimitReached, got {err:?}");
     };
     assert_eq!(
         usage_limit
@@ -778,8 +778,8 @@ fn map_api_error_copies_rate_limit_reached_type_to_usage_limit_snapshot() {
             body: Some(body),
         }));
 
-        let MapleCodeErrorDetails::UsageLimitReached(usage_limit) = err.details() else {
-            panic!("expected MapleCodeErrorDetails::UsageLimitReached, got {err:?}");
+        let MaplecodeErrorDetails::UsageLimitReached(usage_limit) = err.details() else {
+            panic!("expected MaplecodeErrorDetails::UsageLimitReached, got {err:?}");
         };
         assert_eq!(
             usage_limit.rate_limit_reached_type,
@@ -830,8 +830,8 @@ fn map_api_error_ignores_unparseable_rate_limit_reached_type_headers() {
             body: Some(body),
         }));
 
-        let MapleCodeErrorDetails::UsageLimitReached(usage_limit) = err.details() else {
-            panic!("expected MapleCodeErrorDetails::UsageLimitReached, got {err:?}");
+        let MaplecodeErrorDetails::UsageLimitReached(usage_limit) = err.details() else {
+            panic!("expected MaplecodeErrorDetails::UsageLimitReached, got {err:?}");
         };
         assert_eq!(usage_limit.rate_limit_reached_type, None);
     }
@@ -878,7 +878,7 @@ fn only_an_explicit_workspace_403_stops_retries() {
         assert_eq!(
             matches!(
                 err.details(),
-                MapleCodeErrorDetails::WorkspaceAccessDenied(_)
+                MaplecodeErrorDetails::WorkspaceAccessDenied(_)
             ),
             terminal,
             "{err}"
@@ -917,8 +917,8 @@ fn map_api_error_extracts_identity_auth_details_from_headers() {
         body: Some(r#"{"detail":"Unauthorized"}"#.to_string()),
     }));
 
-    let MapleCodeErrorDetails::UnexpectedStatus(err) = err.details() else {
-        panic!("expected MapleCodeErrorDetails::UnexpectedStatus, got {err:?}");
+    let MaplecodeErrorDetails::UnexpectedStatus(err) = err.details() else {
+        panic!("expected MaplecodeErrorDetails::UnexpectedStatus, got {err:?}");
     };
     assert_eq!(err.request_id.as_deref(), Some("req-401"));
     assert_eq!(err.cf_ray.as_deref(), Some("ray-401"));
@@ -972,7 +972,7 @@ fn runtime_auth_denials_stop_retries_without_losing_http_diagnostics() {
                 retryable,
                 "{code}, in_header={in_header}"
             );
-            let MapleCodeErrorDetails::UnexpectedStatus(details) = error.details() else {
+            let MaplecodeErrorDetails::UnexpectedStatus(details) = error.details() else {
                 panic!("missing HTTP diagnostics: {error:?}");
             };
             assert_eq!(
