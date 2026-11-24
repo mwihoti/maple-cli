@@ -2157,8 +2157,8 @@ dependencies = [
  "maplecode-utils-path-uri",
  "maplecode-utils-rustls-provider",
  "notify",
- "opentelemetry",
- "opentelemetry_sdk",
+ "opentelemetry 0.31.0",
+ "opentelemetry_sdk 0.32.1",
  "pretty_assertions",
  "rcgen",
  "regex-lite",
@@ -6833,8 +6833,8 @@ dependencies = [
  "maplecode-web-search-extension",
  "maplecode-websocket-auth",
  "maplecode-windows-sandbox",
- "opentelemetry",
- "opentelemetry_sdk",
+ "opentelemetry 0.31.0",
+ "opentelemetry_sdk 0.32.1",
  "pretty_assertions",
  "rcgen",
  "rmcp",
@@ -7542,7 +7542,7 @@ dependencies = [
  "maplecode-utils-audio",
  "maplecode-utils-output-truncation",
  "maplecode-utils-string",
- "opentelemetry",
+ "opentelemetry 0.31.0",
  "pretty_assertions",
  "serde_json",
  "tokio",
@@ -7779,8 +7779,8 @@ dependencies = [
  "maplit",
  "once_cell",
  "openssl-sys",
- "opentelemetry",
- "opentelemetry_sdk",
+ "opentelemetry 0.31.0",
+ "opentelemetry_sdk 0.32.1",
  "predicates",
  "pretty_assertions",
  "rand 0.9.3",
@@ -7968,8 +7968,8 @@ dependencies = [
  "maplecode-utils-path-uri",
  "maplecode-utils-sandbox-summary",
  "maplecode-worktree",
- "opentelemetry",
- "opentelemetry_sdk",
+ "opentelemetry 0.31.0",
+ "opentelemetry_sdk 0.32.1",
  "owo-colors",
  "predicates",
  "pretty_assertions",
@@ -8034,8 +8034,8 @@ dependencies = [
  "maplecode-websocket-client",
  "maplecode-windows-sandbox-test-support",
  "notify",
- "opentelemetry",
- "opentelemetry_sdk",
+ "opentelemetry 0.31.0",
+ "opentelemetry_sdk 0.32.1",
  "pretty_assertions",
  "prost",
  "rcgen",
@@ -8422,8 +8422,8 @@ dependencies = [
  "maplecode-utils-output-truncation",
  "maplecode-utils-path-uri",
  "maplecode-utils-string",
- "opentelemetry",
- "opentelemetry_sdk",
+ "opentelemetry 0.31.0",
+ "opentelemetry_sdk 0.32.1",
  "pretty_assertions",
  "rand 0.9.3",
  "rmcp",
@@ -8605,8 +8605,8 @@ dependencies = [
  "maplecode-utils-cargo-bin",
  "maplecode-utils-rustls-provider",
  "native-tls",
- "opentelemetry",
- "opentelemetry_sdk",
+ "opentelemetry 0.31.0",
+ "opentelemetry_sdk 0.32.1",
  "pretty_assertions",
  "rcgen",
  "reqwest 0.12.28",
@@ -8774,7 +8774,7 @@ dependencies = [
  "maplecode-workload-identity",
  "oauth2",
  "once_cell",
- "opentelemetry_sdk",
+ "opentelemetry_sdk 0.32.1",
  "os_info",
  "pretty_assertions",
  "rand 0.9.3",
@@ -9169,7 +9169,7 @@ dependencies = [
  "maplecode-utils-path-uri",
  "maplecode-utils-rustls-provider",
  "maplecode-windows-sandbox",
- "opentelemetry",
+ "opentelemetry 0.31.0",
  "pretty_assertions",
  "rama-core",
  "rama-dns",
@@ -9241,12 +9241,12 @@ dependencies = [
  "maplecode-utils-process",
  "maplecode-utils-stream-parser",
  "maplecode-utils-string",
- "opentelemetry",
+ "opentelemetry 0.31.0",
  "opentelemetry-appender-tracing",
  "opentelemetry-http",
  "opentelemetry-otlp",
  "opentelemetry-semantic-conventions",
- "opentelemetry_sdk",
+ "opentelemetry_sdk 0.32.1",
  "os_info",
  "pretty_assertions",
  "rcgen",
@@ -9491,7 +9491,7 @@ dependencies = [
  "maplecode-utils-pty",
  "memchr",
  "oauth2",
- "opentelemetry_sdk",
+ "opentelemetry_sdk 0.32.1",
  "pretty_assertions",
  "rmcp",
  "serde",
@@ -9712,7 +9712,7 @@ dependencies = [
  "maplecode-utils-path-uri",
  "maplecode-utils-plugins",
  "maplecode-utils-string",
- "opentelemetry_sdk",
+ "opentelemetry_sdk 0.32.1",
  "pretty_assertions",
  "schemars 0.8.22",
  "serde",
@@ -9959,7 +9959,7 @@ dependencies = [
  "objc2",
  "objc2-app-kit",
  "objc2-foundation",
- "opentelemetry_sdk",
+ "opentelemetry_sdk 0.32.1",
  "pathdiff",
  "pretty_assertions",
  "pulldown-cmark",
@@ -11501,12 +11501,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "opentelemetry"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0142c63252a9e054e68a4c61a5778f7b14f576274d593f8ce883d191a099682"
+dependencies = [
+ "futures-core",
+ "futures-sink",
+ "js-sys",
+ "pin-project-lite",
+ "thiserror 2.0.18",
+ "tracing",
+]
+
+[[package]]
 name = "opentelemetry-appender-tracing"
 version = "0.31.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef6a1ac5ca3accf562b8c306fa8483c85f4390f768185ab775f242f7fe8fdcc2"
 dependencies = [
- "opentelemetry",
+ "opentelemetry 0.31.0",
  "tracing",
  "tracing-core",
  "tracing-subscriber",
@@ -11521,7 +11535,7 @@ dependencies = [
  "async-trait",
  "bytes",
  "http 1.4.0",
- "opentelemetry",
+ "opentelemetry 0.31.0",
  "reqwest 0.12.28",
 ]
 
@@ -11532,10 +11546,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a2366db2dca4d2ad033cad11e6ee42844fd727007af5ad04a1730f4cb8163bf"
 dependencies = [
  "http 1.4.0",
- "opentelemetry",
+ "opentelemetry 0.31.0",
  "opentelemetry-http",
  "opentelemetry-proto",
- "opentelemetry_sdk",
+ "opentelemetry_sdk 0.31.0",
  "prost",
  "reqwest 0.12.28",
  "serde_json",
@@ -11553,8 +11567,8 @@ checksum = "a7175df06de5eaee9909d4805a3d07e28bb752c34cab57fa9cff549da596b30f"
 dependencies = [
  "base64 0.22.1",
  "const-hex",
- "opentelemetry",
- "opentelemetry_sdk",
+ "opentelemetry 0.31.0",
+ "opentelemetry_sdk 0.31.0",
  "prost",
  "serde",
  "serde_json",
@@ -11577,8 +11591,24 @@ dependencies = [
  "futures-channel",
  "futures-executor",
  "futures-util",
- "opentelemetry",
+ "opentelemetry 0.31.0",
  "percent-encoding",
+ "rand 0.9.3",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "opentelemetry_sdk"
+version = "0.32.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b59f80e1ac4d5ff7a2db8fb6c80badb7f0f3f858211fba08dd9aaec750894f9"
+dependencies = [
+ "futures-channel",
+ "futures-executor",
+ "futures-util",
+ "opentelemetry 0.32.0",
+ "percent-encoding",
+ "portable-atomic",
  "rand 0.9.3",
  "thiserror 2.0.18",
  "tokio",
@@ -16447,7 +16477,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ac28f2d093c6c477eaa76b23525478f38de514fa9aeb1285738d4b97a9552fc"
 dependencies = [
  "js-sys",
- "opentelemetry",
+ "opentelemetry 0.31.0",
  "smallvec",
  "tracing",
  "tracing-core",
