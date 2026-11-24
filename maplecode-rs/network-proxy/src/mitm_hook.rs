@@ -1143,7 +1143,7 @@ mod tests {
         .unwrap();
         let nested_req = Request::builder()
             .method(Method::POST)
-            .uri("/repos/openai/private/maplecode/issues")
+            .uri("/repos/openai/private/codex/issues")
             .body(Body::empty())
             .unwrap();
 
@@ -1168,12 +1168,12 @@ mod tests {
         )
         .unwrap();
         let paths = [
-            "/openai/openai/../maplecode",
-            "/openai/openai/%2e%2e/maplecode",
-            "/openai/openai/%2E%2E/maplecode",
-            "/openai/openai/.%2e/maplecode",
-            "/openai/openai/%2e./maplecode",
-            "/openai/openai/%252e%252e/maplecode",
+            "/openai/openai/../codex",
+            "/openai/openai/%2e%2e/codex",
+            "/openai/openai/%2E%2E/codex",
+            "/openai/openai/.%2e/codex",
+            "/openai/openai/%2e./codex",
+            "/openai/openai/%252e%252e/codex",
             "/openai/openai/%2f..%2fmaplecode",
             "/openai/openai/%5c..%5cmaplecode",
             "/openai/openai/%2e%2e/%2e%2e/microsoft/vscode",
@@ -1213,13 +1213,13 @@ mod tests {
         .unwrap();
         let exact_req = Request::builder()
             .method(Method::POST)
-            .uri("/repos/[draft]/maplecode/issues?state=op*")
+            .uri("/repos/[draft]/codex/issues?state=op*")
             .header("x-github-api-version", "2022-11-28[preview]")
             .body(Body::empty())
             .unwrap();
         let non_literal_req = Request::builder()
             .method(Method::POST)
-            .uri("/repos/draft/maplecode/issues?state=open")
+            .uri("/repos/draft/codex/issues?state=open")
             .header("x-github-api-version", "2022-11-28-preview")
             .body(Body::empty())
             .unwrap();

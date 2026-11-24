@@ -405,7 +405,7 @@ async fn mitm_policy_blocks_encoded_path_traversal_for_repository_allowlist() {
     let paths = [
         "/openai/openai/issues",
         "/openai/codex",
-        "/openai/openai/%2e%2e/maplecode",
+        "/openai/openai/%2e%2e/codex",
         "/openai/openai/%2e%2e/%2e%2e/microsoft/vscode",
     ];
     let mut actual = Vec::with_capacity(paths.len());

@@ -769,7 +769,7 @@ impl NetworkProxyState {
         &self,
     ) -> Result<(NetworkProxyConfig, bool, crate::Platform)> {
         // Callers treat `NetworkProxyState` as a live view of policy. We reload-on-demand so edits to
-        // `config.toml` (including MapleCode-managed writes) take effect without a restart.
+        // `config.toml` (including Maplecode-managed writes) take effect without a restart.
         self.reload_if_needed().await?;
         let guard = self.state.read().await;
         Ok((

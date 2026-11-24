@@ -24,14 +24,14 @@ fn accepts_unambiguous_paths() {
 #[test]
 fn rejects_paths_with_ambiguous_segments_or_encodings() {
     let paths = [
-        "/openai/openai/../maplecode",
+        "/openai/openai/../codex",
         "/openai/openai/./issues",
         "/openai/openai\\..\\maplecode",
-        "/openai/openai/%2e%2e/maplecode",
-        "/openai/openai/%2E%2E/maplecode",
+        "/openai/openai/%2e%2e/codex",
+        "/openai/openai/%2E%2E/codex",
         "/openai/openai/%2f..%2fmaplecode",
         "/openai/openai/%5c..%5cmaplecode",
-        "/openai/openai/%252e%252e/maplecode",
+        "/openai/openai/%252e%252e/codex",
         "/openai/openai/%",
         "/openai/openai/%2",
         "/openai/openai/%zz",
