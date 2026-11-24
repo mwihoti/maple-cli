@@ -23,7 +23,7 @@ test(
   async () => {
     assert.ok(
       process.env.MAPLECODE_TEST_BINARY,
-      "Set MAPLECODE_TEST_BINARY to a built MapleCode binary",
+      "Set MAPLECODE_TEST_BINARY to a built Maplecode binary",
     );
     const directory = await mkdtemp(path.join(tmpdir(), "maplecode-npm-exit-"));
     let child;

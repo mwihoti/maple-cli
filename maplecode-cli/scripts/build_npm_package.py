@@ -91,7 +91,7 @@ PACKAGE_CHOICES = tuple(PACKAGE_NATIVE_COMPONENTS)
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Build or stage the MapleCode CLI npm package."
+        description="Build or stage the Maplecode CLI npm package."
     )
     parser.add_argument(
         "--package",

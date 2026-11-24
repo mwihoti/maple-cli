@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Unified entry point for the MapleCode CLI.
+// Unified entry point for the Maplecode CLI.
 
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync, realpathSync } from "fs";
@@ -77,7 +77,7 @@ if (!platformPackage) {
   throw new Error(`Unsupported target triple: ${targetTriple}`);
 }
 
-function findMapleCodeExecutable() {
+function findMaplecodeExecutable() {
   let vendorRoot;
   try {
     const packageJsonPath = require.resolve(`${platformPackage}/package.json`);
@@ -106,13 +106,13 @@ function findMapleCodeExecutable() {
           ? "vp install -g @openai/codex@latest"
           : "npm install -g @openai/codex@latest";
   throw new Error(
-    `Missing optional dependency ${platformPackage}. Reinstall MapleCode: ${updateCommand}`,
+    `Missing optional dependency ${platformPackage}. Reinstall Maplecode: ${updateCommand}`,
   );
 }
 
-const binaryPath = findMapleCodeExecutable();
+const binaryPath = findMaplecodeExecutable();
 
-function isPnpmOwnedMapleCodeInstall(nodeModulesDir) {
+function isPnpmOwnedMaplecodeInstall(nodeModulesDir) {
   if (!existsSync(path.join(nodeModulesDir, ".modules.yaml"))) {
     return false;
   }
@@ -127,7 +127,7 @@ function isPnpmOwnedMapleCodeInstall(nodeModulesDir) {
   }
 }
 
-function isVitePlusOwnedMapleCodeInstall(packagesDir) {
+function isVitePlusOwnedMaplecodeInstall(packagesDir) {
   if (path.basename(packagesDir) !== "packages") {
     return false;
   }
@@ -160,13 +160,13 @@ function isVitePlusOwnedMapleCodeInstall(packagesDir) {
       }
     }
   } catch {
-    // Missing or unreadable ownership metadata must not prevent MapleCode starting.
+    // Missing or unreadable ownership metadata must not prevent Maplecode starting.
   }
   return false;
 }
 
 /**
- * Use heuristics to detect the package manager that was used to install MapleCode
+ * Use heuristics to detect the package manager that was used to install Maplecode
  * in order to give the user a hint about how to update it.
  */
 function detectPackageManager() {
@@ -181,15 +181,15 @@ function detectPackageManager() {
       currentDir !== filesystemRoot;
       currentDir = path.dirname(currentDir)
     ) {
-      if (isVitePlusOwnedMapleCodeInstall(currentDir)) {
+      if (isVitePlusOwnedMaplecodeInstall(currentDir)) {
         return "vite-plus";
       }
-      if (isPnpmOwnedMapleCodeInstall(path.join(currentDir, "node_modules"))) {
+      if (isPnpmOwnedMaplecodeInstall(path.join(currentDir, "node_modules"))) {
         return "pnpm";
       }
     }
 
-    if (isPnpmOwnedMapleCodeInstall(path.join(filesystemRoot, "node_modules"))) {
+    if (isPnpmOwnedMaplecodeInstall(path.join(filesystemRoot, "node_modules"))) {
       return "pnpm";
     }
   }

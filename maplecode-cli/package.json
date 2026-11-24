@@ -1,7 +1,7 @@
 {
   "name": "@openai/codex",
   "version": "0.0.0-dev",
-  "description": "MapleCode CLI is a coding agent from OpenAI that runs locally on your computer.",
+  "description": "Maplecode CLI is a coding agent from OpenAI that runs locally on your computer.",
   "license": "Apache-2.0",
   "bin": {
     "maplecode": "bin/maplecode.js"
