@@ -152,7 +152,7 @@ async fn import_repo_agents_md_from_nested_cwd_rewrites_terms_and_skips_non_empt
     );
     assert_eq!(
         fs::read_to_string(repo_root.join("AGENTS.md")).expect("read target"),
-        "Maple Code\nMapleCode\nMapleCode\nSee AGENTS.md\n"
+        "Maple Code\nMaple Code\nMaple Code\nSee AGENTS.md\n"
     );
     assert_eq!(
         fs::read_to_string(repo_with_existing_target.join("AGENTS.md"))

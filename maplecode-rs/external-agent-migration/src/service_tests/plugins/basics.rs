@@ -2,7 +2,7 @@ use super::super::*;
 use crate::migration_source::MarketplaceImportSource;
 use crate::source_cla;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use pretty_assertions::assert_eq;
 
 #[tokio::test]
@@ -49,7 +49,7 @@ async fn authenticated_plugin_migration_uses_chatgpt_curated_marketplace() {
 
     let mut service = service_for_paths(external_agent_home.clone(), maplecode_home);
     service.auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let items = service
         .detect(ExternalAgentConfigDetectOptions {
             include_home: true,

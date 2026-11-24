@@ -8,7 +8,7 @@ const PROFILE: RewriteProfile = RewriteProfile::new("SOURCE.md", &["source agent
 fn rewrites_terms_only_at_word_boundaries() {
     assert_eq!(
         PROFILE.rewrite("SOURCE.md Source source agent source_agent Source: café ‘Source’"),
-        "AGENTS.md Maple Code Maple Code source_agent MapleCode: café ‘Maple Code’"
+        "AGENTS.md Maple Code Maple Code source_agent Maple Code: café ‘Maple Code’"
     );
 }
 
@@ -43,7 +43,7 @@ SOURCE.md?section=details
 [Source]: https://example.com/Source/SOURCE.md "Source"
 "#,
         ),
-        r#"MapleCode: https://Source.example/SOURCE.md?product=Source#Source
+        r#"Maplecode: https://Source.example/SOURCE.md?product=Source#Source
 [Maple Code](HTTPS://Source.example/a_(Source)/source.md "Maple Code")Maple Code
 <http://Source.example/SOURCE.md>，Maple Code
 “https://Source.example/é/SOURCE.md” Maple Code
@@ -52,7 +52,7 @@ SOURCE.md?section=details
 WWW.Source.example/SOURCE.md Maple Code
 https://Source.example/it's/SOURCE.md Maple Code
 <Source@example.com> Source@example.com support@Source.example Maple Code
-[Maple Code](/MapleCode/reference) [AGENTS.md](./MapleCode/AGENTS.md)
+[Maple Code](/Maplecode/reference) [AGENTS.md](./Maplecode/AGENTS.md)
 AGENTS.md?section=details
 [Maple Code](#Maple Code)
 <a id="Maple Code"></a>

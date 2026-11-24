@@ -69,10 +69,10 @@ impl RewriteProfile {
         let mut rewritten =
             replace_case_insensitive_with_boundaries(content, self.doc_file_name, "AGENTS.md");
         for from in self.term_variants {
-            rewritten = replace_case_insensitive_with_boundaries(&rewritten, from, "MapleCode");
+            rewritten = replace_case_insensitive_with_boundaries(&rewritten, from, "Maple Code");
         }
         for from in self.case_sensitive_term_variants {
-            rewritten = replace_with_boundaries(&rewritten, from, "MapleCode");
+            rewritten = replace_with_boundaries(&rewritten, from, "Maple Code");
         }
         rewritten
     }
