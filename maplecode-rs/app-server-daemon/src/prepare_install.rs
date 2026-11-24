@@ -10,7 +10,7 @@ use anyhow::Context;
 use anyhow::Result;
 use anyhow::anyhow;
 use maplecode_install_context::InstallContext;
-use maplecode_install_context::MapleCodePackageManifest;
+use maplecode_install_context::MaplecodePackageManifest;
 
 use crate::Daemon;
 use crate::install_lock::acquire_install_lock;
@@ -153,7 +153,7 @@ async fn prepare_from_package(
         "MAPLECODE_HOME must be outside the source CLI package"
     );
     let manifest_bytes = std::fs::read(source.join("maplecode-package.json"))?;
-    let manifest: MapleCodePackageManifest = serde_json::from_slice(&manifest_bytes)?;
+    let manifest: MaplecodePackageManifest = serde_json::from_slice(&manifest_bytes)?;
     let version = manifest.version.to_string();
     let target = platform_target()?;
     let mut metadata: serde_json::Value = serde_json::from_slice(&manifest_bytes)?;
@@ -234,9 +234,9 @@ async fn prepare_from_package(
         .tempdir_in(&releases)?;
     let mut staged_digests = BTreeMap::new();
     let digest = package_tree(source, Some(stage.path()), &mut staged_digests)?;
-    let staged_exe = if cfg!(target_os = "macos") && stage.path().join("MapleCodeCLI.app").is_dir()
+    let staged_exe = if cfg!(target_os = "macos") && stage.path().join("MaplecodeCLI.app").is_dir()
     {
-        Path::new("MapleCodeCLI.app/Contents/MacOS/maplecode")
+        Path::new("MaplecodeCLI.app/Contents/MacOS/maplecode")
     } else {
         Path::new(source_entrypoint)
     };

@@ -194,7 +194,7 @@ async fn provisioned_macos_bundle_seeds_from_its_running_executable() {
     let launcher = package(&source, "0.1.0-internal-test.202609091200.1");
     maplecode_utils_cargo_bin::write_executable(&launcher, "#!/bin/sh\necho maplecode 0.0.0\n")
         .expect("launcher");
-    let bundle = source.join("MapleCodeCLI.app/Contents/MacOS/maplecode");
+    let bundle = source.join("MaplecodeCLI.app/Contents/MacOS/maplecode");
     std::fs::create_dir_all(bundle.parent().expect("bundle parent")).expect("bundle dir");
     std::fs::write(&bundle, b"provisioned executable").expect("bundle executable");
     let home = temp.path().join("home");
@@ -211,7 +211,7 @@ async fn provisioned_macos_bundle_seeds_from_its_running_executable() {
     let selected = std::fs::canonicalize(home.join("packages/app-server-daemon/current"))
         .expect("selected release");
     assert_eq!(
-        std::fs::read(selected.join("MapleCodeCLI.app/Contents/MacOS/maplecode"))
+        std::fs::read(selected.join("MaplecodeCLI.app/Contents/MacOS/maplecode"))
             .expect("bundled executable"),
         b"provisioned executable"
     );
