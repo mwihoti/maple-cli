@@ -9,7 +9,7 @@ use maplecode_core::exec_env::create_env;
 use maplecode_core::sandboxing::SandboxPermissions;
 use maplecode_protocol::config_types::ShellEnvironmentPolicy;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::error::SandboxErr;
 use maplecode_protocol::models::PermissionProfile;
@@ -240,12 +240,12 @@ async fn should_skip_bwrap_tests() -> bool {
     {
         Ok(output) => is_bwrap_unavailable_output(&output),
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
+            MaplecodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
                 is_bwrap_unavailable_output(output)
             }
             // Probe timeouts are not actionable for the bwrap-specific assertions below;
             // skip rather than fail the whole suite.
-            MapleCodeErrorDetails::Sandbox(SandboxErr::Timeout { .. }) => true,
+            MaplecodeErrorDetails::Sandbox(SandboxErr::Timeout { .. }) => true,
             details => panic!("bwrap availability probe failed unexpectedly: {details:?}"),
         },
     }
@@ -261,7 +261,7 @@ fn expect_denied(
             output
         }
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
+            MaplecodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
                 output.as_ref().clone()
             }
             details => panic!("{context}: {details:?}"),
@@ -858,7 +858,7 @@ async fn assert_network_blocked(cmd: &[&str]) {
     let output = match result {
         Ok(output) => output,
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
+            MaplecodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
                 output.as_ref().clone()
             }
             details => panic!("expected sandbox denied error, got: {details:?}"),
@@ -1011,7 +1011,7 @@ async fn sandbox_reports_maplecode_symlink_build_failure_without_panicking() {
     .await
     {
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
+            MaplecodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
                 output.as_ref().clone()
             }
             details => panic!(".maplecode symlink build failure should deny: {details:?}"),

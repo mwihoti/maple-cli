@@ -29,7 +29,7 @@ use std::sync::Mutex;
 use crate::linux_run_main::synthetic_mount_registry_root;
 use ignore::WalkState;
 use ignore::overrides::OverrideBuilder;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::permissions::FileSystemPolicyProjection;
 use maplecode_protocol::permissions::is_protected_metadata_name;
@@ -689,7 +689,7 @@ fn create_filesystem_args(
                  * only protect a startup-time snapshot; the sandboxed process could
                  * replace the writable symlink before it reads through the logical path.
                  */
-                return Err(MapleCodeErr::Fatal(format!(
+                return Err(MaplecodeErr::Fatal(format!(
                     "cannot enforce sandbox read-only path {} because it crosses writable symlink {}",
                     subpath.display(),
                     symlink.display()
@@ -803,7 +803,7 @@ fn append_daemon_socket_masks(
     let source = fs::canonicalize(mount_root)?;
     for daemon_directory in daemon_directories {
         if source.starts_with(daemon_directory) {
-            return Err(MapleCodeErr::Fatal(
+            return Err(MaplecodeErr::Fatal(
                 "app-server socket directory cannot be a sandbox mount root".to_string(),
             ));
         }
@@ -813,7 +813,7 @@ fn append_daemon_socket_masks(
             let destination = destination
                 .to_str()
                 .ok_or_else(|| {
-                    MapleCodeErr::Fatal(
+                    MaplecodeErr::Fatal(
                         "app-server socket mask path must be valid UTF-8".to_string(),
                     )
                 })?
@@ -848,7 +848,7 @@ pub fn expand_unreadable_globs(
     let mut patterns_by_search_root: BTreeMap<AbsolutePathBuf, Vec<String>> = BTreeMap::new();
     for pattern in patterns {
         let Some((search_root, glob)) = split_glob_pattern(pattern, cwd) else {
-            return Err(MapleCodeErr::Fatal(format!(
+            return Err(MaplecodeErr::Fatal(format!(
                 "unreadable glob `{pattern}` cannot be safely expanded; use a pattern with a non-root directory prefix"
             )));
         };
@@ -868,7 +868,7 @@ pub fn expand_unreadable_globs(
                     io::ErrorKind::NotFound | io::ErrorKind::NotADirectory
                 ) => {}
             Err(err) => {
-                return Err(MapleCodeErr::Fatal(format!(
+                return Err(MaplecodeErr::Fatal(format!(
                     "failed to inspect unreadable glob search root {}: {err}",
                     search_root.display()
                 )));
@@ -888,7 +888,7 @@ pub fn expand_unreadable_globs(
             }
             expanded_paths.insert(path);
             if expanded_paths.len() > MAX_UNREADABLE_GLOB_MATCHES {
-                return Err(MapleCodeErr::Fatal(format!(
+                return Err(MaplecodeErr::Fatal(format!(
                     "unreadable glob expansion for {} matched more than {MAX_UNREADABLE_GLOB_MATCHES} paths",
                     search_root.display()
                 )));
@@ -942,14 +942,14 @@ fn glob_files(
             glob.insert(glob.len() - 1, '\\');
         }
         builder.add(&glob).map_err(|err| {
-            MapleCodeErr::Fatal(format!(
+            MaplecodeErr::Fatal(format!(
                 "unreadable glob pattern is invalid for {}: {err}",
                 search_root.display()
             ))
         })?;
     }
     let overrides = builder.build().map_err(|err| {
-        MapleCodeErr::Fatal(format!(
+        MaplecodeErr::Fatal(format!(
             "unreadable glob matcher failed for {}: {err}",
             search_root.display()
         ))
@@ -975,9 +975,9 @@ fn glob_files(
                     return WalkState::Continue;
                 }
                 AbsolutePathBuf::from_absolute_path_checked(entry.into_path())
-                    .map_err(MapleCodeErr::from)
+                    .map_err(MaplecodeErr::from)
             }
-            Err(err) => Err(MapleCodeErr::Fatal(format!(
+            Err(err) => Err(MaplecodeErr::Fatal(format!(
                 "failed to enumerate unreadable glob paths under {}: {err}",
                 search_root.display()
             ))),
@@ -1009,7 +1009,7 @@ fn glob_files(
         walker.build_parallel().run(|| Box::new(&visit));
     }
     paths.into_inner().map_err(|_| {
-        MapleCodeErr::Fatal("unreadable glob scan result mutex poisoned".to_string())
+        MaplecodeErr::Fatal("unreadable glob scan result mutex poisoned".to_string())
     })?
 }
 
@@ -1218,7 +1218,7 @@ fn append_unreadable_root_args(
          * protect the old target while the logical path could later point
          * somewhere else.
          */
-        return Err(MapleCodeErr::Fatal(format!(
+        return Err(MaplecodeErr::Fatal(format!(
             "cannot enforce sandbox deny-read path {} because it crosses writable symlink {}",
             unreadable_root.display(),
             symlink.display()

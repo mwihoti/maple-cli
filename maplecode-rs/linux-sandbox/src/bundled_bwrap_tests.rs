@@ -3,7 +3,7 @@
 use super::*;
 use maplecode_install_context::InstallContext;
 use maplecode_install_context::InstallMethod;
-use maplecode_install_context::MapleCodePackageLayout;
+use maplecode_install_context::MaplecodePackageLayout;
 use pretty_assertions::assert_eq;
 use std::fs;
 use tempfile::NamedTempFile;
@@ -21,7 +21,7 @@ fn finds_package_layout_bwrap_from_install_context() {
 
     let context = InstallContext {
         method: InstallMethod::Other,
-        package_layout: Some(MapleCodePackageLayout {
+        package_layout: Some(MaplecodePackageLayout {
             package_dir: AbsolutePathBuf::from_absolute_path(package_dir).expect("absolute"),
             bin_dir: AbsolutePathBuf::from_absolute_path(&bin_dir).expect("absolute"),
             resources_dir: Some(

@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 use std::path::Path;
 
 use maplecode_network_proxy::ManagedNetworkSandboxContext;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::error::SandboxErr;
 use maplecode_protocol::protocol::FileSystemSandboxPolicy;
@@ -80,7 +80,7 @@ pub(crate) fn apply_sandbox_policies_to_current_thread(
 
     if apply_landlock_fs && !file_system_sandbox_policy.has_full_disk_write_access() {
         if !file_system_sandbox_policy.has_full_disk_read_access() {
-            return Err(MapleCodeErr::UnsupportedOperation(
+            return Err(MaplecodeErr::UnsupportedOperation(
                 "Restricted read-only access is not supported by the legacy Linux Landlock filesystem backend."
                     .to_string(),
             ));
@@ -141,7 +141,7 @@ fn set_no_new_privs() -> Result<()> {
 /// `/dev/null` and the provided list of `writable_roots`.
 ///
 /// # Errors
-/// Returns [`MapleCodeErr::Sandbox`] variants when the ruleset fails to apply.
+/// Returns [`MaplecodeErr::Sandbox`] variants when the ruleset fails to apply.
 ///
 /// Retained for the legacy pipeline. The helper currently rejects legacy mode
 /// for filesystem-restricted policies, so filesystem sandboxing uses bubblewrap.
@@ -167,7 +167,7 @@ fn install_filesystem_landlock_rules_on_current_thread(
     let status = ruleset.restrict_self()?;
 
     if status.ruleset == landlock::RulesetStatus::NotEnforced {
-        return Err(MapleCodeErr::Sandbox(SandboxErr::LandlockRestrict));
+        return Err(MaplecodeErr::Sandbox(SandboxErr::LandlockRestrict));
     }
 
     Ok(())

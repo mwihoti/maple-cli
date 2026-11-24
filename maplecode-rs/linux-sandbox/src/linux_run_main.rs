@@ -26,7 +26,7 @@ use crate::proxy_routing::activate_proxy_routes_in_netns;
 use crate::proxy_routing::prepare_host_proxy_route_spec;
 use crate::seccomp::apply_sandbox_policies_to_current_thread;
 use maplecode_network_proxy::ManagedNetworkSandboxContext;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::protocol::FileSystemAccessMode;
 use maplecode_protocol::protocol::FileSystemPath;
@@ -446,7 +446,7 @@ fn build_bwrap_argv(
     sandbox_policy_cwd: &Path,
     command_cwd: &Path,
     options: BwrapOptions,
-) -> MapleCodeResult<crate::bwrap::BwrapArgs> {
+) -> MaplecodeResult<crate::bwrap::BwrapArgs> {
     let bwrap_args = create_bwrap_command_args(
         inner,
         file_system_sandbox_policy,
@@ -464,7 +464,7 @@ fn build_bwrap_argv(
     })
 }
 
-fn exit_with_bwrap_build_error(err: maplecode_protocol::error::MapleCodeErr) -> ! {
+fn exit_with_bwrap_build_error(err: maplecode_protocol::error::MaplecodeErr) -> ! {
     eprintln!("error building bubblewrap command: {err}");
     std::process::exit(1);
 }
@@ -512,13 +512,13 @@ fn current_process_argv0() -> String {
     }
 }
 
-fn preflight_proc_mount_support(options: BwrapOptions) -> MapleCodeResult<bool> {
+fn preflight_proc_mount_support(options: BwrapOptions) -> MaplecodeResult<bool> {
     let preflight_argv = build_preflight_bwrap_argv(options)?;
     let stderr = run_bwrap_in_child_capture_stderr(preflight_argv);
     Ok(!is_proc_mount_failure(stderr.as_str()))
 }
 
-fn build_preflight_bwrap_argv(options: BwrapOptions) -> MapleCodeResult<crate::bwrap::BwrapArgs> {
+fn build_preflight_bwrap_argv(options: BwrapOptions) -> MaplecodeResult<crate::bwrap::BwrapArgs> {
     let file_system_sandbox_policy =
         FileSystemSandboxPolicy::restricted(vec![FileSystemSandboxEntry {
             path: FileSystemPath::Special {

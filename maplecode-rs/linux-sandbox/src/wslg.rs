@@ -38,7 +38,7 @@ pub(crate) fn ensure_supported_path(path: &Path) -> maplecode_protocol::error::R
     if path.starts_with(alias)
         || fs::canonicalize(path).is_ok_and(|resolved| resolved.starts_with(alias))
     {
-        return Err(maplecode_protocol::error::MapleCodeErr::Fatal(format!(
+        return Err(maplecode_protocol::error::MaplecodeErr::Fatal(format!(
             "restricted sandboxes do not support paths under {alias}: {}; use the corresponding path under the primary filesystem root instead",
             path.display()
         )));
