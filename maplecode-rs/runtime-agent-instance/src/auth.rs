@@ -18,7 +18,7 @@ use maplecode_http_client::CHATGPT_ACCOUNT_ID_HEADER;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AuthChangeState;
 use maplecode_login::AuthOwner;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use std::sync::Arc;
 
 const AGENT_ASSERTION: &str = "x-openai-agent-assertion";
@@ -27,7 +27,7 @@ const AGENT_ASSERTION: &str = "x-openai-agent-assertion";
 #[derive(Clone)]
 pub struct RuntimeAuth {
     pub(crate) runtime: Arc<RuntimeAgentInstance>,
-    pub(crate) auth: MapleCodeAuth,
+    pub(crate) auth: MaplecodeAuth,
     pub(crate) http_client_factory: HttpClientFactory,
     pub(crate) change_state: AuthChangeState,
     pub(crate) owner: AuthOwner,
@@ -55,7 +55,7 @@ impl RuntimeAuth {
         &self.runtime
     }
 
-    pub fn auth(&self) -> &MapleCodeAuth {
+    pub fn auth(&self) -> &MaplecodeAuth {
         &self.auth
     }
 

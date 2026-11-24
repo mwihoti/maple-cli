@@ -16,7 +16,7 @@ use maplecode_http_client::NetworkPolicyDenied;
 use maplecode_login::AuthChangeState;
 use maplecode_login::AuthManager;
 use maplecode_login::AuthOwner;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::RefreshTokenError;
 use maplecode_login::auth::RefreshTokenFailedError;
 use std::sync::Arc;
@@ -194,7 +194,7 @@ impl RuntimeAuthBinding {
     async fn auth_once(
         self: &Arc<Self>,
         state: &mut Option<CachedRuntime>,
-        auth: MapleCodeAuth,
+        auth: MaplecodeAuth,
         http_client_factory: HttpClientFactory,
         selection: &PlatformResourceSelection,
         expected_source: Option<u64>,
@@ -278,7 +278,7 @@ impl RuntimeAuthBinding {
     fn selected_auth(
         self: &Arc<Self>,
         runtime: Arc<RuntimeAgentInstance>,
-        auth: MapleCodeAuth,
+        auth: MaplecodeAuth,
         http_client_factory: HttpClientFactory,
         change_state: AuthChangeState,
     ) -> Result<RuntimeAuth, RuntimeAuthError> {
@@ -302,7 +302,7 @@ impl RuntimeAuthBinding {
     /// same credential can select a new runtime after logout; a different source cannot.
     pub async fn auth_for(
         self: &Arc<Self>,
-        expected: &MapleCodeAuth,
+        expected: &MaplecodeAuth,
         selection: &PlatformResourceSelection,
     ) -> Result<RuntimeAuth, RuntimeAuthError> {
         let source = self
@@ -335,7 +335,7 @@ impl RuntimeAuthBinding {
         Ok(())
     }
 
-    fn auth_state(&self, auth: &MapleCodeAuth) -> Result<AuthChangeState, RuntimeAuthError> {
+    fn auth_state(&self, auth: &MaplecodeAuth) -> Result<AuthChangeState, RuntimeAuthError> {
         let state = self
             .credentials
             .auth_change_state_for(auth)
@@ -348,10 +348,10 @@ impl RuntimeAuthBinding {
 }
 
 fn actor_authorization(
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     selection: &PlatformResourceSelection,
 ) -> Result<AuthenticatedActorAuthorization, RuntimeAuthError> {
-    if !matches!(auth, MapleCodeAuth::ApiKey(_))
+    if !matches!(auth, MaplecodeAuth::ApiKey(_))
         && selection != &PlatformResourceSelection::default()
     {
         return Err(RuntimeAuthError::UnsupportedResourceSelection);
@@ -361,20 +361,20 @@ fn actor_authorization(
         .map_err(|_| RuntimeAuthError::Unsupported)?
         .into();
     Ok(match auth {
-        MapleCodeAuth::ApiKey(_) => AuthenticatedActorAuthorization::PlatformApiKey {
+        MaplecodeAuth::ApiKey(_) => AuthenticatedActorAuthorization::PlatformApiKey {
             credential,
             selection: selection.clone(),
         },
-        MapleCodeAuth::Chatgpt(_) | MapleCodeAuth::ChatgptAuthTokens(_) => {
+        MaplecodeAuth::Chatgpt(_) | MaplecodeAuth::ChatgptAuthTokens(_) => {
             AuthenticatedActorAuthorization::Oauth { credential }
         }
-        MapleCodeAuth::PersonalAccessToken(_) => {
+        MaplecodeAuth::PersonalAccessToken(_) => {
             AuthenticatedActorAuthorization::PersonalAccessToken { credential }
         }
-        MapleCodeAuth::Headers(_)
-        | MapleCodeAuth::AgentIdentity(_)
-        | MapleCodeAuth::BedrockApiKey(_)
-        | MapleCodeAuth::BedrockAccessKeys(_) => return Err(RuntimeAuthError::Unsupported),
+        MaplecodeAuth::Headers(_)
+        | MaplecodeAuth::AgentIdentity(_)
+        | MaplecodeAuth::BedrockApiKey(_)
+        | MaplecodeAuth::BedrockAccessKeys(_) => return Err(RuntimeAuthError::Unsupported),
     })
 }
 

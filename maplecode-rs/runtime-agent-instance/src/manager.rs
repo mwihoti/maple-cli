@@ -10,7 +10,7 @@ use crate::RuntimeRegistrationMetadata;
 use crate::binding::RegistrationTarget;
 use maplecode_login::AuthManager;
 use maplecode_login::AuthRuntimeConfig;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use std::sync::Arc;
 use url::Url;
 
@@ -115,7 +115,7 @@ impl RuntimeAuthManager {
 
     pub async fn auth_for(
         &self,
-        expected: &MapleCodeAuth,
+        expected: &MaplecodeAuth,
         selection: &PlatformResourceSelection,
     ) -> Result<RuntimeAuth, RuntimeAuthError> {
         self.login.auth_for(expected, selection).await
@@ -173,7 +173,7 @@ impl RuntimeAuthManager {
                     .credentials
                     .auth_cached()
                     .as_ref()
-                    .and_then(MapleCodeAuth::api_key)
+                    .and_then(MaplecodeAuth::api_key)
                     == Some(api_key)
                     && binding.credentials.runtime_config() == *runtime =>
             {

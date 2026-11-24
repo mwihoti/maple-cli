@@ -36,12 +36,12 @@ use wiremock::matchers::method;
 
 struct Credentials {
     available: std::sync::atomic::AtomicBool,
-    current: RwLock<MapleCodeAuth>,
-    refreshed: MapleCodeAuth,
+    current: RwLock<MaplecodeAuth>,
+    refreshed: MaplecodeAuth,
 }
 
 impl ExternalAuth for Credentials {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             if !self.available.load(std::sync::atomic::Ordering::SeqCst) {
                 return Err(std::io::Error::other("credential source unavailable"));
@@ -50,7 +50,7 @@ impl ExternalAuth for Credentials {
         })
     }
 
-    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             *self.current.write().unwrap() = self.refreshed.clone();
             Ok(self.refreshed.clone())
@@ -60,8 +60,8 @@ impl ExternalAuth for Credentials {
 
 async fn setup(
     server: &MockServer,
-    initial: MapleCodeAuth,
-    refreshed: MapleCodeAuth,
+    initial: MaplecodeAuth,
+    refreshed: MaplecodeAuth,
 ) -> (Arc<RuntimeAuthManager>, Arc<Credentials>, Arc<AuthManager>) {
     let credentials = AuthManager::from_auth_for_testing(initial.clone());
     let source = Arc::new(Credentials {
@@ -100,13 +100,13 @@ fn registered(request: &Request) -> ResponseTemplate {
     }))
 }
 
-fn oauth(session: Option<&str>, token: &str) -> MapleCodeAuth {
+fn oauth(session: Option<&str>, token: &str) -> MaplecodeAuth {
     let claims = json!({
         "iss": "https://auth.openai.com/", "session_id": session, "jti": token,
         "https://api.openai.com/auth": {"user_id": "user-a", "chatgpt_account_id": "workspace-a"},
     });
     let payload = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(claims.to_string());
-    MapleCodeAuth::from_external_chatgpt_tokens(
+    MaplecodeAuth::from_external_chatgpt_tokens(
         &format!("header.{payload}.signature"),
         "workspace-a",
         /*chatgpt_plan_type*/ None,
@@ -166,7 +166,7 @@ async fn legacy_login_requires_sign_in_for_runtime_auth() {
     )
     .await;
     let legacy = credentials.auth_cached().unwrap();
-    assert!(matches!(&legacy, MapleCodeAuth::AgentIdentity(_)));
+    assert!(matches!(&legacy, MaplecodeAuth::AgentIdentity(_)));
     let runtime = RuntimeAuthManager::new(
         credentials.clone(),
         AgentHostAuthorization::InstallationId {
@@ -218,14 +218,14 @@ async fn concurrent_requests_share_registration_and_replacement_preserves_in_fli
         .respond_with(registered)
         .mount(&server)
         .await;
-    let initial = MapleCodeAuth::from_api_key("key-a");
+    let initial = MaplecodeAuth::from_api_key("key-a");
     let (manager, source, _) = setup(&server, initial.clone(), initial).await;
     assert!(manager.auth().await.is_err());
     let (first, second) = tokio::join!(manager.auth(), manager.auth());
     let first = first.unwrap();
     let second = second.unwrap();
     assert!(Arc::ptr_eq(first.runtime(), second.runtime()));
-    *source.current.write().unwrap() = MapleCodeAuth::from_api_key("key-b");
+    *source.current.write().unwrap() = MaplecodeAuth::from_api_key("key-b");
     let replacement = manager.auth().await.unwrap();
     assert_ne!(first.runtime().id(), replacement.runtime().id());
     assert_eq!(first.auth().get_token().unwrap(), "key-a");
@@ -270,7 +270,7 @@ async fn projects_share_one_runtime_and_organization_changes_replace_it() {
         .expect(3)
         .mount(&server)
         .await;
-    let initial = MapleCodeAuth::from_api_key("key-a");
+    let initial = MaplecodeAuth::from_api_key("key-a");
     let (manager, _, _) = setup(&server, initial.clone(), initial).await;
     let mut selection = PlatformResourceSelection {
         organization_id: Some("org-a".into()),
@@ -311,7 +311,7 @@ async fn failed_registration_does_not_poison_another_project_or_reuse_its_idempo
             .expect(1)
             .mount(&server)
             .await;
-        let initial = MapleCodeAuth::from_api_key("key-a");
+        let initial = MaplecodeAuth::from_api_key("key-a");
         let (manager, _, _) = setup(&server, initial.clone(), initial).await;
         let mut selection = PlatformResourceSelection {
             organization_id: Some("org-a".into()),
@@ -374,7 +374,7 @@ async fn policy_recovery_preserves_pending_registration() {
         )
         .await,
     );
-    let auth = MapleCodeAuth::from_api_key("key-a");
+    let auth = MaplecodeAuth::from_api_key("key-a");
     credentials
         .set_external_auth(Arc::new(Credentials {
             available: std::sync::atomic::AtomicBool::new(true),
@@ -511,12 +511,12 @@ async fn a_late_registration_cannot_publish_the_previous_actor() {
         })
         .mount(&server)
         .await;
-    let initial = MapleCodeAuth::from_api_key("key-a");
+    let initial = MaplecodeAuth::from_api_key("key-a");
     let (manager, source, credentials) = setup(&server, initial.clone(), initial).await;
     let task_manager = manager.clone();
     let attempt = tokio::spawn(async move { task_manager.auth().await });
     received.notified().await;
-    *source.current.write().unwrap() = MapleCodeAuth::from_api_key("key-b");
+    *source.current.write().unwrap() = MaplecodeAuth::from_api_key("key-b");
     credentials.auth().await.unwrap();
     assert!(matches!(
         attempt.await.unwrap(),
@@ -536,7 +536,7 @@ async fn a_late_registration_cannot_publish_the_previous_actor() {
 async fn request_auth_replaces_stale_headers_and_signs_each_attempt() {
     for mode in [RuntimeAuthMode::DualHeader, RuntimeAuthMode::AssertionOnly] {
         for initial in [
-            MapleCodeAuth::from_api_key("key-a"),
+            MaplecodeAuth::from_api_key("key-a"),
             oauth(Some("login-a"), "token-a"),
         ] {
             let server = MockServer::start().await;
@@ -664,7 +664,7 @@ async fn registration_failure_reports_retryability() {
             .respond_with(ResponseTemplate::new(status))
             .mount(&server)
             .await;
-        let initial = MapleCodeAuth::from_api_key("key-a");
+        let initial = MaplecodeAuth::from_api_key("key-a");
         let (manager, _, _) = setup(&server, initial.clone(), initial).await;
         let error = AuthError::from(manager.auth().await.unwrap_err());
         assert_eq!(
@@ -757,7 +757,7 @@ async fn file_upload_runtime_auth_signs_control_requests_but_not_blob_uploads() 
             .expect(1)
             .mount(&blob)
             .await;
-        let initial = MapleCodeAuth::from_api_key("key-a");
+        let initial = MaplecodeAuth::from_api_key("key-a");
         let (manager, _, _) = setup(&server, initial.clone(), initial).await;
         let provider = manager.auth().await.unwrap().into_auth_provider(mode);
         let pool =
@@ -897,16 +897,16 @@ async fn explicit_keys_reuse_their_owner_without_borrowing_a_command_source() {
         .await;
     let (root, _, _) = setup(
         &server,
-        MapleCodeAuth::from_api_key("ambient"),
-        MapleCodeAuth::from_api_key("ambient"),
+        MaplecodeAuth::from_api_key("ambient"),
+        MaplecodeAuth::from_api_key("ambient"),
     )
     .await;
     let command_credentials =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("shared-key"));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("shared-key"));
     let command = Arc::new(Credentials {
         available: std::sync::atomic::AtomicBool::new(true),
-        current: RwLock::new(MapleCodeAuth::from_api_key("shared-key")),
-        refreshed: MapleCodeAuth::from_api_key("shared-key"),
+        current: RwLock::new(MaplecodeAuth::from_api_key("shared-key")),
+        refreshed: MaplecodeAuth::from_api_key("shared-key"),
     });
     command_credentials
         .set_external_auth(command.clone())
@@ -944,7 +944,7 @@ async fn explicit_keys_reuse_their_owner_without_borrowing_a_command_source() {
         .store(true, std::sync::atomic::Ordering::SeqCst);
     let recovered = root.bind(command_credentials).auth().await.unwrap();
     assert_eq!(recovered.runtime().id(), original_command.runtime().id());
-    *command.current.write().unwrap() = MapleCodeAuth::from_api_key("replacement");
+    *command.current.write().unwrap() = MaplecodeAuth::from_api_key("replacement");
     assert_ne!(
         command_runtime.auth().await.unwrap().runtime().id(),
         original_command.runtime().id()
@@ -980,7 +980,7 @@ async fn explicit_key_stays_independent_when_matching_saved_login_changes() {
         .await;
     let home = tempfile::tempdir().unwrap();
     let credentials = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("shared-key"),
+        MaplecodeAuth::from_api_key("shared-key"),
         home.path().to_path_buf(),
     );
     let manager = Arc::new(RuntimeAuthManager::new(
