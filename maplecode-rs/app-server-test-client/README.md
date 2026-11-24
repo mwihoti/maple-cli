@@ -23,7 +23,7 @@ cargo run -p maplecode-app-server-test-client -- model-list
 When Maple Code asks a question, choose a numbered option (or `o` for a free-form answer when offered)
 and the client will send the response and continue streaming the same turn.
 
-## Testing MapleCode-managed Amazon Bedrock login
+## Testing Maplecode-managed Amazon Bedrock login
 
 `test-login --amazon-bedrock` initializes the experimental app-server API, sends an
 `account/login/start` request with an Amazon Bedrock API key, and waits for the

@@ -1,4 +1,4 @@
-use super::MapleCodeClient;
+use super::MaplecodeClient;
 use super::loopback_responses_server::LoopbackResponsesServer;
 use anyhow::Context;
 use anyhow::Result;
@@ -67,7 +67,7 @@ pub(super) fn run(
         ),
     ];
     let mut client =
-        MapleCodeClient::spawn_stdio_with_env(maplecode_bin, &overrides, &child_environment)?;
+        MaplecodeClient::spawn_stdio_with_env(maplecode_bin, &overrides, &child_environment)?;
     wait_until_capture_is_ready(&capture_path)?;
     client.initialize()?;
 
@@ -98,7 +98,7 @@ pub(super) fn run(
     Ok(())
 }
 
-fn run_plugin_turn(client: &mut MapleCodeClient, expected: &ExpectedPlugin) -> Result<String> {
+fn run_plugin_turn(client: &mut MaplecodeClient, expected: &ExpectedPlugin) -> Result<String> {
     let thread = client.thread_start(ThreadStartParams {
         model: Some(MOCK_MODEL_SLUG.to_string()),
         model_provider: Some(MOCK_PROVIDER_ID.to_string()),
@@ -128,7 +128,7 @@ fn run_plugin_turn(client: &mut MapleCodeClient, expected: &ExpectedPlugin) -> R
 }
 
 fn wait_for_plugin_usage(
-    client: &mut MapleCodeClient,
+    client: &mut MaplecodeClient,
     capture_path: &Path,
     expected: &ExpectedPlugin,
 ) -> Result<()> {
@@ -168,7 +168,7 @@ struct ExpectedPlugin {
     marketplace_name: String,
 }
 
-fn plugin_installed(client: &mut MapleCodeClient) -> Result<PluginInstalledResponse> {
+fn plugin_installed(client: &mut MaplecodeClient) -> Result<PluginInstalledResponse> {
     let request_id = client.request_id();
     client.send_request(
         ClientRequest::PluginInstalled {
@@ -228,7 +228,7 @@ fn expected_plugin(response: &PluginInstalledResponse, plugin_id: &str) -> Resul
 }
 
 fn write_plugin_enabled(
-    client: &mut MapleCodeClient,
+    client: &mut MaplecodeClient,
     config_path: &Path,
     plugin_id: &str,
     enabled: bool,

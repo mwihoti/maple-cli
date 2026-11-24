@@ -112,7 +112,7 @@ const TRACE_DISABLED_MESSAGE: &str =
 
 /// Minimal launcher that initializes the Maple Code app-server and logs the handshake.
 #[derive(Parser)]
-#[command(author = "MapleCode", version, about = "Bootstrap Maple Code app-server", long_about = None)]
+#[command(author = "Maplecode", version, about = "Bootstrap Maple Code app-server", long_about = None)]
 struct Cli {
     /// Path to the `maplecode` CLI binary. When set, requests use stdio by
     /// spawning `maplecode app-server` as a child process.
@@ -224,7 +224,7 @@ enum CliCommand {
         /// Use the device-code login flow instead of the browser callback flow.
         #[arg(long, default_value_t = false, conflicts_with = "amazon_bedrock")]
         device_code: bool,
-        /// Use a MapleCode-managed Amazon Bedrock API key.
+        /// Use a Maplecode-managed Amazon Bedrock API key.
         #[arg(long, default_value_t = false, conflicts_with = "device_code")]
         amazon_bedrock: bool,
         /// Amazon Bedrock API key.
@@ -533,7 +533,7 @@ pub async fn run() -> Result<()> {
 }
 
 enum Endpoint {
-    SpawnMapleCode(PathBuf),
+    SpawnMaplecode(PathBuf),
     ConnectWs(String),
 }
 
@@ -547,7 +547,7 @@ fn resolve_endpoint(maplecode_bin: Option<PathBuf>, url: Option<String>) -> Resu
         bail!("--maplecode-bin and --url are mutually exclusive");
     }
     if let Some(maplecode_bin) = maplecode_bin {
-        return Ok(Endpoint::SpawnMapleCode(maplecode_bin));
+        return Ok(Endpoint::SpawnMaplecode(maplecode_bin));
     }
     if let Some(url) = url {
         return Ok(Endpoint::ConnectWs(url));
@@ -767,7 +767,7 @@ pub async fn send_message_v2(
     user_message: String,
     dynamic_tools: &Option<Vec<DynamicToolSpec>>,
 ) -> Result<()> {
-    let endpoint = Endpoint::SpawnMapleCode(maplecode_bin.to_path_buf());
+    let endpoint = Endpoint::SpawnMaplecode(maplecode_bin.to_path_buf());
     send_message_v2_endpoint(
         &endpoint,
         config_overrides,
@@ -1209,7 +1209,7 @@ async fn with_client<T>(
     command_name: &'static str,
     endpoint: &Endpoint,
     config_overrides: &[String],
-    f: impl FnOnce(&mut MapleCodeClient) -> Result<T>,
+    f: impl FnOnce(&mut MaplecodeClient) -> Result<T>,
 ) -> Result<T> {
     let tracing = TestClientTracing::initialize(config_overrides).await?;
     let command_span = info_span!(
@@ -1220,7 +1220,7 @@ async fn with_client<T>(
     );
     let trace_summary = command_span.in_scope(|| TraceSummary::capture(tracing.traces_enabled));
     let result = command_span.in_scope(|| {
-        let mut client = MapleCodeClient::connect(endpoint, config_overrides)?;
+        let mut client = MaplecodeClient::connect(endpoint, config_overrides)?;
         f(&mut client)
     });
     print_trace_summary(&trace_summary);
@@ -1229,7 +1229,7 @@ async fn with_client<T>(
 
 fn thread_increment_elicitation(url: &str, thread_id: String) -> Result<()> {
     let endpoint = Endpoint::ConnectWs(url.to_string());
-    let mut client = MapleCodeClient::connect(&endpoint, &[])?;
+    let mut client = MaplecodeClient::connect(&endpoint, &[])?;
 
     let initialize = client.initialize()?;
     println!("< initialize response: {initialize:?}");
@@ -1243,7 +1243,7 @@ fn thread_increment_elicitation(url: &str, thread_id: String) -> Result<()> {
 
 fn thread_decrement_elicitation(url: &str, thread_id: String) -> Result<()> {
     let endpoint = Endpoint::ConnectWs(url.to_string());
-    let mut client = MapleCodeClient::connect(&endpoint, &[])?;
+    let mut client = MaplecodeClient::connect(&endpoint, &[])?;
 
     let initialize = client.initialize()?;
     println!("< initialize response: {initialize:?}");
@@ -1298,7 +1298,7 @@ fn live_elicitation_timeout_pause(
     let app_server_test_client_bin = std::env::current_exe()
         .context("failed to resolve maplecode-app-server-test-client binary path")?;
     let endpoint = Endpoint::ConnectWs(websocket_url.clone());
-    let mut client = MapleCodeClient::connect(&endpoint, &[])?;
+    let mut client = MaplecodeClient::connect(&endpoint, &[])?;
 
     let initialize = client.initialize()?;
     println!("< initialize response: {initialize:?}");
@@ -1458,7 +1458,7 @@ enum ClientTransport {
     },
 }
 
-struct MapleCodeClient {
+struct MaplecodeClient {
     transport: ClientTransport,
     pending_notifications: VecDeque<JSONRPCNotification>,
     command_approval_count: usize,
@@ -1485,10 +1485,10 @@ fn item_started_before_helper_done_is_unexpected(
     !matches!(item, ThreadItemPayload::UserMessage { .. })
 }
 
-impl MapleCodeClient {
+impl MaplecodeClient {
     fn connect(endpoint: &Endpoint, config_overrides: &[String]) -> Result<Self> {
         match endpoint {
-            Endpoint::SpawnMapleCode(maplecode_bin) => {
+            Endpoint::SpawnMaplecode(maplecode_bin) => {
                 Self::spawn_stdio(maplecode_bin, config_overrides)
             }
             Endpoint::ConnectWs(url) => Self::connect_websocket(url),
@@ -2297,7 +2297,7 @@ fn print_trace_summary(trace_summary: &TraceSummary) {
     }
 }
 
-impl Drop for MapleCodeClient {
+impl Drop for MaplecodeClient {
     fn drop(&mut self) {
         let ClientTransport::Stdio { child, stdin, .. } = &mut self.transport else {
             return;
