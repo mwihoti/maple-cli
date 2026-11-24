@@ -1,4 +1,4 @@
-"""Pinned source imports for MapleCode's V8 dependency builds.
+"""Pinned source imports for Maplecode's V8 dependency builds.
 
 V8 uses these same repositories through the maplecode_deps module-extension bridge
 in its MODULE.bazel. The BUILD files, and all dependency compilation policy,

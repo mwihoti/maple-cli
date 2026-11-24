@@ -41,7 +41,7 @@ Use this as the maintainer flow for a version bump:
    Then refresh the matching checksum manifest and generated checksums below.
 3. Publish a release-candidate PR and validate that `v8-canary` passes.
 4. If the canary is green, publish the release tag and release build.
-5. Independently verify the published MapleCode-built checksum manifests and record
+5. Independently verify the published Maplecode-built checksum manifests and record
    their SHA-256 digests in
    `third_party/v8/rusty_v8_<version>_release_manifests.sha256`.
 6. Once the release build completes, rerun the build on the candidate branch
@@ -206,7 +206,7 @@ the exact resolved `v8` crate version in `maplecode-rs/Cargo.lock`.
 
 ## Source dependency ownership
 
-The Darwin, Linux GNU/musl and Windows source targets consume MapleCode-owned
+The Darwin, Linux GNU/musl and Windows source targets consume Maplecode-owned
 Abseil, Highway, simdutf, ICU, fast_float, dragonbox and fp16 repositories.
 `dependencies.bzl` declares the pinned imports; the `*.BUILD.bazel` overlays
 here declare the targets V8 uses. Abseil, Highway and simdutf apply their C++ runtime

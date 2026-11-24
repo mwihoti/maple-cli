@@ -61,7 +61,7 @@ cc_library(
         "@platforms//os:windows": [],
         "//conditions:default": ["HAVE_LOCALTIME_R"],
     }) + select({
-        # Preserve MapleCode's workaround for older x64 Windows CPUs.
+        # Preserve Maplecode's workaround for older x64 Windows CPUs.
         "@rules_rs//rs/platforms/config:x86_64-pc-windows-msvc": ["SQLITE_DISABLE_INTRINSIC"],
         "//conditions:default": [],
     }),

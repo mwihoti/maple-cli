@@ -1,17 +1,17 @@
-"""V8 source import with MapleCode-owned Bazel entry points.
+"""V8 source import with Maplecode-owned Bazel entry points.
 
 The root package is placed inside the fetched source tree so relative source
 labels and globs have their normal Bazel semantics. Reuse upstream's platform
-and CPU configuration in place, with MapleCode's narrow patch to bazel/defs.bzl
+and CPU configuration in place, with Maplecode's narrow patch to bazel/defs.bzl
 and the target CPU setting.
-V8's MODULE and toolchain BUILD files are never part of MapleCode's dependency or
+V8's MODULE and toolchain BUILD files are never part of Maplecode's dependency or
 toolchain graph.
 """
 
 # Upstream keeps its source groups in BUILD.bazel, which cannot be loaded as
 # a Starlark library. Reuse filegroups, so labels/globs retain their semantics
 # inside @v8. Compiled targets (including valid V8 v8_library/v8_binary calls)
-# belong in engine.BUILD.bazel, where we wire MapleCode's dependencies and runtime.
+# belong in engine.BUILD.bazel, where we wire Maplecode's dependencies and runtime.
 _INVENTORY_SLOT = "# @MAPLECODE_V8_UPSTREAM_FILEGROUPS@"
 _FILE_GROUPS = "# File group rules"
 _GENERATED_FILES = "# Generated files"
@@ -67,13 +67,13 @@ def _engine_repository_impl(ctx):
     inventory = inventory.replace(msvc_scanner, '":windows_x64_stack_assembly"')
     template = ctx.read(ctx.attr._engine_build)
     if template.count(_INVENTORY_SLOT) != 1:
-        fail("MapleCode V8 BUILD template must contain exactly one upstream filegroup slot")
+        fail("Maplecode V8 BUILD template must contain exactly one upstream filegroup slot")
 
     for patch in ctx.attr.patches:
         ctx.patch(patch, strip = ctx.attr.patch_strip)
 
     # Preserve V8's source layout and the two third-party package boundaries
-    # (disarm and fadec); neither is in the MapleCode V8 closure. Keep upstream's
+    # (disarm and fadec); neither is in the Maplecode V8 closure. Keep upstream's
     # platform/CPU package and prevent upstream toolchain discovery.
     for path in [
         "MODULE.bazel",
@@ -97,5 +97,5 @@ engine_repository = repository_rule(
             allow_single_file = True,
         ),
     },
-    doc = "Fetch the pinned V8 source tree and install MapleCode's engine graph.",
+    doc = "Fetch the pinned V8 source tree and install Maplecode's engine graph.",
 )

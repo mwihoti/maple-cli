@@ -1,4 +1,4 @@
-"""Add a helper and its prepared runtime to a fresh private MapleCode package."""
+"""Add a helper and its prepared runtime to a fresh private Maplecode package."""
 
 import argparse
 import hashlib
@@ -60,7 +60,7 @@ def assemble(
         "pathDir": "maplecode-path",
     }
     if any(metadata.get(key) != value for key, value in expected.items()):
-        raise ValueError("input is not a canonical MapleCode package")
+        raise ValueError("input is not a canonical Maplecode package")
     if release_version is None:
         if not metadata["version"].endswith(f"+{commit}"):
             raise ValueError("package version does not match the declared build")
