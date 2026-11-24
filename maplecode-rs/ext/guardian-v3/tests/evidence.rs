@@ -8,7 +8,7 @@ use maplecode_guardian_v3::EvidenceCursor;
 use maplecode_guardian_v3::OriginalEvidence;
 use maplecode_history::AcceptedFileAudio;
 use maplecode_history::HistoryInitialization;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RetainedContextEvent;
 use maplecode_history::RetainedUserMessage;
@@ -79,7 +79,7 @@ async fn captures_originals_without_generated_context_or_later_appends() -> anyh
     let user = ResponseItemEnvelope {
         item: serde_json::from_value(json!({"type":"message","id":"user-1","role":"user",
             "content":[{"type":"input_text","text":"é🙂".repeat(15_000)}]}))?,
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             user_input_order: Some(1),
             ..Default::default()
         }),
@@ -98,7 +98,7 @@ async fn captures_originals_without_generated_context_or_later_appends() -> anyh
         AdditionalContextUserFragment::new("environment".into(), "Generated context".into()),
     ));
     let mut summary = assistant.clone();
-    summary.metadata = Some(MapleCodeHarnessMetadata {
+    summary.metadata = Some(MaplecodeHarnessMetadata {
         compaction_output: true,
         ..Default::default()
     });
@@ -268,7 +268,7 @@ Approved action: {"action":{"command":"write /workspace/report.txt"},"outcome":"
     let mut later = user.clone();
     later.item = serde_json::from_value(json!({"type":"message","id":"user-2","role":"user",
         "content":[{"type":"input_text","text":"Do not publish."}]}))?;
-    later.metadata = Some(MapleCodeHarnessMetadata {
+    later.metadata = Some(MaplecodeHarnessMetadata {
         user_input_order: Some(4),
         ..Default::default()
     });

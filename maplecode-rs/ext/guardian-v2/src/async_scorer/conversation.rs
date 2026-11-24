@@ -16,7 +16,7 @@ use std::sync::Weak;
 use std::time::SystemTime;
 
 use maplecode_context_fragments::RenderedFragment;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_extension_api::ExtensionMetrics;
 use maplecode_guardian_reviewer::ConversationState;
 use maplecode_history::ResponseItemEnvelope;
@@ -63,7 +63,7 @@ pub(super) struct ConversationRequest {
     pub(super) sampling: LunaSamplingRequest,
     pub(super) reset_token_limit: usize,
     pub(super) authorization: ScoreAuthorization,
-    pub(super) thread: Arc<MapleCodeThread>,
+    pub(super) thread: Arc<MaplecodeThread>,
     pub(super) ready: oneshot::Sender<Result<SampledScore, LunaSamplerError>>,
     pub(super) metrics: Option<Arc<dyn ExtensionMetrics>>,
     pub(super) pending_score: PendingScore,
@@ -77,7 +77,7 @@ pub(super) struct PreparedConversation {
     sampling: LunaSamplingRequest,
     key: ReuseKey,
     state: ConversationState<Vec<ResponseItemEnvelope>>,
-    thread: Arc<MapleCodeThread>,
+    thread: Arc<MaplecodeThread>,
     ready: oneshot::Sender<Result<SampledScore, LunaSamplerError>>,
     metrics: Option<Arc<dyn ExtensionMetrics>>,
     pending_score: PendingScore,

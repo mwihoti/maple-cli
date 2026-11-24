@@ -30,7 +30,7 @@ use maplecode_extension_api::TurnStopInput;
 use maplecode_otel::MetricsClient;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::items::TurnItem;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::protocol::ThreadGoalStatus;
@@ -427,7 +427,7 @@ where
             };
 
             let reason = match input.error {
-                MapleCodeErrorInfo::UsageLimitExceeded => ActiveGoalStopReason::UsageLimit,
+                MaplecodeErrorInfo::UsageLimitExceeded => ActiveGoalStopReason::UsageLimit,
                 // The turn has ended because the error was non-retryable or its
                 // retries were exhausted. Block the goal to prevent automatic
                 // continuation from looping and consuming tokens, as can happen

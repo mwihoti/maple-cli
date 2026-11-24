@@ -45,7 +45,7 @@ pub(crate) fn build_reviewer_config(parent_config: &Config) -> anyhow::Result<Co
         Feature::GuardianV2,
         Feature::TokenBudget,
         Feature::ContextManagement,
-        Feature::MapleCodeHooks,
+        Feature::MaplecodeHooks,
         Feature::Apps,
         Feature::Plugins,
         Feature::WebSearchRequest,

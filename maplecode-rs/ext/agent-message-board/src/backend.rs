@@ -19,7 +19,7 @@ use maplecode_message_board::LocalBoardConnection;
 use maplecode_message_board::MessageBoardHost;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_state::SqliteConfig;
 use std::sync::Arc;
 
@@ -72,21 +72,21 @@ pub fn install<C: Sync + 'static, H: MessageBoardHost + Clone + 'static>(
                     BoardBackend::Connected(connection) => Arc::new(connection.open(host).await?),
                     BoardBackend::Remote { config, http } => {
                         let token = match config.bearer_token_env_var {
-                            Some(name) => std::env::var(name).map_err(|_| MapleCodeErr::InvalidRequest(
+                            Some(name) => std::env::var(name).map_err(|_| MaplecodeErr::InvalidRequest(
                                 "message-board credential environment variable is missing or invalid".into(),
                             ))?,
-                            None => config.bearer_token.ok_or_else(|| MapleCodeErr::InvalidRequest(
+                            None => config.bearer_token.ok_or_else(|| MaplecodeErr::InvalidRequest(
                                 "remote message board requires a credential".into(),
                             ))?.into_inner(),
                         };
                         let token = AccessToken::new(token)
-                            .map_err(|err| MapleCodeErr::InvalidRequest(err.to_string()))?;
+                            .map_err(|err| MaplecodeErr::InvalidRequest(err.to_string()))?;
                         let http = http
                             .build_client(&config.url, ClientRouteClass::Api)
-                            .map_err(|err| MapleCodeErr::Io(std::io::Error::other(err)))?;
+                            .map_err(|err| MaplecodeErr::Io(std::io::Error::other(err)))?;
                         input.thread_store.insert(host.as_ref().clone());
                         let board = RemoteAgentMessageBoard::new(http, &config.url, tree, token)
-                            .map_err(|err| MapleCodeErr::InvalidRequest(err.to_string()))?
+                            .map_err(|err| MaplecodeErr::InvalidRequest(err.to_string()))?
                             .with_clock(move |caller| {
                                 let host = host.clone();
                                 Box::pin(async move { host.current_time(caller).await })

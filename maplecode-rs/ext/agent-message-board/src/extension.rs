@@ -20,7 +20,7 @@ use maplecode_message_board::message_board_tools;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::openai_models::MultiAgentToolMessages;
 use maplecode_tools::ToolCall;
@@ -55,11 +55,11 @@ impl<C: Sync> ThreadLifecycleContributor<C> for BoardExtension<C> {
             let result = async {
                 let tree =
                     SessionId::from_string(input.session_store.level_id()).map_err(|_| {
-                        MapleCodeErr::InvalidRequest("invalid board session identity".into())
+                        MaplecodeErr::InvalidRequest("invalid board session identity".into())
                     })?;
                 let caller =
                     ThreadId::from_string(input.thread_store.level_id()).map_err(|_| {
-                        MapleCodeErr::InvalidRequest("invalid board caller identity".into())
+                        MaplecodeErr::InvalidRequest("invalid board caller identity".into())
                     })?;
                 if let Some(board) = (self.open)(&input, tree, caller).await? {
                     let connection = input.thread_store.get::<LocalBoardConnection>();
@@ -67,7 +67,7 @@ impl<C: Sync> ThreadLifecycleContributor<C> for BoardExtension<C> {
                         .as_ref()
                         .map_or(tree, |connection| connection.identity());
                     if board.identity() != expected {
-                        return Err(MapleCodeErr::InvalidRequest(
+                        return Err(MaplecodeErr::InvalidRequest(
                             "message-board factory returned another tree".into(),
                         ));
                     }
@@ -84,7 +84,7 @@ impl<C: Sync> ThreadLifecycleContributor<C> for BoardExtension<C> {
                         },
                     });
                 }
-                Ok::<(), MapleCodeErr>(())
+                Ok::<(), MaplecodeErr>(())
             }
             .await;
             if result.is_err() {

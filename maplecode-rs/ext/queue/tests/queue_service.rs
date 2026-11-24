@@ -15,7 +15,7 @@ use core_test_support::responses;
 use core_test_support::responses::start_mock_server;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event_match;
 use core_test_support::wait_for_event_with_timeout;
@@ -140,7 +140,7 @@ fn registered_queue_extensions() -> (
 }
 
 fn install_registered_queue(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     installed: &InstalledQueue,
 ) -> anyhow::Result<Arc<QueuedItemService>> {
     let service = Arc::new(QueuedItemService::new(
@@ -189,7 +189,7 @@ if payload["prompt"] == "blocked":
         .unwrap_or_else(|error| panic!("write queue hooks: {error}"));
 }
 
-async fn wait_for_hooked_turn(test: &TestMapleCode) {
+async fn wait_for_hooked_turn(test: &TestMaplecode) {
     core_test_support::wait_for_event(test.maplecode.as_ref(), |event| {
         match event {
             EventMsg::HookCompleted(hook) => {
@@ -214,7 +214,7 @@ async fn test_queue() -> anyhow::Result<(Arc<dyn QueueStore>, TempDir)> {
     Ok((queue, home))
 }
 
-fn loaded_thread_queue(test: &TestMapleCode) -> anyhow::Result<Arc<dyn QueueStore>> {
+fn loaded_thread_queue(test: &TestMaplecode) -> anyhow::Result<Arc<dyn QueueStore>> {
     let runtime = test
         .maplecode
         .state_db()

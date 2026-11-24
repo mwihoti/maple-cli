@@ -6,7 +6,7 @@ use crate::GuardianReviewError;
 use crate::GuardianReviewOutcome;
 use crate::ReviewDeadline;
 use maplecode_analytics::GuardianReviewAnalyticsResult;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use rand::Rng;
 use std::future::Future;
 use std::time::Duration;
@@ -183,33 +183,33 @@ fn should_retry_guardian_review(outcome: &GuardianReviewOutcome) -> bool {
             error_info: Some(error),
             ..
         }) => match error {
-            MapleCodeErrorInfo::RateLimitExceeded
-            | MapleCodeErrorInfo::FlexUnavailable
-            | MapleCodeErrorInfo::ServerOverloaded
-            | MapleCodeErrorInfo::PolicyCapacityUnavailable
-            | MapleCodeErrorInfo::InternalServerError => true,
-            MapleCodeErrorInfo::HttpConnectionFailed { http_status_code }
-            | MapleCodeErrorInfo::ResponseStreamConnectionFailed { http_status_code }
-            | MapleCodeErrorInfo::ResponseStreamDisconnected { http_status_code }
-            | MapleCodeErrorInfo::ResponseTooManyFailedAttempts { http_status_code } => {
+            MaplecodeErrorInfo::RateLimitExceeded
+            | MaplecodeErrorInfo::FlexUnavailable
+            | MaplecodeErrorInfo::ServerOverloaded
+            | MaplecodeErrorInfo::PolicyCapacityUnavailable
+            | MaplecodeErrorInfo::InternalServerError => true,
+            MaplecodeErrorInfo::HttpConnectionFailed { http_status_code }
+            | MaplecodeErrorInfo::ResponseStreamConnectionFailed { http_status_code }
+            | MaplecodeErrorInfo::ResponseStreamDisconnected { http_status_code }
+            | MaplecodeErrorInfo::ResponseTooManyFailedAttempts { http_status_code } => {
                 matches!(http_status_code, None | Some(408 | 429 | 500..=599))
             }
-            MapleCodeErrorInfo::ContextWindowExceeded
-            | MapleCodeErrorInfo::SessionBudgetExceeded
-            | MapleCodeErrorInfo::UsageLimitExceeded
-            | MapleCodeErrorInfo::InferenceHookDenied
-            | MapleCodeErrorInfo::CyberPolicy
-            | MapleCodeErrorInfo::BioPolicy
-            | MapleCodeErrorInfo::MisalignmentPolicyViolation
-            | MapleCodeErrorInfo::TooManyDenials
-            | MapleCodeErrorInfo::Unauthorized
-            | MapleCodeErrorInfo::BadRequest
-            | MapleCodeErrorInfo::ModelNotFound
-            | MapleCodeErrorInfo::InvalidPrompt
-            | MapleCodeErrorInfo::SandboxError
-            | MapleCodeErrorInfo::ActiveTurnNotSteerable { .. }
-            | MapleCodeErrorInfo::ThreadRollbackFailed
-            | MapleCodeErrorInfo::Other => false,
+            MaplecodeErrorInfo::ContextWindowExceeded
+            | MaplecodeErrorInfo::SessionBudgetExceeded
+            | MaplecodeErrorInfo::UsageLimitExceeded
+            | MaplecodeErrorInfo::InferenceHookDenied
+            | MaplecodeErrorInfo::CyberPolicy
+            | MaplecodeErrorInfo::BioPolicy
+            | MaplecodeErrorInfo::MisalignmentPolicyViolation
+            | MaplecodeErrorInfo::TooManyDenials
+            | MaplecodeErrorInfo::Unauthorized
+            | MaplecodeErrorInfo::BadRequest
+            | MaplecodeErrorInfo::ModelNotFound
+            | MaplecodeErrorInfo::InvalidPrompt
+            | MaplecodeErrorInfo::SandboxError
+            | MaplecodeErrorInfo::ActiveTurnNotSteerable { .. }
+            | MaplecodeErrorInfo::ThreadRollbackFailed
+            | MaplecodeErrorInfo::Other => false,
         },
         GuardianReviewOutcome::CachedApproval
         | GuardianReviewOutcome::Completed(_)

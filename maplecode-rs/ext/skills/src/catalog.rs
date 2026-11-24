@@ -9,7 +9,7 @@ use std::sync::Arc;
 /// Source authority that owns a skill package and must be used to read it.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum SkillSourceKind {
-    /// MapleCode-hosted skills, including bundled, user, repo, plugin-installed,
+    /// Maplecode-hosted skills, including bundled, user, repo, plugin-installed,
     /// and downloaded/materialized remote skills.
     Host,
     /// Skills owned by an execution environment.

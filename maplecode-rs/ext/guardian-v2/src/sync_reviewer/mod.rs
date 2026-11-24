@@ -5,7 +5,7 @@
 use std::sync::Arc;
 use std::sync::Weak;
 
-use maplecode_core::MapleCodeResponsesHeaders;
+use maplecode_core::MaplecodeResponsesHeaders;
 use maplecode_core::ThreadManager;
 use maplecode_core::config::Config;
 use maplecode_core::config::Constrained;
@@ -100,7 +100,7 @@ impl ThreadLifecycleContributor<Config> for GuardianExtension {
                             );
                             options
                                 .thread_extension_init
-                                .insert(MapleCodeResponsesHeaders {
+                                .insert(MaplecodeResponsesHeaders {
                                     model: provider.approval_review_preferred_model().to_owned(),
                                     headers: http::HeaderMap::from_iter([(
                                         http::HeaderName::from_static("x-maplecode-guardian"),

@@ -4,7 +4,7 @@ use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_utils_output_truncation::TruncationPolicy;
@@ -37,7 +37,7 @@ async fn routes_through_maplecode_backend_and_injects_trusted_session_agent_cont
         HeaderValue::from_static("actor-biscuit"),
     );
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::Headers(AuthHeaders::new(headers)));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::Headers(AuthHeaders::new(headers)));
     let provider = create_model_provider(
         ModelProviderInfo::create_openai_provider(Some(format!(
             "{}/backend-api/codex",
@@ -119,7 +119,7 @@ async fn marks_encrypted_history_and_notes_arguments_without_changing_the_json_b
             .await;
     }
 
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::Headers(
+    let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::Headers(
         AuthHeaders::new(HeaderMap::new()),
     ));
     let backend = HistoryNotesBackend::new(

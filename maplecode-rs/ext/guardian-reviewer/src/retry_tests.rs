@@ -17,7 +17,7 @@ fn guardian_review_error_reason_distinguishes_error_kinds() {
     let session_error = GuardianReviewError::session(anyhow::anyhow!("guardian runtime failed"));
     let structured_session_error = GuardianReviewError::session_with_error_info(
         anyhow::anyhow!("temporary guardian failure"),
-        MapleCodeErrorInfo::ServerOverloaded,
+        MaplecodeErrorInfo::ServerOverloaded,
     );
 
     assert!(matches!(
@@ -47,17 +47,17 @@ fn guardian_review_retry_only_retries_recoverable_errors() {
         rationale: "deny".to_string(),
     };
     let transient_error_info = [
-        MapleCodeErrorInfo::ServerOverloaded,
-        MapleCodeErrorInfo::PolicyCapacityUnavailable,
-        MapleCodeErrorInfo::FlexUnavailable,
-        MapleCodeErrorInfo::HttpConnectionFailed {
+        MaplecodeErrorInfo::ServerOverloaded,
+        MaplecodeErrorInfo::PolicyCapacityUnavailable,
+        MaplecodeErrorInfo::FlexUnavailable,
+        MaplecodeErrorInfo::HttpConnectionFailed {
             http_status_code: Some(502),
         },
-        MapleCodeErrorInfo::ResponseStreamConnectionFailed {
+        MaplecodeErrorInfo::ResponseStreamConnectionFailed {
             http_status_code: Some(503),
         },
-        MapleCodeErrorInfo::InternalServerError,
-        MapleCodeErrorInfo::ResponseStreamDisconnected {
+        MaplecodeErrorInfo::InternalServerError,
+        MaplecodeErrorInfo::ResponseStreamDisconnected {
             http_status_code: None,
         },
     ];
@@ -96,28 +96,28 @@ fn guardian_review_retry_only_retries_recoverable_errors() {
         (
             GuardianReviewOutcome::Error(GuardianReviewError::session_with_error_info(
                 anyhow::anyhow!("bad request"),
-                MapleCodeErrorInfo::BadRequest,
+                MaplecodeErrorInfo::BadRequest,
             )),
             false,
         ),
         (
             GuardianReviewOutcome::Error(GuardianReviewError::session_with_error_info(
                 anyhow::anyhow!("bio policy"),
-                MapleCodeErrorInfo::BioPolicy,
+                MaplecodeErrorInfo::BioPolicy,
             )),
             false,
         ),
         (
             GuardianReviewOutcome::Error(GuardianReviewError::session_with_error_info(
                 anyhow::anyhow!("invalid prompt"),
-                MapleCodeErrorInfo::InvalidPrompt,
+                MaplecodeErrorInfo::InvalidPrompt,
             )),
             false,
         ),
         (
             GuardianReviewOutcome::Error(GuardianReviewError::session_with_error_info(
                 anyhow::anyhow!("workspace inference hook denied the request"),
-                MapleCodeErrorInfo::InferenceHookDenied,
+                MaplecodeErrorInfo::InferenceHookDenied,
             )),
             false,
         ),

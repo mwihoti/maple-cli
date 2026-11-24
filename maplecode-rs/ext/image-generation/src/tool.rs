@@ -28,8 +28,8 @@ use maplecode_extension_items::image_generation::GeneratedImageRef;
 use maplecode_extension_items::image_generation::ImageGenerationFailure;
 use maplecode_extension_items::image_generation::ImageGenerationInputImage;
 use maplecode_extension_items::image_generation::ImageGenerationItem;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::DEFAULT_IMAGE_DETAIL;
 use maplecode_protocol::models::FunctionCallOutputBody;
@@ -63,7 +63,7 @@ use crate::IMAGEGEN_TOOL_NAME;
 use crate::artifact::GeneratedImageFormat;
 use crate::artifact::image_generation_artifact_path;
 use crate::artifact::image_generation_output_hint;
-use crate::backend::MapleCodeImagesBackend;
+use crate::backend::MaplecodeImagesBackend;
 
 const IMAGE_MODEL: &str = "gpt-image-2";
 const MAX_EDIT_IMAGES: usize = 5;
@@ -75,7 +75,7 @@ const IMAGEGEN_GIF_DESCRIPTION: &str = include_str!("../imagegen_gif_description
 
 #[derive(Clone)]
 pub(crate) struct ImageGenerationTool {
-    backend: MapleCodeImagesBackend,
+    backend: MaplecodeImagesBackend,
     save_root: Option<AbsolutePathBuf>,
     thread_id: String,
     gif_enabled: bool,
@@ -84,7 +84,7 @@ pub(crate) struct ImageGenerationTool {
 impl ImageGenerationTool {
     /// Creates an image-generation tool backed by an image API executor.
     pub(crate) fn new(
-        backend: MapleCodeImagesBackend,
+        backend: MaplecodeImagesBackend,
         save_root: Option<AbsolutePathBuf>,
         thread_id: String,
         gif_enabled: bool,
@@ -343,8 +343,8 @@ impl ImageGenerationTool {
     }
 }
 
-fn usage_limit_failure(error: &MapleCodeErr) -> Option<ImageGenerationFailure> {
-    let MapleCodeErrorDetails::UsageLimitReached(usage_limit) = error.details() else {
+fn usage_limit_failure(error: &MaplecodeErr) -> Option<ImageGenerationFailure> {
+    let MaplecodeErrorDetails::UsageLimitReached(usage_limit) = error.details() else {
         return None;
     };
     let rate_limits = usage_limit.rate_limits.as_deref()?;

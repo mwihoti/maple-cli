@@ -53,7 +53,7 @@ policy:
     let root_uri = PathUri::from_host_native_path(root.path()).expect("root URI");
     let file_system = FileSystemEnvironmentAccessor::unrestricted(&LOCAL_FS);
     let outcome =
-        load_environment_skills_from_root(&file_system, &root_uri, Some(Product::MapleCode)).await;
+        load_environment_skills_from_root(&file_system, &root_uri, Some(Product::Maplecode)).await;
 
     assert_eq!(
         outcome.skills,
@@ -75,7 +75,7 @@ policy:
             }),
             policy: Some(SkillPolicy {
                 allow_implicit_invocation: Some(false),
-                products: vec![Product::MapleCode, Product::Atlas],
+                products: vec![Product::Maplecode, Product::Atlas],
             }),
         }]
     );

@@ -145,7 +145,7 @@ impl HostSkillsService {
         Self::new_with_restriction_product(
             maplecode_home,
             bundled_skills_enabled,
-            Some(Product::MapleCode),
+            Some(Product::Maplecode),
         )
     }
 

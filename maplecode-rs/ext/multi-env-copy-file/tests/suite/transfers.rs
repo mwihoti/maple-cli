@@ -304,7 +304,7 @@ async fn copy_hooks_follow_source_and_target(swap_endpoints: bool) -> Result<()>
         .with_config(|config| {
             config
                 .features
-                .enable(Feature::MapleCodeHooks)
+                .enable(Feature::MaplecodeHooks)
                 .expect("enable hooks");
         })
         .build_with_auto_env(&server)

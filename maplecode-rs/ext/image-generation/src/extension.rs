@@ -16,7 +16,7 @@ use maplecode_login::AuthManager;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
 
-use crate::backend::MapleCodeImagesBackend;
+use crate::backend::MaplecodeImagesBackend;
 use crate::tool::ImageGenerationTool;
 
 #[derive(Clone)]
@@ -107,7 +107,7 @@ impl ToolContributor for ImageGenerationExtension {
             });
 
         vec![Arc::new(ImageGenerationTool::new(
-            MapleCodeImagesBackend::new(
+            MaplecodeImagesBackend::new(
                 auth.model_provider(config.provider.clone()),
                 config.http_client_factory.clone(),
                 thread_store

@@ -11,7 +11,7 @@ use maplecode_extension_api::ToolSpec;
 use maplecode_extension_items::image_generation::ImageGenerationFailure;
 use maplecode_extension_items::image_generation::ImageGenerationInputImage;
 use maplecode_protocol::ResponseItemId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::UsageLimitReachedError;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::DEFAULT_IMAGE_DETAIL;
@@ -56,7 +56,7 @@ fn test_usage_limit_failure_without_an_exhausted_window_reset() {
         (Some("premium"), None),
         (None, None),
     ] {
-        let error = MapleCodeErr::UsageLimitReached(UsageLimitReachedError {
+        let error = MaplecodeErr::UsageLimitReached(UsageLimitReachedError {
             plan_type: None,
             resets_at: None,
             limit_window_minutes: None,

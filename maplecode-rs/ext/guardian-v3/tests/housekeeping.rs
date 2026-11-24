@@ -17,7 +17,7 @@ use maplecode_guardian_v3::HOUSEKEEPER_INSTRUCTIONS;
 use maplecode_guardian_v3::HOUSEKEEPER_TIMEOUT;
 use maplecode_guardian_v3::Housekeeper;
 use maplecode_guardian_v3::local_board;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RolloutItem;
 use maplecode_message_board::AgentMessageBoard;
@@ -82,7 +82,7 @@ async fn routes_captured_originals_and_updates_descriptions(
     let original = ResponseItemEnvelope {
         item: serde_json::from_value(json!({"type":"message","id":"msg-policy","role":"user",
             "content":[{"type":"input_text","text":"Do not publish the release."}]}))?,
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             user_input_order: Some(1),
             ..Default::default()
         }),
@@ -105,7 +105,7 @@ async fn routes_captured_originals_and_updates_descriptions(
                 json!({"type":"message","id":format!("msg-later-{user_input_order}"),"role":"user",
                 "content":[{"type":"input_text","text":"The later message is outside this capture.".repeat(8)}]}),
             )?,
-            metadata: Some(MapleCodeHarnessMetadata {
+            metadata: Some(MaplecodeHarnessMetadata {
                 user_input_order: Some(user_input_order),
                 ..Default::default()
             }),

@@ -31,7 +31,7 @@ use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::NetworkPolicy;
 use maplecode_login::AuthChangeState;
 use maplecode_login::AuthOwner;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::default_client::ClientRedirectPolicy;
 use maplecode_login::default_client::add_originator_header;
 use maplecode_login::default_client::create_client_for_route_async;
@@ -456,9 +456,9 @@ impl ConnectionPool {
         }
         Ok(headers)
     }
-    fn responses_request_kind(&self, auth: Option<&MapleCodeAuth>) -> RequestMode {
+    fn responses_request_kind(&self, auth: Option<&MaplecodeAuth>) -> RequestMode {
         let provider = self.config.provider.info();
-        if auth.is_some_and(MapleCodeAuth::uses_maplecode_backend)
+        if auth.is_some_and(MaplecodeAuth::uses_maplecode_backend)
             && provider.is_openai()
             && provider.requires_openai_auth
             && provider.env_key.is_none()

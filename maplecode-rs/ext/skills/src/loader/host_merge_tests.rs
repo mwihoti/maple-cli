@@ -187,7 +187,7 @@ async fn product_filtered_native_skill_does_not_hide_migrated_command() {
     let outcome = load_and_merge_host_skill_roots(
         fixture.roots(),
         &Semaphore::new(2),
-        Some(Product::MapleCode),
+        Some(Product::Maplecode),
         /*plugin_skill_snapshots*/ None,
     )
     .await;

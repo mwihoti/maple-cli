@@ -28,10 +28,10 @@ use maplecode_login::AuthManager;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::EffectiveMcpServer;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
-use maplecode_mcp::MapleCodeAppsResourceListParams;
+use maplecode_mcp::MaplecodeAppsResourceListParams;
 use maplecode_mcp::McpEventNotification;
 use maplecode_mcp::McpResourceClient;
 use maplecode_mcp::McpRuntime;
@@ -224,7 +224,7 @@ impl Fixture {
         let url = format!("http://{}", listener.local_addr()?);
         let server = tokio::spawn(async move { axum::serve(listener, router).await });
         let home = tempfile::tempdir()?;
-        let auth_value = MapleCodeAuth::from_external_chatgpt_tokens(
+        let auth_value = MaplecodeAuth::from_external_chatgpt_tokens(
             "header.e30.first",
             "account",
             /*chatgpt_plan_type*/ None,
@@ -331,7 +331,7 @@ async fn apps_resource_discovery_during_initial_tools_list() -> Result<()> {
             .context("initial tools/list did not start")?;
         let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
         let mut page = Box::pin(reader.list_maplecode_apps_resources(
-            MapleCodeAppsResourceListParams {
+            MaplecodeAppsResourceListParams {
                 mime_type: "mcp/plugin".into(),
                 cursor: None,
             },
@@ -381,7 +381,7 @@ async fn apps_resource_discovery_times_out_during_stalled_initialization() -> Re
     let fixture = Fixture::start(Some(Arc::clone(&blocked)), /*early_resources*/ true).await?;
     let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
     let mut page = Box::pin(reader.list_maplecode_apps_resources(
-        MapleCodeAppsResourceListParams {
+        MaplecodeAppsResourceListParams {
             mime_type: "mcp/plugin".into(),
             cursor: None,
         },
@@ -416,7 +416,7 @@ async fn apps_resource_discovery_multiplexes_catalogs_while_tools_list_is_pendin
     let plugin_reader = reader.clone();
     let plugin = tokio::spawn(async move {
         plugin_reader
-            .list_maplecode_apps_resources(MapleCodeAppsResourceListParams {
+            .list_maplecode_apps_resources(MaplecodeAppsResourceListParams {
                 mime_type: "mcp/plugin".into(),
                 cursor: None,
             })
@@ -427,7 +427,7 @@ async fn apps_resource_discovery_multiplexes_catalogs_while_tools_list_is_pendin
         .context("plugin request did not reach the server while tools/list was pending")?;
     let skill = timeout(
         WAIT,
-        reader.list_maplecode_apps_resources(MapleCodeAppsResourceListParams {
+        reader.list_maplecode_apps_resources(MaplecodeAppsResourceListParams {
             mime_type: "mcp/skill".into(),
             cursor: None,
         }),
@@ -466,7 +466,7 @@ async fn apps_resource_discovery_propagates_initial_tools_list_failure() -> Resu
     timeout(WAIT, blocked.started.notified()).await?;
     let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
     let mut page = Box::pin(reader.list_maplecode_apps_resources(
-        MapleCodeAppsResourceListParams {
+        MaplecodeAppsResourceListParams {
             mime_type: "mcp/plugin".into(),
             cursor: None,
         },
@@ -504,7 +504,7 @@ async fn apps_resource_discovery_observes_cancellation_after_inventory_finishes(
     timeout(WAIT, blocked.started.notified()).await?;
     let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
     let mut page = Box::pin(reader.list_maplecode_apps_resources(
-        MapleCodeAppsResourceListParams {
+        MaplecodeAppsResourceListParams {
             mime_type: "mcp/plugin".into(),
             cursor: None,
         },
@@ -543,7 +543,7 @@ async fn apps_resource_discovery_discards_invalidated_page() -> Result<()> {
         let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
         let page = tokio::spawn(async move {
             reader
-                .list_maplecode_apps_resources(MapleCodeAppsResourceListParams {
+                .list_maplecode_apps_resources(MaplecodeAppsResourceListParams {
                     mime_type: "mcp/skill".into(),
                     cursor: None,
                 })
@@ -576,7 +576,7 @@ async fn apps_resource_discovery_discards_page_after_account_switch() -> Result<
     timeout(WAIT, blocked.started.notified()).await?;
     let reader = McpResourceClient::new(Arc::clone(&fixture.runtime));
     let mut page = Box::pin(reader.list_maplecode_apps_resources(
-        MapleCodeAppsResourceListParams {
+        MaplecodeAppsResourceListParams {
             mime_type: "mcp/skill".into(),
             cursor: None,
         },
@@ -587,7 +587,7 @@ async fn apps_resource_discovery_discards_page_after_account_switch() -> Result<
     }
 
     let previous_auth = reader.auth_cache_key_for_server(MAPLECODE_APPS_MCP_SERVER_NAME);
-    let next_auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let next_auth = MaplecodeAuth::from_external_chatgpt_tokens(
         "header.e30.second",
         "second-account",
         /*chatgpt_plan_type*/ None,
@@ -610,13 +610,13 @@ async fn apps_resource_discovery_discards_page_after_account_switch() -> Result<
     Ok(())
 }
 
-pub(super) struct StaticAuth(pub MapleCodeAuth);
+pub(super) struct StaticAuth(pub MaplecodeAuth);
 
 impl ExternalAuth for StaticAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
-    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -631,7 +631,7 @@ async fn event_connections_open_after_runtime_shutdown_with_current_auth() -> Re
     fixture
         .auth
         .set_external_auth(Arc::new(StaticAuth(
-            MapleCodeAuth::from_external_chatgpt_tokens(
+            MaplecodeAuth::from_external_chatgpt_tokens(
                 "header.e30.refreshed",
                 "account",
                 /*chatgpt_plan_type*/ None,

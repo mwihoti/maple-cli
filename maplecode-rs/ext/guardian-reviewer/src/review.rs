@@ -18,7 +18,7 @@ use maplecode_protocol::protocol::ErrorEvent;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::GuardianAssessmentEvent;
 use maplecode_protocol::protocol::GuardianAssessmentOutcome;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::ReviewDecision;
 use maplecode_protocol::protocol::WarningEvent;
 use std::future::Future;
@@ -236,7 +236,7 @@ impl<H: ReviewHost> SynchronousApprovalReviewer for ReviewRequest<'_, H> {
                                 }),
                                 ErrorEvent {
                                     message,
-                                    maplecode_error_info: Some(MapleCodeErrorInfo::TooManyDenials),
+                                    maplecode_error_info: Some(MaplecodeErrorInfo::TooManyDenials),
                                     rejected_audio_file_ids: Vec::new(),
                                     misalignment: None,
                                 },

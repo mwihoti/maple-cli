@@ -529,7 +529,7 @@ async fn run_cloud_catalog_refresh_lifecycle() -> anyhow::Result<()> {
         .with_exec_server_url("none")
         .with_extensions(Arc::new(extensions.build()))
         .with_auth(
-            maplecode_login::MapleCodeAuth::from_external_chatgpt_tokens(
+            maplecode_login::MaplecodeAuth::from_external_chatgpt_tokens(
                 "header.e30.initial",
                 "account-a",
                 /*chatgpt_plan_type*/ None,

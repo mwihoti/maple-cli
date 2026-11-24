@@ -1,8 +1,8 @@
 //! Turn lifecycle inputs and scheduling phases for host-owned contributors.
 
 use maplecode_protocol::config_types::CollaborationMode;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::TokenUsage;
 use maplecode_protocol::protocol::TurnAbortReason;
 
@@ -69,9 +69,9 @@ pub struct TurnErrorInput<'a> {
     /// Stable host-owned turn identifier.
     pub turn_id: &'a str,
     /// Error surfaced by the host for this turn.
-    pub error: MapleCodeErrorInfo,
+    pub error: MaplecodeErrorInfo,
     /// Original error details, including backend metadata omitted from the public category.
-    pub error_details: &'a MapleCodeErrorDetails,
+    pub error_details: &'a MaplecodeErrorDetails,
     /// Store scoped to the host session runtime.
     pub session_store: &'a ExtensionData,
     /// Store scoped to this thread runtime.

@@ -9,7 +9,7 @@ use maplecode_extension_api::McpToolSource;
 use maplecode_features::Feature;
 use maplecode_guardian_context::TrustedTool;
 use maplecode_guardian_context::TrustedToolSource;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -122,7 +122,7 @@ async fn trusts_connector_declared_by_home_owned_plugin() -> Result<()> {
 
     let server = responses::start_mock_server().await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_pre_build_hook(|home| {
             let plugin_root = home.join("plugins/cache/test/trusted/local");
             std::fs::create_dir_all(plugin_root.join(".maplecode-plugin"))

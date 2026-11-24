@@ -207,9 +207,9 @@ async fn cold_pool_uses_http_during_open_timeout_then_recovers_after_cooldown() 
             ModelProviderInfo::create_openai_provider(Some(base_url)),
             Some(AuthManager::from_auth_for_testing(
                 if uses_maplecode_backend {
-                    MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()
+                    MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()
                 } else {
-                    MapleCodeAuth::from_api_key("test-api-key")
+                    MaplecodeAuth::from_api_key("test-api-key")
                 },
             )),
         );
@@ -520,7 +520,7 @@ async fn sampling_uses_new_credentials_after_logout_and_login() -> Result<()> {
     skip_if_no_network!(Ok(()));
     let home = tempfile::tempdir()?;
     let auth = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("initial-key"),
+        MaplecodeAuth::from_api_key("initial-key"),
         home.path().to_path_buf(),
     );
     let server = responses::start_mock_server().await;
@@ -584,7 +584,7 @@ async fn sampling_uses_new_credentials_after_logout_and_login() -> Result<()> {
 async fn http_cache_preserves_no_constraint_redirect_policy_and_configured_headers() -> Result<()> {
     let base_url = "https://localhost:9/backend-api/codex".to_owned();
     let auth =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let resolver = Arc::new(RoutingPolicy(Mutex::new(None)));
     let routing_owner: Arc<dyn WorkspaceRoutingResolver> = resolver.clone();
     auth.set_workspace_routing_resolver(Arc::downgrade(&routing_owner));
@@ -660,7 +660,7 @@ async fn http_cache_preserves_no_constraint_redirect_policy_and_configured_heade
 async fn runtime_transports_authenticate_each_classification() -> Result<()> {
     use base64::Engine;
     use maplecode_features::RuntimeAuthMode;
-    use maplecode_login::MapleCodeAuth;
+    use maplecode_login::MaplecodeAuth;
     use maplecode_runtime_agent_instance::AgentHostAuthorization;
     use maplecode_runtime_agent_instance::RuntimeAuthManager;
     use maplecode_runtime_agent_instance::RuntimeRegistrationMetadata;
@@ -672,16 +672,16 @@ async fn runtime_transports_authenticate_each_classification() -> Result<()> {
     use wiremock::matchers::method;
     use wiremock::matchers::path;
 
-    struct MutableAuth(Mutex<MapleCodeAuth>);
+    struct MutableAuth(Mutex<MaplecodeAuth>);
     impl maplecode_login::ExternalAuth for MutableAuth {
-        fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+        fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
             Box::pin(async { Ok(self.0.lock().unwrap().clone()) })
         }
 
         fn refresh(
             &self,
             _context: maplecode_login::ExternalAuthRefreshContext,
-        ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+        ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
             self.resolve()
         }
     }
@@ -699,7 +699,7 @@ async fn runtime_transports_authenticate_each_classification() -> Result<()> {
             let websocket = transport == "websocket";
             let denied = transport == "denied";
             let changed_auth = transport == "changed_auth";
-            let source = Arc::new(MutableAuth(Mutex::new(MapleCodeAuth::from_api_key(
+            let source = Arc::new(MutableAuth(Mutex::new(MaplecodeAuth::from_api_key(
                 "guardian-key",
             ))));
             let registration = MockServer::start().await;
@@ -746,7 +746,7 @@ async fn runtime_transports_authenticate_each_classification() -> Result<()> {
                 .respond_with(move |_request: &wiremock::Request| {
                     if changed_auth {
                         *handshake_source.0.lock().unwrap() =
-                            MapleCodeAuth::from_api_key("replacement-key");
+                            MaplecodeAuth::from_api_key("replacement-key");
                     }
                     upgrade_response.clone()
                 })
@@ -779,7 +779,7 @@ async fn runtime_transports_authenticate_each_classification() -> Result<()> {
             );
             let mut config = sampler_config(url);
             let credentials =
-                AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("guardian-key"));
+                AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("guardian-key"));
             if changed_auth {
                 credentials.set_external_auth(source.clone()).await?;
             }

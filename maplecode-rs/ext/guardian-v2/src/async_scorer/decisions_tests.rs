@@ -10,7 +10,7 @@ use maplecode_guardian_context::TrustedToolSource;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::ProviderAuthContext;
 use maplecode_protocol::models::ContentItemKind;
 use maplecode_protocol::models::ContentItemMetadata;
@@ -119,7 +119,7 @@ fn current_key(credential: DecisionsCredential) -> Result<String, DecisionsError
 async fn decisions_key_lookup_honors_override_or_reloaded_login() {
     let home = tempfile::tempdir().unwrap();
     let manager = maplecode_login::AuthManager::from_auth_for_testing_with_home(
-        maplecode_login::MapleCodeAuth::from_api_key("old-account-key"),
+        maplecode_login::MaplecodeAuth::from_api_key("old-account-key"),
         home.path().to_path_buf(),
     );
     let mut config = core_test_support::load_default_config_for_test(&home).await;
@@ -131,7 +131,7 @@ async fn decisions_key_lookup_honors_override_or_reloaded_login() {
         credentials: manager.clone(),
         runtime_auth: Some((runtime, config.runtime_auth_mode)),
     };
-    let harness = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("harness-key"));
+    let harness = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("harness-key"));
     let pinned = select_api_key("openai", /*base_url*/ None, Some(&context), &harness);
     context.runtime_auth = None;
     let live = select_api_key("openai", /*base_url*/ None, Some(&context), &harness);
@@ -183,7 +183,7 @@ fn decisions_prefers_cached_api_key_over_openai_env() -> anyhow::Result<()> {
         return Ok(());
     }
     let auth_key = "synthetic-auth-key";
-    let cached = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(auth_key));
+    let cached = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key(auth_key));
     assert!(
         decisions_api_key("openai", /*base_url*/ None, &cached) == Ok(auth_key.into()),
         "cached API-key auth must take priority over OPENAI_API_KEY"
@@ -193,7 +193,7 @@ fn decisions_prefers_cached_api_key_over_openai_env() -> anyhow::Result<()> {
         "sk-svcacct-fedramp-synthetic",
         " sk-proj-fedramp-synthetic",
     ] {
-        let cached = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key(auth_key));
+        let cached = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key(auth_key));
         assert!(matches!(
             decisions_api_key("openai", /*base_url*/ None, &cached),
             Err(DecisionsError::Credentials)
@@ -221,7 +221,7 @@ fn decisions_falls_back_to_openai_env_key() -> anyhow::Result<()> {
         return Ok(());
     }
     let chatgpt =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     assert!(
         decisions_api_key("openai", /*base_url*/ None, &chatgpt) == Ok(env_key.into()),
         "use OPENAI_API_KEY when neither a Guardian key nor a cached API key is available"
@@ -329,7 +329,7 @@ async fn http_contract_and_untrusted_response_validation() {
 async fn decisions_admits_newest_request_by_cancelling_oldest() {
     core_test_support::skip_if_no_network!();
     let home = tempfile::tempdir().unwrap();
-    let initial = MapleCodeAuth::from_api_key("old-key");
+    let initial = MaplecodeAuth::from_api_key("old-key");
     let manager = AuthManager::from_auth_for_testing_with_home(initial, home.path().into());
     let server = MockServer::start().await;
     Mock::given(method("POST"))
@@ -510,7 +510,7 @@ async fn decisions_reuses_saved_runtime_and_isolates_an_identical_explicit_key()
     core_test_support::skip_if_no_network!(Ok(()));
     if std::env::var_os(PROBE_SERVER).is_some() {
         let credentials =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("same-key"));
+            AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("same-key"));
         let runtime = Arc::new(RuntimeAuthManager::new(
             Arc::clone(&credentials),
             AgentHostAuthorization::InstallationId {

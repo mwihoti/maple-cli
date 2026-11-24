@@ -6,7 +6,7 @@ use maplecode_extension_api::ExtensionData;
 use maplecode_extension_api::ThreadLifecycleContributor;
 use maplecode_extension_api::ThreadReadyInput;
 use maplecode_extension_api::ThreadStartInput;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::McpEventStreamOpener;
 use maplecode_mcp::McpResourceClient;
 use maplecode_protocol::ThreadId;
@@ -329,7 +329,7 @@ async fn access_changes_cancel_streams_with_full_output() -> Result<()> {
             fixture
                 .auth
                 .set_external_auth(Arc::new(StaticAuth(
-                    MapleCodeAuth::from_external_chatgpt_tokens(
+                    MaplecodeAuth::from_external_chatgpt_tokens(
                         "header.e30.other",
                         "other-account",
                         /*chatgpt_plan_type*/ None,

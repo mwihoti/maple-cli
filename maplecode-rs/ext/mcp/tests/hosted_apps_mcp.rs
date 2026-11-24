@@ -11,7 +11,7 @@ use maplecode_extension_api::McpServerContribution;
 use maplecode_extension_api::McpServerContributionContext;
 use maplecode_extension_api::McpServerContributor;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::test_support::auth_manager_from_optional_auth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::McpServerKey;
@@ -31,7 +31,7 @@ async fn contributes_hosted_plugin_runtime_without_an_executor() -> TestResult {
         ])
         .build()
         .await?;
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let manager = installed_manager(&config, Some(auth.clone()));
 
     let servers = manager.effective_servers(&config, Some(&auth)).await;
@@ -69,7 +69,7 @@ async fn runtime_overlay_preserves_disabled_server() -> TestResult {
         )
         .build()
         .await?;
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let manager = installed_manager(&config, Some(auth.clone()));
 
     let configured = manager.configured_servers(&config).await;
@@ -110,7 +110,7 @@ async fn default_fallback_overwrites_reserved_config_without_an_extension() -> T
         ])
         .build()
         .await?;
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let manager = McpManager::new(Arc::new(plugins_manager_for_config(
         &config,
         AuthManager::from_auth_for_testing(auth.clone()),
@@ -138,17 +138,17 @@ async fn later_extension_can_remove_same_name_registration() -> TestResult {
         .cli_overrides(vec![("features.apps".to_string(), true.into())])
         .build()
         .await?;
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let mut builder = ExtensionRegistryBuilder::new();
     maplecode_mcp_extension::install(&mut builder);
-    builder.mcp_server_contributor(Arc::new(RemoveMapleCodeApps));
+    builder.mcp_server_contributor(Arc::new(RemoveMaplecodeApps));
     let manager = McpManager::new_with_extensions(
         Arc::new(plugins_manager_for_config(
             &config,
             AuthManager::from_auth_for_testing(auth.clone()),
         )),
         Arc::new(builder.build()),
-        maplecode_core::MapleCodeAppsToolsCache::default(),
+        maplecode_core::MaplecodeAppsToolsCache::default(),
     );
 
     let servers = manager.effective_servers(&config, Some(&auth)).await;
@@ -166,7 +166,7 @@ async fn hosted_apps_mcp_requires_chatgpt_auth() -> TestResult {
         .cli_overrides(vec![("features.apps".to_string(), true.into())])
         .build()
         .await?;
-    let auth = MapleCodeAuth::from_api_key("test");
+    let auth = MaplecodeAuth::from_api_key("test");
     let manager = installed_manager(&config, Some(auth.clone()));
 
     let servers = manager.effective_servers(&config, Some(&auth)).await;
@@ -204,7 +204,7 @@ async fn disabled_apps_remove_reserved_server_config_for_all_hosts() -> TestResu
     Ok(())
 }
 
-fn installed_manager(config: &Config, auth: Option<MapleCodeAuth>) -> McpManager {
+fn installed_manager(config: &Config, auth: Option<MaplecodeAuth>) -> McpManager {
     let mut builder = ExtensionRegistryBuilder::new();
     maplecode_mcp_extension::install(&mut builder);
     McpManager::new_with_extensions(
@@ -213,13 +213,13 @@ fn installed_manager(config: &Config, auth: Option<MapleCodeAuth>) -> McpManager
             auth_manager_from_optional_auth(auth),
         )),
         Arc::new(builder.build()),
-        maplecode_core::MapleCodeAppsToolsCache::default(),
+        maplecode_core::MaplecodeAppsToolsCache::default(),
     )
 }
 
-struct RemoveMapleCodeApps;
+struct RemoveMaplecodeApps;
 
-impl McpServerContributor<Config> for RemoveMapleCodeApps {
+impl McpServerContributor<Config> for RemoveMaplecodeApps {
     fn id(&self) -> &'static str {
         "remove_maplecode_apps"
     }

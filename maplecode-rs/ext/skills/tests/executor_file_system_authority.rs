@@ -722,7 +722,7 @@ async fn executor_discovery_routes_produce_equivalent_catalog_metadata() {
     .expect("write invalid metadata");
 
     let manager = Arc::new(EnvironmentManager::default_for_tests());
-    let provider = ExecutorSkillProvider::new_with_restriction_product(Some(Product::MapleCode));
+    let provider = ExecutorSkillProvider::new_with_restriction_product(Some(Product::Maplecode));
     let executor_roots = vec![SelectedCapabilityRoot {
         id: "parity-root".to_string(),
         location: CapabilityRootLocation::Environment {

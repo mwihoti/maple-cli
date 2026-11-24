@@ -26,7 +26,7 @@ use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AgentIdentityAuthPolicy;
 use maplecode_model_provider::SharedModelProvider;
 use maplecode_model_provider::WorkspaceRoutingContext;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ReasoningEffort;
@@ -111,7 +111,7 @@ pub(super) struct ConversationSample {
 pub enum LunaSamplerError {
     /// The thread's provider or scoped credentials could not be resolved.
     #[error("could not resolve the Luna model provider: {0}")]
-    Provider(#[source] MapleCodeErr),
+    Provider(#[source] MaplecodeErr),
     /// The Responses request could not be opened or streamed.
     #[error("Luna Responses request failed: {0}")]
     Api(#[source] ApiError),

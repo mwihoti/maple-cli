@@ -19,7 +19,7 @@ use maplecode_message_board_mcp::LocalServer;
 use maplecode_message_board_mcp::launch_in_memory;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -59,11 +59,11 @@ impl McpBoards {
         let server = slot
             .get_or_try_init(launch_in_memory)
             .await
-            .map_err(|error| MapleCodeErr::Io(std::io::Error::other(error)))?;
+            .map_err(|error| MaplecodeErr::Io(std::io::Error::other(error)))?;
         server
             .bind_agent(tree, caller, host)
             .await
-            .map_err(|error| MapleCodeErr::Io(std::io::Error::other(error)))?;
+            .map_err(|error| MaplecodeErr::Io(std::io::Error::other(error)))?;
         store.insert(Binding(slot));
         store.insert(PendingMcpRefresh);
         Ok(())

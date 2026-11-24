@@ -13,7 +13,7 @@ use maplecode_login::AuthManager;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::WorkspaceRouting;
 use maplecode_login::WorkspaceRoutingRequest;
 use maplecode_login::WorkspaceRoutingResolver;
@@ -45,7 +45,7 @@ async fn failed_routing_blocks_a_prewarmed_classifier_connection() -> Result<()>
         .await?
         .replace("/v1", "/backend-api/codex");
     let auth =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let mut config = sampler_config(base_url.clone());
     config.provider = create_model_provider(
         ModelProviderInfo::create_openai_provider(Some(base_url)),
@@ -64,13 +64,13 @@ async fn failed_routing_blocks_a_prewarmed_classifier_connection() -> Result<()>
 }
 
 struct AuthAfterRouting {
-    initial: MapleCodeAuth,
-    updated: MapleCodeAuth,
+    initial: MaplecodeAuth,
+    updated: MaplecodeAuth,
     resolved: AtomicBool,
 }
 
 impl ExternalAuth for AuthAfterRouting {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             Ok(if self.resolved.load(Ordering::SeqCst) {
                 self.updated.clone()
@@ -83,7 +83,7 @@ impl ExternalAuth for AuthAfterRouting {
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         ExternalAuth::resolve(self)
     }
 }
@@ -115,12 +115,12 @@ async fn classification_retries_refreshes_but_never_switches_accounts() -> Resul
         .await;
         let home = tempfile::tempdir()?;
         let changes = Arc::new(AuthAfterRouting {
-            initial: MapleCodeAuth::from_external_chatgpt_tokens(
+            initial: MaplecodeAuth::from_external_chatgpt_tokens(
                 &format!("{token}.initial"),
                 "workspace-a",
                 /*chatgpt_plan_type*/ None,
             )?,
-            updated: MapleCodeAuth::from_external_chatgpt_tokens(
+            updated: MaplecodeAuth::from_external_chatgpt_tokens(
                 &format!("{token}.refreshed"),
                 account,
                 /*chatgpt_plan_type*/ None,
@@ -188,7 +188,7 @@ impl WorkspaceRoutingResolver for ChangedBootstrap {
 async fn idle_classifier_retains_the_owning_threads_workspace_binding() -> Result<()> {
     core_test_support::skip_if_no_network!(Ok(()));
     let auth =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let thread_server = responses::start_mock_server().await;
     let test = core_test_support::test_maplecode::test_maplecode()
         .with_auth_manager(Arc::clone(&auth))
@@ -249,12 +249,12 @@ async fn account_switch_cancels_request_opening_and_first_token_waits() -> Resul
         };
         let websocket = responses::start_websocket_server_with_headers(vec![stalled; 2]).await;
         let changes = Arc::new(AuthAfterRouting {
-            initial: MapleCodeAuth::from_external_chatgpt_tokens(
+            initial: MaplecodeAuth::from_external_chatgpt_tokens(
                 token,
                 "workspace-a",
                 /*chatgpt_plan_type*/ None,
             )?,
-            updated: MapleCodeAuth::from_external_chatgpt_tokens(
+            updated: MaplecodeAuth::from_external_chatgpt_tokens(
                 token,
                 "workspace-b",
                 /*chatgpt_plan_type*/ None,

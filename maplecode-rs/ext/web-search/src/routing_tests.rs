@@ -19,7 +19,7 @@ use maplecode_extension_api::ToolContributor;
 use maplecode_extension_api::ToolName;
 use maplecode_extension_api::ToolPayload;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::WorkspaceRouting;
 use maplecode_login::WorkspaceRoutingRequest;
 use maplecode_login::WorkspaceRoutingResolver;
@@ -58,7 +58,7 @@ async fn config_changes_preserve_the_threads_established_routing() {
         "http://127.0.0.1:0/backend-api/codex".into(),
     ));
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let resolver: Arc<dyn WorkspaceRoutingResolver> = Arc::new(ReportBootstrap);
     auth_manager.set_workspace_routing_resolver(Arc::downgrade(&resolver));
     let session_store = ExtensionData::new("session");

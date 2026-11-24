@@ -21,7 +21,7 @@ use maplecode_login::AuthManager;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_prompts::GuardianClassifierInstructions;
@@ -249,7 +249,7 @@ pub(in crate::async_scorer) fn sampler_config(base_url: String) -> LunaSamplerCo
         provider: create_model_provider(
             ModelProviderInfo::create_openai_provider(Some(base_url)),
             Some(AuthManager::from_auth_for_testing(
-                MapleCodeAuth::from_api_key("test-api-key"),
+                MaplecodeAuth::from_api_key("test-api-key"),
             )),
         ),
         http_client_factory: HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault),
@@ -524,10 +524,10 @@ async fn sampler_records_token_usage_after_classification() -> Result<()> {
 
 struct RefreshableAuth(std::sync::Mutex<&'static str>);
 impl ExternalAuth for RefreshableAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
-        Box::pin(async { Ok(MapleCodeAuth::from_api_key(*self.0.lock().expect("auth"))) })
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
+        Box::pin(async { Ok(MaplecodeAuth::from_api_key(*self.0.lock().expect("auth"))) })
     }
-    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         *self.0.lock().expect("auth") = "refreshed";
         self.resolve()
     }
@@ -539,31 +539,31 @@ async fn classifier_sends_guardian_header_only_with_maplecode_backend_auth() -> 
 
     for (auth, base_path, expected_header, expected_service_tier) in [
         (
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
             "/backend-api/codex",
             Some("classifier"),
             None,
         ),
         (
-            MapleCodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new())),
-            "/api/maplecode",
+            MaplecodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new())),
+            "/api/codex",
             Some("classifier"),
             None,
         ),
         (
-            MapleCodeAuth::from_api_key("test-api-key"),
-            "/api/maplecode",
+            MaplecodeAuth::from_api_key("test-api-key"),
+            "/api/codex",
             None,
             Some("priority"),
         ),
         (
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
             "/v1",
             Some("classifier"),
             None,
         ),
         (
-            MapleCodeAuth::from_api_key("test-api-key"),
+            MaplecodeAuth::from_api_key("test-api-key"),
             "/v1",
             None,
             Some("priority"),
@@ -646,7 +646,7 @@ async fn preconnected_sampler_reuses_authenticated_websocket_for_classifications
         },
     )
     .await?;
-    let manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
+    let manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("test-api-key"));
     manager
         .set_external_auth(Arc::new(RefreshableAuth(std::sync::Mutex::new(
             "test-api-key",
@@ -837,7 +837,7 @@ async fn sampler_returns_classification_token_before_terminal_response_events() 
     let provider = create_model_provider(
         ModelProviderInfo::create_openai_provider(Some(base_url)),
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::from_api_key("test-api-key"),
+            MaplecodeAuth::from_api_key("test-api-key"),
         )),
     );
     let sampler = connect_sampler(LunaSamplerConfig {
@@ -1231,7 +1231,7 @@ async fn parent_response_id_survives_classifier_transport_retry() -> Result<()> 
                     base_url.trim_end_matches("/v1")
                 ))),
                 Some(AuthManager::from_auth_for_testing(
-                    MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+                    MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
                 )),
             );
         }

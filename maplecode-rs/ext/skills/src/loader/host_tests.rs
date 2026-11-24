@@ -157,7 +157,7 @@ policy:
             }),
             policy: Some(SkillPolicy {
                 allow_implicit_invocation: Some(false),
-                products: vec![Product::MapleCode, Product::Chatgpt, Product::Atlas],
+                products: vec![Product::Maplecode, Product::Chatgpt, Product::Atlas],
             }),
             path_to_skills_md: PathUri::from_abs_path(&skill_path),
             scope: SkillScope::User,

@@ -5,7 +5,7 @@ use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::sync::Weak;
 
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_extension_api::ExtensionData;
 use maplecode_extension_api::ExtensionFuture;
 use maplecode_extension_api::ToolCall;
@@ -16,7 +16,7 @@ use maplecode_extension_api::TurnStartInput;
 use maplecode_extension_api::TurnStartPhase;
 
 pub(super) struct ConversationHistoryTools {
-    pub parent: Weak<MapleCodeThread>,
+    pub parent: Weak<MaplecodeThread>,
 }
 
 struct HistoryTools(Vec<Arc<dyn for<'call> ToolExecutor<ToolCall<'call>>>>);

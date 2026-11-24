@@ -1,6 +1,6 @@
 use maplecode_analytics::AnalyticsEventsClient;
 use maplecode_analytics::GoalEventKind;
-use maplecode_analytics::MapleCodeGoalEvent;
+use maplecode_analytics::MaplecodeGoalEvent;
 
 #[derive(Clone)]
 pub(crate) struct GoalAnalytics {
@@ -60,7 +60,7 @@ impl GoalAnalytics {
                 (None, None)
             }
         };
-        self.client.track_goal_event(MapleCodeGoalEvent {
+        self.client.track_goal_event(MaplecodeGoalEvent {
             thread_id: goal.thread_id.to_string(),
             turn_id: match attribution {
                 GoalEventAttribution::Turn(turn_id) => Some(turn_id.to_string()),

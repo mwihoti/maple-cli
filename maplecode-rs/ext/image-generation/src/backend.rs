@@ -13,13 +13,13 @@ use maplecode_http_client::HttpClientFactory;
 use maplecode_login::default_client::add_originator_header;
 use maplecode_login::default_client::create_transport_for_routes_async;
 use maplecode_model_provider::SharedModelProvider;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 
 const X_MAPLECODE_IMAGE_TURN_ID_HEADER: &str = "x-maplecode-image-turn-id";
 
 pub(crate) struct ImageBackendError {
     message: String,
-    maplecode_error: MapleCodeErr,
+    maplecode_error: MaplecodeErr,
     imagegen_request_id: Option<String>,
 }
 
@@ -36,7 +36,7 @@ impl ImageBackendError {
 
     fn from_message(message: String) -> Self {
         Self {
-            maplecode_error: MapleCodeErr::Stream(message.clone()),
+            maplecode_error: MaplecodeErr::Stream(message.clone()),
             message,
             imagegen_request_id: None,
         }
@@ -46,7 +46,7 @@ impl ImageBackendError {
         &self.message
     }
 
-    pub(crate) fn maplecode_error(&self) -> &MapleCodeErr {
+    pub(crate) fn maplecode_error(&self) -> &MaplecodeErr {
         &self.maplecode_error
     }
 
@@ -56,13 +56,13 @@ impl ImageBackendError {
 }
 
 #[derive(Clone)]
-pub(crate) struct MapleCodeImagesBackend {
+pub(crate) struct MaplecodeImagesBackend {
     provider: SharedModelProvider,
     http_client_factory: HttpClientFactory,
     originator: Option<String>,
 }
 
-impl MapleCodeImagesBackend {
+impl MaplecodeImagesBackend {
     /// Creates a backend that sends image requests through the active model provider.
     pub(crate) fn new(
         provider: SharedModelProvider,

@@ -9,7 +9,7 @@ use maplecode_login::AuthManager;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use tokio::sync::Notify;
 use wiremock::Mock;
 use wiremock::MockServer;
@@ -27,22 +27,22 @@ fn http_client_factory() -> HttpClientFactory {
     HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault)
 }
 
-fn enterprise_auth(account_id: &str) -> MapleCodeAuth {
-    MapleCodeAuth::from_external_chatgpt_tokens("e30.e30.c2ln", account_id, Some("enterprise"))
+fn enterprise_auth(account_id: &str) -> MaplecodeAuth {
+    MaplecodeAuth::from_external_chatgpt_tokens("e30.e30.c2ln", account_id, Some("enterprise"))
         .expect("fake ChatGPT auth should parse")
 }
 
-struct StaticExternalAuth(MapleCodeAuth);
+struct StaticExternalAuth(MaplecodeAuth);
 
 impl ExternalAuth for StaticExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -155,10 +155,10 @@ async fn policy_resolution_retries_after_auth_refresh() {
 struct RotatingExternalAuth(AtomicUsize);
 
 impl ExternalAuth for RotatingExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             let generation = self.0.load(Ordering::SeqCst);
-            MapleCodeAuth::from_external_chatgpt_tokens(
+            MaplecodeAuth::from_external_chatgpt_tokens(
                 &format!("e30.e30.signature-{generation}"),
                 "workspace-123",
                 Some("enterprise"),
@@ -169,7 +169,7 @@ impl ExternalAuth for RotatingExternalAuth {
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.0.fetch_add(/*val*/ 1, Ordering::SeqCst);
         self.resolve()
     }

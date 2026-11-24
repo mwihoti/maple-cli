@@ -3,7 +3,7 @@
 
 use crate::GuardianAssessment;
 use maplecode_analytics::GuardianReviewFailureReason;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use tokio::time::Instant;
 
 #[derive(Debug)]
@@ -22,7 +22,7 @@ pub enum GuardianReviewError {
     },
     Session {
         message: String,
-        error_info: Option<MapleCodeErrorInfo>,
+        error_info: Option<MaplecodeErrorInfo>,
         retry_at: Option<Instant>,
     },
     Parse {
@@ -52,7 +52,7 @@ impl GuardianReviewError {
     #[cfg(test)]
     pub(crate) fn session_with_error_info(
         err: anyhow::Error,
-        error_info: MapleCodeErrorInfo,
+        error_info: MaplecodeErrorInfo,
     ) -> Self {
         Self::Session {
             message: err.to_string(),
@@ -88,7 +88,7 @@ pub enum GuardianReviewSessionOutcome {
     InputBudgetExceeded,
     SessionFailed {
         error: anyhow::Error,
-        error_info: Option<MapleCodeErrorInfo>,
+        error_info: Option<MaplecodeErrorInfo>,
         retry_at: Option<Instant>,
     },
     TimedOut,

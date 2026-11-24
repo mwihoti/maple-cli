@@ -25,7 +25,7 @@ use maplecode_http_client::DestinationPolicy;
 use maplecode_http_client::NetworkPolicyController;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
@@ -90,7 +90,7 @@ async fn installed_extension_exposes_and_invokes_history_notes_tools() -> TestRe
         HeaderValue::from_static("actor-biscuit"),
     );
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::Headers(AuthHeaders::new(headers)));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::Headers(AuthHeaders::new(headers)));
     let mut builder = ExtensionRegistryBuilder::<Config>::new();
     install(&mut builder, auth_manager);
     let registry = builder.build();
@@ -437,11 +437,11 @@ async fn history_notes_require_an_openai_provider_and_maplecode_backend_auth() -
     for (provider, auth) in [
         (
             config.model_provider.clone(),
-            MapleCodeAuth::from_api_key("test-api-key"),
+            MaplecodeAuth::from_api_key("test-api-key"),
         ),
         (
             ModelProviderInfo::create_amazon_bedrock_provider(/*aws*/ None),
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         ),
     ] {
         config.model_provider = provider;

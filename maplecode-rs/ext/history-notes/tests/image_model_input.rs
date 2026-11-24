@@ -14,7 +14,7 @@ use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_history_notes_extension::install;
 use maplecode_login::AuthHeaders;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use wiremock::Mock;
@@ -78,7 +78,7 @@ async fn history_images_reach_the_next_model_request() -> Result<(), Box<dyn std
         ],
     )
     .await;
-    let auth = MapleCodeAuth::Headers(AuthHeaders::new(HeaderMap::new()));
+    let auth = MaplecodeAuth::Headers(AuthHeaders::new(HeaderMap::new()));
     let mut extensions = ExtensionRegistryBuilder::<Config>::new();
     install(
         &mut extensions,

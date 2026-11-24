@@ -13,7 +13,7 @@ use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::ResolvedProviderAuth;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ImageReference;
@@ -94,9 +94,9 @@ impl DecisionsCredential {
         }
     }
 
-    fn resolve(&self, source_generation: Option<u64>) -> Option<MapleCodeAuth> {
+    fn resolve(&self, source_generation: Option<u64>) -> Option<MaplecodeAuth> {
         match self {
-            Self::ApiKey(key) => Some(MapleCodeAuth::from_api_key(key)),
+            Self::ApiKey(key) => Some(MaplecodeAuth::from_api_key(key)),
             Self::SavedLogin(manager) | Self::RuntimeLogin(manager, _) => {
                 let auth = manager.auth_cached()?;
                 let source = manager.auth_change_state_for(&auth)?.source_generation;

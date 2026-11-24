@@ -1,4 +1,4 @@
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::NewThread;
 use maplecode_core::StartIfIdleSubmission;
 use maplecode_core::StartThreadOptions;
@@ -6,8 +6,8 @@ use maplecode_core::ThreadManager;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::W3cTraceContext;
 use maplecode_protocol::user_input::UserInput;
 use std::sync::Arc;
@@ -27,7 +27,7 @@ pub struct AgentInvocation {
 pub struct AgentRun {
     pub thread_id: ThreadId,
     pub turn_id: String,
-    pub thread: Arc<MapleCodeThread>,
+    pub thread: Arc<MaplecodeThread>,
 }
 
 /// Runs resolved agents in legacy threads forked by the owning [`ThreadManager`].
@@ -48,20 +48,20 @@ impl AgentRunner {
         &self,
         parent_thread_id: ThreadId,
         invocation: AgentInvocation,
-    ) -> MapleCodeResult<AgentRun> {
+    ) -> MaplecodeResult<AgentRun> {
         let AgentInvocation {
             config,
             prompt,
             parent_trace,
         } = invocation;
         if prompt.trim().is_empty() {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "agent prompt must not be empty".to_string(),
             ));
         }
 
         let thread_manager = self.thread_manager.upgrade().ok_or_else(|| {
-            MapleCodeErr::UnsupportedOperation("thread manager dropped".to_string())
+            MaplecodeErr::UnsupportedOperation("thread manager dropped".to_string())
         })?;
         let NewThread {
             thread_id, thread, ..
@@ -86,7 +86,7 @@ impl AgentRunner {
         {
             StartIfIdleSubmission::Started { turn_id, .. } => turn_id,
             StartIfIdleSubmission::NotSubmitted { reason } => {
-                return Err(MapleCodeErr::InvalidRequest(format!(
+                return Err(MaplecodeErr::InvalidRequest(format!(
                     "agent prompt was not submitted: {reason:?}"
                 )));
             }

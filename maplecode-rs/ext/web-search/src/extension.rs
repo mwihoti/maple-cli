@@ -189,7 +189,7 @@ mod tests {
     use maplecode_extension_api::ToolName;
     use maplecode_http_client::HttpClientFactory;
     use maplecode_http_client::OutboundProxyPolicy;
-    use maplecode_login::MapleCodeAuth;
+    use maplecode_login::MaplecodeAuth;
     use maplecode_model_provider::WorkspaceRoutingContext;
     use maplecode_model_provider_info::ModelProviderInfo;
     use pretty_assertions::assert_eq;
@@ -229,7 +229,7 @@ mod tests {
         let mut builder = ExtensionRegistryBuilder::<Config>::new();
         install(
             &mut builder,
-            AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("dummy")),
+            AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("dummy")),
         );
         let registry = builder.build();
         let session_store = ExtensionData::new("session");

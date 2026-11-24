@@ -284,7 +284,7 @@ async fn decisions_startup_uses_thread_runtime_and_staging_destination() -> anyh
     use maplecode_features::RuntimeAuthMode;
     use maplecode_history::ResponseItemEnvelope;
     use maplecode_login::AuthManager;
-    use maplecode_login::MapleCodeAuth;
+    use maplecode_login::MaplecodeAuth;
     use maplecode_model_provider::ProviderAuthContext;
     use maplecode_runtime_agent_instance::AgentHostAuthorization;
     use maplecode_runtime_agent_instance::RuntimeAuthManager;
@@ -301,7 +301,7 @@ async fn decisions_startup_uses_thread_runtime_and_staging_destination() -> anyh
     if let Ok(server) = std::env::var(PROBE_SERVER) {
         let fixture = GuardianFailureFixture::new().await?;
         let credentials =
-            AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("thread-api-key"));
+            AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("thread-api-key"));
         let runtime = Arc::new(RuntimeAuthManager::new(
             Arc::clone(&credentials),
             AgentHostAuthorization::InstallationId {

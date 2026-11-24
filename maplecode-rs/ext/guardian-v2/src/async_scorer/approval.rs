@@ -9,7 +9,7 @@ use super::metrics::record_fast_decision;
 use super::parent_compaction::select_parent_compaction;
 use super::sampler::LunaSampler;
 use super::score::GuardianV2ScoreProgress;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_core::context::GuardianContextMode;
 use maplecode_extension_api::ApprovalDecision;
@@ -54,7 +54,7 @@ impl GuardianApprovalReviewer {
     #[tracing::instrument(skip_all, fields(approval_id = input.approval_id))]
     async fn decide_request(
         &self,
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         input: &ApprovalDecisionInput<'_>,
         config: &maplecode_core::config::Config,
     ) -> ApprovalDecision {
@@ -200,7 +200,7 @@ impl GuardianApprovalReviewer {
 
 /// Checks score reuse; the success value says whether it can also release a pending review.
 async fn cached_evidence(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     input: &ApprovalDecisionInput<'_>,
     config: &GuardianV2Config,
     policy: &GuardianModelPolicy,
@@ -377,7 +377,7 @@ async fn cached_evidence(
 }
 
 async fn constrained_live_policy(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     store: &ExtensionData,
     policy: &GuardianModelPolicy,
 ) -> GuardianModelPolicy {

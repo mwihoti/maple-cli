@@ -5,7 +5,7 @@ use std::sync::Mutex as StdMutex;
 use std::sync::Weak;
 use std::time::Duration;
 
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::StartIfIdleSubmission;
 use maplecode_core::ThreadManager;
 use maplecode_core::TurnInput;
@@ -18,7 +18,7 @@ use maplecode_extension_api::ThreadIdleInput;
 use maplecode_extension_api::ThreadLifecycleContributor;
 use maplecode_extension_api::ThreadResumeInput;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::snapshot_local_user_input;
 use maplecode_protocol::protocol::AgentStatus;
 use maplecode_protocol::protocol::Event;
@@ -54,7 +54,7 @@ pub enum QueueServiceError {
     #[error("local queued attachment is invalid: {0}")]
     InvalidAttachment(#[from] std::io::Error),
     #[error("Core failed to submit queued user message: {0}")]
-    CoreSubmissionError(#[from] MapleCodeErr),
+    CoreSubmissionError(#[from] MaplecodeErr),
     #[error("only user input can be added to the user-message queue")]
     InvalidInput,
     #[error(
@@ -399,7 +399,7 @@ impl QueuedItemService {
     /// Starts the selected queued message only when its thread is idle.
     pub async fn start(
         &self,
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         queued_item_id: Option<String>,
         trace: Option<W3cTraceContext>,
     ) -> Result<StartIfIdleSubmission, QueueServiceError> {

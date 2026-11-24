@@ -621,7 +621,7 @@ mod tests {
                     crate::GuardianReviewOutcome::Error(crate::GuardianReviewError::Session {
                         message: "overloaded".into(),
                         error_info: Some(
-                            maplecode_protocol::protocol::MapleCodeErrorInfo::ServerOverloaded,
+                            maplecode_protocol::protocol::MaplecodeErrorInfo::ServerOverloaded,
                         ),
                         retry_at: Some(start + Duration::from_secs(2)),
                     }),

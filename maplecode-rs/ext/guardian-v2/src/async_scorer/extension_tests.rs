@@ -11,7 +11,7 @@ use core_test_support::responses::WebSocketConnectionConfig;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::config::Config;
@@ -39,7 +39,7 @@ use maplecode_login::AuthManager;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_prompts::ResolvedModelMessages;
 use maplecode_protocol::ResponseItemId;
@@ -112,11 +112,11 @@ const PREWARM_TIMEOUT: Duration = Duration::from_secs(30);
 struct RefreshableAuth(std::sync::Mutex<&'static str>);
 
 impl ExternalAuth for RefreshableAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
-        Box::pin(async { Ok(MapleCodeAuth::from_api_key(*self.0.lock().expect("auth"))) })
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
+        Box::pin(async { Ok(MaplecodeAuth::from_api_key(*self.0.lock().expect("auth"))) })
     }
 
-    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         *self.0.lock().expect("auth") = "refreshed";
         self.resolve()
     }
@@ -221,7 +221,7 @@ async fn installed_extension_warms_connections_without_blocking_thread_start() -
     connections[0].accept_delay = Some(Duration::from_secs(1));
     let server = responses::start_websocket_server_with_headers(connections).await;
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("test-api-key"));
     let mut config = test.config.clone();
     config.model_provider = ModelProviderInfo::create_openai_provider(Some(format!(
         "http://{}/v1",
@@ -271,7 +271,7 @@ async fn installed_extension_keeps_parent_program_out_of_websocket_and_http_revi
 {
     skip_if_no_network!(Ok(()));
 
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("original"));
+    let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("original"));
     auth_manager
         .set_external_auth(Arc::new(RefreshableAuth(std::sync::Mutex::new("original"))))
         .await?;
@@ -910,7 +910,7 @@ async fn sample_conversation_history(
     conversation_history: Vec<ResponseItem>,
     arguments: &str,
     guardian_policy: Option<&str>,
-) -> Result<(serde_json::Value, TestMapleCode, ExtensionRegistry<Config>)> {
+) -> Result<(serde_json::Value, TestMaplecode, ExtensionRegistry<Config>)> {
     sample_configured_conversation_history(
         conversation_history,
         arguments,
@@ -927,7 +927,7 @@ async fn sample_configured_conversation_history(
     guardian_policy: Option<&str>,
     guardian_config: &str,
     model_defaults: Option<GuardianV2ModelConfig>,
-) -> Result<(serde_json::Value, TestMapleCode, ExtensionRegistry<Config>)> {
+) -> Result<(serde_json::Value, TestMaplecode, ExtensionRegistry<Config>)> {
     sample_configured_conversation_history_with_source(
         conversation_history,
         arguments,
@@ -946,7 +946,7 @@ async fn sample_configured_conversation_history_with_source(
     guardian_config: &str,
     model_defaults: Option<GuardianV2ModelConfig>,
     source: ToolCallSource,
-) -> Result<(serde_json::Value, TestMapleCode, ExtensionRegistry<Config>)> {
+) -> Result<(serde_json::Value, TestMaplecode, ExtensionRegistry<Config>)> {
     let (request, test, registry, _) = sample_configured_conversation_history_with_delivery(
         conversation_history,
         arguments,
@@ -975,7 +975,7 @@ async fn sample_configured_conversation_history_with_delivery(
     messaging: MessagingSetup,
 ) -> Result<(
     serde_json::Value,
-    TestMapleCode,
+    TestMaplecode,
     ExtensionRegistry<Config>,
     wiremock::MockServer,
 )> {
@@ -993,7 +993,7 @@ async fn sample_configured_conversation_history_with_delivery(
     }
     let builder = test_maplecode()
         .with_extensions(Arc::new(extensions.build()))
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("codex-auto-review", |model_info| {
             model_info
                 .model_messages
@@ -1079,7 +1079,7 @@ async fn sample_configured_conversation_history_with_delivery(
         server.uri().trim_start_matches("ws://")
     )));
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("test-api-key"));
     // Capture policy independently of the newer live thread configuration.
     let mut config = test.config.clone();
     config.guardian_policy_config = guardian_policy;
@@ -1181,7 +1181,7 @@ async fn sample_configured_conversation_history_with_delivery(
 }
 
 struct GuardianFailureFixture {
-    test: TestMapleCode,
+    test: TestMaplecode,
     registry: ExtensionRegistry<Config>,
     session_store: ExtensionData,
 }
@@ -2569,7 +2569,7 @@ async fn contributor_skips_required_models_in_standard_scope() -> Result<()> {
         server.uri().trim_start_matches("ws://")
     )));
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("test-api-key"));
     let mut config = test.config.clone();
     config.model_provider = provider_info;
     let mut builder = ExtensionRegistryBuilder::new();
@@ -3470,7 +3470,7 @@ async fn assert_parent_compaction_reuse(parent_context_for_review: bool) -> Resu
         server.uri().trim_start_matches("ws://")
     )));
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("test-api-key"));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("test-api-key"));
     let mut config = test.config.clone();
     config.model_provider = provider_info;
     config.features.enable(Feature::GuardianV2)?;

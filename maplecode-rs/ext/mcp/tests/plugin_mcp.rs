@@ -39,7 +39,7 @@ use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_extension_api::McpServerContributionContext;
 use maplecode_extension_api::SelectedPluginContribution;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp_extension::PluginProviders;
 use maplecode_mcp_extension::PluginsThreadState;
 use maplecode_mcp_extension::install_plugin_providers;
@@ -750,7 +750,7 @@ async fn run_cloud_plugin_projection_scenarios() -> anyhow::Result<()> {
             .with_priority(1)
             .mount(&plugin_server).await;
         let declaration =
-            json!({"url": format!("{}/api/maplecode/ps/mcp", plugin_mcp.chatgpt_base_url)});
+            json!({"url": format!("{}/api/codex/ps/mcp", plugin_mcp.chatgpt_base_url)});
         let cloud = Arc::new(CloudCatalogFixture {
             reply: if cloud_empty {
                 Ok(PluginCatalog::default())
@@ -787,7 +787,7 @@ async fn run_cloud_plugin_projection_scenarios() -> anyhow::Result<()> {
         install_plugin_providers(&mut extensions, providers);
         let mut builder = test_maplecode()
             .with_extensions(Arc::new(extensions.build()))
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_model_info_override("gpt-5.5", |model| model.supports_search_tool = false)
             .with_config(move |config| {
                 assert!(config.features.enable(Feature::Plugins).is_ok());

@@ -3,7 +3,7 @@
 
 use anyhow::ensure;
 use maplecode_history::HistoryInitialization;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RetainedContextEvent;
 use maplecode_history::RolloutItem;
@@ -346,7 +346,7 @@ fn review_original(mut item: RolloutItem) -> anyhow::Result<Option<RolloutItem>>
             .metadata
             .take()
             .and_then(|metadata| metadata.user_input_order)
-            .map(|order| MapleCodeHarnessMetadata {
+            .map(|order| MaplecodeHarnessMetadata {
                 user_input_order: Some(order),
                 ..Default::default()
             });

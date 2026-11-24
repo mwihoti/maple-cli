@@ -13,7 +13,7 @@ use maplecode_analytics::GuardianV2Event;
 use maplecode_analytics::GuardianV2EventKind;
 use maplecode_core::GuardianAuthorizationVersion;
 use maplecode_core::GuardianRootSnapshot;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_core::config::Config;
 use maplecode_core::context::ContextualUserFragment;
@@ -73,7 +73,7 @@ pub(super) struct Classification {
     pub(super) cyber_access_program: Option<CyberAccessProgram>,
     pub(super) parent_response_id: Option<String>,
     pub(super) manager: Arc<ThreadManager>,
-    pub(super) thread: Arc<MapleCodeThread>,
+    pub(super) thread: Arc<MaplecodeThread>,
     pub(super) config: Arc<Config>,
     pub(super) context_mode: GuardianContextMode,
     pub(super) parent_compaction: Option<ResponseItem>,
