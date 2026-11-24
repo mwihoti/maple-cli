@@ -4,11 +4,11 @@ import path from "node:path";
 import readline from "node:readline";
 import { createRequire } from "node:module";
 
-import type { MapleCodeConfigObject, MapleCodeConfigValue } from "./maplecodeOptions";
+import type { MaplecodeConfigObject, MaplecodeConfigValue } from "./maplecodeOptions";
 import { SandboxMode, ModelReasoningEffort, ApprovalMode, WebSearchMode } from "./threadOptions";
 import type { CyberAccessProgram } from "./turnOptions";
 
-export type MapleCodeExecArgs = {
+export type MaplecodeExecArgs = {
   input: string;
 
   baseUrl?: string;
@@ -60,29 +60,29 @@ const PLATFORM_PACKAGE_BY_TARGET: Record<string, string> = {
 
 const moduleRequire = createRequire(import.meta.url);
 
-type MapleCodePathResolution = {
+type MaplecodePathResolution = {
   executablePath: string;
   pathDirs: string[];
 };
 
-export class MapleCodeExec {
+export class MaplecodeExec {
   private executablePath: string;
   private pathDirs: string[];
   private envOverride?: Record<string, string>;
-  private configOverrides?: MapleCodeConfigObject;
+  private configOverrides?: MaplecodeConfigObject;
   private rawConfigOverrides?: string[];
 
   constructor(
     executablePath: string | null = null,
     env?: Record<string, string>,
-    configOverrides?: MapleCodeConfigObject,
+    configOverrides?: MaplecodeConfigObject,
     rawConfigOverrides?: string[],
   ) {
     if (executablePath) {
       this.executablePath = executablePath;
       this.pathDirs = [];
     } else {
-      const resolved = findMapleCodePath();
+      const resolved = findMaplecodePath();
       this.executablePath = resolved.executablePath;
       this.pathDirs = resolved.pathDirs;
     }
@@ -91,7 +91,7 @@ export class MapleCodeExec {
     this.rawConfigOverrides = rawConfigOverrides;
   }
 
-  async *run(args: MapleCodeExecArgs): AsyncGenerator<string> {
+  async *run(args: MaplecodeExecArgs): AsyncGenerator<string> {
     const commandArgs: string[] = ["exec", "--experimental-json"];
 
     if (this.configOverrides) {
@@ -251,7 +251,7 @@ export class MapleCodeExec {
       if (code !== 0 || signal) {
         const stderrBuffer = Buffer.concat(stderrChunks);
         const detail = signal ? `signal ${signal}` : `code ${code ?? 1}`;
-        throw new Error(`MapleCode Exec exited with ${detail}: ${stderrBuffer.toString("utf8")}`);
+        throw new Error(`Maplecode Exec exited with ${detail}: ${stderrBuffer.toString("utf8")}`);
       }
     } finally {
       rl.close();
@@ -265,14 +265,14 @@ export class MapleCodeExec {
   }
 }
 
-function serializeConfigOverrides(configOverrides: MapleCodeConfigObject): string[] {
+function serializeConfigOverrides(configOverrides: MaplecodeConfigObject): string[] {
   const overrides: string[] = [];
   flattenConfigOverrides(configOverrides, "", overrides);
   return overrides;
 }
 
 function flattenConfigOverrides(
-  value: MapleCodeConfigValue,
+  value: MaplecodeConfigValue,
   prefix: string,
   overrides: string[],
 ): void {
@@ -281,7 +281,7 @@ function flattenConfigOverrides(
       overrides.push(`${prefix}=${toTomlValue(value, prefix)}`);
       return;
     } else {
-      throw new Error("MapleCode config overrides must be a plain object");
+      throw new Error("Maplecode config overrides must be a plain object");
     }
   }
 
@@ -297,7 +297,7 @@ function flattenConfigOverrides(
 
   for (const [key, child] of entries) {
     if (!key) {
-      throw new Error("MapleCode config override keys must be non-empty strings");
+      throw new Error("Maplecode config override keys must be non-empty strings");
     }
     if (child === undefined) {
       continue;
@@ -311,12 +311,12 @@ function flattenConfigOverrides(
   }
 }
 
-function toTomlValue(value: MapleCodeConfigValue, path: string): string {
+function toTomlValue(value: MaplecodeConfigValue, path: string): string {
   if (typeof value === "string") {
     return JSON.stringify(value);
   } else if (typeof value === "number") {
     if (!Number.isFinite(value)) {
-      throw new Error(`MapleCode config override at ${path} must be a finite number`);
+      throw new Error(`Maplecode config override at ${path} must be a finite number`);
     }
     return `${value}`;
   } else if (typeof value === "boolean") {
@@ -328,7 +328,7 @@ function toTomlValue(value: MapleCodeConfigValue, path: string): string {
     const parts: string[] = [];
     for (const [key, child] of Object.entries(value)) {
       if (!key) {
-        throw new Error("MapleCode config override keys must be non-empty strings");
+        throw new Error("Maplecode config override keys must be non-empty strings");
       }
       if (child === undefined) {
         continue;
@@ -337,10 +337,10 @@ function toTomlValue(value: MapleCodeConfigValue, path: string): string {
     }
     return `{${parts.join(", ")}}`;
   } else if (value === null) {
-    throw new Error(`MapleCode config override at ${path} cannot be null`);
+    throw new Error(`Maplecode config override at ${path} cannot be null`);
   } else {
     const typeName = typeof value;
-    throw new Error(`Unsupported MapleCode config override value at ${path}: ${typeName}`);
+    throw new Error(`Unsupported Maplecode config override value at ${path}: ${typeName}`);
   }
 }
 
@@ -349,11 +349,11 @@ function formatTomlKey(key: string): string {
   return TOML_BARE_KEY.test(key) ? key : JSON.stringify(key);
 }
 
-function isPlainObject(value: unknown): value is MapleCodeConfigObject {
+function isPlainObject(value: unknown): value is MaplecodeConfigObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function findMapleCodePath(): MapleCodePathResolution {
+function findMaplecodePath(): MaplecodePathResolution {
   const { platform, arch } = process;
 
   let targetTriple = null;
@@ -416,7 +416,7 @@ function findMapleCodePath(): MapleCodePathResolution {
     vendorRoot = path.join(path.dirname(platformPackageJsonPath), "vendor");
   } catch {
     throw new Error(
-      `Unable to locate MapleCode CLI binaries. Ensure ${MAPLECODE_NPM_NAME} is installed with optional dependencies.`,
+      `Unable to locate Maplecode CLI binaries. Ensure ${MAPLECODE_NPM_NAME} is installed with optional dependencies.`,
     );
   }
 
@@ -424,7 +424,7 @@ function findMapleCodePath(): MapleCodePathResolution {
   const nativePackage = resolveNativePackage(vendorRoot, targetTriple, maplecodeBinaryName);
   if (!nativePackage) {
     throw new Error(
-      `Unable to locate MapleCode CLI binaries for ${targetTriple}. Ensure ${MAPLECODE_NPM_NAME} is installed with optional dependencies.`,
+      `Unable to locate Maplecode CLI binaries for ${targetTriple}. Ensure ${MAPLECODE_NPM_NAME} is installed with optional dependencies.`,
     );
   }
 
@@ -435,7 +435,7 @@ export function resolveNativePackage(
   vendorRoot: string,
   targetTriple: string,
   maplecodeBinaryName: string,
-): MapleCodePathResolution | null {
+): MaplecodePathResolution | null {
   const packageRoot = path.join(vendorRoot, targetTriple);
   const packageBinaryPath = path.join(packageRoot, "bin", maplecodeBinaryName);
   if (isFile(packageBinaryPath) && isFile(path.join(packageRoot, "maplecode-package.json"))) {

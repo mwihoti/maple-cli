@@ -1,7 +1,7 @@
 import path from "node:path";
 
-import { MapleCode } from "../src/maplecode";
-import type { MapleCodeConfigObject } from "../src/maplecodeOptions";
+import { Maplecode } from "../src/maplecode";
+import type { MaplecodeConfigObject } from "../src/maplecodeOptions";
 
 export const maplecodeExecPath =
   process.env.MAPLECODE_EXEC_PATH ??
@@ -10,7 +10,7 @@ export const maplecodeExecPath =
 type CreateTestClientOptions = {
   apiKey?: string;
   baseUrl?: string;
-  config?: MapleCodeConfigObject;
+  config?: MaplecodeConfigObject;
   configOverrides?: string[];
   env?: Record<string, string>;
   inheritEnv?: boolean;
@@ -18,7 +18,7 @@ type CreateTestClientOptions = {
 
 export type TestClient = {
   cleanup: () => void;
-  client: MapleCode;
+  client: Maplecode;
 };
 
 export function createMockClient(url: string): TestClient {
@@ -43,7 +43,7 @@ export function createTestClient(options: CreateTestClientOptions = {}): TestCli
 
   return {
     cleanup: () => {},
-    client: new MapleCode({
+    client: new Maplecode({
       maplecodePathOverride: maplecodeExecPath,
       baseUrl: options.baseUrl,
       apiKey: options.apiKey,
@@ -56,9 +56,9 @@ export function createTestClient(options: CreateTestClientOptions = {}): TestCli
 
 function mergeTestConfig(
   baseUrl: string | undefined,
-  config: MapleCodeConfigObject | undefined,
-): MapleCodeConfigObject | undefined {
-  const mergedConfig: MapleCodeConfigObject | undefined =
+  config: MaplecodeConfigObject | undefined,
+): MaplecodeConfigObject | undefined {
+  const mergedConfig: MaplecodeConfigObject | undefined =
     !baseUrl || hasExplicitProviderConfig(config)
       ? config
       : {
@@ -88,7 +88,7 @@ function mergeTestConfig(
   };
 }
 
-function hasExplicitProviderConfig(config: MapleCodeConfigObject | undefined): boolean {
+function hasExplicitProviderConfig(config: MaplecodeConfigObject | undefined): boolean {
   return config?.model_provider !== undefined || config?.model_providers !== undefined;
 }
 

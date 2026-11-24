@@ -7,7 +7,7 @@ import { PassThrough } from "node:stream";
 
 import { describe, expect, it } from "@jest/globals";
 
-import type { MapleCodeConfigObject } from "../src/maplecodeOptions";
+import type { MaplecodeConfigObject } from "../src/maplecodeOptions";
 
 jest.mock("node:child_process", () => {
   const actual = jest.requireActual<typeof import("node:child_process")>("node:child_process");
@@ -45,13 +45,13 @@ function createEarlyExitChild(exitCode = 2): FakeChildProcess {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-describe("MapleCodeExec", () => {
+describe("MaplecodeExec", () => {
   it("rejects when exit happens before stdout closes", async () => {
-    const { MapleCodeExec } = await import("../src/exec");
+    const { MaplecodeExec } = await import("../src/exec");
     const child = createEarlyExitChild();
     spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
 
-    const exec = new MapleCodeExec("maplecode");
+    const exec = new MaplecodeExec("maplecode");
     const runPromise = (async () => {
       for await (const _ of exec.run({ input: "hi" })) {
         // no-op
@@ -69,12 +69,12 @@ describe("MapleCodeExec", () => {
     expect(result.status).toBe("rejected");
     if (result.status === "rejected") {
       expect(result.error).toBeInstanceOf(Error);
-      expect(result.error.message).toMatch(/MapleCode Exec exited/);
+      expect(result.error.message).toMatch(/Maplecode Exec exited/);
     }
   });
 
   it("places resume args before image args", async () => {
-    const { MapleCodeExec } = await import("../src/exec");
+    const { MaplecodeExec } = await import("../src/exec");
     spawnMock.mockClear();
     const child = new FakeChildProcess();
     spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
@@ -85,7 +85,7 @@ describe("MapleCodeExec", () => {
       child.emit("exit", 0, null);
     });
 
-    const exec = new MapleCodeExec("maplecode");
+    const exec = new MaplecodeExec("maplecode");
     for await (const _ of exec.run({ input: "hi", images: ["img.png"], threadId: "thread-id" })) {
       // no-op
     }
@@ -101,7 +101,7 @@ describe("MapleCodeExec", () => {
 
   const configOverrideCases: {
     name: string;
-    config?: MapleCodeConfigObject;
+    config?: MaplecodeConfigObject;
     configOverrides?: string[];
     expectedOverrides: string[];
   }[] = [
@@ -158,9 +158,9 @@ describe("MapleCodeExec", () => {
   ];
 
   it.each(configOverrideCases)(
-    "passes $name to the MapleCode CLI",
+    "passes $name to the Maplecode CLI",
     async ({ config, configOverrides, expectedOverrides }) => {
-      const { MapleCodeExec } = await import("../src/exec");
+      const { MaplecodeExec } = await import("../src/exec");
       spawnMock.mockClear();
       const child = new FakeChildProcess();
       spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
@@ -171,7 +171,7 @@ describe("MapleCodeExec", () => {
         child.emit("exit", 0, null);
       });
 
-      const exec = new MapleCodeExec("maplecode", undefined, config, configOverrides);
+      const exec = new MaplecodeExec("maplecode", undefined, config, configOverrides);
       for await (const _ of exec.run({ input: "hi" })) {
         // no-op
       }
@@ -186,7 +186,7 @@ describe("MapleCodeExec", () => {
   );
 
   it("passes the thread source when starting a new thread", async () => {
-    const { MapleCodeExec } = await import("../src/exec");
+    const { MaplecodeExec } = await import("../src/exec");
     spawnMock.mockClear();
     const child = new FakeChildProcess();
     spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
@@ -197,7 +197,7 @@ describe("MapleCodeExec", () => {
       child.emit("exit", 0, null);
     });
 
-    const exec = new MapleCodeExec("maplecode");
+    const exec = new MaplecodeExec("maplecode");
     for await (const _ of exec.run({ input: "hi", threadSource: "automated_review" })) {
       // no-op
     }
@@ -211,7 +211,7 @@ describe("MapleCodeExec", () => {
   });
 
   it("lets SDK-managed and thread settings override raw configuration when resuming", async () => {
-    const { MapleCodeExec } = await import("../src/exec");
+    const { MaplecodeExec } = await import("../src/exec");
     spawnMock.mockClear();
     const child = new FakeChildProcess();
     spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
@@ -222,7 +222,7 @@ describe("MapleCodeExec", () => {
       child.emit("exit", 0, null);
     });
 
-    const exec = new MapleCodeExec("maplecode", undefined, { approval_policy: "never" }, [
+    const exec = new MaplecodeExec("maplecode", undefined, { approval_policy: "never" }, [
       'approval_policy="on-failure"',
       'openai_base_url="https://raw.example.test"',
       "sandbox_workspace_write={network_access=true}",
@@ -261,8 +261,8 @@ describe("MapleCodeExec", () => {
     ]);
   });
 
-  it("allows overriding the env passed to the MapleCode CLI", async () => {
-    const { MapleCodeExec } = await import("../src/exec");
+  it("allows overriding the env passed to the Maplecode CLI", async () => {
+    const { MaplecodeExec } = await import("../src/exec");
     spawnMock.mockClear();
     const child = new FakeChildProcess();
     spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
@@ -276,7 +276,7 @@ describe("MapleCodeExec", () => {
     process.env.MAPLECODE_ENV_SHOULD_NOT_LEAK = "leak";
 
     try {
-      const exec = new MapleCodeExec("maplecode", {
+      const exec = new MaplecodeExec("maplecode", {
         MAPLECODE_HOME: "/tmp/maplecode-home",
         CUSTOM_ENV: "custom",
       });

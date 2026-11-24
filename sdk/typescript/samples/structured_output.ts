@@ -1,10 +1,10 @@
 #!/usr/bin/env -S NODE_NO_WARNINGS=1 pnpm ts-node-esm --files
 
-import { MapleCode } from "@openai/codex-sdk";
+import { Maplecode } from "@openai/codex-sdk";
 
 import { maplecodePathOverride } from "./helpers.ts";
 
-const maplecode = new MapleCode({ maplecodePathOverride: maplecodePathOverride() });
+const maplecode = new Maplecode({ maplecodePathOverride: maplecodePathOverride() });
 
 const thread = maplecode.startThread();
 

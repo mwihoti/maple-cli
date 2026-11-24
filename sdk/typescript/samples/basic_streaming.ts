@@ -3,11 +3,11 @@
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 
-import { MapleCode } from "@openai/codex-sdk";
+import { Maplecode } from "@openai/codex-sdk";
 import type { ThreadEvent, ThreadItem } from "@openai/codex-sdk";
 import { maplecodePathOverride } from "./helpers.ts";
 
-const maplecode = new MapleCode({ maplecodePathOverride: maplecodePathOverride() });
+const maplecode = new Maplecode({ maplecodePathOverride: maplecodePathOverride() });
 const thread = maplecode.startThread();
 const rl = createInterface({ input, output });
 

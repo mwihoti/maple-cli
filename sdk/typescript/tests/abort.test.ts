@@ -9,7 +9,7 @@ import {
   SseResponseBody,
   startResponsesTestProxy,
 } from "./responsesProxy";
-import { createMockClient } from "./testMapleCode";
+import { createMockClient } from "./testMaplecode";
 
 function* infiniteShellCall(): Generator<SseResponseBody> {
   while (true) {

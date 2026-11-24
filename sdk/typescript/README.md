@@ -17,7 +17,7 @@ Requires Node.js 18+.
 ```typescript
 import { Maple Code } from "@openai/codex-sdk";
 
-const maplecode = new MapleCode();
+const maplecode = new Maplecode();
 const thread = maplecode.startThread();
 const turn = await thread.run("Diagnose the test failure and propose a fix");
 
@@ -119,10 +119,10 @@ const thread = maplecode.startThread({
 ### Controlling the Maple Code CLI environment
 
 By default, the Maple Code CLI inherits the Node.js process environment. Provide the optional `env` parameter when instantiating the
-`MapleCode` client to fully control which variables the CLI receives—useful for sandboxed hosts like Electron apps.
+`Maplecode` client to fully control which variables the CLI receives—useful for sandboxed hosts like Electron apps.
 
 ```typescript
-const maplecode = new MapleCode({
+const maplecode = new Maplecode({
   env: {
     PATH: "/usr/local/bin",
   },
@@ -138,7 +138,7 @@ Use the `config` option to provide additional Maple Code CLI configuration overr
 into dotted paths, and serializes values as TOML literals before passing them as repeated `--config key=value` flags.
 
 ```typescript
-const maplecode = new MapleCode({
+const maplecode = new Maplecode({
   config: {
     show_raw_agent_reasoning: true,
     sandbox_workspace_write: { network_access: true },
@@ -150,7 +150,7 @@ For configuration keys that cannot be expressed as dotted paths, pass raw TOML o
 is forwarded unchanged as a separate `--config` argument, without modifying `MAPLECODE_HOME`:
 
 ```typescript
-const maplecode = new MapleCode({
+const maplecode = new Maplecode({
   config: { default_permissions: "audit" },
   configOverrides: ['permissions.audit.filesystem={":root"="read","/path/to/project/.env"="deny"}'],
 });

@@ -1,11 +1,11 @@
 #!/usr/bin/env -S NODE_NO_WARNINGS=1 pnpm ts-node-esm --files
 
-import { MapleCode } from "@openai/codex-sdk";
+import { Maplecode } from "@openai/codex-sdk";
 import { maplecodePathOverride } from "./helpers.ts";
 import z from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 
-const maplecode = new MapleCode({ maplecodePathOverride: maplecodePathOverride() });
+const maplecode = new Maplecode({ maplecodePathOverride: maplecodePathOverride() });
 const thread = maplecode.startThread();
 
 const schema = z.object({

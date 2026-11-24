@@ -9,9 +9,9 @@ import {
   sse,
   startResponsesTestProxy,
 } from "./responsesProxy";
-import { createMockClient } from "./testMapleCode";
+import { createMockClient } from "./testMaplecode";
 
-describe("MapleCode", () => {
+describe("Maplecode", () => {
   it("returns thread events", async () => {
     const { url, close } = await startResponsesTestProxy({
       statusCode: 200,

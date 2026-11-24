@@ -6,7 +6,7 @@ import path from "node:path";
 
 import { describe, it } from "@jest/globals";
 
-import { maplecodeExecPath } from "./testMapleCode";
+import { maplecodeExecPath } from "./testMaplecode";
 
 const conformanceTimeoutMs = 300_000;
 const reviewerRegressionTimeoutMs = 180_000;
@@ -46,7 +46,7 @@ describe("MCP client conformance", () => {
         path.join(path.dirname(conformancePackage), "dist", "index.js"),
         "pinned official CLI",
       );
-      const maplecodeBinary = requireFile(maplecodeExecPath, "built MapleCode binary");
+      const maplecodeBinary = requireFile(maplecodeExecPath, "built Maplecode binary");
       const baseline = requireFile(
         path.join(directory, "regression-baseline-v1.json"),
         "committed regression baseline",
@@ -103,7 +103,7 @@ describe("MCP client conformance", () => {
     "does not introduce production reviewer or catalog-boundary regressions",
     () => {
       const directory = conformanceDirectory();
-      const maplecodeBinary = requireFile(maplecodeExecPath, "built MapleCode binary");
+      const maplecodeBinary = requireFile(maplecodeExecPath, "built Maplecode binary");
       const reviewer = requireFile(
         path.join(directory, "review_regressions.py"),
         "production reviewer regression runner",

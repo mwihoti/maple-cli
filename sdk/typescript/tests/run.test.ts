@@ -14,9 +14,9 @@ import {
   startResponsesTestProxy,
   SseResponseBody,
 } from "./responsesProxy";
-import { createMockClient, createTestClient } from "./testMapleCode";
+import { createMockClient, createTestClient } from "./testMaplecode";
 
-describe("MapleCode", () => {
+describe("Maplecode", () => {
   it("returns thread events", async () => {
     const { url, close } = await startResponsesTestProxy({
       statusCode: 200,
@@ -460,7 +460,7 @@ describe("MapleCode", () => {
     }
   });
 
-  it("passes MapleCodeOptions config overrides as TOML --config flags", async () => {
+  it("passes MaplecodeOptions config overrides as TOML --config flags", async () => {
     const { url, close } = await startResponsesTestProxy({
       statusCode: 200,
       responseBodies: [
@@ -501,7 +501,7 @@ describe("MapleCode", () => {
     }
   });
 
-  it("lets thread options override MapleCodeOptions config overrides", async () => {
+  it("lets thread options override MaplecodeOptions config overrides", async () => {
     const { url, close } = await startResponsesTestProxy({
       statusCode: 200,
       responseBodies: [

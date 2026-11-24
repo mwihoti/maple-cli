@@ -1,20 +1,20 @@
-import { MapleCodeOptions } from "./maplecodeOptions";
-import { MapleCodeExec } from "./exec";
+import { MaplecodeOptions } from "./maplecodeOptions";
+import { MaplecodeExec } from "./exec";
 import { Thread } from "./thread";
 import { ThreadOptions } from "./threadOptions";
 
 /**
- * MapleCode is the main class for interacting with the MapleCode agent.
+ * Maplecode is the main class for interacting with the Maplecode agent.
  *
  * Use the `startThread()` method to start a new thread or `resumeThread()` to resume a previously started thread.
  */
-export class MapleCode {
-  private exec: MapleCodeExec;
-  private options: MapleCodeOptions;
+export class Maplecode {
+  private exec: MaplecodeExec;
+  private options: MaplecodeOptions;
 
-  constructor(options: MapleCodeOptions = {}) {
+  constructor(options: MaplecodeOptions = {}) {
     const { maplecodePathOverride, env, config, configOverrides } = options;
-    this.exec = new MapleCodeExec(maplecodePathOverride, env, config, configOverrides);
+    this.exec = new MaplecodeExec(maplecodePathOverride, env, config, configOverrides);
     this.options = options;
   }
 
