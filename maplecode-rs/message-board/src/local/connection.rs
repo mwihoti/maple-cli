@@ -9,7 +9,7 @@ use crate::PermissionDenied;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_state::SqliteConfig;
 use std::path::PathBuf;
@@ -85,7 +85,7 @@ impl LocalBoardConnection {
     pub fn caller_path(&self, caller: ThreadId) -> Result<AgentPath> {
         AgentPath::root()
             .join(&caller.to_string().replace('-', ""))
-            .map_err(MapleCodeErr::InvalidRequest)
+            .map_err(MaplecodeErr::InvalidRequest)
     }
 
     pub async fn open(&self, host: Arc<dyn MessageBoardHost>) -> Result<LocalAgentMessageBoard> {
@@ -100,7 +100,7 @@ impl LocalBoardConnection {
         let options = board.pool.connect_options();
         let database = options.get_filename();
         if self.database.get_or_init(|| database.to_path_buf()) != database {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "board database changed; create a new board connection".into(),
             ));
         }

@@ -26,7 +26,7 @@ use crate::ThreadSort;
 use futures::future::BoxFuture;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::openai_models::MultiAgentToolMessages;
 use maplecode_tools::FunctionCallError;
 use maplecode_tools::JsonToolOutput;
@@ -542,7 +542,7 @@ fn encode<T: Serialize>(
     value: maplecode_protocol::error::Result<T>,
 ) -> Result<Value, BoardToolError> {
     let value = value.map_err(|error| {
-        if let MapleCodeErrorDetails::Io(io) = error.details()
+        if let MaplecodeErrorDetails::Io(io) = error.details()
             && let Some(denied) = io
                 .get_ref()
                 .and_then(|source| source.downcast_ref::<PermissionDenied>())

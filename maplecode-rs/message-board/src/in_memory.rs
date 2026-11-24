@@ -25,7 +25,7 @@ use futures::StreamExt;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
@@ -283,7 +283,7 @@ impl InMemoryAgentMessageBoard {
         let board = self.clone();
         tokio::spawn(async move { board.post_inner(caller, request, behavior).await })
             .await
-            .map_err(|error| MapleCodeErr::Io(std::io::Error::other(error)))?
+            .map_err(|error| MaplecodeErr::Io(std::io::Error::other(error)))?
     }
 
     async fn post_inner(
@@ -480,6 +480,6 @@ fn validate_channel(name: &str) -> Result<()> {
     Ok(())
 }
 
-fn invalid(message: impl Into<String>) -> MapleCodeErr {
-    MapleCodeErr::InvalidRequest(message.into())
+fn invalid(message: impl Into<String>) -> MaplecodeErr {
+    MaplecodeErr::InvalidRequest(message.into())
 }

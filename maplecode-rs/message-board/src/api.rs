@@ -15,7 +15,7 @@ use futures::future::BoxFuture;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use serde::Deserialize;
 use serde::Serialize;
@@ -143,7 +143,7 @@ pub trait AgentMessageBoard: Send + Sync {
 }
 
 fn unsupported<T>(operation: &'static str) -> BoxFuture<'static, Result<T>> {
-    Box::pin(async move { Err(MapleCodeErr::UnsupportedOperation(operation.into())) })
+    Box::pin(async move { Err(MaplecodeErr::UnsupportedOperation(operation.into())) })
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -196,11 +196,11 @@ pub struct UpsertChannelRequest {
 pub struct ChannelDescription(String);
 
 impl TryFrom<String> for ChannelDescription {
-    type Error = MapleCodeErr;
+    type Error = MaplecodeErr;
 
     fn try_from(text: String) -> Result<Self> {
         if text.len() > 512 {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "channel descriptions must contain at most 512 UTF-8 bytes".into(),
             ));
         }

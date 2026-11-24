@@ -13,7 +13,7 @@ use futures::future::BoxFuture;
 use maplecode_message_board::*;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 
 pub struct Host {
@@ -33,7 +33,7 @@ impl MessageBoardHost for Host {
             self.members
                 .get(&caller)
                 .cloned()
-                .ok_or_else(|| MapleCodeErr::ThreadNotFound(caller))
+                .ok_or_else(|| MaplecodeErr::ThreadNotFound(caller))
         })
     }
 
@@ -42,17 +42,17 @@ impl MessageBoardHost for Host {
             self.members
                 .iter()
                 .find_map(|(id, member)| (*member == path).then_some(*id))
-                .ok_or_else(|| MapleCodeErr::InvalidRequest("unknown agent".into()))
+                .ok_or_else(|| MaplecodeErr::InvalidRequest("unknown agent".into()))
         })
     }
 
     fn current_time(&self, _caller: ThreadId) -> BoxFuture<'_, Result<DateTime<Utc>>> {
         Box::pin(async move {
             if self.fail_clock.load(Ordering::SeqCst) {
-                return Err(MapleCodeErr::Io(std::io::Error::other("clock unavailable")));
+                return Err(MaplecodeErr::Io(std::io::Error::other("clock unavailable")));
             }
             Ok(DateTime::parse_from_rfc3339("2026-09-18T12:00:00Z")
-                .map_err(|error| MapleCodeErr::Io(std::io::Error::other(error)))?
+                .map_err(|error| MaplecodeErr::Io(std::io::Error::other(error)))?
                 .with_timezone(&Utc)
                 + chrono::Duration::seconds(self.clock.fetch_add(1, Ordering::SeqCst)))
         })
@@ -65,7 +65,7 @@ impl MessageBoardHost for Host {
     ) -> BoxFuture<'_, Result<NotificationDelivery>> {
         Box::pin(async move {
             if self.fail_notifications.load(Ordering::SeqCst) {
-                return Err(MapleCodeErr::Io(std::io::Error::other(
+                return Err(MaplecodeErr::Io(std::io::Error::other(
                     "notification transport failed",
                 )));
             }

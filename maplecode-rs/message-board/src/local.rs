@@ -31,7 +31,7 @@ use futures::StreamExt;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_state::SqliteConfig;
 use serde::Deserialize;
@@ -490,12 +490,12 @@ fn validate_channel(name: &str) -> Result<()> {
     Ok(())
 }
 
-fn invalid(message: impl Into<String>) -> MapleCodeErr {
-    MapleCodeErr::InvalidRequest(message.into())
+fn invalid(message: impl Into<String>) -> MaplecodeErr {
+    MaplecodeErr::InvalidRequest(message.into())
 }
 
-fn storage_error(error: impl std::fmt::Display) -> MapleCodeErr {
-    MapleCodeErr::Io(std::io::Error::other(error.to_string()))
+fn storage_error(error: impl std::fmt::Display) -> MaplecodeErr {
+    MaplecodeErr::Io(std::io::Error::other(error.to_string()))
 }
 
 fn target_key(target: &SubscriptionTarget) -> Result<String> {

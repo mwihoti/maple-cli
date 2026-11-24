@@ -1,6 +1,6 @@
 //! Backend-computed permissions and denials shared by board consumers.
 
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_tools::FunctionCallError;
 use serde::Deserialize;
 use serde::Serialize;
@@ -44,7 +44,7 @@ impl fmt::Display for PermissionDenied {
 
 impl std::error::Error for PermissionDenied {}
 
-impl From<PermissionDenied> for MapleCodeErr {
+impl From<PermissionDenied> for MaplecodeErr {
     fn from(error: PermissionDenied) -> Self {
         Self::Io(std::io::Error::new(
             std::io::ErrorKind::PermissionDenied,
