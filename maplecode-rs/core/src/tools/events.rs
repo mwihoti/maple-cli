@@ -11,7 +11,7 @@ use maplecode_core_plugins::PluginCommandAttribution;
 use maplecode_core_plugins::recognize_artifact_operation;
 use maplecode_otel::ARTIFACT_OPERATION_EXPECTED_OUTPUT_COUNT_METRIC;
 use maplecode_otel::ARTIFACT_OPERATION_STARTED_METRIC;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::SandboxErr;
 use maplecode_protocol::exec_output::ExecToolCallOutput;
 use maplecode_protocol::items::CommandExecutionItem;
@@ -410,15 +410,15 @@ impl ToolEmitter {
                 };
                 (event, result)
             }
-            Err(ToolError::MapleCode(err)) => match err.details() {
-                MapleCodeErrorDetails::Sandbox(SandboxErr::Timeout { output }) => {
+            Err(ToolError::Maplecode(err)) => match err.details() {
+                MaplecodeErrorDetails::Sandbox(SandboxErr::Timeout { output }) => {
                     let output = output.as_ref().clone();
                     let response = self.format_exec_output_for_model(&output, ctx);
                     let event = ToolEventStage::Failure(ToolEventFailure::Output(output));
                     let result = Err(FunctionCallError::RespondToModel(response));
                     (event, result)
                 }
-                MapleCodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
+                MaplecodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
                     let output = output.as_ref().clone();
                     let response = self.format_exec_output_for_model(&output, ctx);
                     // apply_patch can be denied after it has already committed a
@@ -656,7 +656,7 @@ mod tests {
     use crate::session::tests::make_session_and_context_with_dynamic_tools_and_rx;
     use crate::turn_diff_tracker::TurnDiffTracker;
     use maplecode_exec_server::LOCAL_FS;
-    use maplecode_protocol::error::MapleCodeErr;
+    use maplecode_protocol::error::MaplecodeErr;
     use maplecode_protocol::error::SandboxErr;
     use maplecode_protocol::exec_output::ExecToolCallOutput;
     use maplecode_protocol::items::TurnItem;
@@ -740,7 +740,7 @@ mod tests {
             ..Default::default()
         };
         assert_failed_apply_patch_tracks_committed_delta(
-            Err(ToolError::MapleCode(MapleCodeErr::Sandbox(
+            Err(ToolError::Maplecode(MaplecodeErr::Sandbox(
                 SandboxErr::Denied {
                     output: Box::new(output),
                     network_policy_decision: None,

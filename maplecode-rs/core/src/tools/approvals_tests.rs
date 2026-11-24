@@ -49,10 +49,10 @@ fn approval_resolution_aborts_turn_when_approval_is_aborted() {
 
     assert!(matches!(
         resolution.into_tool_result(&model_info_from_slug("acting-model")),
-        Err(ToolError::MapleCode(error))
+        Err(ToolError::Maplecode(error))
             if matches!(
                 error.details(),
-                maplecode_protocol::error::MapleCodeErrorDetails::TurnAborted
+                maplecode_protocol::error::MaplecodeErrorDetails::TurnAborted
             )
     ));
 }

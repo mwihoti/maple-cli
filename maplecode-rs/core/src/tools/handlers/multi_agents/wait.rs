@@ -7,8 +7,8 @@ use crate::tools::handlers::multi_agents_spec::create_wait_agent_tool_v1;
 use futures::FutureExt;
 use futures::StreamExt;
 use futures::stream::FuturesUnordered;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_tools::ToolSpec;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -129,8 +129,8 @@ impl Handler {
                     .next()
                     .await
                     .transpose()?
-                    .ok_or(MapleCodeErr::InternalAgentDied)?;
-                Ok::<_, MapleCodeErr>((initial, updates))
+                    .ok_or(MaplecodeErr::InternalAgentDied)?;
+                Ok::<_, MaplecodeErr>((initial, updates))
             }
             .await;
             match subscription {
@@ -141,7 +141,7 @@ impl Handler {
                     }
                     status_rxs.push((*id, updates));
                 }
-                Err(err) if matches!(err.details(), MapleCodeErrorDetails::ThreadNotFound(_)) => {
+                Err(err) if matches!(err.details(), MaplecodeErrorDetails::ThreadNotFound(_)) => {
                     initial_final_statuses.push((*id, AgentStatus::NotFound));
                 }
                 Err(err) => {

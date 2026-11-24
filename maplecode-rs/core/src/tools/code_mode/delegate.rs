@@ -9,7 +9,7 @@ use maplecode_code_mode::CodeModeNestedToolCall;
 use maplecode_code_mode::CodeModeSessionDelegate;
 use maplecode_code_mode::NotificationFuture;
 use maplecode_code_mode::ToolInvocationFuture;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::models::FunctionCallOutputPayload;
@@ -480,7 +480,7 @@ impl CoreTurnHost {
                     output: FunctionCallOutputPayload::from_text(text),
                     internal_chat_message_metadata_passthrough: None,
                 },
-                metadata: Some(MapleCodeHarnessMetadata {
+                metadata: Some(MaplecodeHarnessMetadata {
                     history_truncation_token_limit: Some(output_token_limit),
                     ..Default::default()
                 }),

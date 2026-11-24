@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use maplecode_features::Feature;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::ToolInfo;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::AMAZON_BEDROCK_GPT_5_5_MODEL_ID;
@@ -17,7 +17,7 @@ use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::config_types::WebSearchMode;
 use maplecode_protocol::dynamic_tools::DynamicToolSpec;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::openai_models::ApplyPatchToolType;
 use maplecode_protocol::openai_models::ConfigShellToolType;
 use maplecode_protocol::openai_models::InputModality;
@@ -295,7 +295,7 @@ fn set_web_search_mode(turn: &mut TurnContext, mode: WebSearchMode) {
 
 fn use_chatgpt_auth(turn: &mut TurnContext) {
     turn.auth_manager = Some(AuthManager::from_auth_for_testing(
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
     ));
     turn.provider = create_model_provider(
         turn.config.model_provider.clone(),
@@ -1783,7 +1783,7 @@ async fn strict_namespace_ownership_requires_tool_namespace_inventory_opt_in() {
             let error = result.err().expect("mixed namespace ownership should fail");
             assert!(matches!(
                 error.details(),
-                MapleCodeErrorDetails::ToolCollision(name) if name == "shared"
+                MaplecodeErrorDetails::ToolCollision(name) if name == "shared"
             ));
         } else {
             assert!(result.is_ok(), "existing strict behavior should not change");
@@ -2029,7 +2029,7 @@ async fn strict_tool_collisions_reject_external_and_synthetic_duplicates() {
         .expect("strict tool collision should fail tool planning");
         assert!(matches!(
             error.details(),
-            MapleCodeErrorDetails::ToolCollision(name) if name == expected_name
+            MaplecodeErrorDetails::ToolCollision(name) if name == expected_name
         ));
         assert_eq!(
             error.to_string(),

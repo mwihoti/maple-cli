@@ -402,7 +402,7 @@ async fn verify_request_plugin_install_completed(
     turn: &crate::session::turn_context::TurnContext,
     mcp: &maplecode_mcp::McpBinding,
     tool: &DiscoverableTool,
-    auth: Option<&maplecode_login::MapleCodeAuth>,
+    auth: Option<&maplecode_login::MaplecodeAuth>,
 ) -> bool {
     match tool {
         DiscoverableTool::Connector(connector) => refresh_missing_requested_connectors(
@@ -467,7 +467,7 @@ async fn verify_request_plugin_install_completed(
 async fn refresh_remote_installed_plugins_cache_after_install(
     session: &crate::session::session::Session,
     turn: &crate::session::turn_context::TurnContext,
-    auth: Option<&maplecode_login::MapleCodeAuth>,
+    auth: Option<&maplecode_login::MaplecodeAuth>,
     tool_id: &str,
 ) {
     let plugins_manager = &session.services.plugins_manager;
@@ -497,7 +497,7 @@ async fn refresh_missing_requested_connectors(
     session: &Arc<crate::session::session::Session>,
     turn: &crate::session::turn_context::TurnContext,
     mcp: &maplecode_mcp::McpBinding,
-    auth: Option<&maplecode_login::MapleCodeAuth>,
+    auth: Option<&maplecode_login::MaplecodeAuth>,
     expected_connector_ids: &[String],
     tool_id: &str,
 ) -> Option<Vec<AppInfo>> {

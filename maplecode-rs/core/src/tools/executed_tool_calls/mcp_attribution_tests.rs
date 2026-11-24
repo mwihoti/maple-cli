@@ -2,7 +2,7 @@
 
 use super::*;
 use maplecode_history::CompactedItem;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_protocol::models::ResponseItem;
 use pretty_assertions::assert_eq;
@@ -28,7 +28,7 @@ fn envelope(attribution: Option<McpAttribution>) -> ResponseItemEnvelope {
             phase: None,
             internal_chat_message_metadata_passthrough: None,
         },
-        metadata: attribution.map(|mcp_attribution| MapleCodeHarnessMetadata {
+        metadata: attribution.map(|mcp_attribution| MaplecodeHarnessMetadata {
             mcp_attribution: Some(mcp_attribution),
             ..Default::default()
         }),

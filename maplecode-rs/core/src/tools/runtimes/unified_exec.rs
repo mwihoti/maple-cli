@@ -47,7 +47,7 @@ use maplecode_network_proxy::CREDENTIAL_BROKER_ACTIVE_ENV_KEY;
 use maplecode_network_proxy::NetworkProxy;
 use maplecode_network_proxy::RemoteCredentialMasking;
 use maplecode_network_proxy::RemoteNetworkProxyConfig;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::AdditionalPermissionProfile;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::WarningEvent;
@@ -350,7 +350,7 @@ impl<'a> ToolRuntime<UnifiedExecRequest<'_>, UnifiedExecAttempt> for UnifiedExec
                         Some(&prepared.turn_environment.selection.environment_id),
                     )
                     .map_err(|err| {
-                        ToolError::MapleCode(MapleCodeErr::Io(io::Error::other(format!(
+                        ToolError::Maplecode(MaplecodeErr::Io(io::Error::other(format!(
                             "failed to prepare network proxy for environment `{}`: {err}",
                             prepared.turn_environment.selection.environment_id
                         ))))
@@ -639,7 +639,7 @@ impl<'a> ToolRuntime<UnifiedExecRequest<'_>, UnifiedExecAttempt> for UnifiedExec
                 )
                 .await
         }
-        .map_err(ToolError::MapleCode)?;
+        .map_err(ToolError::Maplecode)?;
         let process = self
             .manager
             .open_session_with_exec_env(

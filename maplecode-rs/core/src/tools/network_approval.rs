@@ -29,7 +29,7 @@ use maplecode_network_proxy::RemoteNetworkProxyLaunchConfig;
 use maplecode_protocol::approvals::NetworkApprovalContext;
 use maplecode_protocol::approvals::NetworkApprovalProtocol;
 use maplecode_protocol::approvals::NetworkPolicyRuleAction;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::Event;
@@ -950,10 +950,10 @@ impl NetworkApprovalService {
                 pending_owner.complete(PendingApprovalDecision::Deny);
                 return NetworkDecision::deny(REASON_NOT_ALLOWED);
             }
-            Err(ToolError::MapleCode(err)) => {
+            Err(ToolError::Maplecode(err)) => {
                 let telemetry_decision = if matches!(
                     err.details(),
-                    maplecode_protocol::error::MapleCodeErrorDetails::TurnAborted
+                    maplecode_protocol::error::MaplecodeErrorDetails::TurnAborted
                 ) {
                     ReviewDecision::Abort
                 } else {
@@ -962,7 +962,7 @@ impl NetworkApprovalService {
                 if let Some(owner_call) = owner_call.as_ref() {
                     let rejection = if matches!(
                         err.details(),
-                        maplecode_protocol::error::MapleCodeErrorDetails::TurnAborted
+                        maplecode_protocol::error::MaplecodeErrorDetails::TurnAborted
                     ) {
                         "rejected by user".to_string()
                     } else {
@@ -1389,7 +1389,7 @@ pub(crate) async fn execution_network_proxy(
             fallback_policy_decider,
         )
         .map_err(|err| {
-            ToolError::MapleCode(MapleCodeErr::Io(io::Error::other(format!(
+            ToolError::Maplecode(MaplecodeErr::Io(io::Error::other(format!(
                 "failed to create execution-scoped network proxy: {err}"
             ))))
         })?;
@@ -1407,7 +1407,7 @@ pub(crate) async fn remote_network_proxy_launch(
         .info()
         .await
         .map_err(|err| {
-            ToolError::MapleCode(MapleCodeErr::Io(io::Error::other(format!(
+            ToolError::Maplecode(MaplecodeErr::Io(io::Error::other(format!(
                 "failed to query exec-server capabilities: {err}"
             ))))
         })?
@@ -1427,7 +1427,7 @@ pub(crate) async fn remote_network_proxy_launch(
             credential_masking,
         )
         .await
-        .map_err(|err| ToolError::MapleCode(MapleCodeErr::Io(io::Error::other(err))))?;
+        .map_err(|err| ToolError::Maplecode(MaplecodeErr::Io(io::Error::other(err))))?;
     if launch.proxy.enabled && !network_proxy.launch {
         return Err(ToolError::Rejected(
             "selected exec-server does not support executor-local network proxy launches"

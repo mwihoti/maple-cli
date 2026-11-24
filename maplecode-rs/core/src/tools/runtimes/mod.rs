@@ -282,7 +282,7 @@ pub(crate) fn prepare_brokered_shell_snapshot_env(
 /// runtime-only vars like `MAPLECODE_THREAD_ID` without pretending they came from
 /// the explicit override policy.
 ///
-/// `runtime_path_prepends` contains MapleCode-owned PATH entries already applied to
+/// `runtime_path_prepends` contains Maplecode-owned PATH entries already applied to
 /// the live `env`; snapshot wrapping replays them after restoring the snapshot
 /// PATH unless the user explicitly overrides `PATH`.
 pub(crate) fn maybe_wrap_shell_lc_with_snapshot(

@@ -19,7 +19,7 @@ use maplecode_network_proxy::ManagedNetworkSandboxContext;
 use maplecode_network_proxy::NetworkProxy;
 use maplecode_protocol::approvals::ExecPolicyAmendment;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::AdditionalPermissionProfile;
 use maplecode_protocol::permissions::FileSystemSandboxKind;
 use maplecode_protocol::permissions::FileSystemSandboxPolicy;
@@ -380,7 +380,7 @@ pub(crate) struct ToolCtx {
 #[derive(Debug)]
 pub(crate) enum ToolError {
     Rejected(String),
-    MapleCode(MapleCodeErr),
+    Maplecode(MaplecodeErr),
 }
 
 pub(crate) trait ToolRuntime<Req, Out>: Approvable<Req> + Sandboxable {
@@ -501,7 +501,7 @@ impl<'a> SandboxAttempt<'a> {
         options: ExecOptions,
         network: Option<&NetworkProxy>,
         environment_id: Option<&str>,
-    ) -> Result<crate::sandboxing::ExecRequest, MapleCodeErr> {
+    ) -> Result<crate::sandboxing::ExecRequest, MaplecodeErr> {
         let network = self.network_proxy(network);
         let mut request = self
             .manager
@@ -538,7 +538,7 @@ impl<'a> SandboxAttempt<'a> {
         managed_network: Option<ManagedNetworkSandboxContext>,
         additional_permissions: Option<&AdditionalPermissionProfile>,
         options: ExecOptions,
-    ) -> Result<crate::sandboxing::ExecRequest, MapleCodeErr> {
+    ) -> Result<crate::sandboxing::ExecRequest, MaplecodeErr> {
         let exec_server_permissions =
             effective_permission_profile(self.exec_server_permissions, additional_permissions);
         let request = SandboxExecRequest {

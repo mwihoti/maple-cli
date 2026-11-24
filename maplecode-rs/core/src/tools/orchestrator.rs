@@ -25,7 +25,7 @@ use crate::tools::sandboxing::ensure_native_sandbox;
 use crate::tools::sandboxing::sandbox_override_for_first_attempt;
 use crate::tools::sandboxing::unsandboxed_execution_allowed;
 use maplecode_otel::ToolDecisionSource;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::SandboxErr;
 use maplecode_protocol::exec_output::ExecToolCallOutput;
 use maplecode_protocol::models::PermissionProfile;
@@ -398,13 +398,13 @@ impl ToolOrchestrator {
                     deferred_network_approval: first_deferred_network_approval,
                 })
             }
-            Err(ToolError::MapleCode(err)) => {
-                let MapleCodeErrorDetails::Sandbox(SandboxErr::Denied {
+            Err(ToolError::Maplecode(err)) => {
+                let MaplecodeErrorDetails::Sandbox(SandboxErr::Denied {
                     output,
                     network_policy_decision,
                 }) = err.details()
                 else {
-                    let err = ToolError::MapleCode(err);
+                    let err = ToolError::Maplecode(err);
                     if let Some(outcome) = sandbox_outcome_from_tool_error(&err) {
                         otel.sandbox_outcome(
                             &otel_tn,
@@ -431,7 +431,7 @@ impl ToolOrchestrator {
                         initial_duration,
                         /*escalated_duration*/ None,
                     );
-                    return Err(ToolError::MapleCode(err));
+                    return Err(ToolError::Maplecode(err));
                 }
                 if !tool.escalate_on_failure() {
                     otel.sandbox_outcome(
@@ -441,7 +441,7 @@ impl ToolOrchestrator {
                         initial_duration,
                         /*escalated_duration*/ None,
                     );
-                    return Err(ToolError::MapleCode(err));
+                    return Err(ToolError::Maplecode(err));
                 }
                 // Under `Never` or `OnRequest`, do not retry without sandbox;
                 // surface a concise sandbox denial that preserves the
@@ -465,7 +465,7 @@ impl ToolOrchestrator {
                             initial_duration,
                             /*escalated_duration*/ None,
                         );
-                        return Err(ToolError::MapleCode(err));
+                        return Err(ToolError::Maplecode(err));
                     }
                 }
                 if !unsandboxed_allowed && network_approval_context.is_none() {
@@ -476,7 +476,7 @@ impl ToolOrchestrator {
                         initial_duration,
                         /*escalated_duration*/ None,
                     );
-                    return Err(ToolError::MapleCode(err));
+                    return Err(ToolError::Maplecode(err));
                 }
                 let retry_reason =
                     if let Some(network_approval_context) = network_approval_context.as_ref() {
@@ -648,10 +648,10 @@ impl ToolOrchestrator {
 
 fn sandbox_outcome_from_tool_error(err: &ToolError) -> Option<&'static str> {
     match err {
-        ToolError::MapleCode(err) => match err.details() {
-            MapleCodeErrorDetails::Sandbox(SandboxErr::Denied { .. }) => Some("denied"),
-            MapleCodeErrorDetails::Sandbox(SandboxErr::Timeout { .. }) => Some("timed_out"),
-            MapleCodeErrorDetails::Sandbox(SandboxErr::Signal(_)) => Some("signal"),
+        ToolError::Maplecode(err) => match err.details() {
+            MaplecodeErrorDetails::Sandbox(SandboxErr::Denied { .. }) => Some("denied"),
+            MaplecodeErrorDetails::Sandbox(SandboxErr::Timeout { .. }) => Some("timed_out"),
+            MaplecodeErrorDetails::Sandbox(SandboxErr::Signal(_)) => Some("signal"),
             _ => None,
         },
         ToolError::Rejected(_) => None,

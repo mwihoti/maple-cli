@@ -34,7 +34,7 @@ use indexmap::map::Entry;
 use maplecode_analytics::ControlToolCallStatus;
 use maplecode_extension_api::ToolCallOutcome;
 use maplecode_extension_api::ToolPolicy;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_protocol::models::FunctionCallOutputPayload;
 use maplecode_protocol::models::ResponseInputItem;
@@ -338,7 +338,7 @@ impl AnyToolResult {
         let history_truncation_token_limit = result.fallback_token_limit_override();
         ResponseItemEnvelope {
             item: result.to_response_item(&call_id, &payload).into(),
-            metadata: history_truncation_token_limit.map(|limit| MapleCodeHarnessMetadata {
+            metadata: history_truncation_token_limit.map(|limit| MaplecodeHarnessMetadata {
                 history_truncation_token_limit: Some(limit),
                 ..Default::default()
             }),

@@ -32,7 +32,7 @@ use maplecode_protocol::approvals::ExecPolicyAmendment;
 use maplecode_protocol::approvals::NetworkApprovalContext;
 use maplecode_protocol::approvals::NetworkApprovalProtocol;
 use maplecode_protocol::config_types::ApprovalsReviewer;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::mcp_approval_meta::McpApprovalCancellationReason;
 use maplecode_protocol::models::AdditionalPermissionProfile;
 use maplecode_protocol::openai_models::ModelInfo;
@@ -516,7 +516,7 @@ impl ApprovalResolution {
                     .timeout_instructions
                     .to_string(),
             )),
-            ReviewDecision::Abort => Err(ToolError::MapleCode(MapleCodeErr::TurnAborted)),
+            ReviewDecision::Abort => Err(ToolError::Maplecode(MaplecodeErr::TurnAborted)),
             decision => Ok(decision),
         }
     }

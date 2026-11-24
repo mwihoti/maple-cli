@@ -8,8 +8,8 @@ use crate::tools::context::ToolPayload;
 use maplecode_otel::SessionTelemetry;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::ResponseInputItem;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::SessionSource;
@@ -63,14 +63,14 @@ where
     })
 }
 
-pub(crate) fn collab_spawn_error(err: MapleCodeErr) -> FunctionCallError {
+pub(crate) fn collab_spawn_error(err: MaplecodeErr) -> FunctionCallError {
     match err.details() {
-        MapleCodeErrorDetails::UnsupportedOperation(message)
+        MaplecodeErrorDetails::UnsupportedOperation(message)
             if message == "thread manager dropped" =>
         {
             FunctionCallError::RespondToModel("collab manager unavailable".to_string())
         }
-        MapleCodeErrorDetails::UnsupportedOperation(message) => {
+        MaplecodeErrorDetails::UnsupportedOperation(message) => {
             FunctionCallError::RespondToModel(message.clone())
         }
         _ => FunctionCallError::RespondToModel(format!("collab spawn failed: {err}")),
@@ -80,17 +80,17 @@ pub(crate) fn collab_spawn_error(err: MapleCodeErr) -> FunctionCallError {
 pub(crate) fn record_collab_spawn_failure(
     telemetry: &SessionTelemetry,
     product_sku: Option<&str>,
-    err: &MapleCodeErr,
+    err: &MaplecodeErr,
     call_id: &str,
     turn_id: &str,
     fork_mode: Option<&SpawnAgentForkMode>,
     multi_agent_version: MultiAgentVersion,
 ) {
     let reason = match err.details() {
-        MapleCodeErrorDetails::AgentLimitReached { .. } => "limit_reached",
-        MapleCodeErrorDetails::InvalidRequest(_) => "invalid_request",
-        MapleCodeErrorDetails::ThreadNotFound(_) => "thread_not_found",
-        MapleCodeErrorDetails::UnsupportedOperation(_) => "unsupported_operation",
+        MaplecodeErrorDetails::AgentLimitReached { .. } => "limit_reached",
+        MaplecodeErrorDetails::InvalidRequest(_) => "invalid_request",
+        MaplecodeErrorDetails::ThreadNotFound(_) => "thread_not_found",
+        MaplecodeErrorDetails::UnsupportedOperation(_) => "unsupported_operation",
         _ => "internal",
     };
     let fork_mode = match fork_mode {
@@ -115,15 +115,15 @@ pub(crate) fn record_collab_spawn_failure(
         );
 }
 
-pub(crate) fn collab_agent_error(agent_id: ThreadId, err: MapleCodeErr) -> FunctionCallError {
+pub(crate) fn collab_agent_error(agent_id: ThreadId, err: MaplecodeErr) -> FunctionCallError {
     match err.details() {
-        MapleCodeErrorDetails::ThreadNotFound(id) => {
+        MaplecodeErrorDetails::ThreadNotFound(id) => {
             FunctionCallError::RespondToModel(format!("agent with id {id} not found"))
         }
-        MapleCodeErrorDetails::InternalAgentDied => {
+        MaplecodeErrorDetails::InternalAgentDied => {
             FunctionCallError::RespondToModel(format!("agent with id {agent_id} is closed"))
         }
-        MapleCodeErrorDetails::UnsupportedOperation(_) => {
+        MaplecodeErrorDetails::UnsupportedOperation(_) => {
             FunctionCallError::RespondToModel("collab manager unavailable".to_string())
         }
         _ => FunctionCallError::RespondToModel(format!("collab tool failed: {err}")),
@@ -131,9 +131,9 @@ pub(crate) fn collab_agent_error(agent_id: ThreadId, err: MapleCodeErr) -> Funct
 }
 
 /// Keeps V2 request validation distinct from a dropped local manager.
-pub(crate) fn collab_v2_agent_error(agent_id: ThreadId, err: MapleCodeErr) -> FunctionCallError {
+pub(crate) fn collab_v2_agent_error(agent_id: ThreadId, err: MaplecodeErr) -> FunctionCallError {
     match err.details() {
-        MapleCodeErrorDetails::UnsupportedOperation(message)
+        MaplecodeErrorDetails::UnsupportedOperation(message)
             if message != "thread manager dropped" =>
         {
             FunctionCallError::RespondToModel(message.clone())

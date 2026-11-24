@@ -72,8 +72,8 @@ use maplecode_protocol::account::PlanType;
 use maplecode_protocol::config_types::WebSearchMode;
 use maplecode_protocol::dynamic_tools::DynamicToolNamespaceTool;
 use maplecode_protocol::dynamic_tools::DynamicToolSpec;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::openai_models::ConfigShellToolType;
 use maplecode_protocol::openai_models::InputModality;
@@ -129,7 +129,7 @@ pub(crate) fn build_tool_router(
     step_store: &ExtensionData,
     tool_suggest_candidates: Option<&crate::tools::router::ToolSuggestCandidates>,
     dynamic_tools: &[DynamicToolSpec],
-) -> MapleCodeResult<ToolRouter> {
+) -> MaplecodeResult<ToolRouter> {
     let default_agent_type_description =
         crate::agent::role::spawn_tool_spec::build(&std::collections::BTreeMap::new());
     let wait_for_environment_tool_config = session
@@ -404,7 +404,7 @@ pub(crate) fn finalize_tool_router(
     mut registry: ToolRegistry,
     mut hosted_specs: Vec<ToolSpec>,
     tool_search_handler_cache: &ToolSearchHandlerCache,
-) -> MapleCodeResult<ToolRouter> {
+) -> MaplecodeResult<ToolRouter> {
     let model_messages = ResolvedModelMessages::from_model(model_info);
     hosted_specs.retain(|spec| registry.tool_policy.allows(&ToolName::plain(spec.name())));
     apply_direct_model_only_namespace_overrides(turn_context, &mut registry);
@@ -496,7 +496,7 @@ pub(crate) fn finalize_tool_router(
         model_messages.indirect_description_prefixes(),
         registry.mcp_namespaces(),
     )
-    .map_err(|error| MapleCodeErrorDetails::InvalidRequest(error.to_string()))?;
+    .map_err(|error| MaplecodeErrorDetails::InvalidRequest(error.to_string()))?;
     let (code_mode_tool_names, exec_definitions) =
         register_code_mode_executors(turn_context, model_info, &mut registry, &indirect_prefixes);
     let include_tool_namespaces_info = turn_context
@@ -509,7 +509,7 @@ pub(crate) fn finalize_tool_router(
         if let Some(tool_name) = registry.first_collision() {
             let namespace = tool_name.namespace.as_deref().unwrap_or("functions");
             let name = format!("{namespace}.{}", tool_name.name);
-            return Err(MapleCodeErrorDetails::ToolCollision(name).into());
+            return Err(MaplecodeErrorDetails::ToolCollision(name).into());
         }
 
         let mut namespace_descriptions = BTreeMap::new();
@@ -532,7 +532,7 @@ pub(crate) fn finalize_tool_router(
                 let owner = tool.runtime.mcp_server_name();
                 match namespace_owners.get(namespace_name) {
                     Some(existing_owner) if existing_owner != &owner => {
-                        return Err(MapleCodeErrorDetails::ToolCollision(
+                        return Err(MaplecodeErrorDetails::ToolCollision(
                             namespace_name.to_string(),
                         )
                         .into());
@@ -555,7 +555,7 @@ pub(crate) fn finalize_tool_router(
                     entry.insert(namespace.description.clone());
                 }
                 Entry::Occupied(entry) if entry.get() != &namespace.description => {
-                    return Err(MapleCodeErrorDetails::ToolCollision(entry.key().clone()).into());
+                    return Err(MaplecodeErrorDetails::ToolCollision(entry.key().clone()).into());
                 }
                 Entry::Occupied(_) => {}
             }
@@ -929,7 +929,7 @@ fn prepare_function_description_prefixes(
     model_info: &ModelInfo,
     registry: &mut ToolRegistry,
     search_exposure: Option<ToolExposure>,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let model_messages = ResolvedModelMessages::from_model(model_info);
     let prefixes = model_messages.functions_namespace_functions_description_prefixes();
     let mut available_tools = Vec::new();
@@ -982,7 +982,7 @@ fn prepare_function_description_prefixes(
     }
     registry
         .apply_functions_namespace_function_prefixes(prefixes, available_tools)
-        .map_err(|error| MapleCodeErrorDetails::InvalidRequest(error.to_owned()).into())
+        .map_err(|error| MaplecodeErrorDetails::InvalidRequest(error.to_owned()).into())
 }
 
 /// Select the same nested tools for prefix budgeting and Code Mode construction.

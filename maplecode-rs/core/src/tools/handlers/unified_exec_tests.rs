@@ -383,7 +383,7 @@ async fn exec_command_reuses_foreign_windows_grant() {
     use maplecode_utils_path_uri::PathUri;
 
     let (session, mut turn, _events) = make_session_and_context_with_auth_and_config_and_rx(
-        maplecode_login::MapleCodeAuth::from_api_key("Test API Key"),
+        maplecode_login::MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config
@@ -804,7 +804,7 @@ async fn exec_command_telemetry_records_configured_snapshot_mode(
     use maplecode_features::Feature;
 
     let (session, turn, _events) = make_session_and_context_with_auth_and_config_and_rx(
-        maplecode_login::MapleCodeAuth::from_api_key("Test API Key"),
+        maplecode_login::MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             for (feature, enabled) in [

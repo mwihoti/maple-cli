@@ -35,7 +35,7 @@ use maplecode_features::Feature;
 use maplecode_history::InitialHistory;
 use maplecode_history::RolloutItem;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::built_in_model_providers;
 use maplecode_models_manager::manager::ModelCatalogSettings;
@@ -134,7 +134,7 @@ fn parse_agent_id(id: &str) -> ThreadId {
     ThreadId::from_string(id).expect("agent id should be valid")
 }
 
-async fn wait_for_recorded_user_input(thread: &crate::MapleCodeThread, expected: &[UserInput]) {
+async fn wait_for_recorded_user_input(thread: &crate::MaplecodeThread, expected: &[UserInput]) {
     timeout(Duration::from_secs(5), async {
         loop {
             let event = thread
@@ -157,7 +157,7 @@ async fn wait_for_recorded_user_input(thread: &crate::MapleCodeThread, expected:
 
 fn thread_manager() -> ThreadManager {
     ThreadManager::with_models_provider_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["openai"].clone(),
     )
 }
@@ -2287,7 +2287,7 @@ async fn spawn_agent_reapplies_runtime_sandbox_after_role_config() {
         .expect("sandbox-capable test environment should start");
     let environment_manager = sandbox_runtime.thread_manager.environment_manager();
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         built_in_model_providers(/*openai_base_url*/ None)["openai"].clone(),
         turn.config.maplecode_home.to_path_buf(),
         Arc::clone(&environment_manager),
@@ -2831,7 +2831,7 @@ async fn resume_agent_restores_closed_agent_and_accepts_send_input() {
                 }
                 .into(),
             )]),
-            AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("dummy")),
+            AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("dummy")),
             /*parent_trace*/ None,
             ClientMcpExtensions::default(),
         )
@@ -3960,7 +3960,7 @@ async fn multi_agent_v2_interrupt_agent_accepts_task_name_target() {
 async fn multi_agent_v2_interrupt_agent_accepts_unloaded_task_name_target() {
     let maplecode_home = tempfile::tempdir().expect("create maplecode home");
     let (session, turn, _) = make_session_and_context_with_auth_config_home_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         maplecode_home.path(),
         |_config| {},
@@ -3982,7 +3982,7 @@ async fn multi_agent_v2_interrupt_agent_accepts_unloaded_task_name_target() {
         .await
         .expect("sqlite state db should initialize");
     let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -4304,7 +4304,7 @@ async fn close_agent_submits_shutdown_and_returns_previous_status() {
 async fn tool_handlers_cascade_close_and_resume_and_keep_explicitly_closed_subtrees_closed() {
     let maplecode_home = tempfile::tempdir().expect("create maplecode home");
     let (_session, turn, _) = make_session_and_context_with_auth_config_home_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         maplecode_home.path(),
         |_config| {},
@@ -4321,7 +4321,7 @@ async fn tool_handlers_cascade_close_and_resume_and_keep_explicitly_closed_subtr
         .enable(Feature::Sqlite)
         .expect("test config should allow sqlite");
     let state_db = init_state_db(&config).await;
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("dummy"));
+    let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("dummy"));
     let manager = ThreadManager::new(
         &config,
         crate::build_startup_models(
@@ -4332,7 +4332,7 @@ async fn tool_handlers_cascade_close_and_resume_and_keep_explicitly_closed_subtr
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -4699,7 +4699,7 @@ async fn build_agent_spawn_config_uses_captured_step_settings_and_turn_context_v
 async fn child_agents_inherit_thread_routing_when_parent_overrides_it_for_one_turn() {
     let home = tempfile::tempdir().expect("create test home");
     let (session, _, _events) = make_session_and_context_with_auth_config_home_and_rx(
-        MapleCodeAuth::from_api_key("test"),
+        MaplecodeAuth::from_api_key("test"),
         Vec::new(),
         home.path(),
         |config| config.code_mode.direct_only_tool_namespaces = vec!["thread_tools".into()],

@@ -19,7 +19,7 @@ use maplecode_apply_patch::AppliedPatchFileChange;
 use maplecode_apply_patch::ApplyPatchAction;
 use maplecode_apply_patch::ApplyPatchOptions;
 use maplecode_exec_server::FileSystemSandboxContext;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::SandboxErr;
 use maplecode_protocol::exec_output::ExecToolCallOutput;
 use maplecode_protocol::exec_output::StreamOutput;
@@ -250,7 +250,7 @@ impl ToolRuntime<ApplyPatchRequest, ApplyPatchRuntimeOutput> for ApplyPatchRunti
             if attempt.sandbox != SandboxType::None {
                 record_filesystem_sandbox_violation(attempt.sandbox, &output);
             }
-            return Err(ToolError::MapleCode(MapleCodeErr::Sandbox(
+            return Err(ToolError::Maplecode(MaplecodeErr::Sandbox(
                 SandboxErr::Denied {
                     output: Box::new(output),
                     network_policy_decision: None,

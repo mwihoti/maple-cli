@@ -31,7 +31,7 @@ use maplecode_direct_tool_timing::ToolAdmission;
 use maplecode_direct_tool_timing::ToolBatchTiming;
 use maplecode_direct_tool_timing::ToolGateTiming;
 use maplecode_history::ResponseItemEnvelope;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::ResponseInputItem;
 use maplecode_protocol::models::ToolResultMetadata;
 
@@ -109,7 +109,7 @@ impl ToolCallRuntime {
         self,
         call: ToolCall,
         cancellation_token: CancellationToken,
-    ) -> impl std::future::Future<Output = Result<ResponseItemEnvelope, MapleCodeErr>> {
+    ) -> impl std::future::Future<Output = Result<ResponseItemEnvelope, MaplecodeErr>> {
         let error_call = call.clone();
         let source = call.direct_source();
         let recorder = self.session.services.executed_tool_calls.clone();
@@ -137,7 +137,7 @@ impl ToolCallRuntime {
                     }
                     result.into_response()
                 }
-                Err(FunctionCallError::Fatal(message)) => return Err(MapleCodeErr::Fatal(message)),
+                Err(FunctionCallError::Fatal(message)) => return Err(MaplecodeErr::Fatal(message)),
                 Err(other) => {
                     ResponseItemEnvelope::new(Self::failure_response(error_call, other).into())
                 }
