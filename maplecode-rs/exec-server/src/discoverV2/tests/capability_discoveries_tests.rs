@@ -303,7 +303,7 @@ async fn discovery_resolves_optional_skill_metadata() -> anyhow::Result<()> {
     });
     let policy = Some(SkillPolicy {
         allow_implicit_invocation: Some(false),
-        products: vec![Product::MapleCode, Product::Chatgpt],
+        products: vec![Product::Maplecode, Product::Chatgpt],
     });
     for (yaml, dependencies, policy) in [
         (None, None, None),

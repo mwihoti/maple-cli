@@ -47,7 +47,7 @@ impl Drop for ExecServerHarness {
     }
 }
 
-pub(crate) struct TestMapleCodeHelperPaths {
+pub(crate) struct TestMaplecodeHelperPaths {
     pub(crate) maplecode_exe: PathBuf,
     pub(crate) maplecode_linux_sandbox_exe: Option<PathBuf>,
 }
@@ -66,9 +66,9 @@ impl Drop for DisconnectableWebSocketProxy {
     }
 }
 
-pub(crate) fn test_maplecode_helper_paths() -> anyhow::Result<TestMapleCodeHelperPaths> {
+pub(crate) fn test_maplecode_helper_paths() -> anyhow::Result<TestMaplecodeHelperPaths> {
     let (helper_binary, maplecode_linux_sandbox_exe) = super::current_test_binary_helper_paths()?;
-    Ok(TestMapleCodeHelperPaths {
+    Ok(TestMaplecodeHelperPaths {
         maplecode_exe: helper_binary,
         maplecode_linux_sandbox_exe,
     })

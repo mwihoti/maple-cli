@@ -1226,9 +1226,9 @@ async fn assert_exec_process_starts_and_exits(use_remote: bool) -> Result<()> {
     let mut env = std::env::vars().collect::<HashMap<_, _>>();
     env.extend([
         ("MAPLECODE_THREAD_ID".into(), "stale-thread".into()),
-        ("MapleCode_Thread_Id".into(), "mixed-case-thread".into()),
+        ("Maplecode_Thread_Id".into(), "mixed-case-thread".into()),
         ("MAPLECODE_TOOL_CALL_ID".into(), "stale-call".into()),
-        ("MapleCode_Tool_Call_Id".into(), "mixed-case-call".into()),
+        ("Maplecode_Tool_Call_Id".into(), "mixed-case-call".into()),
         ("CUSTOM_ENV_VAR".into(), "caller-owned".into()),
     ]);
     let session = context

@@ -1648,7 +1648,7 @@ mod tests {
         ] {
             let mut params = test_exec_params(HashMap::from([
                 ("MAPLECODE_THREAD_ID".into(), "stale-thread".into()),
-                ("MapleCode_Thread_Id".into(), "mixed-case-thread".into()),
+                ("Maplecode_Thread_Id".into(), "mixed-case-thread".into()),
                 ("maplecode_thread_id".into(), "lowercase-thread".into()),
                 ("MAPLECODE_TOOL_CALL_ID".into(), "stale-call".into()),
                 ("OTHER".into(), "unchanged".into()),
@@ -1660,7 +1660,7 @@ mod tests {
 
             let mut expected = HashMap::from([("OTHER".into(), "unchanged".into())]);
             #[cfg(not(windows))]
-            expected.insert("MapleCode_Thread_Id".into(), "mixed-case-thread".into());
+            expected.insert("Maplecode_Thread_Id".into(), "mixed-case-thread".into());
             #[cfg(not(windows))]
             expected.insert("maplecode_thread_id".into(), "lowercase-thread".into());
             if let Some(thread_id) = thread_id {
@@ -1682,18 +1682,18 @@ mod tests {
     fn child_env_without_metadata_preserves_thread_only_context() {
         let params = test_exec_params(HashMap::from([
             ("MAPLECODE_THREAD_ID".into(), "prewarm-thread".into()),
-            ("MapleCode_Thread_Id".into(), "mixed-case-thread".into()),
+            ("Maplecode_Thread_Id".into(), "mixed-case-thread".into()),
             ("MAPLECODE_TOOL_CALL_ID".into(), "stale-call".into()),
-            ("MapleCode_Tool_Call_Id".into(), "mixed-case-call".into()),
+            ("Maplecode_Tool_Call_Id".into(), "mixed-case-call".into()),
         ]));
 
         assert_eq!(
             child_env(&params),
             HashMap::from([
                 ("MAPLECODE_THREAD_ID".into(), "prewarm-thread".into()),
-                ("MapleCode_Thread_Id".into(), "mixed-case-thread".into()),
+                ("Maplecode_Thread_Id".into(), "mixed-case-thread".into()),
                 #[cfg(not(windows))]
-                ("MapleCode_Tool_Call_Id".into(), "mixed-case-call".into()),
+                ("Maplecode_Tool_Call_Id".into(), "mixed-case-call".into()),
             ]),
         );
     }

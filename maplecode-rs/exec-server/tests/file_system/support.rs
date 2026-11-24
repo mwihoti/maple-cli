@@ -19,13 +19,13 @@ use maplecode_utils_absolute_path::AbsolutePathBuf;
 use maplecode_utils_path_uri::PathUri;
 
 use crate::common::exec_server::ExecServerHarness;
-use crate::common::exec_server::TestMapleCodeHelperPaths;
+use crate::common::exec_server::TestMaplecodeHelperPaths;
 use crate::common::exec_server::exec_server;
 use crate::common::exec_server::test_maplecode_helper_paths;
 
 pub(crate) struct FileSystemContext {
     pub(crate) file_system: Arc<dyn ExecutorFileSystem>,
-    _helper_paths: Option<TestMapleCodeHelperPaths>,
+    _helper_paths: Option<TestMaplecodeHelperPaths>,
     _server: Option<ExecServerHarness>,
 }
 
