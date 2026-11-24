@@ -7,7 +7,7 @@ use super::AgentPath;
 use super::AgentThreadId;
 use super::ConversationItemId;
 use super::EdgeId;
-use super::MapleCodeTurnId;
+use super::MaplecodeTurnId;
 
 /// Coarse terminal status for the rollout.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -102,8 +102,8 @@ pub enum ExecutionStatus {
 /// It is not a user/assistant message pair; conversation belongs in
 /// `ConversationItem`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct MapleCodeTurn {
-    pub maplecode_turn_id: MapleCodeTurnId,
+pub struct MaplecodeTurn {
+    pub maplecode_turn_id: MaplecodeTurnId,
     pub thread_id: AgentThreadId,
     pub execution: ExecutionWindow,
     /// Conversation items that directly triggered this activation, when known.

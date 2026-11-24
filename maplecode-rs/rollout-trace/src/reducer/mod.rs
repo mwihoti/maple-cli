@@ -314,7 +314,7 @@ impl TraceReducer {
             RawTraceEventPayload::ThreadResumed { thread_id } => {
                 self.resume_thread(&thread_id)?;
             }
-            RawTraceEventPayload::MapleCodeTurnStarted {
+            RawTraceEventPayload::MaplecodeTurnStarted {
                 maplecode_turn_id,
                 thread_id,
             } => {
@@ -325,7 +325,7 @@ impl TraceReducer {
                     thread_id,
                 )?;
             }
-            RawTraceEventPayload::MapleCodeTurnEnded {
+            RawTraceEventPayload::MaplecodeTurnEnded {
                 maplecode_turn_id,
                 status,
             } => {

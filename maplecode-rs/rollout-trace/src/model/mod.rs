@@ -23,7 +23,7 @@ pub type AgentThreadId = String;
 /// Stable multi-agent routing path such as `/root` or `/root/search_docs`.
 pub type AgentPath = String;
 /// Runtime submission/activation UUID. This is not a chat turn.
-pub type MapleCodeTurnId = String;
+pub type MaplecodeTurnId = String;
 /// Reduced transcript item ID assigned by the trace reducer.
 pub type ConversationItemId = String;
 /// Local ID for one outbound upstream inference request.
@@ -72,7 +72,7 @@ pub struct RolloutTrace {
     pub recording_complete: bool,
     pub root_thread_id: AgentThreadId,
     pub threads: BTreeMap<AgentThreadId, AgentThread>,
-    pub maplecode_turns: BTreeMap<MapleCodeTurnId, MapleCodeTurn>,
+    pub maplecode_turns: BTreeMap<MaplecodeTurnId, MaplecodeTurn>,
     pub conversation_items: BTreeMap<ConversationItemId, ConversationItem>,
     pub inference_calls: BTreeMap<InferenceCallId, InferenceCall>,
     /// Model-authored `exec` JavaScript cells keyed by reducer-owned cell ID.

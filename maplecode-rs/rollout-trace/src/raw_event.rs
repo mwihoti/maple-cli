@@ -7,7 +7,7 @@ use crate::model::CompactionRequestId;
 use crate::model::EdgeId;
 use crate::model::ExecutionStatus;
 use crate::model::InferenceCallId;
-use crate::model::MapleCodeTurnId;
+use crate::model::MaplecodeTurnId;
 use crate::model::McpCallId;
 use crate::model::ModelVisibleCallId;
 use crate::model::RolloutStatus;
@@ -38,7 +38,7 @@ pub struct RawTraceEvent {
     pub wall_time_unix_ms: i64,
     pub rollout_id: String,
     pub thread_id: Option<AgentThreadId>,
-    pub maplecode_turn_id: Option<MapleCodeTurnId>,
+    pub maplecode_turn_id: Option<MaplecodeTurnId>,
     pub payload: RawTraceEventPayload,
 }
 
@@ -46,7 +46,7 @@ pub struct RawTraceEvent {
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct RawTraceEventContext {
     pub thread_id: Option<AgentThreadId>,
-    pub maplecode_turn_id: Option<MapleCodeTurnId>,
+    pub maplecode_turn_id: Option<MaplecodeTurnId>,
 }
 
 /// Runtime requester as observed at the raw tool boundary.
@@ -90,12 +90,12 @@ pub enum RawTraceEventPayload {
     ThreadResumed {
         thread_id: AgentThreadId,
     },
-    MapleCodeTurnStarted {
-        maplecode_turn_id: MapleCodeTurnId,
+    MaplecodeTurnStarted {
+        maplecode_turn_id: MaplecodeTurnId,
         thread_id: AgentThreadId,
     },
-    MapleCodeTurnEnded {
-        maplecode_turn_id: MapleCodeTurnId,
+    MaplecodeTurnEnded {
+        maplecode_turn_id: MaplecodeTurnId,
         status: ExecutionStatus,
     },
     /// The harness appended this Responses item to its history. This is not
@@ -109,7 +109,7 @@ pub enum RawTraceEventPayload {
     InferenceStarted {
         inference_call_id: InferenceCallId,
         thread_id: AgentThreadId,
-        maplecode_turn_id: MapleCodeTurnId,
+        maplecode_turn_id: MaplecodeTurnId,
         model: String,
         provider_name: String,
         request_payload: RawPayloadRef,
@@ -205,7 +205,7 @@ pub enum RawTraceEventPayload {
         compaction_id: CompactionId,
         compaction_request_id: CompactionRequestId,
         thread_id: AgentThreadId,
-        maplecode_turn_id: MapleCodeTurnId,
+        maplecode_turn_id: MaplecodeTurnId,
         model: String,
         provider_name: String,
         request_payload: RawPayloadRef,
@@ -230,7 +230,7 @@ pub enum RawTraceEventPayload {
     AgentResultObserved {
         edge_id: EdgeId,
         child_thread_id: AgentThreadId,
-        child_maplecode_turn_id: MapleCodeTurnId,
+        child_maplecode_turn_id: MaplecodeTurnId,
         parent_thread_id: AgentThreadId,
         message: String,
         /// Raw notification payload. This is evidence for the runtime delivery,
@@ -261,8 +261,8 @@ impl RawTraceEventPayload {
             | RawTraceEventPayload::RolloutEnded { .. }
             | RawTraceEventPayload::ThreadEnded { .. }
             | RawTraceEventPayload::ThreadResumed { .. }
-            | RawTraceEventPayload::MapleCodeTurnStarted { .. }
-            | RawTraceEventPayload::MapleCodeTurnEnded { .. }
+            | RawTraceEventPayload::MaplecodeTurnStarted { .. }
+            | RawTraceEventPayload::MaplecodeTurnEnded { .. }
             | RawTraceEventPayload::CompactionRequestFailed { .. }
             | RawTraceEventPayload::CodeCellStarted { .. }
             | RawTraceEventPayload::McpToolCallCorrelationAssigned { .. }

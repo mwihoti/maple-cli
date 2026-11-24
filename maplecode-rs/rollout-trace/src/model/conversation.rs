@@ -11,7 +11,7 @@ use super::CompactionId;
 use super::ConversationItemId;
 use super::EdgeId;
 use super::InferenceCallId;
-use super::MapleCodeTurnId;
+use super::MaplecodeTurnId;
 use super::ModelVisibleCallId;
 use super::ToolCallId;
 use super::session::ExecutionWindow;
@@ -39,7 +39,7 @@ pub struct ConversationItem {
     pub accepted_seq: Option<RawEventSeq>,
     pub thread_id: AgentThreadId,
     /// Runtime activation that first introduced this item locally, when known.
-    pub maplecode_turn_id: Option<MapleCodeTurnId>,
+    pub maplecode_turn_id: Option<MaplecodeTurnId>,
     pub first_seen_at_unix_ms: i64,
     pub role: ConversationRole,
     /// Maple Code channel for assistant/tool content, when the item is channel-specific.
@@ -176,7 +176,7 @@ pub enum ProducerRef {
 pub struct InferenceCall {
     pub inference_call_id: InferenceCallId,
     pub thread_id: AgentThreadId,
-    pub maplecode_turn_id: MapleCodeTurnId,
+    pub maplecode_turn_id: MaplecodeTurnId,
     pub execution: ExecutionWindow,
     pub model: String,
     pub provider_name: String,

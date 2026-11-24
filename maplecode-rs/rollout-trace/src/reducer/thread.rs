@@ -17,8 +17,8 @@ use crate::model::AgentOrigin;
 use crate::model::AgentThread;
 use crate::model::ExecutionStatus;
 use crate::model::ExecutionWindow;
-use crate::model::MapleCodeTurn;
-use crate::model::MapleCodeTurnId;
+use crate::model::MaplecodeTurn;
+use crate::model::MaplecodeTurnId;
 use crate::model::RolloutStatus;
 use crate::payload::RawPayloadRef;
 use crate::raw_event::RawEventSeq;
@@ -152,7 +152,7 @@ impl TraceReducer {
         &mut self,
         seq: RawEventSeq,
         wall_time_unix_ms: i64,
-        maplecode_turn_id: MapleCodeTurnId,
+        maplecode_turn_id: MaplecodeTurnId,
         thread_id: String,
     ) -> Result<()> {
         if self
@@ -167,7 +167,7 @@ impl TraceReducer {
 
         self.rollout.maplecode_turns.insert(
             maplecode_turn_id.clone(),
-            MapleCodeTurn {
+            MaplecodeTurn {
                 maplecode_turn_id,
                 thread_id,
                 execution: ExecutionWindow {
@@ -189,7 +189,7 @@ impl TraceReducer {
         seq: RawEventSeq,
         wall_time_unix_ms: i64,
         thread_id: Option<String>,
-        maplecode_turn_id: MapleCodeTurnId,
+        maplecode_turn_id: MaplecodeTurnId,
         status: ExecutionStatus,
     ) -> Result<()> {
         if let Some(event_thread_id) = thread_id.as_deref()

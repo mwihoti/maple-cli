@@ -23,7 +23,7 @@ use uuid::Uuid;
 
 use crate::model::AgentThreadId;
 use crate::model::InferenceCallId;
-use crate::model::MapleCodeTurnId;
+use crate::model::MaplecodeTurnId;
 use crate::payload::RawPayloadKind;
 use crate::raw_event::RawTraceEventContext;
 use crate::raw_event::RawTraceEventPayload;
@@ -52,7 +52,7 @@ enum InferenceTraceContextState {
 struct EnabledInferenceTraceContext {
     writer: Arc<TraceWriter>,
     thread_id: AgentThreadId,
-    maplecode_turn_id: MapleCodeTurnId,
+    maplecode_turn_id: MaplecodeTurnId,
     model: String,
     provider_name: String,
 }
@@ -107,7 +107,7 @@ impl InferenceTraceContext {
     pub fn enabled(
         writer: Arc<TraceWriter>,
         thread_id: AgentThreadId,
-        maplecode_turn_id: MapleCodeTurnId,
+        maplecode_turn_id: MaplecodeTurnId,
         model: String,
         provider_name: String,
     ) -> Self {
@@ -466,7 +466,7 @@ mod tests {
             agent_path: "/root".to_string(),
             metadata_payload: None,
         })?;
-        writer.append(RawTraceEventPayload::MapleCodeTurnStarted {
+        writer.append(RawTraceEventPayload::MaplecodeTurnStarted {
             maplecode_turn_id: "turn-1".to_string(),
             thread_id: "thread-root".to_string(),
         })?;

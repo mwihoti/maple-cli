@@ -29,12 +29,12 @@ use std::time::Duration;
 
 use crate::AgentThreadId;
 use crate::ExecutionStatus;
-use crate::MapleCodeTurnId;
+use crate::MaplecodeTurnId;
 use crate::RawTraceEventPayload;
 use crate::ToolCallKind;
 
-pub(crate) struct MapleCodeTurnTraceEvent {
-    pub context_turn_id: MapleCodeTurnId,
+pub(crate) struct MaplecodeTurnTraceEvent {
+    pub context_turn_id: MaplecodeTurnId,
     pub payload: RawTraceEventPayload,
 }
 
@@ -43,13 +43,13 @@ pub(crate) fn maplecode_turn_trace_event(
     default_turn_id: &str,
     event: &EventMsg,
     store_agent_message: impl FnOnce(&ResponseItem) -> Option<crate::RawPayloadRef>,
-) -> Option<MapleCodeTurnTraceEvent> {
+) -> Option<MaplecodeTurnTraceEvent> {
     match event {
         EventMsg::TurnStarted(event) => {
             let maplecode_turn_id = event.turn_id.clone();
-            Some(MapleCodeTurnTraceEvent {
+            Some(MaplecodeTurnTraceEvent {
                 context_turn_id: maplecode_turn_id.clone(),
-                payload: RawTraceEventPayload::MapleCodeTurnStarted {
+                payload: RawTraceEventPayload::MaplecodeTurnStarted {
                     maplecode_turn_id,
                     thread_id,
                 },
@@ -57,9 +57,9 @@ pub(crate) fn maplecode_turn_trace_event(
         }
         EventMsg::TurnComplete(event) => {
             let maplecode_turn_id = event.turn_id.clone();
-            Some(MapleCodeTurnTraceEvent {
+            Some(MaplecodeTurnTraceEvent {
                 context_turn_id: maplecode_turn_id.clone(),
-                payload: RawTraceEventPayload::MapleCodeTurnEnded {
+                payload: RawTraceEventPayload::MaplecodeTurnEnded {
                     maplecode_turn_id,
                     status: if event.error.is_some() {
                         ExecutionStatus::Failed
@@ -74,15 +74,15 @@ pub(crate) fn maplecode_turn_trace_event(
                 .turn_id
                 .clone()
                 .unwrap_or_else(|| default_turn_id.to_string());
-            Some(MapleCodeTurnTraceEvent {
+            Some(MaplecodeTurnTraceEvent {
                 context_turn_id: maplecode_turn_id.clone(),
-                payload: RawTraceEventPayload::MapleCodeTurnEnded {
+                payload: RawTraceEventPayload::MaplecodeTurnEnded {
                     maplecode_turn_id,
                     status: execution_status_for_abort_reason(&event.reason),
                 },
             })
         }
-        EventMsg::RawResponseItem(event) => Some(MapleCodeTurnTraceEvent {
+        EventMsg::RawResponseItem(event) => Some(MaplecodeTurnTraceEvent {
             context_turn_id: default_turn_id.to_string(),
             payload: RawTraceEventPayload::HistoryItemAccepted {
                 item_id: event.item.id()?.to_string(),

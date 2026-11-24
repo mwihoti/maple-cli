@@ -12,7 +12,7 @@ use super::CompactionId;
 use super::CompactionRequestId;
 use super::ConversationItemId;
 use super::EdgeId;
-use super::MapleCodeTurnId;
+use super::MaplecodeTurnId;
 use super::McpCallId;
 use super::ModelVisibleCallId;
 use super::TerminalId;
@@ -32,7 +32,7 @@ pub struct CodeCell {
     pub code_cell_id: CodeCellId,
     pub model_visible_call_id: ModelVisibleCallId,
     pub thread_id: AgentThreadId,
-    pub maplecode_turn_id: MapleCodeTurnId,
+    pub maplecode_turn_id: MaplecodeTurnId,
     /// Conversation item containing the model-authored JavaScript.
     pub source_item_id: ConversationItemId,
     pub output_item_ids: Vec<ConversationItemId>,
@@ -82,7 +82,7 @@ pub enum CodeCellRuntimeStatus {
 pub struct Compaction {
     pub compaction_id: CompactionId,
     pub thread_id: AgentThreadId,
-    pub maplecode_turn_id: MapleCodeTurnId,
+    pub maplecode_turn_id: MaplecodeTurnId,
     pub installed_at_unix_ms: i64,
     /// Structural conversation item marking where pre-compaction history ended.
     pub marker_item_id: ConversationItemId,
@@ -100,7 +100,7 @@ pub struct CompactionRequest {
     pub compaction_request_id: CompactionRequestId,
     pub compaction_id: CompactionId,
     pub thread_id: AgentThreadId,
-    pub maplecode_turn_id: MapleCodeTurnId,
+    pub maplecode_turn_id: MaplecodeTurnId,
     pub execution: ExecutionWindow,
     pub model: String,
     pub provider_name: String,
@@ -128,7 +128,7 @@ pub struct ToolCall {
     pub started_code_cell_id: Option<CodeCellId>,
     pub thread_id: AgentThreadId,
     /// Runtime activation that started the tool. Background work may outlive this turn.
-    pub started_by_maplecode_turn_id: Option<MapleCodeTurnId>,
+    pub started_by_maplecode_turn_id: Option<MaplecodeTurnId>,
     pub execution: ExecutionWindow,
     pub requester: ToolCallRequester,
     pub kind: ToolCallKind,

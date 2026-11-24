@@ -19,7 +19,7 @@ use tracing::warn;
 use crate::model::AgentThreadId;
 use crate::model::CodeModeRuntimeToolId;
 use crate::model::ExecutionStatus;
-use crate::model::MapleCodeTurnId;
+use crate::model::MaplecodeTurnId;
 use crate::model::ModelVisibleCallId;
 use crate::model::ToolCallId;
 use crate::model::ToolCallKind;
@@ -47,14 +47,14 @@ enum ToolDispatchTraceContextState {
 struct EnabledToolDispatchTraceContext {
     writer: Arc<TraceWriter>,
     thread_id: AgentThreadId,
-    maplecode_turn_id: MapleCodeTurnId,
+    maplecode_turn_id: MaplecodeTurnId,
     tool_call_id: ToolCallId,
 }
 
 /// Core-facing request data for the canonical Maple Code tool boundary.
 pub struct ToolDispatchInvocation {
     pub thread_id: AgentThreadId,
-    pub maplecode_turn_id: MapleCodeTurnId,
+    pub maplecode_turn_id: MaplecodeTurnId,
     pub tool_call_id: ToolCallId,
     pub tool_name: String,
     pub tool_namespace: Option<String>,
