@@ -61,7 +61,7 @@ impl Client {
             url.set_host(Some(host))
                 .map_err(|error| RequestError::Other(error.into()))?;
         }
-        url.set_path("/v1/analytics/maplecode/turn-costs");
+        url.set_path("/v1/analytics/codex/turn-costs");
         url.set_query(None);
         url.set_fragment(None);
         let provider_scope_headers = provider_headers
@@ -109,7 +109,7 @@ mod tests {
     use http::HeaderValue;
     use maplecode_http_client::HttpClientFactory;
     use maplecode_http_client::OutboundProxyPolicy;
-    use maplecode_login::MapleCodeAuth;
+    use maplecode_login::MaplecodeAuth;
     use pretty_assertions::assert_eq;
     use wiremock::Mock;
     use wiremock::MockServer;
@@ -123,7 +123,7 @@ mod tests {
     async fn api_key_turn_cost_queries_use_api_key_auth_and_provider_scope() {
         let server = MockServer::start().await;
         Mock::given(method("POST"))
-            .and(path("/v1/analytics/maplecode/turn-costs"))
+            .and(path("/v1/analytics/codex/turn-costs"))
             .and(header("authorization", "Bearer sk-test"))
             .and(header("openai-organization", "org-test"))
             .and(header("openai-project", "project-test"))
@@ -156,7 +156,7 @@ mod tests {
             .mount(&server)
             .await;
 
-        let auth = MapleCodeAuth::from_api_key("sk-test");
+        let auth = MaplecodeAuth::from_api_key("sk-test");
         let client = Client::from_auth(
             format!("{}/backend-api", server.uri()),
             &auth,
@@ -207,7 +207,7 @@ mod tests {
     async fn custom_turn_cost_queries_apply_client_auth_after_provider_headers() {
         let server = MockServer::start().await;
         Mock::given(method("POST"))
-            .and(path("/analytics/maplecode/turn-costs"))
+            .and(path("/analytics/codex/turn-costs"))
             .and(header("authorization", "Bearer sk-test"))
             .and(header("chatgpt-account-id", "account-test"))
             .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
@@ -217,7 +217,7 @@ mod tests {
             .mount(&server)
             .await;
 
-        let auth = MapleCodeAuth::from_api_key("sk-test");
+        let auth = MaplecodeAuth::from_api_key("sk-test");
         let client = Client::from_auth(
             server.uri(),
             &auth,
@@ -235,7 +235,7 @@ mod tests {
         );
         let costs = client
             .query_api_key_turn_costs_at(
-                &format!("{}/analytics/maplecode/turn-costs", server.uri()),
+                &format!("{}/analytics/codex/turn-costs", server.uri()),
                 &["turn-one".to_string()],
                 &provider_headers,
             )

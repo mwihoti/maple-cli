@@ -1,8 +1,8 @@
 use crate::types::AccountsCheckResponse;
 use crate::types::CodeTaskDetailsResponse;
 use crate::types::ConfigBundleResponse;
-use crate::types::MapleCodeUserSettingsResponse;
-use crate::types::MapleCodeWorkspaceMessagesResponse;
+use crate::types::MaplecodeUserSettingsResponse;
+use crate::types::MaplecodeWorkspaceMessagesResponse;
 use crate::types::PaginatedListTaskListItem;
 use crate::types::RateLimitReachedKind as BackendRateLimitReachedKind;
 use crate::types::RateLimitStatusPayload;
@@ -27,7 +27,7 @@ use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_http_client::RequestBuilder;
 use maplecode_http_client::RouteAwareClientPool;
 use maplecode_http_client::RouteAwareRequestError;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::default_client::get_maplecode_user_agent;
 use maplecode_model_provider::ClientAuth;
 use maplecode_protocol::account::PlanType as AccountPlanType;
@@ -163,8 +163,8 @@ struct SendAddCreditsNudgeEmailRequest {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PathStyle {
-    /// /api/maplecode/…
-    MapleCodeApi,
+    /// /api/codex/…
+    MaplecodeApi,
     /// /wham/…
     ChatGptApi,
 }
@@ -174,7 +174,7 @@ impl PathStyle {
         if base_url.contains("/backend-api") {
             PathStyle::ChatGptApi
         } else {
-            PathStyle::MapleCodeApi
+            PathStyle::MaplecodeApi
         }
     }
 }
@@ -272,7 +272,7 @@ impl Client {
 
     pub fn from_auth(
         base_url: impl Into<String>,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
         http_client_factory: HttpClientFactory,
     ) -> Self {
         let mut client =
@@ -284,7 +284,7 @@ impl Client {
     /// Build a client using the captured credential and the request's organization/project headers.
     pub async fn from_auth_with_runtime(
         base_url: impl Into<String>,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
         http_client_factory: HttpClientFactory,
         runtime: Option<&(Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
         headers: &HeaderMap,
@@ -305,7 +305,7 @@ impl Client {
     /// Build an authenticated client without following redirects.
     pub async fn from_auth_with_runtime_without_redirects(
         base_url: impl Into<String>,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
         http_client_factory: HttpClientFactory,
         runtime: Option<&(Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
         headers: &HeaderMap,
@@ -325,7 +325,7 @@ impl Client {
 
     async fn from_auth_with_selected_runtime(
         base_url: String,
-        auth: &MapleCodeAuth,
+        auth: &MaplecodeAuth,
         http_client_factory: HttpClientFactory,
         runtime: Option<&(Arc<RuntimeAuthManager>, RuntimeAuthMode)>,
         headers: &HeaderMap,
@@ -526,7 +526,7 @@ impl Client {
         &self,
     ) -> std::result::Result<AccountsCheckResponse, RequestError> {
         let url = match self.path_style {
-            PathStyle::MapleCodeApi => format!("{}/api/maplecode/accounts/check", self.base_url),
+            PathStyle::MaplecodeApi => format!("{}/api/codex/accounts/check", self.base_url),
             PathStyle::ChatGptApi => format!("{}/wham/accounts/check", self.base_url),
         };
         let (body, _) = self.exec_bootstrap_get(&url).await?;
@@ -545,7 +545,7 @@ impl Client {
 
     fn token_usage_profile_url(&self) -> String {
         match self.path_style {
-            PathStyle::MapleCodeApi => format!("{}/api/maplecode/profiles/me", self.base_url),
+            PathStyle::MaplecodeApi => format!("{}/api/codex/profiles/me", self.base_url),
             PathStyle::ChatGptApi => format!("{}/wham/profiles/me", self.base_url),
         }
     }
@@ -587,7 +587,7 @@ impl Client {
         cursor: Option<&str>,
     ) -> Result<String> {
         let url = match self.path_style {
-            PathStyle::MapleCodeApi => format!("{}/api/maplecode/tasks/list", self.base_url),
+            PathStyle::MaplecodeApi => format!("{}/api/codex/tasks/list", self.base_url),
             PathStyle::ChatGptApi => format!("{}/wham/tasks/list", self.base_url),
         };
         if limit.is_none() && task_filter.is_none() && environment_id.is_none() && cursor.is_none()
@@ -623,7 +623,7 @@ impl Client {
         task_id: &str,
     ) -> Result<(CodeTaskDetailsResponse, String, String)> {
         let url = match self.path_style {
-            PathStyle::MapleCodeApi => format!("{}/api/maplecode/tasks/{}", self.base_url, task_id),
+            PathStyle::MaplecodeApi => format!("{}/api/codex/tasks/{}", self.base_url, task_id),
             PathStyle::ChatGptApi => format!("{}/wham/tasks/{}", self.base_url, task_id),
         };
         let req = self
@@ -640,8 +640,8 @@ impl Client {
         turn_id: &str,
     ) -> Result<TurnAttemptsSiblingTurnsResponse> {
         let url = match self.path_style {
-            PathStyle::MapleCodeApi => format!(
-                "{}/api/maplecode/tasks/{}/turns/{}/sibling_turns",
+            PathStyle::MaplecodeApi => format!(
+                "{}/api/codex/tasks/{}/turns/{}/sibling_turns",
                 self.base_url, task_id, turn_id
             ),
             PathStyle::ChatGptApi => format!(
@@ -656,7 +656,7 @@ impl Client {
         self.decode_json::<TurnAttemptsSiblingTurnsResponse>(&url, &ct, &body)
     }
 
-    /// `GET /api/maplecode/config/bundle` (Maple Code API style) or
+    /// `GET /api/codex/config/bundle` (Maple Code API style) or
     /// `GET /wham/config/bundle` (ChatGPT backend-api style), or
     /// `GET /maplecode/config/bundle` beneath a custom config server's base URL.
     pub async fn get_config_bundle(
@@ -672,21 +672,21 @@ impl Client {
     pub fn config_bundle_url(&self) -> String {
         if let Some(base_url) = &self.config_server_base_url {
             let base_url = base_url.strip_suffix('/').unwrap_or(base_url);
-            return format!("{base_url}/maplecode/config/bundle");
+            return format!("{base_url}/codex/config/bundle");
         }
         match self.path_style {
-            PathStyle::MapleCodeApi => format!("{}/api/maplecode/config/bundle", self.base_url),
+            PathStyle::MaplecodeApi => format!("{}/api/codex/config/bundle", self.base_url),
             PathStyle::ChatGptApi => format!("{}/wham/config/bundle", self.base_url),
         }
     }
 
     /// Fetch authenticated Maple Code user settings from the active backend route.
     ///
-    /// Uses `GET /api/maplecode/settings/user` for Maple Code API hosts and
+    /// Uses `GET /api/codex/settings/user` for Maple Code API hosts and
     /// `GET /wham/settings/user` for ChatGPT `backend-api` hosts.
     pub async fn get_user_settings(
         &self,
-    ) -> std::result::Result<MapleCodeUserSettingsResponse, RequestError> {
+    ) -> std::result::Result<MaplecodeUserSettingsResponse, RequestError> {
         let url = self.user_settings_url();
         let req = self
             .request(Method::GET, &url)
@@ -696,20 +696,20 @@ impl Client {
                 HeaderValue::from_static("no-cache, no-store"),
             );
         let (body, ct) = self.exec_request_detailed(req, "GET", &url).await?;
-        self.decode_json::<MapleCodeUserSettingsResponse>(&url, &ct, &body)
+        self.decode_json::<MaplecodeUserSettingsResponse>(&url, &ct, &body)
             .map_err(RequestError::from)
     }
 
     pub async fn list_workspace_messages(
         &self,
-    ) -> std::result::Result<MapleCodeWorkspaceMessagesResponse, RequestError> {
+    ) -> std::result::Result<MaplecodeWorkspaceMessagesResponse, RequestError> {
         let url = self.workspace_messages_url();
         let req = self
             .request(Method::GET, &url)
             .headers(self.headers().await?)
             .header(CACHE_CONTROL, HeaderValue::from_static("no-store"));
         let (body, ct) = self.exec_request_detailed(req, "GET", &url).await?;
-        self.decode_json::<MapleCodeWorkspaceMessagesResponse>(&url, &ct, &body)
+        self.decode_json::<MaplecodeWorkspaceMessagesResponse>(&url, &ct, &body)
             .map_err(RequestError::from)
     }
 
@@ -717,7 +717,7 @@ impl Client {
     /// based on `path_style`. Returns the created task id.
     pub async fn create_task(&self, request_body: serde_json::Value) -> Result<String> {
         let url = match self.path_style {
-            PathStyle::MapleCodeApi => format!("{}/api/maplecode/tasks", self.base_url),
+            PathStyle::MaplecodeApi => format!("{}/api/codex/tasks", self.base_url),
             PathStyle::ChatGptApi => format!("{}/wham/tasks", self.base_url),
         };
         let req = self
@@ -849,8 +849,8 @@ impl Client {
 
     fn send_add_credits_nudge_email_url(&self) -> String {
         match self.path_style {
-            PathStyle::MapleCodeApi => format!(
-                "{}/api/maplecode/accounts/send_add_credits_nudge_email",
+            PathStyle::MaplecodeApi => format!(
+                "{}/api/codex/accounts/send_add_credits_nudge_email",
                 self.base_url
             ),
             PathStyle::ChatGptApi => {
@@ -864,8 +864,8 @@ impl Client {
 
     fn workspace_messages_url(&self) -> String {
         match self.path_style {
-            PathStyle::MapleCodeApi => {
-                format!("{}/api/maplecode/workspace-messages", self.base_url)
+            PathStyle::MaplecodeApi => {
+                format!("{}/api/codex/workspace-messages", self.base_url)
             }
             PathStyle::ChatGptApi => format!("{}/wham/workspace-messages", self.base_url),
         }
@@ -873,7 +873,7 @@ impl Client {
 
     fn user_settings_url(&self) -> String {
         match self.path_style {
-            PathStyle::MapleCodeApi => format!("{}/api/maplecode/settings/user", self.base_url),
+            PathStyle::MaplecodeApi => format!("{}/api/codex/settings/user", self.base_url),
             PathStyle::ChatGptApi => format!("{}/wham/settings/user", self.base_url),
         }
     }
@@ -1266,7 +1266,7 @@ mod tests {
 
     #[test]
     fn add_credits_nudge_email_uses_expected_paths_and_bodies() {
-        let maplecode_client = test_client("https://example.test", PathStyle::MapleCodeApi);
+        let maplecode_client = test_client("https://example.test", PathStyle::MaplecodeApi);
         assert_eq!(
             maplecode_client.send_add_credits_nudge_email_url(),
             "https://example.test/api/codex/accounts/send_add_credits_nudge_email"
@@ -1296,7 +1296,7 @@ mod tests {
 
     #[test]
     fn token_usage_profile_uses_expected_paths() {
-        let maplecode_client = test_client("https://example.test", PathStyle::MapleCodeApi);
+        let maplecode_client = test_client("https://example.test", PathStyle::MaplecodeApi);
         assert_eq!(
             maplecode_client.token_usage_profile_url(),
             "https://example.test/api/codex/profiles/me"
@@ -1311,7 +1311,7 @@ mod tests {
 
     #[test]
     fn workspace_messages_uses_expected_paths() {
-        let maplecode_client = test_client("https://example.test", PathStyle::MapleCodeApi);
+        let maplecode_client = test_client("https://example.test", PathStyle::MaplecodeApi);
         assert_eq!(
             maplecode_client.workspace_messages_url(),
             "https://example.test/api/codex/workspace-messages"
@@ -1328,7 +1328,7 @@ mod tests {
     async fn user_settings_request_uses_expected_paths_and_revalidates_cached_responses() {
         let server = MockServer::start().await;
         for (request_path, commit_attribution_enabled) in [
-            ("/api/maplecode/settings/user", true),
+            ("/api/codex/settings/user", true),
             ("/backend-api/wham/settings/user", false),
         ] {
             Mock::given(method("GET"))
@@ -1360,10 +1360,10 @@ mod tests {
         assert_eq!(
             [maplecode_response, chatgpt_response],
             [
-                MapleCodeUserSettingsResponse {
+                MaplecodeUserSettingsResponse {
                     commit_attribution_enabled: true,
                 },
-                MapleCodeUserSettingsResponse {
+                MaplecodeUserSettingsResponse {
                     commit_attribution_enabled: false,
                 },
             ]
@@ -1373,8 +1373,8 @@ mod tests {
     #[test]
     fn user_settings_missing_attribution_policy_defaults_to_disabled() {
         assert_eq!(
-            serde_json::from_value::<MapleCodeUserSettingsResponse>(serde_json::json!({})).unwrap(),
-            MapleCodeUserSettingsResponse {
+            serde_json::from_value::<MaplecodeUserSettingsResponse>(serde_json::json!({})).unwrap(),
+            MaplecodeUserSettingsResponse {
                 commit_attribution_enabled: false,
             }
         );
@@ -1382,7 +1382,7 @@ mod tests {
 
     #[tokio::test]
     async fn authenticated_user_settings_client_uses_active_workspace_headers() {
-        let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+        let auth = MaplecodeAuth::from_external_chatgpt_tokens(
             "e30.e30.c2ln",
             "workspace-123",
             Some("enterprise"),

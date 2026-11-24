@@ -93,7 +93,7 @@ impl Client {
             )));
         }
         let prefix = match self.path_style {
-            PathStyle::MapleCodeApi => "api/maplecode",
+            PathStyle::MaplecodeApi => "api/codex",
             PathStyle::ChatGptApi => "wham",
         };
         let url = format!("{}/{prefix}/usage/thread_usage/query_v2", self.base_url);

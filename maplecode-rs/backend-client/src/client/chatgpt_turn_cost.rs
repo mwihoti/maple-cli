@@ -48,11 +48,8 @@ impl Client {
         threads: &BTreeMap<String, Vec<String>>,
     ) -> Result<Vec<ChatgptThreadTurnCosts>, RequestError> {
         let url = match self.path_style {
-            PathStyle::MapleCodeApi => {
-                format!(
-                    "{}/api/maplecode/usage/thread-estimates/query",
-                    self.base_url
-                )
+            PathStyle::MaplecodeApi => {
+                format!("{}/api/codex/usage/thread-estimates/query", self.base_url)
             }
             PathStyle::ChatGptApi => {
                 format!("{}/wham/usage/thread-estimates/query", self.base_url)

@@ -115,8 +115,8 @@ impl Client {
 
     fn thread_usage_url(&self) -> String {
         match self.path_style {
-            PathStyle::MapleCodeApi => {
-                format!("{}/api/maplecode/usage/thread_usage/query", self.base_url)
+            PathStyle::MaplecodeApi => {
+                format!("{}/api/codex/usage/thread_usage/query", self.base_url)
             }
             PathStyle::ChatGptApi => {
                 format!("{}/wham/usage/thread_usage/query", self.base_url)

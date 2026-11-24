@@ -75,14 +75,14 @@ pub(crate) struct AdditionalRateLimitWithNormalModel {
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-pub struct MapleCodeWorkspaceMessagesResponse {
+pub struct MaplecodeWorkspaceMessagesResponse {
     #[serde(default)]
-    pub messages: Vec<MapleCodeWorkspaceMessage>,
+    pub messages: Vec<MaplecodeWorkspaceMessage>,
 }
 
 /// Authenticated Maple Code user settings used by CLI runtime policy.
 #[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Eq)]
-pub struct MapleCodeUserSettingsResponse {
+pub struct MaplecodeUserSettingsResponse {
     /// Server-computed effective commit-attribution policy.
     ///
     /// Older backend responses omit this field, which safely defaults to disabled.
@@ -91,9 +91,9 @@ pub struct MapleCodeUserSettingsResponse {
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-pub struct MapleCodeWorkspaceMessage {
+pub struct MaplecodeWorkspaceMessage {
     pub message_id: String,
-    pub message_type: MapleCodeWorkspaceMessageType,
+    pub message_type: MaplecodeWorkspaceMessageType,
     pub message_body: String,
     #[serde(default)]
     pub created_at: Option<String>,
@@ -119,7 +119,7 @@ pub struct ConsumeRateLimitResetCreditResponse {
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
-pub enum MapleCodeWorkspaceMessageType {
+pub enum MaplecodeWorkspaceMessageType {
     Headline,
     Announcement,
     #[serde(other)]
@@ -624,7 +624,7 @@ Second line"
 
     #[test]
     fn workspace_messages_response_deserializes_messages() {
-        let response: MapleCodeWorkspaceMessagesResponse =
+        let response: MaplecodeWorkspaceMessagesResponse =
             serde_json::from_value(serde_json::json!({
                 "messages": [
                     {
@@ -652,25 +652,25 @@ Second line"
 
         assert_eq!(
             response,
-            MapleCodeWorkspaceMessagesResponse {
+            MaplecodeWorkspaceMessagesResponse {
                 messages: vec![
-                    MapleCodeWorkspaceMessage {
+                    MaplecodeWorkspaceMessage {
                         message_id: "headline-id".to_string(),
-                        message_type: MapleCodeWorkspaceMessageType::Headline,
+                        message_type: MaplecodeWorkspaceMessageType::Headline,
                         message_body: "Headline body".to_string(),
                         created_at: Some("2026-06-14T00:00:00Z".to_string()),
                         archived_at: None,
                     },
-                    MapleCodeWorkspaceMessage {
+                    MaplecodeWorkspaceMessage {
                         message_id: "announcement-id".to_string(),
-                        message_type: MapleCodeWorkspaceMessageType::Announcement,
+                        message_type: MaplecodeWorkspaceMessageType::Announcement,
                         message_body: "Announcement body".to_string(),
                         created_at: Some("2026-06-14T01:00:00Z".to_string()),
                         archived_at: None,
                     },
-                    MapleCodeWorkspaceMessage {
+                    MaplecodeWorkspaceMessage {
                         message_id: "unknown-id".to_string(),
-                        message_type: MapleCodeWorkspaceMessageType::Unknown,
+                        message_type: MaplecodeWorkspaceMessageType::Unknown,
                         message_body: "Unknown body".to_string(),
                         created_at: None,
                         archived_at: None,

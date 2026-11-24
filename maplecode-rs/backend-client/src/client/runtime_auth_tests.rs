@@ -10,8 +10,8 @@ use maplecode_login::AuthCredentialsStoreMode;
 use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::AuthManager;
 use maplecode_login::AuthRouteConfig;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_runtime_agent_instance::AgentHostAuthorization;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
 use maplecode_runtime_agent_instance::RuntimeRegistrationMetadata;
@@ -83,7 +83,7 @@ async fn account_runtime_auth_signs_each_request_and_strips_credentials_on_redir
             .mount(&server)
             .await;
         let factory = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault);
-        let auth = MapleCodeAuth::from_api_key("key-a");
+        let auth = MaplecodeAuth::from_api_key("key-a");
         let runtime = runtime_provider(
             &server,
             AuthManager::from_auth_for_testing(auth.clone()),
@@ -208,7 +208,7 @@ async fn client_registers_in_requested_organization_when_default_is_denied() {
             .expect(1)
             .mount(&server)
             .await;
-        let auth = MapleCodeAuth::from_api_key("key-a");
+        let auth = MaplecodeAuth::from_api_key("key-a");
         let runtime = runtime_provider(
             &server,
             AuthManager::from_auth_for_testing(auth.clone()),
@@ -290,7 +290,7 @@ async fn authenticated_clients_without_redirects_return_the_redirect_response() 
             .expect(2)
             .mount(&server)
             .await;
-        let auth = MapleCodeAuth::from_api_key("key-a");
+        let auth = MaplecodeAuth::from_api_key("key-a");
         let runtime = runtime_provider(
             &server,
             AuthManager::from_auth_for_testing(auth.clone()),
@@ -355,7 +355,7 @@ async fn authenticated_clients_without_redirects_return_the_redirect_response() 
 async fn unsupported_openai_backend_rejects_runtime_auth_before_registration() {
     for mode in [RuntimeAuthMode::DualHeader, RuntimeAuthMode::AssertionOnly] {
         let server = MockServer::start().await;
-        let auth = MapleCodeAuth::from_api_key("key-a");
+        let auth = MaplecodeAuth::from_api_key("key-a");
         let runtime = runtime_provider(
             &server,
             AuthManager::from_auth_for_testing(auth.clone()),
@@ -374,9 +374,9 @@ async fn unsupported_openai_backend_rejects_runtime_auth_before_registration() {
         };
         assert!(matches!(
             error
-                .downcast_ref::<MapleCodeErr>()
-                .map(MapleCodeErr::details),
-            Some(MapleCodeErrorDetails::UnsupportedOperation(_))
+                .downcast_ref::<MaplecodeErr>()
+                .map(MaplecodeErr::details),
+            Some(MaplecodeErrorDetails::UnsupportedOperation(_))
         ));
         assert!(server.received_requests().await.unwrap().is_empty());
     }
@@ -393,7 +393,7 @@ async fn custom_backend_keeps_its_credential_without_registering_a_runtime() {
             .expect(1)
             .mount(&server)
             .await;
-        let auth = MapleCodeAuth::from_api_key("custom-backend-key");
+        let auth = MaplecodeAuth::from_api_key("custom-backend-key");
         let runtime = runtime_provider(
             &server,
             AuthManager::from_auth_for_testing(auth.clone()),
@@ -537,17 +537,17 @@ async fn reusable_runtime_client_keeps_the_selected_accounts_transport_policy() 
     server.verify().await;
 }
 
-struct RotatingAuth(std::sync::RwLock<MapleCodeAuth>);
+struct RotatingAuth(std::sync::RwLock<MaplecodeAuth>);
 
 impl maplecode_login::ExternalAuth for RotatingAuth {
-    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.read().unwrap().clone()) })
     }
 
     fn refresh(
         &self,
         _: maplecode_login::ExternalAuthRefreshContext,
-    ) -> maplecode_login::ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> maplecode_login::ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -564,7 +564,7 @@ async fn reusable_runtime_client_refreshes_credentials_without_accepting_a_new_s
             }
         });
         let payload = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(claims.to_string());
-        MapleCodeAuth::from_external_chatgpt_tokens(
+        MaplecodeAuth::from_external_chatgpt_tokens(
             &format!("header.{payload}.signature"),
             "workspace-a",
             /*chatgpt_plan_type*/ None,
@@ -580,7 +580,7 @@ async fn reusable_runtime_client_refreshes_credentials_without_accepting_a_new_s
             })))
             .mount(&server)
             .await;
-        Mock::given(path("/api/maplecode/usage"))
+        Mock::given(path("/api/codex/usage"))
             .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
                 "plan_type": "plus",
                 "rate_limit": {
@@ -638,7 +638,7 @@ async fn reusable_runtime_client_refreshes_credentials_without_accepting_a_new_s
         );
         let requests: Vec<_> = requests
             .iter()
-            .filter(|r| r.url.path() == "/api/maplecode/usage")
+            .filter(|r| r.url.path() == "/api/codex/usage")
             .collect();
         assert_eq!(requests.len(), 2);
         let mut proofs = Vec::new();

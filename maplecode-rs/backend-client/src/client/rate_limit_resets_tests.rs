@@ -25,14 +25,14 @@ async fn ordinary_usage_permission_comes_from_backend_not_display_percent() {
             })
         });
         Mock::given(method("GET"))
-            .and(path("/api/maplecode/usage"))
+            .and(path("/api/codex/usage"))
             .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
                 "plan_type": "plus", "rate_limit": rate_limit
             })))
             .expect(1)
             .mount(&server)
             .await;
-        let response = test_client(&server.uri(), PathStyle::MapleCodeApi)
+        let response = test_client(&server.uri(), PathStyle::MaplecodeApi)
             .get_rate_limits_with_reset_credits()
             .await
             .unwrap();
@@ -43,15 +43,15 @@ async fn ordinary_usage_permission_comes_from_backend_not_display_percent() {
 #[test]
 fn rate_limit_reset_contract_uses_expected_paths_and_payloads() {
     assert_eq!(
-        test_client("https://example.test", PathStyle::MapleCodeApi).rate_limit_status_url(),
+        test_client("https://example.test", PathStyle::MaplecodeApi).rate_limit_status_url(),
         "https://example.test/api/codex/usage"
     );
     assert_eq!(
-        test_client("https://example.test", PathStyle::MapleCodeApi).rate_limit_reset_credits_url(),
+        test_client("https://example.test", PathStyle::MaplecodeApi).rate_limit_reset_credits_url(),
         "https://example.test/api/codex/rate-limit-reset-credits"
     );
     assert_eq!(
-        test_client("https://example.test", PathStyle::MapleCodeApi)
+        test_client("https://example.test", PathStyle::MaplecodeApi)
             .consume_rate_limit_reset_credit_url(),
         "https://example.test/api/codex/rate-limit-reset-credits/consume"
     );

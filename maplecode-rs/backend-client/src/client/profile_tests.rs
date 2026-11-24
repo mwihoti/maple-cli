@@ -108,7 +108,7 @@ async fn profile_keeps_missing_zero_and_future_invocations_distinct() {
         ),
     ] {
         Mock::given(method("GET"))
-            .and(path("/api/maplecode/profiles/me"))
+            .and(path("/api/codex/profiles/me"))
             .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(body))
             .expect(/*r*/ 1)
             .mount(&server)

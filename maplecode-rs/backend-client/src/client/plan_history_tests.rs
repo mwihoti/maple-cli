@@ -21,7 +21,7 @@ async fn plan_history_handles_unavailable_errors_and_approximation_default() {
     for status in [404, 503, 200] {
         server.reset().await;
         Mock::given(method("GET"))
-            .and(path("/api/maplecode/usage/plan_limit_history"))
+            .and(path("/api/codex/usage/plan_limit_history"))
             .and(query_param("days", "7"))
             .respond_with(ResponseTemplate::new(status).set_body_json(json!({
                 "data_as_of": null, "coverage_start": null, "coverage_complete": false,

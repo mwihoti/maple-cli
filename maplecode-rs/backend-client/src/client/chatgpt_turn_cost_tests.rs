@@ -3,7 +3,7 @@
 use super::*;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use pretty_assertions::assert_eq;
 use wiremock::Mock;
 use wiremock::MockServer;
@@ -24,7 +24,7 @@ async fn chatgpt_turn_costs_use_workspace_auth_and_chatgpt_path() {
 
 #[tokio::test]
 async fn chatgpt_turn_costs_use_workspace_auth_and_maplecode_path() {
-    check_query("", "/api/maplecode/usage/thread-estimates/query").await;
+    check_query("", "/api/codex/usage/thread-estimates/query").await;
 }
 
 async fn check_query(base_path: &str, endpoint: &str) {
@@ -60,7 +60,7 @@ async fn check_query(base_path: &str, endpoint: &str) {
         .await;
     let client = Client::from_auth(
         format!("{}{base_path}", server.uri()),
-        &MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        &MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault),
     );
     let result = client

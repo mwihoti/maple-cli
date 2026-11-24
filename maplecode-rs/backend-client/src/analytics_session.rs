@@ -7,7 +7,7 @@ use maplecode_features::RuntimeAuthMode;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AuthManager;
 use maplecode_login::AuthManagerConfig;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::account::PlanType;
 use maplecode_runtime_agent_instance::RegistrationError;
 use maplecode_runtime_agent_instance::RuntimeAuthError;
@@ -28,7 +28,7 @@ pub struct AnalyticsAccount {
 pub struct AnalyticsSession {
     client: Client,
     auth_manager: Arc<AuthManager>,
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     account: AnalyticsAccount,
 }
 
@@ -48,7 +48,7 @@ impl AnalyticsSession {
         let auth = auth_manager
             .auth()
             .await
-            .filter(MapleCodeAuth::is_chatgpt_auth)
+            .filter(MaplecodeAuth::is_chatgpt_auth)
             .ok_or("Sign in locally with ChatGPT to view Analytics.")?;
         let (Some(id), Some(_)) = (auth.get_account_id(), auth.get_chatgpt_user_id()) else {
             return Err("Analytics requires a ChatGPT account and user identity.".into());

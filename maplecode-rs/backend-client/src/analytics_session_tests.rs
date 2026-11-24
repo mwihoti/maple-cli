@@ -22,20 +22,20 @@ enum RefreshOutcome {
 }
 
 struct ExternalCredentials {
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     outcome: RefreshOutcome,
     refreshes: AtomicUsize,
 }
 
 impl ExternalAuth for ExternalCredentials {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.auth.clone()) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             self.refreshes.fetch_add(/*val*/ 1, Ordering::SeqCst);
             match self.outcome {
@@ -64,7 +64,7 @@ async fn persistent_unauthorized_stops_after_successful_recovery() {
 }
 
 async fn assert_unauthorized_after_recovery(outcome: RefreshOutcome, expected_requests: u64) {
-    let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let auth = MaplecodeAuth::from_external_chatgpt_tokens(
         "e30.eyJleHAiOjQxMDI0NDQ4MDAsImh0dHBzOi8vYXBpLm9wZW5haS5jb20vYXV0aCI6eyJjaGF0Z3B0X3VzZXJfaWQiOiJ1c2VyLWEifX0.test", "account-a", Some("plus"),
     ).unwrap();
     let auth_manager = AuthManager::from_auth_for_testing(auth.clone());

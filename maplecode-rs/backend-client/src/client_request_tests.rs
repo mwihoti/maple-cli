@@ -142,14 +142,14 @@ async fn migrated_requests_preserve_query_auth_and_json_body() {
     assert_eq!(task_id, "task-created");
     assert_eq!(requests.len(), 2);
     assert!(requests[0].starts_with(
-        "GET /api/maplecode/tasks/list?limit=10&task_filter=mine+%2F+shared&cursor=next%3Dpage&environment_id=env%26one HTTP/1.1\r\n"
+        "GET /api/codex/tasks/list?limit=10&task_filter=mine+%2F+shared&cursor=next%3Dpage&environment_id=env%26one HTTP/1.1\r\n"
     ));
     assert!(
         requests[0]
             .to_ascii_lowercase()
             .contains("authorization: bearer request-token\r\n")
     );
-    assert!(requests[1].starts_with("POST /api/maplecode/tasks HTTP/1.1\r\n"));
+    assert!(requests[1].starts_with("POST /api/codex/tasks HTTP/1.1\r\n"));
     assert!(
         requests[1]
             .to_ascii_lowercase()
@@ -209,7 +209,7 @@ async fn bootstrap_gets_resolve_each_fallback_destination_and_preserve_headers()
     ) {
         return;
     }
-    for (base_suffix, api_prefix) in [("", "/api/maplecode"), ("/backend-api", "/wham")] {
+    for (base_suffix, api_prefix) in [("", "/api/codex"), ("/backend-api", "/wham")] {
         let bundle_proxy = MockServer::start().await;
         let accounts_proxy = MockServer::start().await;
         let base_url = format!("{BLOCKED_ORIGIN}{base_suffix}");
@@ -252,7 +252,7 @@ async fn bootstrap_gets_keep_default_responses_without_proxy_retry() {
         let proxy = MockServer::start().await;
         for endpoint in ["config/bundle", "accounts/check"] {
             cache_system_proxy_route_for_test(
-                &format!("{}/api/maplecode/{endpoint}", issuer.uri()),
+                &format!("{}/api/codex/{endpoint}", issuer.uri()),
                 proxy.uri(),
             );
         }
@@ -291,10 +291,7 @@ async fn bootstrap_gets_honor_disabled_fallback() {
     let proxy = MockServer::start().await;
     let base_url = BLOCKED_ORIGIN;
     for endpoint in ["config/bundle", "accounts/check"] {
-        cache_system_proxy_route_for_test(
-            &format!("{base_url}/api/maplecode/{endpoint}"),
-            proxy.uri(),
-        );
+        cache_system_proxy_route_for_test(&format!("{base_url}/api/codex/{endpoint}"), proxy.uri());
     }
     let client = Client::new(
         base_url,
@@ -311,7 +308,7 @@ async fn bootstrap_gets_preserve_network_policy_with_fallback_enabled() {
     let proxy = MockServer::start().await;
     for endpoint in ["config/bundle", "accounts/check"] {
         cache_system_proxy_route_for_test(
-            &format!("{}/api/maplecode/{endpoint}", issuer.uri()),
+            &format!("{}/api/codex/{endpoint}", issuer.uri()),
             proxy.uri(),
         );
     }
@@ -368,7 +365,7 @@ async fn bootstrap_gets_retry_post_connect_failure_with_system_proxy() {
             lines
         });
         let proxy = MockServer::start().await;
-        let endpoint_path = format!("/api/maplecode/{endpoint}");
+        let endpoint_path = format!("/api/codex/{endpoint}");
         cache_system_proxy_route_for_test(&format!("{issuer_url}{endpoint_path}"), proxy.uri());
         Mock::given(method("GET"))
             .and(path(&endpoint_path))
@@ -423,7 +420,7 @@ async fn bootstrap_get_recovers_from_stalled_body_before_cloud_startup_timeout()
     });
     let proxy = MockServer::start().await;
     cache_system_proxy_route_for_test(
-        &format!("{issuer_url}/api/maplecode/config/bundle"),
+        &format!("{issuer_url}/api/codex/config/bundle"),
         proxy.uri(),
     );
     Mock::given(method("GET"))
@@ -452,7 +449,7 @@ async fn identity_header_errors_preserve_credential_recovery() {
     ] {
         let server = MockServer::start().await;
         Mock::given(method("GET"))
-            .and(path("/api/maplecode/accounts/check"))
+            .and(path("/api/codex/accounts/check"))
             .respond_with(
                 ResponseTemplate::new(401)
                     .insert_header(

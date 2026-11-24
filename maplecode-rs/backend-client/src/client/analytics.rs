@@ -50,7 +50,7 @@ impl Client {
             AnalyticsReport::Skills { .. } => "analytics/daily-skill-usage-metrics",
         };
         let prefix = match self.path_style {
-            PathStyle::MapleCodeApi => "api/maplecode",
+            PathStyle::MaplecodeApi => "api/codex",
             PathStyle::ChatGptApi => "wham",
         };
         let mut url = url::Url::parse(&format!("{}/{prefix}/{route}", self.base_url))

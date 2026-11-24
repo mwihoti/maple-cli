@@ -34,7 +34,7 @@ fn thread_usage_contract_uses_expected_paths_and_payload() {
 async fn get_thread_usage_returns_requested_thread_totals() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/usage/thread_usage/query"))
+        .and(path("/api/codex/usage/thread_usage/query"))
         .and(body_json(json!({ "thread_ids": ["thread-123"] })))
         .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(json!({
             "threads": [{
@@ -94,7 +94,7 @@ async fn get_thread_usage_returns_requested_thread_totals() {
 async fn get_thread_usage_accepts_credits_without_usd_estimate() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/usage/thread_usage/query"))
+        .and(path("/api/codex/usage/thread_usage/query"))
         .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(json!({
             "threads": [{
                 "thread_id": "thread-123",
@@ -258,7 +258,7 @@ fn thread_usage_preserves_unknown_and_zero_native_group_amounts() {
 async fn get_threads_usage_preserves_native_amounts_and_absence() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/usage/thread_usage/query"))
+        .and(path("/api/codex/usage/thread_usage/query"))
         .and(body_json(json!({ "thread_ids": ["priced", "unknown"] })))
         .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(json!({
             "threads": [

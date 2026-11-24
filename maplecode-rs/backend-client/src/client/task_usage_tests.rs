@@ -63,7 +63,7 @@ async fn task_queries_validate_request_groups_and_response_ownership() {
             let mut task=task.clone();task["thread_id"]=json!(id);task
         }).collect::<Vec<_>>()});
         Mock::given(method("POST"))
-            .and(path("/api/maplecode/usage/thread_usage/query_v2"))
+            .and(path("/api/codex/usage/thread_usage/query_v2"))
             .respond_with(move |request: &wiremock::Request| {
                 assert_eq!(
                     request.body_json::<serde_json::Value>().unwrap(),
