@@ -45,7 +45,7 @@ fn assistant_output_text(text: &str) -> ResponseItem {
 
 #[test]
 fn post_sampling_token_estimate_is_disabled_by_always_on_sinks() {
-    let feedback = maplecode_feedback::MapleCodeFeedback::new();
+    let feedback = maplecode_feedback::MaplecodeFeedback::new();
     let subscriber = tracing_subscriber::registry()
         .with(feedback.logger_layer())
         .with(

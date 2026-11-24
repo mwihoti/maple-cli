@@ -70,7 +70,7 @@ pub async fn plugins_manager_for_config_with_runtime(
     let slot = Arc::new(runtime.map(std::sync::OnceLock::from).unwrap_or_default());
     Ok(PluginsManager::new_with_options(
         config.maplecode_home.to_path_buf(),
-        Some(maplecode_protocol::protocol::Product::MapleCode),
+        Some(maplecode_protocol::protocol::Product::Maplecode),
         auth_manager,
         slot,
         Arc::new(HostSkillsService::new(

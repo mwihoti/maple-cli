@@ -7,7 +7,7 @@ use maplecode_extension_api::ThreadLifecycleContributor;
 use maplecode_extension_api::ThreadStartInput;
 use maplecode_protocol::capabilities::CapabilityRootLocation;
 use maplecode_protocol::capabilities::SelectedCapabilityRoot;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::AgentStatus;
 use maplecode_protocol::protocol::EventMsg;
@@ -230,7 +230,7 @@ async fn run_maplecode_thread_interactive_respects_pre_cancelled_spawn() {
 
         let error = result.err().expect("cancelled delegate spawn should fail");
         assert!(
-            matches!(error.details(), MapleCodeErrorDetails::TurnAborted),
+            matches!(error.details(), MaplecodeErrorDetails::TurnAborted),
             "unexpected cancelled delegate spawn error (shutdown_requested={shutdown_requested}): {error}"
         );
     }
@@ -239,19 +239,19 @@ async fn run_maplecode_thread_interactive_respects_pre_cancelled_spawn() {
 #[tokio::test]
 async fn delegate_start_analytics_honors_child_opt_out_with_enabled_parent() {
     use maplecode_analytics::AnalyticsEventsClient;
-    use maplecode_login::MapleCodeAuth;
+    use maplecode_login::MaplecodeAuth;
     use wiremock::Mock;
     use wiremock::MockServer;
     use wiremock::ResponseTemplate;
     use wiremock::matchers::path;
 
     let server = MockServer::start().await;
-    Mock::given(path("/maplecode/analytics-events/events"))
+    Mock::given(path("/codex/analytics-events/events"))
         .respond_with(ResponseTemplate::new(200))
         .mount(&server)
         .await;
     let client = AnalyticsEventsClient::new(
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
         server.uri(),
         /*analytics_enabled*/ Some(true),
     );
@@ -462,7 +462,7 @@ async fn run_maplecode_thread_interactive_rejects_approval_policy_that_can_promp
         Err(err)
             if matches!(
                 err.details(),
-                MapleCodeErrorDetails::InvalidRequest(message)
+                MaplecodeErrorDetails::InvalidRequest(message)
                     if message == "Maple Code delegates require approval policy `never`"
             )
     ));

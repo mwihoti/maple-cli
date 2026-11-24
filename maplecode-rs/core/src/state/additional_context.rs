@@ -7,7 +7,7 @@ use crate::context::AdditionalContextToolOutput;
 use crate::context::AdditionalContextUserFragment;
 use crate::context::ContextualUserFragment;
 use maplecode_context_fragments::MAX_ADDITIONAL_CONTEXT_VALUE_TOKENS;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_otel::ADDITIONAL_CONTEXT_COUNT_METRIC;
 use maplecode_otel::ADDITIONAL_CONTEXT_VALUE_BYTES_BUCKETS;
@@ -97,7 +97,7 @@ impl AdditionalContextStore {
             .map(|(key, entry)| match entry {
                 StoredAdditionalContext::ToolOutput(output) => ResponseItemEnvelope {
                     item: output.clone().into(),
-                    metadata: Some(MapleCodeHarnessMetadata {
+                    metadata: Some(MaplecodeHarnessMetadata {
                         additional_context_tool_output: true,
                         ..Default::default()
                     }),

@@ -2,25 +2,25 @@ use crate::session::turn_context::TurnContext;
 use maplecode_analytics::CompactionImplementation;
 use maplecode_analytics::CompactionReason;
 use maplecode_otel::SessionTelemetry;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use tracing::warn;
 
 /// Returns whether a failed compaction attempt should use the current model.
 pub(crate) fn should_retry_with_current_model(
-    error: &MapleCodeErr,
+    error: &MaplecodeErr,
     previous: &TurnContext,
     current: &TurnContext,
 ) -> bool {
     if matches!(
         error.details(),
-        MapleCodeErrorDetails::TurnAborted
-            | MapleCodeErrorDetails::Interrupted
-            | MapleCodeErrorDetails::SessionBudgetExceeded
-            | MapleCodeErrorDetails::InferenceHookDenied { .. }
-            | MapleCodeErrorDetails::WorkspaceAccessDenied(_)
-            | MapleCodeErrorDetails::ContentPolicyViolation { .. }
-            | MapleCodeErrorDetails::ResponseIncomplete(_)
+        MaplecodeErrorDetails::TurnAborted
+            | MaplecodeErrorDetails::Interrupted
+            | MaplecodeErrorDetails::SessionBudgetExceeded
+            | MaplecodeErrorDetails::InferenceHookDenied { .. }
+            | MaplecodeErrorDetails::WorkspaceAccessDenied(_)
+            | MaplecodeErrorDetails::ContentPolicyViolation { .. }
+            | MaplecodeErrorDetails::ResponseIncomplete(_)
     ) || (previous.model_info().slug == current.model_info().slug
         && previous.cyber_access_program == current.cyber_access_program)
     {
@@ -41,7 +41,7 @@ pub(crate) fn record_model_fallback(
     current_model: &str,
     reason: CompactionReason,
     implementation: CompactionImplementation,
-    fallback_error: Option<&MapleCodeErr>,
+    fallback_error: Option<&MaplecodeErr>,
 ) {
     let reason_tag = match reason {
         CompactionReason::UserRequested => "user_requested",

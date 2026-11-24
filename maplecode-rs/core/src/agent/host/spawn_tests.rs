@@ -5,7 +5,7 @@
 use crate::ConfigRefreshOutcome;
 use crate::HostThreadSpawnReservation;
 use crate::HostToolInvocationLookup;
-use crate::MapleCodeThread;
+use crate::MaplecodeThread;
 use crate::ThreadManager;
 use crate::agent::host::InvocationReservation;
 use crate::config::ConfigBuilder;
@@ -21,7 +21,7 @@ use maplecode_exec_server::ExecServerError;
 use maplecode_exec_server::RemoteEnvironmentOptions;
 use maplecode_execpolicy::Decision;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::approvals::ExecPolicyAmendment;
 use maplecode_protocol::protocol::EnvironmentConfigState;
@@ -32,7 +32,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio_util::sync::CancellationToken;
 
-async fn spawn_call(parent: &MapleCodeThread) -> anyhow::Result<ToolInvocation> {
+async fn spawn_call(parent: &MaplecodeThread) -> anyhow::Result<ToolInvocation> {
     parent
         .thread_extension_data()
         .insert(HostToolInvocationLookup);
@@ -72,7 +72,7 @@ async fn prepare_child_retains_loaded_exec_policy_requirements_after_mcp_refresh
         .await?;
     config.features.enable(Feature::MultiAgentV2)?;
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         home.path().to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -132,7 +132,7 @@ async fn same_manager_creation_retains_step_executor_and_shares_exec_policy() ->
         .build()
         .await?;
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         home.path().to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),

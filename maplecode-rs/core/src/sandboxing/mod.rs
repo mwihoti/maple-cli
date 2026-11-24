@@ -19,7 +19,7 @@ use maplecode_network_proxy::ManagedNetworkSandboxContext;
 use maplecode_network_proxy::NetworkProxy;
 use maplecode_network_proxy::RemoteNetworkProxyLaunchConfig;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::exec_output::ExecToolCallOutput;
 use maplecode_protocol::models::PermissionProfile;
 pub use maplecode_protocol::models::SandboxPermissions;
@@ -115,7 +115,7 @@ impl ExecRequest {
         request: SandboxExecRequest,
         options: ExecOptions,
         windows_sandbox_workspace_roots: Vec<AbsolutePathBuf>,
-    ) -> Result<Self, MapleCodeErr> {
+    ) -> Result<Self, MaplecodeErr> {
         maplecode_exec_server::run_integrity_checks(&request).await;
         let SandboxExecRequest {
             command,
@@ -137,7 +137,7 @@ impl ExecRequest {
         let windows_sandbox_filesystem_overrides = if sandbox == SandboxType::WindowsRestrictedToken
         {
             let sandbox_policy_cwd = windows_sandbox_policy_cwd.to_abs_path().map_err(|err| {
-                MapleCodeErr::InvalidRequest(format!("invalid sandbox cwd: {err}"))
+                MaplecodeErr::InvalidRequest(format!("invalid sandbox cwd: {err}"))
             })?;
             WindowsSandboxFilesystemOverrides::resolve(
                 sandbox,
@@ -147,7 +147,7 @@ impl ExecRequest {
                 &env,
             )
             .map_err(|error| {
-                MapleCodeErr::UnsupportedOperation(
+                MaplecodeErr::UnsupportedOperation(
                     truncate_middle_with_token_budget(&error, /*max_tokens*/ 900).0,
                 )
             })?

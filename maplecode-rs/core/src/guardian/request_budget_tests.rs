@@ -61,7 +61,7 @@ async fn request_histogram_counts_admitted_steps_without_counting_retry_preparat
         let metadata = session
             .responses_metadata(
                 &step,
-                crate::responses_metadata::MapleCodeResponsesRequestKind::Turn,
+                crate::responses_metadata::MaplecodeResponsesRequestKind::Turn,
             )
             .await;
         let request = session
@@ -86,7 +86,7 @@ async fn request_histogram_counts_admitted_steps_without_counting_retry_preparat
             } else {
                 assert!(matches!(
                     result.unwrap_err().details(),
-                    maplecode_protocol::error::MapleCodeErrorDetails::ContextWindowExceeded
+                    maplecode_protocol::error::MaplecodeErrorDetails::ContextWindowExceeded
                 ));
             }
         }

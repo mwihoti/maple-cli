@@ -21,12 +21,12 @@ use maplecode_otel::TURN_TOKEN_USAGE_METRIC;
 use maplecode_otel::TURN_TOOL_CALL_METRIC;
 use maplecode_otel::TURN_UNIFIED_EXEC_RUNNING_PROCESSES_METRIC;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::AudioReference;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::TokenUsage;
 use maplecode_protocol::user_input::UserInput;
@@ -128,7 +128,7 @@ async fn task_finish_rejects_uploaded_audio_without_losing_other_pending_input()
                     saw_error = true;
                     assert_eq!(
                         error.maplecode_error_info,
-                        Some(MapleCodeErrorInfo::BadRequest)
+                        Some(MaplecodeErrorInfo::BadRequest)
                     );
                 }
                 EventMsg::TurnComplete(completed) => break (saw_error, completed),
@@ -144,7 +144,7 @@ async fn task_finish_rejects_uploaded_audio_without_losing_other_pending_input()
             .error
             .as_ref()
             .and_then(|error| error.maplecode_error_info.clone()),
-        Some(MapleCodeErrorInfo::BadRequest)
+        Some(MaplecodeErrorInfo::BadRequest)
     );
 }
 
@@ -347,7 +347,7 @@ async fn turn_completion_metrics_follow_model_switch(scenario: UsageScenario) {
 
     let task_result = if matches!(scenario, UsageScenario::CompactThenStop) {
         // A PostCompact hook can stop the turn before the new model samples.
-        Err(MapleCodeErr::TurnAborted)
+        Err(MaplecodeErr::TurnAborted)
     } else {
         Ok(None)
     };

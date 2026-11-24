@@ -1,7 +1,7 @@
 use super::*;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::error::AgentErrorContext;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use pretty_assertions::assert_eq;
 use std::collections::HashSet;
 
@@ -100,7 +100,7 @@ fn commit_holds_slot_until_release() {
         Ok(_) => panic!("limit should be enforced"),
         Err(err) => err,
     };
-    let MapleCodeErrorDetails::AgentLimitReached { max_threads } = err.details() else {
+    let MaplecodeErrorDetails::AgentLimitReached { max_threads } = err.details() else {
         panic!("expected AgentLimitReached");
     };
     assert_eq!(*max_threads, 1);
@@ -150,7 +150,7 @@ fn release_ignores_unknown_thread_id() {
         Ok(_) => panic!("limit should still be enforced"),
         Err(err) => err,
     };
-    let MapleCodeErrorDetails::AgentLimitReached { max_threads } = err.details() else {
+    let MaplecodeErrorDetails::AgentLimitReached { max_threads } = err.details() else {
         panic!("expected AgentLimitReached");
     };
     assert_eq!(*max_threads, 1);
@@ -181,7 +181,7 @@ fn release_is_idempotent_for_registered_threads() {
         Ok(_) => panic!("limit should still be enforced"),
         Err(err) => err,
     };
-    let MapleCodeErrorDetails::AgentLimitReached { max_threads } = err.details() else {
+    let MaplecodeErrorDetails::AgentLimitReached { max_threads } = err.details() else {
         panic!("expected AgentLimitReached");
     };
     assert_eq!(*max_threads, 1);

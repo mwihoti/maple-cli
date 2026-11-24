@@ -22,7 +22,7 @@ use crate::session::session::Session;
 use crate::session::step_context::StepContext;
 use maplecode_prompts::ResolvedModelMessages;
 use maplecode_protocol::AgentPath;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::SessionSource;
@@ -93,7 +93,7 @@ pub enum ThreadSpawnError {
     #[error("{0}")]
     Preparation(String),
     #[error(transparent)]
-    Backend(#[from] MapleCodeErr),
+    Backend(#[from] MaplecodeErr),
 }
 
 pub(crate) async fn spawn(

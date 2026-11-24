@@ -4,7 +4,7 @@ use super::*;
 use core_test_support::responses;
 use maplecode_analytics::CompactionReason;
 use maplecode_analytics::CompactionTrigger;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::models::AudioReference;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
@@ -29,7 +29,7 @@ async fn cancelled_turn_skips_launch_but_preserves_existing_work(trigger: Compac
     let server_uri = server.uri();
     let (sess, mut turn, _events) =
         crate::session::tests::make_session_and_context_with_auth_and_config_and_rx(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
             Vec::new(),
             move |config| {
                 config.model = Some("gpt-5.2".to_string());

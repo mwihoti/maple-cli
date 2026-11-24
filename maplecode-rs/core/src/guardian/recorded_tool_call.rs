@@ -6,7 +6,7 @@ use std::sync::Arc;
 use maplecode_features::Feature;
 use maplecode_guardian_reviewer::GuardianReviewError;
 use maplecode_guardian_reviewer::ReviewDeadline;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::AskForApproval;
@@ -72,7 +72,7 @@ pub(crate) async fn review_tool_call(
             true
         }
         _ => {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "expected a completed plaintext exec_command, apply_patch, request_permissions, or MCP call with a nonempty call ID".into(),
             ));
         }
@@ -82,7 +82,7 @@ pub(crate) async fn review_tool_call(
             if name == "request_permissions"
                 && ToolName::new(namespace.clone(), name).is_default_namespace())
     }) {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "direct review does not support replaying request_permissions".into(),
         ));
     }
@@ -100,7 +100,7 @@ pub(crate) async fn review_tool_call(
             .build_tool_call(tool_call.clone())
             .map_err(tool_error)?
             .ok_or_else(|| {
-                MapleCodeErr::InvalidRequest(
+                MaplecodeErr::InvalidRequest(
                     "expected an exec_command, apply_patch, request_permissions, or MCP call"
                         .into(),
                 )
@@ -110,13 +110,13 @@ pub(crate) async fn review_tool_call(
             .registered_tool(&parsed_call.tool_name)
             .filter(|_| step.tool_router.exposes_tool(&parsed_call.tool_name))
             .ok_or_else(|| {
-                MapleCodeErr::InvalidRequest(
+                MaplecodeErr::InvalidRequest(
                     "the requested tool is unavailable on this thread".into(),
                 )
             })?;
         let advertised_mcp_tool = tool.runtime.mcp_tool_info();
         if !is_supported_builtin && advertised_mcp_tool.is_none() {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "unsupported tool for direct review".into(),
             ));
         }
@@ -141,9 +141,9 @@ pub(crate) async fn review_tool_call(
         apply_pre_tool_use(tool.runtime.as_ref(), &mut invocation)
             .await
             .map_err(|err| match err {
-                PreToolUseError::Blocked(reason) => MapleCodeErr::InvalidRequest(reason),
+                PreToolUseError::Blocked(reason) => MaplecodeErr::InvalidRequest(reason),
                 PreToolUseError::Failed(err) => tool_error(err),
-                PreToolUseError::Cancelled(_) => MapleCodeErr::TurnAborted,
+                PreToolUseError::Cancelled(_) => MaplecodeErr::TurnAborted,
             })?;
         let step = &invocation.step_context;
         let (requirement, action) = if let Some(tool_info) = advertised_mcp_tool {
@@ -233,7 +233,7 @@ pub(crate) async fn review_tool_call(
                     (None, action)
                 }
                 _ => {
-                    return Err(MapleCodeErr::Fatal(
+                    return Err(MaplecodeErr::Fatal(
                         "unsupported tool or payload for direct review".into(),
                     ));
                 }
@@ -249,18 +249,18 @@ pub(crate) async fn review_tool_call(
             }
             Some(ExecApprovalRequirement::NeedsApproval { reason, .. }) => reason.clone(),
             Some(ExecApprovalRequirement::NeedsHumanApproval { .. }) => {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "Managed command policy requires human approval.".into(),
                 ));
             }
             Some(ExecApprovalRequirement::Forbidden { reason }) => {
-                return Err(MapleCodeErr::InvalidRequest(reason.clone()));
+                return Err(MaplecodeErr::InvalidRequest(reason.clone()));
             }
         };
         let context = GuardianReviewContext::from(step);
         let request = from_approval_action(action, &context)
             .request
-            .map_err(MapleCodeErr::InvalidRequest)?;
+            .map_err(MaplecodeErr::InvalidRequest)?;
         let input = ReviewInput {
             session: Arc::clone(session),
             context,
@@ -275,9 +275,9 @@ pub(crate) async fn review_tool_call(
             .assess_isolated(deadline, cancellation)
             .await
             .map_err(|error| match error {
-                GuardianReviewError::Cancelled => MapleCodeErr::TurnAborted,
-                GuardianReviewError::Timeout => MapleCodeErr::RequestTimeout,
-                other => MapleCodeErr::Fatal(format!("Guardian assessment failed: {other:?}")),
+                GuardianReviewError::Cancelled => MaplecodeErr::TurnAborted,
+                GuardianReviewError::Timeout => MaplecodeErr::RequestTimeout,
+                other => MaplecodeErr::Fatal(format!("Guardian assessment failed: {other:?}")),
             })?;
         Ok(GuardianReviewResult {
             call_id: invocation.call_id,
@@ -285,15 +285,15 @@ pub(crate) async fn review_tool_call(
         })
     };
     tokio::select! {
-        _ = cancellation.cancelled() => Err(MapleCodeErr::TurnAborted),
-        _ = deadline.wait() => Err(MapleCodeErr::RequestTimeout),
+        _ = cancellation.cancelled() => Err(MaplecodeErr::TurnAborted),
+        _ = deadline.wait() => Err(MaplecodeErr::RequestTimeout),
         result = review => result,
     }
 }
 
-fn tool_error(error: FunctionCallError) -> MapleCodeErr {
+fn tool_error(error: FunctionCallError) -> MaplecodeErr {
     match error {
-        FunctionCallError::RespondToModel(message) => MapleCodeErr::InvalidRequest(message),
-        FunctionCallError::Fatal(message) => MapleCodeErr::Fatal(message),
+        FunctionCallError::RespondToModel(message) => MaplecodeErr::InvalidRequest(message),
+        FunctionCallError::Fatal(message) => MaplecodeErr::Fatal(message),
     }
 }

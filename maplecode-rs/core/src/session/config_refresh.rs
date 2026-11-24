@@ -103,7 +103,7 @@ impl Session {
                     "Daybreak helper propagation",
                 ),
                 (
-                    Feature::MapleCodeAppsMcp20260728,
+                    Feature::MaplecodeAppsMcp20260728,
                     "Maple Code Apps MCP protocol",
                 ),
             ] {

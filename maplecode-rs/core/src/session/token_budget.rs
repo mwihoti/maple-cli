@@ -6,7 +6,7 @@ use crate::config::resolve_token_budget_config;
 use crate::context::ContextualUserFragment;
 use maplecode_config::config_toml::ConfigToml;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::account::PlanType;
 use maplecode_protocol::auth::AuthMode;
 use maplecode_protocol::openai_models::ModelInfo;
@@ -21,7 +21,7 @@ fn experimental_context_is_eligible(auth_mode: AuthMode, plan_type: Option<PlanT
 
 pub(super) fn apply_experimental_context(
     config: &mut Config,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     starting_model: &ModelInfo,
 ) -> std::io::Result<()> {
     let provider = &config.model_provider;

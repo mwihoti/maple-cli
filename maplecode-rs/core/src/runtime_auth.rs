@@ -3,7 +3,7 @@
 use crate::config::Config;
 use maplecode_features::Feature;
 use maplecode_login::AuthManager;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_runtime_agent_instance::RuntimeAuthManager;
 use std::sync::Arc;
 use std::sync::OnceLock;
@@ -46,7 +46,7 @@ pub(crate) fn runtime_for_config(
         })
 }
 
-pub(crate) fn is_openai_realtime_url(base_url: &str) -> MapleCodeResult<bool> {
+pub(crate) fn is_openai_realtime_url(base_url: &str) -> MaplecodeResult<bool> {
     let Ok(mut url) = url::Url::parse(base_url) else {
         return Ok(false);
     };

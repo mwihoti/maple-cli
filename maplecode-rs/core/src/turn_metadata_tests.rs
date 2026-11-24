@@ -8,8 +8,8 @@ use crate::responses_metadata::FORKED_FROM_ORDINAL_EXCLUSIVE_KEY;
 use crate::responses_metadata::INSTALLATION_ID_KEY;
 use crate::responses_metadata::LEGACY_CODE_MODE_TOOL_NAMES_KEY;
 use crate::responses_metadata::MCP_ATTRIBUTION_CLIENT_METADATA_KEY;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
+use crate::responses_metadata::MaplecodeResponsesMetadata;
+use crate::responses_metadata::MaplecodeResponsesRequestKind;
 use crate::responses_metadata::NODE_REPL_AUTO_REVIEW_REQUIRED_KEY;
 use crate::responses_metadata::NODE_REPL_DISABLED_KEY;
 use crate::responses_metadata::PARENT_TURN_ID_KEY;
@@ -62,11 +62,11 @@ fn test_mcp_turn_metadata_context() -> ExecutionMetadata<'static> {
 fn test_turn_responses_metadata(
     state: &TurnMetadataState,
     window_id: &str,
-) -> MapleCodeResponsesMetadata {
+) -> MaplecodeResponsesMetadata {
     state.to_responses_metadata(
         "installation-a".to_string(),
         window_id.to_string(),
-        MapleCodeResponsesRequestKind::Turn,
+        MaplecodeResponsesRequestKind::Turn,
     )
 }
 
@@ -85,7 +85,7 @@ fn test_compaction_responses_metadata_json(
         .to_responses_metadata(
             "installation-a".to_string(),
             window_id.to_string(),
-            MapleCodeResponsesRequestKind::Compaction(compaction),
+            MaplecodeResponsesRequestKind::Compaction(compaction),
         )
         .turn_metadata_json()
         .expect("turn metadata json")
@@ -150,7 +150,7 @@ async fn detached_memory_responses_metadata_starts_an_independent_root_turn() {
     let (_temp_dir, repo_path) = create_clean_git_repo("repo-東京").await;
 
     let thread_manager = crate::ThreadManager::with_models_provider_for_tests(
-        maplecode_login::MapleCodeAuth::from_api_key("test"),
+        maplecode_login::MaplecodeAuth::from_api_key("test"),
         crate::config::test_config().await.model_provider,
     );
 
@@ -218,7 +218,7 @@ async fn detached_memory_responses_metadata_omits_empty_workspace_metadata() {
     let cwd = temp_dir.path().abs();
 
     let thread_manager = crate::ThreadManager::with_models_provider_for_tests(
-        maplecode_login::MapleCodeAuth::from_api_key("test"),
+        maplecode_login::MaplecodeAuth::from_api_key("test"),
         crate::config::test_config().await.model_provider,
     );
 
@@ -598,7 +598,7 @@ async fn execution_metadata_applies_captured_settings_to_responses_metadata() {
     let mut metadata = step_context.turn.turn_metadata_state.to_responses_metadata(
         "installation-a".to_string(),
         "window-a".to_string(),
-        MapleCodeResponsesRequestKind::Turn,
+        MaplecodeResponsesRequestKind::Turn,
     );
     ExecutionMetadata::from_settings(&step_context.settings).apply_to(&mut metadata);
     let metadata = metadata.turn_metadata_value().expect("turn metadata");
@@ -651,7 +651,7 @@ async fn guardian_affinity_requires_the_captured_parent_and_stays_out_of_metadat
             ))));
         let step = StepContext::for_test(Arc::new(turn));
         let metadata = session
-            .responses_metadata(&step, MapleCodeResponsesRequestKind::Turn)
+            .responses_metadata(&step, MaplecodeResponsesRequestKind::Turn)
             .await;
         assert_eq!(
             metadata

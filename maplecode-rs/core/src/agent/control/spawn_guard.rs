@@ -7,8 +7,8 @@ use crate::thread_manager::thread_store_error_kind;
 use maplecode_agent_graph_store::AgentGraphStoreError;
 use maplecode_agent_graph_store::ThreadSpawnEdgeStatus;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErrKind;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErrKind;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_thread_store::ThreadStoreError;
 use std::sync::Arc;
 use tokio::task::JoinHandle;
@@ -22,7 +22,7 @@ pub(in crate::agent) enum SpawnOwner {
 pub(in crate::agent) struct PendingSpawn {
     state: Arc<ThreadManagerState>,
     pending: Option<(ThreadId, AgentTreeMembership)>,
-    edge_write: Option<JoinHandle<MapleCodeResult<bool>>>,
+    edge_write: Option<JoinHandle<MaplecodeResult<bool>>>,
     close_spawn_edge: bool,
     owner: SpawnOwner,
 }
@@ -43,11 +43,11 @@ impl PendingSpawn {
         }
     }
 
-    pub(super) fn set_edge_write(&mut self, edge_write: JoinHandle<MapleCodeResult<bool>>) {
+    pub(super) fn set_edge_write(&mut self, edge_write: JoinHandle<MaplecodeResult<bool>>) {
         self.edge_write = Some(edge_write);
     }
 
-    pub(super) async fn wait_for_edge(&mut self) -> MapleCodeResult<()> {
+    pub(super) async fn wait_for_edge(&mut self) -> MaplecodeResult<()> {
         let Some(edge_write) = self.edge_write.as_mut() else {
             return Ok(());
         };
@@ -83,7 +83,7 @@ impl Drop for PendingSpawn {
                 if let Err(error) = thread.shutdown_and_wait().await {
                     teardown.record_shutdown_failure(
                         "stop_child",
-                        MapleCodeErrKind::from(&error).into(),
+                        MaplecodeErrKind::from(&error).into(),
                     );
                     warn!("failed to stop cancelled child spawn: {error}");
                 }

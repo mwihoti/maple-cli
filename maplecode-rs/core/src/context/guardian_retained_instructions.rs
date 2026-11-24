@@ -2,7 +2,7 @@
 //! Preserve its text boundaries so subsequent reviews can recognize admitted originals.
 
 use super::ContextualUserFragment;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ContentItemKind;
 use maplecode_protocol::models::input_text;
@@ -15,11 +15,11 @@ impl GuardianRetainedInstructions {
 }
 
 impl TryFrom<String> for GuardianRetainedInstructions {
-    type Error = MapleCodeErr;
+    type Error = MaplecodeErr;
 
     fn try_from(text: String) -> Result<Self, Self::Error> {
         if text.len() > TruncationPolicy::Tokens(900).byte_budget() {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "restored Guardian evidence exceeds its per-record limit".to_owned(),
             ));
         }

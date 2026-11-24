@@ -8,8 +8,8 @@ use crate::hook_runtime::run_pre_compact_hooks;
 use crate::session::session::Session;
 use crate::session::step_context::StepContext;
 use maplecode_analytics::CompactionTrigger;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::items::ContextCompactionItem;
 use maplecode_protocol::items::TurnItem;
 
@@ -22,7 +22,7 @@ pub(crate) async fn run_manual_compact_task(
     sess: Arc<Session>,
     step_context: Arc<StepContext>,
     world_state: Arc<WorldState>,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     run_compact_task_inner(&sess, &step_context, world_state, CompactionTrigger::Manual).await
 }
 
@@ -35,7 +35,7 @@ pub(crate) async fn run_inline_auto_compact_task(
     sess: Arc<Session>,
     step_context: Arc<StepContext>,
     world_state: Arc<WorldState>,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     run_compact_task_inner(&sess, &step_context, world_state, CompactionTrigger::Auto).await
 }
 
@@ -44,12 +44,12 @@ async fn run_compact_task_inner(
     step_context: &Arc<StepContext>,
     world_state: Arc<WorldState>,
     trigger: CompactionTrigger,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let turn_context = &step_context.turn;
     let pre_compact_outcome = run_pre_compact_hooks(sess, turn_context, trigger).await;
     match pre_compact_outcome {
         PreCompactHookOutcome::Continue => {}
-        PreCompactHookOutcome::Stopped => return Err(MapleCodeErr::TurnAborted),
+        PreCompactHookOutcome::Stopped => return Err(MaplecodeErr::TurnAborted),
     }
 
     let compaction_item = TurnItem::ContextCompaction(ContextCompactionItem::new());
@@ -62,7 +62,7 @@ async fn run_compact_task_inner(
 
     let post_compact_outcome = run_post_compact_hooks(sess, turn_context, trigger).await;
     if let PostCompactHookOutcome::Stopped = post_compact_outcome {
-        return Err(MapleCodeErr::TurnAborted);
+        return Err(MaplecodeErr::TurnAborted);
     }
 
     Ok(())

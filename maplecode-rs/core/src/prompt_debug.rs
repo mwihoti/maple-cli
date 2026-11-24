@@ -6,8 +6,8 @@ use maplecode_extension_api::ExtensionRegistry;
 use maplecode_extension_api::UserInstructionsProvider;
 use maplecode_login::AuthManager;
 use maplecode_models_manager::manager::ModelCatalogSettings;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::user_input::UserInput;
@@ -30,13 +30,13 @@ pub async fn build_prompt_input(
     state_db: Option<StateDbHandle>,
     extensions: Arc<ExtensionRegistry<Config>>,
     user_instructions_provider: Arc<dyn UserInstructionsProvider>,
-) -> MapleCodeResult<Vec<ResponseItem>> {
+) -> MaplecodeResult<Vec<ResponseItem>> {
     config.ephemeral = true;
 
     let auth_manager =
         AuthManager::shared_from_config(&config, /*enable_maplecode_api_key_env*/ false)
             .await
-            .map_err(|err| MapleCodeErr::Fatal(err.to_string()))?;
+            .map_err(|err| MaplecodeErr::Fatal(err.to_string()))?;
 
     let local_runtime_paths = ExecServerRuntimeOptions::from_optional_paths(
         config.maplecode_self_exe.clone(),
@@ -56,7 +56,7 @@ pub async fn build_prompt_input(
     let thread_manager = ThreadManager::new(
         &config,
         startup,
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(
             EnvironmentManager::from_maplecode_home(
@@ -65,7 +65,7 @@ pub async fn build_prompt_input(
                 config.http_client_factory(),
             )
             .await
-            .map_err(|err| MapleCodeErr::Fatal(err.to_string()))?,
+            .map_err(|err| MaplecodeErr::Fatal(err.to_string()))?,
         ),
         extensions,
         user_instructions_provider,
@@ -91,7 +91,7 @@ pub async fn build_prompt_input(
 pub(crate) async fn build_prompt_input_from_session(
     sess: &Arc<Session>,
     input: Vec<UserInput>,
-) -> MapleCodeResult<Vec<ResponseItem>> {
+) -> MaplecodeResult<Vec<ResponseItem>> {
     let turn_context = sess.new_default_turn().await;
     // Prompt debugging builds a standalone request without entering run_turn.
     let step_context = sess

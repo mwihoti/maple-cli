@@ -33,14 +33,14 @@ fn message(content: Vec<ContentItem>) -> ResponseItem {
     }
 }
 
-fn audio_error() -> MapleCodeErrorDetails {
-    MapleCodeErrorDetails::InvalidAudioInput {
+fn audio_error() -> MaplecodeErrorDetails {
+    MaplecodeErrorDetails::InvalidAudioInput {
         per_recording: true,
         message: "invalid recording".to_string(),
     }
 }
 
-fn rejected_file_audio_id(error: &MapleCodeErrorDetails, items: &[ResponseItem]) -> Option<String> {
+fn rejected_file_audio_id(error: &MaplecodeErrorDetails, items: &[ResponseItem]) -> Option<String> {
     SubmittedFileAudio::from_request(items, /*accepted*/ None, std::iter::empty())?
         .rejected_file_id(error)
 }
@@ -79,7 +79,7 @@ fn previously_accepted_file_only_disambiguates_clip_specific_errors() {
         .expect("one new recording");
     assert!(candidate.matches_rejection(&audio_error()));
     assert!(
-        !candidate.matches_rejection(&MapleCodeErrorDetails::InvalidAudioInput {
+        !candidate.matches_rejection(&MaplecodeErrorDetails::InvalidAudioInput {
             message: "The combined audio input is too large.".into(),
             per_recording: false,
         })
@@ -147,7 +147,7 @@ fn attributes_audio_error_only_to_one_visible_file_audio() {
 
 #[test]
 fn unknown_file_error_counts_the_submitted_projection_not_raw_history() {
-    let error = MapleCodeErrorDetails::UnexpectedStatus(maplecode_protocol::error::UnexpectedResponseError {
+    let error = MaplecodeErrorDetails::UnexpectedStatus(maplecode_protocol::error::UnexpectedResponseError {
         status: http::StatusCode::NOT_FOUND,
         body: serde_json::json!({"error": {"message": "Invalid input: Unknown `file_id` in input content."}}).to_string(),
         url: None,

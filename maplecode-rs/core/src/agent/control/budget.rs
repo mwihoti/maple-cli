@@ -4,14 +4,14 @@
 use super::LocalAgentControl;
 use crate::rollout_budget::RolloutBudgetReminder;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::TokenUsage;
 
 impl LocalAgentControl {
-    pub(crate) fn record_rollout_budget_usage(&self, usage: &TokenUsage) -> MapleCodeResult<()> {
+    pub(crate) fn record_rollout_budget_usage(&self, usage: &TokenUsage) -> MaplecodeResult<()> {
         if self.runtime.rollout_budget.record_usage(usage)? {
-            return Err(MapleCodeErr::SessionBudgetExceeded);
+            return Err(MaplecodeErr::SessionBudgetExceeded);
         }
         Ok(())
     }

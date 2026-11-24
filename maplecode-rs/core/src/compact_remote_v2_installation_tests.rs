@@ -9,7 +9,7 @@ use crate::context::world_state::WorldState;
 use crate::session::CompactionPrefix;
 use core_test_support::responses;
 use futures::future::BoxFuture;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::models::ResponseItem;
 use pretty_assertions::assert_eq;
 use test_case::test_case;
@@ -29,19 +29,19 @@ struct FailingRosterRead {
 }
 
 impl AgentSessionReader for FailingRosterRead {
-    fn root(&self) -> BoxFuture<'_, MapleCodeResult<AgentRef>> {
+    fn root(&self) -> BoxFuture<'_, MaplecodeResult<AgentRef>> {
         unreachable!("roster rendering reads children")
     }
 
-    fn parent(&self) -> BoxFuture<'_, MapleCodeResult<Option<AgentRef>>> {
+    fn parent(&self) -> BoxFuture<'_, MaplecodeResult<Option<AgentRef>>> {
         unreachable!("roster rendering reads children")
     }
 
-    fn children(&self) -> BoxFuture<'_, MapleCodeResult<Vec<AgentRef>>> {
+    fn children(&self) -> BoxFuture<'_, MaplecodeResult<Vec<AgentRef>>> {
         Box::pin(async {
             self.started.notify_one();
             self.release.notified().await;
-            Err(MapleCodeErr::InvalidRequest("roster unavailable".into()))
+            Err(MaplecodeErr::InvalidRequest("roster unavailable".into()))
         })
     }
 }
@@ -64,7 +64,7 @@ async fn prepared_prefix_rejection_respects_caller_intent(
     let server_uri = server.uri();
     let (sess, turn, _events) =
         crate::session::tests::make_session_and_context_with_auth_and_config_and_rx(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
             Vec::new(),
             move |config| {
                 config.model = Some("gpt-5.2".to_string());
@@ -104,7 +104,7 @@ async fn prepared_prefix_rejection_respects_caller_intent(
             HistoryChange::Replacement => auth,
             HistoryChange::Account => Some(
                 maplecode_login::AuthManager::from_auth_for_testing_with_home(
-                    MapleCodeAuth::from_api_key("other-account"),
+                    MaplecodeAuth::from_api_key("other-account"),
                     std::path::PathBuf::from("unused"),
                 )
                 .auth_owner(),

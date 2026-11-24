@@ -1,7 +1,7 @@
 //! Captures configuration-derived sandbox labels and writes them to diagnostics.
 //! Labels never inspect the filesystem and must not be used for authorization.
 
-use crate::responses_metadata::MapleCodeResponsesMetadata;
+use crate::responses_metadata::MaplecodeResponsesMetadata;
 use maplecode_file_system::WindowsSandboxSelection;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_sandboxing::SandboxType;
@@ -40,7 +40,7 @@ impl SandboxTags {
     }
 
     /// Records the same captured labels in model and MCP request metadata.
-    pub(crate) fn record_metadata(&self, metadata: &mut MapleCodeResponsesMetadata) {
+    pub(crate) fn record_metadata(&self, metadata: &mut MaplecodeResponsesMetadata) {
         metadata.sandbox = Some(self.sandbox.to_string());
         metadata.sandbox_mode = Some(self.policy.to_string());
     }
@@ -50,7 +50,7 @@ impl SandboxTags {
 pub(crate) fn record_policy_metadata(
     profile: &PermissionProfile,
     cwd: &Path,
-    metadata: &mut MapleCodeResponsesMetadata,
+    metadata: &mut MaplecodeResponsesMetadata,
 ) {
     metadata.sandbox_mode = Some(permission_profile_policy_tag(profile, cwd).to_string());
 }

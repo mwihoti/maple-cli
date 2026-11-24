@@ -4,8 +4,8 @@
 use std::sync::Arc;
 
 use maplecode_async_utils::OrCancelExt;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::Result;
 use tokio_util::sync::CancellationToken;
 
@@ -48,7 +48,7 @@ pub(super) async fn admit(
         })
         .or_cancel(cancellation)
         .await
-        .map_err(|_| MapleCodeErr::new(MapleCodeErrorDetails::TurnAborted))??;
+        .map_err(|_| MaplecodeErr::new(MaplecodeErrorDetails::TurnAborted))??;
 
     // Acquiring this lock waits for turn registration to finish before attaching the permit.
     // A cancelled/replaced task must never install its permit into a newer task,
@@ -59,10 +59,10 @@ pub(super) async fn admit(
         .and_then(|turn| turn.task.as_mut())
         .filter(|task| Arc::ptr_eq(&task.turn_context, context))
         .filter(|_| !cancellation.is_cancelled())
-        .ok_or_else(|| MapleCodeErr::new(MapleCodeErrorDetails::TurnAborted))?;
+        .ok_or_else(|| MaplecodeErr::new(MaplecodeErrorDetails::TurnAborted))?;
     task._agent_execution_guard = Some(guard);
     task.pending_initial_input.take().ok_or_else(|| {
-        MapleCodeErr::Fatal("initial input missing from the task awaiting host admission".into())
+        MaplecodeErr::Fatal("initial input missing from the task awaiting host admission".into())
     })
 }
 

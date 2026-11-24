@@ -20,7 +20,7 @@ use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::protocol::AgentStatus;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::TokenUsage;
@@ -241,7 +241,7 @@ pub struct AgentTurnOutcome {
     pub initiating_agent_path: Option<AgentPath>,
     pub status: AgentStatus,
     /// Typed reason used to choose guidance in the parent notification.
-    pub error_info: Option<MapleCodeErrorInfo>,
+    pub error_info: Option<MaplecodeErrorInfo>,
 }
 
 /// Settings shared by the tree. A service tier of `None` restores the default tier.

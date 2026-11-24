@@ -27,8 +27,8 @@ use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RolloutItem;
 use maplecode_prompts::ResolvedModelMessages;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::MessagePhase;
 use maplecode_protocol::models::ResponseItem;
@@ -132,7 +132,7 @@ pub(super) async fn load_agent_model_context(
     state: &ThreadManagerState,
     thread_id: ThreadId,
     history_mode: ThreadHistoryMode,
-) -> MapleCodeResult<Option<maplecode_thread_store::StoredModelContext>> {
+) -> MaplecodeResult<Option<maplecode_thread_store::StoredModelContext>> {
     match history_mode {
         ThreadHistoryMode::Legacy => Ok(state
             .read_stored_thread(ReadThreadParams {
@@ -165,14 +165,14 @@ pub(super) async fn prepare_forked_history(
     options: &SpawnAgentOptions,
     config: &Config,
     multi_agent_version: MultiAgentVersion,
-) -> MapleCodeResult<(InitialHistory, Option<ThreadHistoryMode>)> {
+) -> MaplecodeResult<(InitialHistory, Option<ThreadHistoryMode>)> {
     if options.fork_parent_spawn_call_id.is_none() {
-        return Err(MapleCodeErr::Fatal(
+        return Err(MaplecodeErr::Fatal(
             "spawn_agent fork requires a parent spawn call id".to_string(),
         ));
     }
     if options.fork_mode.is_none() {
-        return Err(MapleCodeErr::Fatal(
+        return Err(MaplecodeErr::Fatal(
             "spawn_agent fork requires a fork mode".to_string(),
         ));
     }
@@ -180,7 +180,7 @@ pub(super) async fn prepare_forked_history(
         parent_thread_id, ..
     }) = session_source
     else {
-        return Err(MapleCodeErr::Fatal(
+        return Err(MaplecodeErr::Fatal(
             "spawn_agent fork requires a thread-spawn session source".to_string(),
         ));
     };
@@ -228,7 +228,7 @@ pub(super) async fn prepare_forked_history(
         load_agent_model_context(state, parent_thread_id, parent_history_mode)
             .await?
             .ok_or_else(|| {
-                MapleCodeErr::Fatal(format!(
+                MaplecodeErr::Fatal(format!(
                     "parent thread history unavailable for fork: {parent_thread_id}"
                 ))
             })?

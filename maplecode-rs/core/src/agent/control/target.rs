@@ -6,8 +6,8 @@ use super::LocalAgentRuntime;
 use crate::agent::api::AgentTarget;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::SessionSource;
 
 impl LocalAgentControl {
@@ -15,7 +15,7 @@ impl LocalAgentControl {
         &self,
         caller: ThreadId,
         target: &AgentTarget,
-    ) -> MapleCodeResult<ThreadId> {
+    ) -> MaplecodeResult<ThreadId> {
         match target {
             AgentTarget::Id(thread_id) => Ok(*thread_id),
             AgentTarget::Reference(reference) => {
@@ -35,7 +35,7 @@ impl LocalAgentRuntime {
         _current_thread_id: ThreadId,
         current_session_source: &SessionSource,
         agent_reference: &str,
-    ) -> MapleCodeResult<ThreadId> {
+    ) -> MaplecodeResult<ThreadId> {
         let current_agent_path = current_session_source
             .get_agent_path()
             .unwrap_or_else(AgentPath::root);
@@ -46,14 +46,14 @@ impl LocalAgentRuntime {
         &self,
         current_agent_path: &AgentPath,
         agent_reference: &str,
-    ) -> MapleCodeResult<ThreadId> {
+    ) -> MaplecodeResult<ThreadId> {
         let agent_path = current_agent_path
             .resolve(agent_reference)
-            .map_err(MapleCodeErr::UnsupportedOperation)?;
+            .map_err(MaplecodeErr::UnsupportedOperation)?;
         if let Some(thread_id) = self.registry.agent_id_for_path(&agent_path) {
             return Ok(thread_id);
         }
-        Err(MapleCodeErr::UnsupportedOperation(format!(
+        Err(MaplecodeErr::UnsupportedOperation(format!(
             "live agent path `{}` not found",
             agent_path.as_str()
         )))

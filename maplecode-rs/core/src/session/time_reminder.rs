@@ -2,8 +2,8 @@ use chrono::DateTime;
 use chrono::Utc;
 use maplecode_features::CurrentTimeReminderDeliveryMode;
 use maplecode_features::Feature;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::ResponseItem;
 
 use super::session::Session;
@@ -101,7 +101,7 @@ impl Session {
         &self,
         turn_context: &TurnContext,
         clock_read: &'static str,
-    ) -> MapleCodeResult<Option<DateTime<Utc>>> {
+    ) -> MaplecodeResult<Option<DateTime<Utc>>> {
         let error = match self
             .services
             .time_provider
@@ -120,7 +120,7 @@ impl Session {
             .features
             .enabled(Feature::NonfatalClockReadErrors)
         {
-            return Err(MapleCodeErr::Fatal(format!(
+            return Err(MaplecodeErr::Fatal(format!(
                 "failed to read current time: {error:#}"
             )));
         }
@@ -157,7 +157,7 @@ pub(super) async fn maybe_record_current_time_reminder(
     sess: &Session,
     turn_context: &TurnContext,
     window_id: &str,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     if !turn_context
         .config
         .features

@@ -4,8 +4,8 @@ use crate::environment_selection::TurnEnvironmentSnapshot;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::AgentErrorContext;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
@@ -104,7 +104,7 @@ impl AgentRegistry {
     ) -> Result<SpawnReservation> {
         if let Some(max_threads) = max_threads {
             if !self.try_increment_spawned(max_threads) {
-                return Err(MapleCodeErr::new(MapleCodeErrorDetails::AgentLimitReached {
+                return Err(MaplecodeErr::new(MaplecodeErrorDetails::AgentLimitReached {
                     max_threads,
                 })
                 .with_agent_context(AgentErrorContext::RegistryCapacity));
@@ -310,7 +310,7 @@ impl AgentRegistry {
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         match active_agents.agent_tree.entry(agent_path.to_string()) {
-            Entry::Occupied(_) => Err(MapleCodeErr::UnsupportedOperation(format!(
+            Entry::Occupied(_) => Err(MaplecodeErr::UnsupportedOperation(format!(
                 "agent path `{agent_path}` already exists"
             ))
             .with_agent_context(AgentErrorContext::DuplicatePath)),
@@ -374,7 +374,7 @@ impl SpawnReservation {
             .state
             .reserve_agent_nickname(names, preferred)
             .ok_or_else(|| {
-                MapleCodeErr::UnsupportedOperation("no available agent nicknames".to_string())
+                MaplecodeErr::UnsupportedOperation("no available agent nicknames".to_string())
                     .with_agent_context(AgentErrorContext::NicknameUnavailable)
             })?;
         self.reserved_agent_nickname = Some(agent_nickname.clone());

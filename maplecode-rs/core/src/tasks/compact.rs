@@ -9,8 +9,8 @@ use crate::session::turn_context::TurnContext;
 use crate::state::TaskKind;
 use maplecode_features::Feature;
 use maplecode_model_provider::RemoteCompactionSupport;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::user_input::UserInput;
 use tokio_util::sync::CancellationToken;
 
@@ -95,11 +95,11 @@ impl SessionTask for CompactTask {
             }
         };
         if let Err(err) = result {
-            if matches!(err.details(), MapleCodeErrorDetails::TurnAborted) {
+            if matches!(err.details(), MaplecodeErrorDetails::TurnAborted) {
                 return Err(err);
             }
             let error = err.to_maplecode_protocol_error();
-            if matches!(error, MapleCodeErrorInfo::UsageLimitExceeded) {
+            if matches!(error, MaplecodeErrorInfo::UsageLimitExceeded) {
                 // Compaction already emitted the error; notify extensions without emitting it twice.
                 session
                     .emit_turn_error_lifecycle(ctx.as_ref(), error, err.details())

@@ -402,7 +402,7 @@ async fn compacted_review_restores_originals_once_and_persists_the_request_prefi
         /*incremental_tools*/ false,
     );
     let metadata = session
-        .responses_metadata(&step, MapleCodeResponsesRequestKind::Turn)
+        .responses_metadata(&step, MaplecodeResponsesRequestKind::Turn)
         .await;
     super::super::request_budget::prepare_prompt(&session, &mut prompt, &step, &metadata)
         .await

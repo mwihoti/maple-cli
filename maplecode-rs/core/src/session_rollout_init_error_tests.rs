@@ -2,7 +2,7 @@
 
 use super::map_session_init_error;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_thread_store::ThreadStoreError;
 use pretty_assertions::assert_eq;
 use std::path::Path;
@@ -28,7 +28,7 @@ fn storage_failures_remain_fatal_during_session_initialization() {
     ] {
         let wrapped = anyhow::Error::new(error.clone()).context("opening persistence");
         let mapped = map_session_init_error(&wrapped, Path::new("maplecode-home"));
-        let MapleCodeErrorDetails::Fatal(message) = mapped.details() else {
+        let MaplecodeErrorDetails::Fatal(message) = mapped.details() else {
             panic!("storage failure must remain fatal during startup: {mapped}");
         };
         assert_eq!(
@@ -46,7 +46,7 @@ fn conflict_and_unsupported_keep_their_session_initialization_categories() {
     .context("opening persistence");
     let mapped = map_session_init_error(&conflict, Path::new("maplecode-home"));
     assert!(
-        matches!(mapped.details(), MapleCodeErrorDetails::InvalidRequest(message)
+        matches!(mapped.details(), MaplecodeErrorDetails::InvalidRequest(message)
         if message == "writer already active")
     );
 
@@ -56,7 +56,7 @@ fn conflict_and_unsupported_keep_their_session_initialization_categories() {
     .context("opening persistence");
     let mapped = map_session_init_error(&unsupported, Path::new("maplecode-home"));
     assert!(
-        matches!(mapped.details(), MapleCodeErrorDetails::UnsupportedOperation(message)
+        matches!(mapped.details(), MaplecodeErrorDetails::UnsupportedOperation(message)
         if message == "create_thread is not supported yet")
     );
 }

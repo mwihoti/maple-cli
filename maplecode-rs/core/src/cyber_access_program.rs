@@ -2,8 +2,8 @@
 
 use maplecode_api::AccessPrograms;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_login::MaplecodeAuth;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::turn_input::CyberAccessProgram;
 use std::sync::Arc;
@@ -65,7 +65,7 @@ pub(crate) fn for_provider(
 
 /// Resolves an explicit program using the request's current authentication.
 pub fn for_auth(
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     program: Option<CyberAccessProgram>,
     policy: ApiKeyCyberAccessPrograms,
 ) -> Result<Option<AccessPrograms>> {
@@ -75,7 +75,7 @@ pub fn for_auth(
     let Some(auth) = auth else {
         return Ok(None);
     };
-    if auth.is_chatgpt_auth() || matches!(auth, MapleCodeAuth::Headers(_)) {
+    if auth.is_chatgpt_auth() || matches!(auth, MaplecodeAuth::Headers(_)) {
         return Ok(Some(program.into()));
     }
     if !auth.is_api_key_auth() {
@@ -83,7 +83,7 @@ pub fn for_auth(
     }
     match policy {
         ApiKeyCyberAccessPrograms::UnsupportedProvider => Ok(None),
-        ApiKeyCyberAccessPrograms::Disabled => Err(MapleCodeErr::InvalidRequest(
+        ApiKeyCyberAccessPrograms::Disabled => Err(MaplecodeErr::InvalidRequest(
             "Cyber access programs are disabled for this API-key session.".to_owned(),
         )),
         ApiKeyCyberAccessPrograms::Enabled => Ok(Some(program.into())),

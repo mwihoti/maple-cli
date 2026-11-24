@@ -14,7 +14,7 @@ use maplecode_utils_absolute_path::AbsolutePathBuf;
 use std::path::PathBuf;
 
 /// The configuration reported when a thread started.
-/// Current settings are available through [`crate::MapleCodeThread::config_snapshot`].
+/// Current settings are available through [`crate::MaplecodeThread::config_snapshot`].
 #[derive(Debug)]
 pub struct ThreadStartupMetadata {
     pub session_id: SessionId,

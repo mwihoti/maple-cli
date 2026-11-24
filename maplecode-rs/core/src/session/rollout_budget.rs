@@ -4,8 +4,8 @@ use crate::agent::host::AgentRuntimeServices;
 use crate::agent::host::AgentUsageReport;
 use crate::agent::host::UsageAccountingDecision;
 use crate::context::ContextualUserFragment;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::TokenUsage;
 
 pub(super) async fn maybe_record_reminder(
@@ -43,7 +43,7 @@ impl Session {
         &self,
         turn_id: &str,
         usage: &TokenUsage,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         match &self.agent_runtime {
             AgentRuntimeServices::Controller => {
                 self.services
@@ -63,11 +63,11 @@ impl Session {
                     })
                     .await
                     .map_err(|error| {
-                        MapleCodeErr::Fatal(format!("Host usage accounting failed: {error}"))
+                        MaplecodeErr::Fatal(format!("Host usage accounting failed: {error}"))
                     })?;
                 match decision {
                     UsageAccountingDecision::Continue => Ok(()),
-                    UsageAccountingDecision::Exhausted => Err(MapleCodeErr::SessionBudgetExceeded),
+                    UsageAccountingDecision::Exhausted => Err(MaplecodeErr::SessionBudgetExceeded),
                 }
             }
         }

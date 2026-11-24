@@ -27,9 +27,9 @@ use maplecode_history::ResumedHistory;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::items::SubAgentActivityItem;
 use maplecode_protocol::items::TurnItem;
 use maplecode_protocol::models::ContentItemMetadata;
@@ -139,7 +139,7 @@ impl LocalAgentControl {
         agent_id: ThreadId,
         input: Vec<UserInput>,
         start_options: TurnStartOptions,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         let state = self.runtime.upgrade()?;
         let thread = state.get_thread(agent_id).await?;
         let result = match thread
@@ -155,7 +155,7 @@ impl LocalAgentControl {
                 // unique without adding a submission receipt back to Core.
                 Ok(Uuid::now_v7().to_string())
             }
-            Ok(TurnInputSubmission::NotSubmitted { reason }) => Err(MapleCodeErr::InvalidRequest(
+            Ok(TurnInputSubmission::NotSubmitted { reason }) => Err(MaplecodeErr::InvalidRequest(
                 format!("turn input was not submitted: {reason:?}"),
             )),
             Err(err) => Err(err),
@@ -170,7 +170,7 @@ impl LocalAgentControl {
         communication: InterAgentCommunication,
         agent_communication_context: AgentCommunicationContext,
         start_options: TurnStartOptions,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         let state = self.runtime.upgrade()?;
         if communication.trigger_turn {
             let thread = state.get_thread(agent_id).await?;
@@ -193,7 +193,7 @@ impl LocalAgentControl {
         thread_id: ThreadId,
         turn_id: String,
         item: SubAgentActivityItem,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         let state = self.runtime.upgrade()?;
         let thread = state.get_thread(thread_id).await?;
         let started_at_ms = now_unix_timestamp_ms();
@@ -245,7 +245,7 @@ impl LocalAgentControl {
         communication: InterAgentCommunication,
         context: AgentCommunicationContext,
         start_options: TurnStartOptions,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         self.submit_inter_agent_communication(
             agent_id,
             state,
@@ -263,7 +263,7 @@ impl LocalAgentControl {
         communication: InterAgentCommunication,
         context: AgentCommunicationContext,
         start_options: TurnStartOptions,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         let observers = state.extensions.message_lifecycle_contributors();
         let delivery = (!observers.is_empty())
             .then(|| MessageDelivery::publish(context.sender_thread_id, observers));
@@ -307,7 +307,7 @@ impl LocalAgentControl {
     }
 
     /// Interrupt the current task for an existing agent thread.
-    pub(crate) async fn interrupt_agent(&self, agent_id: ThreadId) -> MapleCodeResult<String> {
+    pub(crate) async fn interrupt_agent(&self, agent_id: ThreadId) -> MaplecodeResult<String> {
         let state = self.runtime.upgrade()?;
         self.handle_thread_request_result(
             agent_id,
@@ -329,11 +329,11 @@ impl LocalAgentControl {
         &self,
         agent_id: ThreadId,
         state: &Arc<ThreadManagerState>,
-        result: MapleCodeResult<String>,
-    ) -> MapleCodeResult<String> {
+        result: MaplecodeResult<String>,
+    ) -> MaplecodeResult<String> {
         if result
             .as_ref()
-            .is_err_and(|err| matches!(err.details(), MapleCodeErrorDetails::InternalAgentDied))
+            .is_err_and(|err| matches!(err.details(), MaplecodeErrorDetails::InternalAgentDied))
         {
             let _ = state.remove_thread(&agent_id).await;
             self.forget_v2_residency(agent_id);
@@ -362,7 +362,7 @@ impl LocalAgentControl {
         &self,
         current_session_source: &SessionSource,
         path_prefix: Option<&str>,
-    ) -> MapleCodeResult<Vec<LiveAgent>> {
+    ) -> MaplecodeResult<Vec<LiveAgent>> {
         let state = self.runtime.upgrade()?;
         let resolved_prefix = path_prefix
             .map(|prefix| {
@@ -370,7 +370,7 @@ impl LocalAgentControl {
                     .get_agent_path()
                     .unwrap_or_else(AgentPath::root)
                     .resolve(prefix)
-                    .map_err(MapleCodeErr::UnsupportedOperation)
+                    .map_err(MaplecodeErr::UnsupportedOperation)
             })
             .transpose()?;
 
@@ -570,7 +570,7 @@ impl LocalAgentControl {
         agent_path: Option<AgentPath>,
         agent_role: Option<String>,
         preferred_agent_nickname: Option<String>,
-    ) -> MapleCodeResult<AgentMetadata> {
+    ) -> MaplecodeResult<AgentMetadata> {
         if let Some(agent_path) = agent_path.as_ref() {
             reservation.reserve_agent_path(agent_path)?;
         }
@@ -598,7 +598,7 @@ impl LocalAgentControl {
         agent_path: Option<AgentPath>,
         agent_role: Option<String>,
         preferred_agent_nickname: Option<String>,
-    ) -> MapleCodeResult<(SessionSource, AgentMetadata)> {
+    ) -> MaplecodeResult<(SessionSource, AgentMetadata)> {
         if depth == 1 {
             self.runtime.registry.register_root_thread(parent_thread_id);
         }
@@ -635,7 +635,7 @@ impl LocalAgentControl {
         ephemeral: bool,
         child_thread_id: ThreadId,
         session_source: Option<&SessionSource>,
-    ) -> MapleCodeResult<bool> {
+    ) -> MaplecodeResult<bool> {
         let Some(parent_thread_id) = session_source.and_then(SessionSource::parent_thread_id)
         else {
             return Ok(false);
@@ -656,7 +656,7 @@ impl LocalAgentControl {
             .await
         {
             warn!("failed to persist thread-spawn edge: {err}");
-            return Err(MapleCodeErr::Fatal(
+            return Err(MaplecodeErr::Fatal(
                 "failed to persist spawned agent relationship".to_string(),
             ));
         }
@@ -675,7 +675,7 @@ async fn inherited_exec_policy_for_source(
 }
 
 pub(in crate::agent) async fn inherited_exec_policy_for_parent(
-    parent_thread: &crate::MapleCodeThread,
+    parent_thread: &crate::MaplecodeThread,
     child_config: &Config,
 ) -> Option<Arc<crate::exec_policy::ExecPolicyManager>> {
     let parent_config = parent_thread.session.get_config().await;
@@ -738,9 +738,9 @@ async fn submit_loaded_agent_communication<F>(
     log_content: Option<&str>,
     start_options: TurnStartOptions,
     submit: impl FnOnce(Op, Option<String>, Option<String>) -> F,
-) -> MapleCodeResult<String>
+) -> MaplecodeResult<String>
 where
-    F: std::future::Future<Output = MapleCodeResult<String>>,
+    F: std::future::Future<Output = MaplecodeResult<String>>,
 {
     let (parent_turn_id, root_turn_id) = if communication.trigger_turn {
         (

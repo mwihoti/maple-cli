@@ -21,7 +21,7 @@ use maplecode_otel::TOOL_SPEC_DESCRIPTION_BYTES_METRIC;
 use maplecode_otel::TOOL_SPEC_DESCRIPTION_BYTES_METRIC_BUCKETS;
 use maplecode_prompts::ResolvedIncrementalToolMessages;
 use maplecode_protocol::DEFAULT_FUNCTION_NAMESPACE;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ContentItemKind;
@@ -77,7 +77,7 @@ impl TopLevelToolsState {
         let mut insert_hash = |name: String, definition: &Value| -> Result<()> {
             let hash = WorldStateHash::from_json(definition);
             if hashes.insert(name.clone(), hash).is_some() {
-                return Err(MapleCodeErrorDetails::ToolCollision(name).into());
+                return Err(MaplecodeErrorDetails::ToolCollision(name).into());
             }
             Ok(())
         };

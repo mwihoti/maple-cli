@@ -5,7 +5,7 @@ use super::AgentSessionReader;
 use super::AgentTurnAdmission;
 use super::AgentUsageAccounting;
 use maplecode_extension_api::ExtensionData;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use std::sync::Arc;
 
@@ -40,7 +40,7 @@ impl AgentRuntimeServices {
             return Ok(Self::Controller);
         }
         let turn_admission = data.get::<Arc<dyn AgentTurnAdmission>>().ok_or_else(|| {
-            MapleCodeErr::InvalidRequest(
+            MaplecodeErr::InvalidRequest(
                 "host coordination requires AgentTurnAdmission before startup".into(),
             )
         })?;

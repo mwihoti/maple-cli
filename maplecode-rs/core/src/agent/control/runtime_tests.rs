@@ -1,7 +1,7 @@
 use super::*;
 use crate::thread_manager::default_thread_id_generator;
 use futures::future;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_thread_store::ThreadStoreError;
 use pretty_assertions::assert_eq;
 use tokio::sync::Barrier;
@@ -65,7 +65,7 @@ async fn aborted_teardown_reports_operation_and_thread() {
         .expect_err("legacy wait must fail after an abandoned teardown");
     assert!(matches!(
         error.details(),
-        MapleCodeErrorDetails::Fatal(message) if message == "agent tree shutdown did not complete cleanly"
+        MaplecodeErrorDetails::Fatal(message) if message == "agent tree shutdown did not complete cleanly"
     ));
 }
 

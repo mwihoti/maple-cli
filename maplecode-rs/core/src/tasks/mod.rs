@@ -66,8 +66,8 @@ use maplecode_thread_store::PersistContext;
 pub(crate) use admission::HostTurnStarted;
 pub(crate) use compact::CompactTask;
 use maplecode_features::Feature;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 pub(crate) use regular::RegularTask;
 pub(crate) use review::ReviewTask;
 pub(crate) use user_shell::UserShellCommandMode;
@@ -78,7 +78,7 @@ pub(crate) const GRACEFULL_INTERRUPTION_TIMEOUT_MS: u64 = 100;
 const TASK_COMPACT_METRIC: &str = "maplecode.task.compact";
 static ACTIVE_TURNS: Gauge = Gauge::new("core.turns.active");
 
-pub(crate) type SessionTaskResult = MapleCodeResult<Option<regular::RegularTaskOutput>>;
+pub(crate) type SessionTaskResult = MaplecodeResult<Option<regular::RegularTaskOutput>>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum InterruptedTurnHistoryMarker {
@@ -199,7 +199,7 @@ pub(crate) trait SessionTask: Send + Sync + 'static {
     /// abort; implementers should watch for it and terminate quickly once it
     /// fires. Returning [`Some`] lets finalization continue sampling
     /// if this regular turn accepted more input. Returning
-    /// [`MapleCodeErr::TurnAborted`] completes the task through the aborted-turn
+    /// [`MaplecodeErr::TurnAborted`] completes the task through the aborted-turn
     /// lifecycle instead.
     fn run(
         self: Arc<Self>,
@@ -726,7 +726,7 @@ impl Session {
     ) -> Option<McpStartupRequirements> {
         let (regular_output, abort_reason, task_error) = match task_result {
             Ok(output) => (output, None, None),
-            Err(err) if matches!(err.details(), MapleCodeErrorDetails::TurnAborted) => {
+            Err(err) if matches!(err.details(), MaplecodeErrorDetails::TurnAborted) => {
                 (None, Some(TurnAbortReason::Interrupted), None)
             }
             Err(err) => {

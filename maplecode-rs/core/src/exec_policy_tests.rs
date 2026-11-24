@@ -17,7 +17,7 @@ use maplecode_config::config_toml::ConfigToml;
 use maplecode_config::config_toml::ProjectConfig;
 use maplecode_protocol::config_types::TrustLevel;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::error::MapleCodeErrKind;
+use maplecode_protocol::error::MaplecodeErrKind;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::permissions::FileSystemAccessMode;
 use maplecode_protocol::permissions::FileSystemPath;
@@ -557,8 +557,8 @@ async fn ignore_user_project_rules_keeps_system_policy_files() {
     .expect("write policy file");
     let result = ExecPolicyManager::from_inherited(&snapshot, &config_stack).await;
     assert_eq!(
-        result.as_ref().err().map(MapleCodeErrKind::from),
-        Some(MapleCodeErrKind::InvalidRequest)
+        result.as_ref().err().map(MaplecodeErrKind::from),
+        Some(MaplecodeErrKind::InvalidRequest)
     );
 
     let policy = load_exec_policy(&config_stack)

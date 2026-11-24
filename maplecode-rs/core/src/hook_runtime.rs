@@ -46,7 +46,7 @@ use maplecode_protocol::protocol::HookRunSummary;
 use maplecode_protocol::protocol::HookSource;
 use maplecode_protocol::protocol::HookStartedEvent;
 use maplecode_protocol::protocol::InternalSessionSource;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_protocol::protocol::WarningEvent;
@@ -698,7 +698,7 @@ pub(crate) async fn run_legacy_after_agent_hook(
     let event = EventMsg::Error(maplecode_protocol::protocol::ErrorEvent {
         misalignment: None,
         message,
-        maplecode_error_info: Some(MapleCodeErrorInfo::Other),
+        maplecode_error_info: Some(MaplecodeErrorInfo::Other),
         rejected_audio_file_ids: Vec::new(),
     });
     sess.send_event(turn_context, event).await;

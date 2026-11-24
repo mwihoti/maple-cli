@@ -13,8 +13,8 @@ use crate::session::turn_context::TurnContext;
 use maplecode_client::RetryOperation;
 use maplecode_features::Feature;
 use maplecode_http_client::RetryAfter;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::WarningEvent;
 use tokio::time::Instant;
@@ -58,15 +58,15 @@ pub(crate) struct ExhaustedResponseRetry {
 pub(crate) async fn handle_response_stream_error(
     retry_state: &mut ResponsesStreamRetryState,
     max_retries: u64,
-    err: MapleCodeErr,
+    err: MaplecodeErr,
     client_session: &mut ModelClientSession,
     sess: &Session,
     step_context: &StepContext,
     request: ResponsesStreamRequest,
-) -> Result<(), MapleCodeErr> {
+) -> Result<(), MaplecodeErr> {
     let turn_context = &step_context.turn;
     if matches!(request, ResponsesStreamRequest::Sampling)
-        && matches!(err.details(), MapleCodeErrorDetails::ContentFilter)
+        && matches!(err.details(), MaplecodeErrorDetails::ContentFilter)
     {
         let model_info = &step_context.settings.model_info;
         let guidance = ContentFilterGuidance {
@@ -96,7 +96,7 @@ pub(crate) async fn handle_response_stream_error(
         .features
         .enabled(Feature::UnboundedConnectionRetries)
         && matches!(request, ResponsesStreamRequest::Sampling)
-        && matches!(err.details(), MapleCodeErrorDetails::ConnectionFailed(_))
+        && matches!(err.details(), MaplecodeErrorDetails::ConnectionFailed(_))
         && !turn_context.session_source.is_internal()
         && !turn_context.provider.info().is_amazon_bedrock()
     {
@@ -183,7 +183,7 @@ pub(crate) async fn handle_response_stream_error(
 fn log_retry(
     request: ResponsesStreamRequest,
     turn_context: &TurnContext,
-    err: &MapleCodeErr,
+    err: &MaplecodeErr,
     retries: u64,
     max_retries: u64,
     delay: Duration,

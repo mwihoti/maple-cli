@@ -3,7 +3,7 @@ use crate::session::step_context::StepContext;
 use crate::session::tests::build_world_state_from_turn_context;
 use crate::session::tests::make_session_and_context;
 use maplecode_protocol::ResponseItemId;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ReasoningItemReasoningSummary;
 use maplecode_protocol::protocol::ThreadRolledBackEvent;
@@ -152,7 +152,7 @@ fn truncate_rollout_before_turn_id_rejects_rolled_back_turn() {
 
     assert!(matches!(
         err.details(),
-        MapleCodeErrorDetails::InvalidRequest(message)
+        MaplecodeErrorDetails::InvalidRequest(message)
             if message == "beforeTurnId 'turn-2' was not found in the source thread"
     ));
 }
@@ -171,7 +171,7 @@ fn truncate_rollout_before_turn_id_rejects_synthetic_legacy_turn_id() {
 
     assert!(matches!(
         err.details(),
-        MapleCodeErrorDetails::InvalidRequest(message)
+        MaplecodeErrorDetails::InvalidRequest(message)
             if message
                 == "beforeTurnId 'rollout-0' is not a persisted canonical turn in the source thread"
     ));
@@ -196,7 +196,7 @@ fn truncate_rollout_after_turn_id_rejects_rolled_back_turn() {
 
     assert!(matches!(
         err.details(),
-        MapleCodeErrorDetails::InvalidRequest(message)
+        MaplecodeErrorDetails::InvalidRequest(message)
             if message == "lastTurnId 'turn-2' was not found in the source thread"
     ));
 }
@@ -215,7 +215,7 @@ fn truncate_rollout_after_turn_id_rejects_synthetic_legacy_turn_id() {
 
     assert!(matches!(
         err.details(),
-        MapleCodeErrorDetails::InvalidRequest(message)
+        MaplecodeErrorDetails::InvalidRequest(message)
             if message
                 == "lastTurnId 'rollout-0' is not a persisted canonical turn in the source thread"
     ));
@@ -230,7 +230,7 @@ fn truncate_rollout_after_turn_id_rejects_in_progress_turn() {
 
     assert!(matches!(
         err.details(),
-        MapleCodeErrorDetails::InvalidRequest(message)
+        MaplecodeErrorDetails::InvalidRequest(message)
             if message == "lastTurnId 'turn-1' identifies an in-progress turn"
     ));
 }

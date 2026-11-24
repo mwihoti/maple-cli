@@ -5,7 +5,7 @@ use super::types::HostThreadSpawnReservation;
 use super::types::PreparedChildContext;
 use crate::agent::control::inherited_dynamic_tools;
 use crate::function_tool::FunctionCallError;
-use crate::maplecode_thread::MapleCodeThread;
+use crate::maplecode_thread::MaplecodeThread;
 use crate::session::session::Session;
 use crate::session::step_context::StepContext;
 use crate::session::turn_context::TurnContext;
@@ -13,8 +13,8 @@ use crate::thread_spawn::ThreadCreateRequest;
 use crate::thread_spawn::ThreadSpawnError;
 use crate::thread_spawn::ThreadSpawnResult;
 use crate::tools::context::ToolInvocation;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
@@ -68,10 +68,10 @@ impl ToolInvocationContext {
 }
 
 pub(crate) fn tool_invocation(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     turn_id: &str,
     call_id: &str,
-) -> MapleCodeResult<ToolInvocationContext> {
+) -> MaplecodeResult<ToolInvocationContext> {
     let context = thread
         .session
         .services
@@ -86,7 +86,7 @@ pub(crate) fn tool_invocation(
                 .and_then(Weak::upgrade)
         })
         .filter(|context| !context.finished().is_cancelled())
-        .ok_or_else(|| MapleCodeErr::InvalidRequest("tool call is not active".into()))?;
+        .ok_or_else(|| MaplecodeErr::InvalidRequest("tool call is not active".into()))?;
     Ok(ToolInvocationContext {
         session: Arc::downgrade(&thread.session),
         call_id: call_id.to_owned(),
@@ -186,7 +186,7 @@ impl Drop for ReservedInvocation {
 }
 
 pub(crate) async fn create(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     invocation: &ToolInvocationContext,
     request: ThreadCreateRequest,
     reservation: HostThreadSpawnReservation,
@@ -208,7 +208,7 @@ pub(crate) async fn create(
 }
 
 pub(crate) async fn prepare(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     invocation: &ToolInvocationContext,
 ) -> Result<PreparedChildContext, ThreadSpawnError> {
     with_live_invocation(thread, invocation, |step| async move {
@@ -220,7 +220,7 @@ pub(crate) async fn prepare(
             state.get_thread(thread.session.thread_id).await?.as_ref(),
             thread,
         ) {
-            return Err(MapleCodeErr::ThreadNotFound(thread.session.thread_id).into());
+            return Err(MaplecodeErr::ThreadNotFound(thread.session.thread_id).into());
         }
         let instructions = step.loaded_agents_md.as_deref();
         #[allow(deprecated)]
@@ -251,7 +251,7 @@ pub(crate) async fn prepare(
 }
 
 async fn with_live_invocation<T, Fut>(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     invocation: &ToolInvocationContext,
     operation: impl FnOnce(Arc<StepContext>) -> Fut,
 ) -> Result<T, ThreadSpawnError>
@@ -260,7 +260,7 @@ where
 {
     let session = &thread.session;
     if !invocation.session.ptr_eq(&Arc::downgrade(session)) {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "tool invocation belongs to a different runtime".into(),
         )
         .into());
@@ -276,7 +276,7 @@ where
         result = async {
             let _caller_pin = Arc::clone(&thread.residency_gate).read_owned().await;
             if !thread.is_running() {
-                return Err(MapleCodeErr::ThreadNotFound(session.thread_id).into());
+                return Err(MaplecodeErr::ThreadNotFound(session.thread_id).into());
             }
             operation(step).await
         } => result,

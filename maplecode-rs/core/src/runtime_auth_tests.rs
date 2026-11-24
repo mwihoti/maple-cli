@@ -35,7 +35,7 @@ fn realtime_rejects_a_different_registration_environment() {
         ("https://chatgpt-staging.com/backend-api", true),
     ] {
         let runtime = RuntimeAuthManager::for_maplecode(
-            AuthManager::from_auth_for_testing(maplecode_login::MapleCodeAuth::from_api_key(
+            AuthManager::from_auth_for_testing(maplecode_login::MaplecodeAuth::from_api_key(
                 "test-key",
             )),
             chatgpt_base_url,

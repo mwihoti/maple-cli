@@ -30,20 +30,20 @@ use crate::state::AdditionalContextFormat;
 use crate::state::TurnState;
 use crate::tasks::RegularTask;
 use maplecode_features::Feature;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::SenderUserMessages;
 use maplecode_history::UserInputOrigin;
 use maplecode_protocol::config_types::ModeKind;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::AdditionalContextEntry;
 use maplecode_protocol::protocol::AdditionalContextKind;
 use maplecode_protocol::protocol::ErrorEvent;
 use maplecode_protocol::protocol::Event;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::NonSteerableTurnKind;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
@@ -113,7 +113,7 @@ impl PreparedTurnInputSettings {
         session: &Session,
         thread_settings: impl Into<WithTurnExtensionData<ThreadSettingsOverrides>>,
         start_options: TurnStartOptions,
-    ) -> MapleCodeResult<Self> {
+    ) -> MaplecodeResult<Self> {
         let thread_settings = thread_settings.into();
         let thread_settings_update = if thread_settings.request
             == ThreadSettingsOverrides::default()
@@ -128,7 +128,7 @@ impl PreparedTurnInputSettings {
             session
                 .preview_settings(&updates)
                 .await
-                .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string()))?;
+                .map_err(|error| MaplecodeErr::InvalidRequest(error.to_string()))?;
             Some(updates)
         };
         Ok(Self {
@@ -149,7 +149,7 @@ impl PreparedTurnInputSettings {
         session: &Arc<Session>,
         submission_id: String,
         kind: TurnStartKind,
-    ) -> MapleCodeResult<Option<Arc<TurnContext>>> {
+    ) -> MaplecodeResult<Option<Arc<TurnContext>>> {
         let TurnStartOptions {
             turn_trigger,
             final_output_json_schema,
@@ -231,13 +231,13 @@ impl PreparedTurnInputSettings {
 
     /// Applies only persistent settings after steering succeeds. The active
     /// turn keeps its existing context; subsequent turns see the update.
-    async fn apply_steered(self, session: &Session, submission_id: String) -> MapleCodeResult<()> {
+    async fn apply_steered(self, session: &Session, submission_id: String) -> MaplecodeResult<()> {
         let Some(thread_settings_update) = self.thread_settings_update else {
             return Ok(());
         };
         thread_settings::apply_update(session, submission_id, thread_settings_update)
             .await
-            .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string()))
+            .map_err(|error| MaplecodeErr::InvalidRequest(error.to_string()))
     }
 }
 
@@ -252,12 +252,12 @@ pub(super) async fn handle(
     request: impl Into<WithTurnExtensionData<TurnInputRequest>>,
     mode: TurnInputMode,
     submission_id: String,
-) -> MapleCodeResult<TurnInputSubmission> {
+) -> MaplecodeResult<TurnInputSubmission> {
     let request = request.into();
     if request.request.start.service_tier.is_some()
         && crate::agent::host::host_child_uses_shared_service_tier(session)
     {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "per-turn service tier overrides are unavailable for a child using the shared service tier"
                 .into(),
         ));
@@ -280,7 +280,7 @@ pub(super) async fn handle(
             .additional_context
             .values()
             .try_for_each(AdditionalContextEntry::validate)
-            .map_err(|message| MapleCodeErr::InvalidRequest(message.to_owned()))?;
+            .map_err(|message| MaplecodeErr::InvalidRequest(message.to_owned()))?;
     }
     let result = match mode {
         TurnInputMode::StartOrSteer => start_or_steer(session, request, submission_id).await,
@@ -310,7 +310,7 @@ pub(super) async fn handle(
                 &request.request.input,
                 SubmittedTurnInput::ResponseItem(_) | SubmittedTurnInput::AnnotatedResponseItem(_)
             ) {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "continuation requires internal response input".to_string(),
                 ));
             }
@@ -348,7 +348,7 @@ pub(super) async fn handle_recovery(
     thread_settings: impl Into<WithTurnExtensionData<ThreadSettingsOverrides>>,
     start_options: TurnStartOptions,
     submission_id: String,
-) -> MapleCodeResult<TurnInputSubmission> {
+) -> MaplecodeResult<TurnInputSubmission> {
     let WithTurnExtensionData {
         request: thread_settings,
         turn_extension_init,
@@ -386,7 +386,7 @@ async fn start_or_steer(
     session: &Arc<Session>,
     request: WithTurnExtensionData<TurnInputRequest>,
     submission_id: String,
-) -> MapleCodeResult<TurnInputSubmission> {
+) -> MaplecodeResult<TurnInputSubmission> {
     if matches!(
         request.request.input,
         SubmittedTurnInput::InterAgentCommunication(_)
@@ -417,7 +417,7 @@ async fn start_or_steer(
             ..
         }) => true,
         _ => {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "only user input, agent messages, or standalone function-call outputs can start or steer a turn"
                     .to_string(),
             ));
@@ -523,7 +523,7 @@ async fn start_if_idle(
     submission_id: String,
     kind: TurnStartKind,
     expected_previous_turn_id: Option<String>,
-) -> MapleCodeResult<TurnInputSubmission> {
+) -> MaplecodeResult<TurnInputSubmission> {
     let WithTurnExtensionData {
         request,
         turn_extension_init,
@@ -694,7 +694,7 @@ async fn steer(
     request: WithTurnExtensionData<TurnInputRequest>,
     expected_turn_id: String,
     submission_id: String,
-) -> MapleCodeResult<TurnInputSubmission> {
+) -> MaplecodeResult<TurnInputSubmission> {
     let WithTurnExtensionData {
         request,
         turn_extension_init,
@@ -709,7 +709,7 @@ async fn steer(
         ..
     } = request;
     if !matches!(&input, SubmittedTurnInput::UserInput { .. }) {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "only user input can steer a turn".to_string(),
         ));
     }
@@ -920,7 +920,7 @@ impl Session {
                     msg: EventMsg::Error(ErrorEvent {
                         misalignment: None,
                         message: format!("failed to submit turn input: {reason:?}"),
-                        maplecode_error_info: Some(MapleCodeErrorInfo::BadRequest),
+                        maplecode_error_info: Some(MaplecodeErrorInfo::BadRequest),
                         rejected_audio_file_ids: Vec::new(),
                     }),
                 })
@@ -1128,7 +1128,7 @@ async fn pending_turn_input(
                     text: fragment.render().into_text().unwrap_or_default(),
                 };
                 messages.bound();
-                Some(MapleCodeHarnessMetadata {
+                Some(MaplecodeHarnessMetadata {
                     user_input_order: Some(session.reserve_user_input_order().await),
                     sender_user_messages: Some(Box::new(messages)),
                     ..Default::default()

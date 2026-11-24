@@ -1,5 +1,5 @@
 use super::*;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 
 #[test]
 fn rewritten_output_preserves_harness_metadata() {
@@ -15,7 +15,7 @@ fn rewritten_output_preserves_harness_metadata() {
             },
             internal_chat_message_metadata_passthrough: None,
         },
-        metadata: Some(MapleCodeHarnessMetadata::default()),
+        metadata: Some(MaplecodeHarnessMetadata::default()),
     };
 
     let rewritten = rewritten_output_for_context_window(&envelope)

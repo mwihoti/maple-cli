@@ -334,7 +334,7 @@ async fn request_permissions_uses_issuing_step_policy_and_reviewer() {
     )
     .await;
     let (session, turn, _) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config.permissions.approval_policy = Constrained::allow_any(AskForApproval::Never);
@@ -772,7 +772,7 @@ async fn network_approval_uses_published_task_authority_within_same_turn(
     admitted_policy: AskForApproval,
 ) {
     let (session, turn, events) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         move |config| {
             config.permissions.approval_policy = Constrained::allow_any(admitted_policy);
@@ -983,7 +983,7 @@ async fn sandbox_denied_retry_uses_the_action_policy_and_reviewer() {
         ) -> Result<String, ToolError> {
             self.attempts += 1;
             if self.attempts == 1 {
-                return Err(ToolError::MapleCode(MapleCodeErr::Sandbox(
+                return Err(ToolError::Maplecode(MaplecodeErr::Sandbox(
                     SandboxErr::Denied {
                         output: Box::new(ExecToolCallOutput {
                             exit_code: 1,
@@ -1310,7 +1310,7 @@ async fn guardian_subagent_does_not_inherit_parent_exec_policy_rules() {
     );
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("Test API Key"));
     let models_manager = models_manager_with_provider(
         config.maplecode_home.to_path_buf(),
         auth_manager.clone(),

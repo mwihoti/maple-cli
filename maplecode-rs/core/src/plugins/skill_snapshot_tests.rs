@@ -1,7 +1,7 @@
 use maplecode_core_plugins::PluginsManager;
 use maplecode_core_plugins::store::PluginStore;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_plugin::PluginId;
 use maplecode_protocol::protocol::Product;
 use maplecode_skills_extension::HostSkillsLoadInput;
@@ -55,8 +55,8 @@ enabled = false
     ));
     let plugins_manager = PluginsManager::new_with_options(
         maplecode_home.path().to_path_buf(),
-        Some(Product::MapleCode),
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+        Some(Product::Maplecode),
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
         maplecode_runtime_agent_instance::RuntimeAuthSlot::default(),
         skills_service.clone(),
     );

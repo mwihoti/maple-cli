@@ -6,8 +6,8 @@ use crate::agent::types::LiveAgent;
 use crate::config::Config;
 use crate::maplecode_thread::ThreadConfigSnapshot;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::SessionSource;
 
 impl LocalAgentControl {
@@ -16,11 +16,11 @@ impl LocalAgentControl {
         config: Config,
         thread_id: ThreadId,
         source: SessionSource,
-    ) -> MapleCodeResult<(LiveAgent, ThreadConfigSnapshot)> {
+    ) -> MaplecodeResult<(LiveAgent, ThreadConfigSnapshot)> {
         let manager = self.runtime.upgrade()?;
         let thread = match manager.get_thread(thread_id).await {
             Ok(thread) => thread,
-            Err(err) if matches!(err.details(), MapleCodeErrorDetails::ThreadNotFound(_)) => {
+            Err(err) if matches!(err.details(), MaplecodeErrorDetails::ThreadNotFound(_)) => {
                 Box::pin(self.resume_agent_from_rollout(config, thread_id, source)).await?;
                 manager.get_thread(thread_id).await?
             }

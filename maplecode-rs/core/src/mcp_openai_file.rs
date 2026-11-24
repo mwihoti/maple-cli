@@ -17,7 +17,7 @@ use maplecode_api::HostedFileUploadContext;
 use maplecode_api::OPENAI_FILE_UPLOAD_LIMIT_BYTES;
 use maplecode_api::upload_openai_file;
 use maplecode_exec_server::GetMetadataOptions;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::permissions::FileSystemAccessMode;
 use maplecode_sandboxing::policy_transforms::effective_file_system_sandbox_policy;
 use serde_json::Value as JsonValue;
@@ -79,7 +79,7 @@ pub(crate) async fn rewrite_mcp_tool_arguments_for_openai_files(
 async fn rewrite_argument_value_for_openai_files(
     sess: &Session,
     step_context: &StepContext,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     field_name: &str,
     optional_fields: &[String],
     value: &JsonValue,
@@ -132,7 +132,7 @@ async fn rewrite_argument_value_for_openai_files(
 async fn build_uploaded_argument_value(
     sess: &Session,
     step_context: &StepContext,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     argument: FileArgumentLocation<'_>,
     optional_fields: &[String],
     file_path: &str,
@@ -396,7 +396,7 @@ mod tests {
             .await;
 
         let (session, mut turn_context) = make_session_and_context().await;
-        let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+        let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
         let dir = tempdir().expect("temp dir");
         let local_path = dir.path().join("file_report.csv");
         tokio::fs::write(&local_path, b"hello")
@@ -470,7 +470,7 @@ mod tests {
     #[tokio::test]
     async fn build_uploaded_argument_value_rejects_oversized_file_before_reading() {
         let (session, mut turn_context) = make_session_and_context().await;
-        let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+        let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
         let dir = tempdir().expect("temp dir");
         let file_path = dir.path().join("oversized.bin");
         let file = std::fs::File::create(&file_path).expect("create sparse file");
@@ -544,7 +544,7 @@ mod tests {
             .await;
 
         let (session, mut turn_context) = make_session_and_context().await;
-        let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+        let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
         let dir = tempdir().expect("temp dir");
         let local_path = dir.path().join("file_report.csv");
         tokio::fs::write(&local_path, b"hello")
@@ -656,7 +656,7 @@ mod tests {
             .await;
 
         let (session, mut turn_context) = make_session_and_context().await;
-        let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+        let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
         let dir = tempdir().expect("temp dir");
         tokio::fs::write(dir.path().join("one.csv"), b"one")
             .await
@@ -701,7 +701,7 @@ mod tests {
     async fn rewrite_mcp_tool_arguments_for_openai_files_surfaces_upload_failures() {
         let (mut session, turn_context) = make_session_and_context().await;
         session.services.auth_manager = crate::test_support::auth_manager_from_auth(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         );
         let step_context = StepContext::for_test(Arc::new(turn_context));
         let error = rewrite_mcp_tool_arguments_for_openai_files(

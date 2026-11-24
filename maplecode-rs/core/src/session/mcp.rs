@@ -287,7 +287,7 @@ impl Session {
     /// Refreshes Apps tools on the published thread runtime and returns that client's snapshot.
     pub(crate) async fn refresh_maplecode_apps_tools(
         self: &Arc<Self>,
-    ) -> anyhow::Result<maplecode_mcp::MapleCodeAppsToolSnapshot> {
+    ) -> anyhow::Result<maplecode_mcp::MaplecodeAppsToolSnapshot> {
         let permit = self
             .mcp_refresh
             .acquire()
@@ -296,7 +296,7 @@ impl Session {
         let _in_flight = self.mcp_refresh.apps_refreshes.token();
         // Reconcile once per batch so a failed or closed client can be replaced.
         if self.mcp_refresh.apps_refreshes.len() == 1 {
-            self.mark_mcp_runtime_dirty(McpRefreshReason::MapleCodeAppsToolRefresh);
+            self.mark_mcp_runtime_dirty(McpRefreshReason::MaplecodeAppsToolRefresh);
         }
         if let Some(snapshot) = self.fetch_apps_catalog(permit).await? {
             return Ok(snapshot);
@@ -314,7 +314,7 @@ impl Session {
     async fn fetch_apps_catalog(
         self: &Arc<Self>,
         permit: SemaphorePermit<'_>,
-    ) -> anyhow::Result<Option<maplecode_mcp::MapleCodeAppsToolSnapshot>> {
+    ) -> anyhow::Result<Option<maplecode_mcp::MaplecodeAppsToolSnapshot>> {
         self.reconcile_mcp_runtime().await;
         let refresh = self.services.mcp_runtime.capture_apps_tool_refresh();
         // An invalidation may arrive after reconciliation but before capture.
@@ -343,7 +343,7 @@ impl Session {
         // This is forced work even when there was no pending invalidation.
         let mut refresh_invalidation = self.mcp_refresh.claim_forced(
             self.thread_id,
-            McpRefreshReason::HardRefreshMapleCodeAppsTools,
+            McpRefreshReason::HardRefreshMaplecodeAppsTools,
         );
         let auth = self.services.auth_manager.auth().await;
         let environments = self.services.turn_environments.snapshot().await;

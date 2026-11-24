@@ -3,8 +3,8 @@
 use super::ThreadManager;
 use crate::agent::control::AgentTreeShutdownState;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_thread_store::ThreadStoreError;
 use std::fmt;
 use std::sync::Arc;
@@ -117,7 +117,7 @@ impl AgentTreeShutdown {
     /// Returns an error if cleanup or persistence writer termination failed. Registry removal and
     /// caller-owned persistence handoff remain with the caller. Dropping this future does not
     /// cancel shutdown.
-    pub async fn wait(&self) -> MapleCodeResult<()> {
+    pub async fn wait(&self) -> MaplecodeResult<()> {
         self.state.wait().await
     }
 
@@ -135,11 +135,11 @@ impl ThreadManager {
     /// Dropping the future after shutdown starts does not cancel cleanup.
     pub async fn try_evict_v2_thread(
         &self,
-        thread: Arc<crate::MapleCodeThread>,
-    ) -> MapleCodeResult<crate::ThreadEvictionOutcome> {
+        thread: Arc<crate::MaplecodeThread>,
+    ) -> MaplecodeResult<crate::ThreadEvictionOutcome> {
         // Backend selection is fixed before the manager is shared or starts any threads.
         if self.state.agent_control_factory.is_some() {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "idle eviction requires the local agent controller".to_owned(),
             ));
         }
@@ -158,7 +158,7 @@ impl ThreadManager {
     pub async fn request_agent_tree_shutdown(
         &self,
         thread_id: ThreadId,
-    ) -> MapleCodeResult<AgentTreeShutdown> {
+    ) -> MaplecodeResult<AgentTreeShutdown> {
         let thread = self.get_thread(thread_id).await?;
         Ok(AgentTreeShutdown {
             state: thread

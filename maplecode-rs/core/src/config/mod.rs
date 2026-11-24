@@ -464,7 +464,7 @@ impl Permissions {
     }
 
     /// Workspace roots that came from user-visible configuration or runtime
-    /// selection. Internal MapleCode-only writable roots are intentionally excluded.
+    /// selection. Internal Maplecode-only writable roots are intentionally excluded.
     pub fn user_visible_workspace_roots(&self) -> &[AbsolutePathBuf] {
         &self.workspace_roots
     }
@@ -1095,7 +1095,7 @@ pub struct Config {
     /// Whether configuration or managed requirements explicitly selected the ChatGPT base URL.
     pub chatgpt_base_url_is_explicit: bool,
 
-    /// Whether MapleCode-owned clients should respect host system proxy settings.
+    /// Whether Maplecode-owned clients should respect host system proxy settings.
     pub respect_system_proxy: bool,
 
     /// Optional product SKU forwarded to the host-owned apps MCP server.
@@ -2033,7 +2033,7 @@ impl Config {
             discover_local_stdio: self.features.enabled(Feature::McpConnectionSharing),
             host_owned_apps_protocol_mode: if self
                 .features
-                .enabled(Feature::MapleCodeAppsMcp20260728)
+                .enabled(Feature::MaplecodeAppsMcp20260728)
             {
                 McpProtocolMode::V20260728
             } else {

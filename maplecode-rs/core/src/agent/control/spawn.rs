@@ -15,7 +15,7 @@ use crate::agent::types::SpawnAgentOptions;
 use crate::agent::types::SpawnProgramSource;
 use crate::agents_md_manager::SessionInstructions;
 use crate::config::PermissionProfileSnapshot;
-use crate::maplecode_thread::MapleCodeThread;
+use crate::maplecode_thread::MaplecodeThread;
 use crate::maplecode_thread::ThreadConfigSnapshot;
 use crate::thread_manager::StartThreadOptions;
 use futures::StreamExt;
@@ -43,14 +43,14 @@ pub(super) enum SpawnInitialInput {
 }
 
 pub(in crate::agent) async fn effective_spawn_config(
-    thread: &MapleCodeThread,
-) -> MapleCodeResult<ThreadConfigSnapshot> {
+    thread: &MaplecodeThread,
+) -> MaplecodeResult<ThreadConfigSnapshot> {
     let mut config = thread.config_snapshot().await;
     let model_info = thread
         .thread_extension_data()
         .get::<maplecode_protocol::openai_models::ModelInfo>()
         .ok_or_else(|| {
-            MapleCodeErr::Fatal("spawned thread is missing model metadata".to_string())
+            MaplecodeErr::Fatal("spawned thread is missing model metadata".to_string())
         })?;
     config.reasoning_effort = config
         .reasoning_effort
@@ -82,7 +82,7 @@ pub(super) fn agent_nickname_candidates(config: &Config, role_name: Option<&str>
 }
 
 pub(in crate::agent) async fn fresh_child_history_and_tools(
-    parent: &MapleCodeThread,
+    parent: &MaplecodeThread,
     config: &Config,
     version: MultiAgentVersion,
 ) -> (Option<ThreadHistoryMode>, Vec<DynamicToolSpec>) {
@@ -98,7 +98,7 @@ pub(in crate::agent) async fn fresh_child_history_and_tools(
 }
 
 pub(in crate::agent) async fn inherited_dynamic_tools(
-    parent: &MapleCodeThread,
+    parent: &MaplecodeThread,
     config: &Config,
     version: MultiAgentVersion,
 ) -> Vec<DynamicToolSpec> {
@@ -173,7 +173,7 @@ impl LocalAgentControl {
                     .map(AgentPath::try_from)
                     .transpose()
                     .map_err(|err| {
-                        MapleCodeErr::InvalidRequest(format!("invalid stored agent path: {err}"))
+                        MaplecodeErr::InvalidRequest(format!("invalid stored agent path: {err}"))
                     })?;
                 let mut reservation = registry.reserve_spawn_slot(/*max_threads*/ None)?;
                 let mut metadata = self.prepare_agent_metadata(
@@ -204,7 +204,7 @@ impl LocalAgentControl {
         config: Config,
         initial_input: Vec<UserInput>,
         session_source: Option<SessionSource>,
-    ) -> MapleCodeResult<ThreadId> {
+    ) -> MaplecodeResult<ThreadId> {
         let (spawned_agent, _) = Box::pin(self.spawn_agent_internal(
             config,
             SpawnInitialInput::UserInput(initial_input),
@@ -217,9 +217,9 @@ impl LocalAgentControl {
 
     fn validate_loaded_v2_child(
         &self,
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         parent_thread_id: ThreadId,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         if thread.is_running()
             && thread.multi_agent_version() == Some(MultiAgentVersion::V2)
             && thread.session_source.parent_thread_id() == Some(parent_thread_id)
@@ -230,7 +230,7 @@ impl LocalAgentControl {
         {
             return Ok(());
         }
-        Err(MapleCodeErr::InvalidRequest(format!(
+        Err(MaplecodeErr::InvalidRequest(format!(
             "multi-agent v2 child {} is not owned by its loaded parent",
             thread.session.thread_id
         )))
@@ -242,8 +242,8 @@ impl LocalAgentControl {
         &self,
         mut config: Config,
         thread_id: ThreadId,
-        parent: Option<Arc<MapleCodeThread>>,
-    ) -> MapleCodeResult<Option<tokio::sync::OwnedRwLockReadGuard<()>>> {
+        parent: Option<Arc<MaplecodeThread>>,
+    ) -> MaplecodeResult<Option<tokio::sync::OwnedRwLockReadGuard<()>>> {
         let membership = self.runtime.admit_start()?;
         let state = self.runtime.upgrade()?;
         let owner_thread_id = parent.as_ref().map(|parent| parent.session.thread_id);
@@ -260,7 +260,7 @@ impl LocalAgentControl {
                     &parent.session.services.local_agent_runtime.registry,
                 )
             {
-                return Err(MapleCodeErr::InvalidRequest(format!(
+                return Err(MaplecodeErr::InvalidRequest(format!(
                     "cannot resume multi-agent v2 child {thread_id}: parent ownership is unavailable; resume the parent first"
                 )));
             }
@@ -276,7 +276,7 @@ impl LocalAgentControl {
             .agent_metadata_for_thread(thread_id)
             .is_none()
         {
-            return Err(MapleCodeErr::ThreadNotFound(thread_id));
+            return Err(MaplecodeErr::ThreadNotFound(thread_id));
         }
         let evicted_environments = self.runtime.registry.evicted_environments(thread_id);
         if owner_thread_id.is_none()
@@ -310,7 +310,7 @@ impl LocalAgentControl {
         let stored_parent_thread_id = stored_thread.parent_thread_id;
         let history = load_agent_model_context(&state, thread_id, stored_thread.history_mode)
             .await?
-            .ok_or(MapleCodeErr::ThreadNotFound(thread_id))?;
+            .ok_or(MaplecodeErr::ThreadNotFound(thread_id))?;
         let initial_history = InitialHistory::Resumed(ResumedHistory {
             history_revision: history.revision,
             conversation_id: thread_id,
@@ -318,7 +318,7 @@ impl LocalAgentControl {
             rollout_path: stored_thread.rollout_path,
         });
         if initial_history.get_multi_agent_version() != Some(MultiAgentVersion::V2) {
-            return Err(MapleCodeErr::ThreadNotFound(thread_id));
+            return Err(MaplecodeErr::ThreadNotFound(thread_id));
         }
         let (session_source, _) = initial_history
             .get_resumed_session_sources()
@@ -331,7 +331,7 @@ impl LocalAgentControl {
                 || stored_parent_thread_id
                     .is_some_and(|recorded_parent| recorded_parent != parent_thread_id)
             {
-                return Err(MapleCodeErr::InvalidRequest(format!(
+                return Err(MaplecodeErr::InvalidRequest(format!(
                     "cannot resume multi-agent v2 child {thread_id}: recorded parent ownership is inconsistent"
                 )));
             }
@@ -346,7 +346,7 @@ impl LocalAgentControl {
                 .new_turn_with_default_settings(Uuid::now_v7().to_string(), Default::default())
                 .await;
             config = build_agent_resume_config(&turn).map_err(|_| {
-                MapleCodeErr::InvalidRequest(format!(
+                MaplecodeErr::InvalidRequest(format!(
                     "cannot resume multi-agent v2 child {thread_id} with the current parent settings"
                 ))
             })?;
@@ -375,13 +375,13 @@ impl LocalAgentControl {
 
             apply_role_to_config(&mut config, Some(&role_name))
                 .await
-                .map_err(MapleCodeErr::InvalidRequest)?;
+                .map_err(MaplecodeErr::InvalidRequest)?;
             config
                 .permissions
                 .approval_policy
                 .set(runtime_approval_policy)
                 .map_err(|err| {
-                    MapleCodeErr::InvalidRequest(format!("approval_policy is invalid: {err}"))
+                    MaplecodeErr::InvalidRequest(format!("approval_policy is invalid: {err}"))
                 })?;
             config.approvals_reviewer = runtime_approvals_reviewer;
             config.cwd = runtime_cwd;
@@ -389,7 +389,7 @@ impl LocalAgentControl {
                 .permissions
                 .set_permission_profile_from_session_snapshot(runtime_permission_profile)
                 .map_err(|err| {
-                    MapleCodeErr::InvalidRequest(format!("permission_profile is invalid: {err}"))
+                    MaplecodeErr::InvalidRequest(format!("permission_profile is invalid: {err}"))
                 })?;
         }
         config.service_tier = independent_service_tier.unwrap_or_else(|| self.root_service_tier());
@@ -402,7 +402,7 @@ impl LocalAgentControl {
                 .get(&stored_model_provider)
                 .cloned()
                 .ok_or_else(|| {
-                    MapleCodeErr::InvalidRequest(format!(
+                    MaplecodeErr::InvalidRequest(format!(
                         "Model provider `{stored_model_provider}` not found"
                     ))
                 })?;
@@ -418,7 +418,7 @@ impl LocalAgentControl {
         {
             let parent_config = parent.session.get_config().await;
             if !crate::exec_policy::child_uses_parent_exec_policy(&parent_config, &config) {
-                return Err(MapleCodeErr::InvalidRequest(format!(
+                return Err(MaplecodeErr::InvalidRequest(format!(
                     "cannot resume multi-agent v2 child {thread_id}: parent execution policy has changed; retry through the parent"
                 )));
             }
@@ -431,7 +431,7 @@ impl LocalAgentControl {
                 for selection in selections {
                     let environment_id = &selection.environment_id;
                     let invalid_environment = |reason: &str| {
-                        MapleCodeErr::InvalidRequest(format!(
+                        MaplecodeErr::InvalidRequest(format!(
                             "cannot resume multi-agent v2 child {thread_id}: cached environment {environment_id} {reason}"
                         ))
                     };
@@ -636,7 +636,7 @@ impl LocalAgentControl {
         initial_input: SpawnInitialInput,
         session_source: Option<SessionSource>,
         options: SpawnAgentOptions,
-    ) -> MapleCodeResult<(LiveAgent, ThreadConfigSnapshot)> {
+    ) -> MaplecodeResult<(LiveAgent, ThreadConfigSnapshot)> {
         let membership = self.runtime.admit_start()?;
         let spawn_started_at = Instant::now();
         let state = self.runtime.upgrade()?;
@@ -822,7 +822,7 @@ impl LocalAgentControl {
                                     == SpawnProgramSource::ParentTurn)
                             && let Err(error) = &intent.choice
                         {
-                            return Err(MapleCodeErr::InvalidRequest(error.clone())
+                            return Err(MaplecodeErr::InvalidRequest(error.clone())
                                 .with_agent_context(AgentErrorContext::ChildStartup));
                         }
                         if intent.choice.is_ok() {
@@ -864,7 +864,7 @@ impl LocalAgentControl {
         // Publish its deletion relationship before any child storage is created.
         let child_thread_id = self.runtime.generate_thread_id();
         if state.threads.read().await.contains_key(&child_thread_id) {
-            return Err(MapleCodeErr::InvalidRequest(format!(
+            return Err(MaplecodeErr::InvalidRequest(format!(
                 "thread {child_thread_id} is already running",
             ))
             .with_agent_context(AgentErrorContext::ChildStartup));
@@ -953,7 +953,7 @@ impl LocalAgentControl {
                 &model,
                 maplecode_protocol::openai_models::SavedDaybreakChoice::On,
             )
-            .map_err(MapleCodeErr::InvalidRequest)?
+            .map_err(MaplecodeErr::InvalidRequest)?
             .or(Some(inherited));
         }
         let start_options = TurnStartOptions {
@@ -1046,7 +1046,7 @@ impl LocalAgentControl {
         config: Config,
         thread_id: ThreadId,
         session_source: SessionSource,
-    ) -> MapleCodeResult<ThreadId> {
+    ) -> MaplecodeResult<ThreadId> {
         let _membership = self.runtime.admit_start()?;
         let root_depth = thread_spawn_depth(&session_source).unwrap_or(0);
         let (resumed_thread_id, resumed_multi_agent_version) = Box::pin(
@@ -1122,7 +1122,7 @@ impl LocalAgentControl {
         config: Config,
         thread_id: ThreadId,
         session_source: SessionSource,
-    ) -> MapleCodeResult<(ThreadId, MultiAgentVersion)> {
+    ) -> MaplecodeResult<(ThreadId, MultiAgentVersion)> {
         let state = self.runtime.upgrade()?;
         let stored_thread = state
             .read_stored_thread(ReadThreadParams {
@@ -1137,13 +1137,13 @@ impl LocalAgentControl {
             .map(AgentPath::try_from)
             .transpose()
             .map_err(|err| {
-                MapleCodeErr::InvalidRequest(format!("invalid stored agent path: {err}"))
+                MaplecodeErr::InvalidRequest(format!("invalid stored agent path: {err}"))
             })?;
         let resumed_agent_nickname = stored_thread.agent_nickname.clone();
         let resumed_agent_role = stored_thread.agent_role.clone();
         let history = load_agent_model_context(&state, thread_id, stored_thread.history_mode)
             .await?
-            .ok_or(MapleCodeErr::ThreadNotFound(thread_id))?;
+            .ok_or(MaplecodeErr::ThreadNotFound(thread_id))?;
         let initial_history = InitialHistory::Resumed(ResumedHistory {
             history_revision: history.revision,
             conversation_id: thread_id,

@@ -19,8 +19,8 @@ use crate::environment_selection::TurnEnvironmentSnapshot;
 use crate::hook_mcp_executor::CoreHookMcpExecutor;
 use crate::mcp_tool_call::McpToolApprovalContext;
 use crate::responses_metadata::CompactionTurnMetadata;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
+use crate::responses_metadata::MaplecodeResponsesMetadata;
+use crate::responses_metadata::MaplecodeResponsesRequestKind;
 use crate::runtime_auth::RuntimeAuthSlot;
 use crate::shell_snapshot::ShellSnapshot;
 use crate::shell_snapshot::SnapshotCredentialBrokerState;
@@ -367,8 +367,8 @@ impl SessionConfiguration {
     pub(super) fn restorable_thread_settings(
         &self,
         environment_selections: Vec<TurnEnvironmentSelection>,
-    ) -> MapleCodeThreadSettingsOverrides {
-        MapleCodeThreadSettingsOverrides {
+    ) -> MaplecodeThreadSettingsOverrides {
+        MaplecodeThreadSettingsOverrides {
             environments: Some(TurnEnvironmentRequests::new(
                 self.legacy_fallback_cwd.clone(),
                 environment_selections
@@ -740,8 +740,8 @@ impl Session {
     pub(crate) async fn responses_metadata(
         &self,
         step_context: &StepContext,
-        request_kind: MapleCodeResponsesRequestKind,
-    ) -> MapleCodeResponsesMetadata {
+        request_kind: MaplecodeResponsesRequestKind,
+    ) -> MaplecodeResponsesMetadata {
         let (window_id, window_number, context_window_id) = self.current_window().await;
         let mut responses_metadata = step_context.turn.turn_metadata_state.to_responses_metadata(
             self.installation_id.clone(),
@@ -787,7 +787,7 @@ impl Session {
         &self,
         turn_context: &TurnContext,
         compaction_metadata: CompactionTurnMetadata,
-    ) -> MapleCodeResponsesMetadata {
+    ) -> MaplecodeResponsesMetadata {
         self.compaction_responses_metadata_for_window(
             turn_context,
             compaction_metadata,
@@ -800,11 +800,11 @@ impl Session {
         turn_context: &TurnContext,
         compaction_metadata: CompactionTurnMetadata,
         (window_id, window_number, context_window_id): (String, u64, ContextWindowId),
-    ) -> MapleCodeResponsesMetadata {
+    ) -> MaplecodeResponsesMetadata {
         let responses_metadata = turn_context.turn_metadata_state.to_responses_metadata(
             self.installation_id.clone(),
             window_id,
-            MapleCodeResponsesRequestKind::Compaction(compaction_metadata),
+            MaplecodeResponsesRequestKind::Compaction(compaction_metadata),
         );
         self.with_window_and_fork_metadata(
             turn_context,
@@ -817,11 +817,11 @@ impl Session {
     pub(crate) fn with_window_and_fork_metadata(
         &self,
         turn_context: &TurnContext,
-        responses_metadata: MapleCodeResponsesMetadata,
+        responses_metadata: MaplecodeResponsesMetadata,
         window_number: u64,
         context_window_id: ContextWindowId,
-    ) -> MapleCodeResponsesMetadata {
-        MapleCodeResponsesMetadata {
+    ) -> MaplecodeResponsesMetadata {
+        MaplecodeResponsesMetadata {
             history_initialization: Some(self.history_initialization),
             window_number: Some(window_number),
             context_window_id: Some(context_window_id),
@@ -1006,7 +1006,7 @@ impl Session {
             .remove::<InheritedSessionId>()
             .map(|inherited| inherited.0);
         if inherited_session_id == Some(SessionId::from(thread_id)) {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "an inherited agent session ID must differ from the child thread ID".to_string(),
             )
             .into());
@@ -1087,7 +1087,7 @@ impl Session {
             AgentControlInit::Provided { control, runtime } => {
                 let controller_id = control.identity();
                 if controller_id != session_id {
-                    return Err(MapleCodeErr::InvalidRequest(format!(
+                    return Err(MaplecodeErr::InvalidRequest(format!(
                         "agent controller identity {controller_id} does not match session identity {session_id}"
                     ))
                     .into());
@@ -1171,10 +1171,10 @@ impl Session {
                             attached_thread,
                             creator_user_id: auth
                                 .as_ref()
-                                .and_then(MapleCodeAuth::get_chatgpt_user_id),
+                                .and_then(MaplecodeAuth::get_chatgpt_user_id),
                             creator_account_id: auth
                                 .as_ref()
-                                .and_then(MapleCodeAuth::get_account_id),
+                                .and_then(MaplecodeAuth::get_account_id),
                             session_id,
                             thread_id,
                             extra_config: config.extra_config.clone(),
@@ -1433,10 +1433,10 @@ impl Session {
             }
             let telemetry_auth = auth.as_ref();
             let auth_mode = telemetry_auth
-                .map(MapleCodeAuth::auth_mode)
+                .map(MaplecodeAuth::auth_mode)
                 .map(TelemetryAuthMode::from);
-            let account_id = telemetry_auth.and_then(MapleCodeAuth::get_account_id);
-            let account_email = telemetry_auth.and_then(MapleCodeAuth::get_account_email);
+            let account_id = telemetry_auth.and_then(MaplecodeAuth::get_account_id);
+            let account_email = telemetry_auth.and_then(MaplecodeAuth::get_account_email);
             let originator = session_configuration.originator.clone();
             let terminal_type = user_agent();
             let session_model = session_configuration
@@ -1462,7 +1462,7 @@ impl Session {
             )
             .with_auth_env(auth_env_telemetry.to_otel_metadata())
             .with_product_sku(config.apps_mcp_product_sku.as_deref())
-            .with_user_id(telemetry_auth.and_then(MapleCodeAuth::get_chatgpt_user_id))
+            .with_user_id(telemetry_auth.and_then(MaplecodeAuth::get_chatgpt_user_id))
             .with_tool_result_log_config(config.otel.tool_result);
             if !config.otel.log_sse_deltas {
                 session_telemetry = session_telemetry.without_sse_delta_logs();
@@ -1877,7 +1877,7 @@ impl Session {
             let executed_tool_calls =
                 crate::state::ExecutedToolCalls::new(&config.features, &initial_history);
             let maplecode_responses_headers =
-                thread_extension_data.get::<crate::MapleCodeResponsesHeaders>();
+                thread_extension_data.get::<crate::MaplecodeResponsesHeaders>();
             // Ephemeral title requests use request-level effort even when managed settings
             // enable overrides. The client-supplied tag selects cache behavior, not permissions.
             let title_request = config.ephemeral
@@ -1949,7 +1949,7 @@ impl Session {
             };
             let rollout_thread_trace = rollout_thread_trace.unwrap_or_else(|err| {
                 startup_error.get_or_insert_with(|| {
-                    MapleCodeErr::Fatal(format!("failed to start rollout recording: {err:#}"))
+                    MaplecodeErr::Fatal(format!("failed to start rollout recording: {err:#}"))
                 });
                 ThreadTraceContext::disabled()
             });

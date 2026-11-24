@@ -23,7 +23,7 @@ use maplecode_extension_api::SelectedPluginIdentity;
 use maplecode_extension_api::SelectedPluginSnapshot;
 use maplecode_extension_api::SessionIsolation;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::EffectiveMcpServer;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::McpConfig;
@@ -573,7 +573,7 @@ impl McpManager {
     pub async fn effective_servers(
         &self,
         config: &Config,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
     ) -> HashMap<maplecode_mcp::McpServerKey, EffectiveMcpServer> {
         let mcp_config = self.runtime_config(config).await;
         effective_mcp_servers(&mcp_config, auth)

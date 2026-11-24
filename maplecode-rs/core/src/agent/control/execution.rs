@@ -4,9 +4,9 @@
 use super::LocalAgentControl;
 use crate::agent::types::AgentExecutionGuard;
 use maplecode_protocol::error::AgentErrorContext;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::SessionSource;
 use std::sync::Arc;
@@ -35,7 +35,7 @@ impl LocalAgentControl {
         &self,
         multi_agent_version: MultiAgentVersion,
         session_source: &SessionSource,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         if !is_execution_limited(multi_agent_version, session_source) {
             return Ok(());
         }
@@ -44,7 +44,7 @@ impl LocalAgentControl {
             Ok(())
         } else {
             Err(
-                MapleCodeErr::new(MapleCodeErrorDetails::AgentLimitReached { max_threads })
+                MaplecodeErr::new(MaplecodeErrorDetails::AgentLimitReached { max_threads })
                     .with_agent_context(AgentErrorContext::ExecutionCapacity),
             )
         }

@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use maplecode_extension_api::SessionIsolation;
-use maplecode_home::MapleCodeHomeUserInstructionsProvider;
+use maplecode_home::MaplecodeHomeUserInstructionsProvider;
 use maplecode_protocol::protocol::InternalSessionSource;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::ThreadSource;
@@ -36,11 +36,11 @@ pub(crate) fn install(session: &Session, config: &Config) {
             session.installation_id.clone(),
             crate::test_support::fixed_model_catalog(Arc::clone(&session.services.models_manager)),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         session.services.turn_environments.environment_manager(),
         maplecode_extension_api::empty_extension_registry(),
-        Arc::new(MapleCodeHomeUserInstructionsProvider::new(
+        Arc::new(MaplecodeHomeUserInstructionsProvider::new(
             config.maplecode_home.clone(),
         )),
         /*analytics_events_client*/ None,

@@ -45,7 +45,7 @@ use maplecode_guardian_context::ContextBudgeting;
 use maplecode_guardian_context::SectionHistory;
 use maplecode_guardian_context::TranscriptHistory;
 use maplecode_history::GuardianHistoryCheckpoint;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RetainedContext;
 use maplecode_history::RetainedContextEntry;
@@ -670,7 +670,7 @@ impl ContextManager {
     fn record_item_with_metadata(
         &mut self,
         item: &ResponseItem,
-        metadata: Option<&MapleCodeHarnessMetadata>,
+        metadata: Option<&MaplecodeHarnessMetadata>,
         policy: TruncationPolicy,
     ) -> Option<maplecode_history::RetainedSource> {
         if !is_api_message(item, metadata) {
@@ -1271,7 +1271,7 @@ impl ContextManager {
 }
 
 /// Configuration updates require harness provenance; raw system messages are never retained.
-fn is_api_message(message: &ResponseItem, metadata: Option<&MapleCodeHarnessMetadata>) -> bool {
+fn is_api_message(message: &ResponseItem, metadata: Option<&MaplecodeHarnessMetadata>) -> bool {
     match message {
         ResponseItem::Message { role, .. } => role.as_str() != "system",
         ResponseItem::ConfigurationUpdate { .. } => {

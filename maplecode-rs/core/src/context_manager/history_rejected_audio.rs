@@ -8,9 +8,9 @@ use futures::StreamExt;
 use futures::stream;
 use maplecode_attachment_store::AttachmentStore;
 use maplecode_history::AcceptedFileAudio;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::AudioReference;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::FunctionCallOutputContentItem;
@@ -118,7 +118,7 @@ pub(crate) fn checkpoint_input_has_no_file_error_sources(items: &[ResponseItemEn
 /// Only the host marker on this ciphertext proves that the checkpoint had no competing files.
 pub(crate) fn clear_checkpoint<'a>(
     item: &'a ResponseItem,
-    metadata: Option<&MapleCodeHarnessMetadata>,
+    metadata: Option<&MaplecodeHarnessMetadata>,
 ) -> Option<&'a str> {
     metadata.filter(|metadata| metadata.compaction_without_file_error_sources)?;
     opaque_content(item)
@@ -190,11 +190,11 @@ impl SubmittedFileAudio {
         })
     }
 
-    fn rejected_index(&self, error: &MapleCodeErrorDetails) -> Option<usize> {
+    fn rejected_index(&self, error: &MaplecodeErrorDetails) -> Option<usize> {
         let index = self.candidate?;
         let unique_file = self.file_ids.len() == 1;
         let attributable = match error {
-            MapleCodeErrorDetails::InvalidAudioInput { per_recording, .. } => {
+            MaplecodeErrorDetails::InvalidAudioInput { per_recording, .. } => {
                 !self.has_inline_audio && (unique_file || *per_recording)
             }
             _ => unique_file && !self.has_file_image && is_unknown_file_error(error),
@@ -202,18 +202,18 @@ impl SubmittedFileAudio {
         attributable.then_some(index)
     }
 
-    pub(crate) fn matches_rejection(&self, error: &MapleCodeErrorDetails) -> bool {
+    pub(crate) fn matches_rejection(&self, error: &MaplecodeErrorDetails) -> bool {
         self.rejected_index(error).is_some()
     }
 
-    pub(crate) fn rejected_file_id(mut self, error: &MapleCodeErrorDetails) -> Option<String> {
+    pub(crate) fn rejected_file_id(mut self, error: &MaplecodeErrorDetails) -> Option<String> {
         let index = self.rejected_index(error)?;
         Some(self.file_ids.swap_remove(index))
     }
 
     pub(crate) async fn rejected_file_ids(
         mut self,
-        error: &MapleCodeErrorDetails,
+        error: &MaplecodeErrorDetails,
         store: &dyn AttachmentStore,
     ) -> Vec<String> {
         if let Some(index) = self.rejected_index(error) {
@@ -233,9 +233,9 @@ impl SubmittedFileAudio {
     }
 }
 
-fn is_unknown_file_error(error: &MapleCodeErrorDetails) -> bool {
+fn is_unknown_file_error(error: &MaplecodeErrorDetails) -> bool {
     const UNKNOWN_FILE: &str = "Invalid input: Unknown `file_id` in input content.";
-    matches!(error, MapleCodeErrorDetails::UnexpectedStatus(response)
+    matches!(error, MaplecodeErrorDetails::UnexpectedStatus(response)
         if response.status == http::StatusCode::NOT_FOUND
             && (response.body.trim() == UNKNOWN_FILE
                 || response.extract_error_message().as_deref() == Some(UNKNOWN_FILE)))
@@ -285,7 +285,7 @@ async fn unavailable_file_audio_ids(
 /// message disappears. The resulting projection also becomes the checkpoint.
 pub(crate) fn project_compaction_audio(
     input: &mut Vec<ResponseItem>,
-    metadata: &mut Vec<Option<MapleCodeHarnessMetadata>>,
+    metadata: &mut Vec<Option<MaplecodeHarnessMetadata>>,
     unavailable: &BTreeSet<String>,
 ) {
     if unavailable.is_empty() {

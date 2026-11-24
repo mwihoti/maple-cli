@@ -9,7 +9,7 @@ use maplecode_connectors::metadata::connector_install_url;
 use maplecode_connectors::metadata::sanitize_name;
 use maplecode_features::Feature;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::McpServerKey;
 use maplecode_mcp::ToolInfo;
@@ -586,7 +586,7 @@ discoverables = [
         .build()
         .await
         .expect("config should load");
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let plugins_manager =
         plugins_manager_for_config(&config, AuthManager::from_auth_for_testing(auth.clone()));
 
@@ -624,7 +624,7 @@ apps = true
         .build()
         .await
         .expect("config should load");
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let loaded_plugin_app_connector_ids = vec!["asdk_app_databricks_workspace".to_string()];
     let plugins_manager =
         plugins_manager_for_config(&config, AuthManager::from_auth_for_testing(auth.clone()));

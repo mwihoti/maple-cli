@@ -27,7 +27,7 @@ pub(crate) fn eligible_owner(session: &Session) -> Option<AuthOwner> {
     let manager = &session.services.auth_manager;
     let credential = manager
         .auth_cached()
-        .filter(maplecode_login::MapleCodeAuth::is_chatgpt_auth)?;
+        .filter(maplecode_login::MaplecodeAuth::is_chatgpt_auth)?;
     manager.auth_owner_for(&credential)
 }
 

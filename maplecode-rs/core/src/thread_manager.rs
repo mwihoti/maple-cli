@@ -9,8 +9,8 @@ pub use shutdown::AgentTreeShutdownFailureReason;
 pub use shutdown::AgentTreeShutdownReport;
 pub(crate) use shutdown::thread_store_error_kind;
 
-use crate::MapleCodeAppsToolsCache;
-use crate::MapleCodeThreadSettingsOverrides;
+use crate::MaplecodeAppsToolsCache;
+use crate::MaplecodeThreadSettingsOverrides;
 use crate::agent::AgentStatus;
 use crate::agent::LocalAgentControl;
 use crate::agent::api::AgentControl;
@@ -25,7 +25,7 @@ use crate::environment_selection::TurnEnvironmentSnapshot;
 use crate::environment_selection::default_thread_environment_requests;
 use crate::exec_policy::ExecPolicyManager;
 use crate::exec_policy::InheritedExecPolicy;
-use crate::maplecode_thread::MapleCodeThread;
+use crate::maplecode_thread::MaplecodeThread;
 use crate::mcp::McpManager;
 use crate::rollout::truncation;
 use crate::session::ForkPersistence;
@@ -73,7 +73,7 @@ use maplecode_history::ResumedHistory;
 use maplecode_history::RolloutItem;
 use maplecode_install_context::InstallContext;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::default_client::MAPLECODE_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
 use maplecode_login::default_client::originator;
 use maplecode_model_provider::ModelCatalogFactory;
@@ -84,8 +84,8 @@ use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_models_manager::manager::SharedModelsManager;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::config_types::CollaborationModeMask;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_protocol::openai_models::ModelInfo;
 use maplecode_protocol::openai_models::ModelPreset;
@@ -149,7 +149,7 @@ type CapturedOps = Vec<(ThreadId, Op)>;
 type SharedCapturedOps = Arc<std::sync::Mutex<CapturedOps>>;
 pub(crate) type ThreadIdGenerator = Arc<dyn Fn() -> ThreadId + Send + Sync>;
 type AgentControlFactory = Arc<
-    dyn Fn(ThreadId) -> BoxFuture<'static, MapleCodeResult<Arc<dyn AgentControl>>> + Send + Sync,
+    dyn Fn(ThreadId) -> BoxFuture<'static, MaplecodeResult<Arc<dyn AgentControl>>> + Send + Sync,
 >;
 
 // `Op` is intentionally not `Clone`. Thread-manager tests only snapshot the
@@ -181,11 +181,11 @@ fn should_use_test_thread_manager_behavior() -> bool {
     FORCE_TEST_THREAD_MANAGER_BEHAVIOR.load(Ordering::Relaxed)
 }
 
-struct TempMapleCodeHomeGuard {
+struct TempMaplecodeHomeGuard {
     path: PathBuf,
 }
 
-impl Drop for TempMapleCodeHomeGuard {
+impl Drop for TempMaplecodeHomeGuard {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.path);
     }
@@ -195,7 +195,7 @@ impl Drop for TempMapleCodeHomeGuard {
 /// (which is [`EventMsg::SessionConfigured`]).
 pub struct NewThread {
     pub thread_id: ThreadId,
-    pub thread: Arc<MapleCodeThread>,
+    pub thread: Arc<MaplecodeThread>,
     pub session_configured: SessionConfiguredEvent,
 }
 
@@ -275,7 +275,7 @@ pub enum McpRefreshReason {
     AccountPluginCacheChanged,
     AccountWorkspaceSwitched,
     AuthChangeNotification,
-    MapleCodeAppsToolRefresh,
+    MaplecodeAppsToolRefresh,
     CurrentEnvironmentsChanged,
     DisabledPluginSelectionChanged,
     EffectivePluginsChanged,
@@ -286,7 +286,7 @@ pub enum McpRefreshReason {
     ExplicitInvalidation,
     ExplicitServerReconnect,
     ExtensionCatalogChanged,
-    HardRefreshMapleCodeAppsTools,
+    HardRefreshMaplecodeAppsTools,
     MarketplaceUpgraded,
     McpConfigReloaded,
     McpOAuthLoginCompleted,
@@ -314,7 +314,7 @@ pub enum McpRefreshReason {
 /// them in memory.
 pub struct ThreadManager {
     state: Arc<ThreadManagerState>,
-    _test_maplecode_home_guard: Option<TempMapleCodeHomeGuard>,
+    _test_maplecode_home_guard: Option<TempMaplecodeHomeGuard>,
 }
 
 /// Captured parent identity for an internal child, including inline parents that
@@ -582,7 +582,7 @@ pub(crate) struct ResumeThreadWithHistoryOptions {
 /// function to require an `Arc<&Self>`.
 pub(crate) struct ThreadManagerState {
     // Eviction updates this registry and residency together, locking the registry first.
-    pub(crate) threads: Arc<RwLock<HashMap<ThreadId, Arc<MapleCodeThread>>>>,
+    pub(crate) threads: Arc<RwLock<HashMap<ThreadId, Arc<MaplecodeThread>>>>,
     shared_thread_instructions: shared_instructions::SharedThreadInstructionsProviders,
     thread_created_tx: broadcast::Sender<ThreadId>,
     thread_id_generator: ThreadIdGenerator,
@@ -634,7 +634,7 @@ impl ThreadManager {
     pub fn new(
         config: &Config,
         startup: StartupModels,
-        maplecode_apps_tools_cache: MapleCodeAppsToolsCache,
+        maplecode_apps_tools_cache: MaplecodeAppsToolsCache,
         session_source: SessionSource,
         environment_manager: Arc<EnvironmentManager>,
         extensions: Arc<ExtensionRegistry<Config>>,
@@ -742,7 +742,7 @@ impl ThreadManager {
     pub fn with_agent_control_factory<F, Fut>(mut self, factory: F) -> Self
     where
         F: Fn(ThreadId) -> Fut + Send + Sync + 'static,
-        Fut: Future<Output = MapleCodeResult<Arc<dyn AgentControl>>> + Send + 'static,
+        Fut: Future<Output = MaplecodeResult<Arc<dyn AgentControl>>> + Send + 'static,
     {
         let Some(state) = Arc::get_mut(&mut self.state) else {
             unreachable!("agent controller factory must be set before thread manager is shared");
@@ -814,10 +814,10 @@ impl ThreadManager {
         }
     }
 
-    /// Construct with a dummy AuthManager containing the provided MapleCodeAuth.
+    /// Construct with a dummy AuthManager containing the provided MaplecodeAuth.
     /// Used for integration tests: should not be used by ordinary business logic.
     pub(crate) fn with_models_provider_for_tests(
-        auth: MapleCodeAuth,
+        auth: MaplecodeAuth,
         provider: ModelProviderInfo,
     ) -> Self {
         set_thread_manager_test_mode_for_tests(/*enabled*/ true);
@@ -833,16 +833,16 @@ impl ThreadManager {
             maplecode_home.clone(),
             Arc::new(EnvironmentManager::default_for_tests()),
         );
-        manager._test_maplecode_home_guard = Some(TempMapleCodeHomeGuard {
+        manager._test_maplecode_home_guard = Some(TempMaplecodeHomeGuard {
             path: maplecode_home,
         });
         manager
     }
 
-    /// Construct with a dummy AuthManager containing the provided MapleCodeAuth and maplecode home.
+    /// Construct with a dummy AuthManager containing the provided MaplecodeAuth and maplecode home.
     /// Used for integration tests: should not be used by ordinary business logic.
     pub(crate) fn with_models_provider_and_home_for_tests(
-        auth: MapleCodeAuth,
+        auth: MaplecodeAuth,
         provider: ModelProviderInfo,
         maplecode_home: PathBuf,
         environment_manager: Arc<EnvironmentManager>,
@@ -857,7 +857,7 @@ impl ThreadManager {
     }
 
     pub(crate) fn with_models_provider_home_and_state_for_tests(
-        auth: MapleCodeAuth,
+        auth: MaplecodeAuth,
         provider: ModelProviderInfo,
         maplecode_home: PathBuf,
         environment_manager: Arc<EnvironmentManager>,
@@ -1157,13 +1157,13 @@ impl ThreadManager {
 
     /// Resolves the model before starting or cold-resuming a thread with this manager's credentials.
     /// Pass the same options to [`Self::start_thread`]. For a live thread, use
-    /// [`MapleCodeThread::selected_model_info`].
+    /// [`MaplecodeThread::selected_model_info`].
     pub async fn resolve_startup_model(
         &self,
         options: &StartThreadOptions,
-    ) -> MapleCodeResult<Arc<ModelInfo>> {
+    ) -> MaplecodeResult<Arc<ModelInfo>> {
         if options.internal_parent.is_some() {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "startup model lookup does not support a captured internal parent".to_owned(),
             ));
         }
@@ -1229,7 +1229,7 @@ impl ThreadManager {
         self.state.thread_created_tx.subscribe()
     }
 
-    pub async fn get_thread(&self, thread_id: ThreadId) -> MapleCodeResult<Arc<MapleCodeThread>> {
+    pub async fn get_thread(&self, thread_id: ThreadId) -> MaplecodeResult<Arc<MaplecodeThread>> {
         self.state.get_thread(thread_id).await
     }
 
@@ -1237,7 +1237,7 @@ impl ThreadManager {
     pub async fn thread_registration(
         &self,
         thread_id: ThreadId,
-        expected: &Arc<MapleCodeThread>,
+        expected: &Arc<MaplecodeThread>,
     ) -> ThreadRegistration {
         match self.state.threads.read().await.get(&thread_id) {
             Some(current) if Arc::ptr_eq(current, expected) => ThreadRegistration::Current,
@@ -1253,22 +1253,22 @@ impl ThreadManager {
         &self,
         thread_id: ThreadId,
         matches: impl FnOnce(&T) -> bool,
-    ) -> MapleCodeResult<Arc<MapleCodeThread>> {
+    ) -> MaplecodeResult<Arc<MaplecodeThread>> {
         let threads = self.state.threads.read().await;
         let thread = threads
             .get(&thread_id)
-            .ok_or(MapleCodeErr::ThreadNotFound(thread_id))?;
+            .ok_or(MaplecodeErr::ThreadNotFound(thread_id))?;
         let extension = thread.thread_extension_data().get::<T>();
         if extension.as_deref().is_some_and(matches) {
             Ok(Arc::clone(thread))
         } else {
-            Err(MapleCodeErr::ThreadNotFound(thread_id))
+            Err(MaplecodeErr::ThreadNotFound(thread_id))
         }
     }
 
     /// Updates metadata for loaded and cold threads through one entrypoint.
     ///
-    /// Loaded threads route through `MapleCodeThread`/`LiveThread`, so metadata changes stay ordered
+    /// Loaded threads route through `MaplecodeThread`/`LiveThread`, so metadata changes stay ordered
     /// with live rollout writes. Cold threads go directly to the store, which owns unloaded JSONL
     /// compatibility and SQLite metadata updates. This API always returns a materialized thread;
     /// if the store reports a successful no-op without one, it performs a fallback read.
@@ -1277,10 +1277,10 @@ impl ThreadManager {
         thread_id: ThreadId,
         patch: ThreadMetadataPatch,
         include_archived: bool,
-    ) -> MapleCodeResult<StoredThread> {
+    ) -> MaplecodeResult<StoredThread> {
         if let Ok(thread) = self.get_thread(thread_id).await {
             if thread.config_snapshot().await.ephemeral {
-                return Err(MapleCodeErr::InvalidRequest(format!(
+                return Err(MaplecodeErr::InvalidRequest(format!(
                     "ephemeral thread does not support metadata updates: {thread_id}"
                 )));
             }
@@ -1300,7 +1300,7 @@ impl ThreadManager {
             .await
             .map_err(|err| match err {
                 ThreadStoreError::ThreadNotFound { thread_id } => {
-                    MapleCodeErr::ThreadNotFound(thread_id)
+                    MaplecodeErr::ThreadNotFound(thread_id)
                 }
                 err => thread_store_metadata_update_error(thread_id, err),
             })?;
@@ -1325,10 +1325,10 @@ impl ThreadManager {
         thread_id: ThreadId,
         section: Option<&str>,
         before_thread_id: Option<ThreadId>,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         if let Ok(thread) = self.get_thread(thread_id).await {
             if thread.config_snapshot().await.ephemeral {
-                return Err(MapleCodeErr::InvalidRequest(format!(
+                return Err(MaplecodeErr::InvalidRequest(format!(
                     "ephemeral thread does not support section moves: {thread_id}"
                 )));
             }
@@ -1352,7 +1352,7 @@ impl ThreadManager {
     pub async fn list_agent_subtree_thread_ids(
         &self,
         thread_id: ThreadId,
-    ) -> MapleCodeResult<Vec<ThreadId>> {
+    ) -> MaplecodeResult<Vec<ThreadId>> {
         let mut subtree_thread_ids = Vec::new();
         let mut seen_thread_ids = HashSet::new();
         subtree_thread_ids.push(thread_id);
@@ -1363,7 +1363,7 @@ impl ThreadManager {
                 .list_thread_spawn_descendants(thread_id, /*status_filter*/ None)
                 .await
                 .map_err(|err| {
-                    MapleCodeErr::Fatal(format!("failed to load thread-spawn descendants: {err}"))
+                    MaplecodeErr::Fatal(format!("failed to load thread-spawn descendants: {err}"))
                 })?
             {
                 if seen_thread_ids.insert(descendant_id) {
@@ -1386,7 +1386,7 @@ impl ThreadManager {
         Ok(subtree_thread_ids)
     }
 
-    pub async fn start_thread(&self, options: StartThreadOptions) -> MapleCodeResult<NewThread> {
+    pub async fn start_thread(&self, options: StartThreadOptions) -> MaplecodeResult<NewThread> {
         Box::pin(self.start_thread_inner(
             options, /*forked_from_thread_id*/ None, /*startup*/ None,
         ))
@@ -1398,7 +1398,7 @@ impl ThreadManager {
         &self,
         parent_thread_id: ThreadId,
         options: StartThreadOptions,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         self.spawn_internal_session_with_history(
             parent_thread_id,
             options,
@@ -1417,7 +1417,7 @@ impl ThreadManager {
         parent_thread_id: ThreadId,
         options: StartThreadOptions,
         history: Vec<RolloutItem>,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         self.spawn_internal_session_with_history(
             parent_thread_id,
             options,
@@ -1433,9 +1433,9 @@ impl ThreadManager {
         mut options: StartThreadOptions,
         history: InitialHistory,
         inherited_instructions: Option<SessionInstructions>,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         if !matches!(options.session_source, Some(SessionSource::Internal(_))) {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "internal sessions require an internal session source".to_string(),
             ));
         }
@@ -1464,7 +1464,7 @@ impl ThreadManager {
         mut options: StartThreadOptions,
         forked_from_thread_id: Option<ThreadId>,
         startup: Option<Arc<crate::session::startup::SessionStartup>>,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         let (session_source, thread_source) = options.effective_sources(&self.state.session_source);
         options.session_source = Some(session_source);
         options.thread_source = thread_source;
@@ -1473,7 +1473,7 @@ impl ThreadManager {
             && (!matches!(options.session_source, Some(SessionSource::Internal(_)))
                 || matches!(options.initial_history, InitialHistory::Resumed(_)))
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "a captured internal parent requires a new or forked internal session".to_owned(),
             ));
         }
@@ -1508,7 +1508,7 @@ impl ThreadManager {
         &self,
         forked_from_thread_id: ThreadId,
         mut options: StartThreadOptions,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         let fork_source = self.get_thread(forked_from_thread_id).await?;
         // Persist queued rollout updates before reading the fork snapshot.
         fork_source.ensure_rollout_materialized().await;
@@ -1519,7 +1519,7 @@ impl ThreadManager {
             )
             .await
             .map_err(|err| {
-                MapleCodeErr::Fatal(format!(
+                MaplecodeErr::Fatal(format!(
                     "failed to read subagent fork source {forked_from_thread_id}: {err}"
                 ))
             })?;
@@ -1551,7 +1551,7 @@ impl ThreadManager {
         auth_manager: Arc<AuthManager>,
         parent_trace: Option<W3cTraceContext>,
         client_mcp_extensions: ClientMcpExtensions,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         let initial_history = self
             .legacy_initial_history_from_rollout_path(rollout_path)
             .await?;
@@ -1572,7 +1572,7 @@ impl ThreadManager {
     pub async fn ensure_multi_agent_v2_child_loaded(
         &self,
         child_thread_id: ThreadId,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         let stored_thread = self
             .state
             .read_stored_thread(ReadThreadParams {
@@ -1582,12 +1582,12 @@ impl ThreadManager {
             })
             .await?;
         let Some(parent_thread_id) = stored_thread.parent_thread_id else {
-            return Err(MapleCodeErr::InvalidRequest(format!(
+            return Err(MaplecodeErr::InvalidRequest(format!(
                 "thread {child_thread_id} is not a recorded multi-agent v2 child"
             )));
         };
         let parent = self.get_thread(parent_thread_id).await.map_err(|_| {
-            MapleCodeErr::InvalidRequest(format!(
+            MaplecodeErr::InvalidRequest(format!(
                 "cannot resume multi-agent v2 child {child_thread_id}: parent {parent_thread_id} is not loaded; resume the parent first"
             ))
         })?;
@@ -1607,7 +1607,7 @@ impl ThreadManager {
         auth_manager: Arc<AuthManager>,
         parent_trace: Option<W3cTraceContext>,
         client_mcp_extensions: ClientMcpExtensions,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         let agent_control = self.agent_control_for_config(&config);
         let (session_source, thread_source) = initial_history
             .get_resumed_session_sources()
@@ -1633,7 +1633,7 @@ impl ThreadManager {
         config: Config,
         user_shell_override: crate::shell::Shell,
         client_mcp_extensions: ClientMcpExtensions,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         let agent_control = self.agent_control_for_config(&config);
         let options = StartThreadOptions {
             client_mcp_extensions,
@@ -1652,7 +1652,7 @@ impl ThreadManager {
         auth_manager: Arc<AuthManager>,
         user_shell_override: crate::shell::Shell,
         client_mcp_extensions: ClientMcpExtensions,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         let agent_control = self.agent_control_for_config(&config);
         let initial_history = self
             .legacy_initial_history_from_rollout_path(rollout_path)
@@ -1673,9 +1673,9 @@ impl ThreadManager {
     }
 
     /// Removes the thread from the manager's internal map, though the thread is stored
-    /// as `Arc<MapleCodeThread>`, it is possible that other references to it exist elsewhere.
+    /// as `Arc<MaplecodeThread>`, it is possible that other references to it exist elsewhere.
     /// Returns the thread if the thread was found and removed.
-    pub async fn remove_thread(&self, thread_id: &ThreadId) -> Option<Arc<MapleCodeThread>> {
+    pub async fn remove_thread(&self, thread_id: &ThreadId) -> Option<Arc<MaplecodeThread>> {
         self.state.remove_thread(thread_id).await
     }
 
@@ -1684,13 +1684,13 @@ impl ThreadManager {
     pub async fn remove_thread_for_client(
         &self,
         thread_id: &ThreadId,
-    ) -> MapleCodeResult<Option<Arc<MapleCodeThread>>> {
+    ) -> MaplecodeResult<Option<Arc<MaplecodeThread>>> {
         let mut threads = self.state.threads.write().await;
         if threads
             .get(thread_id)
             .is_some_and(|thread| thread.session_source.is_internal())
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "live internal threads can only be removed by their owner".to_owned(),
             ));
         }
@@ -1706,8 +1706,8 @@ impl ThreadManager {
     pub async fn remove_thread_if_matches(
         &self,
         thread_id: &ThreadId,
-        expected: &Arc<MapleCodeThread>,
-    ) -> Option<Arc<MapleCodeThread>> {
+        expected: &Arc<MaplecodeThread>,
+    ) -> Option<Arc<MaplecodeThread>> {
         let mut threads = self.state.threads.write().await;
         if threads
             .get(thread_id)
@@ -1779,7 +1779,7 @@ impl ThreadManager {
     pub async fn fork_options_from_parent(
         &self,
         source_thread_id: ThreadId,
-    ) -> MapleCodeResult<(StartThreadOptions, MapleCodeThreadSettingsOverrides)> {
+    ) -> MaplecodeResult<(StartThreadOptions, MaplecodeThreadSettingsOverrides)> {
         let parent = self.get_thread(source_thread_id).await?;
         let (config, settings, windows_sandbox_level, environments, reasoning_effort_pin) =
             parent.session.fork_config().await;
@@ -1796,7 +1796,7 @@ impl ThreadManager {
                 turn_extension_init: settings.turn_extension_init,
                 ..StartThreadOptions::new(config)
             },
-            MapleCodeThreadSettingsOverrides {
+            MaplecodeThreadSettingsOverrides {
                 collaboration_mode: Some(settings.collaboration_mode),
                 windows_sandbox_level: Some(windows_sandbox_level),
                 ..Default::default()
@@ -1817,7 +1817,7 @@ impl ThreadManager {
         snapshot: S,
         options: StartThreadOptions,
         path: PathBuf,
-    ) -> MapleCodeResult<NewThread>
+    ) -> MaplecodeResult<NewThread>
     where
         S: Into<ForkSnapshot>,
     {
@@ -1830,7 +1830,7 @@ impl ThreadManager {
     async fn legacy_initial_history_from_rollout_path(
         &self,
         rollout_path: PathBuf,
-    ) -> MapleCodeResult<InitialHistory> {
+    ) -> MaplecodeResult<InitialHistory> {
         let requested_rollout_path = rollout_path.clone();
         let stored_thread = self
             .state
@@ -1851,7 +1851,7 @@ impl ThreadManager {
         snapshot: S,
         options: StartThreadOptions,
         history: InitialHistory,
-    ) -> MapleCodeResult<NewThread>
+    ) -> MaplecodeResult<NewThread>
     where
         S: Into<ForkSnapshot>,
     {
@@ -1871,7 +1871,7 @@ impl ThreadManager {
         &self,
         options: StartThreadOptions,
         prepared: PreparedFork,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         let history = InitialHistory::Resumed(ResumedHistory {
             history_revision: None,
             conversation_id: prepared.source_thread_id,
@@ -1900,7 +1900,7 @@ impl ThreadManager {
         &self,
         mut options: StartThreadOptions,
         fork_history: ForkHistory,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         let ForkHistory {
             snapshot,
             initial_history: history,
@@ -2061,52 +2061,52 @@ impl ThreadManagerState {
     pub(crate) async fn get_thread(
         &self,
         thread_id: ThreadId,
-    ) -> MapleCodeResult<Arc<MapleCodeThread>> {
+    ) -> MaplecodeResult<Arc<MaplecodeThread>> {
         let threads = self.threads.read().await;
         match threads.get(&thread_id) {
             Some(thread) if !thread.session_source.is_internal() => Ok(thread.clone()),
-            Some(_) | None => Err(MapleCodeErr::ThreadNotFound(thread_id)),
+            Some(_) | None => Err(MaplecodeErr::ThreadNotFound(thread_id)),
         }
     }
 
     pub(crate) async fn read_stored_thread(
         &self,
         params: ReadThreadParams,
-    ) -> MapleCodeResult<StoredThread> {
+    ) -> MaplecodeResult<StoredThread> {
         let thread_id = params.thread_id;
         self.thread_store
             .read_thread(params)
             .await
             .map_err(|err| match err {
                 ThreadStoreError::ThreadNotFound { thread_id } => {
-                    MapleCodeErr::ThreadNotFound(thread_id)
+                    MaplecodeErr::ThreadNotFound(thread_id)
                 }
                 ThreadStoreError::InvalidRequest { message } => {
                     if message.starts_with("no rollout found for thread id ") {
-                        MapleCodeErr::ThreadNotFound(thread_id)
+                        MaplecodeErr::ThreadNotFound(thread_id)
                     } else {
-                        MapleCodeErr::Fatal(format!(
+                        MaplecodeErr::Fatal(format!(
                             "failed to read stored thread {thread_id}: invalid thread-store request: {message}"
                         ))
                     }
                 }
-                err => MapleCodeErr::Fatal(format!("failed to read stored thread {thread_id}: {err}")),
+                err => MaplecodeErr::Fatal(format!("failed to read stored thread {thread_id}: {err}")),
             })
     }
 
     pub(crate) async fn load_latest_model_context(
         &self,
         params: LoadThreadHistoryParams,
-    ) -> MapleCodeResult<StoredModelContext> {
+    ) -> MaplecodeResult<StoredModelContext> {
         let thread_id = params.thread_id;
         self.thread_store
             .load_latest_model_context(params)
             .await
             .map_err(|err| match err {
                 ThreadStoreError::ThreadNotFound { thread_id } => {
-                    MapleCodeErr::ThreadNotFound(thread_id)
+                    MaplecodeErr::ThreadNotFound(thread_id)
                 }
-                err => MapleCodeErr::Fatal(format!(
+                err => MaplecodeErr::Fatal(format!(
                     "failed to load model context for thread {thread_id}: {err}"
                 )),
             })
@@ -2120,7 +2120,7 @@ impl ThreadManagerState {
         parent_turn_id: Option<String>,
         root_turn_id: Option<String>,
         message_delivery: Option<crate::agent_communication::MessageDelivery>,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         let thread = self.get_thread(thread_id).await?;
         let residency_guard = if matches!(op, Op::InterAgentCommunication { .. }) {
             thread
@@ -2152,7 +2152,7 @@ impl ThreadManagerState {
     }
 
     /// Remove a thread from the manager by ID, returning it when present.
-    pub(crate) async fn remove_thread(&self, thread_id: &ThreadId) -> Option<Arc<MapleCodeThread>> {
+    pub(crate) async fn remove_thread(&self, thread_id: &ThreadId) -> Option<Arc<MaplecodeThread>> {
         self.threads
             .write()
             .await
@@ -2319,7 +2319,7 @@ impl ThreadManagerState {
         agent_control: LocalAgentControl,
         parent_thread_id: Option<ThreadId>,
         inherited_exec_policy: Option<Arc<crate::exec_policy::ExecPolicyManager>>,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         (options.client_mcp_extensions, options.prompt_cache_key) =
             self.inherited_child_settings(parent_thread_id).await;
         let forked = matches!(options.initial_history, InitialHistory::Forked(_));
@@ -2342,9 +2342,9 @@ impl ThreadManagerState {
         agent_control: AgentControlInit,
         parent_thread_id: ThreadId,
         inheritance: crate::agent::host::PreparedChildInheritance,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         options.reserved_thread_id.ok_or_else(|| {
-            MapleCodeErr::InvalidRequest(
+            MaplecodeErr::InvalidRequest(
                 "prepared child startup requires a reserved thread ID".into(),
             )
         })?;
@@ -2361,7 +2361,7 @@ impl ThreadManagerState {
             }
             InitialHistory::New => HistoryInitialization::New,
             InitialHistory::Resumed(_) | InitialHistory::Cleared => {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "prepared spawn requires new or forked history".into(),
                 ));
             }
@@ -2379,7 +2379,7 @@ impl ThreadManagerState {
     pub(crate) async fn resume_thread_with_history_with_source(
         &self,
         options: ResumeThreadWithHistoryOptions,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         let ResumeThreadWithHistoryOptions {
             config,
             prompt_cache_key,
@@ -2461,7 +2461,7 @@ impl ThreadManagerState {
     }
 
     /// Spawn a new thread with optional history and register it with the manager.
-    async fn spawn_thread(&self, mut request: ThreadSpawnRequest) -> MapleCodeResult<NewThread> {
+    async fn spawn_thread(&self, mut request: ThreadSpawnRequest) -> MaplecodeResult<NewThread> {
         let cancellation = request
             .options
             .config
@@ -2545,7 +2545,7 @@ impl ThreadManagerState {
         if resume_preparation.is_some()
             && (config.ephemeral || !matches!(&initial_history, InitialHistory::Resumed(_)))
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "thread store resume preparation requires a persisted resumed thread".to_string(),
             ));
         }
@@ -2555,7 +2555,7 @@ impl ThreadManagerState {
             && (!matches!(&initial_history, InitialHistory::New)
                 || session_source.is_non_root_agent())
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "an inherited agent session ID requires a fresh thread started directly by the host"
                     .to_string(),
             ));
@@ -2592,7 +2592,7 @@ impl ThreadManagerState {
             });
         let is_resumed_thread = matches!(&initial_history, InitialHistory::Resumed(_));
         if reserved_thread_id.is_some() && matches!(&initial_history, InitialHistory::Resumed(_)) {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "reserved thread ID cannot be used when resuming a thread".to_string(),
             ));
         }
@@ -2606,14 +2606,14 @@ impl ThreadManagerState {
                         thread.session_source,
                         SessionSource::Internal(InternalSessionSource::Guardian)
                     ) {
-                        return Err(MapleCodeErr::InvalidRequest(
+                        return Err(MaplecodeErr::InvalidRequest(
                             "cannot resume a live Guardian reviewer; use thread/read to inspect it, or resume after its parent is unloaded".to_owned(),
                         ));
                     }
                     if let Some(requested_rollout_path) = resumed.rollout_path.as_deref()
                         && thread.rollout_path().as_deref() != Some(requested_rollout_path)
                     {
-                        return Err(MapleCodeErr::InvalidRequest(format!(
+                        return Err(MaplecodeErr::InvalidRequest(format!(
                             "thread {} is already running with a different rollout path",
                             resumed.conversation_id
                         )));
@@ -2640,13 +2640,13 @@ impl ThreadManagerState {
         if isolation == SessionIsolation::Isolated
             && (supplied_exec_policy.is_some() || supplied_thread_instructions.is_some())
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "isolated sessions cannot install host-inherited startup settings".to_string(),
             ));
         }
         let inherited_exec_policy = match (inherited_exec_policy, supplied_exec_policy) {
             (Some(_), Some(_)) => {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "cannot combine a local and a transported execution policy".to_string(),
                 ));
             }
@@ -2762,7 +2762,7 @@ impl ThreadManagerState {
             let mcp_manager = McpManager::new_with_extensions(
                 Arc::clone(&self.plugins_manager),
                 Arc::clone(&extensions),
-                MapleCodeAppsToolsCache::default(),
+                MaplecodeAppsToolsCache::default(),
             );
             (extensions, Arc::new(mcp_manager))
         } else {
@@ -2857,7 +2857,7 @@ impl ThreadManagerState {
                 if let Some(startup_guard) = startup_guard {
                     startup_guard.cleanup().await;
                 }
-                return Err(MapleCodeErr::TurnAborted);
+                return Err(MaplecodeErr::TurnAborted);
             }
             manager = self.models_for_thread(
                 &config,
@@ -3003,7 +3003,7 @@ impl ThreadManagerState {
         session: Arc<Session>,
         io: SessionIo,
         session_source: SessionSource,
-    ) -> MapleCodeResult<(NewThread, Option<ServiceTierAcceptance>)> {
+    ) -> MaplecodeResult<(NewThread, Option<ServiceTierAcceptance>)> {
         let thread_id = session.thread_id();
         let event = io.next_event().await?;
         let session_configured = match event {
@@ -3012,7 +3012,7 @@ impl ThreadManagerState {
                 msg: EventMsg::SessionConfigured(session_configured),
             } if id == INITIAL_SUBMIT_ID => session_configured,
             _ => {
-                return Err(MapleCodeErr::SessionConfiguredNotFirstEvent);
+                return Err(MaplecodeErr::SessionConfiguredNotFirstEvent);
             }
         };
 
@@ -3036,7 +3036,7 @@ impl ThreadManagerState {
             let mut threads = self.threads.write().await;
             if let std::collections::hash_map::Entry::Vacant(e) = threads.entry(thread_id) {
                 ema_cancellation.publish();
-                let thread = Arc::new(MapleCodeThread::new(
+                let thread = Arc::new(MaplecodeThread::new(
                     Arc::clone(&session),
                     io,
                     ThreadStartupMetadata::from(&session_configured),
@@ -3062,7 +3062,7 @@ impl ThreadManagerState {
         if let Err(err) = io.shutdown_and_wait().await {
             warn!("failed to shut down duplicate thread {thread_id}: {err}");
         }
-        Err(MapleCodeErr::InvalidRequest(format!(
+        Err(MaplecodeErr::InvalidRequest(format!(
             "thread {thread_id} is already running"
         )))
     }
@@ -3075,10 +3075,10 @@ impl ThreadManagerState {
 fn stored_thread_to_initial_history(
     stored_thread: StoredThread,
     rollout_path: Option<PathBuf>,
-) -> MapleCodeResult<InitialHistory> {
+) -> MaplecodeResult<InitialHistory> {
     let thread_id = stored_thread.thread_id;
     let history = stored_thread.history.ok_or_else(|| {
-        MapleCodeErr::Fatal(format!(
+        MaplecodeErr::Fatal(format!(
             "thread {thread_id} did not include persisted history"
         ))
     })?;
@@ -3090,22 +3090,22 @@ fn stored_thread_to_initial_history(
     }))
 }
 
-fn thread_store_rollout_read_error(err: ThreadStoreError) -> MapleCodeErr {
+fn thread_store_rollout_read_error(err: ThreadStoreError) -> MaplecodeErr {
     match err {
-        ThreadStoreError::ThreadNotFound { thread_id } => MapleCodeErr::ThreadNotFound(thread_id),
-        ThreadStoreError::InvalidRequest { message } => MapleCodeErr::InvalidRequest(message),
-        err => MapleCodeErr::Fatal(format!("failed to read thread by rollout path: {err}")),
+        ThreadStoreError::ThreadNotFound { thread_id } => MaplecodeErr::ThreadNotFound(thread_id),
+        ThreadStoreError::InvalidRequest { message } => MaplecodeErr::InvalidRequest(message),
+        err => MaplecodeErr::Fatal(format!("failed to read thread by rollout path: {err}")),
     }
 }
 
-fn thread_store_metadata_update_error(thread_id: ThreadId, err: ThreadStoreError) -> MapleCodeErr {
+fn thread_store_metadata_update_error(thread_id: ThreadId, err: ThreadStoreError) -> MaplecodeErr {
     match err {
-        ThreadStoreError::ThreadNotFound { thread_id } => MapleCodeErr::ThreadNotFound(thread_id),
-        ThreadStoreError::InvalidRequest { message } => MapleCodeErr::InvalidRequest(message),
-        ThreadStoreError::Unsupported { operation } => MapleCodeErr::UnsupportedOperation(format!(
+        ThreadStoreError::ThreadNotFound { thread_id } => MaplecodeErr::ThreadNotFound(thread_id),
+        ThreadStoreError::InvalidRequest { message } => MaplecodeErr::InvalidRequest(message),
+        ThreadStoreError::Unsupported { operation } => MaplecodeErr::UnsupportedOperation(format!(
             "thread metadata update is not supported by this store: {operation}"
         )),
-        err => MapleCodeErr::Fatal(format!(
+        err => MaplecodeErr::Fatal(format!(
             "failed to update thread metadata {thread_id}: {err}"
         )),
     }

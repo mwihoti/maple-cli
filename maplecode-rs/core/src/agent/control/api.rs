@@ -24,7 +24,7 @@ use futures::future::BoxFuture;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::SessionSource;
@@ -71,12 +71,12 @@ impl AgentControl for LocalAgentControl {
                 AgentInput::UserInput(input) => SpawnInitialInput::UserInput(input),
                 AgentInput::Message { message, mode } => {
                     if mode != MessageDeliveryMode::TriggerTurn {
-                        return Err(MapleCodeErr::InvalidRequest(
+                        return Err(MaplecodeErr::InvalidRequest(
                             "spawn input must start the child turn".to_string(),
                         ));
                     }
                     let recipient = source.get_agent_path().ok_or_else(|| {
-                        MapleCodeErr::InvalidRequest(
+                        MaplecodeErr::InvalidRequest(
                             "spawned agent is missing a canonical task name".to_string(),
                         )
                     })?;
@@ -85,7 +85,7 @@ impl AgentControl for LocalAgentControl {
                         .rsplit_once('/')
                         .and_then(|(parent, _)| AgentPath::try_from(parent).ok())
                         .ok_or_else(|| {
-                            MapleCodeErr::InvalidRequest(
+                            MaplecodeErr::InvalidRequest(
                                 "spawn input needs a child path".to_string(),
                             )
                         })?;
@@ -131,12 +131,12 @@ impl AgentControl for LocalAgentControl {
                     if mode == MessageDeliveryMode::TriggerTurn
                         && receiver.agent_path.as_ref().is_some_and(AgentPath::is_root)
                     {
-                        return Err(MapleCodeErr::UnsupportedOperation(
+                        return Err(MaplecodeErr::UnsupportedOperation(
                             "Follow-up tasks can't target the root agent".to_string(),
                         ));
                     }
                     let receiver_path = receiver.agent_path.clone().ok_or_else(|| {
-                        MapleCodeErr::UnsupportedOperation(
+                        MaplecodeErr::UnsupportedOperation(
                             "target agent is missing an agent_path".to_string(),
                         )
                     })?;

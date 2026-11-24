@@ -24,7 +24,7 @@ use crate::spawn::SpawnChildRequest;
 use crate::spawn::StdioPolicy;
 use crate::spawn::spawn_child_async;
 use maplecode_network_proxy::NetworkProxy;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::error::SandboxErr;
 use maplecode_protocol::exec_output::ExecToolCallOutput;
@@ -139,9 +139,9 @@ fn select_process_exec_tool_sandbox_type(
 fn network_proxy_environment_error(
     network_environment_id: Option<&str>,
     err: impl std::fmt::Display,
-) -> MapleCodeErr {
+) -> MaplecodeErr {
     let environment_id = network_environment_id.unwrap_or("default");
-    MapleCodeErr::Io(io::Error::other(format!(
+    MaplecodeErr::Io(io::Error::other(format!(
         "failed to prepare network proxy for environment `{environment_id}`: {err}"
     )))
 }
@@ -384,7 +384,7 @@ pub async fn build_exec_request(
         (env, None)
     };
     let (program, args) = command.split_first().ok_or_else(|| {
-        MapleCodeErr::Io(io::Error::new(
+        MaplecodeErr::Io(io::Error::new(
             io::ErrorKind::InvalidInput,
             "command args are empty",
         ))
@@ -436,7 +436,7 @@ pub async fn build_exec_request(
                 .map(PathUri::to_abs_path)
                 .collect::<io::Result<Vec<_>>>()
                 .map_err(|err| {
-                    MapleCodeErr::InvalidRequest(format!(
+                    MaplecodeErr::InvalidRequest(format!(
                         "invalid Windows sandbox workspace roots: {err}"
                     ))
                 })?
@@ -479,11 +479,11 @@ pub(crate) async fn execute_exec_request(
     // TODO(anp): Keep PathUri through the local process launch boundary.
     let cwd = cwd
         .to_abs_path()
-        .map_err(|err| MapleCodeErr::InvalidRequest(format!("invalid exec cwd: {err}")))?;
+        .map_err(|err| MaplecodeErr::InvalidRequest(format!("invalid exec cwd: {err}")))?;
     // TODO(anp): Keep PathUri through the Windows sandbox launch boundary.
     let windows_sandbox_policy_cwd = windows_sandbox_policy_cwd
         .to_abs_path()
-        .map_err(|err| MapleCodeErr::InvalidRequest(format!("invalid sandbox cwd: {err}")))?;
+        .map_err(|err| MaplecodeErr::InvalidRequest(format!("invalid sandbox cwd: {err}")))?;
 
     let params = ExecParams {
         command,
@@ -648,7 +648,7 @@ async fn exec_windows_sandbox(
             network
                 .network_proxy_restricting_sid(network_environment_id.as_deref())
                 .ok_or_else(|| {
-                    MapleCodeErr::Io(io::Error::other(
+                    MaplecodeErr::Io(io::Error::other(
                         "managed Windows proxy route is missing its restricting SID",
                     ))
                 })
@@ -674,7 +674,7 @@ async fn exec_windows_sandbox(
     };
     let permission_profile = permission_profile.clone();
     let maplecode_home = find_maplecode_home().map_err(|err| {
-        MapleCodeErr::Io(io::Error::other(format!(
+        MaplecodeErr::Io(io::Error::other(format!(
             "windows sandbox: failed to resolve maplecode_home: {err}"
         )))
     })?;
@@ -741,12 +741,12 @@ async fn exec_windows_sandbox(
                 sandbox_level,
                 &err.to_string(),
             );
-            return Err(MapleCodeErr::Io(io::Error::other(format!(
+            return Err(MaplecodeErr::Io(io::Error::other(format!(
                 "windows sandbox: {err}"
             ))));
         }
         Err(join_err) => {
-            return Err(MapleCodeErr::Io(io::Error::other(format!(
+            return Err(MaplecodeErr::Io(io::Error::other(format!(
                 "windows sandbox join error: {join_err}"
             ))));
         }
@@ -785,7 +785,7 @@ async fn exec_windows_sandbox(
 }
 
 fn finalize_exec_result(
-    raw_output_result: std::result::Result<RawExecToolCallOutput, MapleCodeErr>,
+    raw_output_result: std::result::Result<RawExecToolCallOutput, MaplecodeErr>,
     sandbox_type: SandboxType,
     duration: Duration,
     capture_policy: ExecCapturePolicy,
@@ -801,7 +801,7 @@ fn finalize_exec_result(
                     if signal == TIMEOUT_CODE {
                         timed_out = true;
                     } else {
-                        return Err(MapleCodeErr::Sandbox(SandboxErr::Signal(signal)));
+                        return Err(MaplecodeErr::Sandbox(SandboxErr::Signal(signal)));
                     }
                 }
             }
@@ -824,7 +824,7 @@ fn finalize_exec_result(
             };
 
             if timed_out {
-                return Err(MapleCodeErr::Sandbox(SandboxErr::Timeout {
+                return Err(MaplecodeErr::Sandbox(SandboxErr::Timeout {
                     output: Box::new(exec_output),
                 }));
             }
@@ -833,7 +833,7 @@ fn finalize_exec_result(
                 if capture_policy != ExecCapturePolicy::SensitiveFullBuffer {
                     record_filesystem_sandbox_violation(sandbox_type, &exec_output);
                 }
-                return Err(MapleCodeErr::Sandbox(SandboxErr::Denied {
+                return Err(MaplecodeErr::Sandbox(SandboxErr::Denied {
                     output: Box::new(exec_output),
                     network_policy_decision: None,
                 }));
@@ -955,7 +955,7 @@ async fn exec(
     }
 
     let (program, args) = command.split_first().ok_or_else(|| {
-        MapleCodeErr::Io(io::Error::new(
+        MaplecodeErr::Io(io::Error::new(
             io::ErrorKind::InvalidInput,
             "command args are empty",
         ))
@@ -994,12 +994,12 @@ async fn consume_output(
     // we treat it as an exceptional I/O error
 
     let stdout_reader = child.stdout.take().ok_or_else(|| {
-        MapleCodeErr::Io(io::Error::other(
+        MaplecodeErr::Io(io::Error::other(
             "stdout pipe was unexpectedly not available",
         ))
     })?;
     let stderr_reader = child.stderr.take().ok_or_else(|| {
-        MapleCodeErr::Io(io::Error::other(
+        MaplecodeErr::Io(io::Error::other(
             "stderr pipe was unexpectedly not available",
         ))
     })?;

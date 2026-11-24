@@ -98,7 +98,7 @@ async fn selected_runtime_transport_stays_revoked(mode: RuntimeAuthMode) {
         Err(TransportError::Policy(NetworkPolicyDenied::Revoked))
     ));
     let auth_context = AuthRequestTelemetryContext::new(
-        setup.auth.as_ref().map(MapleCodeAuth::auth_mode),
+        setup.auth.as_ref().map(MaplecodeAuth::auth_mode),
         setup.api_auth.as_ref(),
         /*agent_identity_telemetry*/ None,
         PendingUnauthorizedRetry::default(),
@@ -109,7 +109,7 @@ async fn selected_runtime_transport_stays_revoked(mode: RuntimeAuthMode) {
         /*turn_id*/ None,
         "test-session".into(),
         /*parent_thread_id*/ None,
-        TestMapleCodeResponsesRequestKind::WebsocketConnection,
+        TestMaplecodeResponsesRequestKind::WebsocketConnection,
     );
     let result = client
         .connect_websocket(
@@ -147,7 +147,7 @@ async fn request_owner_tracks_the_selected_explicit_key(mode: RuntimeAuthMode) {
         })))
         .expect(2)
         .mount(&server).await;
-    let credentials = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("saved-key"));
+    let credentials = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("saved-key"));
     let context = maplecode_model_provider::ProviderAuthContext {
         runtime_auth: Some((
             Arc::new(RuntimeAuthManager::new(

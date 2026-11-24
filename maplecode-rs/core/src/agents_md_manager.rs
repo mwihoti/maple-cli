@@ -10,8 +10,8 @@ use maplecode_extension_api::Instructions;
 use maplecode_extension_api::ThreadInstructionsProvider;
 use maplecode_extension_api::UserInstructionsProvider;
 use maplecode_protocol::config_types::TrustLevel;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use maplecode_utils_string::approx_bytes_for_tokens;
 use maplecode_utils_string::approx_tokens_from_byte_count;
@@ -70,11 +70,11 @@ impl AgentsMdManager {
         &self,
         config: &Config,
         environments: &TurnEnvironmentSnapshot,
-    ) -> (MapleCodeResult<Option<Arc<LoadedAgentsMd>>>, Vec<String>) {
+    ) -> (MaplecodeResult<Option<Arc<LoadedAgentsMd>>>, Vec<String>) {
         // Serialize overlapping captures without blocking reads of the applied snapshot.
         let Ok(_refresh_guard) = self.refresh_lock.acquire().await else {
             return (
-                Err(MapleCodeErr::Fatal(
+                Err(MaplecodeErr::Fatal(
                     "instruction refresh semaphore closed".to_string(),
                 )),
                 Vec::new(),
@@ -202,10 +202,10 @@ impl AgentsMdManager {
 // size policy is unchanged; reject oversized thread input rather than truncate it.
 const MAX_THREAD_INSTRUCTIONS_TOKENS: usize = 10_000;
 
-fn validate_thread_instruction_size(bytes: usize) -> MapleCodeResult<()> {
+fn validate_thread_instruction_size(bytes: usize) -> MaplecodeResult<()> {
     if bytes > approx_bytes_for_tokens(MAX_THREAD_INSTRUCTIONS_TOKENS) {
         let estimated_tokens = approx_tokens_from_byte_count(bytes);
-        return Err(MapleCodeErr::InvalidRequest(format!(
+        return Err(MaplecodeErr::InvalidRequest(format!(
             "thread instructions exceed the limit of {MAX_THREAD_INSTRUCTIONS_TOKENS} estimated tokens ({estimated_tokens} estimated tokens provided)"
         )));
     }

@@ -2,22 +2,22 @@ use std::io::ErrorKind;
 use std::path::Path;
 
 use crate::rollout::SESSIONS_SUBDIR;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_thread_store::ThreadStoreError;
 
-pub(crate) fn map_session_init_error(err: &anyhow::Error, maplecode_home: &Path) -> MapleCodeErr {
+pub(crate) fn map_session_init_error(err: &anyhow::Error, maplecode_home: &Path) -> MaplecodeErr {
     if let Some(store_error) = err
         .chain()
         .find_map(|cause| cause.downcast_ref::<ThreadStoreError>())
     {
         match store_error {
             ThreadStoreError::Unsupported { operation } => {
-                return MapleCodeErr::UnsupportedOperation(format!(
+                return MaplecodeErr::UnsupportedOperation(format!(
                     "{operation} is not supported yet"
                 ));
             }
             ThreadStoreError::Conflict { message } => {
-                return MapleCodeErr::InvalidRequest(message.clone());
+                return MaplecodeErr::InvalidRequest(message.clone());
             }
             ThreadStoreError::ThreadNotFound { .. }
             | ThreadStoreError::InvalidRequest { .. }
@@ -35,10 +35,10 @@ pub(crate) fn map_session_init_error(err: &anyhow::Error, maplecode_home: &Path)
         return mapped;
     }
 
-    MapleCodeErr::Fatal(format!("Failed to initialize session: {err:#}"))
+    MaplecodeErr::Fatal(format!("Failed to initialize session: {err:#}"))
 }
 
-fn map_rollout_io_error(io_err: &std::io::Error, maplecode_home: &Path) -> Option<MapleCodeErr> {
+fn map_rollout_io_error(io_err: &std::io::Error, maplecode_home: &Path) -> Option<MaplecodeErr> {
     let sessions_dir = maplecode_home.join(SESSIONS_SUBDIR);
     let hint = match io_err.kind() {
         ErrorKind::PermissionDenied => format!(
@@ -65,7 +65,7 @@ fn map_rollout_io_error(io_err: &std::io::Error, maplecode_home: &Path) -> Optio
         _ => return None,
     };
 
-    Some(MapleCodeErr::Fatal(format!(
+    Some(MaplecodeErr::Fatal(format!(
         "{hint} (underlying error: {io_err})"
     )))
 }

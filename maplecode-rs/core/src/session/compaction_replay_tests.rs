@@ -46,7 +46,7 @@ async fn reconstruct_history_uses_replacement_history_verbatim() {
     let mut replacement_history = vec![
         ResponseItemEnvelope {
             item: summary_item.clone(),
-            metadata: Some(MapleCodeHarnessMetadata::default()),
+            metadata: Some(MaplecodeHarnessMetadata::default()),
         },
         ResponseItemEnvelope::new(ResponseItem::Message {
             status: None,

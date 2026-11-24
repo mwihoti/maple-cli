@@ -525,7 +525,7 @@ impl TurnInputQueue {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use maplecode_history::MapleCodeHarnessMetadata;
+    use maplecode_history::MaplecodeHarnessMetadata;
     use maplecode_protocol::AgentPath;
     use maplecode_protocol::protocol::InterAgentCommunication;
     use maplecode_protocol::user_input::UserInput;
@@ -558,7 +558,7 @@ mod tests {
 
         let annotated = wrap(ResponseItemEnvelope {
             item: ResponseItem::Other,
-            metadata: Some(MapleCodeHarnessMetadata {
+            metadata: Some(MaplecodeHarnessMetadata {
                 client_authored: true,
                 ..Default::default()
             }),

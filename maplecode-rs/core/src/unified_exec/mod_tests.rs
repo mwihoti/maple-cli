@@ -885,7 +885,7 @@ async fn stdin_approval_preserves_the_reviewed_terminal() -> anyhow::Result<()> 
 
     skip_if_sandbox!(Ok(()));
     let (session, mut turn, events) = make_session_and_context_with_auth_and_config_and_rx(
-        maplecode_login::MapleCodeAuth::from_api_key("Test API Key"),
+        maplecode_login::MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config.features.enable(Feature::WriteStdinApproval).unwrap();
@@ -1060,7 +1060,7 @@ async fn stdin_approval_observes_strict_review_enabled_while_queued() -> anyhow:
 
     skip_if_sandbox!(Ok(()));
     let (session, turn, _events) = make_session_and_context_with_auth_and_config_and_rx(
-        maplecode_login::MapleCodeAuth::from_api_key("Test API Key"),
+        maplecode_login::MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config.features.enable(Feature::WriteStdinApproval).unwrap();

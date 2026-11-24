@@ -28,7 +28,7 @@ use crate::hook_runtime::PreCompactHookOutcome;
 use crate::hook_runtime::run_post_compact_hooks;
 use crate::hook_runtime::run_pre_compact_hooks;
 use crate::responses_metadata::CompactionTurnMetadata;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
+use crate::responses_metadata::MaplecodeResponsesMetadata;
 use crate::responses_retry::ResponsesStreamRequest;
 use crate::responses_retry::ResponsesStreamRetryState;
 use crate::responses_retry::handle_response_stream_error;
@@ -45,11 +45,11 @@ use maplecode_context_fragments::set_annotated_content;
 use maplecode_context_fragments::to_annotated_content;
 use maplecode_features::Feature;
 use maplecode_features::Features;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::items::ContextCompactionItem;
 use maplecode_protocol::items::TurnItem;
 use maplecode_protocol::models::AgentMessageInputContent;
@@ -124,7 +124,7 @@ pub(crate) async fn run_inline_remote_auto_compact_task(
     phase: CompactionPhase,
     candidate: Option<Box<BackgroundCompactionCandidate>>,
     fallback: CompactionFallback,
-) -> MapleCodeResult<bool> {
+) -> MaplecodeResult<bool> {
     let compaction_metadata = CompactionTurnMetadata::new(
         CompactionTrigger::Auto,
         reason,
@@ -148,7 +148,7 @@ pub(crate) async fn run_remote_compact_task(
     sess: Arc<Session>,
     step_context: Arc<StepContext>,
     world_state: Arc<WorldState>,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let compaction_metadata = CompactionTurnMetadata::new(
         CompactionTrigger::Manual,
         CompactionReason::UserRequested,
@@ -179,7 +179,7 @@ async fn run_remote_compact_task_inner(
     compaction_metadata: CompactionTurnMetadata,
     candidate: Option<Box<BackgroundCompactionCandidate>>,
     fallback: CompactionFallback,
-) -> MapleCodeResult<bool> {
+) -> MaplecodeResult<bool> {
     let turn_context = &step_context.turn;
     let trigger = compaction_metadata.trigger();
     let reason = compaction_metadata.reason();
@@ -202,7 +202,7 @@ async fn run_remote_compact_task_inner(
     match pre_compact_outcome {
         PreCompactHookOutcome::Continue => {}
         PreCompactHookOutcome::Stopped => {
-            let error = MapleCodeErr::TurnAborted;
+            let error = MaplecodeErr::TurnAborted;
             attempt
                 .track(
                     sess.as_ref(),
@@ -254,7 +254,7 @@ async fn run_remote_compact_task_inner(
             attempt
                 .track(sess.as_ref(), status, maplecode_error, analytics_details)
                 .await;
-            return Err(MapleCodeErr::TurnAborted);
+            return Err(MaplecodeErr::TurnAborted);
         }
     }
     attempt
@@ -263,7 +263,7 @@ async fn run_remote_compact_task_inner(
     match result {
         Ok(installed) => Ok(installed),
         Err(err)
-            if matches!(err.details(), MapleCodeErrorDetails::TurnAborted)
+            if matches!(err.details(), MaplecodeErrorDetails::TurnAborted)
                 || matches!(phase, CompactionPhase::PostTurn) =>
         {
             Err(err)
@@ -292,10 +292,10 @@ async fn run_remote_compaction_request_v2(
     sess: &Session,
     step_context: &StepContext,
     prompt: &Prompt,
-    responses_metadata: &MapleCodeResponsesMetadata,
+    responses_metadata: &MaplecodeResponsesMetadata,
     transport: &mut CompactionRequestTransport<'_>,
     submitted_audio: Option<&crate::context_manager::rejected_audio::SubmittedFileAudio>,
-) -> MapleCodeResult<RemoteCompactionV2Output> {
+) -> MaplecodeResult<RemoteCompactionV2Output> {
     let turn_context = &step_context.turn;
     let client_session = match transport {
         CompactionRequestTransport::Background(turn_state, auth_owner) => {
@@ -310,7 +310,7 @@ async fn run_remote_compaction_request_v2(
             let http_executor = ResponsesHttpExecutor::new(&sess.services.model_client);
             let stream = tokio::select! {
                 biased;
-                _ = cancellation.cancelled() => return Err(MapleCodeErr::TurnAborted),
+                _ = cancellation.cancelled() => return Err(MaplecodeErr::TurnAborted),
                 stream = http_executor.stream_responses_http(
                     &turn_state, auth_owner.clone(), /*event_sender*/ None, prompt, &settings.model_info, &step_context.session_telemetry, effort,
                     settings.reasoning_summary, settings.service_tier.clone(), responses_metadata,
@@ -388,7 +388,7 @@ async fn collect_compaction_output(
     turn_context: &TurnContext,
     mut stream: ResponseStream,
     request_kind: CompactionRequestKind<'_>,
-) -> MapleCodeResult<RemoteCompactionV2Output> {
+) -> MaplecodeResult<RemoteCompactionV2Output> {
     let mut output_item_count = 0usize;
     let mut compaction_count = 0usize;
     let mut compaction_output = None;
@@ -401,12 +401,12 @@ async fn collect_compaction_output(
                 biased;
                 // Charge completed usage even when cancellation arrives at the same time.
                 event = stream.next() => event,
-                _ = cancellation.cancelled() => return Err(MapleCodeErr::TurnAborted),
+                _ = cancellation.cancelled() => return Err(MaplecodeErr::TurnAborted),
             },
         };
         let Some(event) = event else { break };
         if let Err(err) = &event
-            && let MapleCodeErrorDetails::ResponseIncomplete(incomplete) = err.details()
+            && let MaplecodeErrorDetails::ResponseIncomplete(incomplete) = err.details()
         {
             match request_kind {
                 CompactionRequestKind::Background(_) => {
@@ -470,13 +470,13 @@ async fn collect_compaction_output(
     }
 
     let Some(response_id) = completed_response_id else {
-        return Err(MapleCodeErr::Stream(
+        return Err(MaplecodeErr::Stream(
             "remote compaction v2 stream closed before response.completed".to_string(),
         ));
     };
 
     if compaction_count != 1 {
-        return Err(MapleCodeErr::Fatal(format!(
+        return Err(MaplecodeErr::Fatal(format!(
             "remote compaction v2 expected exactly one compaction output item, got {compaction_count} from {output_item_count} output items"
         )));
     }
@@ -493,7 +493,7 @@ async fn collect_compaction_output(
 
 fn build_v2_compacted_history(
     prompt_input: Vec<ResponseItem>,
-    prompt_input_metadata: Vec<Option<MapleCodeHarnessMetadata>>,
+    prompt_input_metadata: Vec<Option<MaplecodeHarnessMetadata>>,
     compaction_output: ResponseItem,
     features: &Features,
     image_budget: RetainedImageBudget,
@@ -864,7 +864,7 @@ mod tests {
         fn admit_turn(
             &self,
             _: crate::AgentTurnAdmissionRequest,
-        ) -> futures::future::BoxFuture<'_, MapleCodeResult<crate::AgentExecutionGuard>> {
+        ) -> futures::future::BoxFuture<'_, MaplecodeResult<crate::AgentExecutionGuard>> {
             Box::pin(async { Ok(crate::AgentExecutionGuard::new(())) })
         }
     }
@@ -885,7 +885,7 @@ mod tests {
         fn report_usage(
             &self,
             report: AgentUsageReport,
-        ) -> futures::future::BoxFuture<'_, MapleCodeResult<UsageAccountingDecision>> {
+        ) -> futures::future::BoxFuture<'_, MaplecodeResult<UsageAccountingDecision>> {
             self.reports.lock().unwrap().push(report);
             Box::pin(async { Ok(self.decision) })
         }
@@ -939,7 +939,7 @@ mod tests {
         ))
     }
 
-    fn response_stream(events: Vec<MapleCodeResult<ResponseEvent>>) -> ResponseStream {
+    fn response_stream(events: Vec<MaplecodeResult<ResponseEvent>>) -> ResponseStream {
         let (tx_event, rx_event) = mpsc::channel(events.len().max(1));
         for event in events {
             tx_event
@@ -1034,11 +1034,11 @@ mod tests {
                 ],
                 vec![
                     None,
-                    Some(MapleCodeHarnessMetadata {
+                    Some(MaplecodeHarnessMetadata {
                         client_authored: true,
                         ..Default::default()
                     }),
-                    Some(MapleCodeHarnessMetadata::default()),
+                    Some(MaplecodeHarnessMetadata::default()),
                     None,
                 ],
                 output.clone(),
@@ -1049,12 +1049,12 @@ mod tests {
             let mut expected = vec![
                 ResponseItemEnvelope {
                     item: retained.clone(),
-                    metadata: Some(MapleCodeHarnessMetadata::default()),
+                    metadata: Some(MaplecodeHarnessMetadata::default()),
                 },
                 ResponseItemEnvelope::new(generated_notice.clone()),
                 ResponseItemEnvelope {
                     item: output.clone(),
-                    metadata: Some(MapleCodeHarnessMetadata {
+                    metadata: Some(MaplecodeHarnessMetadata {
                         compaction_without_file_error_sources: true,
                         ..Default::default()
                     }),
@@ -1065,7 +1065,7 @@ mod tests {
                     0,
                     ResponseItemEnvelope {
                         item: client.clone(),
-                        metadata: Some(MapleCodeHarnessMetadata {
+                        metadata: Some(MaplecodeHarnessMetadata {
                             client_authored: true,
                             ..Default::default()
                         }),
@@ -1080,7 +1080,7 @@ mod tests {
     fn retained_history_truncation_preserves_metadata() {
         let item = ResponseItemEnvelope {
             item: message("user", "word ".repeat(200).as_str(), /*phase*/ None),
-            metadata: Some(MapleCodeHarnessMetadata::default()),
+            metadata: Some(MaplecodeHarnessMetadata::default()),
         };
 
         let truncated = truncate_retained_messages_for_remote_compaction(
@@ -1092,7 +1092,7 @@ mod tests {
         assert_eq!(truncated.len(), 1);
         assert_eq!(
             truncated[0].metadata,
-            Some(MapleCodeHarnessMetadata::default())
+            Some(MaplecodeHarnessMetadata::default())
         );
     }
 
@@ -1253,7 +1253,7 @@ mod tests {
             revision: maplecode_protocol::ResponseItemId::from_server("revision-1".to_owned()),
             complete: true,
         };
-        let mut metadata = MapleCodeHarnessMetadata {
+        let mut metadata = MaplecodeHarnessMetadata {
             retained_source: Some(source.clone()),
             guardian_sources: vec![source],
             ..Default::default()
@@ -1376,8 +1376,8 @@ mod tests {
             total_tokens: 120,
             ..Default::default()
         };
-        let stream = response_stream(vec![Err(MapleCodeErr::new(
-            MapleCodeErrorDetails::ResponseIncomplete(Box::new(
+        let stream = response_stream(vec![Err(MaplecodeErr::new(
+            MaplecodeErrorDetails::ResponseIncomplete(Box::new(
                 maplecode_protocol::error::ResponseIncompleteError {
                     partial_output: vec![],
                     reason: "max_output_tokens".to_string(),
@@ -1405,7 +1405,7 @@ mod tests {
         .await;
 
         assert!(matches!(result, Err(ref err)
-            if matches!(err.details(), MapleCodeErrorDetails::ResponseIncomplete(_))));
+            if matches!(err.details(), MaplecodeErrorDetails::ResponseIncomplete(_))));
         assert_eq!(sess.token_usage_info().await, None);
         assert!(rx.is_empty());
         assert_eq!(
@@ -1446,7 +1446,7 @@ mod tests {
         .await;
 
         assert!(
-            matches!(result, Err(error) if matches!(error.details(), MapleCodeErrorDetails::Fatal(_)))
+            matches!(result, Err(error) if matches!(error.details(), MaplecodeErrorDetails::Fatal(_)))
         );
         assert_eq!(
             *accounting.reports.lock().unwrap(),

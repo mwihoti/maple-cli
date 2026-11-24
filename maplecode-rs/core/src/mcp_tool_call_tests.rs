@@ -2380,7 +2380,7 @@ async fn dispatched_mcp_approval_with_closed_response_is_classified_as_approval(
 
     let server = wiremock::MockServer::start().await;
     wiremock::Mock::given(method("POST"))
-        .and(path("/maplecode/analytics-events/events"))
+        .and(path("/codex/analytics-events/events"))
         .respond_with(wiremock::ResponseTemplate::new(200))
         .mount(&server)
         .await;
@@ -2388,7 +2388,7 @@ async fn dispatched_mcp_approval_with_closed_response_is_classified_as_approval(
     let (mut session, turn_context, rx_event) = make_session_and_context_with_rx().await;
     let client = maplecode_analytics::AnalyticsEventsClient::new(
         crate::test_support::auth_manager_from_auth(
-            maplecode_login::MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            maplecode_login::MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         ),
         server.uri(),
         /*analytics_enabled*/ Some(true),
@@ -3764,7 +3764,7 @@ async fn approve_mode_skips_guardian_in_every_permission_mode() {
     ] {
         let (mut session, mut turn_context) = make_session_and_context().await;
         turn_context.auth_manager = Some(crate::test_support::auth_manager_from_auth(
-            maplecode_login::MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            maplecode_login::MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         ));
         Arc::make_mut(&mut turn_context.config)
             .permissions

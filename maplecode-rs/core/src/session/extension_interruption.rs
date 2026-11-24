@@ -2,10 +2,10 @@
 //! Conditional interruption preserves queued input and acknowledges before joining the task.
 
 use super::session::Session;
-use crate::maplecode_thread::MapleCodeThread;
+use crate::maplecode_thread::MaplecodeThread;
 use maplecode_extension_api::ThreadIdleCause;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::ErrorEvent;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::Op;
@@ -19,11 +19,11 @@ use tracing::Instrument;
 #[path = "extension_interruption_tests.rs"]
 mod tests;
 
-impl MapleCodeThread {
+impl MaplecodeThread {
     /// Interrupts the named active turn unless it has queued input.
     /// Returns the decision before joining cancellation, so tool callbacks can await it.
     /// Like [`Op::Interrupt`], this does not notify idle contributors; the caller owns wakeup.
-    pub async fn interrupt_if_no_pending_input(&self, turn_id: &str) -> MapleCodeResult<bool> {
+    pub async fn interrupt_if_no_pending_input(&self, turn_id: &str) -> MaplecodeResult<bool> {
         let cancellation_token = {
             let active = self.session.active_turn.lock().await;
             let Some(task) = active.as_ref().and_then(|turn| turn.task.as_ref()) else {
@@ -42,7 +42,7 @@ impl MapleCodeThread {
                     turn_id: turn_id.to_owned(),
                     reply,
                 }).await?;
-                (&mut result).await.map_err(|_| MapleCodeErr::InternalAgentDied)
+                (&mut result).await.map_err(|_| MaplecodeErr::InternalAgentDied)
             } => result,
             // An earlier interrupt may already be waiting for this tool callback to finish.
             // Cancellation can also race with a decision sent by this request.

@@ -22,7 +22,7 @@ use maplecode_protocol::capabilities::SelectedCapabilityRoot;
 
 pub(super) struct McpDesiredState {
     pub(super) config: Arc<Config>,
-    pub(super) auth: Option<MapleCodeAuth>,
+    pub(super) auth: Option<MaplecodeAuth>,
     pub(super) submit_id: String,
     pub(super) originator: String,
     pub(super) session_source: SessionSource,
@@ -74,7 +74,7 @@ impl Session {
 
     pub(super) async fn latest_mcp_desired_state(
         &self,
-        auth: Option<MapleCodeAuth>,
+        auth: Option<MaplecodeAuth>,
         environments: TurnEnvironmentSnapshot,
     ) -> McpDesiredState {
         let (session_configuration, disabled_plugin_ids) = {
@@ -103,7 +103,7 @@ impl Session {
     pub(super) async fn install_initial_mcp_runtime(
         self: &Arc<Self>,
         session_configuration: &SessionConfiguration,
-        auth: Option<MapleCodeAuth>,
+        auth: Option<MaplecodeAuth>,
         mcp_projection: McpRuntimeProjection,
         resolved_environments: &TurnEnvironmentSnapshot,
     ) -> anyhow::Result<()> {

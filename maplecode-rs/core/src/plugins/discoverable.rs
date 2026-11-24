@@ -2,7 +2,7 @@ use crate::config::Config;
 use maplecode_config::types::ToolSuggestDiscoverableType;
 use maplecode_core_plugins::PluginsManager;
 use maplecode_core_plugins::ToolSuggestPluginDiscoveryInput;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_tools::DiscoverablePluginInfo;
 use std::collections::HashSet;
 use tracing::instrument;
@@ -11,7 +11,7 @@ use tracing::instrument;
 pub(crate) async fn list_tool_suggest_discoverable_plugins(
     config: &Config,
     plugins_manager: &PluginsManager,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     loaded_plugin_app_connector_ids: &[String],
 ) -> anyhow::Result<Vec<DiscoverablePluginInfo>> {
     let input = ToolSuggestPluginDiscoveryInput {

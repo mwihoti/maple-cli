@@ -1,7 +1,7 @@
 use crate::config::RolloutBudgetConfig;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::TokenUsage;
 use std::collections::HashMap;
 use std::sync::Mutex;
@@ -45,14 +45,14 @@ impl RolloutBudget {
     }
 
     /// Records usage and returns whether an enforced budget is exhausted.
-    pub(crate) fn record_usage(&self, usage: &TokenUsage) -> MapleCodeResult<bool> {
+    pub(crate) fn record_usage(&self, usage: &TokenUsage) -> MaplecodeResult<bool> {
         let Some(mut state) = self.lock() else {
             return Ok(false);
         };
         let units = if let Some(units) = usage.maplecode_rollout_budget_units.as_ref() {
             let units = units.as_f64().unwrap_or(f64::NAN);
             if !units.is_finite() || units < 0.0 {
-                return Err(MapleCodeErr::Fatal(
+                return Err(MaplecodeErr::Fatal(
                     "response.completed usage.maplecode_rollout_budget_units must be finite and non-negative"
                         .to_string(),
                 ));

@@ -18,7 +18,7 @@ use crate::turn_diff_tracker::TurnDiffTracker;
 use maplecode_extension_api::ExtensionData;
 use maplecode_extension_api::TurnItemContributor;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::ResponseItemId;
 use maplecode_protocol::items::AgentMessageContent;
 use maplecode_protocol::items::TurnItem;
@@ -344,7 +344,7 @@ async fn handle_output_item_done_returns_contributed_last_agent_message() {
 #[tokio::test]
 async fn direct_results_keep_their_own_records_when_call_ids_repeat() {
     let (session, turn_context, _events) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config

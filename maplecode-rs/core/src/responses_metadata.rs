@@ -166,25 +166,25 @@ impl CompactionTurnMetadata {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub(crate) enum MapleCodeResponsesRequestKind {
+pub(crate) enum MaplecodeResponsesRequestKind {
     Turn,
     Prewarm,
     Compaction(CompactionTurnMetadata),
     Memory,
 }
 
-impl MapleCodeResponsesRequestKind {
+impl MaplecodeResponsesRequestKind {
     fn metadata(self) -> (&'static str, Option<CompactionTurnMetadata>) {
         match self {
-            MapleCodeResponsesRequestKind::Turn => ("turn", None),
-            MapleCodeResponsesRequestKind::Prewarm => ("prewarm", None),
-            MapleCodeResponsesRequestKind::Compaction(metadata) => ("compaction", Some(metadata)),
-            MapleCodeResponsesRequestKind::Memory => ("memory", None),
+            MaplecodeResponsesRequestKind::Turn => ("turn", None),
+            MaplecodeResponsesRequestKind::Prewarm => ("prewarm", None),
+            MaplecodeResponsesRequestKind::Compaction(metadata) => ("compaction", Some(metadata)),
+            MaplecodeResponsesRequestKind::Memory => ("memory", None),
         }
     }
 
     fn has_thread_identity(self) -> bool {
-        !matches!(self, MapleCodeResponsesRequestKind::Memory)
+        !matches!(self, MaplecodeResponsesRequestKind::Memory)
     }
 }
 
@@ -233,7 +233,7 @@ pub(crate) enum TurnToolSource {
 /// headers are generated compatibility projections of this snapshot, not separate sources of
 /// truth.
 #[derive(Clone, Debug)]
-pub struct MapleCodeResponsesMetadata {
+pub struct MaplecodeResponsesMetadata {
     /// The private reviewer forwards recorded items through its parent's raw-event subscription.
     pub(crate) guardian_recorded_items: bool,
     /// Guardian parent reference; projected only onto a Guardian request.
@@ -250,7 +250,7 @@ pub struct MapleCodeResponsesMetadata {
     pub(crate) window_number: Option<u64>,
     pub(crate) context_window_id: Option<ContextWindowId>,
     pub(crate) history_initialization: Option<HistoryInitialization>,
-    pub(crate) request_kind: Option<MapleCodeResponsesRequestKind>,
+    pub(crate) request_kind: Option<MaplecodeResponsesRequestKind>,
     pub(crate) forked_from_thread_id: Option<ThreadId>,
     pub(crate) forked_from_ordinal_exclusive: Option<u64>,
     pub(crate) parent_thread_id: Option<ThreadId>,
@@ -277,7 +277,7 @@ pub struct MapleCodeResponsesMetadata {
     pub(crate) extra: BTreeMap<String, String>,
 }
 
-impl MapleCodeResponsesMetadata {
+impl MaplecodeResponsesMetadata {
     pub(crate) fn new(
         installation_id: String,
         session_id: String,
@@ -399,7 +399,7 @@ impl MapleCodeResponsesMetadata {
         // Direct x-maplecode-turn-metadata is compatibility output. Keep the unbounded tool inventory
         // in client_metadata only so HTTP and WebSocket compatibility headers remain bounded.
         if self.has_turn_metadata()
-            && let Ok(turn_metadata_json) = to_ascii_json_string(&MapleCodeTurnMetadataPayload {
+            && let Ok(turn_metadata_json) = to_ascii_json_string(&MaplecodeTurnMetadataPayload {
                 tool_namespaces_info: None,
                 ..self.turn_metadata_payload()
             })
@@ -423,17 +423,17 @@ impl MapleCodeResponsesMetadata {
         headers
     }
 
-    fn turn_metadata_payload(&self) -> MapleCodeTurnMetadataPayload<'_> {
+    fn turn_metadata_payload(&self) -> MaplecodeTurnMetadataPayload<'_> {
         let request_kind = self.request_kind;
         let (request_kind_value, compaction) = request_kind.map_or((None, None), |request_kind| {
             let (request_kind, compaction) = request_kind.metadata();
             (Some(request_kind), compaction)
         });
         let has_thread_identity =
-            request_kind.is_none_or(MapleCodeResponsesRequestKind::has_thread_identity);
+            request_kind.is_none_or(MaplecodeResponsesRequestKind::has_thread_identity);
         let has_request_identity =
-            request_kind.is_some_and(MapleCodeResponsesRequestKind::has_thread_identity);
-        MapleCodeTurnMetadataPayload {
+            request_kind.is_some_and(MaplecodeResponsesRequestKind::has_thread_identity);
+        MaplecodeTurnMetadataPayload {
             guardian_recorded_items: self.guardian_recorded_items.then_some(true),
             installation_id: has_request_identity.then_some(self.installation_id.as_str()),
             session_id: has_thread_identity.then_some(self.session_id.as_str()),
@@ -472,7 +472,7 @@ impl MapleCodeResponsesMetadata {
             compaction,
             // Extra metadata enriches the Maple Code turn metadata blob, not literal top-level
             // Responses client_metadata. Product metadata is validated while loading config;
-            // app-server metadata has reserved MapleCode-owned keys filtered when it enters turn state.
+            // app-server metadata has reserved Maplecode-owned keys filtered when it enters turn state.
             extra: &self.extra,
         }
     }
@@ -562,7 +562,7 @@ fn non_empty_workspaces(
 }
 
 #[derive(Serialize)]
-struct MapleCodeTurnMetadataPayload<'a> {
+struct MaplecodeTurnMetadataPayload<'a> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     guardian_recorded_items: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]

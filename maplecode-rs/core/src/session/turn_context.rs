@@ -1213,7 +1213,7 @@ impl Session {
         sub_id: String,
         updates: SessionSettingsUpdate,
         options: NewTurnContextOptions,
-    ) -> MapleCodeResult<(Arc<TurnContext>, ThreadSettingsSnapshot)> {
+    ) -> MaplecodeResult<(Arc<TurnContext>, ThreadSettingsSnapshot)> {
         let Some((turn_context, snapshot)) = self
             .new_turn_with_sub_id_if(sub_id, updates, options, |_, _| true)
             .await?
@@ -1235,7 +1235,7 @@ impl Session {
         updates: SessionSettingsUpdate,
         options: NewTurnContextOptions,
         should_start: impl FnOnce(&SessionConfiguration, &SessionConfiguration) -> bool + Send,
-    ) -> MapleCodeResult<Option<(Arc<TurnContext>, ThreadSettingsSnapshot)>> {
+    ) -> MaplecodeResult<Option<(Arc<TurnContext>, ThreadSettingsSnapshot)>> {
         let refresh_client = {
             let state = self.state.lock().await;
             let configuration = &state.session_configuration;
@@ -1256,18 +1256,18 @@ impl Session {
             Ok(Some(commit)) => commit,
             Ok(None) => return Ok(None),
             Err(error) => {
-                let message = MapleCodeErr::InvalidRequest(error.to_string()).to_string();
+                let message = MaplecodeErr::InvalidRequest(error.to_string()).to_string();
                 self.send_event_raw(Event {
                     id: sub_id,
                     msg: EventMsg::Error(ErrorEvent {
                         misalignment: None,
                         message: message.clone(),
-                        maplecode_error_info: Some(MapleCodeErrorInfo::BadRequest),
+                        maplecode_error_info: Some(MaplecodeErrorInfo::BadRequest),
                         rejected_audio_file_ids: Vec::new(),
                     }),
                 })
                 .await;
-                return Err(MapleCodeErr::InvalidRequest(message));
+                return Err(MaplecodeErr::InvalidRequest(message));
             }
         };
         let mut configuration = commit.configuration;

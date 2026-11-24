@@ -13,7 +13,7 @@ use crate::agent::control::inherited_exec_policy_for_parent;
 use crate::agent::history::prepare_forked_history;
 use crate::agent::types::AgentMetadata;
 use crate::agent::types::LiveAgent;
-use crate::maplecode_thread::MapleCodeThread;
+use crate::maplecode_thread::MaplecodeThread;
 use crate::session::session::AppServerClientMetadata;
 use crate::thread_manager::StartThreadOptions;
 use crate::thread_spawn::ChildSpawnSettings;
@@ -23,14 +23,14 @@ use maplecode_history::InitialHistory;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::error::AgentErrorContext;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::ThreadSource;
 use std::sync::Arc;
 
 async fn prepare_spawn_inputs(
-    parent: &MapleCodeThread,
+    parent: &MaplecodeThread,
     request: ChildSpawnSettings,
 ) -> Result<(
     StartThreadOptions,
@@ -48,7 +48,7 @@ async fn prepare_spawn_inputs(
     let caller = parent.session.thread_id;
     let instructions = parent.session.inherited_instructions().await;
     let snapshot = options.environments.as_ref().ok_or_else(|| {
-        MapleCodeErr::InvalidRequest("prepared spawn requires captured environments".into())
+        MaplecodeErr::InvalidRequest("prepared spawn requires captured environments".into())
     })?;
     let (initial_history, history_mode, dynamic_tools) = if options.fork_mode.is_some() {
         let (history, mode) =
@@ -62,7 +62,7 @@ async fn prepare_spawn_inputs(
         (InitialHistory::New, mode, tools)
     };
     if !std::ptr::eq(state.get_thread(caller).await?.as_ref(), parent) {
-        return Err(MapleCodeErr::ThreadNotFound(caller));
+        return Err(MaplecodeErr::ThreadNotFound(caller));
     }
     let exec_policy = inherited_exec_policy_for_parent(parent, &config).await;
     let mut thread_options = StartThreadOptions {
@@ -98,7 +98,7 @@ async fn prepare_spawn_inputs(
 }
 
 pub(super) async fn create_spawn(
-    parent: &MapleCodeThread,
+    parent: &MaplecodeThread,
     invocation: &ToolInvocationContext,
     request: ChildSpawnSettings,
     task_name: AgentPath,
@@ -125,7 +125,7 @@ pub(super) async fn create_spawn(
         .await
         .contains_key(&reservation.thread_id)
     {
-        return Err(MapleCodeErr::InvalidRequest(format!(
+        return Err(MaplecodeErr::InvalidRequest(format!(
             "thread {} is already running",
             reservation.thread_id,
         ))

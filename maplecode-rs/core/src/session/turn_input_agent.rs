@@ -8,7 +8,7 @@ use crate::agent::types::AgentMessage;
 use crate::agent::types::MessageDeliveryMode;
 use crate::session::handlers;
 use crate::session::session::Session;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::turn_input::NotSubmittedReason;
 use maplecode_protocol::turn_input::TurnInput;
 use maplecode_protocol::turn_input::TurnInputRequest;
@@ -19,13 +19,13 @@ pub(super) async fn submit(
     session: &Arc<Session>,
     request: WithTurnExtensionData<TurnInputRequest>,
     submission_id: String,
-) -> MapleCodeResult<TurnInputSubmission> {
+) -> MaplecodeResult<TurnInputSubmission> {
     let WithTurnExtensionData { request, .. } = request;
     let TurnInputRequest { input, start, .. } = request;
     let TurnInput::InterAgentCommunication(mut communication) = input else {
         unreachable!("agent submission requires an agent message");
     };
-    // MapleCodeThread already checks local agent capacity before submitting this operation.
+    // MaplecodeThread already checks local agent capacity before submitting this operation.
     // Preserve the host's drain gate when accepting work for an idle recipient.
     let _admission = if session.active_turn.lock().await.is_none() {
         let Some(admission) = session.services.extensions.admit_turn_start() else {

@@ -7,9 +7,9 @@ use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use maplecode_code_mode::CellId;
 use maplecode_features::Feature;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_protocol::ResponseItemId;
 use maplecode_protocol::models::ContentItemKind;
@@ -34,7 +34,7 @@ async fn local_compaction_retries_preserve_instructions_and_tool_metadata(
     let server = responses::start_mock_server().await;
     let provider = ModelProviderInfo::create_openai_provider(Some(format!("{}/v1", server.uri())));
     let (session, turn, _events) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         Vec::new(),
         move |config| {
             config.model = Some("gpt-5.2".to_string());
@@ -412,7 +412,7 @@ fn collect_annotated_user_messages_extracts_user_text_only(
         "id": {"message_id": "source", "turn_id": "turn", "role": "user"},
         "revision": "retained_revision", "complete": true,
     });
-    let metadata: MapleCodeHarnessMetadata = serde_json::from_value(json!({
+    let metadata: MaplecodeHarnessMetadata = serde_json::from_value(json!({
         "retained_source": source, "guardian_sources": [source],
         "guardian_source_order_guidance": true, "user_input_order": 7,
     }))
@@ -574,7 +574,7 @@ fn build_token_limited_compacted_history_truncates_overlong_user_messages(
     original
         .item
         .set_id(Some(ResponseItemId::with_suffix("msg", "long-user")));
-    original.metadata = Some(MapleCodeHarnessMetadata::default());
+    original.metadata = Some(MaplecodeHarnessMetadata::default());
     let history = super::build_compacted_history_with_limit(
         Vec::new(),
         &collect_annotated_user_messages(std::slice::from_ref(&original)),
@@ -649,7 +649,7 @@ fn build_token_limited_compacted_history_truncates_overlong_user_messages(
     assert_eq!(history[0].id(), original.id());
     assert_eq!(
         history[0].metadata,
-        Some(MapleCodeHarnessMetadata::default())
+        Some(MaplecodeHarnessMetadata::default())
     );
     assert_eq!(history[1].metadata, None);
 }
@@ -705,7 +705,7 @@ fn build_compacted_history_preserves_user_message_passthrough_metadata(attribute
     .unwrap();
     let original = ResponseItemEnvelope {
         item: original,
-        metadata: Some(MapleCodeHarnessMetadata::default()),
+        metadata: Some(MaplecodeHarnessMetadata::default()),
     };
     let history = build_compacted_history(
         Vec::new(),
@@ -738,7 +738,7 @@ fn build_compacted_history_preserves_user_message_passthrough_metadata(attribute
                         },
                     ),
                 },
-                metadata: Some(MapleCodeHarnessMetadata::default()),
+                metadata: Some(MaplecodeHarnessMetadata::default()),
             },
             ResponseItemEnvelope::new(ContextualUserFragment::into(CompactionSummary::new(
                 "summary text",

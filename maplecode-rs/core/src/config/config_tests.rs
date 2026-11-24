@@ -74,7 +74,7 @@ use maplecode_config::types::WindowsToml;
 use maplecode_exec_server::LOCAL_FS;
 use maplecode_features::Feature;
 use maplecode_features::FeaturesToml;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::default_client::RESIDENCY_HEADER_NAME;
 use maplecode_login::test_support::auth_manager_from_optional_auth;
 use maplecode_model_provider::ProviderCapabilities;
@@ -1076,7 +1076,7 @@ model_provider = "custom-openai"
 
 [model_providers.custom-openai]
 name = "OpenAI"
-http_headers = { "X-OpenAI-Internal-MapleCode-Residency" = "request-override", "x-provider-header" = "preserved" }
+http_headers = { "X-OpenAI-Internal-Maplecode-Residency" = "request-override", "x-provider-header" = "preserved" }
 env_http_headers = { "x-openai-internal-maplecode-residency" = "MAPLECODE_TEST_UNSET_RESIDENCY_HEADER", "x-provider-env-header" = "MAPLECODE_TEST_UNSET_PROVIDER_HEADER" }
 "#,
         )
@@ -1114,7 +1114,7 @@ env_http_headers = { "x-openai-internal-maplecode-residency" = "MAPLECODE_TEST_U
             .as_ref()
             .expect("environment-backed headers should remain configured");
         assert_eq!(
-            static_headers.get("X-OpenAI-Internal-MapleCode-Residency"),
+            static_headers.get("X-OpenAI-Internal-Maplecode-Residency"),
             Some(&"request-override".into())
         );
         assert_eq!(
@@ -6726,7 +6726,7 @@ async fn config_applies_managed_auth_store_and_chatgpt_base_url(
     assert_eq!(
         config
             .chatgpt_backend_url()
-            .resolve(&MapleCodeAuth::from_api_key("sk-proj-fedramp-test-key")),
+            .resolve(&MaplecodeAuth::from_api_key("sk-proj-fedramp-test-key")),
         managed_url
     );
     assert!(config.startup_warnings.iter().any(|warning| {
@@ -6742,8 +6742,8 @@ async fn config_applies_managed_auth_store_and_chatgpt_base_url(
 #[tokio::test]
 async fn chatgpt_backend_url_defaults_follow_captured_auth() -> std::io::Result<()> {
     let maplecode_home = TempDir::new()?;
-    let legacy = MapleCodeAuth::from_api_key("legacy-key");
-    let marked = MapleCodeAuth::from_api_key("sk-proj-fedramp-test-key");
+    let legacy = MaplecodeAuth::from_api_key("legacy-key");
+    let marked = MaplecodeAuth::from_api_key("sk-proj-fedramp-test-key");
     let custom_url = "https://custom.example/backend-api/";
     for configured_url in [None, Some(custom_url), Some(DEFAULT_CHATGPT_BASE_URL)] {
         std::fs::write(
@@ -7730,7 +7730,7 @@ async fn to_mcp_config_flows_independent_mcp_2026_features() -> std::io::Result<
     );
 
     let _ = config.features.disable(Feature::Mcp20260728);
-    let _ = config.features.enable(Feature::MapleCodeAppsMcp20260728);
+    let _ = config.features.enable(Feature::MaplecodeAppsMcp20260728);
     let mcp_config = config.to_mcp_config(&plugins_manager).await;
     assert_eq!(
         (

@@ -25,7 +25,7 @@ pub(super) async fn run_compaction(
     mut started_item: Option<&TurnItem>,
     candidate: Option<BackgroundCompactionCandidate>,
     fallback: CompactionFallback,
-) -> MapleCodeResult<bool> {
+) -> MaplecodeResult<bool> {
     if let Some(candidate) = candidate {
         let installed = build_and_install_compaction(
             sess,
@@ -80,7 +80,7 @@ async fn build_and_install_compaction(
     analytics_details: &mut CompactionAnalyticsDetails,
     started_item: Option<&TurnItem>,
     candidate: Option<BackgroundCompactionCandidate>,
-) -> MapleCodeResult<bool> {
+) -> MaplecodeResult<bool> {
     let turn_context = &step_context.turn;
     if let Some(candidate) = &candidate
         && (candidate.model_info.slug != step_context.settings.model_info.slug

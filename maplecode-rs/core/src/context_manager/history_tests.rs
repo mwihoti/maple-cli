@@ -15,7 +15,7 @@ use image::ImageFormat;
 use image::Luma;
 use image::Rgba;
 use maplecode_attachment_store::InlineAttachmentStore;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ResponseItemId;
@@ -71,7 +71,7 @@ fn sampling_checkpoint_excludes_input_appended_during_request() {
     history.record_annotated_items(
         &mut [ResponseItemEnvelope {
             item: assistant_msg("response to the earlier request"),
-            metadata: Some(MapleCodeHarnessMetadata {
+            metadata: Some(MaplecodeHarnessMetadata {
                 sampled_through_sequence: Some(request_sequence),
                 ..Default::default()
             }),
@@ -282,7 +282,7 @@ fn conversation_history_snapshot_binds_review_mode_and_hash_to_the_latest_item(
             "type": "compaction", "id": "known", "encrypted_content": "opaque checkpoint"
         }))
         .expect("checkpoint fixture"),
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             compaction_model_hash: Some("producer-hash".to_owned()),
             ..Default::default()
         }),
@@ -296,7 +296,7 @@ fn conversation_history_snapshot_binds_review_mode_and_hash_to_the_latest_item(
     );
     let snapshot = history.conversation_history_snapshot();
     let mut unknown = checkpoint.clone();
-    unknown.metadata = latest_hash.map(|hash| MapleCodeHarnessMetadata {
+    unknown.metadata = latest_hash.map(|hash| MaplecodeHarnessMetadata {
         compaction_model_hash: Some(hash.to_owned()),
         ..Default::default()
     });
@@ -468,7 +468,7 @@ fn plaintext_checkpoint_without_backup_preserves_root_instructions(
             "type": "compaction", "id": "new-checkpoint", "encrypted_content": "opaque"
         }))
         .expect("new checkpoint"),
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             compaction_model_hash: Some("reviewer".to_owned()),
             ..Default::default()
         }),
@@ -612,7 +612,7 @@ fn guardian_checkpoint_applies_additional_context_policy_after_resume(include: b
         &mut [
             ResponseItemEnvelope {
                 item: additional_context.clone(),
-                metadata: Some(MapleCodeHarnessMetadata {
+                metadata: Some(MaplecodeHarnessMetadata {
                     additional_context_tool_output: true,
                     ..Default::default()
                 }),
@@ -963,7 +963,7 @@ fn retains_only_harness_authored_configuration_updates() {
     };
     let trusted = ResponseItemEnvelope {
         item: update.clone(),
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             history_sequence: Some(4),
             sampled_through_sequence: Some(0),
             harness_authored_configuration: true,
@@ -976,7 +976,7 @@ fn retains_only_harness_authored_configuration_updates() {
             ResponseItemEnvelope::new(update.clone()),
             ResponseItemEnvelope {
                 item: update,
-                metadata: Some(MapleCodeHarnessMetadata {
+                metadata: Some(MaplecodeHarnessMetadata {
                     client_authored: true,
                     ..Default::default()
                 }),
@@ -993,7 +993,7 @@ fn retains_only_harness_authored_configuration_updates() {
                     phase: None,
                     internal_chat_message_metadata_passthrough: None,
                 },
-                metadata: Some(MapleCodeHarnessMetadata {
+                metadata: Some(MaplecodeHarnessMetadata {
                     harness_authored_configuration: true,
                     ..Default::default()
                 }),
@@ -1014,7 +1014,7 @@ fn drop_last_n_user_turns_removes_post_input_configuration_update_with_its_turn(
             item: ResponseItem::ConfigurationUpdate {
                 reasoning: ConfigurationReasoning { effort },
             },
-            metadata: Some(MapleCodeHarnessMetadata {
+            metadata: Some(MaplecodeHarnessMetadata {
                 harness_authored_configuration: true,
                 ..Default::default()
             }),
@@ -1189,7 +1189,7 @@ fn cloned_history_shares_items_until_mutated() {
 fn annotated_history_apis_preserve_envelopes() {
     let first_envelope = ResponseItemEnvelope {
         item: assistant_msg("first"),
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             history_sequence: Some(7),
             sampled_through_sequence: Some(4),
             ..Default::default()
@@ -1231,7 +1231,7 @@ fn record_annotated_items_preserves_metadata_while_processing_item(
             },
             internal_chat_message_metadata_passthrough: None,
         },
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             history_truncation_token_limit,
             ..Default::default()
         }),
@@ -1283,7 +1283,7 @@ async fn for_prompt_annotated_preserves_metadata_while_normalizing_item() {
             phase: None,
             internal_chat_message_metadata_passthrough: None,
         },
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             history_sequence: Some(7),
             sampled_through_sequence: Some(4),
             ..Default::default()
@@ -2134,7 +2134,7 @@ fn rollback_removes_assistant_sources_recorded_ahead_of_queued_input() {
     ]
     .map(|(item, order)| ResponseItemEnvelope {
         item,
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             user_input_order: Some(order),
             ..Default::default()
         }),

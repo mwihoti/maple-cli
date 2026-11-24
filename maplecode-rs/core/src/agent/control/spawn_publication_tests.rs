@@ -119,7 +119,7 @@ async fn publication_harness(
             "spawn-publication-cleanup-test".to_string(),
             crate::test_support::fixed_model_catalog(harness.manager.get_models_manager()),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         harness.manager.environment_manager(),
         empty_extension_registry(),
@@ -139,7 +139,7 @@ async fn publication_harness(
 async fn spawn_publication_child(
     harness: &AgentControlHarness,
     parent: ThreadId,
-) -> MapleCodeResult<ThreadId> {
+) -> MaplecodeResult<ThreadId> {
     harness
         .control
         .spawn_agent(
@@ -287,8 +287,8 @@ async fn failed_spawn_without_publication_does_not_close_graph(skipped: SkippedP
         harness.control.runtime.request_shutdown()
     };
     assert_eq!(
-        MapleCodeErrKind::from(&spawn.await.expect_err("child startup rejects shutdown")),
-        MapleCodeErrKind::InvalidRequest,
+        MaplecodeErrKind::from(&spawn.await.expect_err("child startup rejects shutdown")),
+        MaplecodeErrKind::InvalidRequest,
     );
     shutdown
         .wait()
@@ -323,10 +323,10 @@ async fn repeated_child_id_preserves_existing_thread_and_graph() {
         .await
         .expect_err("loaded IDs are rejected");
     assert_eq!(
-        (error.agent_context(), MapleCodeErrKind::from(&error)),
+        (error.agent_context(), MaplecodeErrKind::from(&error)),
         (
             Some(AgentErrorContext::ChildStartup),
-            MapleCodeErrKind::InvalidRequest
+            MaplecodeErrKind::InvalidRequest
         ),
     );
     assert!(Arc::ptr_eq(

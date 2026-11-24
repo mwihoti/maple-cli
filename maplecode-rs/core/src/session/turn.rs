@@ -36,8 +36,8 @@ use crate::mentions::collect_explicit_app_ids;
 use crate::mentions::collect_explicit_plugin_mentions;
 use crate::mentions::collect_tool_mentions_from_messages;
 use crate::plugins::build_plugin_injections;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
+use crate::responses_metadata::MaplecodeResponsesMetadata;
+use crate::responses_metadata::MaplecodeResponsesRequestKind;
 use crate::responses_retry::ResponsesStreamRequest;
 use crate::responses_retry::ResponsesStreamRetryState;
 use crate::responses_retry::handle_response_stream_error;
@@ -92,15 +92,15 @@ use maplecode_file_system::find_nearest_ancestor_with_markers;
 use maplecode_hooks::ModelRequestHookEvent::PostModelRequest;
 use maplecode_hooks::ModelRequestHookEvent::PreModelRequest;
 use maplecode_hooks::ModelRequestStatus;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::RemoteCompactionSupport;
 use maplecode_protocol::ResponseItemId;
 use maplecode_protocol::config_types::AutoCompactTokenLimitScope;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::config_types::ServiceTier;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::items::PlanItem;
 use maplecode_protocol::items::TurnItem;
 use maplecode_protocol::items::build_hook_prompt_message;
@@ -118,7 +118,7 @@ use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::HookEventName;
 use maplecode_protocol::protocol::HookExecutionMode;
 use maplecode_protocol::protocol::InternalSessionSource;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::PlanDeltaEvent;
 use maplecode_protocol::protocol::ReasoningContentDeltaEvent;
 use maplecode_protocol::protocol::ReasoningRawContentDeltaEvent;
@@ -172,7 +172,7 @@ async fn preserve_initial_input_during<T>(
     turn_context: &Arc<TurnContext>,
     input: &mut Vec<TurnInput>,
     prepare: impl Future<Output = T>,
-) -> MapleCodeResult<T> {
+) -> MaplecodeResult<T> {
     if input.is_empty() || sess.host_roster_reader(turn_context).is_none() {
         return Ok(prepare.await);
     }
@@ -183,8 +183,8 @@ async fn preserve_initial_input_during<T>(
             .as_mut()
             .and_then(|turn| turn.task.as_mut())
             .filter(|task| Arc::ptr_eq(&task.turn_context, turn_context))
-            .ok_or_else(|| MapleCodeErr::new(MapleCodeErrorDetails::TurnAborted))?;
-        Ok::<_, MapleCodeErr>(std::mem::replace(
+            .ok_or_else(|| MaplecodeErr::new(MaplecodeErrorDetails::TurnAborted))?;
+        Ok::<_, MaplecodeErr>(std::mem::replace(
             &mut task.pending_initial_input,
             replacement,
         ))
@@ -197,7 +197,7 @@ async fn preserve_initial_input_during<T>(
     *input = exchange_input(/* replacement */ None)
         .await?
         .ok_or_else(|| {
-            MapleCodeErr::Fatal("initial input missing after turn preparation".into())
+            MaplecodeErr::Fatal("initial input missing after turn preparation".into())
         })?;
     Ok(result)
 }
@@ -223,7 +223,7 @@ pub(crate) async fn run_turn(
     mcp_startup_requirements: &mut McpStartupRequirements,
     prewarmed_client_session: Option<ModelClientSession>,
     cancellation_token: CancellationToken,
-) -> MapleCodeResult<Option<String>> {
+) -> MaplecodeResult<Option<String>> {
     let model_info = turn_context.capture_current_model_info();
     if !model_info.input_modalities.contains(&InputModality::Audio)
         && input.iter().any(turn_input_has_uploaded_audio_file)
@@ -283,10 +283,10 @@ pub(crate) async fn run_turn(
             PersistContext::Standard,
         )
         .await;
-        if matches!(err.details(), MapleCodeErrorDetails::TurnAborted) {
+        if matches!(err.details(), MaplecodeErrorDetails::TurnAborted) {
             return Err(err);
         }
-        if matches!(err.details(), MapleCodeErrorDetails::ToolCollision(_)) {
+        if matches!(err.details(), MaplecodeErrorDetails::ToolCollision(_)) {
             return Err(err);
         }
         let error = err.to_maplecode_protocol_error();
@@ -351,7 +351,7 @@ pub(crate) async fn run_turn(
         .await
     {
         Ok(step_context) => step_context,
-        Err(err) if matches!(err.details(), MapleCodeErrorDetails::TurnAborted) => {
+        Err(err) if matches!(err.details(), MaplecodeErrorDetails::TurnAborted) => {
             let _ = run_hooks_and_record_inputs(
                 &sess,
                 &turn_context,
@@ -427,7 +427,7 @@ pub(crate) async fn run_turn(
         if !auto_summarization_enabled
             || !matches!(
                 error.details(),
-                MapleCodeErrorDetails::ContextWindowExceeded
+                MaplecodeErrorDetails::ContextWindowExceeded
             )
         {
             return Err(error);
@@ -618,7 +618,7 @@ pub(crate) async fn run_turn(
                 .await?
             }
         };
-        let sampling_request_result: MapleCodeResult<_> = async {
+        let sampling_request_result: MaplecodeResult<_> = async {
             super::time_reminder::maybe_record_current_time_reminder(
                 sess.as_ref(),
                 turn_context.as_ref(),
@@ -636,7 +636,7 @@ pub(crate) async fn run_turn(
                     &step_context.extension_data,
                     step_context.environments.required_skills(),
                 )
-                .map_err(MapleCodeErr::Fatal)?;
+                .map_err(MaplecodeErr::Fatal)?;
             }
 
             // Keep the override after accepted input so history truncation removes them together.
@@ -792,7 +792,7 @@ pub(crate) async fn run_turn(
                         }
                         Ok(false) => {}
                         Err(err) => {
-                            if matches!(err.details(), MapleCodeErrorDetails::TurnAborted) {
+                            if matches!(err.details(), MaplecodeErrorDetails::TurnAborted) {
                                 return Err(err);
                             }
                             let error = err.to_maplecode_protocol_error();
@@ -822,7 +822,7 @@ pub(crate) async fn run_turn(
                     ) && (stop_outcome.should_block || stop_outcome.should_stop)
                     {
                         // Do not feed managed rejections back into an unattended memory loop.
-                        return Err(MapleCodeErr::InvalidRequest(
+                        return Err(MaplecodeErr::InvalidRequest(
                             "Memory consolidation was rejected by a Stop hook.".to_string(),
                         ));
                     }
@@ -898,13 +898,13 @@ pub(crate) async fn run_turn(
                         {
                             if matches!(
                                 err.details(),
-                                MapleCodeErrorDetails::Interrupted
-                                    | MapleCodeErrorDetails::TurnAborted
+                                MaplecodeErrorDetails::Interrupted
+                                    | MaplecodeErrorDetails::TurnAborted
                             ) {
                                 return Err(err);
                             }
                             let error = err.to_maplecode_protocol_error();
-                            if matches!(error, MapleCodeErrorInfo::UsageLimitExceeded) {
+                            if matches!(error, MaplecodeErrorInfo::UsageLimitExceeded) {
                                 // Preserve the completed answer while stopping automatic work.
                                 sess.emit_turn_error_lifecycle(
                                     turn_context.as_ref(),
@@ -922,7 +922,7 @@ pub(crate) async fn run_turn(
             }
             Err(err)
                 if auto_summarization_enabled
-                    && matches!(err.details(), MapleCodeErrorDetails::ContextWindowExceeded)
+                    && matches!(err.details(), MaplecodeErrorDetails::ContextWindowExceeded)
                     && !guardian_budget_compacted
                     && sess
                         .services
@@ -951,17 +951,17 @@ pub(crate) async fn run_turn(
                 can_drain_pending_input = false;
                 continue;
             }
-            Err(err) if matches!(err.details(), MapleCodeErrorDetails::TurnAborted) => {
+            Err(err) if matches!(err.details(), MaplecodeErrorDetails::TurnAborted) => {
                 return Err(err);
             }
             Err(maplecode_error)
                 if matches!(
                     maplecode_error.details(),
-                    MapleCodeErrorDetails::InvalidImageRequest()
+                    MaplecodeErrorDetails::InvalidImageRequest()
                 ) =>
             {
                 sess.track_turn_maplecode_error(turn_context.as_ref(), &maplecode_error);
-                let error = MapleCodeErrorInfo::BadRequest;
+                let error = MaplecodeErrorInfo::BadRequest;
                 sess.emit_turn_error_lifecycle(
                     turn_context.as_ref(),
                     error.clone(),
@@ -982,7 +982,7 @@ pub(crate) async fn run_turn(
                 info!("Turn error: {e:#}");
                 if matches!(
                     e.details(),
-                    MapleCodeErrorDetails::MisalignmentPolicyViolation { .. }
+                    MaplecodeErrorDetails::MisalignmentPolicyViolation { .. }
                 ) {
                     sess.conversation.retire_handoffs_for_misalignment().await;
                 }
@@ -999,7 +999,7 @@ pub(crate) async fn run_turn(
                         .rejected_audio_file_ids
                         .extend(Arc::unwrap_or_clone(rejected).0);
                 }
-                if matches!(e.details(), MapleCodeErrorDetails::InvalidAudioInput { .. })
+                if matches!(e.details(), MaplecodeErrorDetails::InvalidAudioInput { .. })
                     || !error_event.rejected_audio_file_ids.is_empty()
                 {
                     error_event.message.push_str(
@@ -1047,7 +1047,7 @@ pub(crate) async fn run_hooks_and_record_inputs(
     model_info: &ModelInfo,
     input: &[TurnInput],
     persist_context: PersistContext,
-) -> MapleCodeResult<bool> {
+) -> MaplecodeResult<bool> {
     let mut blocked_input = false;
     let mut accepted_user_input = false;
     for input_item in recordable_inputs(sess, model_info, input) {
@@ -1094,7 +1094,7 @@ pub(crate) fn recordable_inputs<'a>(
     sess: &Session,
     model_info: &ModelInfo,
     input: &'a [TurnInput],
-) -> impl Iterator<Item = MapleCodeResult<Cow<'a, TurnInput>>> {
+) -> impl Iterator<Item = MaplecodeResult<Cow<'a, TurnInput>>> {
     let rejected_audio = !model_info.input_modalities.contains(&InputModality::Audio)
         && input.iter().any(turn_input_has_uploaded_audio_file);
     // Only finalized evidence may enter reusable Guardian history.
@@ -1130,8 +1130,8 @@ fn turn_input_has_uploaded_audio_file(input: &TurnInput) -> bool {
     matches!(input, TurnInput::UserInput { content, .. } if content.iter().any(is_uploaded_audio_file))
 }
 
-fn unsupported_uploaded_audio_error() -> MapleCodeErr {
-    MapleCodeErr::UnsupportedOperation(
+fn unsupported_uploaded_audio_error() -> MaplecodeErr {
+    MaplecodeErr::UnsupportedOperation(
         "The selected model does not support uploaded audio. Choose an audio-capable model or remove the attachment.".to_string(),
     )
 }
@@ -1556,7 +1556,7 @@ async fn run_pre_sampling_compact(
     turn_context: &Arc<TurnContext>,
     client_session: &mut ModelClientSession,
     cancellation_token: &CancellationToken,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     maybe_run_previous_model_inline_compact(sess, turn_context, client_session, cancellation_token)
         .await?;
     let token_status =
@@ -1600,7 +1600,7 @@ async fn maybe_run_previous_model_inline_compact(
     turn_context: &Arc<TurnContext>,
     client_session: &mut ModelClientSession,
     cancellation_token: &CancellationToken,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let Some(previous_turn_settings) = sess.previous_turn_settings().await else {
         return Ok(());
     };
@@ -1694,7 +1694,7 @@ async fn run_auto_compact(
     reason: CompactionReason,
     phase: CompactionPhase,
     candidate: Option<Box<BackgroundCompactionCandidate>>,
-) -> MapleCodeResult<bool> {
+) -> MaplecodeResult<bool> {
     let turn_context = &step_context.turn;
     if matches!(phase, CompactionPhase::PreTurn)
         && crate::guardian::is_basic_session_source(&turn_context.session_source)
@@ -1902,7 +1902,7 @@ async fn run_sampling_request(
     client_session: &mut ModelClientSession,
     input: crate::context_manager::ContextManager,
     cancellation_token: CancellationToken,
-) -> MapleCodeResult<(SamplingRequestResult, Vec<String>)> {
+) -> MaplecodeResult<(SamplingRequestResult, Vec<String>)> {
     let turn_context = Arc::clone(&step_context.turn);
     let preempt = step_context.preempt.clone().unwrap_or_default();
     let _input_watch = if let Some(preempt) = &step_context.preempt {
@@ -1967,7 +1967,7 @@ async fn run_sampling_request(
             incremental_tools,
         );
         let responses_metadata = sess
-            .responses_metadata(step_context.as_ref(), MapleCodeResponsesRequestKind::Turn)
+            .responses_metadata(step_context.as_ref(), MaplecodeResponsesRequestKind::Turn)
             .await;
         if crate::guardian::is_basic_session_source(&turn_context.session_source) {
             crate::guardian::prepare_guardian_prompt(
@@ -2031,20 +2031,20 @@ async fn run_sampling_request(
                 return Ok((output, notify_messages));
             }
             Err(err) => match err.details() {
-                MapleCodeErrorDetails::ContextWindowExceeded => {
+                MaplecodeErrorDetails::ContextWindowExceeded => {
                     sess.set_total_tokens_full(&turn_context).await;
                     return Err(err);
                 }
-                MapleCodeErrorDetails::UsageLimitReached(e) => {
+                MaplecodeErrorDetails::UsageLimitReached(e) => {
                     let rate_limits = e.rate_limits.clone();
                     if let Some(rate_limits) = rate_limits {
                         sess.update_rate_limits(&turn_context, *rate_limits).await;
                     }
                     return Err(err);
                 }
-                MapleCodeErrorDetails::SessionBudgetExceeded
-                | MapleCodeErrorDetails::InferenceHookDenied { .. }
-                | MapleCodeErrorDetails::Fatal(_) => {
+                MaplecodeErrorDetails::SessionBudgetExceeded
+                | MaplecodeErrorDetails::InferenceHookDenied { .. }
+                | MaplecodeErrorDetails::Fatal(_) => {
                     return Err(err);
                 }
                 _ => err,
@@ -2077,7 +2077,7 @@ async fn run_sampling_request(
         .or_cancel(&cancellation_token)
         .await?;
         if cancellation_token.is_cancelled() {
-            return Err(MapleCodeErr::TurnAborted);
+            return Err(MaplecodeErr::TurnAborted);
         }
         // Recover typed errors (including filter guidance) before handing queued mail back
         // to the turn loop. Terminal errors and exhausted retries must still propagate.
@@ -2097,7 +2097,7 @@ async fn run_sampling_request(
 }
 
 pub(crate) struct PreparedToolRecommendations {
-    auth: Option<MapleCodeAuth>,
+    auth: Option<MaplecodeAuth>,
     endpoint_candidates: Option<Vec<DiscoverableTool>>,
 }
 
@@ -2158,7 +2158,7 @@ pub(crate) async fn built_tools(
     step_store: &ExtensionData,
     prepared_recommendations: PreparedToolRecommendations,
     dynamic_tools: &[maplecode_protocol::dynamic_tools::DynamicToolSpec],
-) -> MapleCodeResult<Arc<ToolRouter>> {
+) -> MaplecodeResult<Arc<ToolRouter>> {
     let all_mcp_tools = mcp.tools();
     let connector_snapshot = mcp.config().connector_snapshot.clone();
 
@@ -2859,7 +2859,7 @@ async fn drain_in_flight(
     in_flight: &mut FuturesOrdered<InFlightFuture<'static>>,
     sess: Arc<Session>,
     step_context: &StepContext,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let turn_context = &step_context.turn;
     while let Some(res) = in_flight.next().await {
         match res {
@@ -2899,14 +2899,14 @@ async fn try_run_sampling_request(
     step_context: Arc<StepContext>,
     turn_store: Arc<maplecode_extension_api::ExtensionData>,
     client_session: &mut ModelClientSession,
-    responses_metadata: &MapleCodeResponsesMetadata,
+    responses_metadata: &MaplecodeResponsesMetadata,
     turn_diff_tracker: SharedTurnDiffTracker,
     prompt: Prompt,
     mut pending_audio: Option<maplecode_history::AcceptedFileAudio>,
     input_item_count: usize,
     cancellation_token: CancellationToken,
     draining_for_mailbox: &mut bool,
-) -> MapleCodeResult<SamplingRequestResult> {
+) -> MaplecodeResult<SamplingRequestResult> {
     let turn_context = Arc::clone(&step_context.turn);
     feedback_tags!(
         model = step_context.settings.model_info.slug.clone(),
@@ -3039,7 +3039,7 @@ async fn try_run_sampling_request(
         && step_context.settings.model_info.use_responses_lite
         && stream.interrupt.is_some();
     if cancellation_token.is_cancelled() && !can_interrupt {
-        return Err(MapleCodeErr::TurnAborted);
+        return Err(MaplecodeErr::TurnAborted);
     }
     let mut in_flight: FuturesOrdered<InFlightFuture<'static>> = FuturesOrdered::new();
     let mut needs_follow_up = false;
@@ -3070,7 +3070,7 @@ async fn try_run_sampling_request(
         !sess.services.extensions.turn_item_contributors().is_empty();
     let mut active_item_is_streaming_to_client = false;
     let receiving_span = trace_span!("receiving_stream");
-    let outcome: MapleCodeResult<SamplingRequestResult> = loop {
+    let outcome: MaplecodeResult<SamplingRequestResult> = loop {
         if response_completed && resampling.accepted_output.is_empty() {
             if resampling.update_usage_boundary {
                 sess.state.lock().await.history.reset_last_usage_boundary();
@@ -3134,24 +3134,24 @@ async fn try_run_sampling_request(
                     last_agent_message,
                 });
             }
-            Err(_) => break Err(MapleCodeErr::TurnAborted),
+            Err(_) => break Err(MaplecodeErr::TurnAborted),
         };
 
         if cancellation_token.is_cancelled()
             && !matches!(event.as_ref(), Some(Err(err))
-                if matches!(err.details(), MapleCodeErrorDetails::ResponseIncomplete(_)))
+                if matches!(err.details(), MaplecodeErrorDetails::ResponseIncomplete(_)))
         {
-            break Err(MapleCodeErr::TurnAborted);
+            break Err(MaplecodeErr::TurnAborted);
         }
 
         let event = match event.unwrap_or_else(|| {
-            Err(MapleCodeErr::Stream(
+            Err(MaplecodeErr::Stream(
                 "stream closed before response.completed".into(),
             ))
         }) {
             Ok(event) => event,
             Err(err) => {
-                if let MapleCodeErrorDetails::ResponseIncomplete(incomplete) = err.details() {
+                if let MaplecodeErrorDetails::ResponseIncomplete(incomplete) = err.details() {
                     if let Some(usage) = &incomplete.token_usage {
                         request_token_usage
                             .get_or_insert_default()
@@ -3166,7 +3166,7 @@ async fn try_run_sampling_request(
                     should_emit_token_count |= incomplete.token_usage.is_some();
                 }
                 if *draining_for_mailbox
-                    && (matches!(err.details(), MapleCodeErrorDetails::Stream(_))
+                    && (matches!(err.details(), MaplecodeErrorDetails::Stream(_))
                         || err.requires_http_fallback())
                 {
                     // Mail already requires a follow-up, even if the producer exited before
@@ -3780,7 +3780,7 @@ async fn try_run_sampling_request(
         let (status, error) = match (response_completed, &outcome) {
             (true, _) => (ModelRequestStatus::Completed, None),
             (false, Err(error))
-                if !matches!(error.details(), MapleCodeErrorDetails::TurnAborted) =>
+                if !matches!(error.details(), MaplecodeErrorDetails::TurnAborted) =>
             {
                 (ModelRequestStatus::Failed, Some(error.to_string()))
             }
@@ -3823,7 +3823,7 @@ async fn try_run_sampling_request(
     }
 
     if cancellation_token.is_cancelled() {
-        return Err(MapleCodeErr::TurnAborted);
+        return Err(MaplecodeErr::TurnAborted);
     }
 
     if should_emit_turn_diff {

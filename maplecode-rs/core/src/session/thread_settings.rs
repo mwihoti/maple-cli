@@ -9,8 +9,8 @@ use crate::WithTurnExtensionData;
 use crate::config::ConstraintResult;
 use maplecode_history::RolloutItem;
 use maplecode_protocol::capabilities::SelectedCapabilityRoot;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::Event;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ThreadSettingsAppliedEvent;
@@ -26,20 +26,20 @@ impl Session {
     pub(crate) async fn replace_dynamic_tools(
         &self,
         tools: Vec<maplecode_protocol::dynamic_tools::DynamicToolSpec>,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         let _settings_guard = acquire_persistence_lock(self).await;
         if let Some(live_thread) = self.live_thread() {
             let config = self.get_config().await;
             if !config.allow_persistent_dynamic_tool_updates {
-                return Err(MapleCodeErr::UnsupportedOperation(
+                return Err(MaplecodeErr::UnsupportedOperation(
                     "The host has disabled dynamic tool updates for persistent threads.".into(),
                 ));
             }
             let persistence_error = |error: ThreadStoreError| match error {
                 ThreadStoreError::Unsupported { .. } => {
-                    MapleCodeErr::UnsupportedOperation(error.to_string())
+                    MaplecodeErr::UnsupportedOperation(error.to_string())
                 }
-                _ => MapleCodeErr::Fatal(format!("failed to replace dynamic tools: {error}")),
+                _ => MaplecodeErr::Fatal(format!("failed to replace dynamic tools: {error}")),
             };
             live_thread
                 .append_items(&[RolloutItem::DynamicToolsUpdated {

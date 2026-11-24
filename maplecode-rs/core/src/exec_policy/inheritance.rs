@@ -5,8 +5,8 @@ use super::policy_files;
 use maplecode_config::ConfigLayerStack;
 use maplecode_execpolicy::Policy;
 use maplecode_execpolicy::RequirementsExecPolicy;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use std::sync::Arc;
 
 /// Point-in-time session policy and the managed requirements it was loaded with.
@@ -20,14 +20,14 @@ impl ExecPolicyManager {
     pub(crate) async fn from_inherited(
         snapshot: &InheritedExecPolicy,
         stack: &ConfigLayerStack,
-    ) -> MapleCodeResult<Self> {
+    ) -> MaplecodeResult<Self> {
         if !stack.ignore_user_and_project_exec_policy_rules()
             || !policy_files(stack)
                 .await
-                .map_err(|err| MapleCodeErr::Fatal(format!("failed to load rules: {err}")))?
+                .map_err(|err| MaplecodeErr::Fatal(format!("failed to load rules: {err}")))?
                 .is_empty()
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "inherited execution policy requires a managed-only destination".to_string(),
             ));
         }
@@ -42,14 +42,14 @@ impl ExecPolicyManager {
             _ => false,
         };
         if !compatible {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "inherited execution policy requirements differ from the destination".to_string(),
             ));
         }
         if let Some(requirements) = destination
             && !snapshot.policy.preserves_managed_requirements(requirements)
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "inherited execution policy does not preserve destination requirements".to_string(),
             ));
         }

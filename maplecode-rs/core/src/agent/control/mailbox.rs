@@ -5,7 +5,7 @@ use crate::PendingAgentMessage;
 use crate::agent_communication::PENDING_MAILBOX_MESSAGES;
 use maplecode_diagnostics::GaugeGuard;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use std::collections::HashMap;
 use std::sync::Mutex;
@@ -42,7 +42,7 @@ impl Mailboxes {
         let mut mailboxes = self.0.lock().unwrap_or_else(PoisonError::into_inner);
         let mailbox = mailboxes
             .as_mut()
-            .ok_or_else(|| MapleCodeErr::InvalidRequest("agent runtime is shutting down".into()))?
+            .ok_or_else(|| MaplecodeErr::InvalidRequest("agent runtime is shutting down".into()))?
             .entry(agent)
             .or_default();
         mailbox

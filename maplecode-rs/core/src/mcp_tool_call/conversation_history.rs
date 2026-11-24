@@ -25,7 +25,7 @@ use maplecode_tools::mcp_tool_to_responses_api_tool;
 use maplecode_utils_output_truncation::TruncationPolicy;
 use serde_json::json;
 
-use crate::MapleCodeThread;
+use crate::MaplecodeThread;
 use crate::session::session::Session;
 use crate::tools::context::McpToolOutput;
 
@@ -37,7 +37,7 @@ use super::with_mcp_tool_call_ids_meta;
 /// Exposes only history search/read. The caller owns exposure and the maximum output budget;
 /// each invocation resolves the parent's live client, account, and app/tool policy again.
 pub async fn conversation_history_tools(
-    parent: &Arc<MapleCodeThread>,
+    parent: &Arc<MaplecodeThread>,
     max_output_tokens: usize,
 ) -> anyhow::Result<Vec<Arc<dyn for<'call> ToolExecutor<ToolCall<'call>>>>> {
     let binding = history_binding(&parent.session).await?;

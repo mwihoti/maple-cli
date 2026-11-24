@@ -75,8 +75,8 @@ use maplecode_core_plugins::strip_output_env;
 use maplecode_network_proxy::NetworkPolicyDecider;
 use maplecode_network_proxy::NetworkProxy;
 use maplecode_protocol::config_types::ShellEnvironmentPolicy;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::SandboxErr;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ExecCommandSource;
@@ -333,7 +333,7 @@ async fn finish_deferred_network_approval_for_session(
 fn network_approval_error_message(err: ToolError) -> String {
     match err {
         ToolError::Rejected(message) => message,
-        ToolError::MapleCode(err) => err.to_string(),
+        ToolError::Maplecode(err) => err.to_string(),
     }
 }
 
@@ -1342,7 +1342,7 @@ impl UnifiedExecProcessManager {
         .await
         .map_err(|err| match err {
             UnifiedExecError::SandboxDenied { output, .. } => {
-                ToolError::MapleCode(MapleCodeErr::Sandbox(SandboxErr::Denied {
+                ToolError::Maplecode(MaplecodeErr::Sandbox(SandboxErr::Denied {
                     output: Box::new(output),
                     network_policy_decision: None,
                 }))
@@ -1532,8 +1532,8 @@ impl UnifiedExecProcessManager {
             .await
             .map(|result| (result.output, result.deferred_network_approval))
             .map_err(|err| match err {
-                ToolError::MapleCode(err) => match err.details() {
-                    MapleCodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
+                ToolError::Maplecode(err) => match err.details() {
+                    MaplecodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
                         let output = output.as_ref().clone();
                         let message = if output.aggregated_output.text.is_empty() {
                             let exit_code = output.exit_code;

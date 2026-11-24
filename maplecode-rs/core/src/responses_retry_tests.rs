@@ -6,7 +6,7 @@ use crate::realtime_history::RealtimeHistoryState;
 use crate::session::step_context::StepContext;
 use crate::session::tests::make_session_and_context;
 use maplecode_http_client::RetryAfter;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Mutex;
@@ -28,7 +28,7 @@ async fn sampling_retry_logs_stream_error_context() {
     log_retry(
         ResponsesStreamRequest::Sampling,
         &turn_context,
-        &MapleCodeErr::Stream("websocket closed by server before response.completed".to_string()),
+        &MaplecodeErr::Stream("websocket closed by server before response.completed".to_string()),
         /*retries*/ 2,
         /*max_retries*/ 5,
         Duration::from_secs(1),
@@ -76,7 +76,7 @@ async fn stream_retry_preserves_deadline_across_delayed_notification() {
     let retry = handle_response_stream_error(
         &mut retry_state,
         /*max_retries*/ 2,
-        MapleCodeErr::InternalServerError.with_retry_after(advice),
+        MaplecodeErr::InternalServerError.with_retry_after(advice),
         &mut client_session,
         &session,
         &step_context,

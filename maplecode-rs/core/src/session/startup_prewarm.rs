@@ -18,7 +18,7 @@ use tracing::trace_span;
 use tracing::warn;
 
 use crate::client::ModelClientSession;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
+use crate::responses_metadata::MaplecodeResponsesRequestKind;
 use crate::session::INITIAL_SUBMIT_ID;
 use crate::session::RequestEffortUsage;
 use crate::session::session::Session;
@@ -27,7 +27,7 @@ use maplecode_features::Feature;
 use maplecode_otel::STARTUP_PREWARM_AGE_AT_FIRST_TURN_METRIC;
 use maplecode_otel::STARTUP_PREWARM_DURATION_METRIC;
 use maplecode_otel::SessionTelemetry;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::BaseInstructions;
 
 #[derive(Clone, Copy, Debug)]
@@ -46,7 +46,7 @@ impl PrewarmInput {
 }
 
 pub(crate) struct SessionStartupPrewarmHandle {
-    task: AbortOnDropHandle<MapleCodeResult<ModelClientSession>>,
+    task: AbortOnDropHandle<MaplecodeResult<ModelClientSession>>,
     started_at: Instant,
     timeout: Duration,
 }
@@ -62,7 +62,7 @@ pub(crate) enum SessionStartupPrewarmResolution {
 
 impl SessionStartupPrewarmHandle {
     pub(crate) fn new(
-        task: JoinHandle<MapleCodeResult<ModelClientSession>>,
+        task: JoinHandle<MaplecodeResult<ModelClientSession>>,
         started_at: Instant,
         timeout: Duration,
     ) -> Self {
@@ -178,7 +178,7 @@ impl SessionStartupPrewarmHandle {
     }
 
     fn resolution_from_join_result(
-        result: std::result::Result<MapleCodeResult<ModelClientSession>, tokio::task::JoinError>,
+        result: std::result::Result<MaplecodeResult<ModelClientSession>, tokio::task::JoinError>,
         started_at: Instant,
     ) -> SessionStartupPrewarmResolution {
         match result {
@@ -304,7 +304,7 @@ impl Session {
 async fn schedule_startup_prewarm_inner(
     session: Arc<Session>,
     input: PrewarmInput,
-) -> MapleCodeResult<ModelClientSession> {
+) -> MaplecodeResult<ModelClientSession> {
     let prewarm_started_at = Instant::now();
     let mut client_session = session.services.model_client.new_session();
     let websocket_ready = client_session.is_websocket_prewarmed().await;
@@ -362,7 +362,7 @@ async fn schedule_startup_prewarm_inner(
         .to_responses_metadata(
             session.installation_id.clone(),
             window_id,
-            MapleCodeResponsesRequestKind::Prewarm,
+            MaplecodeResponsesRequestKind::Prewarm,
         );
     crate::turn_metadata::ExecutionMetadata::from_settings(&startup_turn_context.initial_settings)
         .apply_to(&mut handshake_metadata);
@@ -437,7 +437,7 @@ async fn schedule_startup_prewarm_inner(
     let responses_metadata = session
         .responses_metadata(
             step_context.as_ref(),
-            MapleCodeResponsesRequestKind::Prewarm,
+            MaplecodeResponsesRequestKind::Prewarm,
         )
         .await;
     let websocket_warmup_started_at = Instant::now();

@@ -2,7 +2,7 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use maplecode_extension_api::ExtensionData;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_protocol::ResponseItemId;
 use maplecode_protocol::config_types::ModeKind;
@@ -20,7 +20,7 @@ use crate::tools::parallel::ToolCallRuntime;
 use futures::Future;
 use maplecode_memories_read::citations::parse_memory_citation;
 use maplecode_memories_read::citations::thread_ids_from_memory_citation;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::memory_citation::MemoryCitation;
 use maplecode_protocol::models::FunctionCallOutputBody;
@@ -105,7 +105,7 @@ pub(crate) async fn record_completed_response_item_with_finalized_facts(
         vec![ResponseItemEnvelope {
             item: item.clone(),
             metadata: step_context.sampled_through_sequence.map(|sequence| {
-                MapleCodeHarnessMetadata {
+                MaplecodeHarnessMetadata {
                     sampled_through_sequence: Some(sequence),
                     ..Default::default()
                 }
@@ -483,7 +483,7 @@ pub(crate) async fn handle_output_item_done(
         }
         // A fatal error occurred; surface it back into history.
         Err(FunctionCallError::Fatal(message)) => {
-            return Err(MapleCodeErr::Fatal(message));
+            return Err(MaplecodeErr::Fatal(message));
         }
     }
 

@@ -29,7 +29,7 @@ use maplecode_config::types::ToolSuggestDiscoverableType;
 use maplecode_core_plugins::PluginsManager;
 use maplecode_features::Feature;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::MCP_TOOL_MAPLECODE_APPS_META_KEY;
 use maplecode_mcp::McpRuntime;
@@ -84,7 +84,7 @@ pub async fn list_accessible_connectors_from_mcp_tools(
 pub(crate) async fn list_tool_suggest_discoverable_tools_with_auth(
     config: &Config,
     plugins_manager: &PluginsManager,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     accessible_connectors: &[AppInfo],
     loaded_plugin_app_connector_ids: &[String],
 ) -> anyhow::Result<Vec<DiscoverableTool>> {
@@ -114,11 +114,11 @@ pub(crate) async fn list_tool_suggest_discoverable_tools_with_auth(
 
 pub fn list_cached_accessible_connectors_from_mcp_tools(
     config: &Config,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> Option<Vec<AppInfo>> {
     if !config
         .features
-        .apps_enabled_for_auth(auth.is_some_and(MapleCodeAuth::uses_maplecode_backend))
+        .apps_enabled_for_auth(auth.is_some_and(MaplecodeAuth::uses_maplecode_backend))
     {
         return Some(Vec::new());
     }
@@ -128,7 +128,7 @@ pub fn list_cached_accessible_connectors_from_mcp_tools(
 
 pub(crate) fn refresh_accessible_connectors_cache_from_mcp_tools(
     config: &Config,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     mcp_tools: &[ToolInfo],
 ) {
     if !config.features.enabled(Feature::Apps) {
@@ -205,7 +205,7 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
     let auth = auth_manager.auth().await;
     if !config.features.apps_enabled_for_auth(
         auth.as_ref()
-            .is_some_and(MapleCodeAuth::uses_maplecode_backend),
+            .is_some_and(MaplecodeAuth::uses_maplecode_backend),
     ) {
         return Ok(AccessibleConnectorsStatus {
             connectors: Vec::new(),
@@ -338,11 +338,11 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
 
 fn accessible_connectors_cache_key(
     config: &Config,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> AccessibleConnectorsCacheKey {
-    let account_id = auth.and_then(MapleCodeAuth::get_account_id);
-    let chatgpt_user_id = auth.and_then(MapleCodeAuth::get_chatgpt_user_id);
-    let is_workspace_account = auth.is_some_and(MapleCodeAuth::is_workspace_account);
+    let account_id = auth.and_then(MaplecodeAuth::get_account_id);
+    let chatgpt_user_id = auth.and_then(MaplecodeAuth::get_chatgpt_user_id);
+    let is_workspace_account = auth.is_some_and(MaplecodeAuth::is_workspace_account);
     AccessibleConnectorsCacheKey {
         chatgpt_base_url: config.chatgpt_base_url.clone(),
         account_id,
@@ -415,7 +415,7 @@ fn tool_suggest_connector_ids(
 #[instrument(level = "trace", skip_all)]
 async fn cached_directory_connectors_for_tool_suggest_with_auth(
     config: &Config,
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
 ) -> Arc<[AppInfo]> {
     if !config.features.enabled(Feature::Apps) {
         return Arc::default();

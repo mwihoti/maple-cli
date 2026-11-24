@@ -19,8 +19,8 @@ use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::AgentErrorContext;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
 use maplecode_rollout_trace::ThreadTraceContext;
@@ -57,9 +57,9 @@ impl Default for AgentTreeShutdownState {
 }
 
 impl AgentTreeShutdownState {
-    pub(crate) async fn wait(&self) -> MapleCodeResult<()> {
+    pub(crate) async fn wait(&self) -> MaplecodeResult<()> {
         self.wait_detailed().await.map_err(|_| {
-            MapleCodeErr::Fatal("agent tree shutdown did not complete cleanly".to_owned())
+            MaplecodeErr::Fatal("agent tree shutdown did not complete cleanly".to_owned())
         })
     }
 
@@ -188,7 +188,7 @@ impl Drop for AgentTreeTeardownGuard {
 pub(crate) struct LocalAgentRuntime {
     /// Weak handle back to the global thread registry/state.
     /// This is `Weak` to avoid reference cycles and shadow persistence of the form
-    /// `ThreadManagerState -> MapleCodeThread -> Session -> SessionServices -> ThreadManagerState`.
+    /// `ThreadManagerState -> MaplecodeThread -> Session -> SessionServices -> ThreadManagerState`.
     pub(super) manager: Weak<ThreadManagerState>,
     /// Captured at construction so delegates retain their manager's allocation policy.
     pub(super) thread_id_generator: ThreadIdGenerator,
@@ -284,10 +284,10 @@ impl AgentControlInit {
 }
 
 impl LocalAgentRuntime {
-    pub(crate) fn admit_start(&self) -> MapleCodeResult<AgentTreeMembership> {
+    pub(crate) fn admit_start(&self) -> MaplecodeResult<AgentTreeMembership> {
         if self.shutdown_state.members.is_closed() {
             return Err(
-                MapleCodeErr::InvalidRequest("agent runtime is shutting down".to_owned())
+                MaplecodeErr::InvalidRequest("agent runtime is shutting down".to_owned())
                     .with_agent_context(AgentErrorContext::RuntimeShutdown),
             );
         }
@@ -299,7 +299,7 @@ impl LocalAgentRuntime {
         // shutdown is either admitted before the fence or rejected after it.
         if self.shutdown_state.members.is_closed() {
             return Err(
-                MapleCodeErr::InvalidRequest("agent runtime is shutting down".to_owned())
+                MaplecodeErr::InvalidRequest("agent runtime is shutting down".to_owned())
                     .with_agent_context(AgentErrorContext::RuntimeShutdown),
             );
         }

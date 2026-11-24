@@ -7,14 +7,14 @@ use crate::agent::AgentStatus;
 use crate::agent::host::AgentRuntimeServices;
 use crate::agent::registry::EvictedEnvironments;
 use crate::config::Config;
-use crate::maplecode_thread::MapleCodeThread;
+use crate::maplecode_thread::MaplecodeThread;
 use crate::thread_manager::ThreadManagerState;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::AgentErrorContext;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrKind;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrKind;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::SessionSource;
 use std::collections::VecDeque;
@@ -36,9 +36,9 @@ pub enum ThreadEvictionOutcome {
 impl ThreadManagerState {
     pub(crate) async fn try_evict_v2_thread(
         self: &Arc<Self>,
-        thread: Arc<MapleCodeThread>,
+        thread: Arc<MaplecodeThread>,
         membership: &AgentTreeMembership,
-    ) -> MapleCodeResult<ThreadEvictionOutcome> {
+    ) -> MaplecodeResult<ThreadEvictionOutcome> {
         let Ok(residency_guard) = Arc::clone(&thread.residency_gate).try_write_owned() else {
             return Ok(ThreadEvictionOutcome::Busy);
         };
@@ -63,7 +63,7 @@ impl ThreadManagerState {
             thread.ensure_rollout_materialized().await;
             if let Err(err) = thread.shutdown_and_wait().await {
                 teardown
-                    .record_shutdown_failure("stop_resident", MapleCodeErrKind::from(&err).into());
+                    .record_shutdown_failure("stop_resident", MaplecodeErrKind::from(&err).into());
                 teardown.complete();
                 return Err(err);
             }
@@ -159,7 +159,7 @@ impl LocalAgentControl {
         config: &Config,
         membership: &AgentTreeMembership,
         protected_thread_id: Option<ThreadId>,
-    ) -> MapleCodeResult<V2ResidencySlot> {
+    ) -> MaplecodeResult<V2ResidencySlot> {
         let capacity = config
             .effective_agent_max_threads(MultiAgentVersion::V2)
             .unwrap_or(usize::MAX);
@@ -177,8 +177,8 @@ impl LocalAgentRuntime {
     /// Pins and touches the registered runtime without waiting for unrelated eviction.
     pub(crate) async fn pin_v2_residency(
         &self,
-        thread: &MapleCodeThread,
-    ) -> MapleCodeResult<Option<tokio::sync::OwnedRwLockReadGuard<()>>> {
+        thread: &MaplecodeThread,
+    ) -> MaplecodeResult<Option<tokio::sync::OwnedRwLockReadGuard<()>>> {
         if !is_resident_candidate(thread) {
             return Ok(None);
         }
@@ -186,7 +186,7 @@ impl LocalAgentRuntime {
         let thread_id = thread.session.thread_id;
         let registered = self.upgrade()?.get_thread(thread_id).await?;
         if !std::ptr::eq(thread, registered.as_ref()) {
-            return Err(MapleCodeErr::ThreadNotFound(thread_id));
+            return Err(MaplecodeErr::ThreadNotFound(thread_id));
         }
         self.residency.touch(thread_id);
         Ok(Some(guard))
@@ -200,7 +200,7 @@ impl V2Residency {
         capacity: usize,
         membership: &AgentTreeMembership,
         protected_thread_id: Option<ThreadId>,
-    ) -> MapleCodeResult<V2ResidencySlot> {
+    ) -> MaplecodeResult<V2ResidencySlot> {
         loop {
             if self.try_reserve_pending_slot(capacity) {
                 return Ok(V2ResidencySlot {
@@ -212,7 +212,7 @@ impl V2Residency {
                 .try_unload_one_resident(manager, membership, protected_thread_id)
                 .await
             {
-                return Err(MapleCodeErr::new(MapleCodeErrorDetails::AgentLimitReached {
+                return Err(MaplecodeErr::new(MaplecodeErrorDetails::AgentLimitReached {
                     max_threads: capacity,
                 })
                 .with_agent_context(AgentErrorContext::ResidencyCapacity));
@@ -321,7 +321,7 @@ fn touch_resident(residents: &mut VecDeque<ThreadId>, thread_id: ThreadId) {
     residents.push_back(thread_id);
 }
 
-fn is_resident_candidate(thread: &MapleCodeThread) -> bool {
+fn is_resident_candidate(thread: &MaplecodeThread) -> bool {
     thread.multi_agent_version() == Some(MultiAgentVersion::V2)
         && is_v2_resident_session_source(&thread.session_source)
 }
@@ -330,7 +330,7 @@ pub(super) fn is_v2_resident_session_source(session_source: &SessionSource) -> b
     matches!(session_source, SessionSource::SubAgent(_))
 }
 
-async fn is_unloadable(thread: &MapleCodeThread) -> bool {
+async fn is_unloadable(thread: &MaplecodeThread) -> bool {
     matches!(
         thread.agent_status().await,
         AgentStatus::PendingInit

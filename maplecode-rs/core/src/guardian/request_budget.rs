@@ -11,8 +11,8 @@ use maplecode_guardian_context::REQUEST_TOKENS_BOUNDARIES;
 use maplecode_guardian_context::REQUEST_TOKENS_METRIC;
 use maplecode_guardian_context::RequestBudget;
 use maplecode_guardian_context::effective_input_token_limit;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ContentItemKind;
 use maplecode_protocol::models::ContentItemMetadata;
@@ -60,8 +60,8 @@ pub(crate) async fn prepare_prompt(
     session: &Session,
     prompt: &mut crate::client_common::Prompt,
     step: &StepContext,
-    metadata: &crate::responses_metadata::MapleCodeResponsesMetadata,
-) -> MapleCodeResult<()> {
+    metadata: &crate::responses_metadata::MaplecodeResponsesMetadata,
+) -> MaplecodeResult<()> {
     let model = &step.settings.model_info;
     let maximum = effective_input_token_limit(model, step.turn.config.model_context_window)
         .saturating_sub(INPUT_TOKEN_MARGIN);
@@ -92,7 +92,7 @@ pub(crate) async fn prepare_prompt(
                 )
                 .await,
         )
-        .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string()))?;
+        .map_err(|error| MaplecodeErr::InvalidRequest(error.to_string()))?;
         let context = context
             .enforce_budget(
                 RequestBudget {
@@ -108,16 +108,16 @@ pub(crate) async fn prepare_prompt(
                     .insert(ExhaustedReviewBudget::Detected);
                 match error {
                     maplecode_guardian_context::SectionError::EvidenceLimitExceeded { .. } => {
-                        MapleCodeErr::ContextWindowExceeded
+                        MaplecodeErr::ContextWindowExceeded
                     }
-                    error => MapleCodeErr::InvalidRequest(error.to_string()),
+                    error => MaplecodeErr::InvalidRequest(error.to_string()),
                 }
             })?;
         let mut messages = context.into_annotated_messages();
         for envelope in &mut messages {
             let message = &mut envelope.item;
             let ResponseItem::Message { content, .. } = message else {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "expected restored Guardian text".to_owned(),
                 ));
             };
@@ -125,7 +125,7 @@ pub(crate) async fn prepare_prompt(
                 .into_iter()
                 .map(|item| {
                     let ContentItem::InputText { text } = item else {
-                        return Err(MapleCodeErr::InvalidRequest(
+                        return Err(MaplecodeErr::InvalidRequest(
                             "expected restored Guardian text".to_owned(),
                         ));
                     };
@@ -142,9 +142,9 @@ pub(crate) async fn prepare_prompt(
                         .into_parts()
                         .1)
                 })
-                .collect::<MapleCodeResult<Vec<_>>>()?;
+                .collect::<MaplecodeResult<Vec<_>>>()?;
             set_annotated_content(message, annotated).ok_or_else(|| {
-                MapleCodeErr::InvalidRequest("expected restored Guardian message".to_owned())
+                MaplecodeErr::InvalidRequest("expected restored Guardian message".to_owned())
             })?;
         }
         restored = session
@@ -170,7 +170,7 @@ pub(crate) async fn prepare_prompt(
             .services
             .thread_extension_data
             .insert(ExhaustedReviewBudget::Detected);
-        return Err(MapleCodeErr::ContextWindowExceeded);
+        return Err(MaplecodeErr::ContextWindowExceeded);
     }
     if !restored.is_empty() {
         session

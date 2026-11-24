@@ -8,8 +8,8 @@ use maplecode_exec_server::SelectedCapabilityRootsStatus;
 use maplecode_execpolicy::Policy;
 use maplecode_features::Feature;
 use maplecode_protocol::capabilities::CapabilityRootLocation;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::models::SandboxEnforcement;
 use maplecode_protocol::permissions::FileSystemSandboxPolicy;
@@ -104,18 +104,18 @@ fn validate_environment_config(
     selection: &TurnEnvironmentSelection,
     config: &EnvironmentConfig,
     features: &ManagedFeatures,
-) -> MapleCodeResult<()> {
-    if features.enabled(Feature::MapleCodeHooks) {
+) -> MaplecodeResult<()> {
+    if features.enabled(Feature::MaplecodeHooks) {
         maplecode_hooks::validate_environment_hooks(
             &selection.environment_id,
             &selection.cwd,
             &config.environment_hooks,
         )
-        .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string()))?;
+        .map_err(|error| MaplecodeErr::InvalidRequest(error.to_string()))?;
     }
     if let Some(policy) = config.network_policy.as_ref() {
         if selection.environment_id == LOCAL_ENVIRONMENT_ID {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "attachment-owned network policy requires a remote executor".to_string(),
             ));
         }
@@ -124,7 +124,7 @@ fn validate_environment_config(
             .as_ref()
             .is_some_and(|policy| !policy.as_ref().network_rules().is_empty())
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "environment network restrictions must use network_policy".to_string(),
             ));
         }
@@ -137,11 +137,11 @@ fn validate_environment_config(
             maplecode_network_proxy::LocalBindingPolicy::DefaultFalse,
         )
         .map_err(|error| {
-            MapleCodeErr::InvalidRequest(format!("invalid environment network policy: {error}"))
+            MaplecodeErr::InvalidRequest(format!("invalid environment network policy: {error}"))
         })?;
     }
     if config.selected_capability_roots.len() > MAX_SELECTED_CAPABILITY_ROOTS {
-        return Err(MapleCodeErr::InvalidRequest(format!(
+        return Err(MaplecodeErr::InvalidRequest(format!(
             "environment readiness contains more than {MAX_SELECTED_CAPABILITY_ROOTS} selected capability roots"
         )));
     }
@@ -150,7 +150,7 @@ fn validate_environment_config(
         .as_ref()
         .is_some_and(|policy| !policy.as_ref().get_allowed_prefixes().is_empty())
     {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "environment command policy cannot contain allow rules".to_string(),
         ));
     }
@@ -162,7 +162,7 @@ fn validate_environment_config(
             || environment_id != &selection.environment_id
             || !root_ids.insert(root.id.as_str())
         {
-            return Err(MapleCodeErr::InvalidRequest(format!(
+            return Err(MaplecodeErr::InvalidRequest(format!(
                 "selected capability roots must have unique non-empty IDs and belong to environment `{}`",
                 selection.environment_id
             )));
@@ -277,7 +277,7 @@ impl Session {
         &self,
         selection: &TurnEnvironmentSelection,
         config: EnvironmentConfig,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         self.update_environment_configuration(selection, Ok(config), ConfigUpdateSource::Direct)
             .await
     }
@@ -286,7 +286,7 @@ impl Session {
         &self,
         selection: &TurnEnvironmentSelection,
         error: String,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         self.update_environment_configuration(selection, Err(error), ConfigUpdateSource::Direct)
             .await
     }
@@ -341,7 +341,7 @@ impl Session {
         selection: &TurnEnvironmentSelection,
         result: Result<EnvironmentConfig, String>,
         source: ConfigUpdateSource,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         let mut state = self.state.lock().await;
         let mut current = self.services.turn_environments.selections();
         let mut future = state.session_configuration.environments.clone();
@@ -365,7 +365,7 @@ impl Session {
         }
         let (current_environment, future_environment) = match environments {
             (None, None) => {
-                return Err(MapleCodeErr::InvalidRequest(format!(
+                return Err(MaplecodeErr::InvalidRequest(format!(
                     "environment `{}` is not selected on this thread with the requested workspace",
                     selection.environment_id
                 )));
@@ -401,7 +401,7 @@ impl Session {
                 state
                     .session_configuration
                     .validate(environments)
-                    .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string()))
+                    .map_err(|error| MaplecodeErr::InvalidRequest(error.to_string()))
             };
             if update_current {
                 validate(&current)?;

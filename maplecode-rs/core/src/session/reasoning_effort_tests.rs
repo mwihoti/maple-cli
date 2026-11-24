@@ -6,7 +6,7 @@ use crate::session::tests::make_session_and_context_with_auth_and_config_and_rx;
 use maplecode_features::Feature;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::openai_models::ModelOrigin;
 use maplecode_protocol::openai_models::ReasoningEffort;
@@ -24,7 +24,7 @@ async fn fresh_step_metadata_retires_only_incompatible_pins(
     selected: ReasoningEffort,
 ) {
     let (session, turn, _events) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config
@@ -111,7 +111,7 @@ history_revision: None,
 #[tokio::test]
 async fn initial_replay_preserves_prewarmed_effort(history: InitialHistory) {
     let (session, turn_context, _events) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config
@@ -156,7 +156,7 @@ async fn initial_replay_preserves_prewarmed_effort(history: InitialHistory) {
 #[tokio::test]
 async fn compaction_effort_lookup_preserves_pin_for_fallback_models() {
     let (session, turn_context, _events) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config
@@ -199,7 +199,7 @@ async fn compaction_effort_lookup_preserves_pin_for_fallback_models() {
 #[tokio::test]
 async fn unsupported_model_compaction_uses_selected_effort_without_mutating_pin() {
     let (session, turn_context, _events) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config

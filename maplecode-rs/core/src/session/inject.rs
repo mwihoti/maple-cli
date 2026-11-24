@@ -4,15 +4,15 @@ use super::turn_context::TurnContext;
 use maplecode_analytics::ImagePreparationMetadata;
 use maplecode_features::Feature;
 use maplecode_history::ResponseItemEnvelope;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ModelInfo;
 
 /// Uploaded files need the admission checks on typed turn input before entering history.
-pub(crate) fn validate_injected_response_item(item: &ResponseItem) -> MapleCodeResult<()> {
+pub(crate) fn validate_injected_response_item(item: &ResponseItem) -> MaplecodeResult<()> {
     if item.file_audio_ids().next().is_some() {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "Uploaded audio files must be submitted as turn input.".to_string(),
         ));
     }

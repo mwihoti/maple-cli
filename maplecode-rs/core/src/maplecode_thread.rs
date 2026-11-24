@@ -33,8 +33,8 @@ use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::Personality;
 use maplecode_protocol::config_types::ReasoningSummary;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::mcp::CallToolResult;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_protocol::models::ActivePermissionProfile;
@@ -155,7 +155,7 @@ impl ThreadConfigSnapshot {
 
 /// Thread settings overrides that app-server validates before starting a turn.
 #[derive(Clone, Default)]
-pub struct MapleCodeThreadSettingsOverrides {
+pub struct MaplecodeThreadSettingsOverrides {
     /// Replaces the data captured by future turns. Omission preserves it.
     pub turn_extension_init: Option<maplecode_extension_api::ExtensionDataInit>,
     pub environments: Option<TurnEnvironmentRequests>,
@@ -195,7 +195,7 @@ pub use maplecode_guardian_context::GuardianRootMessage;
 pub use maplecode_guardian_reviewer::GuardianAuthorizationVersion;
 pub use maplecode_guardian_reviewer::GuardianRootSnapshot;
 
-pub struct MapleCodeThread {
+pub struct MaplecodeThread {
     pub(crate) session: Arc<Session>,
     pub(crate) io: SessionIo,
     // Queued agent mail owns a read guard until handled or dropped; eviction needs a write guard.
@@ -225,7 +225,7 @@ pub struct BackgroundTerminalInfo {
 
 /// Conduit for the bidirectional stream of messages that compose a thread
 /// (formerly called a conversation) in Maple Code.
-impl MapleCodeThread {
+impl MaplecodeThread {
     pub(crate) fn new(
         session: Arc<Session>,
         io: SessionIo,
@@ -251,7 +251,7 @@ impl MapleCodeThread {
         self.session.services.local_agent_runtime.tree_id()
     }
 
-    pub async fn submit(&self, op: Op) -> MapleCodeResult<String> {
+    pub async fn submit(&self, op: Op) -> MaplecodeResult<String> {
         self.submit_with_trace(op, /*trace*/ None).await
     }
 
@@ -262,7 +262,7 @@ impl MapleCodeThread {
     }
 
     /// Resolves an agent reference through this thread's controller without loading it.
-    pub async fn resolve_agent_reference(&self, target: &str) -> MapleCodeResult<ThreadId> {
+    pub async fn resolve_agent_reference(&self, target: &str) -> MaplecodeResult<ThreadId> {
         self.session
             .services
             .agent_control
@@ -276,13 +276,13 @@ impl MapleCodeThread {
     }
 
     /// Reads this thread's configured clock, including an external or simulated clock.
-    pub async fn current_time(&self) -> MapleCodeResult<DateTime<Utc>> {
+    pub async fn current_time(&self) -> MaplecodeResult<DateTime<Utc>> {
         self.session
             .services
             .time_provider
             .current_time(self.session.thread_id)
             .await
-            .map_err(|error| MapleCodeErr::Io(std::io::Error::other(error)))
+            .map_err(|error| MaplecodeErr::Io(std::io::Error::other(error)))
     }
 
     /// Returns the session telemetry handle for thread-scoped production instrumentation.
@@ -318,7 +318,7 @@ impl MapleCodeThread {
         &self,
         turn_id: &str,
         call_id: &str,
-    ) -> MapleCodeResult<crate::ToolInvocationContext> {
+    ) -> MaplecodeResult<crate::ToolInvocationContext> {
         crate::agent::host::tool_invocation(self, turn_id, call_id)
     }
 
@@ -390,7 +390,7 @@ impl MapleCodeThread {
         Some(task.turn_context.capture_current_model_info().slug.clone())
     }
 
-    pub async fn shutdown_and_wait(&self) -> MapleCodeResult<()> {
+    pub async fn shutdown_and_wait(&self) -> MaplecodeResult<()> {
         self.io.shutdown_and_wait().await
     }
 
@@ -500,7 +500,7 @@ impl MapleCodeThread {
         &self,
         op: Op,
         trace: Option<W3cTraceContext>,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         // Use the same admission guard as MAv2 sends, retaining it through dispatch.
         let residency_guard = if matches!(op, Op::InterAgentCommunication { .. }) {
             self.session
@@ -552,7 +552,7 @@ impl MapleCodeThread {
     pub async fn start_or_steer_turn(
         &self,
         request: impl Into<WithTurnExtensionData<TurnInputRequest>>,
-    ) -> MapleCodeResult<TurnInputSubmission> {
+    ) -> MaplecodeResult<TurnInputSubmission> {
         self.submit_turn_input_with_mode(request, TurnInputMode::StartOrSteer)
             .await
     }
@@ -564,7 +564,7 @@ impl MapleCodeThread {
     pub async fn start_turn_if_idle(
         &self,
         request: impl Into<WithTurnExtensionData<TurnInputRequest>>,
-    ) -> MapleCodeResult<StartIfIdleSubmission> {
+    ) -> MaplecodeResult<StartIfIdleSubmission> {
         match self
             .submit_turn_input_with_mode(request, TurnInputMode::StartIfIdle)
             .await?
@@ -592,7 +592,7 @@ impl MapleCodeThread {
         &self,
         request: impl Into<WithTurnExtensionData<TurnInputRequest>>,
         expected_previous_turn_id: String,
-    ) -> MapleCodeResult<TurnInputSubmission> {
+    ) -> MaplecodeResult<TurnInputSubmission> {
         self.submit_turn_input_with_mode(
             request,
             TurnInputMode::ContinueIfIdle {
@@ -609,7 +609,7 @@ impl MapleCodeThread {
     pub async fn recover_turn_if_idle(
         &self,
         request: impl Into<WithTurnExtensionData<RecoverTurnRequest>>,
-    ) -> MapleCodeResult<StartIfIdleSubmission> {
+    ) -> MaplecodeResult<StartIfIdleSubmission> {
         self.ensure_execution_capacity_for_turn_start(self.session.services.agent_control.as_ref())
             .await?;
         let WithTurnExtensionData {
@@ -667,9 +667,9 @@ impl MapleCodeThread {
     /// Success confirms the root's execution has stopped, its history is flushed, and its writer
     /// is closed. It does not wait for descendant cleanup. Before transferring ownership,
     /// callers must also finish tree shutdown or fence and terminate the tree's persistence writers.
-    pub async fn suspend_turn_and_shutdown(&self) -> MapleCodeResult<SuspendTurnOutcome> {
+    pub async fn suspend_turn_and_shutdown(&self) -> MaplecodeResult<SuspendTurnOutcome> {
         if self.session_source.is_non_root_agent() {
-            return Err(MapleCodeErr::UnsupportedOperation(
+            return Err(MaplecodeErr::UnsupportedOperation(
                 "turn suspension requires the owning root thread".to_string(),
             ));
         }
@@ -690,10 +690,10 @@ impl MapleCodeThread {
                 message_delivery: None,
             })
             .await
-            .map_err(|_| MapleCodeErr::Fatal("thread session has stopped".to_string()))?;
+            .map_err(|_| MaplecodeErr::Fatal("thread session has stopped".to_string()))?;
         let outcome = result
             .await
-            .map_err(|_| MapleCodeErr::Fatal("thread suspension reply was lost".to_string()))??;
+            .map_err(|_| MaplecodeErr::Fatal("thread suspension reply was lost".to_string()))??;
         if matches!(&outcome, SuspendTurnOutcome::Suspended { .. }) {
             self.io.session_loop_termination.clone().await;
         }
@@ -705,7 +705,7 @@ impl MapleCodeThread {
         &self,
         request: impl Into<WithTurnExtensionData<TurnInputRequest>>,
         expected_turn_id: String,
-    ) -> MapleCodeResult<SteerSubmission> {
+    ) -> MaplecodeResult<SteerSubmission> {
         match self
             .submit_turn_input_with_mode(request, TurnInputMode::Steer { expected_turn_id })
             .await?
@@ -726,7 +726,7 @@ impl MapleCodeThread {
         &self,
         request: impl Into<WithTurnExtensionData<TurnInputRequest>>,
         mode: TurnInputMode,
-    ) -> MapleCodeResult<TurnInputSubmission> {
+    ) -> MaplecodeResult<TurnInputSubmission> {
         if !matches!(mode, TurnInputMode::Steer { .. }) {
             self.ensure_execution_capacity_for_turn_start(
                 self.session.services.agent_control.as_ref(),
@@ -744,7 +744,7 @@ impl MapleCodeThread {
     /// Injects model-visible items into the currently active turn.
     ///
     /// This is the thread-level bridge to `Session::inject_if_running` for
-    /// callers that only hold a `MapleCodeThread`.
+    /// callers that only hold a `MaplecodeThread`.
     /// Returns the unchanged batch when there is no active turn or an item requires typed turn input.
     pub async fn inject_if_running(
         &self,
@@ -827,7 +827,7 @@ impl MapleCodeThread {
     /// Preview persistent thread settings overrides without committing them.
     pub async fn preview_thread_settings_overrides(
         &self,
-        overrides: MapleCodeThreadSettingsOverrides,
+        overrides: MaplecodeThreadSettingsOverrides,
     ) -> ConstraintResult<ThreadConfigSnapshot> {
         let updates = self.thread_settings_update(overrides);
         self.session.preview_settings(&updates).await
@@ -840,7 +840,7 @@ impl MapleCodeThread {
     pub async fn update_thread_settings(
         &self,
         thread_settings: impl Into<WithTurnExtensionData<ThreadSettingsOverrides>>,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         let (reply, result) = oneshot::channel();
         let WithTurnExtensionData {
             request: thread_settings,
@@ -855,7 +855,7 @@ impl MapleCodeThread {
                 turn_extension_init,
             })
             .await?;
-        result.await.unwrap_or(Err(MapleCodeErr::InternalAgentDied))
+        result.await.unwrap_or(Err(MaplecodeErr::InternalAgentDied))
     }
 
     /// Restores thread-owned mutable settings captured from another loaded runtime.
@@ -864,7 +864,7 @@ impl MapleCodeThread {
     /// rather than reverting to the original layer-backed config.
     pub async fn restore_thread_settings(
         &self,
-        settings: MapleCodeThreadSettingsOverrides,
+        settings: MaplecodeThreadSettingsOverrides,
     ) -> ConstraintResult<()> {
         let updates = self.thread_settings_update(settings);
         let commit = self.session.update_settings(updates).await?;
@@ -884,12 +884,12 @@ impl MapleCodeThread {
     pub async fn replace_dynamic_tools(
         &self,
         tools: Vec<maplecode_protocol::dynamic_tools::DynamicToolSpec>,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         let (reply, result) = oneshot::channel();
         self.io
             .submit(Op::ReplaceDynamicTools { tools, reply })
             .await?;
-        result.await.unwrap_or(Err(MapleCodeErr::InternalAgentDied))
+        result.await.unwrap_or(Err(MaplecodeErr::InternalAgentDied))
     }
 
     /// Persists current settings without emitting a live settings event.
@@ -901,9 +901,9 @@ impl MapleCodeThread {
 
     fn thread_settings_update(
         &self,
-        overrides: MapleCodeThreadSettingsOverrides,
+        overrides: MaplecodeThreadSettingsOverrides,
     ) -> SessionSettingsUpdate {
-        let MapleCodeThreadSettingsOverrides {
+        let MaplecodeThreadSettingsOverrides {
             turn_extension_init,
             environments: environment_requests,
             runtime_workspace_roots,
@@ -949,7 +949,7 @@ impl MapleCodeThread {
         }
     }
 
-    pub async fn next_event(&self) -> MapleCodeResult<Event> {
+    pub async fn next_event(&self) -> MaplecodeResult<Event> {
         self.io.next_event().await
     }
 
@@ -1005,7 +1005,7 @@ impl MapleCodeThread {
     pub async fn record_user_goal_update(
         &self,
         update: crate::context::UserGoalUpdate,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         self.session.record_user_goal_update(update).await?;
         Ok(())
     }
@@ -1014,15 +1014,15 @@ impl MapleCodeThread {
     pub async fn guardian_review(
         &self,
         cancellation: &CancellationToken,
-    ) -> MapleCodeResult<crate::guardian_review::GuardianReviewResult> {
+    ) -> MaplecodeResult<crate::guardian_review::GuardianReviewResult> {
         if self.session.active_turn.lock().await.is_some() {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "thread has an active turn".into(),
             ));
         }
         let history = self.session.clone_history().await;
         let tool_call = history.raw_items().next_back().cloned().ok_or_else(|| {
-            MapleCodeErr::InvalidRequest(
+            MaplecodeErr::InvalidRequest(
                 "expected a final plaintext exec_command, apply_patch, request_permissions, or MCP call"
                     .into(),
             )
@@ -1031,7 +1031,7 @@ impl MapleCodeThread {
     }
 
     /// Record raw Responses API items without starting a new turn.
-    pub async fn inject_response_items(&self, items: Vec<ResponseItem>) -> MapleCodeResult<()> {
+    pub async fn inject_response_items(&self, items: Vec<ResponseItem>) -> MaplecodeResult<()> {
         self.inject_response_items_for_turn(items).await?;
         self.checkpoint_preparation().await?;
         Ok(())
@@ -1042,7 +1042,7 @@ impl MapleCodeThread {
         &self,
         path: Option<&PathUri>,
         markdown: &str,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         let (prompt, items) = self.session.prepare_approved_plan(path, markdown).await?;
         if !items.is_empty() {
             self.inject_response_items(items).await?;
@@ -1058,9 +1058,9 @@ impl MapleCodeThread {
     pub async fn inject_response_items_for_turn(
         &self,
         items: Vec<ResponseItem>,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         if items.is_empty() {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "items must not be empty".to_string(),
             ));
         }
@@ -1218,7 +1218,7 @@ impl MapleCodeThread {
     }
 
     /// Captures thread-owned settings and environment selections for runtime restoration.
-    pub async fn restorable_thread_settings(&self) -> MapleCodeThreadSettingsOverrides {
+    pub async fn restorable_thread_settings(&self) -> MaplecodeThreadSettingsOverrides {
         self.session.restorable_thread_settings().await
     }
 
@@ -1360,7 +1360,7 @@ impl MapleCodeThread {
     /// Refreshes this thread's Apps tools before returning their runtime state.
     pub async fn refresh_maplecode_apps_tools(
         &self,
-    ) -> anyhow::Result<maplecode_mcp::MapleCodeAppsToolSnapshot> {
+    ) -> anyhow::Result<maplecode_mcp::MaplecodeAppsToolSnapshot> {
         self.session.refresh_maplecode_apps_tools().await
     }
 
@@ -1374,7 +1374,7 @@ impl MapleCodeThread {
         &self,
         selection: &TurnEnvironmentSelection,
         config: EnvironmentConfig,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         self.session.environment_ready(selection, config).await
     }
 
@@ -1383,7 +1383,7 @@ impl MapleCodeThread {
         &self,
         selection: &TurnEnvironmentSelection,
         error: String,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         self.session.environment_failed(selection, error).await
     }
 
@@ -1483,10 +1483,10 @@ impl MapleCodeThread {
         self.session.enabled(feature)
     }
 
-    pub async fn increment_out_of_band_elicitation_count(&self) -> MapleCodeResult<i64> {
+    pub async fn increment_out_of_band_elicitation_count(&self) -> MaplecodeResult<i64> {
         let mut elicitations = self.out_of_band_elicitations.lock().await;
         let incremented = elicitations.count.checked_add(1).ok_or_else(|| {
-            MapleCodeErr::Fatal("out-of-band elicitation count overflowed".to_string())
+            MaplecodeErr::Fatal("out-of-band elicitation count overflowed".to_string())
         })?;
         if elicitations.count == 0 {
             elicitations.registration = Some(self.session.services.elicitations.register());
@@ -1495,10 +1495,10 @@ impl MapleCodeThread {
         Ok(incremented)
     }
 
-    pub async fn decrement_out_of_band_elicitation_count(&self) -> MapleCodeResult<i64> {
+    pub async fn decrement_out_of_band_elicitation_count(&self) -> MaplecodeResult<i64> {
         let mut elicitations = self.out_of_band_elicitations.lock().await;
         if elicitations.count == 0 {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "out-of-band elicitation count is already zero".to_string(),
             ));
         }
@@ -1513,7 +1513,7 @@ impl MapleCodeThread {
     pub(crate) async fn ensure_execution_capacity_for_turn_start(
         &self,
         control: &dyn AgentControl,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         // The host checks and reserves capacity when the task starts.
         if self.session.host_turn_admission().is_some() {
             return Ok(());

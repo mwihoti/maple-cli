@@ -19,7 +19,7 @@ use crate::hook_runtime::PreCompactHookOutcome;
 use crate::hook_runtime::run_post_compact_hooks;
 use crate::hook_runtime::run_pre_compact_hooks;
 use crate::responses_metadata::CompactionTurnMetadata;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
+use crate::responses_metadata::MaplecodeResponsesMetadata;
 use crate::session::RequestEffortUsage;
 use crate::session::session::Session;
 use crate::session::step_context::StepContext;
@@ -33,18 +33,18 @@ use maplecode_analytics::CompactionReason;
 use maplecode_analytics::CompactionStatus;
 use maplecode_analytics::CompactionStrategy;
 use maplecode_analytics::CompactionTrigger;
-use maplecode_analytics::MapleCodeCompactionEvent;
+use maplecode_analytics::MaplecodeCompactionEvent;
 use maplecode_analytics::now_unix_seconds;
 use maplecode_context_fragments::AnnotatedContent;
 use maplecode_context_fragments::set_annotated_content;
 use maplecode_context_fragments::truncate_annotated_text;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_http_client::RetryAfter;
 use maplecode_protocol::ResponseItemId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::items::ContextCompactionItem;
 use maplecode_protocol::items::TurnItem;
 use maplecode_protocol::models::AgentMessageInputContent;
@@ -122,7 +122,7 @@ pub(crate) async fn run_inline_auto_compact_task(
     world_state: Arc<WorldState>,
     reason: CompactionReason,
     phase: CompactionPhase,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let prompt = turn_context
         .config
         .compact_prompt
@@ -157,7 +157,7 @@ pub(crate) async fn run_compact_task(
     step_context: Arc<StepContext>,
     world_state: Arc<WorldState>,
     input: Vec<UserInput>,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     run_compact_task_inner(
         sess.clone(),
         Arc::clone(&step_context.turn),
@@ -182,7 +182,7 @@ async fn run_compact_task_inner(
     input: Vec<UserInput>,
     world_state: Arc<WorldState>,
     compaction_metadata: CompactionTurnMetadata,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let trigger = compaction_metadata.trigger();
     let reason = compaction_metadata.reason();
     let phase = compaction_metadata.phase();
@@ -199,7 +199,7 @@ async fn run_compact_task_inner(
     match pre_compact_outcome {
         PreCompactHookOutcome::Continue => {}
         PreCompactHookOutcome::Stopped => {
-            let error = MapleCodeErr::TurnAborted;
+            let error = MaplecodeErr::TurnAborted;
             attempt
                 .track(
                     sess.as_ref(),
@@ -233,7 +233,7 @@ async fn run_compact_task_inner(
                     CompactionAnalyticsDetails::default(),
                 )
                 .await;
-            return Err(MapleCodeErr::TurnAborted);
+            return Err(MaplecodeErr::TurnAborted);
         }
     }
     attempt
@@ -248,7 +248,7 @@ async fn run_compact_task_inner(
         && !matches!(phase, CompactionPhase::PostTurn)
         && !matches!(
             err.details(),
-            MapleCodeErrorDetails::Interrupted | MapleCodeErrorDetails::TurnAborted
+            MaplecodeErrorDetails::Interrupted | MaplecodeErrorDetails::TurnAborted
         )
     {
         sess.track_turn_maplecode_error(turn_context.as_ref(), err);
@@ -268,7 +268,7 @@ async fn run_compact_task_inner_impl(
     input: Vec<UserInput>,
     world_state: Arc<WorldState>,
     compaction_metadata: CompactionTurnMetadata,
-) -> MapleCodeResult<String> {
+) -> MaplecodeResult<String> {
     let compaction_item = TurnItem::ContextCompaction(ContextCompactionItem::new());
     sess.emit_turn_item_started(&turn_context, &compaction_item)
         .await;
@@ -344,7 +344,7 @@ async fn run_compact_task_inner_impl(
             Ok(response) => {
                 break response;
             }
-            Err(e) if matches!(e.details(), MapleCodeErrorDetails::ContextWindowExceeded) => {
+            Err(e) if matches!(e.details(), MaplecodeErrorDetails::ContextWindowExceeded) => {
                 if turn_input_len > 1 {
                     // Trim from the beginning to preserve cache (prefix-based) and keep recent messages intact.
                     error!(
@@ -384,7 +384,7 @@ async fn run_compact_task_inner_impl(
         get_last_assistant_message_from_turn(compaction_response.output.iter())
             .filter(|summary| !summary.trim().is_empty())
             .ok_or_else(|| {
-                MapleCodeErr::Stream(
+                MaplecodeErr::Stream(
                     "Post-turn compaction completed without an assistant summary".to_string(),
                 )
             })?
@@ -405,7 +405,7 @@ async fn run_compact_task_inner_impl(
         crate::compact_pending_input::pending_mail_sequence(history.annotated_items());
     if let Some(first) = pending_sequence {
         let summary = new_history.pop().ok_or_else(|| {
-            MapleCodeErr::Fatal("local compaction summary is missing".to_string())
+            MaplecodeErr::Fatal("local compaction summary is missing".to_string())
         })?;
         new_history.extend(
             history
@@ -508,7 +508,7 @@ impl CompactionAnalyticsAttempt {
         self,
         sess: &Session,
         status: CompactionStatus,
-        maplecode_error: Option<&MapleCodeErr>,
+        maplecode_error: Option<&MaplecodeErr>,
         details: CompactionAnalyticsDetails,
     ) {
         let CompactionAnalyticsDetails {
@@ -523,7 +523,7 @@ impl CompactionAnalyticsAttempt {
         let active_context_tokens_after = sess.get_total_token_usage().await;
         sess.services
             .analytics_events_client
-            .track_compaction(MapleCodeCompactionEvent {
+            .track_compaction(MaplecodeCompactionEvent {
                 thread_id: self.thread_id,
                 turn_id: self.turn_id,
                 trigger: self.trigger,
@@ -534,10 +534,10 @@ impl CompactionAnalyticsAttempt {
                 status,
                 maplecode_error_kind: maplecode_error.map(Into::into),
                 maplecode_error_http_status_code: maplecode_error
-                    .and_then(MapleCodeErr::http_status_code_value),
+                    .and_then(MaplecodeErr::http_status_code_value),
                 usage_limit_window_minutes: maplecode_error.and_then(|error| {
                     match error.details() {
-                        MapleCodeErrorDetails::UsageLimitReached(error) => {
+                        MaplecodeErrorDetails::UsageLimitReached(error) => {
                             error.limit_window_minutes
                         }
                         _ => None,
@@ -558,13 +558,13 @@ impl CompactionAnalyticsAttempt {
     }
 }
 
-pub(crate) fn compaction_status_from_result<T>(result: &MapleCodeResult<T>) -> CompactionStatus {
+pub(crate) fn compaction_status_from_result<T>(result: &MaplecodeResult<T>) -> CompactionStatus {
     match result {
         Ok(_) => CompactionStatus::Completed,
         Err(err)
             if matches!(
                 err.details(),
-                MapleCodeErrorDetails::Interrupted | MapleCodeErrorDetails::TurnAborted
+                MaplecodeErrorDetails::Interrupted | MaplecodeErrorDetails::TurnAborted
             ) =>
         {
             CompactionStatus::Interrupted
@@ -599,7 +599,7 @@ pub(crate) struct CompactedUserMessage<'a> {
     // Borrow from the history snapshot until selected output is materialized.
     message: String,
     original: &'a ResponseItem,
-    harness_metadata: Option<&'a MapleCodeHarnessMetadata>,
+    harness_metadata: Option<&'a MaplecodeHarnessMetadata>,
 }
 
 #[cfg(test)]
@@ -621,7 +621,7 @@ pub(crate) fn collect_annotated_user_messages(
 
 fn compacted_user_message<'a>(
     item: &'a ResponseItem,
-    harness_metadata: Option<&'a MapleCodeHarnessMetadata>,
+    harness_metadata: Option<&'a MaplecodeHarnessMetadata>,
 ) -> Option<CompactedUserMessage<'a>> {
     let Some(TurnItem::UserMessage(user)) = crate::event_mapping::parse_turn_item(item) else {
         return None;
@@ -845,10 +845,10 @@ async fn drain_to_completed(
     sess: &Session,
     turn_context: &TurnContext,
     client_session: &mut ModelClientSession,
-    responses_metadata: &MapleCodeResponsesMetadata,
+    responses_metadata: &MaplecodeResponsesMetadata,
     prompt: &Prompt,
     phase: CompactionPhase,
-) -> MapleCodeResult<CompactionResponse> {
+) -> MaplecodeResult<CompactionResponse> {
     let mut includes_reasoning = turn_context.model_info().use_responses_lite;
     let mut stream = client_session
         .stream(
@@ -872,7 +872,7 @@ async fn drain_to_completed(
     loop {
         let maybe_event = stream.next().await;
         let Some(event) = maybe_event else {
-            return Err(MapleCodeErr::Stream(
+            return Err(MaplecodeErr::Stream(
                 "stream closed before response.completed".into(),
             ));
         };
@@ -898,7 +898,7 @@ async fn drain_to_completed(
                             turn_context.model_info(),
                             vec![ResponseItemEnvelope {
                                 item,
-                                metadata: Some(MapleCodeHarnessMetadata {
+                                metadata: Some(MaplecodeHarnessMetadata {
                                     compaction_output: true,
                                     ..Default::default()
                                 }),
@@ -927,7 +927,7 @@ async fn drain_to_completed(
             }
             Ok(_) => continue,
             Err(e) => {
-                if let MapleCodeErrorDetails::ResponseIncomplete(incomplete) = e.details() {
+                if let MaplecodeErrorDetails::ResponseIncomplete(incomplete) = e.details() {
                     sess.record_incomplete_response_usage(
                         turn_context,
                         &turn_context.initial_settings,

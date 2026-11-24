@@ -8,18 +8,18 @@ use futures::StreamExt;
 use futures::stream;
 use futures::stream::BoxStream;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use std::sync::Arc;
 
 /// An initial runtime snapshot followed by coalesced status changes. The stream ends
 /// when that local runtime's status channel closes; it does not follow a later reload.
-pub(crate) type StatusSubscription = BoxStream<'static, MapleCodeResult<AgentInfo>>;
+pub(crate) type StatusSubscription = BoxStream<'static, MaplecodeResult<AgentInfo>>;
 
 impl LocalAgentControl {
     pub(crate) async fn subscribe_status(
         &self,
         agent_id: ThreadId,
-    ) -> MapleCodeResult<StatusSubscription> {
+    ) -> MaplecodeResult<StatusSubscription> {
         let manager = self.runtime.upgrade()?;
         let thread = manager.get_thread(agent_id).await?;
         // Subscribe before reading settings; mark the initial status seen only afterward.

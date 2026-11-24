@@ -2,7 +2,7 @@
 //! A serving assessment lives with its invocation or code cell, without a separate cache.
 
 use crate::GuardianAuthorizationVersion;
-use crate::MapleCodeThread;
+use crate::MaplecodeThread;
 use crate::context::GuardianReviewEvidence;
 
 /// Authorization and policy captured for a score; consumers must revalidate before approval.
@@ -20,13 +20,13 @@ pub struct ScoreAuthorization {
 
 impl ScoreAuthorization {
     /// Checks the captured authorization against the live thread.
-    pub async fn is_current(&self, thread: &MapleCodeThread) -> bool {
+    pub async fn is_current(&self, thread: &MaplecodeThread) -> bool {
         self == &Self::current(thread, &self.permissions).await
     }
 
     /// Captures the thread authorization and policy for the supplied permission evidence.
     pub async fn current(
-        thread: &MapleCodeThread,
+        thread: &MaplecodeThread,
         permissions: &maplecode_guardian_context::PermissionContext,
     ) -> Self {
         Self::for_session(&thread.session, permissions).await

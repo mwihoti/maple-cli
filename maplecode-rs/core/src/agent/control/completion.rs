@@ -14,7 +14,7 @@ use maplecode_protocol::AgentPath;
 use maplecode_protocol::items::SubAgentActivityItem;
 use maplecode_protocol::protocol::AgentStatus;
 use maplecode_protocol::protocol::InterAgentCommunication;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentActivityKind;
 use maplecode_protocol::protocol::SubAgentSource;
@@ -90,7 +90,7 @@ impl LocalAgentControl {
         }
 
         let message = match (&status, outcome.error_info) {
-            (AgentStatus::Errored(error), Some(MapleCodeErrorInfo::TooManyDenials)) => {
+            (AgentStatus::Errored(error), Some(MaplecodeErrorInfo::TooManyDenials)) => {
                 Some(format_guardian_interruption_message(
                     parent_agent_path.clone(),
                     child_agent_path.clone(),

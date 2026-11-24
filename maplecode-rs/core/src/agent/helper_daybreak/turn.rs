@@ -8,8 +8,8 @@ use crate::session::session::Session;
 use crate::session::turn_context::TurnContext;
 use maplecode_features::Feature;
 use maplecode_login::AuthOwner;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::openai_models::ModelInfo;
 use maplecode_protocol::openai_models::SavedDaybreakChoice;
 use maplecode_protocol::turn_input::CyberAccessProgram;
@@ -21,11 +21,11 @@ const ACCOUNT_CHANGED: &str =
 pub(crate) struct SavedProgramResolution(Result<AuthOwner, String>);
 
 impl SavedProgramResolution {
-    pub(crate) fn validate(&self) -> MapleCodeResult<()> {
+    pub(crate) fn validate(&self) -> MaplecodeResult<()> {
         match &self.0 {
             Ok(owner) if owner.is_current() => Ok(()),
-            Ok(_) => Err(MapleCodeErr::InvalidRequest(ACCOUNT_CHANGED.to_owned())),
-            Err(error) => Err(MapleCodeErr::InvalidRequest(error.clone())),
+            Ok(_) => Err(MaplecodeErr::InvalidRequest(ACCOUNT_CHANGED.to_owned())),
+            Err(error) => Err(MaplecodeErr::InvalidRequest(error.clone())),
         }
     }
 }

@@ -4,7 +4,7 @@ use maplecode_extension_api::ModelRequestInput;
 use maplecode_extension_api::ModelRequestKind;
 use maplecode_extension_api::ModelResponseInterceptor;
 use maplecode_extension_api::ModelResponseStream;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -19,7 +19,7 @@ pub(crate) async fn check_budget(
     }
     for contributor in contributors {
         if contributor.budget_exhausted(thread_id).await {
-            return Err(MapleCodeErr::SessionBudgetExceeded);
+            return Err(MaplecodeErr::SessionBudgetExceeded);
         }
     }
     Ok(())

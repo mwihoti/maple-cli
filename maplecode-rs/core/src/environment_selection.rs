@@ -21,8 +21,8 @@ use maplecode_exec_server::SelectedCapabilityRootsStatus;
 use maplecode_protocol::capabilities::CapabilityRootLocation;
 use maplecode_protocol::capabilities::EnvironmentCapabilityRoots;
 use maplecode_protocol::capabilities::SelectedCapabilityRoot;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::EnvironmentConfig;
@@ -142,23 +142,23 @@ pub(crate) fn default_thread_environment_requests(
 pub fn validate_environment_ids_and_cwds<'a>(
     environment_manager: &EnvironmentManager,
     environments: impl IntoIterator<Item = (&'a str, &'a PathUri)>,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let mut environment_ids = HashSet::new();
     for (environment_id, cwd) in environments {
         if cwd.inferred_native_path_string().len() > MAX_TURN_ENVIRONMENT_CWD_BYTES {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "turn environment working directory exceeds the maximum size".to_string(),
             ));
         }
         if !environment_ids.insert(environment_id) {
-            return Err(MapleCodeErr::InvalidRequest(format!(
+            return Err(MaplecodeErr::InvalidRequest(format!(
                 "duplicate turn environment id `{environment_id}`"
             )));
         }
         environment_manager
             .get_environment(environment_id)
             .ok_or_else(|| {
-                MapleCodeErr::InvalidRequest(format!(
+                MaplecodeErr::InvalidRequest(format!(
                     "unknown turn environment id `{environment_id}`"
                 ))
             })?;

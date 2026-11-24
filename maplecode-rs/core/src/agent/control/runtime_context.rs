@@ -7,8 +7,8 @@ use crate::session_prefix::format_subagent_context_line;
 use crate::thread_manager::ThreadManagerState;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::error::AgentErrorContext;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -23,16 +23,16 @@ impl LocalAgentRuntime {
         }
     }
 
-    pub(crate) fn ensure_agent_known(&self, agent_id: ThreadId) -> MapleCodeResult<AgentMetadata> {
+    pub(crate) fn ensure_agent_known(&self, agent_id: ThreadId) -> MaplecodeResult<AgentMetadata> {
         self.registry
             .agent_metadata_for_thread(agent_id)
-            .ok_or_else(|| MapleCodeErr::ThreadNotFound(agent_id))
+            .ok_or_else(|| MaplecodeErr::ThreadNotFound(agent_id))
     }
 
     pub(crate) async fn list_live_agent_subtree_thread_ids(
         &self,
         agent_id: ThreadId,
-    ) -> MapleCodeResult<Vec<ThreadId>> {
+    ) -> MaplecodeResult<Vec<ThreadId>> {
         let mut thread_ids = vec![agent_id];
         thread_ids.extend(self.live_thread_spawn_descendants(agent_id).await?);
         Ok(thread_ids)
@@ -62,7 +62,7 @@ impl LocalAgentRuntime {
     pub(super) async fn open_thread_spawn_children(
         &self,
         parent_thread_id: ThreadId,
-    ) -> MapleCodeResult<Vec<(ThreadId, AgentMetadata)>> {
+    ) -> MaplecodeResult<Vec<(ThreadId, AgentMetadata)>> {
         let mut children_by_parent = self.live_thread_spawn_children().await?;
         Ok(children_by_parent
             .remove(&parent_thread_id)
@@ -71,7 +71,7 @@ impl LocalAgentRuntime {
 
     pub(super) async fn live_thread_spawn_children(
         &self,
-    ) -> MapleCodeResult<HashMap<ThreadId, Vec<(ThreadId, AgentMetadata)>>> {
+    ) -> MaplecodeResult<HashMap<ThreadId, Vec<(ThreadId, AgentMetadata)>>> {
         let state = self.upgrade()?;
         let mut children_by_parent = HashMap::<ThreadId, Vec<(ThreadId, AgentMetadata)>>::new();
 
@@ -107,7 +107,7 @@ impl LocalAgentRuntime {
     pub(super) async fn live_thread_spawn_descendants(
         &self,
         root_thread_id: ThreadId,
-    ) -> MapleCodeResult<Vec<ThreadId>> {
+    ) -> MaplecodeResult<Vec<ThreadId>> {
         let mut children_by_parent = self.live_thread_spawn_children().await?;
         let mut descendants = Vec::new();
         let mut stack = children_by_parent
@@ -130,9 +130,9 @@ impl LocalAgentRuntime {
         Ok(descendants)
     }
 
-    pub(in crate::agent) fn upgrade(&self) -> MapleCodeResult<Arc<ThreadManagerState>> {
+    pub(in crate::agent) fn upgrade(&self) -> MaplecodeResult<Arc<ThreadManagerState>> {
         self.manager.upgrade().ok_or_else(|| {
-            MapleCodeErr::UnsupportedOperation("thread manager dropped".to_string())
+            MaplecodeErr::UnsupportedOperation("thread manager dropped".to_string())
                 .with_agent_context(AgentErrorContext::ManagerUnavailable)
         })
     }

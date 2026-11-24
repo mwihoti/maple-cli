@@ -9,7 +9,7 @@ use futures::StreamExt;
 use maplecode_async_utils::OrCancelExt;
 use maplecode_guardian_reviewer::DenialResample;
 use maplecode_guardian_reviewer::GuardianReviewResponse;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::ResponseItem;
 use tokio_util::sync::CancellationToken;
 
@@ -44,7 +44,7 @@ impl ResponseResampling {
     pub(crate) async fn next(
         &mut self,
         stream: &mut ResponseStream,
-    ) -> Option<MapleCodeResult<ResponseEvent>> {
+    ) -> Option<MaplecodeResult<ResponseEvent>> {
         match self.accepted_output.pop_front() {
             Some(item) => Some(Ok(ResponseEvent::OutputItemDone(item))),
             None => stream.next().await,
@@ -113,9 +113,9 @@ impl ResponseResampling {
     /// Called after the denied completion has been accounted for, with the unchanged request.
     pub(crate) async fn retry(
         &mut self,
-        request: impl Future<Output = MapleCodeResult<ResponseStream>> + Send,
+        request: impl Future<Output = MaplecodeResult<ResponseStream>> + Send,
         cancellation_token: &CancellationToken,
-    ) -> MapleCodeResult<ResponseStream> {
+    ) -> MaplecodeResult<ResponseStream> {
         self.retry_pending = false;
         self.buffered_output = Some(Vec::new());
         request.or_cancel(cancellation_token).await?

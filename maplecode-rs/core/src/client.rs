@@ -36,7 +36,7 @@ use std::sync::atomic::Ordering;
 #[path = "client_tool_metadata.rs"]
 mod tool_metadata;
 
-use crate::MapleCodeResponsesHeaders;
+use crate::MaplecodeResponsesHeaders;
 use crate::PromptCacheKey;
 use crate::tools::ExecutedToolCalls;
 use async_channel::Sender;
@@ -73,7 +73,7 @@ use maplecode_api::create_text_param_for_request;
 use maplecode_api::response_create_client_metadata;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::RefreshTokenError;
 use maplecode_login::UnauthorizedRecovery;
 use maplecode_login::default_client::add_originator_header;
@@ -130,7 +130,7 @@ use crate::context::BaseInstructionsFragment;
 use crate::context::ContextualUserFragment;
 use crate::cyber_access_program;
 use crate::feedback_tags;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
+use crate::responses_metadata::MaplecodeResponsesMetadata;
 use crate::responses_metadata::subagent_header_value;
 use crate::util::emit_feedback_auth_recovery_tags;
 use maplecode_feedback::FeedbackRequestTags;
@@ -150,8 +150,8 @@ use maplecode_model_provider_info::DEFAULT_WEBSOCKET_CONNECT_TIMEOUT_MS;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_model_provider_info::OPENAI_PROVIDER_NAME;
 use maplecode_model_provider_info::WireApi;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::Result;
 use maplecode_response_debug_context::extract_response_debug_context;
 use maplecode_response_debug_context::extract_response_debug_context_from_api_error;
@@ -302,7 +302,7 @@ pub struct ModelClient {
     agent_identity_policy: AgentIdentityAuthPolicy,
     prompt_cache_key_policy: PromptCacheKey,
     session_id_override: Option<String>,
-    maplecode_responses_headers: Option<Arc<MapleCodeResponsesHeaders>>,
+    maplecode_responses_headers: Option<Arc<MaplecodeResponsesHeaders>>,
     event_sender: Option<Sender<ProtocolEvent>>,
     http_client_factory: HttpClientFactory,
     restored_history: bool,
@@ -672,7 +672,7 @@ impl ModelClient {
         prompt_cache_key: PromptCacheKey,
         session_id_override: Option<String>,
         event_sender: Sender<ProtocolEvent>,
-        maplecode_responses_headers: Option<Arc<MapleCodeResponsesHeaders>>,
+        maplecode_responses_headers: Option<Arc<MaplecodeResponsesHeaders>>,
         api_key_cyber_access_programs: cyber_access_program::ApiKeyCyberAccessPrograms,
         required_cyber_access_programs: Option<
             Arc<cyber_access_program::RequiredCyberAccessPrograms>,
@@ -697,7 +697,7 @@ impl ModelClient {
                 .iter()
                 .any(|program| programs == Some((*program).into()))
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "this thread requires an allowed explicit access program".into(),
             ));
         }
@@ -709,7 +709,7 @@ impl ModelClient {
     }
 
     /// The caller's policy controls the request body independently of the session-id header.
-    fn prompt_cache_key(&self, metadata: &MapleCodeResponsesMetadata) -> Option<String> {
+    fn prompt_cache_key(&self, metadata: &MaplecodeResponsesMetadata) -> Option<String> {
         match &self.prompt_cache_key_policy {
             PromptCacheKey::SessionDerived => Some(self.session_derived_cache_key(metadata)),
             PromptCacheKey::Custom(key) => Some(key.clone()),
@@ -717,7 +717,7 @@ impl ModelClient {
         }
     }
 
-    fn session_derived_cache_key(&self, metadata: &MapleCodeResponsesMetadata) -> String {
+    fn session_derived_cache_key(&self, metadata: &MaplecodeResponsesMetadata) -> String {
         if let Some(session_id) = &self.session_id_override {
             return session_id.clone();
         }
@@ -733,7 +733,7 @@ impl ModelClient {
 
     // ChatGPT derives cache affinity from the Responses session-id header. Keep the
     // actual session identity in turn metadata, hooks, and history/notes requests.
-    fn responses_session_id(&self, metadata: &MapleCodeResponsesMetadata) -> String {
+    fn responses_session_id(&self, metadata: &MaplecodeResponsesMetadata) -> String {
         if self.state.session_source.is_non_root_agent() {
             metadata.session_id.clone()
         } else {
@@ -830,7 +830,7 @@ impl ModelClient {
                             .to_str()
                             .map(|value| (name.to_string(), value.to_string().into()))
                             .map_err(|_| {
-                                MapleCodeErr::InvalidRequest(format!("invalid {name} header"))
+                                MaplecodeErr::InvalidRequest(format!("invalid {name} header"))
                             })
                     })
                     .collect::<Result<_>>()?,
@@ -839,11 +839,11 @@ impl ModelClient {
         }
         if let Some(base_url) = base_url {
             let mut url = url::Url::parse(base_url).map_err(|error| {
-                MapleCodeErr::InvalidRequest(format!("invalid realtime URL: {error}"))
+                MaplecodeErr::InvalidRequest(format!("invalid realtime URL: {error}"))
             })?;
             if url.scheme() == "wss" {
                 url.set_scheme("https")
-                    .map_err(|_| MapleCodeErr::InvalidRequest("invalid realtime URL".into()))?;
+                    .map_err(|_| MaplecodeErr::InvalidRequest("invalid realtime URL".into()))?;
             }
             info.base_url = Some(url.to_string());
         }
@@ -1023,7 +1023,7 @@ impl ModelClient {
         let request_telemetry = Self::build_request_telemetry(
             session_telemetry,
             AuthRequestTelemetryContext::new(
-                client_setup.auth.as_ref().map(MapleCodeAuth::auth_mode),
+                client_setup.auth.as_ref().map(MaplecodeAuth::auth_mode),
                 client_setup.api_auth.as_ref(),
                 client_setup.agent_identity_telemetry.clone(),
                 PendingUnauthorizedRetry::default(),
@@ -1076,7 +1076,7 @@ impl ModelClient {
 
     fn build_responses_compatibility_headers(
         &self,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
     ) -> ApiHeaderMap {
         let mut extra_headers = responses_metadata.compatibility_headers();
         if matches!(
@@ -1093,7 +1093,7 @@ impl ModelClient {
 
     fn build_ws_client_metadata(
         &self,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
         include_internal: bool,
         use_responses_lite: bool,
     ) -> HashMap<String, String> {
@@ -1168,7 +1168,7 @@ impl ModelClient {
         effort: Option<ReasoningEffortConfig>,
         summary: ReasoningSummaryConfig,
         service_tier: Option<String>,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
         include_internal: bool,
     ) -> Result<ResponsesApiRequest> {
         let mut input = prompt.get_formatted_input_for_request(model_info);
@@ -1376,7 +1376,7 @@ impl ModelClient {
         .await
     }
 
-    fn responses_headers(&self, auth: Option<&MapleCodeAuth>, model: &str) -> ApiHeaderMap {
+    fn responses_headers(&self, auth: Option<&MaplecodeAuth>, model: &str) -> ApiHeaderMap {
         self.maplecode_responses_headers
             .as_ref()
             .filter(|config| config.model == model && self.uses_maplecode_backend(auth))
@@ -1384,9 +1384,9 @@ impl ModelClient {
             .unwrap_or_default()
     }
 
-    fn uses_maplecode_backend(&self, auth: Option<&MapleCodeAuth>) -> bool {
+    fn uses_maplecode_backend(&self, auth: Option<&MaplecodeAuth>) -> bool {
         let provider = self.state.provider.info();
-        auth.is_some_and(MapleCodeAuth::uses_maplecode_backend)
+        auth.is_some_and(MaplecodeAuth::uses_maplecode_backend)
             && provider.is_openai()
             && provider.requires_openai_auth
             && provider.env_key.is_none()
@@ -1399,7 +1399,7 @@ impl ModelClient {
         &self,
         metadata: &mut Option<HashMap<String, String>>,
         parent_response_id: Option<&str>,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         responses_headers: &ApiHeaderMap,
     ) {
         if let Some(metadata) = metadata.as_mut() {
@@ -1417,7 +1417,7 @@ impl ModelClient {
             && !crate::guardian::is_basic_session_source(&self.state.session_source)
             && matches!(
                 auth,
-                Some(MapleCodeAuth::Chatgpt(_) | MapleCodeAuth::ChatgptAuthTokens(_))
+                Some(MaplecodeAuth::Chatgpt(_) | MaplecodeAuth::ChatgptAuthTokens(_))
             )
             && self.uses_maplecode_backend(auth)
         {
@@ -1429,7 +1429,7 @@ impl ModelClient {
 
     fn build_routing_hint_header(
         &self,
-        auth: Option<&MapleCodeAuth>,
+        auth: Option<&MaplecodeAuth>,
         responses_headers: &ApiHeaderMap,
         model: &str,
         service_tier: Option<&str>,
@@ -1462,7 +1462,7 @@ impl ModelClient {
         api_provider: maplecode_api::Provider,
         api_auth: SharedAuthProvider,
         http_client_factory: &HttpClientFactory,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
         auth_context: AuthRequestTelemetryContext,
         request_route_telemetry: RequestRouteTelemetry,
         responses_headers: &ApiHeaderMap,
@@ -1564,7 +1564,7 @@ impl ModelClient {
     /// Builds websocket handshake headers for both prewarm and turn-time reconnect.
     async fn build_websocket_headers(
         &self,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
     ) -> ApiHeaderMap {
         let mut headers = build_responses_headers(
             self.state.beta_features_header.as_deref(),
@@ -1633,7 +1633,7 @@ impl<'a> ResponsesHttpExecutor<'a> {
     async fn build_responses_options(
         &self,
         turn_state: &Arc<OnceLock<String>>,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
         compression: Compression,
         use_responses_lite: bool,
     ) -> ApiResponsesOptions {
@@ -1749,7 +1749,7 @@ impl ModelClientSession {
         model_info: &ModelInfo,
         service_tier: Option<String>,
         session_telemetry: &SessionTelemetry,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
     ) -> Result<()> {
         // Runtime admission belongs to the request that will use the connection.
         if !self.client.responses_websocket_enabled()
@@ -1770,7 +1770,7 @@ impl ModelClientSession {
                 .current_client_setup(ClientRouting::Workspace)
                 .await?;
             let auth_context = AuthRequestTelemetryContext::new(
-                client_setup.auth.as_ref().map(MapleCodeAuth::auth_mode),
+                client_setup.auth.as_ref().map(MaplecodeAuth::auth_mode),
                 client_setup.api_auth.as_ref(),
                 client_setup.agent_identity_telemetry.clone(),
                 pending_retry,
@@ -1940,9 +1940,9 @@ impl ModelClientSession {
 }
 
 impl ResponsesHttpExecutor<'_> {
-    fn responses_request_compression(&self, auth: Option<&MapleCodeAuth>) -> Compression {
+    fn responses_request_compression(&self, auth: Option<&MaplecodeAuth>) -> Compression {
         if self.client.state.enable_request_compression
-            && auth.is_some_and(MapleCodeAuth::uses_maplecode_backend)
+            && auth.is_some_and(MaplecodeAuth::uses_maplecode_backend)
             && self.client.state.provider.info().is_openai()
         {
             Compression::Zstd
@@ -1979,7 +1979,7 @@ impl ResponsesHttpExecutor<'_> {
         effort: Option<ReasoningEffortConfig>,
         summary: ReasoningSummaryConfig,
         service_tier: Option<String>,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
         inference_trace: &InferenceTraceContext,
     ) -> Result<ResponseStream> {
         let auth_manager = self.client.state.provider.auth_manager();
@@ -1996,7 +1996,7 @@ impl ResponsesHttpExecutor<'_> {
             if expected_auth_owner.as_ref().is_some_and(|owner| {
                 Some(owner) != client_setup.auth_owner.as_ref() || !owner.is_current()
             }) {
-                return Err(MapleCodeErr::TurnAborted);
+                return Err(MaplecodeErr::TurnAborted);
             }
             let include_internal = self
                 .client
@@ -2009,7 +2009,7 @@ impl ResponsesHttpExecutor<'_> {
             tracing::Span::current().record("api.path", "/responses");
             let transport = client_setup.http_transport("/responses")?;
             let request_auth_context = AuthRequestTelemetryContext::new(
-                client_setup.auth.as_ref().map(MapleCodeAuth::auth_mode),
+                client_setup.auth.as_ref().map(MaplecodeAuth::auth_mode),
                 client_setup.api_auth.as_ref(),
                 client_setup.agent_identity_telemetry.clone(),
                 pending_retry,
@@ -2186,7 +2186,7 @@ impl ModelClientSession {
         effort: Option<ReasoningEffortConfig>,
         summary: ReasoningSummaryConfig,
         service_tier: Option<String>,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
         warmup: bool,
         request_trace: Option<W3cTraceContext>,
         inference_trace: &InferenceTraceContext,
@@ -2223,7 +2223,7 @@ impl ModelClientSession {
                 .responses_headers(client_setup.auth.as_ref(), &model_info.slug);
             tracing::Span::current().record("api.path", "/responses");
             let request_auth_context = AuthRequestTelemetryContext::new(
-                client_setup.auth.as_ref().map(MapleCodeAuth::auth_mode),
+                client_setup.auth.as_ref().map(MaplecodeAuth::auth_mode),
                 client_setup.api_auth.as_ref(),
                 client_setup.agent_identity_telemetry.clone(),
                 pending_retry,
@@ -2550,7 +2550,7 @@ impl ModelClientSession {
         effort: Option<ReasoningEffortConfig>,
         summary: ReasoningSummaryConfig,
         service_tier: Option<String>,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
     ) -> Result<()> {
         if !self.client.responses_websocket_enabled() {
             return Ok(());
@@ -2615,7 +2615,7 @@ impl ModelClientSession {
         effort: Option<ReasoningEffortConfig>,
         summary: ReasoningSummaryConfig,
         service_tier: Option<String>,
-        responses_metadata: &MapleCodeResponsesMetadata,
+        responses_metadata: &MaplecodeResponsesMetadata,
         inference_trace: &InferenceTraceContext,
     ) -> Result<ResponseStream> {
         let wire_api = self.client.state.provider.info().wire_api;
@@ -2706,7 +2706,7 @@ fn is_guardian_reviewer(responses_headers: &ApiHeaderMap) -> bool {
 
 /// Builds the extra headers attached to Responses API requests.
 ///
-/// These headers implement MapleCode-specific conventions:
+/// These headers implement Maplecode-specific conventions:
 ///
 /// - `x-maplecode-beta-features`: comma-separated beta feature keys enabled for the session.
 /// - `x-maplecode-turn-state`: sticky routing token captured earlier in the turn.
@@ -2916,7 +2916,7 @@ where
                     // belong to the continuation cache or reach tool dispatch.
                     let completed_item_count = items_added.len();
                     if inference_trace_attempt.needs_output_items()
-                        && let MapleCodeErrorDetails::ResponseIncomplete(incomplete) =
+                        && let MaplecodeErrorDetails::ResponseIncomplete(incomplete) =
                             mapped.details()
                     {
                         for raw in &incomplete.partial_output {
@@ -2965,7 +2965,7 @@ where
 /// Handles a 401 response by optionally refreshing ChatGPT tokens once.
 ///
 /// When refresh succeeds, the caller should retry the API call; otherwise
-/// the mapped `MapleCodeErr` is returned to the caller.
+/// the mapped `MaplecodeErr` is returned to the caller.
 #[derive(Clone, Copy, Debug)]
 struct UnauthorizedRecoveryExecution {
     mode: &'static str,
@@ -3041,7 +3041,7 @@ struct WebsocketConnectParams<'a> {
     api_auth: SharedAuthProvider,
     http_client_factory: HttpClientFactory,
     auth_owner: Option<AuthOwner>,
-    responses_metadata: &'a MapleCodeResponsesMetadata,
+    responses_metadata: &'a MaplecodeResponsesMetadata,
     auth_context: AuthRequestTelemetryContext,
     request_route_telemetry: RequestRouteTelemetry,
     responses_headers: &'a ApiHeaderMap,
@@ -3149,7 +3149,7 @@ async fn handle_unauthorized(
                 );
                 Ok(UnauthorizedRecoveryExecution { mode, phase })
             }
-            Err(RefreshTokenError::Policy(error)) => Err(MapleCodeErr::Fatal(error.to_string())),
+            Err(RefreshTokenError::Policy(error)) => Err(MaplecodeErr::Fatal(error.to_string())),
             Err(RefreshTokenError::Permanent(failed)) => {
                 session_telemetry.record_auth_recovery(
                     mode,
@@ -3171,7 +3171,7 @@ async fn handle_unauthorized(
                     debug.auth_error.as_deref(),
                     debug.auth_error_code.as_deref(),
                 );
-                Err(MapleCodeErr::RefreshTokenFailed(failed))
+                Err(MaplecodeErr::RefreshTokenFailed(failed))
             }
             Err(RefreshTokenError::Transient(other)) => {
                 session_telemetry.record_auth_recovery(
@@ -3194,7 +3194,7 @@ async fn handle_unauthorized(
                     debug.auth_error.as_deref(),
                     debug.auth_error_code.as_deref(),
                 );
-                Err(MapleCodeErr::Io(other))
+                Err(MaplecodeErr::Io(other))
             }
         };
     }

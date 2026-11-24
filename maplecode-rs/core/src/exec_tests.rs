@@ -1287,7 +1287,7 @@ async fn build_exec_request_projects_workspace_roots_only_for_windows_sandbox() 
         let error = request.expect_err("native Windows sandbox must reject foreign roots");
         assert!(matches!(
             error.details(),
-            maplecode_protocol::error::MapleCodeErrorDetails::InvalidRequest(message)
+            maplecode_protocol::error::MaplecodeErrorDetails::InvalidRequest(message)
                 if message.starts_with("invalid Windows sandbox workspace roots:")
         ));
     } else {

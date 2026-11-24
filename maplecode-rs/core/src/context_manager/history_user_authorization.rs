@@ -12,7 +12,7 @@ use crate::context::is_contextual_user_fragment;
 use crate::event_mapping::parse_turn_item;
 use crate::guardian::GUARDIAN_MAX_ROOT_MESSAGE_TOKENS;
 use crate::guardian::guardian_truncate_text;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ReconciledRetainedContext;
 use maplecode_history::RetainedContext;
 use maplecode_history::RetainedInputSource;
@@ -115,7 +115,7 @@ impl ContextManager {
     pub(super) fn record_retained_message(
         &mut self,
         item: &ResponseItem,
-        metadata: Option<&MapleCodeHarnessMetadata>,
+        metadata: Option<&MaplecodeHarnessMetadata>,
         source: RetainedMessageSource,
     ) -> Option<maplecode_history::RetainedSource> {
         if let Some(text) =

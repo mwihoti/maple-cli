@@ -3541,7 +3541,7 @@ async fn guardian_review_session_config_isolates_parent_customizations() {
         Feature::Apps,
         Feature::Plugins,
         Feature::GuardianV2,
-        Feature::MapleCodeHooks,
+        Feature::MaplecodeHooks,
     ];
     for feature in disabled_features {
         parent_config

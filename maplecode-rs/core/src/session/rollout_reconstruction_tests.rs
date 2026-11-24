@@ -59,7 +59,7 @@ async fn recorded_questions_share_queued_input_order_across_resume() {
             vec![
                 ResponseItemEnvelope {
                     item: user_message("Yes."),
-                    metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+                    metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
                         user_input_order: Some(reply_order),
                         ..Default::default()
                     }),
@@ -69,7 +69,7 @@ async fn recorded_questions_share_queued_input_order_across_resume() {
                         "type": "function_call_output", "call_id": "first", "output": "Sent."
                     }))
                     .unwrap(),
-                    metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+                    metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
                         delivered_assistant_message: Some("Continue?".to_owned()),
                         ..Default::default()
                     }),
@@ -150,7 +150,7 @@ async fn sender_context_follows_its_delivery_through_checkpoint_and_rollback() {
                     "name": "send_message_to_thread", "namespace": "maplecode_app", "output": "Inspect."
                 }))
                 .unwrap(),
-                metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+                metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
                     user_input_order: acceptance_order,
                     sender_user_messages: Some(Box::new(snapshot.clone())),
                     ..Default::default()
@@ -158,7 +158,7 @@ async fn sender_context_follows_its_delivery_through_checkpoint_and_rollback() {
             },
             ResponseItemEnvelope {
                 item: user_message("Later user steer B."),
-                metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+                metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
                     user_input_order: steer_order,
                     ..Default::default()
                 }),
@@ -242,7 +242,7 @@ fn annotated(items: Vec<ResponseItem>) -> Vec<ResponseItemEnvelope> {
         .enumerate()
         .map(|(index, item)| ResponseItemEnvelope {
             item,
-            metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+            metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
                 history_sequence: Some(index as u64 + 1),
                 sampled_through_sequence: Some(0),
                 ..Default::default()
@@ -1715,7 +1715,7 @@ async fn bounded_replay_matches_full_replay_after_empty_turn_compactions(
             user_message("original task").into(),
             ResponseItemEnvelope {
                 item: assistant_message("continued working"),
-                metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+                metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
                     history_sequence: Some(2),
                     sampled_through_sequence: Some(0),
                     ..Default::default()

@@ -17,7 +17,7 @@ use maplecode_api::map_api_error;
 use maplecode_async_utils::OrCancelExt;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_login::default_client::default_headers;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use tokio::task::JoinHandle;
@@ -43,7 +43,7 @@ pub(super) struct ExistingCallAttachment {
     pub(super) stop_token: CancellationToken,
 }
 
-pub(super) async fn attach(attachment: ExistingCallAttachment) -> MapleCodeResult<JoinHandle<()>> {
+pub(super) async fn attach(attachment: ExistingCallAttachment) -> MaplecodeResult<JoinHandle<()>> {
     let ExistingCallAttachment {
         attachment_cancellation,
         client,

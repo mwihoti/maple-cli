@@ -3,13 +3,13 @@ use crate::ThreadManager;
 use crate::agent::LocalAgentControl;
 use crate::config::Config;
 use crate::config::test_config;
-use crate::maplecode_thread::MapleCodeThread;
+use crate::maplecode_thread::MaplecodeThread;
 use crate::thread_manager::ThreadManagerState;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::InterAgentCommunication;
 use maplecode_protocol::protocol::Op;
@@ -32,7 +32,7 @@ async fn residency_slot_reservation_unloads_oldest_idle_v2_agent() {
     config.maplecode_home = temp_home.path().to_path_buf().try_into().unwrap();
     config.cwd = temp_home.path().to_path_buf().try_into().unwrap();
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -96,7 +96,7 @@ async fn residency_slot_reservation_unloads_oldest_idle_v2_agent() {
         .expect("second resident slot should evict the first idle agent");
     match manager.get_thread(first.thread_id).await {
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::ThreadNotFound(thread_id) => {
+            MaplecodeErrorDetails::ThreadNotFound(thread_id) => {
                 assert_eq!(*thread_id, first.thread_id)
             }
             _ => panic!("expected evicted thread to be missing, got {err:?}"),
@@ -127,7 +127,7 @@ async fn interrupted_v2_agent_is_lost_after_residency_eviction() {
     config.maplecode_home = temp_home.path().to_path_buf().try_into().unwrap();
     config.cwd = temp_home.path().to_path_buf().try_into().unwrap();
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -168,7 +168,7 @@ async fn interrupted_v2_agent_is_lost_after_residency_eviction() {
         .expect("second resident slot should evict the first interrupted idle agent");
     match manager.get_thread(first.thread_id).await {
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::ThreadNotFound(thread_id) => {
+            MaplecodeErrorDetails::ThreadNotFound(thread_id) => {
                 assert_eq!(*thread_id, first.thread_id)
             }
             _ => panic!("expected evicted thread to be missing, got {err:?}"),
@@ -185,7 +185,7 @@ async fn interrupted_v2_agent_is_lost_after_residency_eviction() {
         .await
         .expect_err("evicted interrupted agent should stay lost");
     match err.details() {
-        MapleCodeErrorDetails::ThreadNotFound(thread_id) => assert_eq!(*thread_id, first.thread_id),
+        MaplecodeErrorDetails::ThreadNotFound(thread_id) => assert_eq!(*thread_id, first.thread_id),
         _ => panic!("expected ThreadNotFound, got {err:?}"),
     }
 
@@ -193,7 +193,7 @@ async fn interrupted_v2_agent_is_lost_after_residency_eviction() {
     assert!(manager.get_thread(second.thread_id).await.is_ok());
     match manager.get_thread(first.thread_id).await {
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::ThreadNotFound(thread_id) => {
+            MaplecodeErrorDetails::ThreadNotFound(thread_id) => {
                 assert_eq!(*thread_id, first.thread_id)
             }
             _ => panic!("expected evicted thread to be missing, got {err:?}"),
@@ -226,7 +226,7 @@ async fn spawn_v2_subagent(
         .expect("spawn v2 subagent")
 }
 
-async fn mark_thread_completed(thread: &MapleCodeThread) {
+async fn mark_thread_completed(thread: &MaplecodeThread) {
     let turn = thread.session.new_default_turn().await;
     thread
         .session
@@ -247,7 +247,7 @@ async fn mark_thread_completed(thread: &MapleCodeThread) {
     clear_active_turn(thread).await;
 }
 
-async fn mark_thread_interrupted(thread: &MapleCodeThread) {
+async fn mark_thread_interrupted(thread: &MaplecodeThread) {
     let turn = thread.session.new_default_turn().await;
     thread
         .session
@@ -267,7 +267,7 @@ async fn mark_thread_interrupted(thread: &MapleCodeThread) {
     clear_active_turn(thread).await;
 }
 
-async fn clear_active_turn(thread: &MapleCodeThread) {
+async fn clear_active_turn(thread: &MaplecodeThread) {
     // The fixture has no task runner to clear the turn after the terminal event.
     *thread.session.active_turn.lock().await = None;
 }

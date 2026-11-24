@@ -34,7 +34,7 @@ use maplecode_config::config_toml::RealtimeWsMode;
 use maplecode_config::config_toml::RealtimeWsVersion;
 use maplecode_features::Feature;
 use maplecode_http_client::HttpClientFactory;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::is_fedramp_api_key;
 use maplecode_login::default_client::add_originator_header;
 use maplecode_login::default_client::default_headers;
@@ -43,8 +43,8 @@ use maplecode_model_provider::resolve_api_provider;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_prompts::prepare_realtime_backend_prompt;
 use maplecode_protocol::auth::AuthMode;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::MessagePhase;
 use maplecode_protocol::protocol::ConversationAudioParams;
 use maplecode_protocol::protocol::ConversationSpeechParams;
@@ -55,8 +55,8 @@ use maplecode_protocol::protocol::ConversationTextRole;
 use maplecode_protocol::protocol::ErrorEvent;
 use maplecode_protocol::protocol::Event;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
-use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeResponseHandoffMode;
 use maplecode_protocol::protocol::RealtimeAttachmentOptions;
 use maplecode_protocol::protocol::RealtimeConversationClosedEvent;
 use maplecode_protocol::protocol::RealtimeConversationRealtimeEvent;
@@ -217,7 +217,7 @@ struct RealtimeHandoffState {
     client_managed_handoffs: bool,
     maplecode_responses_as_items: bool,
     maplecode_response_item_prefix: Option<String>,
-    maplecode_response_handoff_mode: MapleCodeResponseHandoffMode,
+    maplecode_response_handoff_mode: MaplecodeResponseHandoffMode,
     backend_reasoning_status: bool,
     maplecode_response_handoff_channel_prefixes: Arc<BTreeMap<String, Vec<String>>>,
     session_kind: RealtimeSessionKind,
@@ -526,7 +526,7 @@ impl RealtimeHandoffState {
 
     fn routes_handoff_by_bem(&self) -> bool {
         self.event_parser == RealtimeEventParser::FramelessBidi
-            && self.maplecode_response_handoff_mode == MapleCodeResponseHandoffMode::BemTags
+            && self.maplecode_response_handoff_mode == MaplecodeResponseHandoffMode::BemTags
     }
 }
 
@@ -579,7 +579,7 @@ struct RealtimeStart {
     flush_transcript_tail_on_session_end: bool,
     maplecode_responses_as_items: bool,
     maplecode_response_item_prefix: Option<String>,
-    maplecode_response_handoff_mode: MapleCodeResponseHandoffMode,
+    maplecode_response_handoff_mode: MaplecodeResponseHandoffMode,
     backend_reasoning_status: bool,
     maplecode_response_handoff_channel_prefixes: Option<BTreeMap<String, Vec<String>>>,
     realtime_call_api_provider: Option<ApiProvider>,
@@ -662,11 +662,11 @@ impl RealtimeConversationManager {
         mode_instructions: RealtimeModeInstructions,
         sess: &Arc<Session>,
         sub_id: &str,
-    ) -> MapleCodeResult<RealtimeStartOutput> {
+    ) -> MaplecodeResult<RealtimeStartOutput> {
         let previous_state = {
             let mut guard = self.state.lock().await;
             if start.attachment_control.is_cancelled() {
-                return Err(MapleCodeErr::TurnAborted);
+                return Err(MaplecodeErr::TurnAborted);
             }
             guard.conversation.take()
         };
@@ -689,7 +689,7 @@ impl RealtimeConversationManager {
         start: RealtimeStart,
         mode_instructions: RealtimeModeInstructions,
         sub_id: &str,
-    ) -> MapleCodeResult<RealtimeStartOutput> {
+    ) -> MaplecodeResult<RealtimeStartOutput> {
         let session_id = start.session_config.session_id.clone();
         let RealtimeStart {
             attachment_control,
@@ -714,7 +714,7 @@ impl RealtimeConversationManager {
             existing_call_id,
         } = start;
         if attachment_control.is_cancelled() {
-            return Err(MapleCodeErr::TurnAborted);
+            return Err(MaplecodeErr::TurnAborted);
         }
         let event_parser = session_config.event_parser;
         let session_kind = match event_parser {
@@ -912,7 +912,7 @@ impl RealtimeConversationManager {
             drop(events_rx);
             drop(transcript_tail_rx);
             stop_conversation_state(conversation, RealtimeFanoutTaskStop::Await).await;
-            return Err(MapleCodeErr::TurnAborted);
+            return Err(MaplecodeErr::TurnAborted);
         }
         Ok(RealtimeStartOutput {
             realtime_active,
@@ -973,7 +973,7 @@ impl RealtimeConversationManager {
         send_realtime_conversation_closed(sess, sub_id, end).await;
     }
 
-    pub(crate) async fn audio_in(&self, frame: RealtimeAudioFrame) -> MapleCodeResult<()> {
+    pub(crate) async fn audio_in(&self, frame: RealtimeAudioFrame) -> MaplecodeResult<()> {
         let sender = {
             let guard = self.state.lock().await;
             guard
@@ -983,7 +983,7 @@ impl RealtimeConversationManager {
         };
 
         let Some(sender) = sender else {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "conversation is not running".to_string(),
             ));
         };
@@ -994,13 +994,13 @@ impl RealtimeConversationManager {
                 warn!("dropping input audio frame due to full queue");
                 Ok(())
             }
-            Err(TrySendError::Closed(_)) => Err(MapleCodeErr::InvalidRequest(
+            Err(TrySendError::Closed(_)) => Err(MaplecodeErr::InvalidRequest(
                 "conversation is not running".to_string(),
             )),
         }
     }
 
-    pub(crate) async fn text_in(&self, mut params: ConversationTextParams) -> MapleCodeResult<()> {
+    pub(crate) async fn text_in(&self, mut params: ConversationTextParams) -> MaplecodeResult<()> {
         let sender = {
             let guard = self.state.lock().await;
             guard
@@ -1010,7 +1010,7 @@ impl RealtimeConversationManager {
         };
 
         let Some((sender, session_kind)) = sender else {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "conversation is not running".to_string(),
             ));
         };
@@ -1022,11 +1022,11 @@ impl RealtimeConversationManager {
         sender
             .send(params)
             .await
-            .map_err(|_| MapleCodeErr::InvalidRequest("conversation is not running".to_string()))?;
+            .map_err(|_| MaplecodeErr::InvalidRequest("conversation is not running".to_string()))?;
         Ok(())
     }
 
-    pub(crate) async fn send_reasoning_status(&self, text: &str) -> MapleCodeResult<()> {
+    pub(crate) async fn send_reasoning_status(&self, text: &str) -> MaplecodeResult<()> {
         let handoff = self
             .state
             .lock()
@@ -1052,18 +1052,18 @@ impl RealtimeConversationManager {
                 text: format!("[STATUS] {text}"),
             })
             .await
-            .map_err(|_| MapleCodeErr::InvalidRequest("conversation is not running".to_string()))
+            .map_err(|_| MaplecodeErr::InvalidRequest("conversation is not running".to_string()))
     }
 
     pub(crate) async fn handoff_out(
         &self,
         output_text: String,
         phase: Option<MessagePhase>,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         let handoff = {
             let guard = self.state.lock().await;
             let Some(state) = guard.conversation.as_ref() else {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "conversation is not running".to_string(),
                 ));
             };
@@ -1151,7 +1151,7 @@ impl RealtimeConversationManager {
             .output_tx
             .send(output)
             .await
-            .map_err(|_| MapleCodeErr::InvalidRequest("conversation is not running".to_string()))?;
+            .map_err(|_| MaplecodeErr::InvalidRequest("conversation is not running".to_string()))?;
         Ok(())
     }
 
@@ -1218,14 +1218,14 @@ impl RealtimeConversationManager {
         &self,
         item_id: &str,
         delta: String,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         if delta.is_empty() {
             return Ok(());
         }
         let handoff = {
             let guard = self.state.lock().await;
             let Some(state) = guard.conversation.as_ref() else {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "conversation is not running".to_string(),
                 ));
             };
@@ -1286,7 +1286,7 @@ impl RealtimeConversationManager {
         sent_output
     }
 
-    pub(crate) async fn append_speech(&self, text: String) -> MapleCodeResult<()> {
+    pub(crate) async fn append_speech(&self, text: String) -> MaplecodeResult<()> {
         if text.trim().is_empty() {
             return Ok(());
         }
@@ -1294,7 +1294,7 @@ impl RealtimeConversationManager {
         let handoff = {
             let guard = self.state.lock().await;
             let Some(state) = guard.conversation.as_ref() else {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "conversation is not running".to_string(),
                 ));
             };
@@ -1307,11 +1307,11 @@ impl RealtimeConversationManager {
                 text: realtime_backend_output(text, handoff.session_kind),
             })
             .await
-            .map_err(|_| MapleCodeErr::InvalidRequest("conversation is not running".to_string()))?;
+            .map_err(|_| MaplecodeErr::InvalidRequest("conversation is not running".to_string()))?;
         Ok(())
     }
 
-    pub(crate) async fn handoff_complete(&self) -> MapleCodeResult<()> {
+    pub(crate) async fn handoff_complete(&self) -> MaplecodeResult<()> {
         let handoff = {
             let guard = self.state.lock().await;
             guard
@@ -1351,7 +1351,7 @@ impl RealtimeConversationManager {
             .output_tx
             .send(output)
             .await
-            .map_err(|_| MapleCodeErr::InvalidRequest("conversation is not running".to_string()))
+            .map_err(|_| MaplecodeErr::InvalidRequest("conversation is not running".to_string()))
     }
 
     pub(crate) async fn clear_active_handoff(&self) {
@@ -1372,7 +1372,7 @@ impl RealtimeConversationManager {
         }
     }
 
-    pub(crate) async fn shutdown(&self) -> MapleCodeResult<()> {
+    pub(crate) async fn shutdown(&self) -> MaplecodeResult<()> {
         let state = {
             let mut guard = self.state.lock().await;
             guard.conversation.take()
@@ -1407,7 +1407,7 @@ pub(crate) async fn handle_start(
     sess: &Arc<Session>,
     sub_id: String,
     params: ConversationStartParams,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let prepared_start = match prepare_realtime_start(sess, params).await {
         Ok(prepared_start) => prepared_start,
         Err(err) => {
@@ -1450,7 +1450,7 @@ struct PreparedRealtimeConversationStart {
     flush_transcript_tail_on_session_end: bool,
     maplecode_responses_as_items: bool,
     maplecode_response_item_prefix: Option<String>,
-    maplecode_response_handoff_mode: MapleCodeResponseHandoffMode,
+    maplecode_response_handoff_mode: MaplecodeResponseHandoffMode,
     backend_reasoning_status: bool,
     maplecode_response_handoff_channel_prefixes: Option<BTreeMap<String, Vec<String>>>,
     realtime_start_instructions: Option<String>,
@@ -1472,7 +1472,7 @@ pub(crate) enum ConfiguredRealtimeVoice {
 async fn prepare_realtime_start(
     sess: &Arc<Session>,
     params: ConversationStartParams,
-) -> MapleCodeResult<PreparedRealtimeConversationStart> {
+) -> MaplecodeResult<PreparedRealtimeConversationStart> {
     sess.services
         .model_client
         .validate_required_cyber_access_program(/*programs*/ None)?;
@@ -1487,7 +1487,7 @@ async fn prepare_realtime_start(
         credentials: Arc::clone(&auth_manager),
         runtime_auth: if config.features.enabled(Feature::RuntimeAgentInstances) {
             let runtime = sess.services.runtime_auth.get().ok_or_else(|| {
-                MapleCodeErr::InvalidRequest(
+                MaplecodeErr::InvalidRequest(
                     "runtime authentication is not initialized".to_string(),
                 )
             })?;
@@ -1504,7 +1504,7 @@ async fn prepare_realtime_start(
                 .clone()
                 .with_account_binding(captured_factory.network_policy())
                 .ok_or_else(|| {
-                    MapleCodeErr::InvalidRequest(
+                    MaplecodeErr::InvalidRequest(
                         "realtime credentials and transport must share the application network policy"
                             .into(),
                     )
@@ -1551,7 +1551,7 @@ async fn prepare_realtime_start(
         }
         ConversationStartTransport::ExistingCall { .. } => {
             if version == RealtimeWsVersion::V2 {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "AVAS realtime calls require realtime v1 or v3".to_string(),
                 ));
             }
@@ -1562,7 +1562,7 @@ async fn prepare_realtime_start(
                 || params.voice.is_some()
                 || params.delegation_ack_filler.is_some()
             {
-                return Err(MapleCodeErr::InvalidRequest(
+                return Err(MaplecodeErr::InvalidRequest(
                     "existing realtime calls do not support session configuration options"
                         .to_string(),
                 ));
@@ -1592,7 +1592,7 @@ async fn prepare_realtime_start(
             if realtime_sideband_base_url.is_none() {
                 api_provider = resolve_api_provider(
                     &provider,
-                    Some(&MapleCodeAuth::from_api_key(&realtime_api_key)),
+                    Some(&MaplecodeAuth::from_api_key(&realtime_api_key)),
                 )?;
             }
             if let Some((manager, mode)) = &auth_context.runtime_auth
@@ -1605,7 +1605,7 @@ async fn prepare_realtime_start(
                 // Saved and command-provided keys keep their existing credential lifecycle.
                 let runtime = if provider.env_key.is_none()
                     && provider.experimental_bearer_token.is_none()
-                    && auth.as_ref().and_then(MapleCodeAuth::api_key).is_some()
+                    && auth.as_ref().and_then(MaplecodeAuth::api_key).is_some()
                 {
                     manager.bind(Arc::clone(&auth_manager))
                 } else {
@@ -1613,7 +1613,7 @@ async fn prepare_realtime_start(
                 };
                 let selected = maplecode_model_provider::select_runtime_auth_for(
                     &runtime,
-                    &MapleCodeAuth::from_api_key(&realtime_api_key),
+                    &MaplecodeAuth::from_api_key(&realtime_api_key),
                     &api_provider.headers,
                 )
                 .await?;
@@ -1681,14 +1681,14 @@ async fn prepare_realtime_start(
 fn validate_avas_webrtc_start(
     version: RealtimeWsVersion,
     session_type: RealtimeWsMode,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     if version == RealtimeWsVersion::V2 {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "AVAS realtime calls require realtime v1 or v3".to_string(),
         ));
     }
     if session_type != RealtimeWsMode::Conversational {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "AVAS realtime calls require conversational realtime".to_string(),
         ));
     }
@@ -1700,7 +1700,7 @@ pub(crate) async fn build_realtime_session_config(
     params: &ConversationStartParams,
     version: RealtimeWsVersion,
     configured_voice: ConfiguredRealtimeVoice,
-) -> MapleCodeResult<RealtimeSessionConfig> {
+) -> MaplecodeResult<RealtimeSessionConfig> {
     for (name, instructions) in [
         (
             "realtime start instructions",
@@ -1714,7 +1714,7 @@ pub(crate) async fn build_realtime_session_config(
         if instructions.is_some_and(|instructions| {
             approx_token_count(instructions) > REALTIME_MODE_INSTRUCTIONS_MAX_TOKENS
         }) {
-            return Err(MapleCodeErr::InvalidRequest(format!(
+            return Err(MaplecodeErr::InvalidRequest(format!(
                 "{name} must not exceed {REALTIME_MODE_INSTRUCTIONS_MAX_TOKENS} estimated tokens"
             )));
         }
@@ -1744,12 +1744,12 @@ pub(crate) async fn build_realtime_session_config(
         (false, false) => format!("{prompt}\n\n{startup_context}"),
     };
     if version != RealtimeWsVersion::V3 && !params.initial_items.is_empty() {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "initial realtime items require realtime v3".to_string(),
         ));
     }
     if params.initial_items.len() > REALTIME_INITIAL_ITEMS_MAX_COUNT {
-        return Err(MapleCodeErr::InvalidRequest(format!(
+        return Err(MaplecodeErr::InvalidRequest(format!(
             "initial realtime items must contain no more than {REALTIME_INITIAL_ITEMS_MAX_COUNT} items"
         )));
     }
@@ -1757,14 +1757,14 @@ pub(crate) async fn build_realtime_session_config(
     for item in &params.initial_items {
         let item_tokens = approx_token_count(&item.text);
         if item_tokens > REALTIME_INITIAL_ITEMS_MAX_TOKENS {
-            return Err(MapleCodeErr::InvalidRequest(format!(
+            return Err(MaplecodeErr::InvalidRequest(format!(
                 "each initial realtime item must not exceed {REALTIME_INITIAL_ITEMS_MAX_TOKENS} estimated tokens"
             )));
         }
         total_initial_item_tokens = total_initial_item_tokens.saturating_add(item_tokens);
     }
     if total_initial_item_tokens > REALTIME_INITIAL_ITEMS_MAX_TOKENS {
-        return Err(MapleCodeErr::InvalidRequest(format!(
+        return Err(MaplecodeErr::InvalidRequest(format!(
             "initial realtime items must not exceed {REALTIME_INITIAL_ITEMS_MAX_TOKENS} estimated tokens in total"
         )));
     }
@@ -1786,7 +1786,7 @@ pub(crate) async fn build_realtime_session_config(
     if version != RealtimeWsVersion::V2
         && matches!(params.output_modality, RealtimeOutputModality::Text)
     {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "text realtime output modality requires realtime v2".to_string(),
         ));
     }
@@ -1852,7 +1852,7 @@ fn realtime_backend_item(text: String, prefix: Option<&str>) -> String {
 fn validate_realtime_voice(
     version: RealtimeWsVersion,
     voice: RealtimeVoice,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let voices = RealtimeVoicesList::builtin();
     let allowed = match version {
         RealtimeWsVersion::V1 => &voices.v1,
@@ -1873,7 +1873,7 @@ fn validate_realtime_voice(
         .map(|voice| voice.wire_name())
         .collect::<Vec<_>>()
         .join(", ");
-    Err(MapleCodeErr::InvalidRequest(format!(
+    Err(MaplecodeErr::InvalidRequest(format!(
         "realtime voice `{}` is not supported for {version}; supported voices: {allowed}",
         voice.wire_name()
     )))
@@ -1883,7 +1883,7 @@ async fn handle_start_inner(
     sess: &Arc<Session>,
     sub_id: &str,
     prepared_start: PreparedRealtimeConversationStart,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let PreparedRealtimeConversationStart {
         attachment_control,
         sideband,
@@ -2092,7 +2092,7 @@ pub(crate) async fn handle_audio(
                 sess,
                 sub_id,
                 err.to_string(),
-                MapleCodeErrorInfo::BadRequest,
+                MaplecodeErrorInfo::BadRequest,
             )
             .await;
         }
@@ -2144,9 +2144,9 @@ fn wrap_realtime_delegation_input(
 }
 
 fn realtime_api_key(
-    auth: Option<&MapleCodeAuth>,
+    auth: Option<&MaplecodeAuth>,
     provider: &ModelProviderInfo,
-) -> MapleCodeResult<String> {
+) -> MaplecodeResult<String> {
     if let Some(api_key) = provider.api_key()? {
         return Ok(api_key);
     }
@@ -2155,7 +2155,7 @@ fn realtime_api_key(
         return Ok(token.into_inner());
     }
 
-    if let Some(api_key) = auth.and_then(MapleCodeAuth::api_key) {
+    if let Some(api_key) = auth.and_then(MaplecodeAuth::api_key) {
         return Ok(api_key.to_string());
     }
 
@@ -2167,7 +2167,7 @@ fn realtime_api_key(
         return Ok(api_key);
     }
 
-    Err(MapleCodeErr::InvalidRequest(
+    Err(MaplecodeErr::InvalidRequest(
         "realtime conversation requires API key auth".to_string(),
     ))
 }
@@ -2178,7 +2178,7 @@ fn realtime_request_headers(
     api_key: Option<&str>,
     event_parser: RealtimeEventParser,
     originator: &str,
-) -> MapleCodeResult<Option<HeaderMap>> {
+) -> MaplecodeResult<Option<HeaderMap>> {
     let mut headers = HeaderMap::new();
 
     match event_parser {
@@ -2205,7 +2205,7 @@ fn realtime_request_headers(
 
     if let Some(api_key) = api_key {
         let auth_value = HeaderValue::from_str(&format!("Bearer {api_key}")).map_err(|err| {
-            MapleCodeErr::InvalidRequest(format!("invalid realtime api key header: {err}"))
+            MaplecodeErr::InvalidRequest(format!("invalid realtime api key header: {err}"))
         })?;
         headers.insert(AUTHORIZATION, auth_value);
         if is_fedramp_api_key(api_key) {
@@ -2233,7 +2233,7 @@ pub(crate) async fn handle_text(
                 sess,
                 sub_id,
                 err.to_string(),
-                MapleCodeErrorInfo::BadRequest,
+                MaplecodeErrorInfo::BadRequest,
             )
             .await;
         }
@@ -2255,7 +2255,7 @@ pub(crate) async fn handle_speech(
                 sess,
                 sub_id,
                 err.to_string(),
-                MapleCodeErrorInfo::BadRequest,
+                MaplecodeErrorInfo::BadRequest,
             )
             .await;
         }
@@ -2272,22 +2272,22 @@ pub(crate) async fn handle_attach(
     sub_id: String,
     params: ConversationStartParams,
     options: RealtimeAttachmentOptions,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let attachment_control = RealtimeAttachmentControl {
         token: CancellationToken::new(),
         options,
     };
     if attachment_control.is_cancelled() {
-        return Err(MapleCodeErr::TurnAborted);
+        return Err(MaplecodeErr::TurnAborted);
     }
     let remaining = attachment_control
         .options
         .start_before
         .map(|deadline| deadline.duration_since(SystemTime::now()))
         .transpose()
-        .map_err(|_| MapleCodeErr::TurnAborted)?;
+        .map_err(|_| MaplecodeErr::TurnAborted)?;
     if remaining == Some(Duration::ZERO) {
-        return Err(MapleCodeErr::TurnAborted);
+        return Err(MaplecodeErr::TurnAborted);
     }
     let attach = async {
         let mut prepared = prepare_realtime_start(sess, params)
@@ -2326,12 +2326,12 @@ pub(crate) async fn handle_attach_stream(
     sub_id: String,
     params: ConversationStartParams,
     transport: maplecode_protocol::protocol::RealtimeSidebandTransport,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     if !matches!(
         &params.transport,
         Some(ConversationStartTransport::ExistingCall { .. })
     ) {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "sideband stream requires an existing call".into(),
         ));
     }
@@ -2655,12 +2655,12 @@ fn schedule_streamed_handoff_flush(
 fn v3_output_writer(
     writer: &RealtimeWebsocketWriter,
     phase: Option<&MessagePhase>,
-    handoff_mode: MapleCodeResponseHandoffMode,
+    handoff_mode: MaplecodeResponseHandoffMode,
 ) -> RealtimeWebsocketWriter {
     let channel = match handoff_mode {
-        MapleCodeResponseHandoffMode::Thinking => None,
-        MapleCodeResponseHandoffMode::Commentary => Some(RealtimeContextAppendChannel::Commentary),
-        MapleCodeResponseHandoffMode::BemTags => match phase {
+        MaplecodeResponseHandoffMode::Thinking => None,
+        MaplecodeResponseHandoffMode::Commentary => Some(RealtimeContextAppendChannel::Commentary),
+        MaplecodeResponseHandoffMode::BemTags => match phase {
             Some(MessagePhase::PartialAnswer | MessagePhase::FinalAnswer) => {
                 Some(RealtimeContextAppendChannel::Speakable)
             }
@@ -3108,7 +3108,7 @@ async fn send_conversation_error(
     sess: &Arc<Session>,
     sub_id: String,
     message: String,
-    maplecode_error_info: MapleCodeErrorInfo,
+    maplecode_error_info: MaplecodeErrorInfo,
 ) {
     sess.send_event_raw(Event {
         id: sub_id,

@@ -13,7 +13,7 @@ use crate::agent::control::AgentTreeTeardownGuard;
 use crate::thread_manager::thread_store_error_kind;
 use futures::future::BoxFuture;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErrKind;
+use maplecode_protocol::error::MaplecodeErrKind;
 use maplecode_protocol::protocol::Op;
 use maplecode_thread_store::LiveThreadInitGuard;
 use tokio::sync::Mutex;
@@ -78,7 +78,7 @@ impl SessionStartup {
                 if let Some(teardown) = teardown.as_ref() {
                     teardown.record_shutdown_failure(
                         "stop_session_io",
-                        MapleCodeErrKind::from(&error).into(),
+                        MaplecodeErrKind::from(&error).into(),
                     );
                 }
                 tracing::warn!("failed to stop cancelled session init: {error}");

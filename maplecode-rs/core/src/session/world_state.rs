@@ -35,7 +35,7 @@ use maplecode_file_system::FileSystemSandboxContext;
 use maplecode_prompts::ApprovalPromptContext;
 use maplecode_prompts::ResolvedModelMessages;
 use maplecode_prompts::render_model_instructions;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::BaseInstructionsProvenance;
 use maplecode_protocol::models::ContentItemNamespace;
 use maplecode_protocol::protocol::MultiAgentVersion;
@@ -76,7 +76,7 @@ impl Session {
         &self,
         step_context: &StepContext,
         new_window: bool,
-    ) -> MapleCodeResult<WorldState> {
+    ) -> MaplecodeResult<WorldState> {
         let incremental_tools = if new_window {
             step_context.incremental_tools_enabled()
         } else {

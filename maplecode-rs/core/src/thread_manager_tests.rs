@@ -38,8 +38,8 @@ use maplecode_protocol::approvals::ExecPolicyAmendment;
 use maplecode_protocol::capabilities::CapabilityRootLocation;
 use maplecode_protocol::capabilities::SelectedCapabilityRoot;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::error::MapleCodeErrKind;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrKind;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_protocol::mcp::MCP_APP_UI_EXTENSION_ID;
 use maplecode_protocol::mcp::OPENAI_FORM_EXTENSION_ID;
@@ -106,7 +106,7 @@ async fn live_fork_keeps_instructions_when_source_is_unloaded_during_setup() {
         source: None,
     };
     let mut manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -175,7 +175,7 @@ async fn startup_fixture() -> (tempfile::TempDir, Config, ThreadManager) {
     config.maplecode_home = home.path().abs();
     config.cwd = config.maplecode_home.abs();
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -252,7 +252,7 @@ async fn shared_service_tier_is_published_by_registered_startup() {
         if previous_shared_tier.is_some() {
             let error = started.err().expect("reject the duplicate runtime");
             assert!(
-                matches!(error.details(), MapleCodeErrorDetails::InvalidRequest(message)
+                matches!(error.details(), MaplecodeErrorDetails::InvalidRequest(message)
                 if *message == format!("thread {thread_id} is already running"))
             );
             startup.cleanup().await;
@@ -339,8 +339,8 @@ async fn policy_transfer_rejects_changed_sources_and_weakened_destination_rules(
         };
         let result = ExecPolicyManager::from_inherited(&snapshot, stack).await;
         assert_eq!(
-            result.as_ref().err().map(MapleCodeErrKind::from),
-            Some(MapleCodeErrKind::InvalidRequest)
+            result.as_ref().err().map(MaplecodeErrKind::from),
+            Some(MaplecodeErrKind::InvalidRequest)
         );
     };
     require_rejection(Policy::empty(), &stack).await;
@@ -427,8 +427,8 @@ async fn fixed_thread_text_supersedes_the_live_provider_and_isolated_helpers_rej
             .insert(SessionIsolation::Isolated);
         let result = manager.start_thread(isolated).await;
         assert_eq!(
-            result.as_ref().err().map(MapleCodeErrKind::from),
-            Some(MapleCodeErrKind::InvalidRequest)
+            result.as_ref().err().map(MaplecodeErrKind::from),
+            Some(MaplecodeErrKind::InvalidRequest)
         );
     }
 }
@@ -445,12 +445,10 @@ async fn resumed_analytics_validates_openai_destination(
     expected_requests: usize,
 ) {
     let proxy = MockServer::start().await;
-    wiremock::Mock::given(wiremock::matchers::path(
-        "/maplecode/analytics-events/events",
-    ))
-    .respond_with(wiremock::ResponseTemplate::new(200))
-    .mount(&proxy)
-    .await;
+    wiremock::Mock::given(wiremock::matchers::path("/codex/analytics-events/events"))
+        .respond_with(wiremock::ResponseTemplate::new(200))
+        .mount(&proxy)
+        .await;
     let home = tempdir().expect("tempdir");
     let mut config = test_config().await;
     config.maplecode_home = home.path().abs();
@@ -473,10 +471,7 @@ async fn resumed_analytics_validates_openai_destination(
             .unwrap();
     }
     maplecode_http_client::cache_system_proxy_route_for_test(
-        &format!(
-            "{}/maplecode/analytics-events/events",
-            config.chatgpt_base_url
-        ),
+        &format!("{}/codex/analytics-events/events", config.chatgpt_base_url),
         proxy.uri(),
     );
     maplecode_login::login_with_api_key(
@@ -490,7 +485,7 @@ async fn resumed_analytics_validates_openai_destination(
         AuthManager::shared_from_config(&config, /*enable_maplecode_api_key_env*/ false)
             .await
             .unwrap();
-    let original_auth = MapleCodeAuth::from_api_key("startup-key");
+    let original_auth = MaplecodeAuth::from_api_key("startup-key");
     let mut manager = ThreadManager::with_models_provider_and_home_for_tests(
         original_auth.clone(),
         config.model_provider.clone(),
@@ -558,7 +553,7 @@ async fn resumed_analytics_validates_openai_destination(
         .await
         .unwrap()
         .into_iter()
-        .filter(|request| request.url.path() == "/maplecode/analytics-events/events")
+        .filter(|request| request.url.path() == "/codex/analytics-events/events")
         .collect();
     assert_eq!(requests.len(), expected_requests);
     for request in requests {
@@ -572,9 +567,7 @@ async fn resumed_analytics_validates_openai_destination(
 async fn thread_analytics_opt_out_overrides_shared_client() {
     let server = MockServer::start().await;
     wiremock::Mock::given(wiremock::matchers::method("POST"))
-        .and(wiremock::matchers::path(
-            "/maplecode/analytics-events/events",
-        ))
+        .and(wiremock::matchers::path("/codex/analytics-events/events"))
         .respond_with(wiremock::ResponseTemplate::new(200))
         .mount(&server)
         .await;
@@ -582,7 +575,7 @@ async fn thread_analytics_opt_out_overrides_shared_client() {
     let mut config = test_config().await;
     config.chatgpt_base_url = server.uri();
     config.model_provider.base_url = Some(server.uri());
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let shared_client = AnalyticsEventsClient::new(
         AuthManager::from_auth_for_testing(auth.clone()),
         server.uri(),
@@ -670,7 +663,7 @@ async fn thread_analytics_opt_out_overrides_shared_client() {
         .await
         .expect("analytics requests")
         .into_iter()
-        .filter(|request| request.url.path() == "/maplecode/analytics-events/events")
+        .filter(|request| request.url.path() == "/codex/analytics-events/events")
         .flat_map(|request| {
             request.body_json::<serde_json::Value>().expect("JSON body")["events"]
                 .as_array()
@@ -724,7 +717,7 @@ async fn reserved_thread_id_is_used_without_changing_normal_id_generation() {
     ];
     let next_id = std::sync::atomic::AtomicUsize::new(0);
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -760,7 +753,7 @@ async fn reserved_thread_id_is_used_without_changing_normal_id_generation() {
     assert_eq!(reserved.thread_id, generated_ids[0]);
     assert!(matches!(
         resume_error.details(),
-        maplecode_protocol::error::MapleCodeErrorDetails::InvalidRequest(message)
+        maplecode_protocol::error::MaplecodeErrorDetails::InvalidRequest(message)
             if message == "reserved thread ID cannot be used when resuming a thread"
     ));
     assert_eq!(generated.thread_id, generated_ids[2]);
@@ -782,7 +775,7 @@ async fn thread_id_generator_applies_to_roots_children_and_forks() {
     ];
     let next_id = std::sync::atomic::AtomicUsize::new(0);
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -849,7 +842,7 @@ async fn thread_id_generator_does_not_replace_resumed_thread_id() {
     let original_thread_id =
         ThreadId::from_u128(/*value*/ 0x018f_0000_0000_7000_8000_0000_0000_0001);
     let original_manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -881,7 +874,7 @@ async fn thread_id_generator_does_not_replace_resumed_thread_id() {
     let _ = original_manager.remove_thread(&original_thread_id).await;
 
     let resumed_manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -916,7 +909,7 @@ async fn child_session_inherits_resumed_parent_auth(host_child: bool) {
     config.cwd = config.maplecode_home.abs();
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("key-a"),
+        MaplecodeAuth::from_api_key("key-a"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -941,7 +934,7 @@ async fn child_session_inherits_resumed_parent_auth(host_child: bool) {
         .expect("stop original thread");
     manager.remove_thread(&original.thread_id).await;
     let replacement = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("key-b"),
+        MaplecodeAuth::from_api_key("key-b"),
         config.maplecode_home.to_path_buf(),
     );
     let parent = manager
@@ -1036,7 +1029,7 @@ async fn child_session_inherits_client_mcp_extensions() {
     config.cwd = config.maplecode_home.abs();
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -1444,7 +1437,7 @@ async fn shutdown_all_threads_bounded_submits_shutdown_to_every_thread() {
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -1486,7 +1479,7 @@ async fn code_mode_session_provider_is_shared_across_threads() {
 
     let provider: Arc<dyn CodeModeSessionProvider> = Arc::new(DisabledCodeModeSessionProvider);
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -1600,7 +1593,7 @@ async fn mcp_invalidation_refreshes_threads_that_are_still_starting() {
     let mut extensions = maplecode_extension_api::ExtensionRegistryBuilder::new();
     extensions.thread_lifecycle_contributor(observer.clone());
     extensions.mcp_server_contributor(observer.clone());
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("dummy"));
+    let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("dummy"));
     let manager = Arc::new(ThreadManager::new(
         &config,
         crate::build_startup_models(
@@ -1611,7 +1604,7 @@ async fn mcp_invalidation_refreshes_threads_that_are_still_starting() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         Arc::new(extensions.build()),
@@ -1656,7 +1649,7 @@ async fn start_thread_keeps_internal_threads_hidden_from_normal_lookups() {
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -1699,7 +1692,7 @@ async fn spawn_internal_guardian_session_preserves_windows_sandbox_proxy_setting
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -1743,7 +1736,7 @@ async fn fork_internal_session_uses_only_the_selected_history() {
     config.cwd = config.maplecode_home.abs();
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -1886,7 +1879,7 @@ async fn spawn_internal_session_preserves_parent_lineage_without_forking_history
         source: Some(config.maplecode_home.join("AGENTS.md")),
     };
     let mut manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -2284,7 +2277,7 @@ async fn start_thread_seeds_extension_data_for_mcp_and_lifecycle_contributors() 
     extensions.thread_lifecycle_contributor(recorder.clone());
     extensions.mcp_server_contributor(recorder.clone());
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let manager = ThreadManager::new(
         &config,
         crate::build_startup_models(
@@ -2295,7 +2288,7 @@ async fn start_thread_seeds_extension_data_for_mcp_and_lifecycle_contributors() 
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         Arc::new(extensions.build()),
@@ -2580,7 +2573,7 @@ async fn selected_capability_roots_round_trip_through_fork() {
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -2638,7 +2631,7 @@ async fn selected_capability_roots_respect_startup_precedence_and_isolation() {
     config.cwd = config.maplecode_home.abs();
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -2739,7 +2732,7 @@ async fn resume_and_fork_do_not_restore_thread_environments_from_rollout() {
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let manager = ThreadManager::new(
         &config,
         crate::build_startup_models(
@@ -2750,7 +2743,7 @@ async fn resume_and_fork_do_not_restore_thread_environments_from_rollout() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -2901,7 +2894,7 @@ async fn explicit_installation_id_skips_maplecode_home_file() {
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let installation_id = uuid::Uuid::new_v4().to_string();
     let state_db = init_state_db(&config).await;
     let thread_store = ThreadStoreBuilder::from_config(&config, state_db.clone()).build();
@@ -2915,7 +2908,7 @@ async fn explicit_installation_id_skips_maplecode_home_file() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -2953,7 +2946,7 @@ async fn resume_active_thread_from_rollout_returns_running_thread() {
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let manager = ThreadManager::new(
         &config,
         crate::build_startup_models(
@@ -2964,7 +2957,7 @@ async fn resume_active_thread_from_rollout_returns_running_thread() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -3024,7 +3017,7 @@ async fn resume_stopped_thread_from_rollout_spawns_new_thread() {
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let manager = ThreadManager::new(
         &config,
         crate::build_startup_models(
@@ -3035,7 +3028,7 @@ async fn resume_stopped_thread_from_rollout_spawns_new_thread() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -3100,7 +3093,7 @@ async fn resume_stopped_thread_from_rollout_preserves_thread_source() {
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let state_db = init_state_db(&config).await;
     let thread_store = ThreadStoreBuilder::from_config(&config, state_db.clone()).build();
     let manager = ThreadManager::new(
@@ -3113,7 +3106,7 @@ async fn resume_stopped_thread_from_rollout_preserves_thread_source() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -3194,7 +3187,7 @@ async fn subtree_listing_uses_injected_graph_store_without_state_db() {
         descendant_thread_ids: descendant_thread_ids.clone(),
     });
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let manager = ThreadManager::new(
         &config,
         crate::build_startup_models(
@@ -3205,7 +3198,7 @@ async fn subtree_listing_uses_injected_graph_store_without_state_db() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -3241,7 +3234,7 @@ async fn rollout_path_resume_and_fork_read_history_through_thread_store() {
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let state_db = init_state_db(&config).await;
     let thread_store = ThreadStoreBuilder::from_config(&config, state_db.clone()).build();
     let in_memory_store = thread_store
@@ -3258,7 +3251,7 @@ async fn rollout_path_resume_and_fork_read_history_through_thread_store() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -3357,7 +3350,7 @@ async fn metadata_update_without_result_reads_only_when_the_caller_needs_the_thr
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let thread_store = ThreadStoreBuilder::from_config(&config, /*state_db*/ None).build();
     let in_memory_store = thread_store
         .as_any()
@@ -3373,7 +3366,7 @@ async fn metadata_update_without_result_reads_only_when_the_caller_needs_the_thr
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -3496,7 +3489,7 @@ async fn new_uses_active_provider_for_model_refresh(with_cache: bool) {
     config.model_provider.base_url = Some(server.uri());
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let manager = ThreadManager::new(
         &config,
         crate::build_startup_models(
@@ -3509,7 +3502,7 @@ async fn new_uses_active_provider_for_model_refresh(with_cache: bool) {
                 ModelCatalogSettings::default()
             }),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -3656,7 +3649,7 @@ async fn startup_catalog_cache_policy_controls_refresh() {
     config.model_provider.base_url = Some(server.uri());
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let manager = ThreadManager::new(
         &config,
         crate::build_startup_models(
@@ -3665,7 +3658,7 @@ async fn startup_catalog_cache_policy_controls_refresh() {
             TEST_INSTALLATION_ID.to_string(),
             Arc::new(ModelCatalogSettings::default()),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Custom("test-embedder".to_string()),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -3940,7 +3933,7 @@ async fn interrupted_fork_snapshot_does_not_synthesize_turn_id_for_legacy_histor
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let state_db = init_state_db(&config).await;
     let manager = ThreadManager::new(
         &config,
@@ -3952,7 +3945,7 @@ async fn interrupted_fork_snapshot_does_not_synthesize_turn_id_for_legacy_histor
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -4057,7 +4050,7 @@ async fn interrupted_fork_snapshot_preserves_explicit_turn_id() {
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let state_db = init_state_db(&config).await;
     let manager = ThreadManager::new(
         &config,
@@ -4069,7 +4062,7 @@ async fn interrupted_fork_snapshot_preserves_explicit_turn_id() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -4167,7 +4160,7 @@ async fn interrupted_fork_snapshot_uses_persisted_mid_turn_history_without_live_
     std::fs::create_dir_all(&config.maplecode_home).expect("create maplecode home");
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let state_db = init_state_db(&config).await;
     let manager = ThreadManager::new(
         &config,
@@ -4179,7 +4172,7 @@ async fn interrupted_fork_snapshot_uses_persisted_mid_turn_history_without_live_
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),

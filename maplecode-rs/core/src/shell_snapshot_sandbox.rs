@@ -10,7 +10,7 @@ use anyhow::anyhow;
 use anyhow::bail;
 use maplecode_network_proxy::NetworkProxy;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::SandboxErr;
 use maplecode_protocol::models::AdditionalPermissionProfile;
 use maplecode_protocol::models::FileSystemPermissions;
@@ -209,11 +209,11 @@ impl ShellSnapshotSandbox {
             .context("shell snapshot execution task failed")?
             .map_err(|err| match err.details() {
                 // Startup output can contain credentials, even when execution fails.
-                MapleCodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => anyhow!(
+                MaplecodeErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => anyhow!(
                     "Snapshot command was denied by sandbox with status {}",
                     output.exit_code
                 ),
-                MapleCodeErrorDetails::Sandbox(SandboxErr::Timeout { .. }) => {
+                MaplecodeErrorDetails::Sandbox(SandboxErr::Timeout { .. }) => {
                     anyhow!("Snapshot command timed out")
                 }
                 _ => anyhow::Error::new(err)

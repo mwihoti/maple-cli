@@ -1,8 +1,8 @@
 use super::handlers;
 use super::session::Session;
 use crate::state::TaskKind;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::Event;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::turn_input::SuspendTurnOutcome;
@@ -13,7 +13,7 @@ use tracing::warn;
 pub(super) async fn suspend_turn_and_shutdown(
     session: &Arc<Session>,
     submission_id: String,
-) -> MapleCodeResult<SuspendTurnOutcome> {
+) -> MaplecodeResult<SuspendTurnOutcome> {
     {
         let active = session.active_turn.lock().await;
         let Some(task) = active.as_ref().and_then(|turn| turn.task.as_ref()) else {
@@ -26,10 +26,10 @@ pub(super) async fn suspend_turn_and_shutdown(
 
     let live_thread = session
         .live_thread_for_persistence("suspend an unfinished root turn")
-        .map_err(|error| MapleCodeErr::Fatal(error.to_string()))?;
+        .map_err(|error| MaplecodeErr::Fatal(error.to_string()))?;
     // Flush before canceling execution so a persistence failure leaves the original turn running.
     live_thread.flush().await.map_err(|error| {
-        MapleCodeErr::Fatal(format!("flush before root turn suspension failed: {error}"))
+        MaplecodeErr::Fatal(format!("flush before root turn suspension failed: {error}"))
     })?;
 
     // The flush can yield while the active turn completes or changes. Recheck its
@@ -46,12 +46,12 @@ pub(super) async fn suspend_turn_and_shutdown(
             return Ok(SuspendTurnOutcome::UnsupportedTask);
         }
         active.take().ok_or_else(|| {
-            MapleCodeErr::Fatal("accepted root turn suspension had no running turn".to_string())
+            MaplecodeErr::Fatal("accepted root turn suspension had no running turn".to_string())
         })?
     };
 
     let task = turn.task.take().ok_or_else(|| {
-        MapleCodeErr::Fatal("accepted root turn suspension had no running task".to_string())
+        MaplecodeErr::Fatal("accepted root turn suspension had no running task".to_string())
     })?;
     let turn_id = task.turn_context.sub_id.clone();
     // A suspended task emits no terminal outcome.
@@ -104,10 +104,10 @@ pub(super) async fn suspend_turn_and_shutdown(
     // retains ownership until worker-failure recovery can take responsibility.
     handlers::shutdown_session_runtime(session).await;
     live_thread.flush().await.map_err(|error| {
-        MapleCodeErr::Fatal(format!("flush after root turn suspension failed: {error}"))
+        MaplecodeErr::Fatal(format!("flush after root turn suspension failed: {error}"))
     })?;
     live_thread.shutdown().await.map_err(|error| {
-        MapleCodeErr::Fatal(format!("close suspended root turn writer failed: {error}"))
+        MaplecodeErr::Fatal(format!("close suspended root turn writer failed: {error}"))
     })?;
     recorded?;
     // Announce completion only after extension cleanup and writer closure so a

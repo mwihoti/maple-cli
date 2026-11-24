@@ -149,7 +149,7 @@ impl PreparedGuardianContext {
     /// Binds context bookkeeping to an agent that Guardian has already started.
     pub async fn bind_thread(
         &self,
-        thread: &crate::MapleCodeThread,
+        thread: &crate::MaplecodeThread,
         context: GuardianReviewSessionReuseKey,
         mut state: GuardianReviewState,
         cancellation: CancellationToken,
@@ -380,7 +380,7 @@ pub(in crate::guardian) async fn prepare_review(
 /// Captures the same startup context used by the existing prompt builder.
 /// The caller owns scheduling, cancellation, and the reviewer pool.
 pub async fn prepare_review_prewarm(
-    parent: &crate::MapleCodeThread,
+    parent: &crate::MaplecodeThread,
 ) -> anyhow::Result<PreparedGuardianContext> {
     let turn = parent
         .session

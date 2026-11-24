@@ -12,7 +12,7 @@ use std::task::Poll;
 
 use crate::context::ContextualUserFragment;
 use crate::context::UserGoalUpdate;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RetainedContextEvent;
 use maplecode_history::RetainedUserMessage;
@@ -96,7 +96,7 @@ impl Session {
         self.assign_missing_response_item_id(&mut item);
         let mut item = ResponseItemEnvelope {
             item,
-            metadata: Some(MapleCodeHarnessMetadata {
+            metadata: Some(MaplecodeHarnessMetadata {
                 user_input_order: Some(user_input_order),
                 ..Default::default()
             }),

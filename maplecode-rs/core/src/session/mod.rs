@@ -74,7 +74,7 @@ use maplecode_analytics::ImagePreparationFact;
 use maplecode_analytics::ImagePreparationMetadata;
 use maplecode_analytics::SubAgentThreadStartedInput;
 use maplecode_analytics::ThreadInitializationMode;
-use maplecode_analytics::TurnMapleCodeErrorFact;
+use maplecode_analytics::TurnMaplecodeErrorFact;
 use maplecode_async_utils::OrCancelExt;
 use maplecode_attachment_store::AttachmentStore;
 use maplecode_attachment_store::InlineAttachmentStore;
@@ -96,7 +96,7 @@ use maplecode_history::RolloutItem;
 use maplecode_hooks::Hooks;
 use maplecode_hooks::HooksConfig;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth_env_telemetry::collect_auth_env_telemetry;
 use maplecode_mcp::McpResourceClient;
 use maplecode_mcp::McpRuntime;
@@ -235,17 +235,17 @@ use crate::config::StartedNetworkProxy;
 use crate::config::resolve_web_search_mode_for_turn;
 use crate::context_manager::ContextManager;
 use crate::context_manager::HistoryReplacement;
-use crate::maplecode_thread::MapleCodeThreadSettingsOverrides;
+use crate::maplecode_thread::MaplecodeThreadSettingsOverrides;
 use crate::maplecode_thread::ThreadConfigSnapshot;
 use crate::thread_rollout_truncation::initial_history_has_prior_user_turns;
 use maplecode_config::CONFIG_TOML_FILE;
 use maplecode_config::ConfigLayerSource;
 use maplecode_config::types::McpServerConfig;
 use maplecode_model_provider_info::ModelProviderInfo;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::error::ResponseIncompleteError;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::Result as MaplecodeResult;
 #[cfg(test)]
 use maplecode_protocol::exec_output::StreamOutput;
 
@@ -366,7 +366,7 @@ use maplecode_history::CompactedItem;
 use maplecode_history::CompactionResumeMetadata;
 use maplecode_history::DynamicToolsSnapshot;
 use maplecode_history::InitialHistory;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 pub(crate) use maplecode_history::PreviousTurnSettings;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_mcp::McpConfig;
@@ -395,7 +395,7 @@ use maplecode_protocol::protocol::DeprecationNoticeEvent;
 use maplecode_protocol::protocol::Event;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ExecApprovalRequestEvent;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::ModelRerouteEvent;
 use maplecode_protocol::protocol::ModelRerouteReason;
 use maplecode_protocol::protocol::ModelVerification;
@@ -622,7 +622,7 @@ impl Session {
         config: &Config,
         session_source: &SessionSource,
         allow_provider_model_fallback: bool,
-    ) -> MapleCodeResult<(String, CatalogModel)> {
+    ) -> MaplecodeResult<(String, CatalogModel)> {
         // Child catalogs are initialized by their selector. Reading only memory here
         // preserves the loaded snapshot shared with the parent.
         let refresh_strategy = if session_source.is_non_root_agent() {
@@ -644,7 +644,7 @@ impl Session {
             )
             .await;
         if model.trim().is_empty() {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "No models are available. Set `model` explicitly or check your model catalog configuration.".to_string(),
             ));
         }
@@ -659,7 +659,7 @@ impl Session {
     #[inline(never)]
     pub(crate) fn spawn(
         args: SessionSpawnArgs,
-    ) -> BoxFuture<'static, MapleCodeResult<(Arc<Self>, SessionIo)>> {
+    ) -> BoxFuture<'static, MaplecodeResult<(Arc<Self>, SessionIo)>> {
         let tree_shutdown = args.agent_control.runtime().shutdown.clone();
         Box::pin(async move {
             let parent_trace = match args.parent_trace {
@@ -684,13 +684,13 @@ impl Session {
             .instrument(thread_spawn_span);
             tokio::select! {
                 biased;
-                _ = tree_shutdown.cancelled() => Err(MapleCodeErr::TurnAborted),
+                _ = tree_shutdown.cancelled() => Err(MaplecodeErr::TurnAborted),
                 result = spawn => result,
             }
         })
     }
 
-    async fn spawn_internal(args: SessionSpawnArgs) -> MapleCodeResult<(Arc<Self>, SessionIo)> {
+    async fn spawn_internal(args: SessionSpawnArgs) -> MaplecodeResult<(Arc<Self>, SessionIo)> {
         args.config
             .config_layer_stack
             .ensure_config_server_applied()?;
@@ -828,7 +828,7 @@ impl Session {
             Arc::new(
                 ExecPolicyManager::load(&config.config_layer_stack)
                     .await
-                    .map_err(|err| MapleCodeErr::Fatal(format!("failed to load rules: {err}")))?,
+                    .map_err(|err| MaplecodeErr::Fatal(format!("failed to load rules: {err}")))?,
             )
         };
 
@@ -869,12 +869,12 @@ impl Session {
                 config
                     .permissions
                     .set_permission_profile(permission_profile.clone())
-                    .map_err(|err| MapleCodeErr::InvalidRequest(err.to_string()))?;
+                    .map_err(|err| MaplecodeErr::InvalidRequest(err.to_string()))?;
                 if let Some(network) = config.permissions.network.as_ref() {
                     config.permissions.network = Some(
                         network
                             .recompute_for_permission_profile(&permission_profile)
-                            .map_err(|err| MapleCodeErr::InvalidRequest(err.to_string()))?,
+                            .map_err(|err| MaplecodeErr::InvalidRequest(err.to_string()))?,
                     );
                 }
             }
@@ -884,7 +884,7 @@ impl Session {
             (!trusted_guardian_reviewer).then_some(model.as_str()),
             config.config_layer_stack.requirements(),
         )
-        .map_err(|err| MapleCodeErr::InvalidRequest(err.to_string()))?;
+        .map_err(|err| MaplecodeErr::InvalidRequest(err.to_string()))?;
         {
             let config = Arc::make_mut(&mut config);
             config.requested_approvals_reviewer = Some(requested_approvals_reviewer);
@@ -910,7 +910,7 @@ impl Session {
         if !inherits_token_budget {
             Arc::make_mut(&mut config)
                 .prepare_token_budget_for_startup()
-                .map_err(|err| MapleCodeErr::InvalidRequest(err.to_string()))?;
+                .map_err(|err| MaplecodeErr::InvalidRequest(err.to_string()))?;
             // Resolve activation for this runtime, including when resuming saved history.
             token_budget::apply_experimental_context(
                 Arc::make_mut(&mut config),
@@ -1063,7 +1063,7 @@ impl Session {
         };
         session_configuration
             .validate(&environment_selections)
-            .map_err(|err| MapleCodeErr::InvalidRequest(err.to_string()))?;
+            .map_err(|err| MaplecodeErr::InvalidRequest(err.to_string()))?;
         crate::windows_sandbox::log_windows_sandbox_startup(&config);
 
         // Generate a unique ID for the lifetime of this session.
@@ -1116,7 +1116,7 @@ impl Session {
         .await
         .map_err(|e| {
             error!("Failed to create session: {e:#}");
-            match e.downcast::<MapleCodeErr>() {
+            match e.downcast::<MaplecodeErr>() {
                 Ok(error) => error,
                 Err(error) => map_session_init_error(&error, &config.maplecode_home),
             }
@@ -1168,7 +1168,7 @@ impl SessionIo {
     pub(crate) async fn submit(
         &self,
         op: impl Into<WithTurnExtensionData<Op>>,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         self.submit_with_trace(
             op, /*trace*/ None, /*parent_turn_id*/ None, /*root_turn_id*/ None,
             /*residency_guard*/ None, /*message_delivery*/ None,
@@ -1184,7 +1184,7 @@ impl SessionIo {
         root_turn_id: Option<String>,
         residency_guard: Option<tokio::sync::OwnedRwLockReadGuard<()>>,
         message_delivery: Option<crate::agent_communication::MessageDelivery>,
-    ) -> MapleCodeResult<String> {
+    ) -> MaplecodeResult<String> {
         let id = new_submission_id();
         let WithTurnExtensionData {
             request: op,
@@ -1205,14 +1205,14 @@ impl SessionIo {
     }
 
     /// Use sparingly: prefer `submit()` so submission IDs are generated consistently.
-    pub(crate) async fn submit_with_id(&self, mut sub: Submission) -> MapleCodeResult<()> {
+    pub(crate) async fn submit_with_id(&self, mut sub: Submission) -> MaplecodeResult<()> {
         if sub.trace.is_none() {
             sub.trace = current_span_w3c_trace_context();
         }
         self.tx_sub
             .send(sub)
             .await
-            .map_err(|_| MapleCodeErr::InternalAgentDied)?;
+            .map_err(|_| MaplecodeErr::InternalAgentDied)?;
         Ok(())
     }
 
@@ -1224,7 +1224,7 @@ impl SessionIo {
         &self,
         request: impl Into<WithTurnExtensionData<TurnInputRequest>>,
         mode: TurnInputMode,
-    ) -> MapleCodeResult<TurnInputSubmission> {
+    ) -> MaplecodeResult<TurnInputSubmission> {
         let id = new_submission_id();
         let (reply_tx, reply_rx) = oneshot::channel();
         let WithTurnExtensionData {
@@ -1249,7 +1249,7 @@ impl SessionIo {
         .await?;
         reply_rx
             .await
-            .unwrap_or(Err(MapleCodeErr::InternalAgentDied))
+            .unwrap_or(Err(MaplecodeErr::InternalAgentDied))
     }
 
     pub(crate) async fn submit_recover_turn(
@@ -1259,7 +1259,7 @@ impl SessionIo {
         trace: Option<W3cTraceContext>,
         turn_id: String,
         turn_extension_init: Option<ExtensionDataInit>,
-    ) -> MapleCodeResult<TurnInputSubmission> {
+    ) -> MaplecodeResult<TurnInputSubmission> {
         let (reply_tx, reply_rx) = oneshot::channel();
         self.submit_with_id(Submission {
             id: turn_id,
@@ -1278,26 +1278,26 @@ impl SessionIo {
         .await?;
         reply_rx
             .await
-            .unwrap_or(Err(MapleCodeErr::InternalAgentDied))
+            .unwrap_or(Err(MaplecodeErr::InternalAgentDied))
     }
 
-    pub(crate) async fn shutdown_and_wait(&self) -> MapleCodeResult<()> {
+    pub(crate) async fn shutdown_and_wait(&self) -> MaplecodeResult<()> {
         let session_loop_termination = self.session_loop_termination.clone();
         match self.submit(Op::Shutdown).await {
             Ok(_) => {}
-            Err(err) if matches!(err.details(), MapleCodeErrorDetails::InternalAgentDied) => {}
+            Err(err) if matches!(err.details(), MaplecodeErrorDetails::InternalAgentDied) => {}
             Err(err) => return Err(err),
         }
         session_loop_termination.await;
         Ok(())
     }
 
-    pub(crate) async fn next_event(&self) -> MapleCodeResult<Event> {
+    pub(crate) async fn next_event(&self) -> MaplecodeResult<Event> {
         let event = self
             .rx_event
             .recv()
             .await
-            .map_err(|_| MapleCodeErr::InternalAgentDied)?;
+            .map_err(|_| MaplecodeErr::InternalAgentDied)?;
         Ok(event)
     }
 
@@ -1351,7 +1351,7 @@ fn unsupported_service_tier_warning(
 
 fn session_permission_profile_state_from_config(
     config: &Config,
-) -> MapleCodeResult<PermissionProfileState> {
+) -> MaplecodeResult<PermissionProfileState> {
     Ok(config.permissions.permission_profile_state().clone())
 }
 
@@ -2402,7 +2402,7 @@ impl Session {
         Some((state, update))
     }
 
-    pub(crate) async fn restorable_thread_settings(&self) -> MapleCodeThreadSettingsOverrides {
+    pub(crate) async fn restorable_thread_settings(&self) -> MaplecodeThreadSettingsOverrides {
         let state = self.state.lock().await;
         state
             .session_configuration
@@ -2684,15 +2684,15 @@ impl Session {
         }
     }
 
-    /// Record a terminal MapleCodeErr before the app-server completion notification is reduced.
+    /// Record a terminal MaplecodeErr before the app-server completion notification is reduced.
     pub(crate) fn track_turn_maplecode_error(
         &self,
         turn_context: &TurnContext,
-        error: &MapleCodeErr,
+        error: &MaplecodeErr,
     ) {
         self.services
             .analytics_events_client
-            .track_turn_maplecode_error(TurnMapleCodeErrorFact::from_maplecode_err(
+            .track_turn_maplecode_error(TurnMaplecodeErrorFact::from_maplecode_err(
                 self.thread_id.to_string(),
                 turn_context.sub_id.clone(),
                 error,
@@ -2758,7 +2758,7 @@ impl Session {
             && error
                 .maplecode_error_info
                 .as_ref()
-                .is_some_and(MapleCodeErrorInfo::affects_turn_status)
+                .is_some_and(MaplecodeErrorInfo::affects_turn_status)
         {
             let mut terminal_error = turn_context.terminal_error.lock().await;
             if let Some(previous) = terminal_error.as_ref() {
@@ -2867,7 +2867,7 @@ impl Session {
                 if let EventMsg::TurnAborted(event) = msg
                     && event.reason == TurnAbortReason::Interrupted
                     && let Some(error) = &event.error
-                    && error.maplecode_error_info == Some(MapleCodeErrorInfo::TooManyDenials)
+                    && error.maplecode_error_info == Some(MaplecodeErrorInfo::TooManyDenials)
                 {
                     // Report the safety stop to the parent without changing the child's
                     // interrupted status or notifying for ordinary interruptions.
@@ -4220,7 +4220,7 @@ impl Session {
     pub(crate) async fn record_step_world_state_if_changed(
         &self,
         step_context: &step_context::StepContext,
-    ) -> MapleCodeResult<Arc<WorldState>> {
+    ) -> MaplecodeResult<Arc<WorldState>> {
         let turn_context = step_context.turn.as_ref();
         // Render model-visible state from the same step used to build and run tools.
         let world_state = self
@@ -4278,7 +4278,7 @@ impl Session {
         self: &Arc<Self>,
         turn_context: Arc<TurnContext>,
         cancellation_token: &CancellationToken,
-    ) -> MapleCodeResult<Arc<StepContext>> {
+    ) -> MaplecodeResult<Arc<StepContext>> {
         self.capture_step_context_with_required_mcp_servers(
             turn_context,
             cancellation_token,
@@ -4295,7 +4295,7 @@ impl Session {
         cancellation_token: &CancellationToken,
         required_servers: &[String],
         required_plugins: &HashSet<String>,
-    ) -> MapleCodeResult<Arc<StepContext>> {
+    ) -> MaplecodeResult<Arc<StepContext>> {
         let step_context = self
             .capture_step_context_inner(
                 turn_context,
@@ -4314,7 +4314,7 @@ impl Session {
         self: &Arc<Self>,
         turn_context: Arc<TurnContext>,
         cancellation_token: &CancellationToken,
-    ) -> MapleCodeResult<Arc<StepContext>> {
+    ) -> MaplecodeResult<Arc<StepContext>> {
         self.capture_step_context_inner(
             turn_context,
             cancellation_token,
@@ -4347,7 +4347,7 @@ impl Session {
         cancellation_token: &CancellationToken,
         required_servers: &[String],
         required_plugins: &HashSet<String>,
-    ) -> MapleCodeResult<Arc<StepContext>> {
+    ) -> MaplecodeResult<Arc<StepContext>> {
         // Read the step's model and record its environments together so an update cannot split them.
         // Match apply_turn_settings and activate_turn_environments: active_turn before state.
         // Wait for executor startup below, after releasing both locks.
@@ -4370,7 +4370,7 @@ impl Session {
             let root_service_tier = tokio::select! {
                 biased;
                 tier = crate::agent::host::service_tier(self, settings.selected().service_tier.clone()) => tier,
-                _ = cancellation_token.cancelled() => return Err(MapleCodeErr::TurnAborted),
+                _ = cancellation_token.cancelled() => return Err(MaplecodeErr::TurnAborted),
             };
             if settings.selected().service_tier != root_service_tier {
                 let mut selected = settings.selected().clone();
@@ -4634,14 +4634,14 @@ impl Session {
                 &dynamic_tools,
             )
             .await?;
-            Ok::<_, MapleCodeErr>((executor_hook_sources, mcp, tool_router, extension_data))
+            Ok::<_, MaplecodeErr>((executor_hook_sources, mcp, tool_router, extension_data))
         });
         // Returned warnings must finish delivery even if tools fail or preparation is cancelled.
         let (loaded_agents_md, prepared_tools) =
             tokio::join!(load_agents_md, prepare_tools.or_cancel(cancellation_token));
         let loaded_agents_md = loaded_agents_md?;
         if cancellation_token.is_cancelled() {
-            return Err(MapleCodeErr::TurnAborted);
+            return Err(MaplecodeErr::TurnAborted);
         }
         let (executor_hook_sources, mcp, tool_router, extension_data) = prepared_tools??;
         Ok(Arc::new(StepContext {
@@ -5548,7 +5548,7 @@ impl Session {
     pub(crate) async fn record_context_updates_and_set_reference_context_item(
         &self,
         step_context: &StepContext,
-    ) -> MapleCodeResult<Arc<WorldState>> {
+    ) -> MaplecodeResult<Arc<WorldState>> {
         let turn_context = step_context.turn.as_ref();
         let reference_context_item = {
             let state = self.state.lock().await;
@@ -5676,7 +5676,7 @@ impl Session {
         turn_context: &TurnContext,
         token_usage: Option<&TokenUsage>,
         includes_reasoning: bool,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         let result = self
             .record_token_usage_info(
                 turn_context,
@@ -5742,7 +5742,7 @@ impl Session {
         settings: &ResolvedStepSettings,
         token_usage: Option<&TokenUsage>,
         context: TokenUsageContext,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         if let Some(token_usage) = token_usage {
             let token_info = {
                 let mut state = self.state.lock().await;
@@ -5968,7 +5968,7 @@ impl Session {
                     item: response_item,
                     metadata: metadata
                         .acceptance_order
-                        .map(|order| MapleCodeHarnessMetadata {
+                        .map(|order| MaplecodeHarnessMetadata {
                             user_input_order: Some(order),
                             ..Default::default()
                         }),
@@ -6005,10 +6005,10 @@ impl Session {
         &self,
         turn_context: &TurnContext,
         message: impl Into<String>,
-        maplecode_error: MapleCodeErr,
+        maplecode_error: MaplecodeErr,
     ) {
         let additional_details = maplecode_error.to_string();
-        let maplecode_error_info = MapleCodeErrorInfo::ResponseStreamDisconnected {
+        let maplecode_error_info = MaplecodeErrorInfo::ResponseStreamDisconnected {
             http_status_code: maplecode_error.http_status_code_value(),
         };
         let event = EventMsg::StreamError(StreamErrorEvent {
@@ -6184,7 +6184,7 @@ async fn build_hooks_config(
     let plugin_hook_load_warnings = plugin_outcome.effective_plugin_hook_warnings();
     HooksConfig {
         legacy_notify_argv: config.notify.clone(),
-        feature_enabled: config.features.enabled(Feature::MapleCodeHooks),
+        feature_enabled: config.features.enabled(Feature::MaplecodeHooks),
         bypass_hook_trust: config.bypass_hook_trust,
         config_layer_stack: Some(config.config_layer_stack.clone()),
         plugin_hook_sources,

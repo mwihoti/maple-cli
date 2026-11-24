@@ -4,8 +4,8 @@ use maplecode_analytics::TurnAnalyticsMetadata;
 use maplecode_extension_api::ExtensionData;
 use maplecode_extension_api::ThreadIdleCause;
 use maplecode_extension_api::TurnStartPhase;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::TokenUsage;
 use maplecode_protocol::protocol::TurnAbortReason;
 
@@ -107,8 +107,8 @@ impl Session {
     pub(crate) async fn emit_turn_error_lifecycle(
         &self,
         turn_context: &TurnContext,
-        error: MapleCodeErrorInfo,
-        error_details: &MapleCodeErrorDetails,
+        error: MaplecodeErrorInfo,
+        error_details: &MaplecodeErrorDetails,
     ) {
         for contributor in self.services.extensions.turn_lifecycle_contributors() {
             contributor

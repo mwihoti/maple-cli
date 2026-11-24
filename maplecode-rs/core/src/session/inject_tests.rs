@@ -1,6 +1,6 @@
 use crate::session::tests::make_session_and_context_with_rx;
 use maplecode_features::Feature;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RolloutItem;
 use maplecode_protocol::models::ConfigurationReasoning;
@@ -20,7 +20,7 @@ async fn harness_authored_configuration_updates_preserve_metadata_and_resume() {
                 effort: ReasoningEffort::High,
             },
         },
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             harness_authored_configuration: true,
             ..Default::default()
         }),

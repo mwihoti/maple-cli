@@ -213,7 +213,7 @@ fn unrestricted_connectors(request: &Map<String, Value>) -> bool {
     request.keys().all(|key| {
         matches!(
             key.as_str(),
-            "openai/search_context" | "openai/maplecode_installation_id"
+            "openai/search_context" | "openai/codex_installation_id"
         )
     })
 }

@@ -35,7 +35,7 @@ use maplecode_history::HistoryInitialization;
 use maplecode_history::InitialHistory;
 use maplecode_login::AuthManager;
 use maplecode_models_manager::manager::SharedModelsManager;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::turn_input::TurnInputMode;
 use maplecode_protocol::turn_input::TurnInputRequest;
@@ -45,7 +45,7 @@ use maplecode_protocol::turn_input::TurnStartOptions;
 #[cfg(test)]
 use crate::session::completed_session_loop_termination;
 
-/// Start an interactive sub-MapleCode thread and return its runtime and IO channels.
+/// Start an interactive sub-Maplecode thread and return its runtime and IO channels.
 ///
 /// Delegates never request approvals, and the returned IO yields their public events.
 /// Its submission channel accepts additional `Op`s for the sub-agent.
@@ -63,15 +63,15 @@ pub(crate) async fn run_maplecode_thread_interactive(
     initial_history: Option<InitialHistory>,
     git_enrichment_policy: GitEnrichmentPolicy,
     windows_sandbox_proxy_settings_mode: maplecode_sandboxing::WindowsSandboxProxySettingsMode,
-) -> Result<(Arc<Session>, SessionIo), MapleCodeErr> {
+) -> Result<(Arc<Session>, SessionIo), MaplecodeErr> {
     if config.permissions.approval_policy.value() != AskForApproval::Never {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "Maple Code delegates require approval policy `never`".to_string(),
         ));
     }
     // Do not let admission or a ready startup error win over prior cancellation.
     if cancel_token.is_cancelled() {
-        return Err(MapleCodeErr::TurnAborted);
+        return Err(MaplecodeErr::TurnAborted);
     }
     config.permissions.approval_policy = Constrained::allow_only(AskForApproval::Never);
     config.model_provider.supports_websockets &= parent_session
@@ -245,7 +245,7 @@ pub(crate) async fn run_maplecode_thread_one_shot(
     subagent_source: SubAgentSource,
     final_output_json_schema: Option<Value>,
     initial_history: Option<InitialHistory>,
-) -> Result<(Arc<Session>, SessionIo), MapleCodeErr> {
+) -> Result<(Arc<Session>, SessionIo), MaplecodeErr> {
     // Use a child token so we can stop the delegate after completion without
     // requiring the caller to cancel the parent token.
     let child_cancel = cancel_token.child_token();
@@ -284,7 +284,7 @@ pub(crate) async fn run_maplecode_thread_one_shot(
     match submission {
         TurnInputSubmission::Started { .. } => {}
         submission => {
-            return Err(MapleCodeErr::InvalidRequest(format!(
+            return Err(MaplecodeErr::InvalidRequest(format!(
                 "delegate turn input was not started: {submission:?}"
             )));
         }

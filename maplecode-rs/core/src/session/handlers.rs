@@ -29,13 +29,13 @@ use crate::tasks::execute_user_shell_command;
 use crate::thread_manager::AgentTreeShutdownFailure;
 use crate::thread_manager::thread_store_error_kind;
 use maplecode_protocol::approvals::ExecApprovalKind;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::protocol::ErrorEvent;
 use maplecode_protocol::protocol::Event;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::GuardianAssessmentEvent;
 use maplecode_protocol::protocol::GuardianAssessmentStatus;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::RealtimeConversationListVoicesResponseEvent;
 use maplecode_protocol::protocol::RealtimeVoicesList;
@@ -304,7 +304,7 @@ pub async fn set_thread_memory_mode(sess: &Arc<Session>, sub_id: String, mode: T
             msg: EventMsg::Error(ErrorEvent {
                 misalignment: None,
                 message: err.to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::Other),
+                maplecode_error_info: Some(MaplecodeErrorInfo::Other),
                 rejected_audio_file_ids: Vec::new(),
             }),
         };
@@ -412,7 +412,7 @@ pub async fn shutdown(sess: &Arc<Session>, sub_id: String) -> bool {
             msg: EventMsg::Error(ErrorEvent {
                 misalignment: None,
                 message: "Failed to shutdown thread persistence".to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::Other),
+                maplecode_error_info: Some(MaplecodeErrorInfo::Other),
                 rejected_audio_file_ids: Vec::new(),
             }),
         };
@@ -462,7 +462,7 @@ pub async fn review(
                 msg: EventMsg::Error(ErrorEvent {
                     misalignment: None,
                     message: err.to_string(),
-                    maplecode_error_info: Some(MapleCodeErrorInfo::Other),
+                    maplecode_error_info: Some(MaplecodeErrorInfo::Other),
                     rejected_audio_file_ids: Vec::new(),
                 }),
             };
@@ -566,7 +566,7 @@ pub(super) async fn submission_loop(
                             msg: EventMsg::Error(ErrorEvent {
                                 misalignment: None,
                                 message: err.to_string(),
-                                maplecode_error_info: Some(MapleCodeErrorInfo::Other),
+                                maplecode_error_info: Some(MaplecodeErrorInfo::Other),
                                 rejected_audio_file_ids: Vec::new(),
                             }),
                         })
@@ -693,7 +693,7 @@ pub(super) async fn submission_loop(
                                             _ = reply.closed() => {}
                                             result = acceptance => {
                                                 let result = result.map_err(|error| {
-                                                    MapleCodeErr::from(std::io::Error::other(format!(
+                                                    MaplecodeErr::from(std::io::Error::other(format!(
                                                         "service tier committed locally; host acceptance unconfirmed: {error}"
                                                     )))
                                                 });
@@ -714,14 +714,14 @@ pub(super) async fn submission_loop(
                         Err(error) => {
                             let message = format!("invalid thread settings override: {error}");
                             if let Some(reply) = reply {
-                                let _ = reply.send(Err(MapleCodeErr::InvalidRequest(message)));
+                                let _ = reply.send(Err(MaplecodeErr::InvalidRequest(message)));
                             } else {
                                 sess.send_event_raw(Event {
                                     id: sub.id.clone(),
                                     msg: EventMsg::Error(ErrorEvent {
                                         misalignment: None,
                                         message,
-                                        maplecode_error_info: Some(MapleCodeErrorInfo::BadRequest),
+                                        maplecode_error_info: Some(MaplecodeErrorInfo::BadRequest),
                                         rejected_audio_file_ids: Vec::new(),
                                     }),
                                 })

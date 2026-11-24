@@ -51,7 +51,7 @@ use maplecode_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
 use maplecode_protocol::protocol::Event;
 #[cfg(test)]
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::SubAgentSource;
 use serde_json::Value;
@@ -704,7 +704,7 @@ async fn run_review_on_session(
         .remove::<super::request_budget::ExhaustedReviewBudget>();
     let result = match turn_result.outcome {
         GuardianReviewSessionOutcome::SessionFailed {
-            error_info: Some(MapleCodeErrorInfo::ContextWindowExceeded),
+            error_info: Some(MaplecodeErrorInfo::ContextWindowExceeded),
             ..
         } if matches!(
             budget_exhausted.as_deref(),

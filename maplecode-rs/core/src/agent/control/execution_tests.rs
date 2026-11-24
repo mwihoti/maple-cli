@@ -1,5 +1,5 @@
 use crate::agent::LocalAgentControl;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
@@ -33,7 +33,7 @@ fn execution_guards_count_active_v2_subagent_turns() {
     let Err(err) = control.ensure_execution_capacity(MultiAgentVersion::V2, &source) else {
         panic!("second active turn should exceed the derived non-root cap");
     };
-    let MapleCodeErrorDetails::AgentLimitReached { max_threads } = err.details() else {
+    let MaplecodeErrorDetails::AgentLimitReached { max_threads } = err.details() else {
         panic!("expected AgentLimitReached");
     };
     assert_eq!(*max_threads, 1);

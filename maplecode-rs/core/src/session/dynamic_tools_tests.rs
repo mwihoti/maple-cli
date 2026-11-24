@@ -5,7 +5,7 @@ use pretty_assertions::assert_eq;
 async fn dynamic_tools_updates_preserve_submission_order_after_caller_stops_waiting() {
     let (mut session, turn_context, rx_event) =
         make_session_and_context_with_auth_and_config_and_rx(
-            MapleCodeAuth::from_api_key("Test API Key"),
+            MaplecodeAuth::from_api_key("Test API Key"),
             Vec::new(),
             |config| config.allow_persistent_dynamic_tool_updates = true,
         )
@@ -74,7 +74,7 @@ async fn dynamic_tools_updates_preserve_submission_order_after_caller_stops_wait
             .await
             .unwrap_err()
             .details(),
-        maplecode_protocol::error::MapleCodeErrorDetails::InternalAgentDied
+        maplecode_protocol::error::MaplecodeErrorDetails::InternalAgentDied
     ));
 }
 
@@ -97,7 +97,7 @@ async fn dynamic_tools_update_requires_host_opt_in_only_for_persistent_threads()
     let error = session.replace_dynamic_tools(Vec::new()).await.unwrap_err();
     assert!(matches!(
         error.details(),
-        maplecode_protocol::error::MapleCodeErrorDetails::UnsupportedOperation(_)
+        maplecode_protocol::error::MaplecodeErrorDetails::UnsupportedOperation(_)
     ));
     assert_eq!(
         session.dynamic_tools().await.as_ref(),
@@ -111,7 +111,7 @@ async fn dynamic_tools_update_requires_host_opt_in_only_for_persistent_threads()
 #[tokio::test]
 async fn dynamic_tools_update_keeps_catalog_when_persistence_fails() {
     let (mut session, _, _rx) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| config.allow_persistent_dynamic_tool_updates = true,
     )
@@ -139,7 +139,7 @@ async fn dynamic_tools_update_keeps_catalog_when_persistence_fails() {
         .unwrap_err();
     assert!(matches!(
         error.details(),
-        maplecode_protocol::error::MapleCodeErrorDetails::Fatal(_)
+        maplecode_protocol::error::MaplecodeErrorDetails::Fatal(_)
     ));
     assert_eq!(session.dynamic_tools().await.as_ref(), &[]);
 }

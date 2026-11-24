@@ -14,8 +14,8 @@ use tokio_util::task::AbortOnDropHandle;
 
 use crate::responses_metadata::AGENT_NAME_KEY;
 use crate::responses_metadata::MAX_EXTRA_METADATA_VALUE_BYTES;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
+use crate::responses_metadata::MaplecodeResponsesMetadata;
+use crate::responses_metadata::MaplecodeResponsesRequestKind;
 use crate::responses_metadata::PARENT_TURN_ID_KEY;
 use crate::responses_metadata::ROOT_TURN_ID_KEY;
 use crate::responses_metadata::TurnMetadataWorkspace;
@@ -77,7 +77,7 @@ impl<'a> ExecutionMetadata<'a> {
         }
     }
 
-    pub(crate) fn apply_to(&self, metadata: &mut MapleCodeResponsesMetadata) {
+    pub(crate) fn apply_to(&self, metadata: &mut MaplecodeResponsesMetadata) {
         metadata.auto_review_enabled = Some(self.auto_review_enabled);
         metadata.node_repl_auto_review_required = Some(self.node_repl_auto_review_required);
         metadata.node_repl_disabled = Some(self.node_repl_disabled);
@@ -134,12 +134,12 @@ pub async fn detached_memory_responses_metadata(
     cwd: &AbsolutePathBuf,
     permission_profile: &PermissionProfile,
     sandbox: Option<&str>,
-) -> MapleCodeResponsesMetadata {
+) -> MaplecodeResponsesMetadata {
     let turn_id = uuid::Uuid::now_v7().to_string();
-    let mut metadata = MapleCodeResponsesMetadata {
+    let mut metadata = MaplecodeResponsesMetadata {
         turn_id: Some(turn_id.clone()),
         root_turn_id: Some(turn_id),
-        request_kind: Some(MapleCodeResponsesRequestKind::Memory),
+        request_kind: Some(MaplecodeResponsesRequestKind::Memory),
         thread_source: Some(ThreadSource::MemoryConsolidation),
         turn_trigger: Some("memory_consolidation".to_owned()),
         subagent_header: subagent_header_value(session_source),
@@ -149,7 +149,7 @@ pub async fn detached_memory_responses_metadata(
             thread_manager.git_root_discovery().discover(cwd.clone()),
         )
         .await,
-        ..MapleCodeResponsesMetadata::new(installation_id, session_id, thread_id, window_id)
+        ..MaplecodeResponsesMetadata::new(installation_id, session_id, thread_id, window_id)
     };
     record_policy_metadata(permission_profile, cwd.as_path(), &mut metadata);
     metadata
@@ -290,7 +290,7 @@ impl TurnMetadataState {
 
     fn current_meta_value_for_tool_request(
         &self,
-        mut responses_metadata: MapleCodeResponsesMetadata,
+        mut responses_metadata: MaplecodeResponsesMetadata,
         execution: ExecutionMetadata<'_>,
     ) -> Option<serde_json::Value> {
         if responses_metadata
@@ -332,10 +332,10 @@ impl TurnMetadataState {
         &self,
         installation_id: String,
         window_id: String,
-        request_kind: MapleCodeResponsesRequestKind,
-    ) -> MapleCodeResponsesMetadata {
+        request_kind: MaplecodeResponsesRequestKind,
+    ) -> MaplecodeResponsesMetadata {
         let mut metadata = self.responses_metadata_template();
-        if matches!(request_kind, MapleCodeResponsesRequestKind::Compaction(_))
+        if matches!(request_kind, MaplecodeResponsesRequestKind::Compaction(_))
             && metadata
                 .extra
                 .get("misalignment_override")
@@ -345,7 +345,7 @@ impl TurnMetadataState {
             // legacy timestamp path until servers can admit pre-turn compaction separately.
             metadata.extra.remove("misalignment_override");
         }
-        MapleCodeResponsesMetadata {
+        MaplecodeResponsesMetadata {
             installation_id,
             window_id,
             request_kind: Some(request_kind),
@@ -447,7 +447,7 @@ impl TurnMetadataState {
             .cloned()
     }
 
-    fn responses_metadata_template(&self) -> MapleCodeResponsesMetadata {
+    fn responses_metadata_template(&self) -> MaplecodeResponsesMetadata {
         let mut metadata = self.mcp_metadata_template();
         if metadata.parent_thread_id.is_some() {
             metadata.forked_from_thread_id = None;
@@ -461,7 +461,7 @@ impl TurnMetadataState {
         metadata
     }
 
-    fn mcp_metadata_template(&self) -> MapleCodeResponsesMetadata {
+    fn mcp_metadata_template(&self) -> MaplecodeResponsesMetadata {
         let mut extra = self
             .responsesapi_client_metadata
             .read()
@@ -483,7 +483,7 @@ impl TurnMetadataState {
         {
             extra.remove(key);
         }
-        let mut metadata = MapleCodeResponsesMetadata {
+        let mut metadata = MaplecodeResponsesMetadata {
             parent_response_id,
             turn_id: Some(self.turn_id.clone()),
             agent_name: Some(self.agent_name.clone()),
@@ -502,7 +502,7 @@ impl TurnMetadataState {
             tool_namespaces_info: None,
             turn_started_at_unix_ms: self.current_turn_started_at_unix_ms(),
             extra,
-            ..MapleCodeResponsesMetadata::new(
+            ..MaplecodeResponsesMetadata::new(
                 String::new(),
                 self.session_id.clone(),
                 self.thread_id.clone(),

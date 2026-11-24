@@ -17,8 +17,8 @@ use maplecode_guardian_context::RequestBudget;
 use maplecode_guardian_context::effective_input_token_limit;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_protocol::config_types::ReasoningSummary;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::user_input::UserInput;
@@ -26,7 +26,7 @@ use maplecode_protocol::user_input::UserInput;
 use crate::context::ContextualUserFragment;
 use crate::context::GuardianBudgetOmission;
 use crate::context_manager::estimate_item_token_count;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
+use crate::responses_metadata::MaplecodeResponsesRequestKind;
 use crate::session::TurnInput;
 use crate::session::session::Session;
 use crate::session::step_context::StepContext;
@@ -84,7 +84,7 @@ pub(super) use maplecode_guardian_reviewer::CheckpointRecovery;
 
 /// Restart a reused reviewer before paying for a summary we would discard.
 /// A fresh checkpoint stays intact while final input selection makes the review fit.
-pub(crate) fn should_compact(session: &Session) -> MapleCodeResult<bool> {
+pub(crate) fn should_compact(session: &Session) -> MaplecodeResult<bool> {
     let Some(recovery) = session
         .services
         .thread_extension_data
@@ -96,7 +96,7 @@ pub(crate) fn should_compact(session: &Session) -> MapleCodeResult<bool> {
         return Ok(false);
     }
     recovery.requested.store(/*val*/ true, Ordering::Release);
-    Err(MapleCodeErr::InvalidRequest(
+    Err(MaplecodeErr::InvalidRequest(
         "Guardian needs compaction; restart from the parent checkpoint".to_owned(),
     ))
 }
@@ -111,7 +111,7 @@ pub(super) struct RetainedReviewContext {
 /// Reject inputs that cannot fit even without history or tools before Core tries
 /// pre-turn compaction. This is only a feasibility check; its selected copy is
 /// discarded. Actual selection waits for the complete first-step overhead.
-pub(crate) async fn check_pending(session: &Session, turn: &TurnContext) -> MapleCodeResult<()> {
+pub(crate) async fn check_pending(session: &Session, turn: &TurnContext) -> MaplecodeResult<()> {
     let Some(pending) = session
         .services
         .thread_extension_data
@@ -134,7 +134,7 @@ pub(crate) async fn check_pending(session: &Session, turn: &TurnContext) -> Mapl
         )
         .await;
     let context = PreparedReviewContext::prepare(context, pending.elastic.as_ref(), &history)
-        .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string()))?;
+        .map_err(|error| MaplecodeErr::InvalidRequest(error.to_string()))?;
     let context_tokens = match &context {
         PreparedReviewContext::Fixed(context) => context.estimated_tokens(),
         PreparedReviewContext::Elastic(context) => context.estimated_tokens(),
@@ -153,7 +153,7 @@ pub(crate) async fn check_pending(session: &Session, turn: &TurnContext) -> Mapl
                     .services
                     .thread_extension_data
                     .insert(super::request_budget::ExhaustedReviewBudget::Detected);
-                MapleCodeErr::ContextWindowExceeded
+                MaplecodeErr::ContextWindowExceeded
             })?;
     }
     Ok(())
@@ -164,7 +164,7 @@ pub(crate) async fn finalize(
     step: &StepContext,
     input: &mut Vec<TurnInput>,
     history_truncation: HistoryTruncation,
-) -> MapleCodeResult<()> {
+) -> MaplecodeResult<()> {
     let Some(pending) = session
         .services
         .thread_extension_data
@@ -173,7 +173,7 @@ pub(crate) async fn finalize(
         return Ok(());
     };
     let [TurnInput::UserInput { content, .. }] = input.as_slice() else {
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "Guardian expects one review input".to_owned(),
         ));
     };
@@ -188,7 +188,7 @@ pub(crate) async fn finalize(
         && history.history_version() != recovery.history_version
     {
         recovery.requested.store(/*val*/ true, Ordering::Release);
-        return Err(MapleCodeErr::InvalidRequest(
+        return Err(MaplecodeErr::InvalidRequest(
             "Guardian history changed; restart from the parent checkpoint".to_owned(),
         ));
     }
@@ -202,7 +202,7 @@ pub(crate) async fn finalize(
     // Use the history that will actually reach the model. Recompute after every
     // compaction retry; evidence removed by compaction must be delivered again.
     let context = PreparedReviewContext::prepare(context, pending.elastic.as_ref(), &history)
-        .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string()))?;
+        .map_err(|error| MaplecodeErr::InvalidRequest(error.to_string()))?;
     let prompt = build_prompt(
         history
             .into_iter()
@@ -219,7 +219,7 @@ pub(crate) async fn finalize(
         ReasoningSummary::None,
         /*service_tier*/ None,
         &session
-            .responses_metadata(step, MapleCodeResponsesRequestKind::Turn)
+            .responses_metadata(step, MaplecodeResponsesRequestKind::Turn)
             .await,
         /*include_internal*/ true,
     )?;
@@ -291,9 +291,9 @@ pub(crate) async fn finalize(
                 .insert(super::request_budget::ExhaustedReviewBudget::Detected);
             match error {
                 maplecode_guardian_context::SectionError::EvidenceLimitExceeded { .. } => {
-                    MapleCodeErr::ContextWindowExceeded
+                    MaplecodeErr::ContextWindowExceeded
                 }
-                error => MapleCodeErr::InvalidRequest(error.to_string()),
+                error => MaplecodeErr::InvalidRequest(error.to_string()),
             }
         })?;
     for (section, cost) in context.section_costs() {
@@ -349,19 +349,19 @@ pub(crate) async fn finalize(
                                     detail: *detail,
                                 }),
                                 ContentItem::OutputText { .. } | ContentItem::InputAudio { .. } => {
-                                    Err(MapleCodeErr::InvalidRequest(
+                                    Err(MaplecodeErr::InvalidRequest(
                                         "Unsupported Guardian input content".to_owned(),
                                     ))
                                 }
                             })
-                            .collect::<MapleCodeResult<Vec<_>>>()?;
+                            .collect::<MaplecodeResult<Vec<_>>>()?;
                         envelope.item = session.response_item_from_user_input(user_input);
                     }
                     Ok(TurnInput::ResponseItem(envelope))
                 })
-                .collect::<MapleCodeResult<Vec<_>>>()?;
+                .collect::<MaplecodeResult<Vec<_>>>()?;
         }
-        Err(error) => return Err(MapleCodeErr::InvalidRequest(error.to_string())),
+        Err(error) => return Err(MaplecodeErr::InvalidRequest(error.to_string())),
     }
     // Match async classification accounting: one count per component/disposition
     // for this accepted input, with byte totals across all reduction stages.

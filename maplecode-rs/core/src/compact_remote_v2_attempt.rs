@@ -27,9 +27,9 @@ use maplecode_analytics::CompactionImplementation;
 use maplecode_analytics::CompactionPhase;
 use maplecode_analytics::CompactionReason;
 use maplecode_analytics::CompactionTrigger;
-use maplecode_history::MapleCodeHarnessMetadata;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_history::MaplecodeHarnessMetadata;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::models::BaseInstructions;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::TokenUsage;
@@ -43,7 +43,7 @@ pub(super) struct RemoteCompactV2Attempt {
     pub(super) input_goal_ids: HashSet<ResponseItemId>,
     pub(super) trace_input_history: Option<Vec<ResponseItem>>,
     pub(super) prompt_input: Vec<ResponseItem>,
-    pub(super) prompt_input_metadata: Vec<Option<MapleCodeHarnessMetadata>>,
+    pub(super) prompt_input_metadata: Vec<Option<MaplecodeHarnessMetadata>>,
     pub(super) compaction_output: ResponseItem,
     pub(super) compaction_response_id: String,
     pub(super) token_usage: Option<TokenUsage>,
@@ -69,7 +69,7 @@ pub(crate) struct BackgroundCompactionInput {
     window: (String, u64, maplecode_protocol::ContextWindowId),
     base_instructions: BaseInstructions,
     input: Vec<ResponseItem>,
-    metadata: Vec<Option<MapleCodeHarnessMetadata>>,
+    metadata: Vec<Option<MaplecodeHarnessMetadata>>,
 }
 
 pub(super) async fn run_remote_compact_v2_attempt(
@@ -79,7 +79,7 @@ pub(super) async fn run_remote_compact_v2_attempt(
     compaction_metadata: CompactionTurnMetadata,
     analytics_details: &mut CompactionAnalyticsDetails,
     input: RemoteCompactV2AttemptInput<'_>,
-) -> MapleCodeResult<RemoteCompactV2Attempt> {
+) -> MaplecodeResult<RemoteCompactV2Attempt> {
     let turn_context = &step_context.turn;
     let mut owned_client_session = None;
     let (
@@ -335,9 +335,9 @@ pub(crate) async fn run_background_compaction(
     phase: CompactionPhase,
     mut prepared_input: BackgroundCompactionInput,
     shutdown_cancellation: &CancellationToken,
-) -> MapleCodeResult<BackgroundCompactionCandidate> {
+) -> MaplecodeResult<BackgroundCompactionCandidate> {
     tokio::select! {
-        _ = shutdown_cancellation.cancelled() => return Err(MapleCodeErr::TurnAborted),
+        _ = shutdown_cancellation.cancelled() => return Err(MaplecodeErr::TurnAborted),
         () = replace_unresolvable_image_files(
             prepared_input.input.iter_mut(),
             sess.services.image_store.as_ref(),

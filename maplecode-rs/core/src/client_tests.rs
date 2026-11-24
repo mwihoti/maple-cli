@@ -17,8 +17,8 @@ use crate::AttestationProvider;
 use crate::GenerateAttestationFuture;
 use crate::responses_metadata::MAX_MCP_ATTRIBUTION_BYTES;
 use crate::responses_metadata::MCP_ATTRIBUTION_CLIENT_METADATA_KEY;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
-use crate::test_support::TestMapleCodeResponsesRequestKind;
+use crate::responses_metadata::MaplecodeResponsesMetadata;
+use crate::test_support::TestMaplecodeResponsesRequestKind;
 use crate::test_support::responses_metadata as test_responses_metadata;
 use base64::Engine;
 use futures::StreamExt;
@@ -31,7 +31,7 @@ use maplecode_history::HistoryInitialization;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::AgentIdentityAuthPolicy;
 use maplecode_model_provider::BearerAuthProvider;
 use maplecode_model_provider::ModelProvider;
@@ -49,8 +49,8 @@ use maplecode_models_manager::manager::SharedModelsManager;
 use maplecode_otel::SessionTelemetry;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::auth::AuthMode;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::mcp::McpAttribution;
 use maplecode_protocol::mcp::McpAttributionSource;
 use maplecode_protocol::mcp::McpAttributionStatus;
@@ -202,7 +202,7 @@ async fn workspace_routed_http_rejects_redirects_without_a_routing_header(
             .mount(&destination)
             .await;
         let manager = AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         );
         let resolver: Arc<dyn WorkspaceRoutingResolver> = Arc::new(Routing(routing_override));
         manager.set_workspace_routing_resolver(Arc::downgrade(&resolver));
@@ -304,7 +304,7 @@ impl ModelProvider for SetupRefreshProvider {
         self.inner.auth_manager()
     }
 
-    fn auth(&self) -> ModelProviderFuture<'_, Option<MapleCodeAuth>> {
+    fn auth(&self) -> ModelProviderFuture<'_, Option<MaplecodeAuth>> {
         self.inner.auth()
     }
 
@@ -421,7 +421,7 @@ async fn client_setup_rebuilds_chatgpt_refresh_but_rejects_account_switches() {
             format!("header.{payload}.signature")
         };
         let home = TempDir::new().unwrap();
-        let initial = MapleCodeAuth::from_external_chatgpt_tokens(
+        let initial = MaplecodeAuth::from_external_chatgpt_tokens(
             &token("user-a", "initial"),
             "workspace-a",
             /*chatgpt_plan_type*/ None,
@@ -477,8 +477,8 @@ fn test_responses_metadata_for_client(
     turn_id: Option<&str>,
     window_id: String,
     parent_thread_id: Option<ThreadId>,
-    request_kind: TestMapleCodeResponsesRequestKind,
-) -> MapleCodeResponsesMetadata {
+    request_kind: TestMaplecodeResponsesRequestKind,
+) -> MaplecodeResponsesMetadata {
     let thread_id = client.state.thread_id.to_string();
     test_responses_metadata(
         TEST_INSTALLATION_ID,
@@ -639,7 +639,7 @@ async fn responses_request_includes_internal_metadata_for_provider_grant_or_firs
         /*turn_id*/ None,
         format!("{}:0", client.state.thread_id),
         /*parent_thread_id*/ None,
-        TestMapleCodeResponsesRequestKind::Turn,
+        TestMaplecodeResponsesRequestKind::Turn,
     );
     responses_metadata.mcp_attribution = Some(attribution.clone());
     for (provider_grant, base_url, allowed) in [
@@ -839,7 +839,7 @@ fn responses_request_preserves_result_metadata_above_previous_aggregate_budget()
         /*turn_id*/ None,
         format!("{}:0", client.state.thread_id),
         /*parent_thread_id*/ None,
-        TestMapleCodeResponsesRequestKind::Turn,
+        TestMaplecodeResponsesRequestKind::Turn,
     );
     let request = client.build_responses_request(
         &prompt,
@@ -885,7 +885,7 @@ fn websocket_incremental_reuse_tracks_raw_result_metadata() -> anyhow::Result<()
         /*turn_id*/ None,
         format!("{}:0", client.state.thread_id),
         /*parent_thread_id*/ None,
-        TestMapleCodeResponsesRequestKind::Turn,
+        TestMaplecodeResponsesRequestKind::Turn,
     );
     for (scenario, base_url, previous_metadata, current_metadata, expect_incremental) in [
         (
@@ -1024,7 +1024,7 @@ fn websocket_continuation_reports_unavailable_response_state() {
                 /*turn_id*/ None,
                 format!("{}:0", client.state.thread_id),
                 /*parent_thread_id*/ None,
-                TestMapleCodeResponsesRequestKind::Turn,
+                TestMaplecodeResponsesRequestKind::Turn,
             ),
             /*include_internal*/ true,
         )
@@ -1107,7 +1107,7 @@ async fn responses_http_preserves_raw_tool_metadata_for_openai_custom_endpoint()
         /*turn_id*/ None,
         format!("{}:0", client.state.thread_id),
         /*parent_thread_id*/ None,
-        TestMapleCodeResponsesRequestKind::Turn,
+        TestMaplecodeResponsesRequestKind::Turn,
     );
     let mut session = client.new_session();
     let mut stream = session
@@ -1176,7 +1176,7 @@ fn prefix_ids_track_thread_and_payload(responses_lite: bool) -> anyhow::Result<(
                 /*turn_id*/ None,
                 format!("{}:0", client.state.thread_id),
                 /*parent_thread_id*/ None,
-                TestMapleCodeResponsesRequestKind::Turn,
+                TestMaplecodeResponsesRequestKind::Turn,
             ),
             /*include_internal*/ true,
         )
@@ -1256,7 +1256,7 @@ fn websocket_continuation_reset_reason_survives_failed_reconnect_and_turn_bounda
                     /*turn_id*/ None,
                     format!("{}:0", client.state.thread_id),
                     /*parent_thread_id*/ None,
-                    TestMapleCodeResponsesRequestKind::Turn,
+                    TestMaplecodeResponsesRequestKind::Turn,
                 ),
                 /*include_internal*/ true,
             )
@@ -1303,7 +1303,7 @@ fn reasoning_effort_in_request(
                 /*turn_id*/ None,
                 format!("{}:0", client.state.thread_id),
                 /*parent_thread_id*/ None,
-                TestMapleCodeResponsesRequestKind::Turn,
+                TestMaplecodeResponsesRequestKind::Turn,
             ),
             /*include_internal*/ true,
         )
@@ -1458,7 +1458,7 @@ fn started_inference_attempt(temp: &TempDir) -> anyhow::Result<InferenceTraceAtt
         agent_path: "/root".to_string(),
         metadata_payload: None,
     })?;
-    writer.append(RawTraceEventPayload::MapleCodeTurnStarted {
+    writer.append(RawTraceEventPayload::MaplecodeTurnStarted {
         maplecode_turn_id: "turn-1".to_string(),
         thread_id: "thread-root".to_string(),
     })?;
@@ -1558,7 +1558,7 @@ fn internal_session_prompt_cache_key_is_scoped_to_parent_thread() {
         Some("turn-123"),
         "window-1".to_string(),
         Some(parent_thread_id),
-        TestMapleCodeResponsesRequestKind::Turn,
+        TestMaplecodeResponsesRequestKind::Turn,
     );
 
     assert_eq!(
@@ -1601,7 +1601,7 @@ fn build_ws_client_metadata_includes_window_lineage_and_turn_metadata() {
         Some("turn-123"),
         expected_window_id.clone(),
         Some(parent_thread_id),
-        TestMapleCodeResponsesRequestKind::Turn,
+        TestMaplecodeResponsesRequestKind::Turn,
     );
     responses_metadata.history_initialization = Some(HistoryInitialization::WarmFork);
     let client_metadata = client.build_ws_client_metadata(
@@ -1902,7 +1902,7 @@ impl ModelProvider for TestRecoveryProvider {
         None
     }
 
-    fn auth(&self) -> ModelProviderFuture<'_, Option<MapleCodeAuth>> {
+    fn auth(&self) -> ModelProviderFuture<'_, Option<MaplecodeAuth>> {
         self.inner.auth()
     }
 
@@ -1924,7 +1924,7 @@ impl ModelProvider for TestRecoveryProvider {
         self.attempts.fetch_add(1, Ordering::Relaxed);
         Box::pin(async move {
             if self.should_fail {
-                Err(MapleCodeErr::Io(std::io::Error::other(
+                Err(MaplecodeErr::Io(std::io::Error::other(
                     "provider recovery failed",
                 )))
             } else {
@@ -1998,7 +1998,7 @@ async fn provider_owned_auth_recovery_is_bounded_and_preserves_unauthorized_fail
         };
 
         match error.details() {
-            MapleCodeErrorDetails::UnexpectedStatus(response) => {
+            MaplecodeErrorDetails::UnexpectedStatus(response) => {
                 assert_eq!(response.status, http::StatusCode::UNAUTHORIZED);
                 assert_eq!(response.body, "unauthorized");
             }
@@ -2150,7 +2150,7 @@ fn model_client_with_counting_attestation(
     let (auth_manager, provider) = if include_attestation {
         (
             Some(AuthManager::from_auth_for_testing(
-                MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+                MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
             )),
             ModelProviderInfo::create_openai_provider(Some(CHATGPT_MAPLECODE_BASE_URL.to_string())),
         )
@@ -2195,12 +2195,12 @@ fn thread_responses_headers_are_scoped_to_model_and_backend_auth() {
         http::HeaderName::from_static("x-custom-request"),
         http::HeaderValue::from_static("example"),
     )]);
-    model_client.maplecode_responses_headers = Some(Arc::new(crate::MapleCodeResponsesHeaders {
+    model_client.maplecode_responses_headers = Some(Arc::new(crate::MaplecodeResponsesHeaders {
         model: "selected-model".to_owned(),
         headers: headers.clone(),
     }));
-    let chatgpt_auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
-    let api_key_auth = MapleCodeAuth::from_api_key("test-api-key");
+    let chatgpt_auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let api_key_auth = MaplecodeAuth::from_api_key("test-api-key");
     for (auth, model, expected) in [
         (Some(&chatgpt_auth), "selected-model", headers.clone()),
         (Some(&chatgpt_auth), "other-model", http::HeaderMap::new()),
@@ -2239,7 +2239,7 @@ async fn websocket_handshake_includes_attestation_for_chatgpt_maplecode_response
         /*turn_id*/ None,
         format!("{}:0", model_client.state.thread_id),
         /*parent_thread_id*/ None,
-        TestMapleCodeResponsesRequestKind::WebsocketConnection,
+        TestMaplecodeResponsesRequestKind::WebsocketConnection,
     );
 
     model_client.session_id_override = session_id_override.map(str::to_string);
@@ -2520,7 +2520,7 @@ async fn realtime_auth_uses_request_scope_on_reconnect(mode: RuntimeAuthMode, ga
     let registration = wiremock::MockServer::start().await;
     let home = TempDir::new().unwrap();
     let credentials = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("realtime-key"),
+        MaplecodeAuth::from_api_key("realtime-key"),
         home.path().to_path_buf(),
     );
     let mut info = ModelProviderInfo::create_openai_provider(/*base_url*/ None);
@@ -2643,7 +2643,7 @@ async fn realtime_uses_openai_credentials_with_bedrock_inference() {
     let (mut model_client, _) =
         model_client_with_counting_attestation(/*include_attestation*/ false);
     let credentials =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("realtime-key"));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("realtime-key"));
     let info = ModelProviderInfo::create_amazon_bedrock_provider(Some(
         maplecode_model_provider_info::ModelProviderAwsAuthInfo {
             profile: Some("configured-profile".into()),
@@ -2681,7 +2681,7 @@ async fn realtime_custom_call_keeps_selected_key_for_openai_sideband(mode: Runti
         model_client_with_counting_attestation(/*include_attestation*/ false);
     let home = TempDir::new().unwrap();
     let credentials = AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::from_api_key("saved-key"),
+        MaplecodeAuth::from_api_key("saved-key"),
         home.path().to_path_buf(),
     );
     let mut info = ModelProviderInfo::create_openai_provider(/*base_url*/ None);

@@ -1,6 +1,6 @@
 //! Observe the saved choice at native spawn and admission, before a helper can sample.
 
-use crate::MapleCodeThread;
+use crate::MaplecodeThread;
 use crate::StartThreadOptions;
 use crate::ThreadManager;
 use crate::agent::helper_daybreak::SavedIntent;
@@ -22,7 +22,7 @@ use maplecode_extension_api::TurnLifecycleContributor;
 use maplecode_extension_api::TurnStartInput;
 use maplecode_extension_api::TurnStartPhase;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::openai_models::SavedDaybreakChoice;
 use maplecode_protocol::protocol::TurnAbortReason;
 use maplecode_protocol::turn_input::CyberAccessProgram;
@@ -61,7 +61,7 @@ fn text() -> Vec<UserInput> {
 
 async fn admitted_turn(
     turns: &mut mpsc::UnboundedReceiver<String>,
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
 ) -> Arc<TurnContext> {
     let id = tokio::time::timeout(std::time::Duration::from_secs(10), turns.recv())
         .await
@@ -77,10 +77,10 @@ async fn admitted_turn(
 async fn spawn_child(
     manager: &ThreadManager,
     config: &Config,
-    parent: &MapleCodeThread,
+    parent: &MaplecodeThread,
     spawning_turn: &TurnContext,
     program_source: SpawnProgramSource,
-) -> maplecode_protocol::error::Result<Arc<MapleCodeThread>> {
+) -> maplecode_protocol::error::Result<Arc<MaplecodeThread>> {
     let parent_id = parent.session.thread_id();
     let source = thread_spawn_source(
         parent_id,
@@ -114,7 +114,7 @@ async fn spawn_child(
         .expect("loaded child"))
 }
 
-async fn save_choice(thread: &MapleCodeThread, enabled: bool) {
+async fn save_choice(thread: &MaplecodeThread, enabled: bool) {
     thread.ensure_rollout_materialized().await;
     let stored = thread
         .update_thread_metadata(
@@ -162,7 +162,7 @@ async fn paused_helpers(
         .enable(Feature::DaybreakProgramPropagation)
         .expect("enable propagation");
     let mut manager = ThreadManager::with_models_provider_home_and_state_for_tests(
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -429,7 +429,7 @@ async fn copied_program_rechecks_the_spawning_turn_owner() {
     Arc::get_mut(&mut manager.state)
         .expect("unshared manager")
         .auth_manager = maplecode_login::AuthManager::from_auth_for_testing_with_home(
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         home.path().to_owned(),
     );
     let root = manager

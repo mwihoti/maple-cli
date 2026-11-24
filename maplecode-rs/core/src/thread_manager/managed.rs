@@ -4,8 +4,8 @@
 use std::future::Future;
 use std::sync::Arc;
 
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use tokio::sync::oneshot;
 use tokio_util::sync::CancellationToken;
 use tokio_util::task::TaskTracker;
@@ -28,12 +28,12 @@ impl ThreadManager {
         options: StartThreadOptions,
         until: impl Future<Output = ()> + Send + 'static,
         tasks: &TaskTracker,
-    ) -> MapleCodeResult<NewThread> {
+    ) -> MaplecodeResult<NewThread> {
         if matches!(
             options.initial_history,
             maplecode_history::InitialHistory::Resumed(_)
         ) {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "owned thread startup requires new or forked history".to_owned(),
             ));
         }
@@ -43,7 +43,7 @@ impl ThreadManager {
             .as_deref()
             != Some(&maplecode_extension_api::SessionIsolation::Isolated)
         {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "owned thread startup requires explicit session isolation".to_owned(),
             ));
         }
@@ -66,8 +66,8 @@ impl ThreadManager {
                 );
                 tokio::select! {
                     biased;
-                    _ = &mut until => Err(MapleCodeErr::TurnAborted),
-                    _ = abandoned.cancelled() => Err(MapleCodeErr::TurnAborted),
+                    _ = &mut until => Err(MaplecodeErr::TurnAborted),
+                    _ = abandoned.cancelled() => Err(MaplecodeErr::TurnAborted),
                     result = start => result,
                 }
             };
@@ -104,7 +104,7 @@ impl ThreadManager {
         });
         let thread = receiver
             .await
-            .map_err(|_| MapleCodeErr::InternalAgentDied)??;
+            .map_err(|_| MaplecodeErr::InternalAgentDied)??;
         handoff.disarm();
         Ok(thread)
     }

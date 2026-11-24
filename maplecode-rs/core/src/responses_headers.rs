@@ -10,14 +10,14 @@ use http::HeaderMap;
 /// WebSocket handshakes; changes require a new socket. Other providers and
 /// unrelated threads do not inherit these headers.
 #[derive(Clone)]
-pub struct MapleCodeResponsesHeaders {
+pub struct MaplecodeResponsesHeaders {
     pub model: String,
     pub headers: HeaderMap,
 }
 
-impl std::fmt::Debug for MapleCodeResponsesHeaders {
+impl std::fmt::Debug for MaplecodeResponsesHeaders {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("MapleCodeResponsesHeaders")
+        f.debug_struct("MaplecodeResponsesHeaders")
             .field("model", &self.model)
             .field("header_names", &self.headers.keys())
             .finish()

@@ -15,7 +15,7 @@ use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::config_types::ServiceTier;
 use maplecode_protocol::config_types::Settings;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ReasoningEffort;
@@ -372,7 +372,7 @@ async fn start_only_rejects_current_plan_before_validating_settings() {
     let error = result.expect_err("invalid automatic settings must be rejected");
     assert!(matches!(
         error.details(),
-        MapleCodeErrorDetails::InvalidRequest(_)
+        MaplecodeErrorDetails::InvalidRequest(_)
     ));
     assert_eq!(session.thread_settings_snapshot().await, desired_settings);
     assert!(session.active_turn.lock().await.is_none());
@@ -697,7 +697,7 @@ async fn admission_revalidates_constraints_before_committing(kind: TurnStartKind
     .expect("approval-policy edit should initially be valid");
 
     let approval_policy = Constrained::allow_only(AskForApproval::OnRequest);
-    let expected_message = MapleCodeErr::InvalidRequest(
+    let expected_message = MaplecodeErr::InvalidRequest(
         approval_policy
             .can_set(&AskForApproval::Never)
             .expect_err("new constraint must reject the prepared edit")
@@ -717,7 +717,7 @@ async fn admission_revalidates_constraints_before_committing(kind: TurnStartKind
     let Err(error) = result else {
         panic!("commit-time constraint failure must return InvalidRequest");
     };
-    let MapleCodeErrorDetails::InvalidRequest(message) = error.details() else {
+    let MaplecodeErrorDetails::InvalidRequest(message) = error.details() else {
         panic!("unexpected commit-time error: {error}");
     };
     assert_eq!(message, &expected_message);
@@ -733,7 +733,7 @@ async fn admission_revalidates_constraints_before_committing(kind: TurnStartKind
         vec![ErrorEvent {
             misalignment: None,
             message: expected_message,
-            maplecode_error_info: Some(MapleCodeErrorInfo::BadRequest),
+            maplecode_error_info: Some(MaplecodeErrorInfo::BadRequest),
             rejected_audio_file_ids: Vec::new(),
         }]
     );

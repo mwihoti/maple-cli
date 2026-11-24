@@ -14,7 +14,7 @@ use maplecode_extension_api::UserInstructionsProvider;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_models_manager::bundled_models_response;
@@ -34,8 +34,8 @@ use once_cell::sync::Lazy;
 use crate::ThreadManager;
 pub use crate::code_mode_host::ProcessOwnedGrpcCodeModeSessionProvider;
 use crate::config::Config;
-use crate::responses_metadata::MapleCodeResponsesMetadata;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
+use crate::responses_metadata::MaplecodeResponsesMetadata;
+use crate::responses_metadata::MaplecodeResponsesRequestKind;
 use crate::responses_metadata::subagent_header_value;
 use crate::responses_metadata::subagent_metadata_kind;
 use crate::thread_manager;
@@ -76,7 +76,7 @@ static TEST_MODEL_PRESETS: Lazy<Vec<ModelPreset>> = Lazy::new(|| {
 
 /// Inspect the same resolved environment configurations used to construct sampling steps.
 pub async fn environment_windows_sandbox_types(
-    thread: &crate::MapleCodeThread,
+    thread: &crate::MaplecodeThread,
 ) -> Vec<(String, maplecode_sandboxing::SandboxType)> {
     thread
         .session
@@ -97,7 +97,7 @@ pub async fn environment_windows_sandbox_types(
 /// Reattaches request-only observations to a completed turn's history for capture assertions.
 /// Tests inspect this separately from the destination-filtered HTTP/WS request.
 pub async fn history_with_tool_call_metadata(
-    thread: &crate::MapleCodeThread,
+    thread: &crate::MaplecodeThread,
 ) -> Vec<maplecode_protocol::models::ResponseItem> {
     let history = thread.conversation_history_snapshot().await;
     let mut items = history.items().cloned().collect::<Vec<_>>();
@@ -112,7 +112,7 @@ pub async fn history_with_tool_call_metadata(
 /// Returns the recorder state used by the next session metadata snapshot.
 /// This does not change destination filtering or issue a request.
 pub fn mcp_attribution_snapshot(
-    thread: &crate::MapleCodeThread,
+    thread: &crate::MaplecodeThread,
 ) -> maplecode_protocol::mcp::McpAttribution {
     thread
         .session
@@ -126,7 +126,7 @@ pub fn mcp_attribution_snapshot(
 /// durations for the caller's interval in inference, automatic review, local
 /// tools, overhead, and unknown order.
 pub async fn observe_turn_timing(
-    thread: &crate::MapleCodeThread,
+    thread: &crate::MaplecodeThread,
 ) -> Option<
     impl Fn(std::time::Instant, std::time::Instant) -> Option<[std::time::Duration; 5]> + use<>,
 > {
@@ -171,12 +171,12 @@ pub fn set_deterministic_process_ids(enabled: bool) {
     unified_exec::set_deterministic_process_ids_for_tests(enabled);
 }
 
-pub fn auth_manager_from_auth(auth: MapleCodeAuth) -> Arc<AuthManager> {
+pub fn auth_manager_from_auth(auth: MaplecodeAuth) -> Arc<AuthManager> {
     AuthManager::from_auth_for_testing(auth)
 }
 
 pub fn auth_manager_from_auth_with_home(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     maplecode_home: PathBuf,
 ) -> Arc<AuthManager> {
     AuthManager::from_auth_for_testing_with_home(auth, maplecode_home)
@@ -191,14 +191,14 @@ pub fn with_code_mode_host_program(
 }
 
 pub fn thread_manager_with_models_provider(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     provider: ModelProviderInfo,
 ) -> ThreadManager {
     ThreadManager::with_models_provider_for_tests(auth, provider)
 }
 
 pub fn thread_manager_with_models_provider_and_home(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     provider: ModelProviderInfo,
     maplecode_home: PathBuf,
     environment_manager: Arc<EnvironmentManager>,
@@ -275,7 +275,7 @@ pub fn construct_model_info_offline(model: &str, config: &Config) -> ModelInfo {
 }
 
 #[derive(Clone, Copy)]
-pub enum TestMapleCodeResponsesRequestKind {
+pub enum TestMaplecodeResponsesRequestKind {
     Turn,
     Prewarm,
     WebsocketConnection,
@@ -290,20 +290,20 @@ pub fn responses_metadata(
     window_id: String,
     session_source: &SessionSource,
     parent_thread_id: Option<ThreadId>,
-    request_kind: TestMapleCodeResponsesRequestKind,
-) -> MapleCodeResponsesMetadata {
+    request_kind: TestMaplecodeResponsesRequestKind,
+) -> MaplecodeResponsesMetadata {
     let request_kind = match request_kind {
-        TestMapleCodeResponsesRequestKind::Turn => Some(MapleCodeResponsesRequestKind::Turn),
-        TestMapleCodeResponsesRequestKind::Prewarm => Some(MapleCodeResponsesRequestKind::Prewarm),
-        TestMapleCodeResponsesRequestKind::WebsocketConnection => None,
+        TestMaplecodeResponsesRequestKind::Turn => Some(MaplecodeResponsesRequestKind::Turn),
+        TestMaplecodeResponsesRequestKind::Prewarm => Some(MaplecodeResponsesRequestKind::Prewarm),
+        TestMaplecodeResponsesRequestKind::WebsocketConnection => None,
     };
-    MapleCodeResponsesMetadata {
+    MaplecodeResponsesMetadata {
         turn_id: request_kind.and(turn_id.map(ToString::to_string)),
         request_kind,
         parent_thread_id,
         subagent_header: subagent_header_value(session_source),
         subagent_kind: request_kind.and_then(|_| subagent_metadata_kind(session_source)),
-        ..MapleCodeResponsesMetadata::new(
+        ..MaplecodeResponsesMetadata::new(
             installation_id.to_string(),
             session_id.to_string(),
             thread_id.to_string(),
@@ -313,9 +313,9 @@ pub fn responses_metadata(
 }
 
 pub fn with_parent_turn(
-    mut metadata: MapleCodeResponsesMetadata,
+    mut metadata: MaplecodeResponsesMetadata,
     id: &str,
-) -> MapleCodeResponsesMetadata {
+) -> MaplecodeResponsesMetadata {
     metadata.parent_turn_id = Some(id.to_string());
     metadata
 }

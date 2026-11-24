@@ -5,7 +5,7 @@ use std::time::Duration;
 use futures::StreamExt;
 use maplecode_file_system::EnvironmentAccess;
 use maplecode_file_system::GetMetadataOptions;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::error::Result;
 use maplecode_protocol::models::FunctionCallOutputPayload;
 use maplecode_protocol::models::ResponseItem;
@@ -28,12 +28,12 @@ impl Session {
         markdown: &str,
     ) -> Result<(String, Vec<ResponseItem>)> {
         if markdown.trim().is_empty() {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "The approved plan is empty.".into(),
             ));
         }
         if self.active_turn.lock().await.is_some() {
-            return Err(MapleCodeErr::InvalidRequest(
+            return Err(MaplecodeErr::InvalidRequest(
                 "The thread already has an active turn.".into(),
             ));
         }
@@ -71,7 +71,7 @@ fn fallback_items(turn: &TurnContext, mut markdown: &str) -> Result<Vec<Response
         .byte_budget()
         .min(approx_bytes_for_tokens(context_budget));
     let too_large = || {
-        MapleCodeErr::InvalidRequest(
+        MaplecodeErr::InvalidRequest(
             "The executor could not read the plan attachment and the complete plan is too large to send as context. Implement it in the original thread.".into(),
         )
     };

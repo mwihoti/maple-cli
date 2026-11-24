@@ -1,5 +1,5 @@
 use super::*;
-use crate::MapleCodeThread;
+use crate::MaplecodeThread;
 use crate::StateDbHandle;
 use crate::ThreadManager;
 use crate::agent::agent_status_from_event;
@@ -29,7 +29,7 @@ use crate::context::MultiAgentRoleInstructions;
 use crate::context::SubagentNotification;
 use crate::context::world_state::IncrementalToolsUpdate;
 use crate::init_state_db;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
+use crate::responses_metadata::MaplecodeResponsesRequestKind;
 use crate::session::SessionSettingsUpdate;
 use crate::session::step_context::StepContext;
 use crate::thread_manager::ForkSnapshot;
@@ -49,7 +49,7 @@ use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RolloutItem;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::manager::ModelCatalogSettings;
 use maplecode_models_manager::model_info::model_info_from_slug;
 use maplecode_protocol::AgentPath;
@@ -62,8 +62,8 @@ use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::config_types::ReasoningSummary;
 use maplecode_protocol::config_types::Settings;
 use maplecode_protocol::error::AgentErrorContext;
-use maplecode_protocol::error::MapleCodeErrKind;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrKind;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::items::TurnItem;
 use maplecode_protocol::items::UserMessageItem;
 use maplecode_protocol::mcp::ClientMcpExtensions;
@@ -136,7 +136,7 @@ impl LocalAgentControl {
         initial_input: Vec<UserInput>,
         source: SessionSource,
         options: SpawnAgentOptions,
-    ) -> MapleCodeResult<LiveAgent> {
+    ) -> MaplecodeResult<LiveAgent> {
         let caller = source
             .parent_thread_id()
             .expect("child fixture has a parent");
@@ -281,7 +281,7 @@ impl AgentControlHarness {
     async fn new_with_config(home: TempDir, config: Config) -> Self {
         let state_db = init_state_db(&config).await;
         let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
-            MapleCodeAuth::from_api_key("dummy"),
+            MaplecodeAuth::from_api_key("dummy"),
             config.model_provider.clone(),
             config.maplecode_home.to_path_buf(),
             std::sync::Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -297,7 +297,7 @@ impl AgentControlHarness {
         }
     }
 
-    async fn start_thread(&self) -> (ThreadId, Arc<MapleCodeThread>) {
+    async fn start_thread(&self) -> (ThreadId, Arc<MaplecodeThread>) {
         let new_thread = self
             .manager
             .start_thread(StartThreadOptions::new(self.config.clone()))
@@ -306,7 +306,7 @@ impl AgentControlHarness {
         (new_thread.thread_id, new_thread.thread)
     }
 
-    async fn start_paginated_thread(&self) -> (ThreadId, Arc<MapleCodeThread>) {
+    async fn start_paginated_thread(&self) -> (ThreadId, Arc<MaplecodeThread>) {
         let new_thread = self
             .manager
             .start_thread(StartThreadOptions {
@@ -343,7 +343,7 @@ impl AgentControlHarness {
     }
 }
 
-async fn persisted_originator(thread: &MapleCodeThread) -> String {
+async fn persisted_originator(thread: &MaplecodeThread) -> String {
     thread.ensure_rollout_materialized().await;
     thread
         .flush_rollout()
@@ -397,7 +397,7 @@ fn history_contains_text<'a>(
     })
 }
 
-async fn wait_for_recorded_user_message(thread: &MapleCodeThread, needle: &str) {
+async fn wait_for_recorded_user_message(thread: &MaplecodeThread, needle: &str) {
     timeout(Duration::from_secs(5), async {
         loop {
             let event = thread
@@ -445,7 +445,7 @@ fn history_contains_assistant_inter_agent_communication<'a>(
     })
 }
 
-async fn wait_for_subagent_notification(parent_thread: &Arc<MapleCodeThread>) -> bool {
+async fn wait_for_subagent_notification(parent_thread: &Arc<MaplecodeThread>) -> bool {
     let wait = async {
         loop {
             let history = parent_thread.session.clone_history().await;
@@ -460,7 +460,7 @@ async fn wait_for_subagent_notification(parent_thread: &Arc<MapleCodeThread>) ->
     timeout(Duration::from_secs(10), wait).await.is_ok()
 }
 
-async fn persist_thread_for_tree_resume(thread: &Arc<MapleCodeThread>, message: &str) {
+async fn persist_thread_for_tree_resume(thread: &Arc<MaplecodeThread>, message: &str) {
     // These tests only need a durable resume fixture. Stop the child prompt
     // first so this marker records directly instead of waiting behind an
     // unrelated active turn.
@@ -485,7 +485,7 @@ async fn persist_thread_for_tree_resume(thread: &Arc<MapleCodeThread>, message: 
 
 /// Builds a request entirely in process; it does not install a transport or send anything.
 /// The destination filtering behavior is covered separately in `client_tests`.
-async fn mcp_attribution_in_constructed_request(thread: &MapleCodeThread) -> McpAttribution {
+async fn mcp_attribution_in_constructed_request(thread: &MaplecodeThread) -> McpAttribution {
     let turn_context = thread.session.new_default_turn().await;
     let step_context = StepContext::for_test(Arc::clone(&turn_context));
     let prompt = crate::session::turn::build_prompt(
@@ -507,7 +507,7 @@ async fn mcp_attribution_in_constructed_request(thread: &MapleCodeThread) -> Mcp
     );
     let metadata = thread
         .session
-        .responses_metadata(&step_context, MapleCodeResponsesRequestKind::Turn)
+        .responses_metadata(&step_context, MaplecodeResponsesRequestKind::Turn)
         .await;
     let request = thread
         .session
@@ -565,7 +565,7 @@ async fn wait_for_live_thread_spawn_children(
 async fn assert_thread_not_loaded(manager: &ThreadManager, thread_id: ThreadId) {
     match manager.get_thread(thread_id).await {
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::ThreadNotFound(id) => assert_eq!(*id, thread_id),
+            MaplecodeErrorDetails::ThreadNotFound(id) => assert_eq!(*id, thread_id),
             _ => panic!("expected ThreadNotFound, got {err:?}"),
         },
         Ok(_) => panic!("expected thread not to be loaded"),
@@ -730,18 +730,18 @@ async fn spawn_failure_context_distinguishes_execution_and_residency_capacity() 
     assert_eq!(
         [execution_error, residency_error].map(|err| (
             err.agent_context(),
-            MapleCodeErrKind::from(&err),
+            MaplecodeErrKind::from(&err),
             err.to_string(),
         )),
         [
             (
                 Some(AgentErrorContext::ExecutionCapacity),
-                MapleCodeErrKind::AgentLimitReached,
+                MaplecodeErrKind::AgentLimitReached,
                 "agent thread limit reached".to_string()
             ),
             (
                 Some(AgentErrorContext::ResidencyCapacity),
-                MapleCodeErrKind::AgentLimitReached,
+                MaplecodeErrKind::AgentLimitReached,
                 "agent thread limit reached".to_string()
             ),
         ],
@@ -775,15 +775,15 @@ async fn spawn_failure_context_survives_manager_and_fork_errors() {
         .await
         .expect_err("fork requires a parent spawn call id");
     assert_eq!(
-        [manager_error, fork_error].map(|err| (err.agent_context(), MapleCodeErrKind::from(&err))),
+        [manager_error, fork_error].map(|err| (err.agent_context(), MaplecodeErrKind::from(&err))),
         [
             (
                 Some(AgentErrorContext::ManagerUnavailable),
-                MapleCodeErrKind::UnsupportedOperation
+                MaplecodeErrKind::UnsupportedOperation
             ),
             (
                 Some(AgentErrorContext::ForkHistory),
-                MapleCodeErrKind::Fatal
+                MaplecodeErrKind::Fatal
             ),
         ],
     );
@@ -824,12 +824,12 @@ async fn spawn_failure_context_preserves_shutdown_during_child_startup() {
     assert_eq!(
         (
             error.agent_context(),
-            MapleCodeErrKind::from(&error),
+            MaplecodeErrKind::from(&error),
             error.to_string(),
         ),
         (
             Some(AgentErrorContext::RuntimeShutdown),
-            MapleCodeErrKind::InvalidRequest,
+            MaplecodeErrKind::InvalidRequest,
             "agent runtime is shutting down".to_string(),
         ),
     );
@@ -978,7 +978,7 @@ async fn send_input_errors_when_thread_missing() {
         .expect_err("send_input should fail for missing thread");
     assert_matches!(
         err.details(),
-        MapleCodeErrorDetails::ThreadNotFound(id) if *id == thread_id
+        MaplecodeErrorDetails::ThreadNotFound(id) if *id == thread_id
     );
 }
 
@@ -1009,7 +1009,7 @@ async fn subscribe_status_errors_for_missing_thread() {
         .expect("subscribe_status should fail for missing thread");
     assert_matches!(
         err.details(),
-        MapleCodeErrorDetails::ThreadNotFound(id) if *id == thread_id
+        MaplecodeErrorDetails::ThreadNotFound(id) if *id == thread_id
     );
 }
 
@@ -1277,7 +1277,7 @@ enum V2ReloadRoute {
 async fn spawn_v2_reload_test_child(
     control: &LocalAgentControl,
     config: Config,
-    parent: &MapleCodeThread,
+    parent: &MaplecodeThread,
     task_name: &str,
 ) -> LiveAgent {
     let source = thread_spawn_source(
@@ -1413,7 +1413,7 @@ async fn check_v2_agent_reload(route: V2ReloadRoute) {
     // Inspection must not restore the evicted runtime.
     match harness.manager.get_thread(spawned_agent.thread_id).await {
         Err(err) => match err.details() {
-            MapleCodeErrorDetails::ThreadNotFound(id) => assert_eq!(*id, spawned_agent.thread_id),
+            MaplecodeErrorDetails::ThreadNotFound(id) => assert_eq!(*id, spawned_agent.thread_id),
             _ => panic!("expected ThreadNotFound, got {err:?}"),
         },
         Ok(_) => panic!("expected thread to be removed"),
@@ -1645,7 +1645,7 @@ async fn resume_agent_from_rollout_does_not_reopen_v2_descendants() {
     assert_eq!(report.timed_out, Vec::<ThreadId>::new());
 
     let resumed_manager = ThreadManager::with_models_provider_home_and_state_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         harness.config.model_provider.clone(),
         harness.config.maplecode_home.to_path_buf(),
         std::sync::Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -1805,7 +1805,7 @@ async fn cold_resume_with_thread_instructions_preserves_lazy_v2_child_inheritanc
     assert_eq!(report.timed_out, Vec::<ThreadId>::new());
 
     let resumed_manager = ThreadManager::with_models_provider_home_and_state_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         harness.config.model_provider.clone(),
         harness.config.maplecode_home.to_path_buf(),
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -3425,7 +3425,7 @@ async fn spawn_agent_fork_strips_parent_usage_hints_from_compacted_history(marke
             "name": "send_message_to_thread", "output": "Parent delivery"
         }))
         .unwrap(),
-        metadata: Some(maplecode_history::MapleCodeHarnessMetadata {
+        metadata: Some(maplecode_history::MaplecodeHarnessMetadata {
             user_input_order: Some(7),
             sender_user_messages: Some(Box::new(maplecode_history::SenderUserMessages {
                 receiver_turn_id: "parent-turn".to_owned(),
@@ -3808,7 +3808,7 @@ async fn spawn_agent_full_fork_legacy_compaction_rebuilds_child_instructions_onc
             requirements_toml,
         )
         .expect("managed requirements stack");
-        let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("dummy"));
+        let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("dummy"));
         harness.manager = ThreadManager::new(
             &parent_config,
             crate::build_startup_models(
@@ -3819,7 +3819,7 @@ async fn spawn_agent_full_fork_legacy_compaction_rebuilds_child_instructions_onc
                     parent_config.maplecode_home.to_path_buf(),
                 )),
             ),
-            crate::MapleCodeAppsToolsCache::default(),
+            crate::MaplecodeAppsToolsCache::default(),
             SessionSource::Exec,
             Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
             empty_extension_registry(),
@@ -4178,7 +4178,7 @@ async fn resume_and_cold_fork_restore_mcp_attribution_in_constructed_requests(
         .resume_legacy_thread_from_rollout(
             harness.config.clone(),
             rollout_path,
-            AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("dummy")),
+            AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("dummy")),
             /*parent_trace*/ None,
             ClientMcpExtensions::default(),
         )
@@ -4285,7 +4285,7 @@ async fn spawn_agent_respects_legacy_max_threads_alias() {
     )])
     .await;
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         std::sync::Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -4314,7 +4314,7 @@ async fn spawn_agent_respects_legacy_max_threads_alias() {
         )
         .await
         .expect_err("spawn_agent should respect max threads");
-    let MapleCodeErrorDetails::AgentLimitReached {
+    let MaplecodeErrorDetails::AgentLimitReached {
         max_threads: seen_max_threads,
     } = err.details()
     else {
@@ -4337,7 +4337,7 @@ async fn spawn_agent_releases_slot_after_shutdown() {
     )])
     .await;
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         std::sync::Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -4380,7 +4380,7 @@ async fn spawn_agent_limit_shared_across_clones() {
     )])
     .await;
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         std::sync::Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -4405,7 +4405,7 @@ async fn spawn_agent_limit_shared_across_clones() {
         )
         .await
         .expect_err("spawn_agent should respect shared guard");
-    let MapleCodeErrorDetails::AgentLimitReached { max_threads } = err.details() else {
+    let MaplecodeErrorDetails::AgentLimitReached { max_threads } = err.details() else {
         panic!("expected AgentLimitReached");
     };
     assert_eq!(*max_threads, 1);
@@ -4425,7 +4425,7 @@ async fn resume_agent_respects_max_threads_limit() {
     )])
     .await;
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         std::sync::Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -4458,7 +4458,7 @@ async fn resume_agent_respects_max_threads_limit() {
         .resume_agent_from_rollout(config, resumable_id, SessionSource::Exec)
         .await
         .expect_err("resume should respect max threads");
-    let MapleCodeErrorDetails::AgentLimitReached {
+    let MaplecodeErrorDetails::AgentLimitReached {
         max_threads: seen_max_threads,
     } = err.details()
     else {
@@ -4481,7 +4481,7 @@ async fn resume_agent_releases_slot_after_resume_failure() {
     )])
     .await;
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         std::sync::Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
@@ -4973,7 +4973,7 @@ async fn spawn_thread_subagent_uses_role_specific_nickname_candidates() {
 async fn resume_thread_subagent_restores_stored_metadata() {
     let (home, config) = test_config().await;
     let thread_store = Arc::new(InMemoryThreadStore::default());
-    let auth_manager = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("dummy"));
+    let auth_manager = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("dummy"));
     let manager = ThreadManager::new(
         &config,
         crate::build_startup_models(
@@ -4984,7 +4984,7 @@ async fn resume_thread_subagent_restores_stored_metadata() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        crate::MapleCodeAppsToolsCache::default(),
+        crate::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -5463,7 +5463,7 @@ async fn list_agent_subtree_thread_ids_includes_anonymous_and_closed_descendants
 async fn list_agent_subtree_thread_ids_finds_live_descendants_of_unloaded_root() {
     let (_home, config) = test_config().await;
     let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
-        MapleCodeAuth::from_api_key("dummy"),
+        MaplecodeAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.maplecode_home.to_path_buf(),
         std::sync::Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),

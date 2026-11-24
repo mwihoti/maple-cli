@@ -169,7 +169,7 @@ async fn resolve_review_model_from_catalog(
 /// Resolves async classification policy against the reviewed thread's catalog.
 /// A missing eligible reviewer retains the captured parent metadata, as synchronous review does.
 pub async fn guardian_policy_model(
-    thread: &crate::MapleCodeThread,
+    thread: &crate::MaplecodeThread,
     config: &Config,
     parent_model: Arc<ModelInfo>,
 ) -> Arc<ModelInfo> {

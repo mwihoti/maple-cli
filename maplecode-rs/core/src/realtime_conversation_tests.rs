@@ -20,13 +20,13 @@ use maplecode_api::ApiError;
 use maplecode_api::RealtimeEventParser;
 use maplecode_features::Feature;
 use maplecode_features::RuntimeAuthMode;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_protocol::models::MessagePhase;
 use maplecode_protocol::protocol::ConversationStartParams;
 use maplecode_protocol::protocol::ConversationTextParams;
 use maplecode_protocol::protocol::ConversationTextRole;
-use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
+use maplecode_protocol::protocol::MaplecodeResponseHandoffMode;
 use maplecode_protocol::protocol::RealtimeConversationVersion;
 use maplecode_protocol::protocol::RealtimeHandoffRequested;
 use maplecode_protocol::protocol::RealtimeOutputModality;
@@ -51,7 +51,7 @@ fn websocket_start_params() -> ConversationStartParams {
         flush_transcript_tail_on_session_end: false,
         maplecode_responses_as_items: false,
         maplecode_response_item_prefix: None,
-        maplecode_response_handoff_mode: MapleCodeResponseHandoffMode::Thinking,
+        maplecode_response_handoff_mode: MaplecodeResponseHandoffMode::Thinking,
         backend_reasoning_status: false,
         maplecode_response_handoff_channel_prefixes: None,
         model: None,
@@ -104,7 +104,7 @@ async fn prepared_realtime_routing_follows_selected_api_key_and_explicit_overrid
     ] {
         let (sess, _turn, _events) =
             crate::session::tests::make_session_and_context_with_auth_and_config_and_rx(
-                MapleCodeAuth::from_api_key("sk-proj-fedramp-ambient-test-key"),
+                MaplecodeAuth::from_api_key("sk-proj-fedramp-ambient-test-key"),
                 Vec::new(),
                 |config| {
                     config.model_provider = ModelProviderInfo {
@@ -163,7 +163,7 @@ async fn realtime_reuses_only_the_selected_credential_source(explicit_key: bool)
     let home = tempfile::tempdir().unwrap();
     let (sess, _turn, _events) =
         crate::session::tests::make_session_and_context_with_auth_config_home_and_rx(
-            MapleCodeAuth::from_api_key("same-key"),
+            MaplecodeAuth::from_api_key("same-key"),
             Vec::new(),
             home.path(),
             |config| {
@@ -257,7 +257,7 @@ async fn natural_close_finishes_before_successor_and_ignores_old_identity() {
         maplecode_responses_as_items: false,
         maplecode_response_item_prefix: None,
         backend_reasoning_status: false,
-        maplecode_response_handoff_mode: MapleCodeResponseHandoffMode::Thinking,
+        maplecode_response_handoff_mode: MaplecodeResponseHandoffMode::Thinking,
         maplecode_response_handoff_channel_prefixes: Arc::new(BTreeMap::new()),
         session_kind: RealtimeSessionKind::V1,
         event_parser: RealtimeEventParser::V1,
@@ -538,7 +538,7 @@ async fn clears_active_handoff_explicitly() {
         maplecode_responses_as_items: false,
         maplecode_response_item_prefix: None,
         backend_reasoning_status: false,
-        maplecode_response_handoff_mode: MapleCodeResponseHandoffMode::Thinking,
+        maplecode_response_handoff_mode: MaplecodeResponseHandoffMode::Thinking,
         maplecode_response_handoff_channel_prefixes: Arc::new(BTreeMap::new()),
         session_kind: RealtimeSessionKind::V1,
         event_parser: RealtimeEventParser::V1,

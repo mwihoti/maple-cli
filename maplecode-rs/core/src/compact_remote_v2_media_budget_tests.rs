@@ -385,7 +385,7 @@ fn image_treatment_preserves_client_developer_boundary_behavior() {
     *role = "developer".to_string();
     let source = ResponseItemEnvelope {
         item,
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             client_authored: true,
             ..Default::default()
         }),

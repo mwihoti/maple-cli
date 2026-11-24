@@ -6,7 +6,7 @@ use crate::session::Submission;
 use maplecode_guardian_reviewer::GuardianReviewResponse;
 use maplecode_guardian_reviewer::ReviewerRequest;
 use maplecode_guardian_reviewer::guardian_output_contract_prompt;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_models_manager::model_info::model_info_from_slug;
 use maplecode_prompts::GuardianPolicyInstructions;
@@ -27,7 +27,7 @@ async fn run_review_preserves_evidence_during_parent_compaction() {
     const EVIDENCE: &str = "The inspected repository is public.";
     let (parent, turn, _events) =
         crate::session::tests::make_session_and_context_with_auth_and_config_and_rx(
-            maplecode_login::MapleCodeAuth::from_api_key("Test API Key"),
+            maplecode_login::MaplecodeAuth::from_api_key("Test API Key"),
             Vec::new(),
             |config| {
                 config.features.disable(Feature::TokenBudget).unwrap();
@@ -522,7 +522,7 @@ async fn encrypted_parent_compaction_requires_original_item_id(mode: GuardianCon
     let mut history = ContextManager::default();
     history.replace_annotated(vec![ResponseItemEnvelope {
         item: item.clone(),
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             compaction_model_hash: Some("compatible".to_owned()),
             ..Default::default()
         }),
@@ -858,7 +858,7 @@ async fn wait_for_guardian_review_preserves_structured_session_error() {
             msg: EventMsg::Error(ErrorEvent {
                 misalignment: None,
                 message: "temporary failure".to_string(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::ServerOverloaded),
+                maplecode_error_info: Some(MaplecodeErrorInfo::ServerOverloaded),
                 rejected_audio_file_ids: Vec::new(),
             }),
         })
@@ -896,7 +896,7 @@ async fn wait_for_guardian_review_preserves_structured_session_error() {
         panic!("expected structured session failure");
     };
     assert_eq!(error.to_string(), "temporary failure");
-    assert_eq!(error_info, Some(MapleCodeErrorInfo::ServerOverloaded));
+    assert_eq!(error_info, Some(MaplecodeErrorInfo::ServerOverloaded));
     assert_eq!(disposition, SessionDisposition::Reusable);
     assert!(turn_completed);
 }

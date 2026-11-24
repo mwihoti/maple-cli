@@ -11,7 +11,7 @@ use super::session::Session;
 use super::step_context::StepContext;
 use super::step_settings::ResolvedStepSettings;
 use crate::state::ReasoningEffortPin;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_protocol::models::ConfigurationReasoning;
 use maplecode_protocol::models::ResponseItem;
@@ -83,7 +83,7 @@ impl Session {
                 item: ResponseItem::ConfigurationUpdate {
                     reasoning: ConfigurationReasoning { effort },
                 },
-                metadata: Some(MapleCodeHarnessMetadata {
+                metadata: Some(MaplecodeHarnessMetadata {
                     harness_authored_configuration: true,
                     ..Default::default()
                 }),

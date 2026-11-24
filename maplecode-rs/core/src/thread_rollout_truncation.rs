@@ -9,8 +9,8 @@ use maplecode_app_server_protocol::TurnStatus;
 use maplecode_app_server_protocol::build_turns_from_rollout_items;
 use maplecode_history::InitialHistory;
 use maplecode_history::RolloutItem;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::items::TurnItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::EventMsg;
@@ -102,13 +102,13 @@ pub(crate) fn truncate_rollout_before_nth_user_message_from_start(
 pub fn truncate_rollout_after_turn_id(
     mut items: Vec<RolloutItem>,
     last_turn_id: &str,
-) -> MapleCodeResult<Vec<RolloutItem>> {
+) -> MaplecodeResult<Vec<RolloutItem>> {
     let turns = build_turns_from_rollout_items(&items);
     let turn = turns
         .iter()
         .find(|turn| turn.id == last_turn_id)
         .ok_or_else(|| {
-            MapleCodeErr::InvalidRequest(format!(
+            MaplecodeErr::InvalidRequest(format!(
                 "lastTurnId '{last_turn_id}' was not found in the source thread"
             ))
         })?;
@@ -123,13 +123,13 @@ pub fn truncate_rollout_after_turn_id(
             )
         })
         .ok_or_else(|| {
-            MapleCodeErr::InvalidRequest(format!(
+            MaplecodeErr::InvalidRequest(format!(
                 "lastTurnId '{last_turn_id}' is not a persisted canonical turn in the source thread"
             ))
         })?;
 
     if matches!(turn.status, TurnStatus::InProgress) {
-        return Err(MapleCodeErr::InvalidRequest(format!(
+        return Err(MaplecodeErr::InvalidRequest(format!(
             "lastTurnId '{last_turn_id}' identifies an in-progress turn"
         )));
     }
@@ -150,7 +150,7 @@ pub fn truncate_rollout_after_turn_id(
 pub fn truncate_rollout_before_turn_id(
     mut items: Vec<RolloutItem>,
     before_turn_id: &str,
-) -> MapleCodeResult<Vec<RolloutItem>> {
+) -> MaplecodeResult<Vec<RolloutItem>> {
     let cut_index = items.iter().position(|item| {
         matches!(
             item,
@@ -165,12 +165,12 @@ pub fn truncate_rollout_before_turn_id(
             .iter()
             .any(|turn| turn.id == before_turn_id)
         {
-            return Err(MapleCodeErr::InvalidRequest(format!(
+            return Err(MaplecodeErr::InvalidRequest(format!(
                 "beforeTurnId '{before_turn_id}' is not a persisted canonical turn in the source thread"
             )));
         }
 
-        return Err(MapleCodeErr::InvalidRequest(format!(
+        return Err(MaplecodeErr::InvalidRequest(format!(
             "beforeTurnId '{before_turn_id}' was not found in the source thread"
         )));
     };
@@ -183,7 +183,7 @@ pub fn truncate_rollout_before_turn_id(
             .iter()
             .any(|turn| turn.id == before_turn_id)
     {
-        return Err(MapleCodeErr::InvalidRequest(format!(
+        return Err(MaplecodeErr::InvalidRequest(format!(
             "beforeTurnId '{before_turn_id}' was not found in the source thread"
         )));
     }

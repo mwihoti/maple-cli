@@ -71,7 +71,7 @@ use maplecode_http_client::ClientRouteClass;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_http_client::RouteAwareClientPool;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::AgentIdentityAuthPolicy;
 use maplecode_model_provider::create_model_provider;
 use maplecode_model_provider_info::ModelProviderInfo;
@@ -127,7 +127,7 @@ use tracing::Span;
 
 use crate::connectors::AppInfo;
 use crate::responses_metadata::CompactionTurnMetadata;
-use crate::responses_metadata::MapleCodeResponsesRequestKind;
+use crate::responses_metadata::MaplecodeResponsesRequestKind;
 use crate::rollout::recorder::RolloutRecorder;
 use crate::session::Submission;
 use crate::state::ActiveTurn;
@@ -178,7 +178,7 @@ use maplecode_execpolicy::NetworkRuleProtocol;
 use maplecode_execpolicy::Policy;
 use maplecode_history::CompactedItem;
 use maplecode_history::InitialHistory;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RolloutItem;
@@ -208,7 +208,7 @@ use maplecode_protocol::protocol::CreditsSnapshot;
 use maplecode_protocol::protocol::GranularApprovalConfig;
 use maplecode_protocol::protocol::HistoryPosition;
 use maplecode_protocol::protocol::InterAgentCommunication;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::NetworkApprovalProtocol;
 use maplecode_protocol::protocol::RateLimitSnapshot;
@@ -1877,7 +1877,7 @@ async fn reload_user_config_layer_refreshes_hooks() -> anyhow::Result<()> {
     let session = make_session_with_config(|config| {
         config
             .features
-            .enable(Feature::MapleCodeHooks)
+            .enable(Feature::MaplecodeHooks)
             .expect("enable Maple Code hooks");
     })
     .await?;
@@ -1956,7 +1956,7 @@ async fn refresh_runtime_config_refreshes_hooks() -> anyhow::Result<()> {
         let mut config = (*state.session_configuration.original_config_do_not_use).clone();
         config
             .features
-            .enable(Feature::MapleCodeHooks)
+            .enable(Feature::MaplecodeHooks)
             .expect("enable Maple Code hooks");
         state.session_configuration.original_config_do_not_use = Arc::new(config);
     }
@@ -2083,14 +2083,14 @@ disabled_tools = [
     next_config.model = Some("gpt-5.4".to_string());
     next_config.notify = Some(vec!["echo".to_string()]);
     let mcp_protocol_enabled = !original.features.enabled(Feature::Mcp20260728);
-    let apps_protocol_enabled = !original.features.enabled(Feature::MapleCodeAppsMcp20260728);
+    let apps_protocol_enabled = !original.features.enabled(Feature::MaplecodeAppsMcp20260728);
     next_config
         .features
         .set_enabled(Feature::Mcp20260728, mcp_protocol_enabled)
         .expect("set MCP protocol rollout");
     next_config
         .features
-        .set_enabled(Feature::MapleCodeAppsMcp20260728, apps_protocol_enabled)
+        .set_enabled(Feature::MaplecodeAppsMcp20260728, apps_protocol_enabled)
         .expect("set Maple Code Apps MCP protocol rollout");
 
     let _ = session
@@ -2121,7 +2121,7 @@ disabled_tools = [
         mcp_protocol_enabled
     );
     assert_eq!(
-        config.features.enabled(Feature::MapleCodeAppsMcp20260728),
+        config.features.enabled(Feature::MaplecodeAppsMcp20260728),
         apps_protocol_enabled
     );
     assert_eq!(
@@ -2191,14 +2191,14 @@ async fn refresh_mcp_config_replaces_managed_server_and_plugin_requirements(reje
 
     let mut next_config = original.as_ref().clone();
     let mcp_protocol_enabled = !original.features.enabled(Feature::Mcp20260728);
-    let apps_protocol_enabled = !original.features.enabled(Feature::MapleCodeAppsMcp20260728);
+    let apps_protocol_enabled = !original.features.enabled(Feature::MaplecodeAppsMcp20260728);
     next_config
         .features
         .set_enabled(Feature::Mcp20260728, mcp_protocol_enabled)
         .expect("set MCP protocol rollout");
     next_config
         .features
-        .set_enabled(Feature::MapleCodeAppsMcp20260728, apps_protocol_enabled)
+        .set_enabled(Feature::MaplecodeAppsMcp20260728, apps_protocol_enabled)
         .expect("set Maple Code Apps MCP protocol rollout");
     next_config.mcp_servers = maplecode_config::Constrained::normalized(
         HashMap::from([("beta".to_string(), server.clone())]),
@@ -2267,7 +2267,7 @@ async fn refresh_mcp_config_replaces_managed_server_and_plugin_requirements(reje
         mcp_protocol_enabled
     );
     assert_eq!(
-        config.features.enabled(Feature::MapleCodeAppsMcp20260728),
+        config.features.enabled(Feature::MaplecodeAppsMcp20260728),
         apps_protocol_enabled
     );
     let mut managed_servers = config.mcp_servers.clone();
@@ -2762,7 +2762,7 @@ async fn record_inter_agent_communication_sets_turn_id_in_rollout_and_resume() {
         },
         RolloutItem::ResponseItem(ResponseItemEnvelope {
             item: expected_item.clone(),
-            metadata: Some(MapleCodeHarnessMetadata {
+            metadata: Some(MaplecodeHarnessMetadata {
                 user_input_order: Some(0),
                 history_sequence: Some(1),
                 sampled_through_sequence: Some(0),
@@ -2789,7 +2789,7 @@ async fn record_inter_agent_communication_sets_turn_id_in_rollout_and_resume() {
 #[tokio::test]
 async fn record_inter_agent_communication_preserves_item_id_in_rollout_and_resume() {
     let (mut session, turn_context, _rx) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |_| {},
     )
@@ -2841,7 +2841,7 @@ async fn record_inter_agent_communication_preserves_item_id_in_rollout_and_resum
 
     let (resumed_session, _resumed_turn_context, _rx) =
         make_session_and_context_with_auth_and_config_and_rx(
-            MapleCodeAuth::from_api_key("Test API Key"),
+            MaplecodeAuth::from_api_key("Test API Key"),
             Vec::new(),
             |_| {},
         )
@@ -2872,7 +2872,7 @@ async fn annotated_history_uses_explicit_model_without_a_step(
     expected_budget: usize,
 ) {
     let (session, turn_context, _rx) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config
@@ -2904,7 +2904,7 @@ async fn annotated_history_uses_explicit_model_without_a_step(
     item.set_create_time_if_missing(123.into());
     let expected = ResponseItemEnvelope {
         item,
-        metadata: retain_metadata.then_some(MapleCodeHarnessMetadata {
+        metadata: retain_metadata.then_some(MaplecodeHarnessMetadata {
             client_authored: true,
             history_truncation_token_limit: saved_budget,
             ..Default::default()
@@ -2920,7 +2920,7 @@ async fn annotated_history_uses_explicit_model_without_a_step(
                 output: FunctionCallOutputPayload::from_text(text.clone()),
                 internal_chat_message_metadata_passthrough: None,
             },
-            metadata: retain_metadata.then_some(MapleCodeHarnessMetadata {
+            metadata: retain_metadata.then_some(MaplecodeHarnessMetadata {
                 client_authored: true,
                 history_truncation_token_limit: saved_budget,
                 ..Default::default()
@@ -2960,7 +2960,7 @@ async fn annotated_history_uses_explicit_model_without_a_step(
 #[tokio::test]
 async fn prepares_image_failures_before_history_insertion() {
     let (session, turn_context, _rx) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |_| {},
     )
@@ -3076,7 +3076,7 @@ async fn prepares_resumed_history_before_installing_it() {
             conversation_id: ThreadId::default(),
             history: Arc::new(vec![RolloutItem::ResponseItem(ResponseItemEnvelope {
                 item: resumed_item,
-                metadata: Some(MapleCodeHarnessMetadata::default()),
+                metadata: Some(MaplecodeHarnessMetadata::default()),
             })]),
             rollout_path: Some(PathBuf::from("/tmp/resume.jsonl")),
         }))
@@ -3122,7 +3122,7 @@ async fn prepares_resumed_history_before_installing_it() {
     );
     assert_eq!(
         history.annotated_items()[0].metadata,
-        Some(MapleCodeHarnessMetadata {
+        Some(MaplecodeHarnessMetadata {
             history_sequence: Some(1),
             sampled_through_sequence: Some(0),
             ..Default::default()
@@ -3749,7 +3749,7 @@ async fn turn_start_lifecycle_exposes_turn_metadata_and_token_baseline() {
 
 #[tokio::test]
 async fn turn_error_lifecycle_exposes_error_and_stores() {
-    use maplecode_protocol::error::MapleCodeErrKind;
+    use maplecode_protocol::error::MaplecodeErrKind;
 
     struct SessionTurnErrorMarker;
     struct ThreadTurnErrorMarker;
@@ -3760,8 +3760,8 @@ async fn turn_error_lifecycle_exposes_error_and_stores() {
         thread_level_id: String,
         turn_level_id: String,
         turn_id: String,
-        error: MapleCodeErrorInfo,
-        error_kind: MapleCodeErrKind,
+        error: MaplecodeErrorInfo,
+        error_kind: MaplecodeErrKind,
         saw_session_store: bool,
         saw_thread_store: bool,
     }
@@ -3821,8 +3821,8 @@ async fn turn_error_lifecycle_exposes_error_and_stores() {
         thread_level_id: session.thread_id.to_string(),
         turn_level_id: turn_context.sub_id.clone(),
         turn_id: turn_context.sub_id.clone(),
-        error: MapleCodeErrorInfo::UsageLimitExceeded,
-        error_kind: MapleCodeErrKind::QuotaExceeded,
+        error: MaplecodeErrorInfo::UsageLimitExceeded,
+        error_kind: MaplecodeErrKind::QuotaExceeded,
         saw_session_store: true,
         saw_thread_store: true,
     };
@@ -3830,21 +3830,21 @@ async fn turn_error_lifecycle_exposes_error_and_stores() {
     session
         .emit_turn_error_lifecycle(
             &turn_context,
-            MapleCodeErrorInfo::UsageLimitExceeded,
-            &MapleCodeErrorDetails::QuotaExceeded,
+            MaplecodeErrorInfo::UsageLimitExceeded,
+            &MaplecodeErrorDetails::QuotaExceeded,
         )
         .await;
 
     let expected_override = RecordedTurnError {
-        error: MapleCodeErrorInfo::BadRequest,
-        error_kind: MapleCodeErrKind::InvalidImageRequest,
+        error: MaplecodeErrorInfo::BadRequest,
+        error_kind: MaplecodeErrKind::InvalidImageRequest,
         ..expected.clone()
     };
     session
         .emit_turn_error_lifecycle(
             &turn_context,
-            MapleCodeErrorInfo::BadRequest,
-            &MapleCodeErrorDetails::InvalidImageRequest(),
+            MaplecodeErrorInfo::BadRequest,
+            &MaplecodeErrorDetails::InvalidImageRequest(),
         )
         .await;
 
@@ -4011,7 +4011,7 @@ async fn record_initial_history_reconstructs_forked_transcript() {
 #[tokio::test]
 async fn start_new_context_window_persists_checkpoint_state(clear_tools: bool) {
     let (mut session, turn_context, _rx) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| config.allow_persistent_dynamic_tool_updates = true,
     )
@@ -4164,7 +4164,7 @@ async fn start_new_context_window_persists_checkpoint_state(clear_tools: bool) {
 #[tokio::test]
 async fn record_initial_history_assigns_and_persists_id_for_forked_response_item() {
     let (mut session, _turn_context, _rx) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |_| {},
     )
@@ -4194,7 +4194,7 @@ async fn record_initial_history_assigns_and_persists_id_for_forked_response_item
     };
     let response_item = ResponseItemEnvelope {
         item: response_item,
-        metadata: Some(MapleCodeHarnessMetadata::default()),
+        metadata: Some(MaplecodeHarnessMetadata::default()),
     };
 
     session
@@ -4217,7 +4217,7 @@ async fn record_initial_history_assigns_and_persists_id_for_forked_response_item
     assert_eq!(raw_history_items(&live_history), vec![expected_item]);
     assert_eq!(
         live_history.annotated_items()[0].metadata,
-        Some(MapleCodeHarnessMetadata {
+        Some(MaplecodeHarnessMetadata {
             history_sequence: Some(1),
             sampled_through_sequence: Some(0),
             ..Default::default()
@@ -4253,7 +4253,7 @@ async fn record_initial_history_assigns_and_persists_id_for_forked_response_item
     );
     assert_eq!(
         persisted_item.metadata,
-        Some(MapleCodeHarnessMetadata::default())
+        Some(MaplecodeHarnessMetadata::default())
     );
 }
 
@@ -5307,13 +5307,13 @@ async fn emit_subagent_session_started_includes_fork_lineage_and_originator() {
 
     let server = MockServer::start().await;
     Mock::given(method("POST"))
-        .and(path("/maplecode/analytics-events/events"))
+        .and(path("/codex/analytics-events/events"))
         .respond_with(ResponseTemplate::new(200))
         .mount(&server)
         .await;
 
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        AuthManager::from_auth_for_testing(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let analytics_events_client = AnalyticsEventsClient::new(
         auth_manager,
         server.uri(),
@@ -6050,7 +6050,7 @@ async fn session_configuration_apply_preserves_absolute_cwd_write_root_on_cwd_up
 #[tokio::test]
 async fn settings_checkpoint_waits_for_accepted_settings_persistence() {
     let (mut session, turn_context, rx) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config
@@ -6520,7 +6520,7 @@ async fn compaction_persists_resume_metadata_and_companion_records() {
 #[tokio::test]
 async fn session_settings_commit_keeps_snapshot_across_postcommit_wait() {
     let (session, _turn_context, _rx) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config
@@ -6844,7 +6844,7 @@ async fn response_metadata_builders_capture_fresh_mcp_attribution() {
     let turn_context = Arc::new(turn_context);
     let step_context = StepContext::for_test(Arc::clone(&turn_context));
     let before = session
-        .responses_metadata(&step_context, MapleCodeResponsesRequestKind::Turn)
+        .responses_metadata(&step_context, MaplecodeResponsesRequestKind::Turn)
         .await;
     let source = McpAttributionSource {
         connector_id: None,
@@ -6858,7 +6858,7 @@ async fn response_metadata_builders_capture_fresh_mcp_attribution() {
         .executed_tool_calls
         .record_mcp_source(source.clone());
     let after = session
-        .responses_metadata(&step_context, MapleCodeResponsesRequestKind::Turn)
+        .responses_metadata(&step_context, MaplecodeResponsesRequestKind::Turn)
         .await;
     let compaction = session
         .compaction_responses_metadata(
@@ -6893,7 +6893,7 @@ async fn responses_metadata_uses_selected_harness_analytics_client() {
         Arc::make_mut(&mut turn_context.config).analytics_enabled = Some(!enabled);
         let step_context = StepContext::for_test(Arc::new(turn_context));
         let metadata = session
-            .responses_metadata(&step_context, MapleCodeResponsesRequestKind::Turn)
+            .responses_metadata(&step_context, MaplecodeResponsesRequestKind::Turn)
             .await;
         assert_eq!(metadata.analytics_enabled, Some(enabled));
     }
@@ -6907,7 +6907,7 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
     let config = Arc::new(config);
     let thread_id = ThreadId::default();
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("Test API Key"));
     let models_manager = models_manager_with_provider(
         config.maplecode_home.to_path_buf(),
         auth_manager.clone(),
@@ -7252,7 +7252,7 @@ async fn make_session_with_config_and_rx(
     mutator(&mut config);
     let config = Arc::new(config);
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("Test API Key"));
     let models_manager = models_manager_with_provider(
         config.maplecode_home.to_path_buf(),
         auth_manager.clone(),
@@ -7392,7 +7392,7 @@ async fn make_session_with_history_source_and_agent_control_and_rx(
     config.ephemeral = true;
     let config = Arc::new(config);
     let auth_manager =
-        AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("Test API Key"));
+        AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("Test API Key"));
     let models_manager = models_manager_with_provider(
         config.maplecode_home.to_path_buf(),
         auth_manager.clone(),
@@ -9223,7 +9223,7 @@ async fn shutdown_and_wait_waits_when_shutdown_is_already_in_progress() {
 }
 
 pub(crate) async fn make_session_and_context_with_auth_and_config_and_rx<F>(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     dynamic_tools: Vec<DynamicToolSpec>,
     configure_config: F,
 ) -> (
@@ -9245,7 +9245,7 @@ where
 }
 
 pub(crate) async fn make_session_and_context_with_auth_config_home_and_rx<F>(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     dynamic_tools: Vec<DynamicToolSpec>,
     maplecode_home: &Path,
     configure_config: F,
@@ -9591,7 +9591,7 @@ pub(crate) async fn make_session_and_context_with_dynamic_tools_and_rx(
     async_channel::Receiver<Event>,
 ) {
     make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         dynamic_tools,
         |_config| {},
     )
@@ -9614,7 +9614,7 @@ pub(super) async fn make_thread_for_session(
     turn_context: &TurnContext,
     rx_event: async_channel::Receiver<Event>,
     session_source: SessionSource,
-) -> (crate::MapleCodeThread, async_channel::Receiver<Submission>) {
+) -> (crate::MaplecodeThread, async_channel::Receiver<Submission>) {
     let rollout_path = session.current_rollout_path().await.expect("rollout path");
     let event = SessionConfiguredEvent {
         session_id: session.session_id(),
@@ -9636,7 +9636,7 @@ pub(super) async fn make_thread_for_session(
         rollout_path: rollout_path.clone(),
     };
     let (tx_sub, rx_sub) = async_channel::bounded(/*cap*/ 1);
-    let thread = crate::MapleCodeThread::new(
+    let thread = crate::MaplecodeThread::new(
         session,
         SessionIo {
             tx_sub,
@@ -9720,7 +9720,7 @@ async fn cancelled_step_capture_finishes_warning_delivery() {
     };
     assert!(matches!(
         error.details(),
-        MapleCodeErrorDetails::TurnAborted
+        MaplecodeErrorDetails::TurnAborted
     ));
     assert_eq!(
         warning_fields(
@@ -9914,7 +9914,7 @@ async fn mcp_elicitation_reviewer_uses_active_reviewer_and_latest_runtime_policy
     )
     .await;
     let (session, old_turn, rx) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config.model_provider.base_url = Some(format!("{}/v1", guardian_server.uri()));
@@ -10915,7 +10915,7 @@ async fn build_initial_context_reuses_in_flight_recommendation_prewarm() {
 
     let server = start_mock_server().await;
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .and(query_param("scope", "GLOBAL"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "enabled": true,
@@ -10929,7 +10929,7 @@ async fn build_initial_context_reuses_in_flight_recommendation_prewarm() {
         .mount(&server)
         .await;
     let (session, turn_context, _rx_event) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         /*dynamic_tools*/ Vec::new(),
         |config| {
             config.chatgpt_base_url = server.uri();
@@ -11009,7 +11009,7 @@ async fn make_multi_agent_v2_usage_hint_test_session(
     enable_multi_agent_v2: bool,
 ) -> (Arc<Session>, Arc<TurnContext>) {
     let (session, turn_context, _rx_event) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             if enable_multi_agent_v2 {
@@ -11305,7 +11305,7 @@ async fn build_initial_context_omits_multi_agent_v2_usage_hints_when_feature_dis
 #[tokio::test]
 async fn build_initial_context_omits_multi_agent_v2_usage_hints_when_hint_is_empty() {
     let (session, turn_context, _rx_event) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             let _ = config.features.enable(Feature::MultiAgentV2);
@@ -11655,7 +11655,7 @@ async fn record_context_updates_and_set_reference_context_item_persists_permissi
 async fn build_initial_context_uses_retained_step_after_model_change() {
     let (mut session, mut turn_context, _rx_event) =
         make_session_and_context_with_auth_and_config_and_rx(
-            MapleCodeAuth::from_api_key("Test API Key"),
+            MaplecodeAuth::from_api_key("Test API Key"),
             Vec::new(),
             |config| {
                 config.features.enable(Feature::TokenBudget).unwrap();
@@ -12272,7 +12272,7 @@ async fn make_remote_compaction_session(
     provider.base_url = Some(format!("{server_uri}/v1"));
     provider.supports_websockets = false;
     make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         Vec::new(),
         move |config| {
             config.model = Some("gpt-5.2".to_string());
@@ -12773,7 +12773,7 @@ async fn submit_steer_only(
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn task_finish_emits_turn_item_lifecycle_for_leftover_pending_user_input() {
     let (sess, mut tc, rx) = make_session_and_context_with_auth_and_config_and_rx(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
         Vec::new(),
         |config| {
             config.features.enable(Feature::UnifiedImageBudget).unwrap();
