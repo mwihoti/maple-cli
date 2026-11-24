@@ -2211,7 +2211,7 @@ mod tests {
     use maplecode_protocol::models::BUILT_IN_PERMISSION_PROFILE_READ_ONLY;
     use maplecode_protocol::parse_command::ParsedCommand;
     use maplecode_protocol::protocol::ConversationTextRole;
-    use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
+    use maplecode_protocol::protocol::MaplecodeResponseHandoffMode;
     use maplecode_protocol::protocol::RealtimeConversationVersion;
     use maplecode_protocol::protocol::RealtimeOutputModality;
     use maplecode_protocol::protocol::RealtimeVoice;
@@ -3772,7 +3772,7 @@ mod tests {
         assert_eq!(
             json!({
                 "type": "amazonBedrock",
-                "usesMapleCodeManagedCredentials": true,
+                "usesMaplecodeManagedCredentials": true,
             }),
             serde_json::to_value(&maplecode_managed_bedrock)?,
         );
@@ -3783,7 +3783,7 @@ mod tests {
         assert_eq!(
             json!({
                 "type": "amazonBedrock",
-                "usesMapleCodeManagedCredentials": false,
+                "usesMaplecodeManagedCredentials": false,
             }),
             serde_json::to_value(&externally_managed_bedrock)?,
         );
@@ -4170,7 +4170,7 @@ mod tests {
                 flush_transcript_tail_on_session_end: Some(true),
                 maplecode_responses_as_items: None,
                 maplecode_response_item_prefix: None,
-                maplecode_response_handoff_mode: Some(MapleCodeResponseHandoffMode::BemTags),
+                maplecode_response_handoff_mode: Some(MaplecodeResponseHandoffMode::BemTags),
                 backend_reasoning_status: false,
                 maplecode_response_handoff_channel_prefixes: Some(
                     std::collections::BTreeMap::from([

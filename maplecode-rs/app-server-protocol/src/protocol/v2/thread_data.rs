@@ -1,4 +1,4 @@
-use super::MapleCodeErrorInfo;
+use super::MaplecodeErrorInfo;
 use super::ThreadEnvironment;
 use super::ThreadItem;
 use super::ThreadItemPayload;
@@ -203,7 +203,7 @@ pub struct ThreadSectionAppearance {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct Thread {
-    /// Identifier for this thread. MapleCode-generated thread IDs are UUIDv7.
+    /// Identifier for this thread. Maplecode-generated thread IDs are UUIDv7.
     pub id: String,
     /// Current environments for a loaded thread, in priority order, primary first.
     /// `null` means the thread is not loaded or the server does not expose its selection.
@@ -390,7 +390,7 @@ impl<'de> Deserialize<'de> for Thread {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct Turn {
-    /// Identifier for this turn. MapleCode-generated turn IDs are UUIDv7.
+    /// Identifier for this turn. Maplecode-generated turn IDs are UUIDv7.
     pub id: String,
     /// ID of the first turn in the chain of work that led to this turn.
     /// Pass this as `rootTurnId` when starting work on behalf of this turn.
@@ -443,7 +443,7 @@ pub enum TurnItemsView {
 #[error("{message}")]
 pub struct TurnError {
     pub message: String,
-    pub maplecode_error_info: Option<MapleCodeErrorInfo>,
+    pub maplecode_error_info: Option<MaplecodeErrorInfo>,
     #[serde(default)]
     pub additional_details: Option<String>,
     /// Optional public explanation and continuation instruction for a misalignment block.

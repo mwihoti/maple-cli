@@ -7,4 +7,4 @@ export type Account = { "type": "apiKey", } | { "type": "chatgpt", email: string
 /**
  * Display name of the selected ChatGPT workspace, when available.
  */
-workspaceName: string | null, } | { "type": "amazonBedrock", usesMapleCodeManagedCredentials: boolean, } | { "type": "gcp", };
+workspaceName: string | null, } | { "type": "amazonBedrock", usesMaplecodeManagedCredentials: boolean, } | { "type": "gcp", };

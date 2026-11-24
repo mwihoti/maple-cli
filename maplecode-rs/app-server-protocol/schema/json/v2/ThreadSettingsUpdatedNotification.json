@@ -84,7 +84,7 @@
       ]
     },
     "CollaborationMode": {
-      "description": "Collaboration mode for a MapleCode session.",
+      "description": "Collaboration mode for a Maple Code session.",
       "properties": {
         "mode": {
           "$ref": "#/definitions/ModeKind"

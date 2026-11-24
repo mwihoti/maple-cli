@@ -5,7 +5,7 @@ use maplecode_protocol::config_types::ApprovalsReviewer as CoreApprovalsReviewer
 use maplecode_protocol::config_types::SandboxMode as CoreSandboxMode;
 use maplecode_protocol::protocol::AskForApproval as CoreAskForApproval;
 use maplecode_protocol::protocol::GranularApprovalConfig as CoreGranularApprovalConfig;
-use maplecode_protocol::protocol::MapleCodeErrorInfo as CoreMapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo as CoreMaplecodeErrorInfo;
 use maplecode_protocol::protocol::NonSteerableTurnKind as CoreNonSteerableTurnKind;
 #[cfg(test)]
 use schemars::r#gen::SchemaGenerator;
@@ -73,7 +73,7 @@ pub enum NonSteerableTurnKind {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
-pub enum MapleCodeErrorInfo {
+pub enum MaplecodeErrorInfo {
     ContextWindowExceeded,
     SessionBudgetExceeded,
     UsageLimitExceeded,
@@ -151,56 +151,56 @@ where
     }
 }
 
-impl From<CoreMapleCodeErrorInfo> for MapleCodeErrorInfo {
-    fn from(value: CoreMapleCodeErrorInfo) -> Self {
+impl From<CoreMaplecodeErrorInfo> for MaplecodeErrorInfo {
+    fn from(value: CoreMaplecodeErrorInfo) -> Self {
         match value {
-            CoreMapleCodeErrorInfo::ContextWindowExceeded => {
-                MapleCodeErrorInfo::ContextWindowExceeded
+            CoreMaplecodeErrorInfo::ContextWindowExceeded => {
+                MaplecodeErrorInfo::ContextWindowExceeded
             }
-            CoreMapleCodeErrorInfo::SessionBudgetExceeded => {
-                MapleCodeErrorInfo::SessionBudgetExceeded
+            CoreMaplecodeErrorInfo::SessionBudgetExceeded => {
+                MaplecodeErrorInfo::SessionBudgetExceeded
             }
-            CoreMapleCodeErrorInfo::UsageLimitExceeded => MapleCodeErrorInfo::UsageLimitExceeded,
-            CoreMapleCodeErrorInfo::RateLimitExceeded => MapleCodeErrorInfo::RateLimitExceeded,
-            CoreMapleCodeErrorInfo::FlexUnavailable => MapleCodeErrorInfo::FlexUnavailable,
-            CoreMapleCodeErrorInfo::ServerOverloaded => MapleCodeErrorInfo::ServerOverloaded,
-            CoreMapleCodeErrorInfo::ModelNotFound => MapleCodeErrorInfo::ModelNotFound,
-            CoreMapleCodeErrorInfo::PolicyCapacityUnavailable => {
-                MapleCodeErrorInfo::PolicyCapacityUnavailable
+            CoreMaplecodeErrorInfo::UsageLimitExceeded => MaplecodeErrorInfo::UsageLimitExceeded,
+            CoreMaplecodeErrorInfo::RateLimitExceeded => MaplecodeErrorInfo::RateLimitExceeded,
+            CoreMaplecodeErrorInfo::FlexUnavailable => MaplecodeErrorInfo::FlexUnavailable,
+            CoreMaplecodeErrorInfo::ServerOverloaded => MaplecodeErrorInfo::ServerOverloaded,
+            CoreMaplecodeErrorInfo::ModelNotFound => MaplecodeErrorInfo::ModelNotFound,
+            CoreMaplecodeErrorInfo::PolicyCapacityUnavailable => {
+                MaplecodeErrorInfo::PolicyCapacityUnavailable
             }
-            CoreMapleCodeErrorInfo::CyberPolicy => MapleCodeErrorInfo::CyberPolicy,
-            CoreMapleCodeErrorInfo::InferenceHookDenied => MapleCodeErrorInfo::InferenceHookDenied,
-            CoreMapleCodeErrorInfo::BioPolicy => MapleCodeErrorInfo::Other,
-            CoreMapleCodeErrorInfo::MisalignmentPolicyViolation => {
-                MapleCodeErrorInfo::MisalignmentPolicyViolation
+            CoreMaplecodeErrorInfo::CyberPolicy => MaplecodeErrorInfo::CyberPolicy,
+            CoreMaplecodeErrorInfo::InferenceHookDenied => MaplecodeErrorInfo::InferenceHookDenied,
+            CoreMaplecodeErrorInfo::BioPolicy => MaplecodeErrorInfo::Other,
+            CoreMaplecodeErrorInfo::MisalignmentPolicyViolation => {
+                MaplecodeErrorInfo::MisalignmentPolicyViolation
             }
-            CoreMapleCodeErrorInfo::TooManyDenials => MapleCodeErrorInfo::TooManyDenials,
-            CoreMapleCodeErrorInfo::HttpConnectionFailed { http_status_code } => {
-                MapleCodeErrorInfo::HttpConnectionFailed { http_status_code }
+            CoreMaplecodeErrorInfo::TooManyDenials => MaplecodeErrorInfo::TooManyDenials,
+            CoreMaplecodeErrorInfo::HttpConnectionFailed { http_status_code } => {
+                MaplecodeErrorInfo::HttpConnectionFailed { http_status_code }
             }
-            CoreMapleCodeErrorInfo::ResponseStreamConnectionFailed { http_status_code } => {
-                MapleCodeErrorInfo::ResponseStreamConnectionFailed { http_status_code }
+            CoreMaplecodeErrorInfo::ResponseStreamConnectionFailed { http_status_code } => {
+                MaplecodeErrorInfo::ResponseStreamConnectionFailed { http_status_code }
             }
-            CoreMapleCodeErrorInfo::InternalServerError => MapleCodeErrorInfo::InternalServerError,
-            CoreMapleCodeErrorInfo::Unauthorized => MapleCodeErrorInfo::Unauthorized,
-            CoreMapleCodeErrorInfo::BadRequest => MapleCodeErrorInfo::BadRequest,
-            CoreMapleCodeErrorInfo::InvalidPrompt => MapleCodeErrorInfo::Other,
-            CoreMapleCodeErrorInfo::ThreadRollbackFailed => {
-                MapleCodeErrorInfo::ThreadRollbackFailed
+            CoreMaplecodeErrorInfo::InternalServerError => MaplecodeErrorInfo::InternalServerError,
+            CoreMaplecodeErrorInfo::Unauthorized => MaplecodeErrorInfo::Unauthorized,
+            CoreMaplecodeErrorInfo::BadRequest => MaplecodeErrorInfo::BadRequest,
+            CoreMaplecodeErrorInfo::InvalidPrompt => MaplecodeErrorInfo::Other,
+            CoreMaplecodeErrorInfo::ThreadRollbackFailed => {
+                MaplecodeErrorInfo::ThreadRollbackFailed
             }
-            CoreMapleCodeErrorInfo::SandboxError => MapleCodeErrorInfo::SandboxError,
-            CoreMapleCodeErrorInfo::ResponseStreamDisconnected { http_status_code } => {
-                MapleCodeErrorInfo::ResponseStreamDisconnected { http_status_code }
+            CoreMaplecodeErrorInfo::SandboxError => MaplecodeErrorInfo::SandboxError,
+            CoreMaplecodeErrorInfo::ResponseStreamDisconnected { http_status_code } => {
+                MaplecodeErrorInfo::ResponseStreamDisconnected { http_status_code }
             }
-            CoreMapleCodeErrorInfo::ResponseTooManyFailedAttempts { http_status_code } => {
-                MapleCodeErrorInfo::ResponseTooManyFailedAttempts { http_status_code }
+            CoreMaplecodeErrorInfo::ResponseTooManyFailedAttempts { http_status_code } => {
+                MaplecodeErrorInfo::ResponseTooManyFailedAttempts { http_status_code }
             }
-            CoreMapleCodeErrorInfo::ActiveTurnNotSteerable { turn_kind } => {
-                MapleCodeErrorInfo::ActiveTurnNotSteerable {
+            CoreMaplecodeErrorInfo::ActiveTurnNotSteerable { turn_kind } => {
+                MaplecodeErrorInfo::ActiveTurnNotSteerable {
                     turn_kind: turn_kind.into(),
                 }
             }
-            CoreMapleCodeErrorInfo::Other => MapleCodeErrorInfo::Other,
+            CoreMaplecodeErrorInfo::Other => MaplecodeErrorInfo::Other,
         }
     }
 }

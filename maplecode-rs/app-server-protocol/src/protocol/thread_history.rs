@@ -2059,7 +2059,7 @@ mod tests {
     use maplecode_protocol::protocol::ExecCommandSource;
     use maplecode_protocol::protocol::ExitedReviewModeEvent;
     use maplecode_protocol::protocol::ItemStartedEvent;
-    use maplecode_protocol::protocol::MapleCodeErrorInfo;
+    use maplecode_protocol::protocol::MaplecodeErrorInfo;
     use maplecode_protocol::protocol::McpInvocation;
     use maplecode_protocol::protocol::McpToolCallEndEvent;
     use maplecode_protocol::protocol::PatchApplyBeginEvent;
@@ -4888,7 +4888,7 @@ mod tests {
                 error: Some(ErrorEvent {
                     misalignment: None,
                     message: "Selected model is at capacity. Please try a different model.".into(),
-                    maplecode_error_info: Some(MapleCodeErrorInfo::PolicyCapacityUnavailable),
+                    maplecode_error_info: Some(MaplecodeErrorInfo::PolicyCapacityUnavailable),
                     rejected_audio_file_ids: Vec::new(),
                 }),
                 completed_at: Some(20),
@@ -4923,7 +4923,7 @@ mod tests {
                         message: "Selected model is at capacity. Please try a different model."
                             .into(),
                         maplecode_error_info: Some(
-                            crate::protocol::v2::MapleCodeErrorInfo::PolicyCapacityUnavailable,
+                            crate::protocol::v2::MaplecodeErrorInfo::PolicyCapacityUnavailable,
                         ),
                         additional_details: None,
                     }),
@@ -5300,7 +5300,7 @@ mod tests {
             EventMsg::Error(ErrorEvent {
                 misalignment: None,
                 message: "rollback failed".into(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::ThreadRollbackFailed),
+                maplecode_error_info: Some(MaplecodeErrorInfo::ThreadRollbackFailed),
                 rejected_audio_file_ids: Vec::new(),
             }),
         ];
@@ -5348,7 +5348,7 @@ mod tests {
             EventMsg::Error(ErrorEvent {
                 misalignment: None,
                 message: "request-level failure".into(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::BadRequest),
+                maplecode_error_info: Some(MaplecodeErrorInfo::BadRequest),
                 rejected_audio_file_ids: Vec::new(),
             }),
         ];
@@ -5405,7 +5405,7 @@ mod tests {
             EventMsg::Error(ErrorEvent {
                 misalignment: None,
                 message: "stream failure".into(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::ResponseStreamDisconnected {
+                maplecode_error_info: Some(MaplecodeErrorInfo::ResponseStreamDisconnected {
                     http_status_code: Some(502),
                 }),
                 rejected_audio_file_ids: Vec::new(),
@@ -5436,7 +5436,7 @@ mod tests {
                 misalignment: None,
                 message: "stream failure".into(),
                 maplecode_error_info: Some(
-                    crate::protocol::v2::MapleCodeErrorInfo::ResponseStreamDisconnected {
+                    crate::protocol::v2::MaplecodeErrorInfo::ResponseStreamDisconnected {
                         http_status_code: Some(502),
                     }
                 ),
@@ -5473,7 +5473,7 @@ mod tests {
                 error: Some(ErrorEvent {
                     misalignment: None,
                     message: "Selected model is at capacity. Please try a different model.".into(),
-                    maplecode_error_info: Some(MapleCodeErrorInfo::ServerOverloaded),
+                    maplecode_error_info: Some(MaplecodeErrorInfo::ServerOverloaded),
                     rejected_audio_file_ids: Vec::new(),
                 }),
                 completed_at: Some(20),
@@ -5506,7 +5506,7 @@ mod tests {
                     misalignment: None,
                     message: "Selected model is at capacity. Please try a different model.".into(),
                     maplecode_error_info: Some(
-                        crate::protocol::v2::MapleCodeErrorInfo::ServerOverloaded
+                        crate::protocol::v2::MaplecodeErrorInfo::ServerOverloaded
                     ),
                     additional_details: None,
                 }),

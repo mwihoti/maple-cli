@@ -44,7 +44,7 @@ use maplecode_protocol::protocol::AskForApproval as CoreAskForApproval;
 use maplecode_protocol::protocol::ConversationTextRole;
 use maplecode_protocol::protocol::ExecCommandSource as CoreExecCommandSource;
 use maplecode_protocol::protocol::GranularApprovalConfig as CoreGranularApprovalConfig;
-use maplecode_protocol::protocol::MapleCodeErrorInfo as CoreMapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo as CoreMaplecodeErrorInfo;
 use maplecode_protocol::protocol::NetworkAccess as CoreNetworkAccess;
 use maplecode_protocol::protocol::SubAgentActivityKind as CoreSubAgentActivityKind;
 use maplecode_protocol::request_permissions::RequestPermissionProfile as CoreRequestPermissionProfile;
@@ -4926,7 +4926,7 @@ fn marketplace_upgrade_response_serializes_camel_case_fields() {
 
 #[test]
 fn maplecode_error_info_serializes_http_status_code_in_camel_case() {
-    let value = MapleCodeErrorInfo::ResponseTooManyFailedAttempts {
+    let value = MaplecodeErrorInfo::ResponseTooManyFailedAttempts {
         http_status_code: Some(401),
     };
 
@@ -4944,29 +4944,29 @@ fn maplecode_error_info_serializes_http_status_code_in_camel_case() {
 fn core_error_info_converts_to_camel_case() {
     for (core, expected) in [
         (
-            CoreMapleCodeErrorInfo::PolicyCapacityUnavailable,
+            CoreMaplecodeErrorInfo::PolicyCapacityUnavailable,
             json!("policyCapacityUnavailable"),
         ),
-        (CoreMapleCodeErrorInfo::CyberPolicy, json!("cyberPolicy")),
+        (CoreMaplecodeErrorInfo::CyberPolicy, json!("cyberPolicy")),
         (
-            CoreMapleCodeErrorInfo::InferenceHookDenied,
+            CoreMaplecodeErrorInfo::InferenceHookDenied,
             json!("inferenceHookDenied"),
         ),
-        (CoreMapleCodeErrorInfo::BioPolicy, json!("other")),
-        (CoreMapleCodeErrorInfo::InvalidPrompt, json!("other")),
+        (CoreMaplecodeErrorInfo::BioPolicy, json!("other")),
+        (CoreMaplecodeErrorInfo::InvalidPrompt, json!("other")),
         (
-            CoreMapleCodeErrorInfo::FlexUnavailable,
+            CoreMaplecodeErrorInfo::FlexUnavailable,
             json!("flexUnavailable"),
         ),
         (
-            CoreMapleCodeErrorInfo::RateLimitExceeded,
+            CoreMaplecodeErrorInfo::RateLimitExceeded,
             json!("rateLimitExceeded"),
         ),
     ] {
-        let converted = MapleCodeErrorInfo::from(core);
+        let converted = MaplecodeErrorInfo::from(core);
         assert_eq!(serde_json::to_value(&converted).unwrap(), expected);
         assert_eq!(
-            serde_json::from_value::<MapleCodeErrorInfo>(expected).unwrap(),
+            serde_json::from_value::<MaplecodeErrorInfo>(expected).unwrap(),
             converted
         );
     }
@@ -4976,12 +4976,12 @@ fn core_error_info_converts_to_camel_case() {
 #[test]
 fn maplecode_error_info_other_round_trips_as_string() {
     assert_eq!(
-        serde_json::to_value(MapleCodeErrorInfo::Other).unwrap(),
+        serde_json::to_value(MaplecodeErrorInfo::Other).unwrap(),
         json!("other")
     );
     assert_eq!(
-        serde_json::from_value::<MapleCodeErrorInfo>(json!("other")).unwrap(),
-        MapleCodeErrorInfo::Other
+        serde_json::from_value::<MaplecodeErrorInfo>(json!("other")).unwrap(),
+        MaplecodeErrorInfo::Other
     );
 }
 
@@ -4989,8 +4989,8 @@ fn maplecode_error_info_other_round_trips_as_string() {
 #[test]
 fn maplecode_error_info_deserializes_unknown_string_as_other() {
     assert_eq!(
-        serde_json::from_value::<MapleCodeErrorInfo>(json!("futureError")).unwrap(),
-        MapleCodeErrorInfo::Other
+        serde_json::from_value::<MaplecodeErrorInfo>(json!("futureError")).unwrap(),
+        MaplecodeErrorInfo::Other
     );
 }
 
@@ -4998,14 +4998,14 @@ fn maplecode_error_info_deserializes_unknown_string_as_other() {
 #[test]
 fn maplecode_error_info_deserializes_unknown_object_as_other() {
     assert_eq!(
-        serde_json::from_value::<MapleCodeErrorInfo>(json!({
+        serde_json::from_value::<MaplecodeErrorInfo>(json!({
             "futureError": {
                 "detail": "unknown",
                 "retryAfterSeconds": 30,
             }
         }))
         .unwrap(),
-        MapleCodeErrorInfo::Other
+        MaplecodeErrorInfo::Other
     );
 }
 
@@ -5013,13 +5013,13 @@ fn maplecode_error_info_deserializes_unknown_object_as_other() {
 #[test]
 fn maplecode_error_info_deserializes_known_object_without_falling_back() {
     assert_eq!(
-        serde_json::from_value::<MapleCodeErrorInfo>(json!({
+        serde_json::from_value::<MaplecodeErrorInfo>(json!({
             "httpConnectionFailed": {
                 "httpStatusCode": 503,
             }
         }))
         .unwrap(),
-        MapleCodeErrorInfo::HttpConnectionFailed {
+        MaplecodeErrorInfo::HttpConnectionFailed {
             http_status_code: Some(503),
         }
     );
@@ -5029,13 +5029,13 @@ fn maplecode_error_info_deserializes_known_object_without_falling_back() {
 #[test]
 fn maplecode_error_info_rejects_unsupported_wire_shapes() {
     for value in [json!(null), json!(true), json!(42), json!([])] {
-        assert!(serde_json::from_value::<MapleCodeErrorInfo>(value).is_err());
+        assert!(serde_json::from_value::<MaplecodeErrorInfo>(value).is_err());
     }
 }
 
 #[test]
 fn maplecode_error_info_serializes_active_turn_not_steerable_turn_kind_in_camel_case() {
-    let value = MapleCodeErrorInfo::ActiveTurnNotSteerable {
+    let value = MaplecodeErrorInfo::ActiveTurnNotSteerable {
         turn_kind: NonSteerableTurnKind::Review,
     };
 

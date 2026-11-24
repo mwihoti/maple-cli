@@ -66,7 +66,7 @@
               "title": "AmazonBedrockAccountType",
               "type": "string"
             },
-            "usesMapleCodeManagedCredentials": {
+            "usesMaplecodeManagedCredentials": {
               "default": false,
               "type": "boolean"
             }
@@ -1667,14 +1667,14 @@
       "description": "Authentication mode for OpenAI-backed providers.",
       "oneOf": [
         {
-          "description": "OpenAI API key provided by the caller and stored by MapleCode.",
+          "description": "OpenAI API key provided by the caller and stored by Maple Code.",
           "enum": [
             "apikey"
           ],
           "type": "string"
         },
         {
-          "description": "ChatGPT OAuth managed by MapleCode (tokens persisted and refreshed by MapleCode).",
+          "description": "ChatGPT OAuth managed by Maple Code (tokens persisted and refreshed by Maple Code).",
           "enum": [
             "chatgpt"
           ],
@@ -1695,28 +1695,28 @@
           "type": "string"
         },
         {
-          "description": "Programmatic MapleCode auth backed by a registered Agent Identity.",
+          "description": "Programmatic Maple Code auth backed by a registered Agent Identity.",
           "enum": [
             "agentIdentity"
           ],
           "type": "string"
         },
         {
-          "description": "Programmatic MapleCode auth backed by a personal access token.",
+          "description": "Programmatic Maple Code auth backed by a personal access token.",
           "enum": [
             "personalAccessToken"
           ],
           "type": "string"
         },
         {
-          "description": "Amazon Bedrock bearer token managed by MapleCode.",
+          "description": "Amazon Bedrock bearer token managed by Maple Code.",
           "enum": [
             "bedrockApiKey"
           ],
           "type": "string"
         },
         {
-          "description": "Amazon Bedrock AWS access keys managed by MapleCode.",
+          "description": "Amazon Bedrock AWS access keys managed by Maple Code.",
           "enum": [
             "bedrockAccessKeys"
           ],
@@ -4832,171 +4832,6 @@
       ],
       "title": "ClientRequest"
     },
-    "MapleCodeErrorInfo": {
-      "anyOf": [
-        {
-          "enum": [
-            "contextWindowExceeded",
-            "sessionBudgetExceeded",
-            "usageLimitExceeded",
-            "rateLimitExceeded",
-            "flexUnavailable",
-            "serverOverloaded",
-            "modelNotFound",
-            "policyCapacityUnavailable",
-            "cyberPolicy",
-            "misalignmentPolicyViolation",
-            "tooManyDenials",
-            "internalServerError",
-            "unauthorized",
-            "badRequest",
-            "threadRollbackFailed",
-            "sandboxError",
-            "other"
-          ],
-          "type": "string"
-        },
-        {
-          "description": "The workspace's inference hook explicitly denied this request.",
-          "enum": [
-            "inferenceHookDenied"
-          ],
-          "type": "string"
-        },
-        {
-          "additionalProperties": false,
-          "properties": {
-            "httpConnectionFailed": {
-              "properties": {
-                "httpStatusCode": {
-                  "format": "uint16",
-                  "minimum": 0.0,
-                  "type": [
-                    "integer",
-                    "null"
-                  ]
-                }
-              },
-              "type": "object"
-            }
-          },
-          "required": [
-            "httpConnectionFailed"
-          ],
-          "title": "HttpConnectionFailedMapleCodeErrorInfo",
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "description": "Failed to connect to the response SSE stream.",
-          "properties": {
-            "responseStreamConnectionFailed": {
-              "properties": {
-                "httpStatusCode": {
-                  "format": "uint16",
-                  "minimum": 0.0,
-                  "type": [
-                    "integer",
-                    "null"
-                  ]
-                }
-              },
-              "type": "object"
-            }
-          },
-          "required": [
-            "responseStreamConnectionFailed"
-          ],
-          "title": "ResponseStreamConnectionFailedMapleCodeErrorInfo",
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "description": "The response SSE stream disconnected in the middle of a turn before completion.",
-          "properties": {
-            "responseStreamDisconnected": {
-              "properties": {
-                "httpStatusCode": {
-                  "format": "uint16",
-                  "minimum": 0.0,
-                  "type": [
-                    "integer",
-                    "null"
-                  ]
-                }
-              },
-              "type": "object"
-            }
-          },
-          "required": [
-            "responseStreamDisconnected"
-          ],
-          "title": "ResponseStreamDisconnectedMapleCodeErrorInfo",
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "description": "Reached the retry limit for responses.",
-          "properties": {
-            "responseTooManyFailedAttempts": {
-              "properties": {
-                "httpStatusCode": {
-                  "format": "uint16",
-                  "minimum": 0.0,
-                  "type": [
-                    "integer",
-                    "null"
-                  ]
-                }
-              },
-              "type": "object"
-            }
-          },
-          "required": [
-            "responseTooManyFailedAttempts"
-          ],
-          "title": "ResponseTooManyFailedAttemptsMapleCodeErrorInfo",
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "description": "Returned when `turn/start` or `turn/steer` is submitted while the current active turn cannot accept same-turn steering, for example `/review` or manual `/compact`.",
-          "properties": {
-            "activeTurnNotSteerable": {
-              "properties": {
-                "turnKind": {
-                  "$ref": "#/definitions/NonSteerableTurnKind"
-                }
-              },
-              "required": [
-                "turnKind"
-              ],
-              "type": "object"
-            }
-          },
-          "required": [
-            "activeTurnNotSteerable"
-          ],
-          "title": "ActiveTurnNotSteerableMapleCodeErrorInfo",
-          "type": "object"
-        },
-        {
-          "type": [
-            "string",
-            "object"
-          ]
-        }
-      ],
-      "description": "This translation layer make sure that we expose maplecode error code in camel case.\n\nWhen an upstream HTTP status is available (for example, from the Responses API or a provider), it is forwarded in `httpStatusCode` on the relevant `maplecodeErrorInfo` variant."
-    },
-    "MapleCodeResponseHandoffMode": {
-      "enum": [
-        "thinking",
-        "commentary",
-        "bemTags"
-      ],
-      "type": "string"
-    },
     "CollabAgentState": {
       "properties": {
         "message": {
@@ -5050,7 +4885,7 @@
       "type": "string"
     },
     "CollaborationMode": {
-      "description": "Collaboration mode for a MapleCode session.",
+      "description": "Collaboration mode for a Maple Code session.",
       "properties": {
         "mode": {
           "$ref": "#/definitions/ModeKind"
@@ -6090,7 +5925,7 @@
     "ConfigLayerSource": {
       "oneOf": [
         {
-          "description": "Default configuration supplied with the installed MapleCode package.",
+          "description": "Default configuration supplied with the installed Maple Code package.",
           "properties": {
             "file": {
               "allOf": [
@@ -6229,7 +6064,7 @@
         {
           "description": "Path to a .maplecode/ folder within a project. There could be multiple of these between `cwd` and the project/repo root.",
           "properties": {
-            "dotMapleCodeFolder": {
+            "dotMaplecodeFolder": {
               "$ref": "#/definitions/AbsolutePathBuf"
             },
             "type": {
@@ -6241,7 +6076,7 @@
             }
           },
           "required": [
-            "dotMapleCodeFolder",
+            "dotMaplecodeFolder",
             "type"
           ],
           "title": "ProjectConfigLayerSource",
@@ -11138,7 +10973,7 @@
           "type": "object"
         },
         {
-          "description": "[UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE. The access token must contain the same scopes that MapleCode-managed ChatGPT auth tokens have.",
+          "description": "[UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE. The access token must contain the same scopes that Maplecode-managed ChatGPT auth tokens have.",
           "properties": {
             "accessToken": {
               "description": "Access token (JWT) supplied by the client. This token is used for backend API requests and email extraction.",
@@ -11149,7 +10984,7 @@
               "type": "string"
             },
             "chatgptPlanType": {
-              "description": "Optional plan type supplied by the client.\n\nWhen `null`, MapleCode attempts to derive the plan type from access-token claims. If unavailable, the plan defaults to `unknown`.",
+              "description": "Optional plan type supplied by the client.\n\nWhen `null`, Maple Code attempts to derive the plan type from access-token claims. If unavailable, the plan defaults to `unknown`.",
               "type": [
                 "string",
                 "null"
@@ -11471,6 +11306,171 @@
         "UserPromptSubmit"
       ],
       "type": "object"
+    },
+    "MaplecodeErrorInfo": {
+      "anyOf": [
+        {
+          "enum": [
+            "contextWindowExceeded",
+            "sessionBudgetExceeded",
+            "usageLimitExceeded",
+            "rateLimitExceeded",
+            "flexUnavailable",
+            "serverOverloaded",
+            "modelNotFound",
+            "policyCapacityUnavailable",
+            "cyberPolicy",
+            "misalignmentPolicyViolation",
+            "tooManyDenials",
+            "internalServerError",
+            "unauthorized",
+            "badRequest",
+            "threadRollbackFailed",
+            "sandboxError",
+            "other"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "The workspace's inference hook explicitly denied this request.",
+          "enum": [
+            "inferenceHookDenied"
+          ],
+          "type": "string"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "httpConnectionFailed": {
+              "properties": {
+                "httpStatusCode": {
+                  "format": "uint16",
+                  "minimum": 0.0,
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "httpConnectionFailed"
+          ],
+          "title": "HttpConnectionFailedMaplecodeErrorInfo",
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Failed to connect to the response SSE stream.",
+          "properties": {
+            "responseStreamConnectionFailed": {
+              "properties": {
+                "httpStatusCode": {
+                  "format": "uint16",
+                  "minimum": 0.0,
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "responseStreamConnectionFailed"
+          ],
+          "title": "ResponseStreamConnectionFailedMaplecodeErrorInfo",
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The response SSE stream disconnected in the middle of a turn before completion.",
+          "properties": {
+            "responseStreamDisconnected": {
+              "properties": {
+                "httpStatusCode": {
+                  "format": "uint16",
+                  "minimum": 0.0,
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "responseStreamDisconnected"
+          ],
+          "title": "ResponseStreamDisconnectedMaplecodeErrorInfo",
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Reached the retry limit for responses.",
+          "properties": {
+            "responseTooManyFailedAttempts": {
+              "properties": {
+                "httpStatusCode": {
+                  "format": "uint16",
+                  "minimum": 0.0,
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": [
+            "responseTooManyFailedAttempts"
+          ],
+          "title": "ResponseTooManyFailedAttemptsMaplecodeErrorInfo",
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Returned when `turn/start` or `turn/steer` is submitted while the current active turn cannot accept same-turn steering, for example `/review` or manual `/compact`.",
+          "properties": {
+            "activeTurnNotSteerable": {
+              "properties": {
+                "turnKind": {
+                  "$ref": "#/definitions/NonSteerableTurnKind"
+                }
+              },
+              "required": [
+                "turnKind"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "activeTurnNotSteerable"
+          ],
+          "title": "ActiveTurnNotSteerableMaplecodeErrorInfo",
+          "type": "object"
+        },
+        {
+          "type": [
+            "string",
+            "object"
+          ]
+        }
+      ],
+      "description": "This translation layer make sure that we expose maplecode error code in camel case.\n\nWhen an upstream HTTP status is available (for example, from the Responses API or a provider), it is forwarded in `httpStatusCode` on the relevant `maplecodeErrorInfo` variant."
+    },
+    "MaplecodeResponseHandoffMode": {
+      "enum": [
+        "thinking",
+        "commentary",
+        "bemTags"
+      ],
+      "type": "string"
     },
     "MarketplaceAddParams": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -13784,7 +13784,7 @@
           "type": "string"
         },
         {
-          "description": "Plugin-service currently sends `\"ENABLED\"` for available remote plugins. MapleCode app-server exposes `\"AVAILABLE\"` in its API; the alias keeps decoding compatible with that upstream response.",
+          "description": "Plugin-service currently sends `\"ENABLED\"` for available remote plugins. Maple Code app-server exposes `\"AVAILABLE\"` in its API; the alias keeps decoding compatible with that upstream response.",
           "enum": [
             "AVAILABLE"
           ],
@@ -20397,7 +20397,7 @@
           "description": "Persisted thread history contract selected when this thread was created."
         },
         "id": {
-          "description": "Identifier for this thread. MapleCode-generated thread IDs are UUIDv7.",
+          "description": "Identifier for this thread. Maplecode-generated thread IDs are UUIDv7.",
           "type": "string"
         },
         "model": {
@@ -22109,7 +22109,7 @@
             },
             "results": {
               "default": null,
-              "description": "Structured search results returned out-of-band by standalone web search.\n\nThese stay as opaque JSON at the extension/app-server boundary so new result fields and result types can pass through without a MapleCode release.",
+              "description": "Structured search results returned out-of-band by standalone web search.\n\nThese stay as opaque JSON at the extension/app-server boundary so new result fields and result types can pass through without a Maple Code release.",
               "items": true,
               "type": [
                 "array",
@@ -25300,7 +25300,7 @@
           "description": "Error associated with a failed or interrupted turn."
         },
         "id": {
-          "description": "Identifier for this turn. MapleCode-generated turn IDs are UUIDv7.",
+          "description": "Identifier for this turn. Maplecode-generated turn IDs are UUIDv7.",
           "type": "string"
         },
         "items": {
@@ -25421,7 +25421,7 @@
         "maplecodeErrorInfo": {
           "anyOf": [
             {
-              "$ref": "#/definitions/MapleCodeErrorInfo"
+              "$ref": "#/definitions/MaplecodeErrorInfo"
             },
             {
               "type": "null"
@@ -26504,6 +26504,6 @@
       "type": "string"
     }
   },
-  "title": "MapleCodeAppServerProtocolV2",
+  "title": "MaplecodeAppServerProtocolV2",
   "type": "object"
 }

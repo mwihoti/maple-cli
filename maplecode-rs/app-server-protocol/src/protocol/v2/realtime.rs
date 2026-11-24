@@ -1,7 +1,7 @@
 use crate::JsonSchema;
 use crate::TS;
 use maplecode_protocol::protocol::ConversationTextRole;
-use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
+use maplecode_protocol::protocol::MaplecodeResponseHandoffMode;
 use maplecode_protocol::protocol::RealtimeAudioFrame as CoreRealtimeAudioFrame;
 use maplecode_protocol::protocol::RealtimeConversationVersion;
 use maplecode_protocol::protocol::RealtimeOutputModality;
@@ -219,7 +219,7 @@ pub struct ThreadRealtimeStartParams {
     /// Selects how automatic Maple Code responses are routed in Frameless Bidi sessions. Omitted values
     /// default to `thinking`. Realtime V1 and V2 ignore this setting.
     #[ts(optional = nullable)]
-    pub maplecode_response_handoff_mode: Option<MapleCodeResponseHandoffMode>,
+    pub maplecode_response_handoff_mode: Option<MaplecodeResponseHandoffMode>,
     /// Relays public reasoning summaries as quiet context for realtime V3 delegations. Defaults to false.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub backend_reasoning_status: bool,

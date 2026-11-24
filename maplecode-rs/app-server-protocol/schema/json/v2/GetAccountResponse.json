@@ -62,7 +62,7 @@
               "title": "AmazonBedrockAccountType",
               "type": "string"
             },
-            "usesMapleCodeManagedCredentials": {
+            "usesMaplecodeManagedCredentials": {
               "default": false,
               "type": "boolean"
             }

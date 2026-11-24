@@ -96,7 +96,7 @@ pub enum LoginAccountParams {
     #[ts(rename = "chatgptDeviceCode")]
     ChatgptDeviceCode,
     /// [UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE.
-    /// The access token must contain the same scopes that MapleCode-managed ChatGPT auth tokens have.
+    /// The access token must contain the same scopes that Maplecode-managed ChatGPT auth tokens have.
     #[experimental("account/login/start.chatgptAuthTokens")]
     #[serde(rename = "chatgptAuthTokens", rename_all = "camelCase")]
     #[ts(rename = "chatgptAuthTokens", rename_all = "camelCase")]
@@ -137,7 +137,7 @@ pub enum LoginAccountParams {
 #[ts(export_to = "v2/")]
 pub enum LoginAppBrand {
     #[default]
-    MapleCode,
+    Maplecode,
     Chatgpt,
 }
 
@@ -411,7 +411,7 @@ pub struct RateLimitResetCredit {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/", rename_all = "camelCase")]
 pub enum RateLimitResetType {
-    MapleCodeRateLimits,
+    MaplecodeRateLimits,
     #[serde(other)]
     Unknown,
 }

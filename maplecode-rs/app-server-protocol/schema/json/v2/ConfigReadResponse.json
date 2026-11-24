@@ -739,7 +739,7 @@
     "ConfigLayerSource": {
       "oneOf": [
         {
-          "description": "Default configuration supplied with the installed MapleCode package.",
+          "description": "Default configuration supplied with the installed Maple Code package.",
           "properties": {
             "file": {
               "allOf": [
@@ -878,7 +878,7 @@
         {
           "description": "Path to a .maplecode/ folder within a project. There could be multiple of these between `cwd` and the project/repo root.",
           "properties": {
-            "dotMapleCodeFolder": {
+            "dotMaplecodeFolder": {
               "$ref": "#/definitions/AbsolutePathBuf"
             },
             "type": {
@@ -890,7 +890,7 @@
             }
           },
           "required": [
-            "dotMapleCodeFolder",
+            "dotMaplecodeFolder",
             "type"
           ],
           "title": "ProjectConfigLayerSource",

@@ -5,14 +5,14 @@
       "description": "Authentication mode for OpenAI-backed providers.",
       "oneOf": [
         {
-          "description": "OpenAI API key provided by the caller and stored by MapleCode.",
+          "description": "OpenAI API key provided by the caller and stored by Maple Code.",
           "enum": [
             "apikey"
           ],
           "type": "string"
         },
         {
-          "description": "ChatGPT OAuth managed by MapleCode (tokens persisted and refreshed by MapleCode).",
+          "description": "ChatGPT OAuth managed by Maple Code (tokens persisted and refreshed by Maple Code).",
           "enum": [
             "chatgpt"
           ],
@@ -33,28 +33,28 @@
           "type": "string"
         },
         {
-          "description": "Programmatic MapleCode auth backed by a registered Agent Identity.",
+          "description": "Programmatic Maple Code auth backed by a registered Agent Identity.",
           "enum": [
             "agentIdentity"
           ],
           "type": "string"
         },
         {
-          "description": "Programmatic MapleCode auth backed by a personal access token.",
+          "description": "Programmatic Maple Code auth backed by a personal access token.",
           "enum": [
             "personalAccessToken"
           ],
           "type": "string"
         },
         {
-          "description": "Amazon Bedrock bearer token managed by MapleCode.",
+          "description": "Amazon Bedrock bearer token managed by Maple Code.",
           "enum": [
             "bedrockApiKey"
           ],
           "type": "string"
         },
         {
-          "description": "Amazon Bedrock AWS access keys managed by MapleCode.",
+          "description": "Amazon Bedrock AWS access keys managed by Maple Code.",
           "enum": [
             "bedrockAccessKeys"
           ],

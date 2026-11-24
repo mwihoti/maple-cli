@@ -78,7 +78,6 @@ export type { ChatgptAuthTokensRefreshParams } from "./ChatgptAuthTokensRefreshP
 export type { ChatgptAuthTokensRefreshReason } from "./ChatgptAuthTokensRefreshReason";
 export type { ChatgptAuthTokensRefreshResponse } from "./ChatgptAuthTokensRefreshResponse";
 export type { CliAuthCredentialsStoreMode } from "./CliAuthCredentialsStoreMode";
-export type { MapleCodeErrorInfo } from "./MapleCodeErrorInfo";
 export type { CollabAgentState } from "./CollabAgentState";
 export type { CollabAgentStatus } from "./CollabAgentStatus";
 export type { CollabAgentTool } from "./CollabAgentTool";
@@ -273,6 +272,7 @@ export type { LoginAccountResponse } from "./LoginAccountResponse";
 export type { LoginAppBrand } from "./LoginAppBrand";
 export type { LogoutAccountResponse } from "./LogoutAccountResponse";
 export type { ManagedHooksRequirements } from "./ManagedHooksRequirements";
+export type { MaplecodeErrorInfo } from "./MaplecodeErrorInfo";
 export type { MarketplaceAddParams } from "./MarketplaceAddParams";
 export type { MarketplaceAddResponse } from "./MarketplaceAddResponse";
 export type { MarketplaceInterface } from "./MarketplaceInterface";
