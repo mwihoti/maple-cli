@@ -3,7 +3,7 @@
 use anyhow::Context;
 use anyhow::Result;
 use core_test_support::responses::mount_function_call_agent_response;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::test_maplecode;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::permissions::FileSystemAccessMode;
@@ -43,7 +43,7 @@ async fn mxc_exec_command_starts_powershell(restrict_parent: bool) -> Result<()>
             config.maplecode_self_exe = Some(std::env::current_exe().expect("test executable"));
         });
     // Discovery is intentionally host-local; remote execution must not use the host's shell.
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     let (workdir, permissions, checks) = if restrict_parent {
         let ancestor = harness.path_abs("ancestor");
         let workspace = ancestor.join("Downloads");

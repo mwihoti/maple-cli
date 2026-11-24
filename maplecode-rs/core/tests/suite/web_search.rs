@@ -6,7 +6,7 @@ use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::BedrockApiKeyAuth;
 use maplecode_model_provider_info::AMAZON_BEDROCK_GPT_5_5_MODEL_ID;
 use maplecode_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
@@ -102,7 +102,7 @@ async fn amazon_bedrock_web_search_uses_text_only_hosted_tools() {
         )
         .await;
 
-        let auth = MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+        let auth = MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
             api_key: "dummy".to_string(),
             region: "us-east-1".to_string(),
         });
@@ -164,7 +164,7 @@ async fn amazon_bedrock_runtime_preserves_cross_region_models_without_web_search
             ]),
         )
         .await;
-        let auth = MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+        let auth = MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
             api_key: "dummy".to_string(),
             region: "us-east-1".to_string(),
         });
@@ -228,7 +228,7 @@ async fn amazon_bedrock_web_search_is_disabled_when_managed_requirements_prohibi
         )
         .await;
 
-        let auth = MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+        let auth = MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
             api_key: "dummy".to_string(),
             region: "us-east-1".to_string(),
         });

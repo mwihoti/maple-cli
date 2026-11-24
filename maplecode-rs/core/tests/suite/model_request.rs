@@ -24,7 +24,7 @@ use maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec;
 use maplecode_protocol::dynamic_tools::DynamicToolResponse;
 use maplecode_protocol::dynamic_tools::DynamicToolSpec;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
@@ -198,7 +198,7 @@ async fn budget_is_checked_again_after_tool_call(exhausted: bool) -> Result<()> 
     if exhausted {
         assert_eq!(
             completed.error.and_then(|error| error.maplecode_error_info),
-            Some(MapleCodeErrorInfo::SessionBudgetExceeded)
+            Some(MaplecodeErrorInfo::SessionBudgetExceeded)
         );
         assert_eq!(request_count, 1);
     } else {

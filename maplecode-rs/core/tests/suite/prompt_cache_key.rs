@@ -10,12 +10,12 @@ use core_test_support::responses::mount_sse_once;
 use core_test_support::responses::mount_sse_once_match;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use maplecode_core::PromptCacheKey;
 use maplecode_core::StartThreadOptions;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::protocol::TurnEnvironmentSelection;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
@@ -27,7 +27,7 @@ const SPAWN_CALL_ID: &str = "spawn-worker";
 const COLLABORATION_NAMESPACE: &str = "collaboration";
 
 async fn start_with_prompt_cache_key(
-    test: &mut TestMapleCode,
+    test: &mut TestMaplecode,
     policy: PromptCacheKey,
 ) -> Result<()> {
     let thread = test
@@ -57,7 +57,7 @@ fn expected_prompt_cache_key(policy: &PromptCacheKey, session_id: &str) -> Optio
 async fn prompt_cache_key_policy_applies_across_turns(policy: PromptCacheKey) -> Result<()> {
     let server = start_mock_server().await;
     let mut test = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("dummy"))
+        .with_auth(MaplecodeAuth::from_api_key("dummy"))
         .build_with_auto_env(&server)
         .await?;
     start_with_prompt_cache_key(&mut test, policy.clone()).await?;
@@ -152,7 +152,7 @@ async fn api_key_subagent_inherits_prompt_cache_key_policy(policy: PromptCacheKe
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("dummy"))
+        .with_auth(MaplecodeAuth::from_api_key("dummy"))
         .with_config(|config| {
             config
                 .features

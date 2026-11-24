@@ -4,7 +4,7 @@ use anyhow::Ok;
 use core_test_support::responses;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event_match;
 use maplecode_config::test_support::CloudConfigBundleFixture;
@@ -30,7 +30,7 @@ async fn emits_deprecation_notice_for_legacy_feature_flag() -> anyhow::Result<()
             .expect("test config should allow managed feature metadata updates");
     });
 
-    let TestMapleCode { maplecode, .. } = builder.build(&server).await?;
+    let TestMaplecode { maplecode, .. } = builder.build(&server).await?;
 
     let notice = wait_for_event_match(&maplecode, |event| match event {
         EventMsg::DeprecationNotice(ev) => Some(ev.clone()),
@@ -71,7 +71,7 @@ async fn emits_deprecation_notice_for_web_search_feature_flag_values() -> anyhow
                 .expect("test config should allow managed feature map updates");
         });
 
-        let TestMapleCode { maplecode, .. } = builder.build(&server).await?;
+        let TestMaplecode { maplecode, .. } = builder.build(&server).await?;
 
         let notice = wait_for_event_match(&maplecode, |event| match event {
             EventMsg::DeprecationNotice(ev)
@@ -117,7 +117,7 @@ async fn emits_deprecation_notice_for_use_legacy_landlock() -> anyhow::Result<()
             .expect("test config should allow managed feature map updates");
     });
 
-    let TestMapleCode { maplecode, .. } = builder.build(&server).await?;
+    let TestMaplecode { maplecode, .. } = builder.build(&server).await?;
 
     let notice = wait_for_event_match(&maplecode, |event| match event {
         EventMsg::DeprecationNotice(ev)

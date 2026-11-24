@@ -18,7 +18,7 @@ use core_test_support::wait_for_event;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ThreadHistoryMode;
@@ -295,7 +295,7 @@ async fn cold_root_resume_overlaps_child_reads_and_applies_identities_in_graph_o
     for child_id in [last, failed] {
         assert!(matches!(
             resumed.thread_manager.ensure_multi_agent_v2_child_loaded(child_id).await,
-            Err(error) if matches!(error.details(), MapleCodeErrorDetails::ThreadNotFound(id) if *id == child_id)
+            Err(error) if matches!(error.details(), MaplecodeErrorDetails::ThreadNotFound(id) if *id == child_id)
         ));
     }
     resumed

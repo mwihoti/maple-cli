@@ -124,7 +124,7 @@ async fn host_budget_context_refreshes_after_remote_compaction() -> Result<()> {
     }));
     let test = test_maplecode()
         .with_model("gpt-6-astra")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(Arc::new(extensions.build()))
         .with_config(|config| {
             configure_scenario_catalog(config);

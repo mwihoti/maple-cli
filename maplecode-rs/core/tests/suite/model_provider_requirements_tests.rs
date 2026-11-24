@@ -13,7 +13,7 @@ use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::config::Config;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_core::config::ConfigOverrides;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use pretty_assertions::assert_eq;
 use tempfile::tempdir;
@@ -122,7 +122,7 @@ X-Managed = "required"
         ]),
     )
     .await;
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let expected_authorization = format!("Bearer {}", auth.get_token()?);
     let test = test_maplecode()
         .with_auth(auth)

@@ -112,7 +112,7 @@ fn model_with_permission_messages(
 }
 
 async fn submit_text_turn(
-    test: &core_test_support::test_maplecode::TestMapleCode,
+    test: &core_test_support::test_maplecode::TestMaplecode,
     text: &str,
 ) -> Result<()> {
     test.maplecode

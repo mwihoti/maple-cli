@@ -11,8 +11,8 @@ use core_test_support::responses::mount_sse_once;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_websocket_server;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::test_maplecode as base_test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
@@ -22,9 +22,9 @@ use maplecode_core::TurnInputRequest;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
 use maplecode_history::InitialHistory;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::BedrockApiKeyAuth;
 use maplecode_model_provider_info::AMAZON_BEDROCK_GPT_5_5_MODEL_ID;
 use maplecode_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
@@ -70,7 +70,7 @@ const REMOTE_COMPACT_TURN_COMPLETE_TIMEOUT: Duration = Duration::from_secs(30);
 const CONTEXT_WINDOW_TRUNCATED_OUTPUT_MESSAGE: &str =
     "Output exceeded the available model context and was truncated";
 
-fn test_maplecode() -> TestMapleCodeBuilder {
+fn test_maplecode() -> TestMaplecodeBuilder {
     base_test_maplecode().with_config(|config| {
         config.update_plan_enabled = true;
     })
@@ -78,10 +78,10 @@ fn test_maplecode() -> TestMapleCodeBuilder {
 
 fn remote_realtime_test_maplecode_builder(
     realtime_server: &responses::WebSocketTestServer,
-) -> TestMapleCodeBuilder {
+) -> TestMaplecodeBuilder {
     let realtime_base_url = realtime_server.uri().to_string();
     test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("dummy"))
+        .with_auth(MaplecodeAuth::from_api_key("dummy"))
         .with_config(move |config| {
             config.experimental_realtime_ws_base_url = Some(realtime_base_url);
         })
@@ -107,7 +107,7 @@ async fn start_remote_realtime_server() -> responses::WebSocketTestServer {
     .await
 }
 
-async fn start_realtime_conversation(maplecode: &maplecode_core::MapleCodeThread) -> Result<()> {
+async fn start_realtime_conversation(maplecode: &maplecode_core::MaplecodeThread) -> Result<()> {
     maplecode
         .submit(Op::RealtimeConversationStart(ConversationStartParams {
             client_managed_handoffs: false,
@@ -116,7 +116,7 @@ async fn start_realtime_conversation(maplecode: &maplecode_core::MapleCodeThread
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -157,7 +157,7 @@ async fn start_realtime_conversation(maplecode: &maplecode_core::MapleCodeThread
     Ok(())
 }
 
-async fn close_realtime_conversation(maplecode: &maplecode_core::MapleCodeThread) -> Result<()> {
+async fn close_realtime_conversation(maplecode: &maplecode_core::MaplecodeThread) -> Result<()> {
     maplecode.submit(Op::RealtimeConversationClose).await?;
     wait_for_event_match(maplecode, |msg| match msg {
         EventMsg::RealtimeConversationClosed(closed) => Some(closed.clone()),
@@ -186,7 +186,7 @@ fn assert_request_contains_custom_realtime_start(
     );
 }
 
-async fn wait_for_turn_complete(maplecode: &maplecode_core::MapleCodeThread) {
+async fn wait_for_turn_complete(maplecode: &maplecode_core::MaplecodeThread) {
     wait_for_event_with_timeout(
         maplecode,
         |ev| matches!(ev, EventMsg::TurnComplete(_)),
@@ -195,8 +195,8 @@ async fn wait_for_turn_complete(maplecode: &maplecode_core::MapleCodeThread) {
     .await;
 }
 
-fn amazon_bedrock_test_maplecode() -> TestMapleCodeBuilder {
-    let auth = MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+fn amazon_bedrock_test_maplecode() -> TestMaplecodeBuilder {
+    let auth = MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
         api_key: "bedrock-test-api-key".to_string(),
         region: "us-east-1".to_string(),
     });
@@ -240,7 +240,7 @@ fn annotate_retained_user_in_rollout(path: &Path, retained_text: &str) -> Result
             _ => None,
         })
         .context("persisted user response missing from rollout")?
-        .metadata = Some(MapleCodeHarnessMetadata::default());
+        .metadata = Some(MaplecodeHarnessMetadata::default());
 
     let contents = rollout
         .iter()
@@ -311,7 +311,7 @@ async fn remote_compact_v2_retains_metadata_from_resumed_history() -> Result<()>
     .await;
 
     let builder =
-        || test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        || test_maplecode().with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let initial = builder()
         .with_pre_build_hook(|home| {
             fs::write(
@@ -365,9 +365,9 @@ async fn remote_compact_v2_retains_only_client_developer_messages_when_enabled(
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
 
-    let harness = TestMapleCodeHarness::with_auto_env_builder(
+    let harness = TestMaplecodeHarness::with_auto_env_builder(
         test_maplecode()
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_config(move |config| {
                 if enabled {
                     config
@@ -454,9 +454,9 @@ async fn remote_compact_v2_retains_only_client_developer_messages_when_enabled(
 async fn remote_compact_v2_records_usage_before_output_validation() -> Result<()> {
     skip_if_no_network!(Ok(()));
 
-    let harness = TestMapleCodeHarness::with_auto_env_builder(
+    let harness = TestMaplecodeHarness::with_auto_env_builder(
         test_maplecode()
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_config(|config| {
                 config.model_auto_compact_token_limit = Some(200);
             }),
@@ -688,9 +688,9 @@ async fn remote_compact_v2_charges_retained_images_to_token_budget(
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
 
-    let harness = TestMapleCodeHarness::with_auto_env_builder(
+    let harness = TestMaplecodeHarness::with_auto_env_builder(
         test_maplecode()
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_config(move |config| {
                 let _ = config.features.enable(Feature::UnifiedImageBudget);
                 if let Some(enabled) = image_budget_enabled {
@@ -882,7 +882,7 @@ async fn remote_compact_v2_budgets_persisted_file_audio_atomically(
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
     let builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config
                 .features
@@ -900,7 +900,7 @@ async fn remote_compact_v2_budgets_persisted_file_audio_atomically(
     } else {
         builder
     };
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     // A 64k budget fits five unknown files. Measuring the other two clips at
     // 30 seconds each leaves room to retain all seven.
     let image_url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==";
@@ -1030,8 +1030,8 @@ async fn remote_compact_v2_budgets_persisted_file_audio_atomically(
 async fn remote_compact_v2_reuses_compaction_trigger_for_followups() -> Result<()> {
     skip_if_no_network!(Ok(()));
 
-    let harness = TestMapleCodeHarness::with_builder(
-        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+    let harness = TestMaplecodeHarness::with_builder(
+        test_maplecode().with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
     )
     .await?;
     let image_url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=";
@@ -1405,10 +1405,10 @@ async fn remote_compact_v2_reuses_compaction_trigger_for_followups() -> Result<(
 async fn remote_compact_v2_retries_failures_with_stream_retry_budget() -> Result<()> {
     skip_if_no_network!(Ok(()));
 
-    let harness = TestMapleCodeHarness::with_builder(
+    let harness = TestMaplecodeHarness::with_builder(
         test_maplecode()
             .with_history_mode(ThreadHistoryMode::Paginated)
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_config(|config| {
                 config.model_provider.request_max_retries = Some(0);
                 config.model_provider.stream_max_retries = Some(2);
@@ -1524,10 +1524,10 @@ async fn remote_compact_v2_rewrites_multiple_trailing_function_call_outputs(
 
     let mut extensions = ExtensionRegistryBuilder::new();
     extensions.thread_lifecycle_contributor(Arc::new(ThreadIdle));
-    let harness = TestMapleCodeHarness::with_builder(
+    let harness = TestMaplecodeHarness::with_builder(
         test_maplecode()
             .with_extensions(Arc::new(extensions.build()))
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_config(|config| {
                 config.model_context_window = Some(2_000);
                 config.model_auto_compact_token_limit = Some(200_000);
@@ -1746,9 +1746,9 @@ async fn active_realtime_refreshes_changed_start_instructions_only_after_compact
 async fn remote_mid_turn_compact_v2_sends_turn_state_over_http() -> Result<()> {
     skip_if_no_network!(Ok(()));
 
-    let harness = TestMapleCodeHarness::with_builder(
+    let harness = TestMaplecodeHarness::with_builder(
         test_maplecode()
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_config(|config| {
                 config.model_auto_compact_token_limit = Some(200);
             }),
@@ -1876,7 +1876,7 @@ async fn remote_mid_turn_compact_v2_sends_turn_state_over_websocket() -> Result<
     ]])
     .await;
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model_auto_compact_token_limit = Some(200);
         });

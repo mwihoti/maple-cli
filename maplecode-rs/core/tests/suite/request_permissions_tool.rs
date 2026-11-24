@@ -12,7 +12,7 @@ use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_sandbox;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -129,7 +129,7 @@ fn parse_result(item: &Value) -> (Option<i64>, String) {
 }
 
 async fn submit_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     prompt: &str,
     approval_policy: AskForApproval,
     permission_profile: PermissionProfile,
@@ -165,7 +165,7 @@ async fn submit_turn(
     Ok(())
 }
 
-async fn wait_for_completion(test: &TestMapleCode) {
+async fn wait_for_completion(test: &TestMaplecode) {
     wait_for_event(&test.maplecode, |event| {
         matches!(event, EventMsg::TurnComplete(_))
     })
@@ -173,7 +173,7 @@ async fn wait_for_completion(test: &TestMapleCode) {
 }
 
 async fn expect_request_permissions_event(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     expected_call_id: &str,
 ) -> RequestPermissionProfile {
     let event = wait_for_event(&test.maplecode, |event| {

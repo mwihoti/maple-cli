@@ -7,12 +7,12 @@ use super::*;
 use anyhow::Context;
 use core_test_support::responses;
 use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::wait_for_successful_turn;
 use maplecode_core::AgentControl;
 use maplecode_core::HostThreadSpawnReservation;
 use maplecode_core::HostToolInvocationLookup;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::SpawnAgentForkMode;
 use maplecode_core::StartIfIdleSubmission;
 use maplecode_core::ThreadCreateRequest;
@@ -39,10 +39,10 @@ use wiremock::MockServer;
 
 async fn host_spawn_fixture(
     server: &MockServer,
-    builder: TestMapleCodeBuilder,
+    builder: TestMaplecodeBuilder,
     application_network_policy: NetworkPolicy,
     thread_instructions_provider: Option<Arc<dyn ThreadInstructionsProvider>>,
-) -> Result<(TestMapleCode, Arc<MapleCodeThread>, Arc<TestAgentControl>)> {
+) -> Result<(TestMaplecode, Arc<MaplecodeThread>, Arc<TestAgentControl>)> {
     let root_id = ThreadId::new();
     // This controller rejects every AgentControl::spawn call. Successful startup therefore
     // demonstrates the direct host hook, while runtime calls still use the host controller.
@@ -108,7 +108,7 @@ async fn host_spawn_fixture(
 
 async fn host_spawn_invocation(
     server: &MockServer,
-    parent: &Arc<MapleCodeThread>,
+    parent: &Arc<MaplecodeThread>,
     call_id: &str,
     input: TurnInputRequest,
 ) -> Result<DynamicToolCallRequest> {
@@ -130,7 +130,7 @@ async fn host_spawn_invocation(
 
 async fn finish_spawn_tool(
     server: &MockServer,
-    parent: &MapleCodeThread,
+    parent: &MaplecodeThread,
     invocation: &DynamicToolCallRequest,
 ) -> Result<()> {
     responses::mount_sse_once(server, sse(vec![ev_completed("parent-done")])).await;

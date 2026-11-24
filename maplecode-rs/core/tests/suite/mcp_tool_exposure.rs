@@ -37,7 +37,7 @@ use maplecode_extension_api::ThreadStartInput;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
-use maplecode_mcp::MapleCodeAppsResourceListParams;
+use maplecode_mcp::MaplecodeAppsResourceListParams;
 use maplecode_mcp::McpResourceClient;
 use maplecode_protocol::capabilities::CapabilityRootLocation;
 use maplecode_protocol::capabilities::SelectedCapabilityRoot;
@@ -502,10 +502,7 @@ async fn root_reconciliation_reuses_pending_apps_startup() -> Result<()> {
     let mut extensions = ExtensionRegistryBuilder::new();
     extensions.mcp_server_contributor(Arc::new(AppsMcpServerContributor {
         id: "pending_apps_root_reconciliation_test",
-        url: format!(
-            "{}/api/maplecode/ps/mcp",
-            gated_apps_server.chatgpt_base_url
-        ),
+        url: format!("{}/api/codex/ps/mcp", gated_apps_server.chatgpt_base_url),
         root_resolved: Some(Arc::clone(&root_resolved)),
     }));
     let mut builder = search_capable_apps_builder(apps_server.chatgpt_base_url)
@@ -638,7 +635,7 @@ async fn timeout_refresh_replaces_pending_startup_and_reuses_ready_connection() 
                             (
                                 name.to_string(),
                                 serde_json::from_value(json!({
-                                    "url": format!("{}/api/maplecode/ps/mcp", server.chatgpt_base_url),
+                                    "url": format!("{}/api/codex/ps/mcp", server.chatgpt_base_url),
                                     "startup_timeout_sec": 60,
                                 }))
                                 .expect("valid MCP config"),
@@ -730,7 +727,7 @@ async fn maplecode_apps_resource_filter_sends_mime_type_on_each_page() -> Result
     let first_response_resource = first_resource.clone();
     let second_response_resource = second_resource.clone();
     Mock::given(method("POST"))
-        .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+        .and(path_regex("^/api/codex/ps/mcp/?$"))
         .and(body_partial_json(json!({ "method": "resources/list" })))
         .respond_with(move |request: &Request| {
             let body: Value = serde_json::from_slice(&request.body).expect("valid MCP request");
@@ -783,7 +780,7 @@ async fn maplecode_apps_resource_filter_sends_mime_type_on_each_page() -> Result
         (Some("next-page".to_string()), &expected_pages[1]),
     ] {
         let page = client
-            .list_maplecode_apps_resources(MapleCodeAppsResourceListParams {
+            .list_maplecode_apps_resources(MaplecodeAppsResourceListParams {
                 cursor,
                 mime_type: "mcp/plugin".to_string(),
             })
@@ -824,7 +821,7 @@ async fn maplecode_apps_resource_filter_rejects_extension_name_collision() -> Re
     let mut extensions = ExtensionRegistryBuilder::<Config>::new();
     extensions.mcp_server_contributor(Arc::new(AppsMcpServerContributor {
         id: "test-extension",
-        url: format!("{}/api/maplecode/ps/mcp", apps_server.chatgpt_base_url),
+        url: format!("{}/api/codex/ps/mcp", apps_server.chatgpt_base_url),
         root_resolved: None,
     }));
     extensions.thread_lifecycle_contributor(Arc::new(McpResourceClientCapture {
@@ -843,7 +840,7 @@ async fn maplecode_apps_resource_filter_rejects_extension_name_collision() -> Re
     assert!(client.has_server(MAPLECODE_APPS_MCP_SERVER_NAME).await);
 
     let error = client
-        .list_maplecode_apps_resources(MapleCodeAppsResourceListParams {
+        .list_maplecode_apps_resources(MaplecodeAppsResourceListParams {
             cursor: None,
             mime_type: "mcp/plugin".to_string(),
         })
@@ -955,7 +952,7 @@ async fn elevated_apps_catalog_limit_requires_host_owned_registration() -> Resul
                 .collect::<Vec<_>>(),
         );
         Mock::given(method("POST"))
-            .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+            .and(path_regex("^/api/codex/ps/mcp/?$"))
             .and(body_partial_json(json!({ "method": "tools/list" })))
             .respond_with(move |request: &Request| {
                 let body: Value = serde_json::from_slice(&request.body)
@@ -978,7 +975,7 @@ async fn elevated_apps_catalog_limit_requires_host_owned_registration() -> Resul
             let mut extensions = ExtensionRegistryBuilder::new();
             extensions.mcp_server_contributor(Arc::new(AppsMcpServerContributor {
                 id,
-                url: format!("{}/api/maplecode/ps/mcp", apps_server.chatgpt_base_url),
+                url: format!("{}/api/codex/ps/mcp", apps_server.chatgpt_base_url),
                 root_resolved: None,
             }));
             builder = builder.with_extensions(Arc::new(extensions.build()));
@@ -1417,10 +1414,7 @@ async fn apps_guidance_and_deferred_namespace_appear_after_recovery_within_a_tur
     let mut extensions = ExtensionRegistryBuilder::new();
     extensions.mcp_server_contributor(Arc::new(AppsMcpServerContributor {
         id: "deferred_apps_recovery_test",
-        url: format!(
-            "{}/api/maplecode/ps/mcp",
-            gated_apps_server.chatgpt_base_url
-        ),
+        url: format!("{}/api/codex/ps/mcp", gated_apps_server.chatgpt_base_url),
         root_resolved: None,
     }));
     let call_id = "pause-for-apps";
@@ -1605,7 +1599,7 @@ async fn code_mode_discovered_apps_tool_survives_startup_failure_and_recovers() 
     let mut extensions = ExtensionRegistryBuilder::new();
     extensions.mcp_server_contributor(Arc::new(AppsMcpServerContributor {
         id: "hosted_plugin_runtime",
-        url: format!("{}/api/maplecode/ps/mcp", gated_apps.chatgpt_base_url),
+        url: format!("{}/api/codex/ps/mcp", gated_apps.chatgpt_base_url),
         root_resolved: None,
     }));
     let extensions = Arc::new(extensions.build());

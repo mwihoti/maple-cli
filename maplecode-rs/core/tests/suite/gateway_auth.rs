@@ -4,13 +4,13 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use core_test_support::responses;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::AgentIdentityAuthPolicy;
 use maplecode_model_provider::AgentIdentitySessionFallback;
 use maplecode_model_provider::ProviderAuthScope;
@@ -44,7 +44,7 @@ fn gateway_export_settings(token_path: &std::path::Path) -> Result<String> {
 pub(super) async fn command_gateway(
     server: &MockServer,
     token_path: &std::path::Path,
-) -> Result<TestMapleCode> {
+) -> Result<TestMaplecode> {
     let provider: ModelProviderInfo = toml::from_str(&format!(
         r#"
 name = "gateway"
@@ -57,7 +57,7 @@ requires_openai_auth = true
         gateway_settings = gateway_export_settings(token_path)?
     ))?;
     test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("primary"))
+        .with_auth(MaplecodeAuth::from_api_key("primary"))
         .with_config(move |config| config.model_provider = provider)
         .build_with_auto_env(server)
         .await
@@ -141,7 +141,7 @@ async fn inference_sends_chatgpt_and_gateway_credentials_to_the_configured_heade
     sample_with_gateway(
         "requires_openai_auth = true",
         "delivery = { kind = 'header', name = 'x-gateway-auth' }",
-        MapleCodeAuth::from_external_chatgpt_tokens(
+        MaplecodeAuth::from_external_chatgpt_tokens(
             "header.e30.sig",
             "test-account",
             /*chatgpt_plan_type*/ None,
@@ -161,7 +161,7 @@ async fn gateway_token_failure_blocks_sampling() -> Result<()> {
     sample_with_gateway(
         "requires_openai_auth = true",
         "delivery = { kind = 'header', name = 'x-gateway-auth' }",
-        MapleCodeAuth::from_api_key("provider-token"),
+        MaplecodeAuth::from_api_key("provider-token"),
         &[],
         Some("Gateway OAuth authentication failed; check the gateway configuration and credential store."),
     ).await
@@ -172,7 +172,7 @@ async fn omitted_delivery_sends_only_gateway_auth_even_when_signed_in() -> Resul
     sample_with_gateway(
         "requires_openai_auth = false",
         "",
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         &[("authorization", "Bearer gateway-token")],
         /*expected_error*/ None,
     )
@@ -182,7 +182,7 @@ async fn omitted_delivery_sends_only_gateway_auth_even_when_signed_in() -> Resul
 async fn sample_with_gateway(
     provider_settings: &str,
     gateway_settings: &str,
-    primary_auth: MapleCodeAuth,
+    primary_auth: MaplecodeAuth,
     expected_headers: &[(&str, &str)],
     expected_error: Option<&str>,
 ) -> Result<()> {
@@ -259,9 +259,9 @@ async fn gateway_maplecode(
     server: &MockServer,
     provider_settings: &str,
     gateway_settings: &str,
-    primary_auth: MapleCodeAuth,
+    primary_auth: MaplecodeAuth,
     expires_at: i64,
-) -> Result<TestMapleCode> {
+) -> Result<TestMaplecode> {
     let home = Arc::new(TempDir::new()?);
     let provider: ModelProviderInfo = toml::from_str(&format!(
         r#"
@@ -295,7 +295,7 @@ client_id = "client"
         .await
 }
 
-async fn run_gateway_turn(test: &TestMapleCode) -> Result<Option<String>> {
+async fn run_gateway_turn(test: &TestMaplecode) -> Result<Option<String>> {
     test.maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
             text: "hello".into(),

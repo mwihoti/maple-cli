@@ -10,7 +10,7 @@ use futures::SinkExt;
 use maplecode_config::config_toml::RealtimeWsVersion;
 use maplecode_protocol::protocol::ConversationStartParams;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::RealtimeConversationRealtimeEvent;
 use maplecode_protocol::protocol::RealtimeEvent;
@@ -96,7 +96,7 @@ async fn misalignment_retires_late_voice_handoff_before_it_starts_a_turn() -> Re
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -117,7 +117,7 @@ async fn misalignment_retires_late_voice_handoff_before_it_starts_a_turn() -> Re
     wait_for_event_match(&test.maplecode, |event| match event {
         EventMsg::Error(error)
             if error.maplecode_error_info
-                == Some(MapleCodeErrorInfo::MisalignmentPolicyViolation) =>
+                == Some(MaplecodeErrorInfo::MisalignmentPolicyViolation) =>
         {
             Some(())
         }

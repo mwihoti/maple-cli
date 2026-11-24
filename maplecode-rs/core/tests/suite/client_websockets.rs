@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used)]
 use super::model_request::BudgetCache;
-use core_test_support::TestMapleCodeResponsesRequestKind;
+use core_test_support::TestMaplecodeResponsesRequestKind;
 use core_test_support::ThreadIdle;
 use core_test_support::load_default_config_for_test;
 use core_test_support::responses::WebSocketConnectionConfig;
@@ -20,7 +20,7 @@ use futures::FutureExt;
 use futures::StreamExt;
 use maplecode_api::WS_REQUEST_HEADER_TRACEPARENT_CLIENT_METADATA_KEY;
 use maplecode_api::WS_REQUEST_HEADER_TRACESTATE_CLIENT_METADATA_KEY;
-use maplecode_core::MapleCodeResponsesMetadata;
+use maplecode_core::MaplecodeResponsesMetadata;
 use maplecode_core::ModelClient;
 use maplecode_core::ModelClientSession;
 use maplecode_core::Prompt;
@@ -35,7 +35,7 @@ use maplecode_extension_api::ModelRequestContributor;
 use maplecode_features::Feature;
 use maplecode_http_client::OutboundProxyPolicy;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::AgentIdentityAuthPolicy;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_model_provider_info::WireApi;
@@ -50,7 +50,7 @@ use maplecode_protocol::ThreadId;
 use maplecode_protocol::account::PlanType;
 use maplecode_protocol::config_types::ReasoningSummary;
 use maplecode_protocol::config_types::ServiceTier;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::AudioReference;
 use maplecode_protocol::models::BaseInstructions;
 use maplecode_protocol::models::ContentItem;
@@ -65,7 +65,7 @@ use maplecode_protocol::openai_models::ModelInfo;
 use maplecode_protocol::openai_models::ModelServiceTier;
 use maplecode_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::W3cTraceContext;
 use maplecode_protocol::user_input::UserInput;
@@ -141,8 +141,8 @@ struct WebsocketTestHarness {
 fn responses_metadata(
     harness: &WebsocketTestHarness,
     turn_id: Option<&str>,
-    request_kind: TestMapleCodeResponsesRequestKind,
-) -> MapleCodeResponsesMetadata {
+    request_kind: TestMaplecodeResponsesRequestKind,
+) -> MaplecodeResponsesMetadata {
     test_responses_metadata(
         TEST_INSTALLATION_ID,
         &harness.session_id.to_string(),
@@ -158,22 +158,22 @@ fn responses_metadata(
 fn turn_metadata(
     harness: &WebsocketTestHarness,
     turn_id: Option<&str>,
-) -> MapleCodeResponsesMetadata {
-    responses_metadata(harness, turn_id, TestMapleCodeResponsesRequestKind::Turn)
+) -> MaplecodeResponsesMetadata {
+    responses_metadata(harness, turn_id, TestMaplecodeResponsesRequestKind::Turn)
 }
 
 fn prewarm_metadata(
     harness: &WebsocketTestHarness,
     turn_id: Option<&str>,
-) -> MapleCodeResponsesMetadata {
-    responses_metadata(harness, turn_id, TestMapleCodeResponsesRequestKind::Prewarm)
+) -> MaplecodeResponsesMetadata {
+    responses_metadata(harness, turn_id, TestMaplecodeResponsesRequestKind::Prewarm)
 }
 
-fn websocket_connection_metadata(harness: &WebsocketTestHarness) -> MapleCodeResponsesMetadata {
+fn websocket_connection_metadata(harness: &WebsocketTestHarness) -> MaplecodeResponsesMetadata {
     responses_metadata(
         harness,
         /*turn_id*/ None,
-        TestMapleCodeResponsesRequestKind::WebsocketConnection,
+        TestMaplecodeResponsesRequestKind::WebsocketConnection,
     )
 }
 
@@ -354,7 +354,7 @@ async fn responses_websocket_omits_routing_hint_for_provider_with_own_credential
         /*runtime_metrics_enabled*/ false,
         /*concurrent_reasoning_summaries_enabled*/ false,
         /*enabled_features*/ &[],
-        Some(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+        Some(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
     )
     .await;
     let mut client_session = harness.client.new_session();
@@ -781,7 +781,7 @@ async fn responses_websocket_request_prewarm_reuses_connection() {
     assert!(
         matches!(
             error.details(),
-            MapleCodeErrorDetails::SessionBudgetExceeded
+            MaplecodeErrorDetails::SessionBudgetExceeded
         ),
         "{error:?}"
     );
@@ -960,7 +960,7 @@ async fn responses_websocket_request_prewarm_traces_logical_request() {
         })
         .expect("thread started");
     writer
-        .append(RawTraceEventPayload::MapleCodeTurnStarted {
+        .append(RawTraceEventPayload::MaplecodeTurnStarted {
             maplecode_turn_id: "turn-1".to_string(),
             thread_id: harness.thread_id.to_string(),
         })
@@ -2548,12 +2548,12 @@ async fn responses_websocket_v2_creates_without_previous_response_id_when_non_in
     server.shutdown().await;
 }
 
-#[test_case::test_case("invalid_prompt", MapleCodeErrorInfo::InvalidPrompt; "invalid prompt")]
-#[test_case::test_case("budget_reached", MapleCodeErrorInfo::SessionBudgetExceeded; "budget reached")]
+#[test_case::test_case("invalid_prompt", MaplecodeErrorInfo::InvalidPrompt; "invalid prompt")]
+#[test_case::test_case("budget_reached", MaplecodeErrorInfo::SessionBudgetExceeded; "budget reached")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn responses_websocket_v2_after_error_uses_full_create_without_previous_response_id(
     code: &str,
-    expected_error: MapleCodeErrorInfo,
+    expected_error: MaplecodeErrorInfo,
 ) {
     skip_if_no_network!();
 
@@ -2665,16 +2665,16 @@ async fn responses_websocket_v2_after_error_uses_full_create_without_previous_re
 
 #[test_case::test_case(
     json!({"type": "response.failed", "response": {"error": {"code": "invalid_prompt"}}}),
-    MapleCodeErrorInfo::InvalidPrompt; "invalid prompt"
+    MaplecodeErrorInfo::InvalidPrompt; "invalid prompt"
 )]
 #[test_case::test_case(
     json!({"type": "error", "status": 400, "error": {"code": "budget_reached"}}),
-    MapleCodeErrorInfo::SessionBudgetExceeded; "budget HTTP envelope"
+    MaplecodeErrorInfo::SessionBudgetExceeded; "budget HTTP envelope"
 )]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn responses_websocket_v2_surfaces_terminal_error_without_close_handshake(
     failure: serde_json::Value,
-    expected_error: MapleCodeErrorInfo,
+    expected_error: MaplecodeErrorInfo,
 ) {
     skip_if_no_network!();
 
@@ -2876,7 +2876,7 @@ credential_export = {{ {command} }}
         /*runtime_metrics_enabled*/ false,
         /*concurrent_reasoning_summaries_enabled*/ false,
         /*enabled_features*/ &[],
-        Some(MapleCodeAuth::from_api_key("primary")),
+        Some(MaplecodeAuth::from_api_key("primary")),
     )
     .await;
     harness
@@ -2906,7 +2906,7 @@ async fn websocket_harness_for_maplecode_backend(
         /*runtime_metrics_enabled*/ false,
         /*concurrent_reasoning_summaries_enabled*/ false,
         /*enabled_features*/ &[],
-        Some(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+        Some(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
     )
     .await
 }
@@ -2959,7 +2959,7 @@ async fn websocket_harness_with_provider_options_and_auth(
     runtime_metrics_enabled: bool,
     concurrent_reasoning_summaries_enabled: bool,
     enabled_features: &[Feature],
-    auth: Option<MapleCodeAuth>,
+    auth: Option<MaplecodeAuth>,
 ) -> WebsocketTestHarness {
     websocket_harness_with_provider_factory(
         provider,
@@ -2978,7 +2978,7 @@ async fn websocket_harness_with_provider_factory(
     runtime_metrics_enabled: bool,
     concurrent_reasoning_summaries_enabled: bool,
     enabled_features: &[Feature],
-    auth: Option<MapleCodeAuth>,
+    auth: Option<MaplecodeAuth>,
     request_contributors: Vec<Arc<dyn ModelRequestContributor>>,
     provider_factory: impl FnOnce(
         ModelProviderInfo,
@@ -3020,7 +3020,7 @@ async fn websocket_harness_with_provider_factory(
         )
     });
     let auth_manager = client_auth_manager.clone().unwrap_or_else(|| {
-        maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key(
+        maplecode_core::test_support::auth_manager_from_auth(MaplecodeAuth::from_api_key(
             "Test API Key",
         ))
     });
@@ -3308,7 +3308,7 @@ async fn stream_until_complete_with_metadata(
     harness: &WebsocketTestHarness,
     prompt: &Prompt,
     service_tier: Option<ServiceTier>,
-    responses_metadata: &MapleCodeResponsesMetadata,
+    responses_metadata: &MaplecodeResponsesMetadata,
 ) {
     let mut stream = client_session
         .stream(

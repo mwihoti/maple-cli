@@ -88,7 +88,7 @@ fn configure_priority_role(config: &mut Config) {
     );
 }
 
-async fn wait_for_turn_complete(thread: &maplecode_core::MapleCodeThread) {
+async fn wait_for_turn_complete(thread: &maplecode_core::MaplecodeThread) {
     wait_for_event(thread, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 }
 

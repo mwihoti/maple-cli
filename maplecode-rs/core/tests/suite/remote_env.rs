@@ -33,8 +33,8 @@ use core_test_support::skip_if_target_windows;
 use core_test_support::startup::expect_startup;
 use core_test_support::submit_thread_settings;
 use core_test_support::test_docker_container_name;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::environment_config_for_selection;
 use core_test_support::test_maplecode::local;
 use core_test_support::test_maplecode::local_request;
@@ -52,7 +52,7 @@ use maplecode_api::AuthProvider;
 use maplecode_config::types::ApprovalsReviewer;
 use maplecode_core::EnvironmentConfig;
 use maplecode_core::EnvironmentNetworkPolicy;
-use maplecode_core::MapleCodeThreadSettingsOverrides;
+use maplecode_core::MaplecodeThreadSettingsOverrides;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnInputSubmission;
@@ -230,19 +230,19 @@ impl ContextContributor for ReadyCapabilityRootsTestExtension {
     }
 }
 
-fn test_maplecode_with_wait_for_environment() -> TestMapleCodeBuilder {
+fn test_maplecode_with_wait_for_environment() -> TestMaplecodeBuilder {
     let mut extensions = ExtensionRegistryBuilder::new();
     extensions.thread_lifecycle_contributor(Arc::new(WaitForEnvironmentTestExtension));
     test_maplecode().with_extensions(Arc::new(extensions.build()))
 }
 
-async fn unified_exec_test(server: &wiremock::MockServer) -> Result<TestMapleCode> {
+async fn unified_exec_test(server: &wiremock::MockServer) -> Result<TestMaplecode> {
     let mut builder = test_maplecode();
     builder.build_with_remote_and_local_env(server).await
 }
 
 async fn submit_turn_with_approval_and_environments(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     prompt: &str,
     environments: Vec<TurnEnvironmentSelection>,
     approval_policy: AskForApproval,
@@ -279,7 +279,7 @@ async fn submit_turn_with_approval_and_environments(
 }
 
 async fn expect_patch_approval(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     expected_call_id: &str,
 ) -> ApplyPatchApprovalRequestEvent {
     let event = wait_for_event(&test.maplecode, |event| {
@@ -300,7 +300,7 @@ async fn expect_patch_approval(
     }
 }
 
-async fn wait_for_completion_without_patch_approval(test: &TestMapleCode) {
+async fn wait_for_completion_without_patch_approval(test: &TestMaplecode) {
     let event = wait_for_event(&test.maplecode, |event| {
         matches!(
             event,
@@ -951,7 +951,7 @@ async fn settings_update_does_not_retarget_active_turn_environment() -> Result<(
 
     let preview = test
         .maplecode
-        .preview_thread_settings_overrides(MapleCodeThreadSettingsOverrides {
+        .preview_thread_settings_overrides(MaplecodeThreadSettingsOverrides {
             environments: Some(next_environments.clone().into_requests()),
             ..Default::default()
         })
@@ -1175,7 +1175,7 @@ async fn deferred_executor_promotes_primary_environment_when_startup_completes()
     let listener = TcpListener::bind("127.0.0.1:0").await?;
     let server = start_mock_server().await;
     let apps = core_test_support::apps_test_server::AppsTestServer::mount(&server).await?;
-    let mcp_url = format!("{}/api/maplecode/ps/mcp", apps.chatgpt_base_url);
+    let mcp_url = format!("{}/api/codex/ps/mcp", apps.chatgpt_base_url);
     let response_mock = mount_sse_sequence(
         &server,
         vec![
@@ -1695,7 +1695,7 @@ async fn shared_executor_keeps_ready_capability_roots_scoped_to_each_attachment(
         };
         let preview = test
             .maplecode
-            .preview_thread_settings_overrides(MapleCodeThreadSettingsOverrides {
+            .preview_thread_settings_overrides(MaplecodeThreadSettingsOverrides {
                 environments: Some(TurnEnvironmentRequests::new(
                     test.config.cwd.clone(),
                     vec![selection_override.into_request()],
@@ -1887,7 +1887,7 @@ async fn owner_network_policy_rejects_unsupported_environment_authority() -> Res
     };
     let preview_error = test
         .maplecode
-        .preview_thread_settings_overrides(MapleCodeThreadSettingsOverrides {
+        .preview_thread_settings_overrides(MaplecodeThreadSettingsOverrides {
             environments: Some(TurnEnvironmentRequests::new(
                 test.config.cwd.clone(),
                 vec![TurnEnvironmentRequest {
@@ -2193,7 +2193,7 @@ async fn pending_attachment_installs_configuration_before_waiting_turn_resumes()
     );
     for thread in [&waiting.thread, &independent.thread, &failed.thread] {
         let error = thread
-            .preview_thread_settings_overrides(MapleCodeThreadSettingsOverrides {
+            .preview_thread_settings_overrides(MaplecodeThreadSettingsOverrides {
                 environments: Some(downgraded_environments.clone().into_requests()),
                 ..Default::default()
             })
@@ -3782,7 +3782,7 @@ fn remote_exec(script: &str) -> Result<()> {
 }
 
 async fn exec_command_routing_output(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     server: &wiremock::MockServer,
     call_id: &str,
     arguments: Value,

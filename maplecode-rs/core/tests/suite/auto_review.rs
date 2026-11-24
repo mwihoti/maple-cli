@@ -16,7 +16,7 @@ use core_test_support::responses::sse;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
@@ -27,7 +27,7 @@ use maplecode_extension_api::ApprovalReviewContributor;
 use maplecode_extension_api::ExtensionFuture;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_protocol::config_types::ApprovalsReviewer;
 use maplecode_protocol::config_types::ReasoningSummary;
@@ -508,7 +508,7 @@ async fn remote_model_override_uses_catalog_model_for_strict_auto_review() -> Re
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some("gpt-5.4".to_string());
             config.approvals_reviewer = ApprovalsReviewer::User;
@@ -521,7 +521,7 @@ async fn remote_model_override_uses_catalog_model_for_strict_auto_review() -> Re
                 .enable(Feature::RequestPermissionsTool)
                 .expect("test config should allow feature update");
         });
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         config,

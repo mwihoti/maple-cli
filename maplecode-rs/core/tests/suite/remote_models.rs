@@ -15,7 +15,7 @@ use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_sandbox;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -24,7 +24,7 @@ use core_test_support::wait_for_event_match;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_model_provider_info::built_in_model_providers;
 use maplecode_models_manager::bundled_models_response;
@@ -116,7 +116,7 @@ async fn child_loads_remote_tool_search_with_thread_provider_headers(
         .await;
     let mut test = test_maplecode()
         .with_model(REMOTE_MODEL_SLUG)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_catalog_settings(catalog_settings)
         .with_config(|config| {
             config
@@ -214,7 +214,7 @@ async fn child_preserves_parent_catalog_after_cache_write_failure() -> Result<()
     .await;
     let mut test = test_maplecode()
         .with_model(REMOTE_MODEL_SLUG)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_catalog_settings(ModelCatalogSettings::with_cache(cache.clone()))
         .with_config(|config| {
             config
@@ -272,7 +272,7 @@ async fn child_preserves_parent_catalog_after_cache_write_failure() -> Result<()
 }
 
 async fn assert_child_retains_tool_search(
-    test: &mut TestMapleCode,
+    test: &mut TestMaplecode,
     server: &MockServer,
 ) -> Result<()> {
     let responses = mount_sse_sequence(
@@ -433,7 +433,7 @@ async fn remote_models_get_model_info_uses_longest_matching_prefix() -> Result<(
     let maplecode_home = TempDir::new()?;
     let config = load_default_config_for_test(&maplecode_home).await;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let provider = ModelProviderInfo {
         base_url: Some(format!("{}/v1", server.uri())),
         ..built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["openai"].clone()
@@ -492,8 +492,8 @@ async fn remote_models_config_context_window_override_clamps_to_max_context_wind
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+    let TestMaplecode { maplecode, .. } = test_maplecode()
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some(requested_model.to_string());
             config.model_context_window = Some(1_000_000);
@@ -553,8 +553,8 @@ async fn remote_models_config_override_above_max_uses_max_context_window() -> Re
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+    let TestMaplecode { maplecode, .. } = test_maplecode()
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some(requested_model.to_string());
             config.model_context_window = Some(500_000);
@@ -614,8 +614,8 @@ async fn remote_models_use_context_window_when_config_override_is_absent() -> Re
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+    let TestMaplecode { maplecode, .. } = test_maplecode()
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some(requested_model.to_string());
         })
@@ -701,8 +701,8 @@ async fn remote_models_long_model_slug_is_sent_with_supported_reasoning(
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+    let TestMaplecode { maplecode, .. } = test_maplecode()
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some(requested_model.to_string());
             config.developer_instructions = Some(developer_instructions.to_string());
@@ -780,7 +780,7 @@ async fn namespaced_model_slug_uses_catalog_metadata_without_fallback_warning() 
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model(requested_model)
         .build(&server)
         .await?;
@@ -889,11 +889,11 @@ async fn remote_models_remote_model_uses_unified_exec() -> Result<()> {
         .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some("gpt-5.4".to_string());
         });
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         config,
@@ -1019,7 +1019,7 @@ async fn remote_models_truncation_policy_without_override_preserves_remote() -> 
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some("gpt-5.4".to_string());
         });
@@ -1065,7 +1065,7 @@ async fn remote_models_truncation_policy_with_tool_output_override() -> Result<(
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some("gpt-5.4".to_string());
             config.tool_output_token_limit = Some(50);
@@ -1086,10 +1086,10 @@ async fn remote_models_truncation_policy_with_tool_output_override() -> Result<(
     Ok(())
 }
 
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(); "chatgpt")]
-#[test_case(MapleCodeAuth::from_api_key("test-api-key"); "api key")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(); "chatgpt")]
+#[test_case(MaplecodeAuth::from_api_key("test-api-key"); "api key")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn remote_models_apply_legacy_instructions(auth: MapleCodeAuth) -> Result<()> {
+async fn remote_models_apply_legacy_instructions(auth: MaplecodeAuth) -> Result<()> {
     skip_if_no_network!(Ok(()));
     skip_if_sandbox!(Ok(()));
 
@@ -1200,7 +1200,7 @@ async fn remote_models_apply_legacy_instructions(auth: MapleCodeAuth) -> Result<
         config.update_plan_enabled = true;
         config.model = Some("gpt-5.2".to_string());
     });
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         config,
@@ -1309,7 +1309,7 @@ async fn remote_models_do_not_append_removed_builtin_presets() -> Result<()> {
 
     let maplecode_home = TempDir::new()?;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let provider = ModelProviderInfo {
         base_url: Some(format!("{}/v1", server.uri())),
         ..built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["openai"].clone()
@@ -1375,7 +1375,7 @@ async fn remote_models_merge_adds_new_high_priority_first() -> Result<()> {
 
     let maplecode_home = TempDir::new()?;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let provider = ModelProviderInfo {
         base_url: Some(format!("{}/v1", server.uri())),
         ..built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["openai"].clone()
@@ -1427,7 +1427,7 @@ async fn remote_models_merge_replaces_overlapping_model() -> Result<()> {
 
     let maplecode_home = TempDir::new()?;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let provider = ModelProviderInfo {
         base_url: Some(format!("{}/v1", server.uri())),
         ..built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["openai"].clone()
@@ -1476,7 +1476,7 @@ async fn remote_models_merge_preserves_bundled_models_on_empty_response() -> Res
 
     let maplecode_home = TempDir::new()?;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let provider = ModelProviderInfo {
         base_url: Some(format!("{}/v1", server.uri())),
         ..built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["openai"].clone()
@@ -1523,7 +1523,7 @@ async fn remote_models_request_times_out_after_5s() -> Result<()> {
 
     let maplecode_home = TempDir::new()?;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let provider = ModelProviderInfo {
         base_url: Some(format!("{}/v1", server.uri())),
         ..built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["openai"].clone()
@@ -1598,7 +1598,7 @@ async fn remote_models_hide_picker_only_models() -> Result<()> {
 
     let maplecode_home = TempDir::new()?;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let provider = ModelProviderInfo {
         base_url: Some(format!("{}/v1", server.uri())),
         ..built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["openai"].clone()
@@ -1757,7 +1757,7 @@ async fn empty_model_catalog_requires_explicit_model(configured_model: Option<&s
     skip_if_no_network!(Ok(()));
     let server = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path("/maplecode/models"))
+        .and(path("/codex/models"))
         .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(ModelsResponse::default()))
         .expect(1)
         .mount(&server)
@@ -1767,10 +1767,10 @@ async fn empty_model_catalog_requires_explicit_model(configured_model: Option<&s
         sse(vec![ev_response_created("resp-1"), ev_completed("resp-1")]),
     )
     .await;
-    let catalog_url = format!("{}/maplecode/models", server.uri());
+    let catalog_url = format!("{}/codex/models", server.uri());
     let model = configured_model.map(str::to_string);
     let result = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("gateway-api-key"))
+        .with_auth(MaplecodeAuth::from_api_key("gateway-api-key"))
         .with_config(move |config| {
             config.model = model;
             config.model_provider.model_catalog_url = Some(catalog_url.into());
@@ -1815,7 +1815,7 @@ async fn model_catalog_url_supplies_conversation_model_and_instructions() -> Res
         models: vec![model],
     };
     Mock::given(method("GET"))
-        .and(path("/maplecode/models"))
+        .and(path("/codex/models"))
         .respond_with(ResponseTemplate::new(/*s*/ 200).set_body_json(&catalog))
         .expect(1)
         .mount(&server)
@@ -1825,9 +1825,9 @@ async fn model_catalog_url_supplies_conversation_model_and_instructions() -> Res
         sse(vec![ev_response_created("resp-1"), ev_completed("resp-1")]),
     )
     .await;
-    let catalog_url = format!("{}/maplecode/models", server.uri());
+    let catalog_url = format!("{}/codex/models", server.uri());
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("gateway-api-key"))
+        .with_auth(MaplecodeAuth::from_api_key("gateway-api-key"))
         .with_model("gateway-conversation")
         .with_config(move |config| {
             config.model_provider.name = "Gateway".to_string();
@@ -1869,7 +1869,7 @@ async fn failed_catalog_refresh_preserves_tool_search_on_the_next_turn() -> Resu
         models: vec![model],
     };
     Mock::given(method("GET"))
-        .and(path("/maplecode/models"))
+        .and(path("/codex/models"))
         .respond_with(ResponseTemplate::new(200).set_body_json(&catalog))
         .up_to_n_times(1)
         .expect(1)
@@ -1883,9 +1883,9 @@ async fn failed_catalog_refresh_preserves_tool_search_on_the_next_turn() -> Resu
         ],
     )
     .await;
-    let catalog_url = format!("{}/maplecode/models", server.uri());
+    let catalog_url = format!("{}/codex/models", server.uri());
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("gateway-api-key"))
+        .with_auth(MaplecodeAuth::from_api_key("gateway-api-key"))
         .with_model("gateway-model")
         .with_config(move |config| {
             config.model_provider.model_catalog_url = Some(catalog_url.into());
@@ -1910,7 +1910,7 @@ async fn failed_catalog_refresh_preserves_tool_search_on_the_next_turn() -> Resu
     );
 
     Mock::given(method("GET"))
-        .and(path("/maplecode/models"))
+        .and(path("/codex/models"))
         .respond_with(ResponseTemplate::new(503))
         .expect(1..)
         .mount(&server)

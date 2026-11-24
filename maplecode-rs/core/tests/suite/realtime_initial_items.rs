@@ -10,7 +10,7 @@ use maplecode_protocol::protocol::ConversationStartParams;
 use maplecode_protocol::protocol::ConversationTextParams;
 use maplecode_protocol::protocol::ConversationTextRole;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
+use maplecode_protocol::protocol::MaplecodeResponseHandoffMode;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::RealtimeConversationRealtimeEvent;
 use maplecode_protocol::protocol::RealtimeConversationVersion;
@@ -203,7 +203,7 @@ fn start_params(version: RealtimeConversationVersion) -> ConversationStartParams
         flush_transcript_tail_on_session_end: false,
         maplecode_responses_as_items: false,
         maplecode_response_item_prefix: None,
-        maplecode_response_handoff_mode: MapleCodeResponseHandoffMode::Thinking,
+        maplecode_response_handoff_mode: MaplecodeResponseHandoffMode::Thinking,
         backend_reasoning_status: false,
         maplecode_response_handoff_channel_prefixes: None,
         model: None,

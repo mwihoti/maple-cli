@@ -42,7 +42,7 @@ async fn retained_tool_output_survives_compaction_and_resume() -> Result<()> {
         };
         let test = test_maplecode()
             .with_model("gpt-6-astra")
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_config(configure)
             .build_with_auto_env(&server)
             .await?;
@@ -83,7 +83,7 @@ async fn retained_tool_output_survives_compaction_and_resume() -> Result<()> {
         .await;
         let resumed = test_maplecode()
             .with_model("gpt-6-astra")
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_config(move |config| {
                 configure(config);
                 config.model_context_window = Some(200_000);

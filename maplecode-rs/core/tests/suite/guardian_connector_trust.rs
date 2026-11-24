@@ -126,7 +126,7 @@ async fn extension_owned_apps_cannot_attest_connector_to_guardian(
 
     let mut extensions = ExtensionRegistryBuilder::<Config>::new();
     extensions.mcp_server_contributor(Arc::new(ExtensionOwnedAppsServer {
-        url: format!("{}/api/maplecode/ps/mcp", apps.chatgpt_base_url),
+        url: format!("{}/api/codex/ps/mcp", apps.chatgpt_base_url),
     }));
     let executor;
     let environment = if use_remote_executor {

@@ -5,7 +5,7 @@ use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
@@ -77,7 +77,7 @@ async fn retries_on_early_close() {
         include_internal_metadata: false,
     };
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config.model_provider = model_provider;
         })
@@ -119,7 +119,7 @@ async fn connection_failure_pauses_retry_budget_until_provider_is_reachable() ->
     let unavailable_address = unavailable_listener.local_addr()?;
     drop(unavailable_listener);
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config.model_provider.base_url = Some(format!("http://{unavailable_address}/v1"));
             config.model_provider.request_max_retries = Some(0);

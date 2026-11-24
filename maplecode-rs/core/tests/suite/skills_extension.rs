@@ -18,7 +18,7 @@ use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_remote;
 use core_test_support::skip_if_target_windows;
 use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::environment_config_for_selection;
 use core_test_support::test_maplecode::test_env;
 use core_test_support::test_maplecode::test_maplecode;
@@ -54,7 +54,7 @@ use maplecode_features::Feature;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_otel::OtelExporter;
@@ -573,7 +573,7 @@ async fn rendered_catalogs_for_turns(
         .expect("production turn should issue a responses request")
         .message_input_texts("developer");
     // Extension warnings are client-visible through the app-server event sink,
-    // while core warnings are delivered through the TestMapleCode event stream.
+    // while core warnings are delivered through the TestMaplecode event stream.
     // Count both paths so duplicate warning ownership cannot hide in this test.
     client_warning_messages.extend(event_rx.try_iter().filter_map(|event| match event {
         CapturedExtensionEvent::Warning(warning) => Some(warning.message),
@@ -672,7 +672,7 @@ async fn capability_sections_render_in_order_with_host_repo_and_plugin_skills(
     let mut builder = test_maplecode()
         .with_home(Arc::clone(&maplecode_home))
         .with_extensions(Arc::new(extensions.build()))
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_workspace_setup(|cwd, fs| async move {
             fs.create_directory(
                 &PathUri::from_abs_path(&cwd),
@@ -922,7 +922,7 @@ async fn repository_skill_cache_cannot_read_inaccessible_files(
             }
             Ok(())
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
     let responses = responses::mount_sse_sequence(
         harness.server(),
@@ -1174,7 +1174,7 @@ pub(super) async fn repository_skill_grant_history(
     };
     let (extensions, _events) =
         catalog_extensions(SkillCatalog::default(), /*include_host_provider*/ true);
-    let harness = TestMapleCodeHarness::with_auto_env_builder(
+    let harness = TestMaplecodeHarness::with_auto_env_builder(
         test_maplecode()
             .with_extensions(extensions)
             .with_model_info_override("gpt-5.5", |model| {
@@ -2547,7 +2547,7 @@ async fn executor_skill_invocation_is_environment_scoped_and_deduplicated() -> R
     let chatgpt_base_url = server.uri();
     let mut builder = test_maplecode()
         .with_home(maplecode_home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(extensions)
         .with_config(move |config| {
             configure_catalog_test(config);

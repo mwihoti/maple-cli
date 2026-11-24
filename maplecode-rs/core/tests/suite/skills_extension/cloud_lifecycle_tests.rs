@@ -123,7 +123,7 @@ async fn cloud_skills_reuse_cache_and_invalidate_on_connection_or_auth_change() 
     let mut builder = apps_enabled_builder(apps.chatgpt_base_url)
         .with_exec_server_url("none")
         .with_extensions(Arc::new(extensions.build()))
-        .with_auth(MapleCodeAuth::from_external_chatgpt_tokens(
+        .with_auth(MaplecodeAuth::from_external_chatgpt_tokens(
             "header.e30.initial",
             "account-a",
             /*chatgpt_plan_type*/ None,

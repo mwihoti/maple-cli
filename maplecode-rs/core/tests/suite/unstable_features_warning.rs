@@ -7,7 +7,7 @@ use maplecode_config::CONFIG_TOML_FILE;
 use maplecode_core::NewThread;
 use maplecode_features::Feature;
 use maplecode_history::InitialHistory;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::WarningEvent;
@@ -36,11 +36,11 @@ async fn emits_warning_when_unstable_features_enabled_via_config() {
         .expect("feature user config should be valid");
 
     let thread_manager = maplecode_core::test_support::thread_manager_with_models_provider(
-        MapleCodeAuth::from_api_key("test"),
+        MaplecodeAuth::from_api_key("test"),
         config.model_provider.clone(),
     );
     let auth_manager =
-        maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("test"));
+        maplecode_core::test_support::auth_manager_from_auth(MaplecodeAuth::from_api_key("test"));
 
     let NewThread {
         thread: conversation,
@@ -86,11 +86,11 @@ async fn suppresses_warning_when_configured() {
         .expect("feature user config should be valid");
 
     let thread_manager = maplecode_core::test_support::thread_manager_with_models_provider(
-        MapleCodeAuth::from_api_key("test"),
+        MaplecodeAuth::from_api_key("test"),
         config.model_provider.clone(),
     );
     let auth_manager =
-        maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("test"));
+        maplecode_core::test_support::auth_manager_from_auth(MaplecodeAuth::from_api_key("test"));
 
     let NewThread {
         thread: conversation,

@@ -5,14 +5,14 @@ use core_test_support::responses;
 use core_test_support::responses::ResponsesRequest as Request;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_remote;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::ForkSnapshot;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_models_manager::model_info::model_info_from_slug;
 use maplecode_protocol::openai_models::ModelInfo;
@@ -47,7 +47,7 @@ fn managed_model(slug: &str, instructions: &str) -> ModelInfo {
 }
 
 async fn refresh_catalog(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     server: &MockServer,
     model: &str,
     instructions: &str,
@@ -62,13 +62,13 @@ async fn refresh_catalog(
         .await;
 }
 
-async fn send_turn(test: &TestMapleCode, server: &MockServer, text: &str) -> Result<Request> {
+async fn send_turn(test: &TestMaplecode, server: &MockServer, text: &str) -> Result<Request> {
     let response = responses::mount_sse_once(server, responses::sse_completed(text)).await;
     test.submit_text_turn(text).await?;
     Ok(response.single_request())
 }
 
-async fn switch_model(test: &TestMapleCode, server: &MockServer, model: &str) -> Result<Request> {
+async fn switch_model(test: &TestMaplecode, server: &MockServer, model: &str) -> Result<Request> {
     let overrides = ThreadSettingsOverrides {
         model: Some(model.to_string()),
         ..Default::default()
@@ -77,7 +77,7 @@ async fn switch_model(test: &TestMapleCode, server: &MockServer, model: &str) ->
     send_turn(test, server, "switch models").await
 }
 
-async fn compact(test: &TestMapleCode, server: &MockServer) -> Result<()> {
+async fn compact(test: &TestMaplecode, server: &MockServer) -> Result<()> {
     let events = vec![
         json!({"type": "response.output_item.done", "item": {
             "type": "compaction", "encrypted_content": "summary"
@@ -133,7 +133,7 @@ async fn catalog_and_model_changes_preserve_the_window_base(
     let models = vec![managed_model(MODEL, ORIGINAL)];
     responses::mount_models_once_with_etag(&server, ModelsResponse { models }, "\"v1\"").await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(MODEL)
         .with_config(move |config| {
             config.base_instructions = custom_instructions.map(str::to_string);

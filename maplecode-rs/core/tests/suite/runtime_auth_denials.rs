@@ -14,7 +14,7 @@ use maplecode_features::RuntimeAuthMode;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::user_input::UserInput;
@@ -46,11 +46,11 @@ struct Credentials {
 }
 
 impl ExternalAuth for Credentials {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
-        Box::pin(async { Ok(MapleCodeAuth::from_api_key("key-a")) })
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
+        Box::pin(async { Ok(MaplecodeAuth::from_api_key("key-a")) })
     }
 
-    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.refreshes.fetch_add(1, Ordering::SeqCst);
         self.resolve()
     }
@@ -152,7 +152,7 @@ async fn exercise_turns() -> Result<()> {
     for (mode_label, mode) in MODES {
         for case in CASES {
             let test = test_maplecode()
-                .with_auth(MapleCodeAuth::from_api_key("key-a"))
+                .with_auth(MaplecodeAuth::from_api_key("key-a"))
                 .with_config(move |config| {
                     config.model_provider.base_url = Some("https://api.openai.com/v1".into());
                     config.model_provider.env_http_headers = None;

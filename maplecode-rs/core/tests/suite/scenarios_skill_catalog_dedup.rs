@@ -14,7 +14,7 @@ use core_test_support::wait_for_event;
 use maplecode_core::config::Config;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::Op;
 use maplecode_skills_extension::HostSkillProvider;
@@ -226,7 +226,7 @@ async fn skill_catalog_deltas_survive_resume_and_rebuild_after_compaction() -> R
         test_maplecode()
             .with_home(Arc::clone(&home))
             .with_extensions(Arc::clone(&extensions))
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_model_info_override("gpt-6-astra", |model| {
                 model.use_responses_lite = true;
                 model.include_skills_usage_instructions = false;

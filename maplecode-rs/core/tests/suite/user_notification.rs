@@ -5,7 +5,7 @@ use maplecode_core::TurnInputRequest;
 use core_test_support::fs_wait;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_protocol::models::AudioReference;
@@ -50,7 +50,7 @@ mv "${tmp_path}" "${payload_path}""#,
     let notify_file = notify_dir.path().join("notify.txt");
     let notify_script_str = notify_script.to_str().unwrap().to_string();
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model_info_override("gpt-5.5", |info| {
             info.input_modalities.push(InputModality::Audio);
         })

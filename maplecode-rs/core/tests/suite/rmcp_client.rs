@@ -39,7 +39,7 @@ use maplecode_exec_server::HttpRedirectPolicy;
 use maplecode_exec_server::HttpRequestParams;
 use maplecode_features::Feature;
 use maplecode_http_client::HttpClientBuilder;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::MCP_SANDBOX_LAUNCHER_META_KEY;
 use maplecode_mcp::MCP_SANDBOX_STATE_CAPABILITY;
@@ -62,7 +62,7 @@ use core_test_support::skip_if_wine_exec;
 use core_test_support::stdio_server_bin;
 use core_test_support::submit_thread_settings;
 use core_test_support::test_docker_container_name;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_env;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -169,19 +169,19 @@ fn assert_wall_time_header(output: &str) {
     assert_eq!(marker, "Output:");
 }
 
-fn read_only_user_turn(fixture: &TestMapleCode, text: impl Into<String>) -> TurnInputRequest {
+fn read_only_user_turn(fixture: &TestMaplecode, text: impl Into<String>) -> TurnInputRequest {
     read_only_user_turn_with_model(fixture, text, fixture.session_configured.model.clone())
 }
 
 fn read_only_user_turn_with_model(
-    fixture: &TestMapleCode,
+    fixture: &TestMaplecode,
     text: impl Into<String>,
     model: String,
 ) -> TurnInputRequest {
     user_turn_with_permission_profile(fixture, text, model, PermissionProfile::read_only())
 }
 
-fn auto_approved_user_turn(fixture: &TestMapleCode, text: impl Into<String>) -> TurnInputRequest {
+fn auto_approved_user_turn(fixture: &TestMaplecode, text: impl Into<String>) -> TurnInputRequest {
     user_turn_with_permission_profile(
         fixture,
         text,
@@ -191,7 +191,7 @@ fn auto_approved_user_turn(fixture: &TestMapleCode, text: impl Into<String>) -> 
 }
 
 fn user_turn_with_permission_profile(
-    fixture: &TestMapleCode,
+    fixture: &TestMaplecode,
     text: impl Into<String>,
     model: String,
     permission_profile: PermissionProfile,
@@ -414,7 +414,7 @@ fn insert_mcp_server(
 
 async fn call_cwd_tool(
     server: &MockServer,
-    fixture: &TestMapleCode,
+    fixture: &TestMaplecode,
     server_name: &str,
     call_id: &str,
 ) -> anyhow::Result<Value> {
@@ -424,7 +424,7 @@ async fn call_cwd_tool(
 
 async fn call_structured_tool(
     server: &MockServer,
-    fixture: &TestMapleCode,
+    fixture: &TestMaplecode,
     server_name: &str,
     tool_name: &str,
     call_id: &str,
@@ -516,7 +516,7 @@ async fn agent_metadata_is_only_sent_to_the_selected_plugin(
     let user_override = matches!(case, AgentMetadataCase::UserOverride);
     let fixture = test_maplecode()
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             if user_override {
                 insert_mcp_server(config, "sample", transport, TestMcpServerOptions::default());
@@ -1759,7 +1759,7 @@ async fn apps_enabled_turn_skips_pending_optional_mcp_without_cached_tools() -> 
     let pending_mcp_url = format!("http://{}/mcp", pending_mcp_listener.local_addr()?);
 
     let fixture = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config
                 .features
@@ -1949,7 +1949,7 @@ async fn startup_prewarm_connects_before_delayed_mcp_tools_then_reuses_socket(
     let service_tier = ServiceTier::Fast.request_value();
     let fixture = test_maplecode()
         .with_model("gpt-5.4")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("gpt-5.4", move |model| {
             model.supports_search_tool = false;
             model.use_responses_lite = use_responses_lite;
@@ -2655,7 +2655,7 @@ async fn stdio_mcp_tool_call_includes_sandbox_state_meta(
 
     let rmcp_test_server_bin = remote_aware_stdio_server_bin()?;
     let fixture = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.5")
         .with_config(move |config| {
             config.prefer_mxc = prefer_mxc;
@@ -3776,7 +3776,7 @@ async fn stdio_image_responses_are_sanitized_for_text_only_model() -> anyhow::Re
     let rmcp_test_server_bin = remote_aware_stdio_server_bin()?;
 
     let fixture = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             insert_mcp_server(
                 config,
@@ -4480,7 +4480,7 @@ async fn streamable_http_configured_auth_precedes_chatgpt_auth() -> anyhow::Resu
     let configured_auth_url = configured_auth_server.url().to_string();
 
     let configured_auth_fixture = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             insert_mcp_server(
                 config,
@@ -4519,11 +4519,11 @@ async fn streamable_http_chatgpt_auth_is_not_sent_to_configured_origin() -> anyh
     let server = responses::start_mock_server().await;
     let untrusted_server = MockServer::start().await;
     let untrusted_apps = AppsTestServer::mount(&untrusted_server).await?;
-    let untrusted_mcp_url = format!("{}/api/maplecode/ps/mcp", untrusted_apps.chatgpt_base_url);
+    let untrusted_mcp_url = format!("{}/api/codex/ps/mcp", untrusted_apps.chatgpt_base_url);
     let untrusted_chatgpt_base_url = untrusted_apps.chatgpt_base_url;
 
     let fixture = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.chatgpt_base_url = untrusted_chatgpt_base_url;
             insert_mcp_server(
@@ -4551,7 +4551,7 @@ async fn streamable_http_chatgpt_auth_is_not_sent_to_configured_origin() -> anyh
         .await
         .expect("mock server should capture MCP startup requests")
         .into_iter()
-        .filter(|request| request.url.path() == "/api/maplecode/ps/mcp")
+        .filter(|request| request.url.path() == "/api/codex/ps/mcp")
         .filter_map(|request| {
             let body: Value = serde_json::from_slice(&request.body).ok()?;
             let method = body.get("method")?.as_str()?.to_string();
@@ -4583,11 +4583,11 @@ async fn configured_chatgpt_base_url_does_not_grant_mcp_chatgpt_auth() -> anyhow
     let server = responses::start_mock_server().await;
     let untrusted_server = MockServer::start().await;
     let untrusted_apps = AppsTestServer::mount(&untrusted_server).await?;
-    let untrusted_mcp_url = format!("{}/api/maplecode/ps/mcp", untrusted_apps.chatgpt_base_url);
+    let untrusted_mcp_url = format!("{}/api/codex/ps/mcp", untrusted_apps.chatgpt_base_url);
     let untrusted_chatgpt_base_url = untrusted_apps.chatgpt_base_url;
 
     let fixture = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_pre_build_hook(move |maplecode_home| {
             fs::write(
                 maplecode_home.join("config.toml"),
@@ -4612,7 +4612,7 @@ auth = "chatgpt"
         .await
         .expect("mock server should capture MCP startup requests")
         .into_iter()
-        .filter(|request| request.url.path() == "/api/maplecode/ps/mcp")
+        .filter(|request| request.url.path() == "/api/codex/ps/mcp")
         .filter_map(|request| {
             let body: Value = serde_json::from_slice(&request.body).ok()?;
             let method = body.get("method")?.as_str()?.to_string();

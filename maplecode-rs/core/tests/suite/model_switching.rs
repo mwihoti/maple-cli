@@ -12,7 +12,7 @@ use core_test_support::responses::sse;
 use core_test_support::responses::sse_completed;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -20,12 +20,12 @@ use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
 use maplecode_config::types::Personality;
 use maplecode_core::ForkSnapshot;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_prompts::render_model_instructions;
@@ -66,7 +66,7 @@ use test_case::test_case;
 use wiremock::MockServer;
 
 fn read_only_user_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     items: Vec<UserInput>,
     model: String,
 ) -> TurnInputRequest {
@@ -90,7 +90,7 @@ fn read_only_user_turn(
 }
 
 async fn submit_model_turn(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     model: &str,
     mut thread_settings: ThreadSettingsOverrides,
 ) -> Result<()> {
@@ -893,7 +893,7 @@ async fn model_change_projects_media_without_changing_live_or_replayed_history(
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.model = Some(text_model_slug.to_string());
             config
@@ -1101,7 +1101,7 @@ async fn generated_image_is_replayed_for_image_capable_models() -> Result<()> {
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.model = Some(image_model_slug.to_string());
         });
@@ -1204,7 +1204,7 @@ async fn model_change_from_generated_image_to_text_preserves_prior_generated_ima
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.model = Some(image_model_slug.to_string());
         });
@@ -1372,7 +1372,7 @@ async fn model_switch_to_smaller_model_updates_token_context_window() -> Result<
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some(large_model_slug.to_string());
         });

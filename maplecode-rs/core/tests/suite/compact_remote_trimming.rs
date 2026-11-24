@@ -20,8 +20,8 @@ async fn remote_compact_v2_token_estimate_ignores_message_bookkeeping_and_json_e
 -> Result<()> {
     skip_if_no_network!(Ok(()));
 
-    let harness = TestMapleCodeHarness::with_auto_env_builder(
-        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+    let harness = TestMaplecodeHarness::with_auto_env_builder(
+        test_maplecode().with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
     )
     .await?;
     let escaped_text = "a \"quoted\" line\nand\\path";
@@ -99,9 +99,9 @@ async fn remote_compact_v2_trims_tool_search_output_to_empty_tools_array() -> Re
         }],
     }]);
     for (context_window, expected_tools) in [(200_000, &tools), (2_000, &json!([]))] {
-        let harness = TestMapleCodeHarness::with_builder(
+        let harness = TestMaplecodeHarness::with_builder(
             test_maplecode()
-                .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+                .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
                 .with_config(move |config| {
                     configure_search_capable_model(config);
                     config.model_context_window = Some(context_window);
@@ -160,9 +160,9 @@ async fn remote_compact_v2_trim_estimate_uses_session_base_instructions(
             CONTEXT_WINDOW_TRUNCATED_OUTPUT_MESSAGE,
         ),
     ] {
-        let harness = TestMapleCodeHarness::with_builder(
+        let harness = TestMaplecodeHarness::with_builder(
             test_maplecode()
-                .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+                .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
                 .with_model_info_override("gpt-5.4", move |model| {
                     model.use_responses_lite = incremental_tools;
                 })

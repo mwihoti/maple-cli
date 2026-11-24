@@ -10,7 +10,7 @@ use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event_match;
 use core_test_support::wait_for_event_with_timeout;
 use maplecode_config::test_support::CloudConfigBundleFixture;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::openai_models::ToolMode;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::McpStartupStatus;
@@ -38,12 +38,12 @@ client_id = "enterprise-client"
 url = "{origin}/enterprise"
 auth = "ema_auth"
 [mcp_servers.ordinary]
-url = "{origin}/api/maplecode/ps/mcp"
+url = "{origin}/api/codex/ps/mcp"
 http_headers = {{ Authorization = "Bearer ordinary-access" }}
 "#
         );
         let test = test_maplecode()
-            .with_auth(MapleCodeAuth::from_api_key("test-api-key"))
+            .with_auth(MaplecodeAuth::from_api_key("test-api-key"))
             .with_cloud_config_bundle(CloudConfigBundleFixture::loader_with_enterprise_config(
                 policy,
             ))
@@ -174,7 +174,7 @@ async fn enterprise_lifecycle_preserves_history_and_ordinary_tools(
     if matches!(scenario, EnterpriseLifecycle::RefreshPermissions) {
         // Keep the enterprise client on the protocol that carries input requests.
         Mock::given(method("POST"))
-            .and(path("/api/maplecode/ps/mcp"))
+            .and(path("/api/codex/ps/mcp"))
             .and(wiremock::matchers::header("authorization", "Bearer enterprise-access"))
             .and(wiremock::matchers::body_partial_json(json!({"method": "server/discover"})))
             .respond_with(|request: &wiremock::Request| {
@@ -192,14 +192,14 @@ async fn enterprise_lifecycle_preserves_history_and_ordinary_tools(
             .await;
     }
     let origin = mcp.uri();
-    let resource = format!("{origin}/api/maplecode/ps/mcp");
+    let resource = format!("{origin}/api/codex/ps/mcp");
     let issuer = format!("{origin}/idp");
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)?
         .as_secs();
     for (endpoint, metadata) in [
         (
-            "/.well-known/oauth-protected-resource/api/maplecode/ps/mcp",
+            "/.well-known/oauth-protected-resource/api/codex/ps/mcp",
             json!({
                 "resource": resource, "authorization_servers": [format!("{origin}/as")],
             }),
@@ -406,7 +406,7 @@ http_headers = {{ Authorization = "Bearer ordinary-access" }}
             .await?;
 
         Mock::given(method("POST"))
-            .and(path("/api/maplecode/ps/mcp"))
+            .and(path("/api/codex/ps/mcp"))
             .and(wiremock::matchers::header("authorization", "Bearer enterprise-access"))
             .and(wiremock::matchers::body_partial_json(json!({
                 "method": "tools/call", "params": {"arguments": {"query": "permission"}}
@@ -619,7 +619,7 @@ http_headers = {{ Authorization = "Bearer ordinary-access" }}
     .await;
     test.submit_text_turn("List my work events.").await?;
     let pending_request = Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(wiremock::matchers::body_partial_json(json!({
             "method": "tools/call", "params": {"arguments": {"query": "blocked"}}
         })))

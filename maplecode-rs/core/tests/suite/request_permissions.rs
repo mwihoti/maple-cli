@@ -17,8 +17,8 @@ use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_target_windows;
 use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -159,7 +159,7 @@ fn exec_command_event_with_missing_additional_permissions(
 }
 
 async fn submit_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     prompt: &str,
     approval_policy: AskForApproval,
     permission_profile: CorePermissionProfile,
@@ -194,7 +194,7 @@ async fn submit_turn(
     Ok(())
 }
 
-async fn wait_for_completion(test: &TestMapleCode) {
+async fn wait_for_completion(test: &TestMaplecode) {
     wait_for_event(&test.maplecode, |event| {
         matches!(event, EventMsg::TurnComplete(_))
     })
@@ -202,7 +202,7 @@ async fn wait_for_completion(test: &TestMapleCode) {
 }
 
 async fn expect_exec_approval(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     expected_command: &str,
 ) -> ExecApprovalRequestEvent {
     let event = wait_for_event(&test.maplecode, |event| {
@@ -229,7 +229,7 @@ async fn expect_exec_approval(
 }
 
 async fn wait_for_exec_approval_or_completion(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
 ) -> Option<ExecApprovalRequestEvent> {
     let event = wait_for_event(&test.maplecode, |event| {
         matches!(
@@ -247,7 +247,7 @@ async fn wait_for_exec_approval_or_completion(
 }
 
 async fn expect_request_permissions_event(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     expected_call_id: &str,
 ) -> RequestPermissionProfile {
     let event = wait_for_event(&test.maplecode, |event| {
@@ -1487,7 +1487,7 @@ async fn granular_write_grant_still_requires_dangerous_command_approval(
 ) -> Result<()> {
     skip_if_target_windows!(Ok(()), "uses a POSIX deletion command");
     let harness =
-        TestMapleCodeHarness::with_auto_env_builder(test_maplecode().with_config(|config| {
+        TestMaplecodeHarness::with_auto_env_builder(test_maplecode().with_config(|config| {
             config.permissions.approval_policy =
                 Constrained::allow_any(AskForApproval::Granular(GranularApprovalConfig {
                     sandbox_approval: false,
@@ -2141,7 +2141,7 @@ async fn denied_child_permissions_require_fresh_approval(
         "this regression exercises POSIX split-policy enforcement; a disabled Windows sandbox can independently prompt for the command"
     );
     let harness =
-        TestMapleCodeHarness::with_auto_env_builder(test_maplecode().with_config(move |config| {
+        TestMaplecodeHarness::with_auto_env_builder(test_maplecode().with_config(move |config| {
             config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
             config.approvals_reviewer = ApprovalsReviewer::User;
             config

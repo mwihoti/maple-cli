@@ -7,7 +7,7 @@ use core_test_support::context_snapshot::SnapshotEntry;
 use core_test_support::responses;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
@@ -491,7 +491,7 @@ fn expected_mailbox_input() -> Vec<Value> {
 async fn start_mailbox_preemption(
     server: &responses::WebSocketTestServer,
     release: oneshot::Sender<()>,
-) -> anyhow::Result<TestMapleCode> {
+) -> anyhow::Result<TestMaplecode> {
     let base_url = format!("{}/v1", server.uri());
     let config_server = responses::start_mock_server().await;
     let test = test_maplecode()
@@ -546,7 +546,7 @@ async fn start_mailbox_preemption(
     Ok(test)
 }
 
-async fn finish_mailbox_preemption(test: TestMapleCode) -> anyhow::Result<()> {
+async fn finish_mailbox_preemption(test: TestMaplecode) -> anyhow::Result<()> {
     let mut started_items = Vec::new();
     let mut completed_items = Vec::new();
     wait_for_event(&test.maplecode, |event| {

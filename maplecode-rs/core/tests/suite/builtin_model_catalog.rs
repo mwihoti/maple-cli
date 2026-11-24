@@ -5,7 +5,7 @@ use anyhow::Result;
 use core_test_support::load_default_config_for_test;
 use core_test_support::responses;
 use core_test_support::test_maplecode::test_maplecode;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
@@ -18,11 +18,11 @@ use wiremock::matchers::header;
 use wiremock::matchers::method;
 use wiremock::matchers::path;
 
-#[test_case(MapleCodeAuth::from_api_key("catalog-routing-test-key"), "Bearer catalog-routing-test-key"; "api_key")]
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), "Bearer Access Token"; "chatgpt")]
+#[test_case(MaplecodeAuth::from_api_key("catalog-routing-test-key"), "Bearer catalog-routing-test-key"; "api_key")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), "Bearer Access Token"; "chatgpt")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn builtin_openai_catalog_override_preserves_inference(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     authorization: &str,
 ) -> Result<()> {
     let inference = responses::start_mock_server().await;

@@ -9,7 +9,7 @@ use core_test_support::responses::start_websocket_server_with_headers;
 use core_test_support::skip_if_no_network;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
@@ -28,7 +28,7 @@ use maplecode_core::test_support::auth_manager_from_auth;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::OPENAI_API_KEY_ENV_VAR;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::mcp::ClientMcpExtensions;
@@ -41,7 +41,7 @@ use maplecode_protocol::protocol::ConversationTextParams;
 use maplecode_protocol::protocol::ConversationTextRole;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::InternalSessionSource;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::RealtimeAudioFrame;
 use maplecode_protocol::protocol::RealtimeConversationRealtimeEvent;
@@ -239,7 +239,7 @@ fn run_realtime_conversation_test_in_subprocess(
     Ok(())
 }
 async fn seed_recent_thread(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     title: &str,
     first_user_message: &str,
     slug: &str,
@@ -323,7 +323,7 @@ async fn conversation_start_audio_text_close_round_trip() -> Result<()> {
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -509,7 +509,7 @@ async fn conversation_records_history_without_an_event_observer(
                 maplecode_responses_as_items: false,
                 maplecode_response_item_prefix: None,
                 maplecode_response_handoff_mode:
-                    maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                    maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
                 backend_reasoning_status: false,
                 maplecode_response_handoff_channel_prefixes: None,
                 model: None,
@@ -621,7 +621,7 @@ async fn conversation_start_defaults_to_v2_and_gpt_realtime_1_5() -> Result<()> 
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -717,7 +717,7 @@ async fn conversation_websocket_transports_send_maplecode_headers_without_creati
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -846,7 +846,7 @@ async fn conversation_webrtc_frameless_chatgpt_sends_maplecode_headers_to_backen
     let backend_base_url = format!("{}/backend-api/codex", server.uri());
     let realtime_ws_base_url = realtime_server.uri().to_string();
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.model_provider.base_url = Some(backend_base_url);
             config.experimental_realtime_ws_backend_prompt = Some("backend prompt".to_string());
@@ -892,7 +892,7 @@ async fn conversation_webrtc_frameless_chatgpt_sends_maplecode_headers_to_backen
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: model.map(str::to_string),
@@ -1060,7 +1060,7 @@ async fn conversation_webrtc_start_posts_generated_session() -> Result<()> {
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: Some("session-override-model".to_string()),
@@ -1426,7 +1426,7 @@ async fn conversation_webrtc_live_reconnects_sideband_after_unclean_disconnect(
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -1583,7 +1583,7 @@ async fn conversation_webrtc_start_uses_avas_query() -> Result<()> {
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -1690,7 +1690,7 @@ async fn conversation_webrtc_default_v1_ignores_configured_v2_voice() -> Result<
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -1759,7 +1759,7 @@ async fn conversation_webrtc_default_v1_rejects_explicit_v2_voice() -> Result<()
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -1838,7 +1838,7 @@ async fn conversation_webrtc_start_uses_configured_call_base_url_for_avas() -> R
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -1931,7 +1931,7 @@ async fn conversation_existing_call_stop_closes_only_observer_transport(
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2028,7 +2028,7 @@ async fn conversation_webrtc_close_while_sideband_connecting_drops_pending_join(
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2137,7 +2137,7 @@ async fn conversation_webrtc_sideband_connect_failure_closes_with_error() -> Res
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2224,7 +2224,7 @@ async fn conversation_start_uses_openai_env_key_fallback_with_chatgpt_auth() -> 
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config({
             let realtime_base_url = server.uri().to_string();
             move |config| {
@@ -2246,7 +2246,7 @@ async fn conversation_start_uses_openai_env_key_fallback_with_chatgpt_auth() -> 
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2349,7 +2349,7 @@ async fn assert_transport_close_tail_flush(
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2459,7 +2459,7 @@ async fn conversation_audio_before_start_emits_error() -> Result<()> {
     .await;
     assert_eq!(
         err.maplecode_error_info,
-        Some(MapleCodeErrorInfo::BadRequest)
+        Some(MaplecodeErrorInfo::BadRequest)
     );
     assert_eq!(err.message, "conversation is not running");
 
@@ -2480,7 +2480,7 @@ async fn conversation_start_preflight_failure_emits_realtime_error_only() -> Res
 
     let server = start_websocket_server(vec![]).await;
     let mut builder =
-        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        test_maplecode().with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let test = builder.build_with_websocket_server(&server).await?;
 
     test.maplecode
@@ -2491,7 +2491,7 @@ async fn conversation_start_preflight_failure_emits_realtime_error_only() -> Res
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2551,7 +2551,7 @@ async fn conversation_start_connect_failure_emits_realtime_error_only() -> Resul
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2614,7 +2614,7 @@ async fn conversation_text_before_start_emits_error() -> Result<()> {
     .await;
     assert_eq!(
         err.maplecode_error_info,
-        Some(MapleCodeErrorInfo::BadRequest)
+        Some(MaplecodeErrorInfo::BadRequest)
     );
     assert_eq!(err.message, "conversation is not running");
 
@@ -2668,7 +2668,7 @@ async fn conversation_second_start_replaces_runtime() -> Result<()> {
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2707,7 +2707,7 @@ async fn conversation_second_start_replaces_runtime() -> Result<()> {
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2818,7 +2818,7 @@ async fn conversation_uses_experimental_realtime_ws_base_url_override() -> Resul
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2899,7 +2899,7 @@ async fn conversation_uses_default_realtime_backend_prompt() -> Result<()> {
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -2991,7 +2991,7 @@ async fn conversation_uses_empty_instructions_for_null_or_empty_prompt() -> Resu
                 maplecode_responses_as_items: false,
                 maplecode_response_item_prefix: None,
                 maplecode_response_handoff_mode:
-                    maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                    maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
                 backend_reasoning_status: false,
                 maplecode_response_handoff_channel_prefixes: None,
                 model: None,
@@ -3076,7 +3076,7 @@ async fn conversation_uses_explicit_start_voice() -> Result<()> {
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -3151,7 +3151,7 @@ async fn conversation_uses_configured_realtime_voice() -> Result<()> {
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -3211,7 +3211,7 @@ async fn conversation_rejects_voice_for_wrong_realtime_version() -> Result<()> {
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -3274,7 +3274,7 @@ async fn conversation_uses_experimental_realtime_ws_backend_prompt_override() ->
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -3361,7 +3361,7 @@ async fn conversation_uses_experimental_realtime_ws_startup_context_override() -
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -3441,7 +3441,7 @@ async fn conversation_disables_realtime_startup_context_with_empty_override() ->
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -3514,7 +3514,7 @@ async fn conversation_start_injects_startup_context_from_thread_history() -> Res
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -3634,7 +3634,7 @@ async fn conversation_startup_context_current_thread_selects_many_turns_by_budge
         .resume_thread_with_history(
             test.config.clone(),
             InitialHistory::Forked(history),
-            auth_manager_from_auth(MapleCodeAuth::from_api_key("dummy")),
+            auth_manager_from_auth(MaplecodeAuth::from_api_key("dummy")),
             /*parent_trace*/ None,
             ClientMcpExtensions::default(),
         )
@@ -3649,7 +3649,7 @@ async fn conversation_startup_context_current_thread_selects_many_turns_by_budge
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -3770,7 +3770,7 @@ async fn conversation_startup_context_falls_back_to_workspace_map() -> Result<()
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -3843,7 +3843,7 @@ async fn conversation_startup_context_is_truncated_and_sent_once_per_start() -> 
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -3949,7 +3949,7 @@ async fn conversation_user_text_turn_is_not_sent_to_realtime(ephemeral: bool) ->
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -4091,7 +4091,7 @@ async fn realtime_v2_noop_tool_call_returns_empty_function_output_without_respon
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -4210,7 +4210,7 @@ async fn conversation_mirrors_assistant_message_text_to_realtime_handoff(
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -4345,7 +4345,7 @@ async fn conversation_relays_only_public_reasoning_as_quiet_status(enabled: bool
             maplecode_response_item_prefix: None,
             // The generic default omits its wire channel; quiet status must override it.
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: enabled,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -4532,7 +4532,7 @@ async fn conversation_routes_assistant_messages_for_v3_handoff(
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::BemTags,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::BemTags,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: Some(BTreeMap::from([
                 (
@@ -4733,7 +4733,7 @@ async fn conversation_handoff_persists_across_item_done_until_turn_complete(
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::BemTags,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::BemTags,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -4903,7 +4903,7 @@ async fn inbound_handoff_request_starts_turn_and_promotes_its_artifact() -> Resu
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -5069,7 +5069,7 @@ async fn inbound_handoff_request_uses_active_transcript() -> Result<()> {
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -5185,7 +5185,7 @@ async fn inbound_handoff_request_sends_transcript_delta_after_each_handoff() -> 
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -5325,7 +5325,7 @@ async fn conversation_close_routes_only_remaining_transcript_tail_once() -> Resu
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -5435,7 +5435,7 @@ async fn inbound_conversation_item_does_not_start_turn_and_still_forwards_audio(
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -5571,7 +5571,7 @@ async fn delegated_turn_user_role_echo_does_not_redelegate_and_still_forwards_au
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -5737,7 +5737,7 @@ async fn inbound_handoff_request_does_not_block_realtime_event_forwarding() -> R
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -5923,7 +5923,7 @@ async fn inbound_handoff_request_updates_realtime_state_during_active_turn(
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -6168,7 +6168,7 @@ async fn inbound_handoff_request_starts_turn_and_does_not_block_realtime_audio()
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,

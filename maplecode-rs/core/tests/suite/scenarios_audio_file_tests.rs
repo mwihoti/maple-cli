@@ -125,7 +125,7 @@ async fn uploaded_audio_survives_compaction_and_cold_resume(
     let measured = availability == AudioAtCompaction::Measured;
     let builder = || {
         let builder = test_maplecode()
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_model_info_override("gpt-5.5", |model| {
                 model.input_modalities.push(InputModality::Audio);
             });
@@ -285,7 +285,7 @@ async fn expired_audio_during_required_compaction_after_a_text_only_checkpoint()
     })
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| config.model_auto_compact_token_limit = Some(200_000))
         .with_model_info_override("gpt-5.5", |model| {
             model.input_modalities.push(InputModality::Audio)
@@ -666,7 +666,7 @@ async fn unknown_file_after_two_recordings_were_accepted(
     let store = Arc::new(RecordingFileAttachmentStore::default());
     let builder = || {
         test_maplecode()
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_image_store(store.clone())
             .with_config(|config| config.model_provider.stream_max_retries = Some(0))
             .with_model_info_override("gpt-5.5", |model| {
@@ -789,7 +789,7 @@ async fn persistently_invalid_recording_is_removed_on_follow_up_and_resume(
     .await;
     let builder = || {
         test_maplecode()
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_model_info_override("gpt-5.5", |model| {
                 model.input_modalities.push(InputModality::Audio)
             })
@@ -890,7 +890,7 @@ async fn paginated_resume_filters_audio_rejected_before_and_after_compaction() -
     .await;
     let builder = || {
         test_maplecode()
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_model_info_override("gpt-5.5", |model| {
                 model.input_modalities.push(InputModality::Audio)
             })

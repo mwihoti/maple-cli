@@ -16,8 +16,8 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_wine_exec;
 use core_test_support::stdio_server_bin;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
@@ -770,10 +770,10 @@ async fn exec_command_output_not_truncated_with_custom_limit() -> Result<()> {
 
 async fn call_mcp_echo(
     server: &MockServer,
-    builder: TestMapleCodeBuilder,
+    builder: TestMaplecodeBuilder,
     output_token_limit: Option<usize>,
     message_bytes: usize,
-) -> Result<(TestMapleCode, String)> {
+) -> Result<(TestMaplecode, String)> {
     let call_id = "rmcp-output";
     let server_name = "rmcp";
     let namespace = format!("mcp__{server_name}");

@@ -9,7 +9,7 @@ use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_models_manager::model_info::model_info_from_slug;
 use maplecode_protocol::models::PermissionProfile;
@@ -81,7 +81,7 @@ async fn catalog_permission_message_loaded_from_remote_models_is_sent(
     )
     .await;
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
             let rules_dir = config.maplecode_home.join("rules");

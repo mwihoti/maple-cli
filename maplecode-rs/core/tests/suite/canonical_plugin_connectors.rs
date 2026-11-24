@@ -17,7 +17,7 @@ use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::user_input::UserInput;
@@ -77,7 +77,7 @@ async fn canonical_plugin_disable_overrides_shared_connector_and_can_be_cleared(
     }
     let mut builder = test_maplecode()
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.features.enable(Feature::Apps).unwrap();
             config.chatgpt_base_url = apps.chatgpt_base_url;

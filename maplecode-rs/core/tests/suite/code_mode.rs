@@ -34,8 +34,8 @@ use core_test_support::skip_if_wine_exec;
 use core_test_support::stdio_server_bin;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
@@ -76,7 +76,7 @@ use maplecode_features::CurrentTimeSource;
 use maplecode_features::Feature;
 use maplecode_http_client::DestinationPolicy;
 use maplecode_http_client::NetworkPolicyController;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::maplecode_apps_mcp_server_config;
 use maplecode_models_manager::bundled_models_response;
@@ -249,7 +249,7 @@ async fn run_code_mode_turn(
     server: &MockServer,
     prompt: &str,
     code: &str,
-) -> Result<(TestMapleCode, ResponseMock)> {
+) -> Result<(TestMaplecode, ResponseMock)> {
     run_code_mode_turn_with_config(server, prompt, code, |_| {}).await
 }
 
@@ -258,7 +258,7 @@ async fn run_code_mode_turn_with_config(
     prompt: &str,
     code: &str,
     configure: impl FnOnce(&mut Config) + Send + 'static,
-) -> Result<(TestMapleCode, ResponseMock)> {
+) -> Result<(TestMaplecode, ResponseMock)> {
     run_code_mode_turn_with_model_and_config(server, prompt, code, "test-gpt-5.1-codex", configure)
         .await
 }
@@ -269,7 +269,7 @@ async fn run_code_mode_turn_with_model_and_config(
     code: &str,
     model: &'static str,
     configure: impl FnOnce(&mut Config) + Send + 'static,
-) -> Result<(TestMapleCode, ResponseMock)> {
+) -> Result<(TestMaplecode, ResponseMock)> {
     let builder = test_maplecode()
         .with_model(model)
         .with_config(move |config| {
@@ -284,8 +284,8 @@ async fn run_code_mode_turn_with_builder(
     server: &MockServer,
     prompt: &str,
     code: &str,
-    mut builder: TestMapleCodeBuilder,
-) -> Result<(TestMapleCode, ResponseMock)> {
+    mut builder: TestMaplecodeBuilder,
+) -> Result<(TestMaplecode, ResponseMock)> {
     let test = builder.build(server).await?;
 
     responses::mount_sse_once(
@@ -311,7 +311,7 @@ async fn run_code_mode_turn_with_builder(
     Ok((test, second_mock))
 }
 
-fn code_mode_test_builder(disabled_features: &'static [Feature]) -> TestMapleCodeBuilder {
+fn code_mode_test_builder(disabled_features: &'static [Feature]) -> TestMaplecodeBuilder {
     test_maplecode()
         .with_model("test-gpt-5.1-codex")
         .with_config(move |config| {
@@ -324,7 +324,7 @@ fn code_mode_test_builder(disabled_features: &'static [Feature]) -> TestMapleCod
 
 async fn run_unavailable_code_mode_turn(
     server: &MockServer,
-    test: &TestMapleCode,
+    test: &TestMaplecode,
 ) -> Result<(Value, Vec<String>)> {
     let response_mock = responses::mount_sse_once(
         server,
@@ -605,7 +605,7 @@ text(result);
     )
     .await;
 
-    let auth = MapleCodeAuth::from_api_key("dummy");
+    let auth = MaplecodeAuth::from_api_key("dummy");
     let auth_manager = maplecode_core::test_support::auth_manager_from_auth(auth.clone());
     let mut extension_builder = ExtensionRegistryBuilder::<Config>::new();
     install_web_search_extension(&mut extension_builder, auth_manager);
@@ -685,7 +685,7 @@ async fn run_code_mode_turn_with_rmcp(
     server: &MockServer,
     prompt: &str,
     code: &str,
-) -> Result<(TestMapleCode, ResponseMock)> {
+) -> Result<(TestMaplecode, ResponseMock)> {
     run_code_mode_turn_with_rmcp_model(server, prompt, code, "test-gpt-5.1-codex").await
 }
 
@@ -694,7 +694,7 @@ pub(super) async fn run_code_mode_turn_with_rmcp_model(
     prompt: &str,
     code: &str,
     model: &'static str,
-) -> Result<(TestMapleCode, ResponseMock)> {
+) -> Result<(TestMaplecode, ResponseMock)> {
     run_code_mode_turn_with_rmcp_config(
         server, prompt, code, model, /*code_mode_only*/ false,
         /*non_prefixed_mcp_tool_names*/ false,
@@ -707,7 +707,7 @@ async fn run_code_mode_turn_with_rmcp_mode(
     prompt: &str,
     code: &str,
     code_mode_only: bool,
-) -> Result<(TestMapleCode, ResponseMock)> {
+) -> Result<(TestMaplecode, ResponseMock)> {
     run_code_mode_turn_with_rmcp_config(
         server,
         prompt,
@@ -726,7 +726,7 @@ async fn run_code_mode_turn_with_rmcp_config(
     model: &'static str,
     code_mode_only: bool,
     non_prefixed_mcp_tool_names: bool,
-) -> Result<(TestMapleCode, ResponseMock)> {
+) -> Result<(TestMaplecode, ResponseMock)> {
     let rmcp_test_server_bin = stdio_server_bin()?;
     let mut builder = test_maplecode()
         .with_model(model)
@@ -980,7 +980,7 @@ pub(super) async fn mcp_schema_max_bytes_scenario() -> Result<Vec<ResponsesReque
         })
         .collect::<serde_json::Map<_, _>>();
     Mock::given(method("POST"))
-        .and(wiremock::matchers::path_regex("^/api/maplecode/ps/mcp/?$"))
+        .and(wiremock::matchers::path_regex("^/api/codex/ps/mcp/?$"))
         .and(body_partial_json(serde_json::json!({"method": "tools/list"})))
         .respond_with(move |request: &Request| {
             let body: Value = serde_json::from_slice(&request.body).expect("valid MCP request");
@@ -1011,7 +1011,7 @@ pub(super) async fn mcp_schema_max_bytes_scenario() -> Result<Vec<ResponsesReque
         .mount(&server)
         .await;
 
-    let url = format!("{}/api/maplecode/ps/mcp", server.uri());
+    let url = format!("{}/api/codex/ps/mcp", server.uri());
     let mut builder = test_maplecode()
         .with_model_info_override("gpt-5.4", |model| model.supports_search_tool = false)
         .with_config(move |config| {
@@ -1991,7 +1991,7 @@ async fn mount_result_metadata_app(
         ("tools/call", tool_result),
     ] {
         Mock::given(method("POST"))
-            .and(path("/api/maplecode/ps/mcp"))
+            .and(path("/api/codex/ps/mcp"))
             .and(body_partial_json(
                 serde_json::json!({ "method": method_name }),
             ))
@@ -2010,7 +2010,7 @@ async fn mount_result_metadata_app(
     Ok(apps_server)
 }
 
-fn result_metadata_apps_builder(base_url: String, account_email: &str) -> TestMapleCodeBuilder {
+fn result_metadata_apps_builder(base_url: String, account_email: &str) -> TestMaplecodeBuilder {
     let payload = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(
         serde_json::json!({
             "email": account_email,
@@ -2018,7 +2018,7 @@ fn result_metadata_apps_builder(base_url: String, account_email: &str) -> TestMa
         })
         .to_string(),
     );
-    let auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let auth = MaplecodeAuth::from_external_chatgpt_tokens(
         &format!("e30.{payload}.signature"),
         "account_id",
         /*chatgpt_plan_type*/ None,
@@ -2412,7 +2412,7 @@ async fn result_metadata_preserves_results_within_request_budget(
             "_meta": metadata,
         });
         Mock::given(method("POST"))
-            .and(path("/api/maplecode/ps/mcp"))
+            .and(path("/api/codex/ps/mcp"))
             .and(body_partial_json(serde_json::json!({
                 "method": "tools/call",
                 "params": { "arguments": arguments },
@@ -3783,7 +3783,7 @@ if (!tool) {
 
     let apps_base_url = apps_server.chatgpt_base_url.clone();
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config
                 .features

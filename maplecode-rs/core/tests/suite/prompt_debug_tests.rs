@@ -14,7 +14,7 @@ use maplecode_extension_api::RenderedWorldStateFragment;
 use maplecode_extension_api::WorldStateContributionInput;
 use maplecode_extension_api::WorldStateSectionContribution;
 use maplecode_extension_api::input_text;
-use maplecode_home::MapleCodeHomeUserInstructionsProvider;
+use maplecode_home::MaplecodeHomeUserInstructionsProvider;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::user_input::UserInput;
@@ -61,7 +61,7 @@ async fn build_prompt_input_includes_context_and_user_message() -> Result<()> {
         })
         .build()
         .await?;
-    let user_instructions_provider = Arc::new(MapleCodeHomeUserInstructionsProvider::new(
+    let user_instructions_provider = Arc::new(MaplecodeHomeUserInstructionsProvider::new(
         config.maplecode_home.clone(),
     ));
     let mut extensions = ExtensionRegistryBuilder::new();

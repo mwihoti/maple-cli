@@ -371,7 +371,7 @@ async fn assert_copied_fork_persists_inherited_history(history_mode: ThreadHisto
                 test.config.clone(),
                 resumed_history,
                 maplecode_core::test_support::auth_manager_from_auth(
-                    maplecode_login::MapleCodeAuth::from_api_key("dummy"),
+                    maplecode_login::MaplecodeAuth::from_api_key("dummy"),
                 ),
                 /*parent_trace*/ None,
                 ClientMcpExtensions::default(),

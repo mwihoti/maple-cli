@@ -15,7 +15,7 @@ use core_test_support::responses::mount_sse_sequence;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -24,7 +24,7 @@ use core_test_support::wait_for_event_with_timeout;
 #[cfg(unix)]
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_config::types::ApprovalsReviewer;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
 use maplecode_core::config::ThreadStoreConfig;
@@ -84,7 +84,7 @@ enum TargetPath {
 }
 
 impl TargetPath {
-    fn resolve_for_patch(self, test: &TestMapleCode) -> (PathBuf, String) {
+    fn resolve_for_patch(self, test: &TestMaplecode) -> (PathBuf, String) {
         match self {
             TargetPath::Workspace(name) => {
                 let path = test.cwd.path().join(name);
@@ -159,7 +159,7 @@ impl ActionKind {
 
     async fn prepare(
         &self,
-        test: &TestMapleCode,
+        test: &TestMaplecode,
         server: &MockServer,
         call_id: &str,
         sandbox_permissions: SandboxPermissions,
@@ -419,7 +419,7 @@ enum Expectation {
 }
 
 impl Expectation {
-    fn verify(&self, test: &TestMapleCode, result: &CommandResult) -> Result<()> {
+    fn verify(&self, test: &TestMaplecode, result: &CommandResult) -> Result<()> {
         match self {
             Expectation::FileCreated { target, content } => {
                 let (path, _) = target.resolve_for_patch(test);
@@ -663,7 +663,7 @@ struct CommandResult {
 }
 
 async fn submit_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     prompt: &str,
     approval_policy: AskForApproval,
     sandbox_policy: SandboxPolicy,
@@ -698,7 +698,7 @@ async fn submit_turn(
 }
 
 async fn submit_turn_preserving_active_permission_profile(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     prompt: &str,
     approval_policy: AskForApproval,
 ) -> Result<()> {
@@ -730,7 +730,7 @@ async fn submit_turn_preserving_active_permission_profile(
     Ok(())
 }
 
-fn assert_active_workspace_permission_profile(test: &TestMapleCode) {
+fn assert_active_workspace_permission_profile(test: &TestMaplecode) {
     assert_eq!(
         test.session_configured
             .active_permission_profile
@@ -781,7 +781,7 @@ fn parse_result(item: &Value) -> CommandResult {
 }
 
 async fn expect_exec_approval(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     expected_command: &str,
 ) -> ExecApprovalRequestEvent {
     let event = wait_for_event(&test.maplecode, |event| {
@@ -808,7 +808,7 @@ async fn expect_exec_approval(
 }
 
 async fn expect_patch_approval(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     expected_call_id: &str,
 ) -> ApplyPatchApprovalRequestEvent {
     let event = wait_for_event_with_timeout(
@@ -838,7 +838,7 @@ async fn expect_patch_approval(
     }
 }
 
-async fn wait_for_completion_without_approval(test: &TestMapleCode) {
+async fn wait_for_completion_without_approval(test: &TestMaplecode) {
     let event = wait_for_event(&test.maplecode, |event| {
         matches!(
             event,
@@ -856,7 +856,7 @@ async fn wait_for_completion_without_approval(test: &TestMapleCode) {
     }
 }
 
-async fn wait_for_completion(test: &TestMapleCode) {
+async fn wait_for_completion(test: &TestMaplecode) {
     wait_for_event(&test.maplecode, |event| {
         matches!(event, EventMsg::TurnComplete(_))
     })
@@ -883,7 +883,7 @@ fn body_contains(req: &Request, text: &str) -> bool {
         .is_some_and(|body| body.contains(text))
 }
 
-async fn wait_for_spawned_thread(test: &TestMapleCode) -> Result<Arc<MapleCodeThread>> {
+async fn wait_for_spawned_thread(test: &TestMaplecode) -> Result<Arc<MaplecodeThread>> {
     let deadline = tokio::time::Instant::now() + Duration::from_secs(2);
     loop {
         let ids = test.thread_manager.list_thread_ids().await;

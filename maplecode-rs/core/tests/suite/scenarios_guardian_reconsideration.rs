@@ -11,7 +11,7 @@ use core_test_support::responses::ev_function_call;
 use core_test_support::responses::sse;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_sandbox;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::test_maplecode;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
@@ -55,7 +55,7 @@ async fn guardian_denial_reconsideration() -> Result<()> {
                 .enable(Feature::GuardianDenialReconsideration)
                 .expect("enable Guardian denial reconsideration");
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
     let mock = responses::mount_sse_sequence(
         harness.server(),

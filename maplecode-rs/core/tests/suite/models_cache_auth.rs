@@ -22,7 +22,7 @@ use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::login_with_api_key;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_models_manager::manager::RefreshStrategy;
@@ -47,17 +47,17 @@ use wiremock::matchers::header;
 use wiremock::matchers::method;
 use wiremock::matchers::path;
 
-struct SelectedAuth(MapleCodeAuth);
+struct SelectedAuth(MaplecodeAuth);
 
 impl ExternalAuth for SelectedAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -69,7 +69,7 @@ struct StallingAuth {
 }
 
 impl ExternalAuth for StallingAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             if self.stall.load(Ordering::SeqCst) {
                 self.released.cancelled().await;
@@ -81,14 +81,14 @@ impl ExternalAuth for StallingAuth {
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
 
-fn header_auth(token: &'static str) -> MapleCodeAuth {
+fn header_auth(token: &'static str) -> MaplecodeAuth {
     // Without stable account metadata, credential rotation must invalidate the catalog.
-    MapleCodeAuth::Headers(AuthHeaders::new(HeaderMap::from_iter([(
+    MaplecodeAuth::Headers(AuthHeaders::new(HeaderMap::from_iter([(
         http::header::AUTHORIZATION,
         HeaderValue::from_static(token),
     )])))
@@ -267,7 +267,7 @@ async fn auth_and_provider_switches_do_not_reuse_chatgpt_catalog() -> Result<()>
     .await;
     let chatgpt = test_maplecode()
         .with_home(home.clone())
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.5")
         .build_with_auto_env(&server)
         .await?;
@@ -315,7 +315,7 @@ async fn auth_and_provider_switches_do_not_reuse_chatgpt_catalog() -> Result<()>
     .await;
     let api = test_maplecode()
         .with_home(home.clone())
-        .with_auth(MapleCodeAuth::from_api_key("api-key"))
+        .with_auth(MaplecodeAuth::from_api_key("api-key"))
         .with_config(|config| {
             config.model_provider.model_catalog_url = config
                 .model_provider
@@ -373,7 +373,7 @@ async fn auth_and_provider_switches_do_not_reuse_chatgpt_catalog() -> Result<()>
     .await;
     let other = test_maplecode()
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.5")
         .with_config(|config| {
             config.model_provider_id = "second".into();

@@ -43,7 +43,7 @@ use maplecode_extension_api::ExtensionData;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_extension_api::ToolContributor;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::dynamic_tools::DynamicToolCallOutputContentItem;
 use maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec;
 use maplecode_protocol::dynamic_tools::DynamicToolNamespaceSpec;
@@ -344,7 +344,7 @@ async fn app_search_sources_are_hidden_for_api_key_auth() -> Result<()> {
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("Test API Key"))
+        .with_auth(MaplecodeAuth::from_api_key("Test API Key"))
         .with_config(move |config| {
             configure_search_capable_apps(config, apps_server.chatgpt_base_url.as_str())
         });

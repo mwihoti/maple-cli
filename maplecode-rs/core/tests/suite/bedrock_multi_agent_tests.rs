@@ -4,7 +4,7 @@ use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::BedrockApiKeyAuth;
 use maplecode_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
 use maplecode_model_provider_info::AMAZON_BEDROCK_RUNTIME_PROVIDER_ID;
@@ -27,7 +27,7 @@ async fn bedrock_catalog_selects_v2_by_default(
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+        .with_auth(MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
             api_key: "dummy".to_string(),
             region: "us-east-1".to_string(),
         }))

@@ -148,7 +148,7 @@ async fn failed_resume_releases_writer_before_returning() -> Result<()> {
     servers.insert(
         "fails-once".to_owned(),
         serde_json::from_value(json!({
-            "url": format!("{}/api/maplecode/ps/mcp", http_server.chatgpt_base_url),
+            "url": format!("{}/api/codex/ps/mcp", http_server.chatgpt_base_url),
             "http_headers": { "Authorization": "Bearer synthetic-test-token" },
             "required": true,
         }))?,

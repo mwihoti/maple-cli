@@ -9,7 +9,7 @@ use maplecode_utils_absolute_path::AbsolutePathBuf;
 pub fn trust_discovered_hooks(config: &mut Config) {
     config
         .features
-        .enable(Feature::MapleCodeHooks)
+        .enable(Feature::MaplecodeHooks)
         .expect("test config should allow feature update");
 
     let listed = maplecode_hooks::list_hooks(maplecode_hooks::HooksConfig {

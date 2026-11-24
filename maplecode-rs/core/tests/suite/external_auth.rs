@@ -16,7 +16,7 @@ use maplecode_login::AuthHeaders;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::BedrockAccessKeysAuth;
 use maplecode_model_provider_info::AwsAuthRefreshConfig;
 use maplecode_model_provider_info::AwsCredentialExportConfig;
@@ -46,12 +46,12 @@ const INITIAL_ACCESS_TOKEN: &str = "header.e30.initial";
 const REFRESHED_ACCESS_TOKEN: &str = "header.e30.refreshed";
 
 struct ScriptedExternalAuth {
-    current: Mutex<MapleCodeAuth>,
-    refreshed: MapleCodeAuth,
+    current: Mutex<MaplecodeAuth>,
+    refreshed: MaplecodeAuth,
 }
 
 impl ExternalAuth for ScriptedExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         let auth = self
             .current
             .lock()
@@ -63,7 +63,7 @@ impl ExternalAuth for ScriptedExternalAuth {
     fn refresh(
         &self,
         context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         let auth = if context.previous_account_id.as_deref() != Some(CHATGPT_ACCOUNT_ID) {
             Err(std::io::Error::other(
                 "external auth refresh changed the ChatGPT workspace",
@@ -81,8 +81,8 @@ impl ExternalAuth for ScriptedExternalAuth {
     }
 }
 
-fn external_chatgpt_auth(access_token: &str) -> std::io::Result<MapleCodeAuth> {
-    MapleCodeAuth::from_external_chatgpt_tokens(
+fn external_chatgpt_auth(access_token: &str) -> std::io::Result<MaplecodeAuth> {
+    MaplecodeAuth::from_external_chatgpt_tokens(
         access_token,
         CHATGPT_ACCOUNT_ID,
         Some("enterprise"),
@@ -106,7 +106,7 @@ async fn header_auth_is_attached_to_responses_requests() -> anyhow::Result<()> {
         HeaderValue::from_static("account-123"),
     );
     headers.insert("x-external-auth", HeaderValue::from_static("enabled"));
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::Headers(AuthHeaders::new(headers)));
+    let mut builder = test_maplecode().with_auth(MaplecodeAuth::Headers(AuthHeaders::new(headers)));
     let test = builder.build_with_auto_env(&server).await?;
 
     test.submit_turn("hello").await?;
@@ -146,7 +146,7 @@ async fn custom_provider_does_not_receive_ambient_auth_headers() -> anyhow::Resu
     let provider =
         create_oss_provider_with_base_url(&format!("{}/v1", server.uri()), WireApi::Responses);
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::Headers(AuthHeaders::new(headers)))
+        .with_auth(MaplecodeAuth::Headers(AuthHeaders::new(headers)))
         .with_config(move |config| {
             config.model_provider_id = provider.name.clone();
             config.model_provider = provider;
@@ -181,7 +181,7 @@ async fn custom_provider_uses_explicit_bearer_without_ambient_account() -> anyho
         create_oss_provider_with_base_url(&format!("{}/v1", server.uri()), WireApi::Responses);
     provider.experimental_bearer_token = Some("provider-token".into());
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::Headers(AuthHeaders::new(headers)))
+        .with_auth(MaplecodeAuth::Headers(AuthHeaders::new(headers)))
         .with_config(move |config| {
             config.model_provider_id = provider.name.clone();
             config.model_provider = provider;
@@ -220,7 +220,7 @@ async fn amazon_bedrock_managed_access_keys_sign_requests() -> anyhow::Result<()
 
     let mut builder = test_maplecode()
         .with_model("openai.gpt-5.5")
-        .with_auth(MapleCodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
+        .with_auth(MaplecodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
             access_key_id: "managed-access-key-id".to_string(),
             secret_access_key: "managed-secret-access-key".to_string(),
             session_token: Some("managed-session-token".to_string()),
@@ -336,7 +336,7 @@ async fn amazon_bedrock_credential_export_precedence_and_caching() -> anyhow::Re
 
     let mut builder = test_maplecode()
         .with_model("openai.gpt-5.5")
-        .with_auth(MapleCodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
+        .with_auth(MaplecodeAuth::BedrockAccessKeys(BedrockAccessKeysAuth {
             access_key_id: "managed-access-key-id".to_string(),
             secret_access_key: "managed-secret-access-key".to_string(),
             session_token: Some("managed-session-token".to_string()),
@@ -763,7 +763,7 @@ async fn external_auth_401_retry_uses_refreshed_chatgpt_headers() -> anyhow::Res
         .mount(&server)
         .await;
 
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::from_api_key("seed"));
+    let mut builder = test_maplecode().with_auth(MaplecodeAuth::from_api_key("seed"));
     let test = builder.build_with_auto_env(&server).await?;
     install_scripted_external_auth(&test).await?;
 
@@ -792,7 +792,7 @@ async fn external_auth_401_retry_uses_refreshed_chatgpt_headers() -> anyhow::Res
 }
 
 async fn install_scripted_external_auth(
-    test: &core_test_support::test_maplecode::TestMapleCode,
+    test: &core_test_support::test_maplecode::TestMaplecode,
 ) -> anyhow::Result<()> {
     let external_auth = Arc::new(ScriptedExternalAuth {
         current: Mutex::new(external_chatgpt_auth(INITIAL_ACCESS_TOKEN)?),

@@ -3,12 +3,12 @@ use std::path::Path;
 use tempfile::TempDir;
 use wiremock::MockServer;
 
-pub struct TestMapleCodeExecBuilder {
+pub struct TestMaplecodeExecBuilder {
     home: TempDir,
     cwd: TempDir,
 }
 
-impl TestMapleCodeExecBuilder {
+impl TestMaplecodeExecBuilder {
     pub fn cmd(&self) -> assert_cmd::Command {
         let mut cmd = assert_cmd::Command::new(
             maplecode_utils_cargo_bin::cargo_bin("maplecode-exec")
@@ -40,8 +40,8 @@ fn toml_string_literal(value: &str) -> String {
     serde_json::to_string(value).expect("serialize TOML string literal")
 }
 
-pub fn test_maplecode_exec() -> TestMapleCodeExecBuilder {
-    TestMapleCodeExecBuilder {
+pub fn test_maplecode_exec() -> TestMaplecodeExecBuilder {
+    TestMaplecodeExecBuilder {
         home: TempDir::new().expect("create temp home"),
         cwd: TempDir::new().expect("create temp cwd"),
     }

@@ -4,7 +4,7 @@ use core_test_support::skip_if_no_network;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
 use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
@@ -39,7 +39,7 @@ const INITIAL_MODEL: &str = "gpt-5.4";
 pub(super) const COMMITTED_MODEL: &str = "gpt-5.2";
 const TIMEOUT: Duration = Duration::from_secs(10);
 
-fn assert_checkpoints(test: &TestMapleCode, expected: &[ThreadSettingsSnapshot]) -> Result<()> {
+fn assert_checkpoints(test: &TestMaplecode, expected: &[ThreadSettingsSnapshot]) -> Result<()> {
     let rollout_path = test.maplecode.rollout_path().expect("rollout path");
     let rollout: Vec<RolloutLine> = std::fs::read_to_string(rollout_path)?
         .lines()

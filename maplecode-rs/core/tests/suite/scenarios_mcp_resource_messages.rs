@@ -253,7 +253,7 @@ async fn resource_helpers_across_server_changes() -> Result<()> {
     next.mcp_servers.set(HashMap::from([(
         "resources".to_string(),
         serde_json::from_value(json!({
-            "url": format!("{}/api/maplecode/ps/mcp", empty_server.chatgpt_base_url),
+            "url": format!("{}/api/codex/ps/mcp", empty_server.chatgpt_base_url),
         }))?,
     )]))?;
     assert_eq!(

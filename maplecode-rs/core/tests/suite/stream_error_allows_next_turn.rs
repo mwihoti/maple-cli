@@ -2,7 +2,7 @@ use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_response_created;
 use core_test_support::responses::sse;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
@@ -91,7 +91,7 @@ async fn continue_after_stream_error() {
         include_internal_metadata: false,
     };
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config.base_instructions = Some("You are a helpful assistant".to_string());
             config.model_provider = provider;

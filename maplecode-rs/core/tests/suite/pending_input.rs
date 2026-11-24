@@ -19,13 +19,13 @@ use core_test_support::responses::ev_response_created;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::StreamingSseServer;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_successful_turn;
 use maplecode_core::InputWaitOutcome;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::StartIfIdleSubmission;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInput;
@@ -37,7 +37,7 @@ use maplecode_extension_items::ExtensionItem;
 use maplecode_extension_items::sleep::SleepItem;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
@@ -55,7 +55,7 @@ use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::InterAgentCommunication;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
@@ -331,7 +331,7 @@ fn response_completed_chunks(response_id: &str) -> Vec<StreamingSseChunk> {
     ]
 }
 
-async fn build_maplecode(server: &StreamingSseServer) -> Arc<MapleCodeThread> {
+async fn build_maplecode(server: &StreamingSseServer) -> Arc<MaplecodeThread> {
     test_maplecode()
         .with_config(|config| config.update_plan_enabled = true)
         .with_model("gpt-5.4")
@@ -341,7 +341,7 @@ async fn build_maplecode(server: &StreamingSseServer) -> Arc<MapleCodeThread> {
         .maplecode
 }
 
-async fn submit_user_input(maplecode: &MapleCodeThread, text: &str) {
+async fn submit_user_input(maplecode: &MaplecodeThread, text: &str) {
     maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
             text: text.to_string(),
@@ -351,7 +351,7 @@ async fn submit_user_input(maplecode: &MapleCodeThread, text: &str) {
         .expect("submit user input");
 }
 
-async fn submit_danger_full_access_user_turn(test: &TestMapleCode, text: &str) {
+async fn submit_danger_full_access_user_turn(test: &TestMaplecode, text: &str) {
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, test.config.cwd.as_path());
     test.maplecode
@@ -380,7 +380,7 @@ async fn submit_danger_full_access_user_turn(test: &TestMapleCode, text: &str) {
         .expect("submit user turn");
 }
 
-async fn steer_user_input(maplecode: &MapleCodeThread, text: &str) {
+async fn steer_user_input(maplecode: &MaplecodeThread, text: &str) {
     let submission = maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
             text: text.to_string(),
@@ -391,7 +391,7 @@ async fn steer_user_input(maplecode: &MapleCodeThread, text: &str) {
     assert!(matches!(submission, TurnInputSubmission::Steered { .. }));
 }
 
-async fn enqueue_queue_only_agent_mail(maplecode: &MapleCodeThread, text: &str) {
+async fn enqueue_queue_only_agent_mail(maplecode: &MaplecodeThread, text: &str) {
     maplecode
         .submit(Op::InterAgentCommunication {
             communication: InterAgentCommunication::new(
@@ -407,7 +407,7 @@ async fn enqueue_queue_only_agent_mail(maplecode: &MapleCodeThread, text: &str) 
         .expect("submit queue-only agent mail");
 }
 
-async fn submit_queue_only_agent_mail(maplecode: &MapleCodeThread, text: &str) {
+async fn submit_queue_only_agent_mail(maplecode: &MaplecodeThread, text: &str) {
     enqueue_queue_only_agent_mail(maplecode, text).await;
     maplecode
         .submit(Op::RealtimeConversationListVoices)
@@ -419,7 +419,7 @@ async fn submit_queue_only_agent_mail(maplecode: &MapleCodeThread, text: &str) {
     .await;
 }
 
-async fn wait_for_reasoning_item_started(maplecode: &MapleCodeThread) {
+async fn wait_for_reasoning_item_started(maplecode: &MaplecodeThread) {
     wait_for_event(maplecode, |event| {
         matches!(
             event,
@@ -430,7 +430,7 @@ async fn wait_for_reasoning_item_started(maplecode: &MapleCodeThread) {
     .await;
 }
 
-async fn wait_for_agent_message(maplecode: &MapleCodeThread, text: &str) {
+async fn wait_for_agent_message(maplecode: &MaplecodeThread, text: &str) {
     let final_message = wait_for_event(
         maplecode,
         |event| matches!(event, EventMsg::AgentMessage(message) if message.message == text),
@@ -439,14 +439,14 @@ async fn wait_for_agent_message(maplecode: &MapleCodeThread, text: &str) {
     assert!(matches!(final_message, EventMsg::AgentMessage(_)));
 }
 
-async fn wait_for_turn_complete(maplecode: &MapleCodeThread) {
+async fn wait_for_turn_complete(maplecode: &MaplecodeThread) {
     wait_for_event(maplecode, |event| {
         matches!(event, EventMsg::TurnComplete(_))
     })
     .await;
 }
 
-async fn wait_for_sleep_item_started(maplecode: &MapleCodeThread, call_id: &str, duration_ms: u64) {
+async fn wait_for_sleep_item_started(maplecode: &MaplecodeThread, call_id: &str, duration_ms: u64) {
     let event = wait_for_event(maplecode, |event| {
         matches!(
             event,
@@ -474,7 +474,7 @@ async fn wait_for_sleep_item_started(maplecode: &MapleCodeThread, call_id: &str,
 }
 
 async fn wait_for_sleep_item_completed(
-    maplecode: &MapleCodeThread,
+    maplecode: &MaplecodeThread,
     call_id: &str,
     duration_ms: u64,
 ) {
@@ -551,7 +551,7 @@ async fn queue_only_agent_mail_wakes_sleeping_root_with_previous_turn_context(
     extensions.thread_lifecycle_contributor(Arc::new(SleepingRootExtension));
     let mut builder = test_maplecode()
         .with_model("gpt-5.4")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(Arc::new(extensions.build()));
     let mut test = builder.build_with_auto_env(&server).await?;
 
@@ -2719,7 +2719,7 @@ async fn terminal_compaction_error_does_not_retry_pending_input(
     let base_url = format!("{}/v1", server.uri());
     let test = test_maplecode()
         .with_model("gpt-5.4")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.model_provider.base_url = Some(base_url);
             config.model_auto_compact_token_limit = Some(100_000);
@@ -2775,7 +2775,7 @@ async fn terminal_compaction_error_does_not_retry_pending_input(
             EventMsg::Error(error) => {
                 assert_eq!(
                     error.maplecode_error_info,
-                    Some(MapleCodeErrorInfo::UsageLimitExceeded)
+                    Some(MaplecodeErrorInfo::UsageLimitExceeded)
                 );
                 errors.push(error.clone());
             }

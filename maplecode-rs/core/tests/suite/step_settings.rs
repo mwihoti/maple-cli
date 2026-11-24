@@ -22,7 +22,7 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
@@ -30,7 +30,7 @@ use core_test_support::wait_for_mcp_server;
 use image::GenericImageView;
 use maplecode_config::McpServerConfig;
 use maplecode_core::ForkSnapshot;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
@@ -46,7 +46,7 @@ use maplecode_extension_api::ToolContributor;
 use maplecode_extension_api::TurnContextContributionInput;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_protocol::config_types::ApprovalsReviewer;
@@ -146,7 +146,7 @@ fn step_settings_models() -> Vec<ModelInfo> {
         .collect()
 }
 
-fn step_settings_test() -> TestMapleCodeBuilder {
+fn step_settings_test() -> TestMaplecodeBuilder {
     test_maplecode()
         .with_model(MODEL_A)
         .with_config(move |config| {
@@ -171,7 +171,7 @@ fn step_settings_test() -> TestMapleCodeBuilder {
         })
 }
 
-fn direct_tool_settings_test() -> TestMapleCodeBuilder {
+fn direct_tool_settings_test() -> TestMaplecodeBuilder {
     step_settings_test().with_config(|config| {
         for model in &mut config.model_catalog.as_mut().expect("test models").models {
             model.tool_mode = Some(ToolMode::Direct);
@@ -212,7 +212,7 @@ fn pause_call(call_id: &str) -> Value {
     )
 }
 
-async fn start_paused_turn(thread: &MapleCodeThread) -> Result<RequestUserInputEvent> {
+async fn start_paused_turn(thread: &MaplecodeThread) -> Result<RequestUserInputEvent> {
     thread
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
             text: "pause before continuing".into(),
@@ -226,7 +226,7 @@ async fn start_paused_turn(thread: &MapleCodeThread) -> Result<RequestUserInputE
     .await)
 }
 
-async fn answer_paused_turn(thread: &MapleCodeThread, turn_id: &str) -> Result<()> {
+async fn answer_paused_turn(thread: &MaplecodeThread, turn_id: &str) -> Result<()> {
     thread
         .submit(Op::UserInputAnswer {
             id: turn_id.to_string(),
@@ -244,7 +244,7 @@ async fn answer_paused_turn(thread: &MapleCodeThread, turn_id: &str) -> Result<(
 }
 
 async fn submit_turn_settings(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     turn_id: &str,
     update: TurnSettingsUpdate,
 ) -> Result<TurnSettingsUpdateOutcome> {
@@ -260,7 +260,7 @@ async fn submit_turn_settings(
 }
 
 async fn apply_turn_settings(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     turn_id: &str,
     update: TurnSettingsUpdate,
 ) -> Result<()> {
@@ -581,7 +581,7 @@ async fn tool_result_history_keeps_originating_model_across_switch_and_replay() 
             .resume_legacy_thread_from_rollout(
                 replay_config.clone(),
                 rollout_path.clone(),
-                maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key(
+                maplecode_core::test_support::auth_manager_from_auth(MaplecodeAuth::from_api_key(
                     "dummy",
                 )),
                 /*parent_trace*/ None,
@@ -717,7 +717,7 @@ async fn custom_tool_output_replay_preserves_originating_budget() -> Result<()> 
         .resume_legacy_thread_from_rollout(
             replay_config.clone(),
             rollout_path.clone(),
-            maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key(
+            maplecode_core::test_support::auth_manager_from_auth(MaplecodeAuth::from_api_key(
                 "dummy",
             )),
             /*parent_trace*/ None,
@@ -1404,7 +1404,7 @@ async fn mcp_confirmation_policy_follows_step_model_changes() -> Result<()> {
         ],
     )
     .await;
-    let mcp_url = format!("{}/api/maplecode/ps/mcp", server.uri());
+    let mcp_url = format!("{}/api/codex/ps/mcp", server.uri());
     let test = step_settings_test()
         .with_config(move |config| {
             config
@@ -2632,7 +2632,7 @@ async fn request_preference_activation_keeps_admitted_model_metadata() -> Result
     )
     .await;
     let test = step_settings_test()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             // Use the real refreshable models manager, and retain an unset
             // preference so the selected model's default is observable.
@@ -2881,7 +2881,7 @@ async fn captured_step_controls_mcp_output_limit(supports_images: bool) -> Resul
         ],
     )
     .await;
-    let mcp_url = format!("{}/api/maplecode/ps/mcp", server.uri());
+    let mcp_url = format!("{}/api/codex/ps/mcp", server.uri());
     let test = direct_tool_settings_test()
         .with_config(move |config| {
             for model in &mut config.model_catalog.as_mut().expect("models").models {

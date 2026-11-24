@@ -18,7 +18,7 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
 use maplecode_history::InitialHistory;
@@ -178,7 +178,7 @@ async fn compressed_shared_fork_resume_preserves_checkpoint_and_frozen_history()
                 rollout_path: Some(child_path),
             }),
             maplecode_core::test_support::auth_manager_from_auth(
-                maplecode_login::MapleCodeAuth::from_api_key("dummy"),
+                maplecode_login::MaplecodeAuth::from_api_key("dummy"),
             ),
             /*parent_trace*/ None,
             ClientMcpExtensions::default(),
@@ -221,7 +221,7 @@ async fn compressed_shared_fork_resume_preserves_checkpoint_and_frozen_history()
 
 async fn turn(
     server: &MockServer,
-    thread: &Arc<MapleCodeThread>,
+    thread: &Arc<MaplecodeThread>,
     prompt: &str,
     reply: &str,
 ) -> Result<ResponseMock> {

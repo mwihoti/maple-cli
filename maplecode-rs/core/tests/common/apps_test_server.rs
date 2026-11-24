@@ -1,5 +1,5 @@
 use crate::PathExt;
-use crate::test_maplecode::TestMapleCodeBuilder;
+use crate::test_maplecode::TestMaplecodeBuilder;
 use crate::test_maplecode::test_maplecode;
 use anyhow::Result;
 use maplecode_config::types::AppToolApproval;
@@ -9,7 +9,7 @@ use maplecode_extension_api::McpServerContribution;
 use maplecode_extension_api::McpServerContributionContext;
 use maplecode_extension_api::McpServerContributor;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_protocol::config_types::ApprovalsReviewer;
 use serde_json::Value;
@@ -37,8 +37,8 @@ const DISCOVERABLE_CALENDAR_ID: &str = "connector_2128aebfecb84f64a069897515042a
 const DISCOVERABLE_GMAIL_ID: &str = "connector_68df038e0ba48191908c8434991bbac2";
 const CONNECTOR_DESCRIPTION: &str = "Plan events and manage your calendar.";
 const MAPLECODE_APPS_META_KEY: &str = "_maplecode_apps";
-const MAPLECODE_APPS_MCP_PATH_REGEX: &str = "^/(?:api/maplecode|backend-api)/ps/mcp/?$";
-const HOSTED_PLUGIN_RUNTIME_MCP_PATH_REGEX: &str = "^/(?:api/maplecode|backend-api)/ps/mcp/?$";
+const MAPLECODE_APPS_MCP_PATH_REGEX: &str = "^/(?:api/codex|backend-api)/ps/mcp/?$";
+const HOSTED_PLUGIN_RUNTIME_MCP_PATH_REGEX: &str = "^/(?:api/codex|backend-api)/ps/mcp/?$";
 const PROTOCOL_VERSION: &str = "2025-11-25";
 const SERVER_NAME: &str = "maplecode-apps-test";
 const SERVER_VERSION: &str = "1.0.0";
@@ -321,10 +321,10 @@ pub fn configure_search_capable_apps(config: &mut Config, apps_base_url: &str) {
     configure_search_capable_model(config);
 }
 
-pub fn apps_enabled_builder(apps_base_url: impl Into<String>) -> TestMapleCodeBuilder {
+pub fn apps_enabled_builder(apps_base_url: impl Into<String>) -> TestMaplecodeBuilder {
     let apps_base_url = apps_base_url.into();
     test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| configure_apps(config, apps_base_url.as_str()))
 }
 
@@ -347,10 +347,10 @@ pub fn set_default_app_approval_mode_and_reviewer(
         .expect("apps user config should be valid");
 }
 
-pub fn search_capable_apps_builder(apps_base_url: impl Into<String>) -> TestMapleCodeBuilder {
+pub fn search_capable_apps_builder(apps_base_url: impl Into<String>) -> TestMaplecodeBuilder {
     let apps_base_url = apps_base_url.into();
     test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| configure_search_capable_apps(config, apps_base_url.as_str()))
 }
 
@@ -370,7 +370,7 @@ pub async fn recorded_apps_tool_calls(server: &MockServer) -> Vec<Value> {
         .into_iter()
         .filter_map(|request| {
             let body: Value = serde_json::from_slice(&request.body).ok()?;
-            (request.url.path() == "/api/maplecode/ps/mcp"
+            (request.url.path() == "/api/codex/ps/mcp"
                 && body.get("method").and_then(Value::as_str) == Some("tools/call"))
             .then_some(body)
         })
@@ -513,7 +513,7 @@ async fn mount_streamable_http_json_rpc_with_startup_control(
 ) {
     Mock::given(method("POST"))
         .and(path_regex(mcp_path_regex))
-        .respond_with(MapleCodeAppsJsonRpcResponder {
+        .respond_with(MaplecodeAppsJsonRpcResponder {
             connector_name,
             connector_description,
             searchable,
@@ -527,7 +527,7 @@ async fn mount_streamable_http_json_rpc_with_startup_control(
         .await;
 }
 
-struct MapleCodeAppsJsonRpcResponder {
+struct MaplecodeAppsJsonRpcResponder {
     connector_name: String,
     connector_description: String,
     searchable: bool,
@@ -538,7 +538,7 @@ struct MapleCodeAppsJsonRpcResponder {
     successful_initialize_gate: Option<AppsStartupInitializeGate>,
 }
 
-impl Respond for MapleCodeAppsJsonRpcResponder {
+impl Respond for MaplecodeAppsJsonRpcResponder {
     fn respond(&self, request: &Request) -> ResponseTemplate {
         let body: Value = match serde_json::from_slice(&request.body) {
             Ok(body) => body,

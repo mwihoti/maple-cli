@@ -2,7 +2,7 @@
 
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -70,7 +70,7 @@ async fn maplecode_returns_json_result(model: String) -> anyhow::Result<()> {
     };
     responses::mount_sse_once_match(&server, match_json_text_param, sse1).await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode, config, ..
     } = test_maplecode().build(&server).await?;
     let cwd = config.cwd.clone();

@@ -14,7 +14,7 @@ use core_test_support::responses::mount_sse_once;
 use core_test_support::responses::sse;
 use core_test_support::responses::sse_response;
 use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
@@ -121,7 +121,7 @@ async fn responses_api_emits_api_request_event() {
 
     let response_mock = mount_sse_once(&server, sse(vec![ev_completed("done")])).await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model("gpt-5.5")
         .with_config(|config| {
             config.service_tier = Some(ServiceTier::Fast.request_value().to_string());
@@ -188,7 +188,7 @@ async fn process_sse_emits_tracing_for_output_item() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode().build(&server).await.unwrap();
+    let TestMaplecode { maplecode, .. } = test_maplecode().build(&server).await.unwrap();
 
     maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
@@ -219,7 +219,7 @@ async fn process_sse_emits_failed_event_on_parse_error() {
 
     mount_sse_once(&server, "data: not-json\n\n".to_string()).await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config
                 .features
@@ -260,7 +260,7 @@ async fn process_sse_records_failed_event_when_stream_closes_without_completed()
 
     mount_sse_once(&server, sse(vec![ev_assistant_message("id", "hi")])).await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config
                 .features
@@ -321,7 +321,7 @@ async fn process_sse_failed_event_records_response_error_message() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config
                 .features
@@ -380,7 +380,7 @@ async fn process_sse_failed_event_logs_parse_error() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config
                 .features
@@ -426,7 +426,7 @@ async fn process_sse_failed_event_logs_missing_error() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config
                 .features
@@ -481,7 +481,7 @@ async fn process_sse_failed_event_logs_response_completed_parse_error() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config
                 .features
@@ -546,7 +546,7 @@ async fn process_sse_emits_completed_telemetry_with_delta_logs_disabled() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config.otel.log_sse_deltas = false;
         })
@@ -645,7 +645,7 @@ async fn turn_and_completed_response_spans_record_token_usage() {
         .await
         .unwrap();
 
-    let TestMapleCode { maplecode, .. } = test;
+    let TestMaplecode { maplecode, .. } = test;
 
     maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
@@ -720,7 +720,7 @@ async fn handle_responses_span_records_response_kind_and_tool_name() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config
                 .features
@@ -806,7 +806,7 @@ async fn record_responses_sets_span_fields_for_response_events() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model("gpt-5.4")
         .with_config(|config| {
             config.model_reasoning_effort = Some(ReasoningEffort::High);
@@ -891,7 +891,7 @@ async fn handle_response_item_records_tool_result_for_custom_tool_call() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config
                 .features
@@ -961,7 +961,7 @@ async fn handle_response_item_records_tool_result_for_function_call() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config
                 .features
@@ -1031,7 +1031,7 @@ async fn handle_response_item_records_tool_result_for_exec_command_call() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(move |config| {
             config
                 .features
@@ -1162,7 +1162,7 @@ fn network_policy_decisions_omit_source_and_destination() {
         /*account_id*/ None,
         /*account_email*/ None,
         Some(TelemetryAuthMode::ApiKey),
-        "MapleCode_Desktop".to_string(),
+        "Maplecode_Desktop".to_string(),
         /*log_user_prompts*/ false,
         "tty".to_string(),
         SessionSource::Cli,
@@ -1232,7 +1232,7 @@ fn sandbox_outcome_event_records_outcome() {
         /*account_id*/ None,
         /*account_email*/ None,
         Some(TelemetryAuthMode::ApiKey),
-        "MapleCode_Desktop".to_string(),
+        "Maplecode_Desktop".to_string(),
         /*log_user_prompts*/ false,
         "tty".to_string(),
         SessionSource::Cli,
@@ -1274,7 +1274,7 @@ async fn handle_exec_command_autoapprove_from_config_records_tool_decision() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
             config
@@ -1326,7 +1326,7 @@ async fn handle_exec_command_user_approved_records_tool_decision() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config.permissions.approval_policy =
                 Constrained::allow_any(AskForApproval::UnlessTrusted);
@@ -1392,7 +1392,7 @@ async fn handle_exec_command_user_approved_for_session_records_tool_decision() {
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config.permissions.approval_policy =
                 Constrained::allow_any(AskForApproval::UnlessTrusted);
@@ -1458,7 +1458,7 @@ async fn handle_exec_command_user_denies_records_tool_decision() {
         ]),
     )
     .await;
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config.permissions.approval_policy =
                 Constrained::allow_any(AskForApproval::UnlessTrusted);

@@ -12,7 +12,7 @@ use core_test_support::responses::ev_response_created;
 use core_test_support::responses::sse;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
@@ -40,7 +40,7 @@ const TURN_COMPLETE_TIMEOUT: Duration = Duration::from_secs(30);
 
 struct CodeModeElicitationHarness {
     _server: MockServer,
-    test: TestMapleCode,
+    test: TestMaplecode,
     follow_up: ResponseMock,
     turn_id: String,
 }
@@ -112,7 +112,7 @@ async fn mount_code_mode_responses(server: &MockServer, code: &str) -> ResponseM
 }
 
 async fn submit_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     permission_profile: PermissionProfile,
 ) -> Result<String> {
     let (sandbox_policy, permission_profile) =

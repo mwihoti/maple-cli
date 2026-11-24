@@ -35,8 +35,8 @@ use core_test_support::skip_if_no_remote_env;
 use core_test_support::skip_if_remote;
 use core_test_support::skip_if_target_windows;
 use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::executor_path_uri;
 use core_test_support::test_maplecode::local;
 use core_test_support::test_maplecode::test_maplecode;
@@ -84,20 +84,20 @@ use wiremock::ResponseTemplate;
 use wiremock::matchers::method;
 use wiremock::matchers::path_regex;
 
-pub async fn apply_patch_harness() -> Result<TestMapleCodeHarness> {
+pub async fn apply_patch_harness() -> Result<TestMaplecodeHarness> {
     apply_patch_harness_with(|builder| builder).await
 }
 
 async fn apply_patch_harness_with(
-    configure: impl FnOnce(TestMapleCodeBuilder) -> TestMapleCodeBuilder,
-) -> Result<TestMapleCodeHarness> {
+    configure: impl FnOnce(TestMaplecodeBuilder) -> TestMaplecodeBuilder,
+) -> Result<TestMaplecodeHarness> {
     let builder = configure(test_maplecode());
     // Box harness construction so apply_patch_cli tests do not inline the
     // full test-thread startup path into each test future.
-    Box::pin(TestMapleCodeHarness::with_auto_env_builder(builder)).await
+    Box::pin(TestMaplecodeHarness::with_auto_env_builder(builder)).await
 }
 
-async fn submit_without_wait(harness: &TestMapleCodeHarness, prompt: &str) -> Result<()> {
+async fn submit_without_wait(harness: &TestMaplecodeHarness, prompt: &str) -> Result<()> {
     submit_without_wait_with_turn_permissions(
         harness,
         prompt,
@@ -108,7 +108,7 @@ async fn submit_without_wait(harness: &TestMapleCodeHarness, prompt: &str) -> Re
 }
 
 async fn submit_without_wait_with_turn_permissions(
-    harness: &TestMapleCodeHarness,
+    harness: &TestMaplecodeHarness,
     prompt: &str,
     sandbox_policy: SandboxPolicy,
     permission_profile: Option<PermissionProfile>,
@@ -229,7 +229,7 @@ fn create_file_symlink(_source: &std::path::Path, _link: &std::path::Path) -> st
 }
 
 pub async fn mount_apply_patch(
-    harness: &TestMapleCodeHarness,
+    harness: &TestMaplecodeHarness,
     call_id: &str,
     patch: &str,
     assistant_msg: &str,
@@ -309,7 +309,7 @@ async fn mxc_config_routes_command_and_patch_to_the_windows_executor() -> Result
 }
 
 async fn mount_apply_patch_model_output(
-    harness: &TestMapleCodeHarness,
+    harness: &TestMaplecodeHarness,
     call_id: &str,
     patch: &str,
     assistant_msg: &str,

@@ -17,7 +17,7 @@ use core_test_support::responses::mount_sse_once;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -74,7 +74,7 @@ async fn user_message_item_is_emitted() -> anyhow::Result<()> {
 
     let server = start_mock_server().await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode().build(&server).await?;
+    let TestMaplecode { maplecode, .. } = test_maplecode().build(&server).await?;
 
     let first_response = sse(vec![ev_response_created("resp-1"), ev_completed("resp-1")]);
     mount_sse_once(&server, first_response).await;
@@ -143,7 +143,7 @@ async fn assistant_message_item_is_emitted() -> anyhow::Result<()> {
 
     let server = start_mock_server().await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode().build(&server).await?;
+    let TestMaplecode { maplecode, .. } = test_maplecode().build(&server).await?;
 
     let first_response = sse(vec![
         ev_response_created("resp-1"),
@@ -193,7 +193,7 @@ async fn reasoning_item_is_emitted() -> anyhow::Result<()> {
 
     let server = start_mock_server().await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode().build(&server).await?;
+    let TestMaplecode { maplecode, .. } = test_maplecode().build(&server).await?;
 
     let reasoning_item = ev_reasoning_item(
         "reasoning-1",
@@ -250,7 +250,7 @@ async fn missing_streamed_reasoning_id_is_reused_for_completion() -> anyhow::Res
     skip_if_no_network!(Ok(()));
 
     let server = start_mock_server().await;
-    let TestMapleCode { maplecode, .. } = test_maplecode().build_with_auto_env(&server).await?;
+    let TestMaplecode { maplecode, .. } = test_maplecode().build_with_auto_env(&server).await?;
 
     let mut reasoning_added = ev_reasoning_item_added("unused", &[]);
     reasoning_added["item"]
@@ -401,7 +401,7 @@ async fn agent_message_content_delta_has_item_metadata() -> anyhow::Result<()> {
 
     let server = start_mock_server().await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -463,7 +463,7 @@ async fn plan_mode_emits_plan_item_from_proposed_plan_block() -> anyhow::Result<
 
     let server = start_mock_server().await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -528,7 +528,7 @@ async fn plan_mode_strips_plan_from_agent_messages() -> anyhow::Result<()> {
 
     let server = start_mock_server().await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -616,7 +616,7 @@ async fn plan_mode_streaming_citations_are_stripped_across_added_deltas_and_done
 
     let server = start_mock_server().await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -796,7 +796,7 @@ async fn plan_mode_streaming_proposed_plan_tag_split_across_added_and_delta_is_p
 
     let server = start_mock_server().await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -903,7 +903,7 @@ async fn plan_mode_handles_missing_plan_close_tag() -> anyhow::Result<()> {
 
     let server = start_mock_server().await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -983,7 +983,7 @@ async fn reasoning_content_delta_has_item_metadata() -> anyhow::Result<()> {
 
     let server = start_mock_server().await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode().build(&server).await?;
+    let TestMaplecode { maplecode, .. } = test_maplecode().build(&server).await?;
 
     let stream = sse(vec![
         ev_response_created("resp-1"),
@@ -1028,7 +1028,7 @@ async fn sequential_cutoff_renders_done_summaries_for_active_reasoning_item() ->
 
     let server = start_mock_server().await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config
                 .features
@@ -1113,7 +1113,7 @@ async fn reasoning_raw_content_delta_respects_flag() -> anyhow::Result<()> {
 
     let server = start_mock_server().await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config.show_raw_agent_reasoning = true;
         })

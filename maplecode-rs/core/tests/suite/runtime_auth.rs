@@ -9,14 +9,14 @@ use core_test_support::runtime_auth::run_harness_through_proxy;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
 use maplecode_features::RuntimeAuthMode;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider::ProviderAuthContext;
 use maplecode_models_manager::manager::ModelCatalogSettings;
 use maplecode_models_manager::manager::RefreshStrategy;
@@ -319,7 +319,7 @@ async fn harness_shares_runtime_and_honors_thread_auth_config() -> Result<()> {
 async fn exercise_harness(server_uri: String) -> Result<()> {
     let server = MockServer::start().await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("key-a"))
+        .with_auth(MaplecodeAuth::from_api_key("key-a"))
         .with_config(|config| {
             config.model_provider.base_url = Some("https://api.openai.com/v1".into());
             config.chatgpt_base_url = "https://us.chatgpt.com/backend-api".to_string();
@@ -483,7 +483,7 @@ async fn exercise_harness(server_uri: String) -> Result<()> {
         })
         .await?;
     let replacement = maplecode_core::test_support::auth_manager_from_auth_with_home(
-        MapleCodeAuth::from_api_key("key-b"),
+        MaplecodeAuth::from_api_key("key-b"),
         test.maplecode_home_path().to_path_buf(),
     );
     let history = InitialHistory::Resumed(ResumedHistory {
@@ -560,7 +560,7 @@ fn catalog_fixture() -> maplecode_protocol::openai_models::ModelsResponse {
 }
 
 async fn exercise_provider_destinations(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     config: &maplecode_core::config::Config,
 ) -> Result<()> {
     let external = MockServer::start().await;
@@ -628,7 +628,7 @@ async fn exercise_provider_destinations(
     Ok(())
 }
 
-async fn turn(thread: &Arc<MapleCodeThread>, label: &str) -> Result<()> {
+async fn turn(thread: &Arc<MaplecodeThread>, label: &str) -> Result<()> {
     thread
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
             text: label.into(),
@@ -899,7 +899,7 @@ async fn exercise_mcp_uploads() -> Result<()> {
     use core_test_support::apps_test_server::apps_enabled_builder;
     let server = MockServer::start().await;
     let actor = |user| {
-        MapleCodeAuth::from_external_chatgpt_tokens(
+        MaplecodeAuth::from_external_chatgpt_tokens(
             &mcp_actor_token(user),
             "account_id",
             /*chatgpt_plan_type*/ None,
@@ -1032,7 +1032,7 @@ async fn daybreak_requests_use_runtime_auth() -> Result<()> {
     let original = mcp_actor_token("user-a");
     if std::env::var(PROBE_SERVER).is_ok() {
         let actor = |token: &str| {
-            MapleCodeAuth::from_external_chatgpt_tokens(
+            MaplecodeAuth::from_external_chatgpt_tokens(
                 token,
                 "account_id",
                 /*chatgpt_plan_type*/ None,

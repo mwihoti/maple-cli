@@ -6,7 +6,7 @@ use core_test_support::apps_test_server::AppsTestServer;
 use core_test_support::apps_test_server::apps_enabled_builder;
 use core_test_support::responses::ev_function_call;
 use core_test_support::responses::ev_tool_search_call;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use maplecode_protocol::config_types::WebSearchMode;
 use maplecode_protocol::openai_models::WebSearchProvider;
 use pretty_assertions::assert_eq;
@@ -62,7 +62,7 @@ async fn literature_search_and_open() -> Result<()> {
     .await;
 
     let auth =
-        maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("dummy"));
+        maplecode_core::test_support::auth_manager_from_auth(MaplecodeAuth::from_api_key("dummy"));
     let mut extensions = ExtensionRegistryBuilder::new();
     maplecode_web_search_extension::install(&mut extensions, Arc::clone(&auth));
     let test = test_maplecode()
@@ -159,9 +159,9 @@ async fn mount_model_search(
     Ok(apps)
 }
 
-fn model_search_builder(apps: &AppsTestServer, tool_mode: ToolMode) -> TestMapleCodeBuilder {
+fn model_search_builder(apps: &AppsTestServer, tool_mode: ToolMode) -> TestMaplecodeBuilder {
     let auth = maplecode_core::test_support::auth_manager_from_auth(
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
     );
     let mut extensions = ExtensionRegistryBuilder::new();
     maplecode_web_search_extension::install(&mut extensions, Arc::clone(&auth));

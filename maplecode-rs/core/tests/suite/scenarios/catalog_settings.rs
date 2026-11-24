@@ -3,11 +3,11 @@
 use anyhow::Result;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_protocol::openai_models::ModelServiceTier;
@@ -54,7 +54,7 @@ fn catalog(efforts: &[ReasoningEffort], tiers: &[&str]) -> Result<ModelsResponse
 }
 
 async fn run_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     text: &str,
     settings: ThreadSettingsOverrides,
 ) -> Result<()> {
@@ -79,7 +79,7 @@ async fn start_test(
     server: &MockServer,
     effort: ReasoningEffort,
     tier: &str,
-) -> Result<TestMapleCode> {
+) -> Result<TestMaplecode> {
     responses::mount_models_once(
         server,
         catalog(
@@ -94,7 +94,7 @@ async fn start_test(
     .await;
     let tier = tier.to_string();
     test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.5")
         .with_config(move |config| {
             config.model_reasoning_effort = Some(effort);
@@ -114,7 +114,7 @@ async fn start_test(
         .await
 }
 
-async fn select_effort(test: &TestMapleCode, effort: ReasoningEffort) -> Result<()> {
+async fn select_effort(test: &TestMaplecode, effort: ReasoningEffort) -> Result<()> {
     let (reply, applied) = tokio::sync::oneshot::channel();
     test.maplecode
         .submit(Op::ThreadSettings {
@@ -250,7 +250,7 @@ async fn reopening_consumes_catalog_refreshed_while_chat_was_closed() -> Result<
         .list_models(RefreshStrategy::Online, test.config.http_client_factory())
         .await;
     let resumed = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.5")
         .with_models_manager(manager)
         .with_config(|config| {

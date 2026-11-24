@@ -10,7 +10,7 @@ use maplecode_core::config::Config;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
 use maplecode_http_client::cache_system_proxy_route_for_test;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_protocol::config_types::WebSearchMode;
 use maplecode_web_search_extension::install as install_web_search_extension;
@@ -107,7 +107,7 @@ async fn standalone_web_search_resolves_redirect_routes() -> Result<()> {
     )
     .await;
 
-    let auth = MapleCodeAuth::from_api_key("dummy");
+    let auth = MaplecodeAuth::from_api_key("dummy");
     let auth_manager = maplecode_core::test_support::auth_manager_from_auth(auth.clone());
     let mut extension_builder = ExtensionRegistryBuilder::<Config>::new();
     install_web_search_extension(&mut extension_builder, auth_manager);

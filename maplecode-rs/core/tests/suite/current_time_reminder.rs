@@ -41,7 +41,7 @@ use maplecode_protocol::ThreadId;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
@@ -671,7 +671,7 @@ async fn time_provider_failure_stops_before_inference() -> Result<()> {
         error.message,
         "Fatal error: failed to read current time: test clock unavailable"
     );
-    assert_eq!(error.maplecode_error_info, Some(MapleCodeErrorInfo::Other));
+    assert_eq!(error.maplecode_error_info, Some(MaplecodeErrorInfo::Other));
 
     wait_for_event(&test.maplecode, |event| {
         matches!(event, EventMsg::TurnComplete(_))

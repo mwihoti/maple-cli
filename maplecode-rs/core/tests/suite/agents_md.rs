@@ -14,8 +14,8 @@ use core_test_support::skip_if_no_remote_env;
 use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_target_windows;
 use core_test_support::test_maplecode::RecordingUserInstructionsProvider;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::executor_path_uri;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -35,10 +35,10 @@ use maplecode_features::Feature;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RolloutItem;
-use maplecode_home::MapleCodeHomeUserInstructionsProvider;
+use maplecode_home::MaplecodeHomeUserInstructionsProvider;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::config_types::TrustLevel;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::permissions::FileSystemAccessMode;
 use maplecode_protocol::permissions::FileSystemSandboxEntry;
@@ -93,7 +93,7 @@ const SPAWN_SEED_PROMPT: &str = "seed parent history";
 const PROVIDER_WARNING: &str = "global instruction source unavailable; using fallback";
 
 struct WarningInstructionsProvider {
-    inner: MapleCodeHomeUserInstructionsProvider,
+    inner: MaplecodeHomeUserInstructionsProvider,
     warning_active: AtomicBool,
 }
 
@@ -174,7 +174,7 @@ impl ThreadInstructionsProvider for RecordingThreadInstructionsProvider {
     }
 }
 
-async fn agents_instructions(mut builder: TestMapleCodeBuilder) -> Result<String> {
+async fn agents_instructions(mut builder: TestMaplecodeBuilder) -> Result<String> {
     let server = start_mock_server().await;
     let resp_mock = mount_sse_once(
         &server,
@@ -251,7 +251,7 @@ fn assert_single_instruction_fragment(request: &responses::ResponsesRequest, exp
 }
 
 pub(super) async fn submit_thread_turn(
-    thread: &Arc<maplecode_core::MapleCodeThread>,
+    thread: &Arc<maplecode_core::MaplecodeThread>,
     prompt: &str,
 ) -> Result<()> {
     thread
@@ -265,7 +265,7 @@ pub(super) async fn submit_thread_turn(
 }
 
 pub(super) async fn persisted_resume_history(
-    thread: &Arc<maplecode_core::MapleCodeThread>,
+    thread: &Arc<maplecode_core::MaplecodeThread>,
     store: &dyn maplecode_thread_store::ThreadStore,
 ) -> Result<(ThreadId, InitialHistory)> {
     thread.ensure_rollout_materialized().await;
@@ -945,7 +945,7 @@ async fn tightening_environment_read_permissions_invalidates_cached_project_inst
     let home = Arc::new(TempDir::new()?);
     let global_source = write_global_file(&home, GLOBAL_AGENTS_FILENAME, GLOBAL_INSTRUCTIONS)?;
     let provider = Arc::new(WarningInstructionsProvider {
-        inner: MapleCodeHomeUserInstructionsProvider::new(home.path().to_path_buf().abs()),
+        inner: MaplecodeHomeUserInstructionsProvider::new(home.path().to_path_buf().abs()),
         warning_active: AtomicBool::new(/*v*/ false),
     });
     let mut builder = test_maplecode()
@@ -1044,7 +1044,7 @@ async fn loads_user_instructions_without_a_primary_environment() -> Result<()> {
     let global_source =
         write_global_file(home.as_ref(), GLOBAL_AGENTS_FILENAME, GLOBAL_INSTRUCTIONS)?;
     let provider = Arc::new(RecordingUserInstructionsProvider::new(Arc::new(
-        MapleCodeHomeUserInstructionsProvider::new(AbsolutePathBuf::try_from(
+        MaplecodeHomeUserInstructionsProvider::new(AbsolutePathBuf::try_from(
             home.path().to_path_buf(),
         )?),
     )));
@@ -1100,8 +1100,8 @@ async fn loads_user_instructions_without_a_primary_environment() -> Result<()> {
 }
 
 struct ThreadInstructionsFixture {
-    test: TestMapleCode,
-    thread: Arc<maplecode_core::MapleCodeThread>,
+    test: TestMaplecode,
+    thread: Arc<maplecode_core::MaplecodeThread>,
     provider: Arc<RecordingThreadInstructionsProvider>,
 }
 
@@ -1110,7 +1110,7 @@ impl ThreadInstructionsFixture {
         let home = Arc::new(TempDir::new()?);
         write_global_file(home.as_ref(), GLOBAL_AGENTS_FILENAME, GLOBAL_INSTRUCTIONS)?;
         let global_provider = Arc::new(RecordingUserInstructionsProvider::new(Arc::new(
-            MapleCodeHomeUserInstructionsProvider::new(AbsolutePathBuf::try_from(
+            MaplecodeHomeUserInstructionsProvider::new(AbsolutePathBuf::try_from(
                 home.path().to_path_buf(),
             )?),
         )));
@@ -1433,7 +1433,7 @@ async fn thread_provider_enforces_its_own_limit_before_startup_and_sampling() ->
         .ok_or_else(|| anyhow!("oversized instructions must fail before thread creation"))?;
     assert!(matches!(
         error.details(),
-        MapleCodeErrorDetails::InvalidRequest(_)
+        MaplecodeErrorDetails::InvalidRequest(_)
     ));
     assert!(error.to_string().contains("10000 estimated tokens"));
 
@@ -1962,7 +1962,7 @@ async fn multi_environment_thread_refreshes_global_and_keeps_repository_snapshot
     let global_source =
         write_global_file(home.as_ref(), GLOBAL_AGENTS_FILENAME, GLOBAL_INSTRUCTIONS)?;
     let provider = Arc::new(RecordingUserInstructionsProvider::new(Arc::new(
-        MapleCodeHomeUserInstructionsProvider::new(AbsolutePathBuf::try_from(
+        MaplecodeHomeUserInstructionsProvider::new(AbsolutePathBuf::try_from(
             home.path().to_path_buf(),
         )?),
     )));

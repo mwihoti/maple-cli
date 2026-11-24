@@ -100,7 +100,7 @@ text(JSON.stringify(results));"#;
             servers.insert(
                 "environment".to_string(),
                 serde_json::from_value(json!({
-                    "url": format!("{url}/api/maplecode/ps/mcp"),
+                    "url": format!("{url}/api/codex/ps/mcp"),
                     "omit_tools_from": ["direct", "deferred", "code_mode"],
                 }))?,
             );

@@ -111,7 +111,7 @@ pub async fn received_analytics_events(server: &MockServer, event_type: &str) ->
         .await
         .unwrap_or_default()
         .into_iter()
-        .filter(|request| request.url.path() == "/maplecode/analytics-events/events")
+        .filter(|request| request.url.path() == "/codex/analytics-events/events")
         .filter_map(|request| serde_json::from_slice::<Value>(&request.body).ok())
         .flat_map(|payload| payload["events"].as_array().cloned().unwrap_or_default())
         .filter(|event| event["event_type"] == event_type)

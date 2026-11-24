@@ -40,8 +40,8 @@ use core_test_support::skip_if_wine_exec;
 use core_test_support::stdio_server_bin;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::environment_config_for_selection;
 use core_test_support::test_maplecode::executor_path_uri;
 use core_test_support::test_maplecode::test_maplecode;
@@ -71,7 +71,7 @@ use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
 use maplecode_image_generation_extension::install as install_image_generation_extension;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_protocol::capabilities::CapabilityRootLocation;
 use maplecode_protocol::capabilities::SelectedCapabilityRoot;
@@ -427,7 +427,7 @@ async fn gif_generation_preserves_animation_and_replays_a_still_preview() -> Res
         .mount(&server)
         .await;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let mut extensions = ExtensionRegistryBuilder::<Config>::new();
     install_image_generation_extension(
         &mut extensions,
@@ -1043,7 +1043,7 @@ async fn astra_asks_an_async_question_and_receives_the_answer_while_working() ->
     let base_url = format!("{}/v1", streaming.uri());
     let test = test_maplecode()
         .with_model("gpt-6-astra")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             configure_scenario_catalog(config);
             config
@@ -1178,7 +1178,7 @@ async fn astra_switches_environments_for_the_rest_of_the_active_turn() -> Result
     .await;
     let test = test_maplecode()
         .with_model("gpt-6-astra")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             configure_scenario_catalog(config);
             config.workspace_roots = vec![config.cwd.clone()];
@@ -1301,7 +1301,7 @@ async fn astra_kickoff_with_skills_plugins_and_remote_compaction() -> Result<()>
     let mut builder = test_maplecode()
         .with_model("gpt-6-astra")
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(skills_extensions())
         .with_workspace_setup(|cwd, fs| async move {
             fs.write_file(
@@ -1435,7 +1435,7 @@ enabled = true
     let test = test_maplecode()
         .with_model("gpt-6-astra")
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(skills_extensions())
         .with_config(move |config| {
             configure_scenario_catalog(config);
@@ -1601,7 +1601,7 @@ async fn astra_omits_disabled_executor_and_plugin_skills_from_model_context(
     .await;
     let test = test_maplecode()
         .with_model("gpt-6-astra")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(Arc::new(extensions.build()))
         .with_config(configure_scenario_catalog)
         .build(&server)
@@ -2122,7 +2122,7 @@ async fn skill_read_recovers_omitted_installation_and_reads_selected_environment
     .await;
     let test = test_maplecode()
         .with_model("gpt-6-astra")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         // Start without a local attachment so Cloud skills remain available.
         .with_exec_server_url("none")
         .with_extensions(Arc::new(extensions.build()))
@@ -2307,7 +2307,7 @@ async fn astra_settings_release_check_with_direct_and_code_mode_tools() -> Resul
     let mut builder = test_maplecode()
         .with_model("gpt-6-astra")
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             configure_scenario_catalog(config);
             let mut servers = config.mcp_servers.get().clone();
@@ -2530,7 +2530,7 @@ async fn astra_continues_after_a_stream_is_interrupted() -> Result<()> {
     let base_url = format!("{}/v1", streaming.uri());
     let test = test_maplecode()
         .with_model("gpt-6-astra")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             configure_scenario_catalog(config);
             config.model_provider.base_url = Some(base_url);
@@ -2750,7 +2750,7 @@ async fn code_mode_catalog_messages(ranked_search: bool) -> Result<()> {
         core_test_support::apps_test_server::AppsTestServer::mount_searchable(&server).await?;
     let test = test_maplecode()
         .with_model("gpt-6-astra")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             configure_scenario_catalog(config);
             config.chatgpt_base_url = apps.chatgpt_base_url;
@@ -2945,7 +2945,7 @@ async fn astra_refreshes_plugin_tools_and_skills_in_an_existing_thread(
     let mut builder = test_maplecode()
         .with_model("gpt-6-astra")
         .with_home(Arc::clone(&home))
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(skills_extensions())
         .with_config(configure_scenario_catalog);
     let test = builder.build(&server).await?;
@@ -3666,15 +3666,15 @@ fn compaction_output(value: &str) -> serde_json::Value {
 }
 
 async fn async_compaction_test(
-    builder: TestMapleCodeBuilder,
+    builder: TestMaplecodeBuilder,
     responses_uri: &str,
     features: Vec<Feature>,
     configure: impl Fn(&mut Config) + Send + Sync + 'static,
-) -> Result<(wiremock::MockServer, TestMapleCode)> {
+) -> Result<(wiremock::MockServer, TestMaplecode)> {
     let config_server = start_mock_server().await;
     let base_url = format!("{responses_uri}/v1");
     let test = builder
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             configure_scenario_catalog(config);
             config.model_provider.base_url = Some(base_url);
@@ -3732,7 +3732,7 @@ async fn async_compaction_image_checks_do_not_block_turn_completion() -> Result<
     let config_server = start_mock_server().await;
     let base_url = format!("{}/v1", streaming.uri());
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_image_store(image_store.clone())
         .with_config(move |config| {
             configure_scenario_catalog(config);
@@ -4782,7 +4782,7 @@ async fn catalog_plugin_guidance_follows_model_and_survives_resume() -> Result<(
     let mut builder = test_maplecode()
         .with_model("plugins-default")
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(skills_extensions())
         .with_config(configure);
     let test = builder.build_with_auto_env(&server).await?;
@@ -4985,7 +4985,7 @@ async fn catalog_selected_plugin_wording_preserves_capability_policy(
     let test = test_maplecode()
         .with_model("selected-custom")
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(skills_extensions())
         .with_config(move |config| {
             configure_catalog_plugin_scenario(config);
@@ -5180,7 +5180,7 @@ async fn catalog_selected_plugin_omission_bounds_runtime_capabilities() -> Resul
     let test = test_maplecode()
         .with_model("gpt-5.5")
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(skills_extensions())
         .with_config(move |config| {
             configure_catalog_plugin_scenario(config);

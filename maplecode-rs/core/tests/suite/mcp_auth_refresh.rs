@@ -13,10 +13,10 @@ use maplecode_login::AuthManager;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::EffectiveMcpServer;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
-use maplecode_mcp::MapleCodeAppsToolsCache;
+use maplecode_mcp::MaplecodeAppsToolsCache;
 use maplecode_mcp::McpRuntime;
 use maplecode_mcp::McpRuntimeContext;
 use maplecode_mcp::McpRuntimeInput;
@@ -33,17 +33,17 @@ use tempfile::TempDir;
 use tokio_util::sync::CancellationToken;
 
 // Installs a known snapshot through AuthManager's public external-auth path.
-struct StaticExternalAuth(MapleCodeAuth);
+struct StaticExternalAuth(MaplecodeAuth);
 
 impl ExternalAuth for StaticExternalAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 }
@@ -55,7 +55,7 @@ async fn hosted_plugin_runtime_ps_mcp_tool_calls_use_current_auth_manager_token(
     let server = start_mock_server().await;
     let apps_server = AppsTestServer::mount_hosted_plugin_runtime_searchable(&server).await?;
     let home = Arc::new(TempDir::new()?);
-    let expected_auth = MapleCodeAuth::from_external_chatgpt_tokens(
+    let expected_auth = MaplecodeAuth::from_external_chatgpt_tokens(
         "header.e30.first",
         "test-account",
         /*chatgpt_plan_type*/ None,
@@ -108,7 +108,7 @@ async fn hosted_plugin_runtime_ps_mcp_tool_calls_use_current_auth_manager_token(
             Arc::new(environment_manager_without_environments()),
             home.path().to_path_buf(),
         ),
-        maplecode_apps_tools_cache: MapleCodeAppsToolsCache::default(),
+        maplecode_apps_tools_cache: MaplecodeAppsToolsCache::default(),
         tool_catalog_cache: McpToolCatalogCache::default(),
         maplecode_apps_tools_cache_key: maplecode_mcp::maplecode_apps_tools_cache_key(Some(
             &expected_auth,
@@ -125,7 +125,7 @@ async fn hosted_plugin_runtime_ps_mcp_tool_calls_use_current_auth_manager_token(
     // manager after the MCP client has been created.
     auth_manager
         .set_external_auth(Arc::new(StaticExternalAuth(
-            MapleCodeAuth::from_external_chatgpt_tokens(
+            MaplecodeAuth::from_external_chatgpt_tokens(
                 "header.e30.reloaded",
                 "test-account",
                 /*chatgpt_plan_type*/ None,
@@ -159,7 +159,7 @@ async fn hosted_plugin_runtime_ps_mcp_tool_calls_use_current_auth_manager_token(
     let tool_call_request = requests
         .iter()
         .find(|request| {
-            request.url.path() == "/api/maplecode/ps/mcp"
+            request.url.path() == "/api/codex/ps/mcp"
                 && serde_json::from_slice::<Value>(&request.body)
                     .ok()
                     .is_some_and(|body| {

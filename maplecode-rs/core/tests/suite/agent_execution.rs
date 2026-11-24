@@ -771,7 +771,7 @@ mod permission_reload_tests;
 #[tokio::test]
 async fn tree_shutdown_waits_for_children_without_affecting_other_roots() -> Result<()> {
     use maplecode_core::StartThreadOptions;
-    use maplecode_protocol::error::MapleCodeErrorDetails;
+    use maplecode_protocol::error::MaplecodeErrorDetails;
     use maplecode_protocol::protocol::InternalSessionSource;
     use maplecode_protocol::protocol::SessionSource;
 
@@ -847,7 +847,7 @@ async fn tree_shutdown_waits_for_children_without_affecting_other_roots() -> Res
     };
     assert!(matches!(
         error.details(),
-        MapleCodeErrorDetails::InvalidRequest(_)
+        MaplecodeErrorDetails::InvalidRequest(_)
     ));
     tokio::time::timeout(Duration::from_secs(/*secs*/ 10), shutdown.wait_detailed())
         .await?
@@ -894,7 +894,7 @@ async fn tree_shutdown_waits_for_children_without_affecting_other_roots() -> Res
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn tree_shutdown_cancels_admitted_session_startup() -> Result<()> {
     use maplecode_core::StartThreadOptions;
-    use maplecode_protocol::error::MapleCodeErrorDetails;
+    use maplecode_protocol::error::MaplecodeErrorDetails;
     use maplecode_protocol::protocol::InternalSessionSource;
     use maplecode_protocol::protocol::SessionSource;
 
@@ -911,7 +911,7 @@ async fn tree_shutdown_cancels_admitted_session_startup() -> Result<()> {
     servers.insert(
         "stalled".to_owned(),
         serde_json::from_value(json!({
-            "url": format!("{}/api/maplecode/ps/mcp", http_server.chatgpt_base_url),
+            "url": format!("{}/api/codex/ps/mcp", http_server.chatgpt_base_url),
             "http_headers": { "Authorization": "Bearer synthetic-test-token" },
             "required": true,
             "startup_timeout_sec": 120,
@@ -950,7 +950,7 @@ async fn tree_shutdown_cancels_admitted_session_startup() -> Result<()> {
     };
     assert!(matches!(
         error.details(),
-        MapleCodeErrorDetails::TurnAborted
+        MaplecodeErrorDetails::TurnAborted
     ));
     drop(release);
     test.maplecode.shutdown_and_wait().await?;

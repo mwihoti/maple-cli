@@ -11,7 +11,7 @@ use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_wine_exec;
 use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
@@ -102,7 +102,7 @@ fn guardian_allow_response(response_id: &str) -> String {
     ])
 }
 
-async fn submit_model_turn(test: &TestMapleCode, model: &str, prompt: &str) -> Result<()> {
+async fn submit_model_turn(test: &TestMaplecode, model: &str, prompt: &str) -> Result<()> {
     submit_thread_settings(
         &test.maplecode,
         ThreadSettingsOverrides {

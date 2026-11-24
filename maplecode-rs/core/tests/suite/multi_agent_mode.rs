@@ -108,7 +108,7 @@ fn count_containing(texts: &[&str], target: &str) -> usize {
 }
 
 async fn submit_turn(
-    maplecode: &maplecode_core::MapleCodeThread,
+    maplecode: &maplecode_core::MaplecodeThread,
     prompt: &str,
     effort: Option<ReasoningEffort>,
 ) -> Result<()> {

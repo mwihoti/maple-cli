@@ -19,7 +19,7 @@ use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::GuardianAssessmentStatus;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
@@ -280,7 +280,7 @@ async fn guardian_refreshes_subagent_authorization(change: Change) -> Result<()>
             EventMsg::GuardianAssessment(assessment) => statuses.push(assessment.status),
             EventMsg::Error(error) => assert_ne!(
                 error.maplecode_error_info,
-                Some(MapleCodeErrorInfo::TooManyDenials),
+                Some(MaplecodeErrorInfo::TooManyDenials),
                 "invalidated assessments must not count toward the denial limit"
             ),
             EventMsg::TurnComplete(_) | EventMsg::TurnAborted(_) => worker_finished = true,

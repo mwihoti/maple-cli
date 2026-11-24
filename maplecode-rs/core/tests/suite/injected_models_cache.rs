@@ -21,7 +21,7 @@ use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_http_client::HttpClientFactory;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::built_in_model_providers;
 use maplecode_models_manager::cache::ModelsCache;
 use maplecode_models_manager::cache::ModelsCacheEntry;
@@ -186,7 +186,7 @@ fn models_manager(
         cache,
         endpoint,
         Some(AuthManager::from_auth_for_testing(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         )),
     ))
 }
@@ -203,7 +203,7 @@ async fn run_agent_with_model(models_manager: SharedModelsManager, model_slug: &
     )
     .await;
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_models_manager(models_manager)
         .with_config(|config| {
             config
@@ -330,7 +330,7 @@ async fn threads_follow_provider_changes_and_preserve_host_cache_policy(
         .expect(1..)
         .mount(&host)
         .await;
-    let auth = AuthManager::from_auth_for_testing(MapleCodeAuth::from_api_key("host-catalog-key"));
+    let auth = AuthManager::from_auth_for_testing(MaplecodeAuth::from_api_key("host-catalog-key"));
     let mut info =
         built_in_model_providers(Some(format!("{}/v1", inference.uri())))["openai"].clone();
     info.model_catalog_url = Some(format!("{}/host-models", host.uri()).into());
@@ -489,7 +489,7 @@ async fn initialization_preserves_a_concurrent_refresh() -> Result<()> {
 async fn account_switch_during_cache_store_preserves_new_catalog_for_next_turn() -> Result<()> {
     let server = wiremock::MockServer::start().await;
     let home = Arc::new(TempDir::new()?);
-    let initial_auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let initial_auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let auth = AuthManager::from_auth_for_testing_with_home(
         initial_auth.clone(),
         home.path().to_path_buf(),

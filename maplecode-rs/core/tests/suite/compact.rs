@@ -21,7 +21,7 @@ use maplecode_core::compact::SUMMARY_PREFIX;
 use maplecode_core::config::Config;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_model_provider_info::built_in_model_providers;
 use maplecode_models_manager::bundled_models_response;
@@ -45,7 +45,7 @@ use maplecode_protocol::protocol::HookEventName;
 use maplecode_protocol::protocol::HookRunStatus;
 use maplecode_protocol::protocol::ItemCompletedEvent;
 use maplecode_protocol::protocol::ItemStartedEvent;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::request_user_input::RequestUserInputAnswer;
@@ -450,7 +450,7 @@ fn assert_pre_sampling_switch_compaction_requests(
 }
 
 async fn assert_compaction_uses_turn_lifecycle_id(
-    maplecode: &std::sync::Arc<maplecode_core::MapleCodeThread>,
+    maplecode: &std::sync::Arc<maplecode_core::MaplecodeThread>,
 ) {
     let mut turn_started_id = None;
     let mut turn_completed_id = None;
@@ -1052,7 +1052,7 @@ async fn reasoning_effort_override_remote_v2_compaction_resets_pinned_effort(
     .await;
 
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("gpt-5.4", |model| {
             model.use_responses_lite = true;
             model.supports_reasoning_effort_updates = true;
@@ -1175,7 +1175,7 @@ async fn explicit_denial_stops_compaction_on_model_downshift(
     let model_provider = provider(&server);
     let test = test_maplecode()
         .with_model(previous)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.model_provider = model_provider;
             config.model_provider.stream_max_retries = Some(2);
@@ -1228,7 +1228,7 @@ async fn explicit_denial_stops_compaction_on_model_downshift(
         }
     }),
     "Incomplete response returned, reason: max_output_tokens",
-    MapleCodeErrorInfo::Other,
+    MaplecodeErrorInfo::Other,
     270_000;
     "incomplete_reported_usage"
 )]
@@ -1242,7 +1242,7 @@ async fn explicit_denial_stops_compaction_on_model_downshift(
         }
     }),
     "Incomplete response returned, reason: max_output_tokens",
-    MapleCodeErrorInfo::Other,
+    MaplecodeErrorInfo::Other,
     120_000;
     "incomplete_missing_usage"
 )]
@@ -1252,7 +1252,7 @@ async fn explicit_denial_stops_compaction_on_model_downshift(
         "error": {"code": "inference_hook_denied", "message": "Blocked by the workspace hook."}
     }),
     "Blocked by the workspace hook.",
-    MapleCodeErrorInfo::InferenceHookDenied,
+    MaplecodeErrorInfo::InferenceHookDenied,
     120_000;
     "inference_hook_denied_error"
 )]
@@ -1265,7 +1265,7 @@ async fn explicit_denial_stops_compaction_on_model_downshift(
         }
     }),
     "Blocked by the workspace hook.",
-    MapleCodeErrorInfo::InferenceHookDenied,
+    MaplecodeErrorInfo::InferenceHookDenied,
     120_000;
     "inference_hook_denied_response_failed"
 )]
@@ -1273,7 +1273,7 @@ async fn explicit_denial_stops_compaction_on_model_downshift(
 async fn terminal_compaction_failure_preserves_usage_and_history(
     failure_event: Value,
     expected_error: &str,
-    expected_error_info: MapleCodeErrorInfo,
+    expected_error_info: MaplecodeErrorInfo,
     expected_total_tokens: i64,
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
@@ -1306,7 +1306,7 @@ async fn terminal_compaction_failure_preserves_usage_and_history(
         let model_provider = provider(&server);
         let test = test_maplecode()
             .with_model(previous_model)
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_config(move |config| {
                 config.model_provider = model_provider;
                 config.model_catalog = Some(ModelsResponse {
@@ -2758,7 +2758,7 @@ async fn pre_sampling_compact_runs_on_switch_to_smaller_context_model() {
 
     let model_provider = non_openai_model_provider(&server);
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.update_plan_enabled = true;
@@ -2861,7 +2861,7 @@ async fn pre_sampling_compact_runs_when_comp_hash_changes() {
 
     let model_provider = non_openai_model_provider(&server);
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -3050,7 +3050,7 @@ async fn pre_sampling_compact_falls_back_from_retired_previous_model_after_renam
 
     let model_provider = openai_model_provider(&server);
     let mut initial_builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(retired_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -3093,7 +3093,7 @@ async fn pre_sampling_compact_falls_back_from_retired_previous_model_after_renam
 
     let model_provider = openai_model_provider(&server);
     let mut resumed_builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(retired_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -3189,7 +3189,7 @@ async fn pre_sampling_compact_falls_back_when_previous_model_is_not_found() {
 
     let model_provider = openai_model_provider(&server);
     let mut initial_builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(retired_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -3233,7 +3233,7 @@ async fn pre_sampling_compact_falls_back_when_previous_model_is_not_found() {
     let mut model_provider = openai_model_provider(&server);
     model_provider.stream_max_retries = Some(0);
     let mut resumed_builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(retired_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -3337,7 +3337,7 @@ async fn pre_sampling_compact_falls_back_after_previous_model_invalid_request_on
 
     let model_provider = openai_model_provider(&server);
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(retired_model)
         .with_config(move |config| {
             config.model_provider_id = provider_id.to_owned();
@@ -3456,7 +3456,7 @@ async fn pre_sampling_compact_falls_back_after_previous_model_stream_retries_are
     let mut model_provider = openai_model_provider(&server);
     model_provider.stream_max_retries = Some(2);
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -3560,7 +3560,7 @@ async fn pre_sampling_compact_advised_errors_fall_back_then_retry_on_selected_mo
     model_provider.request_max_retries = Some(0);
     model_provider.stream_max_retries = Some(2);
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -3599,14 +3599,14 @@ async fn pre_sampling_compact_advised_errors_fall_back_then_retry_on_selected_mo
                 EventMsg::TurnComplete(event) => {
                     assert_eq!(
                         event.error.and_then(|error| error.maplecode_error_info),
-                        Some(MapleCodeErrorInfo::ServerOverloaded)
+                        Some(MaplecodeErrorInfo::ServerOverloaded)
                     );
                     break;
                 }
                 _ => {}
             }
         }
-        assert_eq!(errors, vec![Some(MapleCodeErrorInfo::ServerOverloaded)]);
+        assert_eq!(errors, vec![Some(MaplecodeErrorInfo::ServerOverloaded)]);
     }
     let actual_models = request_log
         .requests()
@@ -3681,7 +3681,7 @@ async fn manual_remote_compact_advice_respects_retry_limit(max_retries: u64) {
     model_provider.request_max_retries = Some(0);
     model_provider.stream_max_retries = Some(max_retries);
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.4")
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -3704,14 +3704,14 @@ async fn manual_remote_compact_advice_respects_retry_limit(max_retries: u64) {
             EventMsg::TurnComplete(event) => {
                 assert_eq!(
                     event.error.and_then(|error| error.maplecode_error_info),
-                    Some(MapleCodeErrorInfo::ServerOverloaded)
+                    Some(MaplecodeErrorInfo::ServerOverloaded)
                 );
                 break;
             }
             _ => {}
         }
     }
-    assert_eq!(errors, vec![Some(MapleCodeErrorInfo::ServerOverloaded)]);
+    assert_eq!(errors, vec![Some(MaplecodeErrorInfo::ServerOverloaded)]);
     assert_eq!(
         reconnect_messages,
         (1..=max_retries)
@@ -3769,7 +3769,7 @@ async fn pre_sampling_compact_keeps_unknown_previous_model_for_api_key_auth_and_
 
     let model_provider = non_openai_model_provider(&server);
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("Test API Key"))
+        .with_auth(MaplecodeAuth::from_api_key("Test API Key"))
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -3860,7 +3860,7 @@ async fn pre_sampling_compact_skips_when_either_comp_hash_is_missing() {
 
     let model_provider = non_openai_model_provider(&server);
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(model_without_hash)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -3965,7 +3965,7 @@ async fn body_after_prefix_model_switch_budget_compacts_with_next_model() {
 
     let model_provider = non_openai_model_provider(&server);
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -4059,7 +4059,7 @@ async fn pre_sampling_compact_runs_after_resume_and_switch_to_smaller_model() {
 
     let model_provider = non_openai_model_provider(&server);
     let mut initial_builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -4102,7 +4102,7 @@ async fn pre_sampling_compact_runs_after_resume_and_switch_to_smaller_model() {
 
     let model_provider = non_openai_model_provider(&server);
     let mut resumed_builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -4180,7 +4180,7 @@ async fn pre_sampling_compact_recovers_comp_hash_after_resume() {
 
     let model_provider = non_openai_model_provider(&server);
     let mut initial_builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -4233,7 +4233,7 @@ async fn pre_sampling_compact_recovers_comp_hash_after_resume() {
 
     let model_provider = non_openai_model_provider(&server);
     let mut resumed_builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -4307,7 +4307,7 @@ async fn pre_sampling_compact_skips_missing_comp_hash_after_resume() {
 
     let model_provider = non_openai_model_provider(&server);
     let mut initial_builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -4358,7 +4358,7 @@ async fn pre_sampling_compact_skips_missing_comp_hash_after_resume() {
 
     let model_provider = non_openai_model_provider(&server);
     let mut resumed_builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_provider = model_provider;
@@ -5203,7 +5203,7 @@ async fn paginated_compaction_cold_resume_from_bounded_suffix() -> Result<()> {
         .len();
 
     let auth_manager = maplecode_core::test_support::auth_manager_from_auth_with_home(
-        MapleCodeAuth::from_api_key("test"),
+        MaplecodeAuth::from_api_key("test"),
         test.config.maplecode_home.to_path_buf(),
     );
     let resumed = test
@@ -5730,7 +5730,7 @@ async fn auto_compact_accounts_for_encrypted_reasoning(continuation: ContinueThr
 
     let builder = || {
         test_maplecode()
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_model_info_override("gpt-5.5", |model| {
                 model.use_responses_lite = true;
             })
@@ -5833,7 +5833,7 @@ async fn auto_compact_accounts_for_unreported_reasoning(
     ]));
     let request_log = mount_sse_sequence(&server, responses).await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("gpt-5.5", move |model| {
             model.use_responses_lite = use_responses_lite;
         })
@@ -6009,7 +6009,7 @@ async fn snapshot_request_shape_pre_turn_compaction_strips_incoming_model_switch
 
     let model_provider = non_openai_model_provider(&server);
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override(previous_model, |_| {})
         .with_config(move |config| {
             config.update_plan_enabled = true;
@@ -6411,7 +6411,7 @@ async fn remote_v2_compaction_refreshes_instructions_and_preserves_them_on_cold_
     let mut builder = test_maplecode()
         .with_home(Arc::clone(&home))
         .with_model_info_override("gpt-5.5", |model| model.use_responses_lite = true)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let test = builder.build(&server).await?;
 
     // Materialize the old snapshot, rewrite the selected file in place, and compact remotely.
@@ -6471,7 +6471,7 @@ async fn remote_v2_compaction_refreshes_instructions_and_preserves_them_on_cold_
     let mut resume_builder = test_maplecode()
         .with_home(Arc::clone(&home))
         .with_model_info_override("gpt-5.5", |model| model.use_responses_lite = true)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| config.cwd = resumed_cwd);
     let resumed = resume_builder
         .resume(&server, Arc::clone(&home), rollout_path)

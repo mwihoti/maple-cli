@@ -32,8 +32,8 @@ use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_target_windows;
 use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
@@ -185,7 +185,7 @@ fn collect_tool_outputs(bodies: &[Value]) -> Result<HashMap<String, ParsedUnifie
 }
 
 async fn wait_for_raw_unified_exec_output(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     call_id: &str,
 ) -> Result<ParsedUnifiedExecOutput> {
     let content = wait_for_event_match(&test.maplecode, |event| match event {
@@ -206,7 +206,7 @@ async fn wait_for_raw_unified_exec_output(
 }
 
 async fn submit_unified_exec_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     prompt: &str,
     permission_profile: PermissionProfile,
 ) -> Result<()> {
@@ -241,7 +241,7 @@ async fn submit_unified_exec_turn(
 }
 
 async fn create_workspace_directory(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     rel_path: impl AsRef<std::path::Path>,
 ) -> Result<std::path::PathBuf> {
     let abs_path = test.config.cwd.join(rel_path.as_ref());
@@ -268,7 +268,7 @@ async fn exec_command_rejects_login_when_disabled() -> Result<()> {
         .with_config(|config| {
             config.permissions.allow_login_shell = false;
         });
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     let call_id = "exec-command-login-disabled";
     let arguments = json!({
         "cmd": "echo should not run",
@@ -311,7 +311,7 @@ async fn exec_command_hides_and_rejects_tty_when_disabled() -> Result<()> {
                 "[features]\nunified_exec_tty = false\n",
             ),
         );
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let call_id = "tty-denied";
     let arguments = json!({"cmd": "echo should-not-run > tty-disabled-rejected", "tty": true});
     let request_log = mount_sse_sequence(
@@ -364,7 +364,7 @@ async fn exec_command_runs_without_tty_when_tty_disabled() -> Result<()> {
                 "[features]\nunified_exec_tty = false\n",
             ),
         );
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let mut responses = Vec::new();
     for (call_id, arguments) in [
         ("tty-false", json!({"cmd": "echo pipe-ok", "tty": false})),
@@ -414,7 +414,7 @@ async fn exec_command_does_not_expose_configured_noise_auth_token() -> Result<()
                 "case-variant-noise-token".to_string(),
             );
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let command = match core_test_support::test_target_os() {
         core_test_support::TestTargetOs::Linux | core_test_support::TestTargetOs::MacOs => {
             "if [ -n \"${MAPLECODE_EXEC_SERVER_NOISE_AUTH_TOKEN:-}\" ] || [ -n \"${maplecode_exec_server_noise_auth_token:-}\" ]; then echo leaked; else echo unset; fi"
@@ -456,7 +456,7 @@ async fn exec_command_exports_originating_call_metadata_across_later_input() -> 
     skip_if_no_network!(Ok(()));
     skip_if_sandbox!(Ok(()));
 
-    let harness = TestMapleCodeHarness::with_auto_env_builder(test_maplecode()).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(test_maplecode()).await?;
     let first_call_id = "exec-first-metadata";
     let second_call_id = "exec-second-metadata";
     let input_call_id = "exec-later-input";
@@ -550,7 +550,7 @@ async fn exec_command_uses_installed_environment_shell_policy_with_explicit_over
                 ..Default::default()
             };
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let selection = harness
         .test()
         .maplecode
@@ -643,7 +643,7 @@ async fn unified_exec_intercepts_apply_patch_exec_command() -> Result<()> {
     skip_if_host_windows!(Ok(()));
 
     let builder = test_maplecode();
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
 
     let patch =
         "*** Begin Patch\n*** Add File: uexec_apply.txt\n+hello from unified exec\n*** End Patch";
@@ -1412,7 +1412,7 @@ async fn unified_exec_rejects_unelevated_windows_sandbox_with_managed_network() 
 
 async fn unified_exec_network_denial_test(
     server: &wiremock::MockServer,
-) -> Result<(TestMapleCode, PermissionProfile)> {
+) -> Result<(TestMaplecode, PermissionProfile)> {
     use maplecode_config::Constrained;
     use std::sync::Arc;
     use tempfile::TempDir;
@@ -1480,7 +1480,7 @@ async fn mount_unified_exec_network_denial_responses(
 }
 
 async fn wait_for_unified_exec_end(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     call_id: &str,
     response_mock: &core_test_support::responses::ResponseMock,
 ) -> (maplecode_protocol::protocol::ExecCommandEndEvent, bool) {
@@ -2929,7 +2929,7 @@ async fn unified_exec_keeps_long_running_session_after_turn_end() -> Result<()> 
     let server = start_mock_server().await;
 
     let mut builder = test_maplecode();
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,
@@ -3036,7 +3036,7 @@ async fn unified_exec_interrupt_preserves_long_running_session() -> Result<()> {
     let server = start_mock_server().await;
 
     let mut builder = test_maplecode();
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,
@@ -3639,7 +3639,7 @@ async fn unified_exec_runs_under_sandbox() -> Result<()> {
     let server = start_mock_server().await;
 
     let mut builder = test_maplecode();
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,
@@ -3747,7 +3747,7 @@ async fn unified_exec_enforces_glob_deny_read_policy() -> Result<()> {
             ))
             .expect("set permission profile");
     });
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,
@@ -3868,7 +3868,7 @@ async fn unified_exec_python_prompt_under_seatbelt() -> Result<()> {
     let server = start_mock_server().await;
 
     let mut builder = test_maplecode();
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,

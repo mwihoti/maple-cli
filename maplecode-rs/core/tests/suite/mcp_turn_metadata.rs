@@ -22,7 +22,7 @@ use core_test_support::responses::mount_sse_sequence;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
@@ -97,7 +97,7 @@ async fn mcp_app_ui_survives_tool_events_and_resume(
     metadata["connector_id"] = json!("calendar");
     metadata["connector_name"] = json!("Calendar");
     Mock::given(method("POST"))
-        .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+        .and(path_regex("^/api/codex/ps/mcp/?$"))
         .and(body_partial_json(json!({"method": "tools/list"})))
         .respond_with(move |request: &Request| {
             let body: Value = serde_json::from_slice(&request.body).expect("valid tools/list");
@@ -117,7 +117,7 @@ async fn mcp_app_ui_survives_tool_events_and_resume(
         .mount(&server)
         .await;
     Mock::given(method("POST"))
-        .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+        .and(path_regex("^/api/codex/ps/mcp/?$"))
         .and(body_partial_json(json!({"method": "tools/call"})))
         .respond_with(|request: &Request| {
             let body: Value = serde_json::from_slice(&request.body).expect("valid tools/call");
@@ -231,7 +231,7 @@ async fn auto_session_approval_is_scoped_to_tool_link_id() -> Result<()> {
     let has_link_selector = Arc::new(Mutex::new(true));
     let lists_link_selector = Arc::clone(&has_link_selector);
     Mock::given(method("POST"))
-        .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+        .and(path_regex("^/api/codex/ps/mcp/?$"))
         .and(body_partial_json(json!({ "method": "tools/list" })))
         .respond_with(move |request: &Request| {
             let body: Value = serde_json::from_slice(&request.body).expect("valid tools/list");
@@ -416,7 +416,7 @@ default_tools_approval_mode = "{approval_mode}"
 }
 
 async fn submit_user_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     text: &str,
     approval_policy: AskForApproval,
     permission_profile: PermissionProfile,
@@ -474,7 +474,7 @@ fn attribution_models(model_slugs: [&str; 2]) -> Vec<maplecode_protocol::openai_
 }
 
 async fn apply_turn_attribution_update(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     request_user_input_call_id: &str,
     model: &str,
 ) -> Result<()> {
@@ -516,7 +516,7 @@ async fn apply_turn_attribution_update(
 }
 
 async fn wait_for_mcp_tool_call_item(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     call_id: &str,
     status: McpToolCallStatus,
 ) -> Option<bool> {
@@ -793,7 +793,7 @@ async fn apps_prompt_with_auto_review_routes_actual_mcp_approval_to_guardian(
     let server = start_mock_server().await;
     let apps_server = AppsTestServer::mount(&server).await?;
     Mock::given(method("POST"))
-        .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+        .and(path_regex("^/api/codex/ps/mcp/?$"))
         .and(body_partial_json(json!({"method": "tools/list"})))
         .respond_with(|request: &Request| {
             let body: Value = serde_json::from_slice(&request.body).expect("valid tools/list");
@@ -1197,7 +1197,7 @@ default_tools_approval_mode = "{selected_link_mode}"
             }
         });
         Mock::given(method("POST"))
-            .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+            .and(path_regex("^/api/codex/ps/mcp/?$"))
             .and(body_partial_json(json!({ "method": "tools/list" })))
             .respond_with(move |request: &Request| {
                 let body: Value = serde_json::from_slice(&request.body)
@@ -1387,7 +1387,7 @@ async fn apps_missing_link_respects_advertised_selector(
         }
     });
     Mock::given(method("POST"))
-        .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+        .and(path_regex("^/api/codex/ps/mcp/?$"))
         .and(body_partial_json(json!({ "method": "tools/list" })))
         .respond_with(move |request: &Request| {
             let body: Value = serde_json::from_slice(&request.body).expect("valid tools/list");

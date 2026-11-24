@@ -13,7 +13,7 @@ use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_core::ConfigRefreshOutcome;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_core::config::set_project_trust_level;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::config_types::TrustLevel;
 use maplecode_protocol::protocol::EventMsg;
 use pretty_assertions::assert_eq;
@@ -38,7 +38,7 @@ async fn refresh_ema_denial_clears_authority_for_configured_servers() -> Result<
     };
     let fixture = test_maplecode()
         .with_home(Arc::clone(&home))
-        .with_auth(MapleCodeAuth::from_api_key("test-api-key"))
+        .with_auth(MaplecodeAuth::from_api_key("test-api-key"))
         .with_cloud_config_bundle(CloudConfigBundleFixture::loader_with_enterprise_config(
             policy(1),
         ))
@@ -120,7 +120,7 @@ async fn enterprise_activation_respects_configuration(scenario: ActivationScenar
     ));
     let fixture = test_maplecode()
         .with_home(home)
-        .with_auth(MapleCodeAuth::from_api_key("test-api-key"))
+        .with_auth(MaplecodeAuth::from_api_key("test-api-key"))
         .with_cloud_config_bundle(CloudConfigBundleFixture::loader_with_enterprise_config(
             managed_config,
         ))

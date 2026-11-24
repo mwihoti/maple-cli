@@ -1,7 +1,7 @@
 use anyhow::Result;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use http::Method;
@@ -14,10 +14,10 @@ use maplecode_client::run_with_retry;
 use maplecode_http_client::Request;
 use maplecode_http_client::RetryAfter;
 use maplecode_http_client::TransportError;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::turn_input::TurnInputRequest;
 use maplecode_protocol::user_input::UserInput;
@@ -254,7 +254,7 @@ async fn wait_for_retry(
     elapsed
 }
 
-async fn submit_user_input(test: &TestMapleCode, text: &str) -> Result<()> {
+async fn submit_user_input(test: &TestMaplecode, text: &str) -> Result<()> {
     test.maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
             text: text.to_string(),
@@ -264,7 +264,7 @@ async fn submit_user_input(test: &TestMapleCode, text: &str) -> Result<()> {
     Ok(())
 }
 
-async fn wait_for_turn_completion(test: &TestMapleCode) {
+async fn wait_for_turn_completion(test: &TestMaplecode) {
     let EventMsg::TurnComplete(completed) = wait_for_event(&test.maplecode, |event| {
         matches!(event, EventMsg::TurnComplete(_))
     })
@@ -540,7 +540,7 @@ async fn responses_http_overload_respects_retry_limits(
                     error_events += 1;
                     assert_eq!(
                         error.maplecode_error_info,
-                        Some(MapleCodeErrorInfo::ServerOverloaded)
+                        Some(MaplecodeErrorInfo::ServerOverloaded)
                     );
                     assert_eq!(
                         error.message,
@@ -551,7 +551,7 @@ async fn responses_http_overload_respects_retry_limits(
                 EventMsg::TurnComplete(event) => {
                     assert_eq!(
                         event.error.and_then(|error| error.maplecode_error_info),
-                        Some(MapleCodeErrorInfo::ServerOverloaded)
+                        Some(MaplecodeErrorInfo::ServerOverloaded)
                     );
                     break;
                 }
@@ -605,7 +605,7 @@ async fn responses_http_504_preserves_status_after_stream_retry() -> Result<()> 
     submit_user_input(&test, "surface the timeout after one retry").await?;
     assert_terminal_failure(
         &test,
-        MapleCodeErrorInfo::HttpConnectionFailed {
+        MaplecodeErrorInfo::HttpConnectionFailed {
             http_status_code: Some(504),
         },
         /*expected_retries*/ 1,
@@ -646,7 +646,7 @@ async fn compact_v2_uses_retry_after() -> Result<()> {
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model_provider.request_max_retries = Some(1);
             config.model_provider.stream_max_retries = Some(0);
@@ -720,7 +720,7 @@ async fn compact_v2_stream_failure_uses_local_backoff_despite_retry_after() -> R
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model_provider.request_max_retries = Some(0);
             config.model_provider.stream_max_retries = Some(1);
@@ -789,7 +789,7 @@ async fn compact_v2_stream_failure_without_retry_after_exhausts_stream_retries()
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model_provider.request_max_retries = Some(0);
             config.model_provider.stream_max_retries = Some(1);
@@ -820,7 +820,7 @@ async fn compact_v2_stream_failure_without_retry_after_exhausts_stream_retries()
                 error_events += 1;
                 assert_eq!(
                     error.maplecode_error_info,
-                    Some(MapleCodeErrorInfo::RateLimitExceeded)
+                    Some(MaplecodeErrorInfo::RateLimitExceeded)
                 );
                 assert!(error.message.contains("Rate limit exceeded."));
             }
@@ -828,7 +828,7 @@ async fn compact_v2_stream_failure_without_retry_after_exhausts_stream_retries()
             EventMsg::TurnComplete(event) => {
                 assert_eq!(
                     event.error.and_then(|error| error.maplecode_error_info),
-                    Some(MapleCodeErrorInfo::RateLimitExceeded)
+                    Some(MaplecodeErrorInfo::RateLimitExceeded)
                 );
                 break;
             }
@@ -897,7 +897,7 @@ async fn compact_v2_rate_limit_uses_server_advice(
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model_provider.request_max_retries = Some(0);
             config.model_provider.stream_max_retries = Some(1);
@@ -962,7 +962,7 @@ async fn compact_v2_overload_without_retry_after_exhausts_request_retries() -> R
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model_provider.request_max_retries = Some(2);
             config.model_provider.stream_max_retries = Some(2);
@@ -1004,7 +1004,7 @@ async fn compact_v2_overload_without_retry_after_exhausts_request_retries() -> R
                 error_events += 1;
                 assert_eq!(
                     error.maplecode_error_info,
-                    Some(MapleCodeErrorInfo::ServerOverloaded)
+                    Some(MaplecodeErrorInfo::ServerOverloaded)
                 );
                 assert!(
                     error
@@ -1016,7 +1016,7 @@ async fn compact_v2_overload_without_retry_after_exhausts_request_retries() -> R
             EventMsg::TurnComplete(event) => {
                 assert_eq!(
                     event.error.and_then(|error| error.maplecode_error_info),
-                    Some(MapleCodeErrorInfo::ServerOverloaded)
+                    Some(MaplecodeErrorInfo::ServerOverloaded)
                 );
                 break;
             }
@@ -1175,7 +1175,7 @@ async fn sse_failure_without_retry_after_exhausts_stream_retries(code: &str) -> 
                 error_events += 1;
                 assert_eq!(
                     error.maplecode_error_info,
-                    Some(MapleCodeErrorInfo::RateLimitExceeded)
+                    Some(MaplecodeErrorInfo::RateLimitExceeded)
                 );
                 assert!(error.message.contains("Rate limit exceeded."));
             }
@@ -1183,7 +1183,7 @@ async fn sse_failure_without_retry_after_exhausts_stream_retries(code: &str) -> 
             EventMsg::TurnComplete(event) => {
                 assert_eq!(
                     event.error.and_then(|error| error.maplecode_error_info),
-                    Some(MapleCodeErrorInfo::RateLimitExceeded)
+                    Some(MaplecodeErrorInfo::RateLimitExceeded)
                 );
                 break;
             }
@@ -1305,7 +1305,7 @@ async fn sse_overload_with_retry_after_is_terminal() -> Result<()> {
                 error_events += 1;
                 assert_eq!(
                     error.maplecode_error_info,
-                    Some(MapleCodeErrorInfo::ServerOverloaded)
+                    Some(MaplecodeErrorInfo::ServerOverloaded)
                 );
                 assert_eq!(
                     error.message,
@@ -1316,7 +1316,7 @@ async fn sse_overload_with_retry_after_is_terminal() -> Result<()> {
             EventMsg::TurnComplete(event) => {
                 assert_eq!(
                     event.error.and_then(|error| error.maplecode_error_info),
-                    Some(MapleCodeErrorInfo::ServerOverloaded)
+                    Some(MaplecodeErrorInfo::ServerOverloaded)
                 );
                 break;
             }
@@ -1377,7 +1377,7 @@ async fn sse_overload_without_retry_after_is_terminal() -> Result<()> {
                 error_events += 1;
                 assert_eq!(
                     error.maplecode_error_info,
-                    Some(MapleCodeErrorInfo::ServerOverloaded)
+                    Some(MaplecodeErrorInfo::ServerOverloaded)
                 );
                 assert_eq!(
                     error.message,
@@ -1388,7 +1388,7 @@ async fn sse_overload_without_retry_after_is_terminal() -> Result<()> {
             EventMsg::TurnComplete(event) => {
                 assert_eq!(
                     event.error.and_then(|error| error.maplecode_error_info),
-                    Some(MapleCodeErrorInfo::ServerOverloaded)
+                    Some(MaplecodeErrorInfo::ServerOverloaded)
                 );
                 break;
             }
@@ -1416,8 +1416,8 @@ async fn sse_overload_without_retry_after_is_terminal() -> Result<()> {
 }
 
 async fn assert_terminal_failure(
-    test: &TestMapleCode,
-    expected: MapleCodeErrorInfo,
+    test: &TestMaplecode,
+    expected: MaplecodeErrorInfo,
     expected_retries: usize,
 ) -> Result<String> {
     let mut messages = Vec::new();
@@ -1444,14 +1444,14 @@ async fn assert_terminal_failure(
     Ok(message)
 }
 
-#[test_case::test_case("flex_unavailable", 429, MapleCodeErrorInfo::FlexUnavailable, "Flex capacity unavailable."; "flex")]
-#[test_case::test_case("model_not_found", 404, MapleCodeErrorInfo::ModelNotFound, "Access to this deployment ended."; "model")]
-#[test_case::test_case("inference_hook_denied", 403, MapleCodeErrorInfo::InferenceHookDenied, "Blocked by the workspace hook."; "inference_hook_denied")]
+#[test_case::test_case("flex_unavailable", 429, MaplecodeErrorInfo::FlexUnavailable, "Flex capacity unavailable."; "flex")]
+#[test_case::test_case("model_not_found", 404, MaplecodeErrorInfo::ModelNotFound, "Access to this deployment ended."; "model")]
+#[test_case::test_case("inference_hook_denied", 403, MaplecodeErrorInfo::InferenceHookDenied, "Blocked by the workspace hook."; "inference_hook_denied")]
 #[tokio::test(flavor = "current_thread")]
 async fn http_and_sse_provider_errors_are_terminal(
     code: &str,
     status: u16,
-    expected: MapleCodeErrorInfo,
+    expected: MaplecodeErrorInfo,
     message: &str,
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
@@ -1502,14 +1502,14 @@ async fn http_and_sse_provider_errors_are_terminal(
     Ok(())
 }
 
-#[test_case::test_case("flex_unavailable", 429, MapleCodeErrorInfo::FlexUnavailable, "Flex capacity unavailable."; "flex")]
-#[test_case::test_case("model_not_found", 404, MapleCodeErrorInfo::ModelNotFound, "Access to this deployment ended."; "model")]
-#[test_case::test_case("inference_hook_denied", 403, MapleCodeErrorInfo::InferenceHookDenied, "Blocked by the workspace hook."; "inference_hook_denied")]
+#[test_case::test_case("flex_unavailable", 429, MaplecodeErrorInfo::FlexUnavailable, "Flex capacity unavailable."; "flex")]
+#[test_case::test_case("model_not_found", 404, MaplecodeErrorInfo::ModelNotFound, "Access to this deployment ended."; "model")]
+#[test_case::test_case("inference_hook_denied", 403, MaplecodeErrorInfo::InferenceHookDenied, "Blocked by the workspace hook."; "inference_hook_denied")]
 #[tokio::test(flavor = "current_thread")]
 async fn websocket_provider_errors_are_terminal(
     code: &str,
     status: u16,
-    expected: MapleCodeErrorInfo,
+    expected: MaplecodeErrorInfo,
     message: &str,
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
@@ -1584,7 +1584,7 @@ async fn websocket_usage_limit_with_malformed_nested_headers_is_terminal() -> Re
     submit_user_input(&test, "surface the usage limit").await?;
     assert_terminal_failure(
         &test,
-        MapleCodeErrorInfo::UsageLimitExceeded,
+        MaplecodeErrorInfo::UsageLimitExceeded,
         /*expected_retries*/ 0,
     )
     .await?;
@@ -1995,7 +1995,7 @@ async fn websocket_rate_limit_without_retry_after_is_terminal() -> Result<()> {
                 error_events += 1;
                 assert_eq!(
                     error.maplecode_error_info,
-                    Some(MapleCodeErrorInfo::ResponseTooManyFailedAttempts {
+                    Some(MaplecodeErrorInfo::ResponseTooManyFailedAttempts {
                         http_status_code: Some(429),
                     })
                 );
@@ -2004,7 +2004,7 @@ async fn websocket_rate_limit_without_retry_after_is_terminal() -> Result<()> {
             EventMsg::TurnComplete(event) => {
                 assert_eq!(
                     event.error.and_then(|error| error.maplecode_error_info),
-                    Some(MapleCodeErrorInfo::ResponseTooManyFailedAttempts {
+                    Some(MaplecodeErrorInfo::ResponseTooManyFailedAttempts {
                         http_status_code: Some(429),
                     })
                 );
@@ -2029,13 +2029,13 @@ async fn websocket_rate_limit_without_retry_after_is_terminal() -> Result<()> {
 
 /// When an overload stops giving advice, it is terminal even if the retry limit
 /// has been reached. The transport must not switch after that terminal error.
-#[test_case::test_case("policy_capacity_unavailable", "server_is_overloaded", MapleCodeErrorInfo::ServerOverloaded; "prior_policy_failure_stays_on_its_attempt")]
-#[test_case::test_case("server_is_overloaded", "policy_capacity_unavailable", MapleCodeErrorInfo::PolicyCapacityUnavailable; "terminal_policy_failure_is_preserved")]
+#[test_case::test_case("policy_capacity_unavailable", "server_is_overloaded", MaplecodeErrorInfo::ServerOverloaded; "prior_policy_failure_stays_on_its_attempt")]
+#[test_case::test_case("server_is_overloaded", "policy_capacity_unavailable", MaplecodeErrorInfo::PolicyCapacityUnavailable; "terminal_policy_failure_is_preserved")]
 #[tokio::test(flavor = "current_thread")]
 async fn websocket_overload_retries_only_while_it_has_retry_after(
     first_code: &str,
     last_code: &str,
-    expected_error: MapleCodeErrorInfo,
+    expected_error: MaplecodeErrorInfo,
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
 
@@ -2197,7 +2197,7 @@ async fn websocket_overload_without_retry_after_is_terminal() -> Result<()> {
                 error_events += 1;
                 assert_eq!(
                     error.maplecode_error_info,
-                    Some(MapleCodeErrorInfo::ServerOverloaded)
+                    Some(MaplecodeErrorInfo::ServerOverloaded)
                 );
                 assert_eq!(
                     error.message,
@@ -2213,7 +2213,7 @@ async fn websocket_overload_without_retry_after_is_terminal() -> Result<()> {
             EventMsg::TurnComplete(event) => {
                 assert_eq!(
                     event.error.and_then(|error| error.maplecode_error_info),
-                    Some(MapleCodeErrorInfo::ServerOverloaded)
+                    Some(MaplecodeErrorInfo::ServerOverloaded)
                 );
                 break;
             }

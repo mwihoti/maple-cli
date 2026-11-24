@@ -13,7 +13,7 @@ use core_test_support::responses::sse_completed;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_target_windows;
 use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -32,7 +32,7 @@ use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::config_types::Settings;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::models::PermissionProfileSnapshot;
 use maplecode_protocol::protocol::AskForApproval;
@@ -61,7 +61,7 @@ fn collaboration_mode_for_model(model: String) -> CollaborationMode {
 }
 
 async fn submit_user_turn(
-    test: &core_test_support::test_maplecode::TestMapleCode,
+    test: &core_test_support::test_maplecode::TestMaplecode,
     prompt: &str,
     approval_policy: AskForApproval,
     permission_profile: PermissionProfile,
@@ -320,7 +320,7 @@ async fn granular_dangerous_command_approval_preserves_permissions(
     skip_if_target_windows!(Ok(()), "uses a POSIX shell command fixture");
 
     let harness =
-        TestMapleCodeHarness::with_auto_env_builder(test_maplecode().with_config(move |config| {
+        TestMaplecodeHarness::with_auto_env_builder(test_maplecode().with_config(move |config| {
             config.permissions.approval_policy =
                 Constrained::allow_any(AskForApproval::Granular(GranularApprovalConfig {
                     sandbox_approval: false,
@@ -935,7 +935,7 @@ async fn environment_command_restrictions_override_saved_prefix_approvals() -> R
         .expect_err("environment policies must not introduce command allowances");
     assert!(matches!(
         error.details(),
-        MapleCodeErrorDetails::InvalidRequest(message)
+        MaplecodeErrorDetails::InvalidRequest(message)
             if message == "environment command policy cannot contain allow rules"
     ));
 

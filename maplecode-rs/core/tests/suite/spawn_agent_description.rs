@@ -16,7 +16,7 @@ use maplecode_core::config::AgentRoleConfig;
 use maplecode_core::config::Config;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_models_manager::manager::SharedModelsManager;
 use maplecode_protocol::config_types::ReasoningSummary;
@@ -221,7 +221,7 @@ pub(super) async fn model_catalog_refresh_requests(
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("visible-model")
         .with_config(move |config| {
             config

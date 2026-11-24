@@ -2,7 +2,7 @@
 
 use super::*;
 use maplecode_core::ForkSnapshot;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnStartOptions;
 use maplecode_protocol::turn_input::CyberAccessProgram;
@@ -32,7 +32,7 @@ enum Compaction {
 }
 
 async fn submit_pair(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     model: &str,
     program: Option<CyberAccessProgram>,
 ) -> Result<()> {
@@ -115,7 +115,7 @@ async fn model_switch_program_pair(
         openai_model_provider(&server)
     };
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_catalog = Some(models.clone());
@@ -227,7 +227,7 @@ async fn model_switch_program_pair(
                     | History::ApiKeyEnabledResume
                     | History::ApiKeyCustomProviderResume
             ) {
-                builder = builder.with_auth(MapleCodeAuth::from_api_key("test-key"));
+                builder = builder.with_auth(MaplecodeAuth::from_api_key("test-key"));
             }
             let resume_config = initial.config.clone();
             builder = builder.with_config(move |config| {
@@ -405,7 +405,7 @@ async fn api_key_resume_compaction_retries_current_program(
     let mut provider = openai_model_provider(&server);
     provider.stream_max_retries = Some(0);
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(previous_model)
         .with_config(move |config| {
             config.model_catalog = Some(initial_models.clone());
@@ -453,7 +453,7 @@ async fn api_key_resume_compaction_retries_current_program(
     };
     let provider = initial.config.model_provider.clone();
     builder = builder
-        .with_auth(MapleCodeAuth::from_api_key("test-key"))
+        .with_auth(MaplecodeAuth::from_api_key("test-key"))
         .with_config(move |config| {
             config.model_catalog = Some(ModelsResponse { models });
             config.model_provider = provider;

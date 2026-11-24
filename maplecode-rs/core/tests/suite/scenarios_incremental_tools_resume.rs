@@ -5,7 +5,7 @@ use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_successful_turn;
@@ -13,7 +13,7 @@ use maplecode_core::ForkSnapshot;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::openai_models::ToolMode;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::Op;
@@ -22,9 +22,9 @@ use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
 
-fn builder(incremental_tools: bool, token_budget: bool) -> TestMapleCodeBuilder {
+fn builder(incremental_tools: bool, token_budget: bool) -> TestMaplecodeBuilder {
     test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("gpt-5.4", |model| {
             model.use_responses_lite = true;
             model.tool_mode = Some(ToolMode::CodeMode);

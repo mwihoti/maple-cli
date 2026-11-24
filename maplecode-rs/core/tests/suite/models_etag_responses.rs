@@ -19,7 +19,7 @@ use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event_with_timeout;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::config_types::Settings;
@@ -50,7 +50,7 @@ async fn refresh_models_on_models_etag_mismatch_and_avoid_duplicate_models_fetch
     )
     .await;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let mut builder = test_maplecode()
         .with_auth(auth)
         .with_model("gpt-5.2")

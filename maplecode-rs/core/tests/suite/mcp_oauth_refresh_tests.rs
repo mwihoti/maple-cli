@@ -49,10 +49,10 @@ async fn rejected_refresh_requires_reauthentication_after_runtime_rebuild() -> a
     let mcp_server = responses::start_mock_server().await;
     let http_server = AppsTestServer::mount(&mcp_server).await?;
     let server_name = "rejected_refresh";
-    let server_url = format!("{}/api/maplecode/ps/mcp", http_server.chatgpt_base_url);
+    let server_url = format!("{}/api/codex/ps/mcp", http_server.chatgpt_base_url);
     Mock::given(method("GET"))
         .and(path(
-            "/.well-known/oauth-authorization-server/api/maplecode/ps/mcp",
+            "/.well-known/oauth-authorization-server/api/codex/ps/mcp",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "issuer": server_url,
@@ -162,7 +162,7 @@ async fn http_auth_challenge_reaches_agent_tool_call_events_without_replay() -> 
     let http_server = AppsTestServer::mount(&mcp_server).await?;
     let challenge = r#"Bearer error="invalid_token", scope="calendar:read", resource_metadata="https://example.com/.well-known/oauth-protected-resource""#;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(body_partial_json(json!({"method": "tools/call"})))
         .respond_with(
             ResponseTemplate::new(/*s*/ 401)
@@ -196,7 +196,7 @@ async fn http_auth_challenge_reaches_agent_tool_call_events_without_replay() -> 
     )
     .await;
     let server_config: McpServerConfig = serde_json::from_value(json!({
-        "url": format!("{}/api/maplecode/ps/mcp", http_server.chatgpt_base_url),
+        "url": format!("{}/api/codex/ps/mcp", http_server.chatgpt_base_url),
         "environment_id": DEFAULT_MCP_SERVER_ENVIRONMENT_ID,
     }))?;
     let fixture = test_maplecode()
@@ -268,10 +268,10 @@ async fn oauth_mode_refresh_replaces_the_live_connection(
     let (http_server, startup_control) =
         AppsTestServer::mount_with_startup_control(&mcp_server).await?;
     let server_name = "oauth_refresh";
-    let server_url = format!("{}/api/maplecode/ps/mcp", http_server.chatgpt_base_url);
+    let server_url = format!("{}/api/codex/ps/mcp", http_server.chatgpt_base_url);
     Mock::given(method("GET"))
         .and(path(
-            "/.well-known/oauth-authorization-server/api/maplecode/ps/mcp",
+            "/.well-known/oauth-authorization-server/api/codex/ps/mcp",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "issuer": server_url,

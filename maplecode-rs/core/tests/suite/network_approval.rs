@@ -21,8 +21,8 @@ use core_test_support::skip_if_no_remote_env;
 use core_test_support::skip_if_remote;
 use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_target_windows;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::local;
 use core_test_support::test_maplecode::local_request;
 use core_test_support::test_maplecode::test_maplecode;
@@ -3367,12 +3367,12 @@ pub(super) fn guardian_parent_catalog() -> ModelsResponse {
 }
 
 async fn start_concurrent_network_requests(
-    mut builder: TestMapleCodeBuilder,
+    mut builder: TestMaplecodeBuilder,
     server: &wiremock::MockServer,
     requests: &[(&str, u16)],
     queued: &mut NamedTraceEvents,
 ) -> Result<(
-    TestMapleCode,
+    TestMaplecode,
     ResponseMock,
     HashMap<String, ExecApprovalRequestEvent>,
 )> {
@@ -3433,14 +3433,14 @@ async fn start_concurrent_network_requests(
     Ok((test, responses, prompts))
 }
 
-async fn managed_network_unified_exec_test(server: &wiremock::MockServer) -> Result<TestMapleCode> {
+async fn managed_network_unified_exec_test(server: &wiremock::MockServer) -> Result<TestMaplecode> {
     managed_network_unified_exec_test_with_features(server, &[]).await
 }
 
 async fn managed_network_unified_exec_test_with_features(
     server: &wiremock::MockServer,
     features: &[Feature],
-) -> Result<TestMapleCode> {
+) -> Result<TestMaplecode> {
     let test = managed_network_unified_exec_builder(features)?
         .build_with_remote_and_local_env(server)
         .await?;
@@ -3450,7 +3450,7 @@ async fn managed_network_unified_exec_test_with_features(
     Ok(test)
 }
 
-fn managed_network_unified_exec_builder(features: &[Feature]) -> Result<TestMapleCodeBuilder> {
+fn managed_network_unified_exec_builder(features: &[Feature]) -> Result<TestMaplecodeBuilder> {
     let home = Arc::new(TempDir::new()?);
     // Limited mode uses TLS interception, which remote executors cannot enforce.
     let mode = if core_test_support::is_remote_test_environment() {
@@ -3567,7 +3567,7 @@ fn network_proxy_request_command(host: &str, marker: &str, read_timeout: Duratio
 }
 
 async fn submit_managed_network_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     prompt: &str,
     environments: Vec<TurnEnvironmentSelection>,
     approvals_reviewer: ApprovalsReviewer,
@@ -3727,7 +3727,7 @@ fn guardian_network_actions(responses: &ResponseMock) -> Result<Vec<Value>> {
 }
 
 async fn expect_network_approval(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     expected_environment_id: &str,
 ) -> Result<ExecApprovalRequestEvent> {
     expect_network_approval_target(
@@ -3740,7 +3740,7 @@ async fn expect_network_approval(
 }
 
 async fn expect_network_approval_target(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     expected_environment_id: &str,
     expected_target: &str,
     expected_protocol: NetworkApprovalProtocol,
@@ -3786,7 +3786,7 @@ async fn expect_network_approval_target(
     }
 }
 
-async fn wait_for_completion_without_network_prompt(test: &TestMapleCode) {
+async fn wait_for_completion_without_network_prompt(test: &TestMaplecode) {
     let event = wait_for_event(&test.maplecode, |event| {
         matches!(
             event,
@@ -3861,7 +3861,7 @@ async fn wait_for_paths(paths: &[&std::path::Path]) -> Result<()> {
     Ok(())
 }
 
-async fn wait_for_turn_complete(test: &TestMapleCode) {
+async fn wait_for_turn_complete(test: &TestMaplecode) {
     wait_for_event(&test.maplecode, |event| {
         matches!(event, EventMsg::TurnComplete(_))
     })

@@ -27,7 +27,7 @@ use maplecode_otel::MetricsClient;
 use maplecode_otel::MetricsConfig;
 use maplecode_protocol::TranscriptFormat;
 use maplecode_protocol::config_types::ApprovalsReviewer;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::items::TurnItem;
 use maplecode_protocol::models::FunctionCallOutputPayload;
 use maplecode_protocol::models::PermissionProfile;
@@ -1287,7 +1287,7 @@ async fn additional_context_rejects_invalid_names_before_admitting_input() -> Re
             result
                 .expect_err("invalid context must be rejected")
                 .details(),
-            MapleCodeErrorDetails::InvalidRequest(_)
+            MaplecodeErrorDetails::InvalidRequest(_)
         ));
     }
     assert!(request.requests().is_empty());

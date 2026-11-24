@@ -53,7 +53,7 @@ async fn originator_catalogs_control_turn_instructions_and_tools() -> Result<()>
     )
     .await;
     let mut test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             configure_scenario_catalog(config);
             config.model_catalog = None;
@@ -170,7 +170,7 @@ async fn catalog_refresh_replaces_instructions_and_compaction_installs_latest_ba
     .await;
     let test = test_maplecode()
         .with_model(&model.slug)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.workspace_roots = vec![config.cwd.clone()];
             config

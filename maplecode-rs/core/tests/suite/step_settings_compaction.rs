@@ -43,7 +43,7 @@ async fn compaction_preserves_updated_summary(mode: CompactionMode) -> Result<()
     bodies.push(sse_completed("done"));
     let responses = mount_sse_sequence(&server, bodies).await;
     let test = step_settings_test()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.model_auto_compact_token_limit = Some(200_000);
             config

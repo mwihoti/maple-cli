@@ -17,7 +17,7 @@ use core_test_support::responses::ev_response_created;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
@@ -68,7 +68,7 @@ async fn exec_command_tool_executes_command_and_streams_output() -> anyhow::Resu
     let server = start_mock_server().await;
 
     let mut builder = test_maplecode().with_model("test-gpt-5-codex");
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,
@@ -145,7 +145,7 @@ async fn update_plan_tool_emits_plan_update_event() -> anyhow::Result<()> {
     let server = start_mock_server().await;
 
     let mut builder = test_maplecode().with_config(|config| config.update_plan_enabled = true);
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,
@@ -237,7 +237,7 @@ async fn update_plan_tool_rejects_malformed_payload() -> anyhow::Result<()> {
     let server = start_mock_server().await;
 
     let mut builder = test_maplecode().with_config(|config| config.update_plan_enabled = true);
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,
@@ -331,7 +331,7 @@ async fn apply_patch_tool_executes_and_emits_patch_events() -> anyhow::Result<()
     let server = start_mock_server().await;
 
     let mut builder = test_maplecode();
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,
@@ -471,7 +471,7 @@ async fn apply_patch_reports_parse_diagnostics() -> anyhow::Result<()> {
     let server = start_mock_server().await;
 
     let mut builder = test_maplecode();
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,

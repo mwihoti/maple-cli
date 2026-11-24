@@ -672,7 +672,7 @@ async fn direct_metadata_limit_respects_provider_support(
     assert!(raw_bytes < 1024 * 1024);
     assert!(raw_bytes * 2 > 1024 * 1024);
     Mock::given(method("POST"))
-        .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+        .and(path_regex("^/api/codex/ps/mcp/?$"))
         .and(body_partial_json(json!({"method": "tools/call"})))
         .respond_with(move |request: &Request| {
             let body: Value = serde_json::from_slice(&request.body).expect("MCP request");
@@ -692,7 +692,7 @@ async fn direct_metadata_limit_respects_provider_support(
         .mount(&server)
         .await;
     Mock::given(method("POST"))
-        .and(path("/maplecode/analytics-events/events"))
+        .and(path("/codex/analytics-events/events"))
         .respond_with(ResponseTemplate::new(/*s*/ 200))
         .mount(&server)
         .await;

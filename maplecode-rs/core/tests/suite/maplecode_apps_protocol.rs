@@ -20,7 +20,7 @@ use core_test_support::wait_for_successful_turn;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::McpSnapshotDetail;
 use maplecode_protocol::config_types::ApprovalsReviewer;
@@ -55,7 +55,7 @@ async fn standalone_maplecode_apps_respects_protocol_setting(
     let server = responses::start_mock_server().await;
     let apps_base_url = AppsTestServer::mount(&server).await?.chatgpt_base_url;
     let fixture = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config
                 .features
@@ -64,7 +64,7 @@ async fn standalone_maplecode_apps_respects_protocol_setting(
             if matches!(setting, HostedProtocolSetting::Enabled) {
                 config
                     .features
-                    .enable(Feature::MapleCodeAppsMcp20260728)
+                    .enable(Feature::MaplecodeAppsMcp20260728)
                     .expect("test config should allow Apps protocol override");
             }
             config.chatgpt_base_url = apps_base_url;
@@ -78,7 +78,7 @@ async fn standalone_maplecode_apps_respects_protocol_setting(
         .await
         .expect("mock server should capture Apps MCP startup requests")
         .into_iter()
-        .filter(|request| request.url.path() == "/api/maplecode/ps/mcp")
+        .filter(|request| request.url.path() == "/api/codex/ps/mcp")
         .filter_map(|request| {
             let body: Value = serde_json::from_slice(&request.body).ok()?;
             body.get("method")?.as_str().map(str::to_string)

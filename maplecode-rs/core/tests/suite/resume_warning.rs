@@ -9,7 +9,7 @@ use maplecode_core::NewThread;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::config_types::ReasoningSummary;
@@ -104,11 +104,11 @@ async fn emits_warning_when_resumed_model_differs() {
     let initial_history = resume_history(&config, "previous-model", &rollout_path);
 
     let thread_manager = maplecode_core::test_support::thread_manager_with_models_provider(
-        MapleCodeAuth::from_api_key("test"),
+        MaplecodeAuth::from_api_key("test"),
         config.model_provider.clone(),
     );
     let auth_manager =
-        maplecode_core::test_support::auth_manager_from_auth(MapleCodeAuth::from_api_key("test"));
+        maplecode_core::test_support::auth_manager_from_auth(MaplecodeAuth::from_api_key("test"));
 
     // Act: resume the conversation.
     let NewThread {

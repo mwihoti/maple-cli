@@ -4597,14 +4597,14 @@ async fn local_bundled_cleanup_hook_runs_without_saved_trust(
     )?;
     let repl_url = format!("{}/repl", server.uri());
     let mut builder = test_maplecode().with_home(home).with_config(move |config| {
-        for feature in [Feature::Plugins, Feature::MapleCodeHooks] {
+        for feature in [Feature::Plugins, Feature::MaplecodeHooks] {
             config.features.enable(feature).expect("enable feature");
         }
         if !hooks_enabled {
             trust_discovered_hooks(config);
             config
                 .features
-                .disable(Feature::MapleCodeHooks)
+                .disable(Feature::MaplecodeHooks)
                 .expect("disable regular hooks");
         }
         config
@@ -4628,7 +4628,7 @@ async fn local_bundled_cleanup_hook_runs_without_saved_trust(
     let test = builder.build_with_auto_env(&server).await?;
     assert!(!test.config.bypass_hook_trust);
     assert_eq!(
-        test.config.features.enabled(Feature::MapleCodeHooks),
+        test.config.features.enabled(Feature::MaplecodeHooks),
         hooks_enabled
     );
     let mut expected_hook_states = HashMap::from([(
@@ -4861,7 +4861,7 @@ if len(Path(r"{log_path}").read_text().splitlines()) == 2:
                 .features
                 .enable(Feature::Plugins)
                 .expect("test config should allow feature update");
-            config.features.enable(Feature::MapleCodeHooks).unwrap();
+            config.features.enable(Feature::MaplecodeHooks).unwrap();
         });
     let test = builder.build(&server).await?;
     assert!(!home.path().join(".hook-trust").exists());

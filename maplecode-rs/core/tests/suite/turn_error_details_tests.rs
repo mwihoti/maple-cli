@@ -9,9 +9,9 @@ use maplecode_extension_api::ExtensionFuture;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_extension_api::TurnErrorInput;
 use maplecode_extension_api::TurnLifecycleContributor;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::RateLimitReachedType;
 use maplecode_protocol::user_input::UserInput;
@@ -24,7 +24,7 @@ use wiremock::ResponseTemplate;
 #[derive(Debug, PartialEq)]
 struct ObservedUsageLimit {
     turn_id: String,
-    error: MapleCodeErrorInfo,
+    error: MaplecodeErrorInfo,
     resets_at: Option<i64>,
     limit_window_minutes: Option<u16>,
     limit_id: Option<String>,
@@ -37,7 +37,7 @@ struct ErrorRecorder(Arc<Mutex<Vec<ObservedUsageLimit>>>);
 impl TurnLifecycleContributor for ErrorRecorder {
     fn on_turn_error<'a>(&'a self, input: TurnErrorInput<'a>) -> ExtensionFuture<'a, ()> {
         Box::pin(async move {
-            let MapleCodeErrorDetails::UsageLimitReached(details) = input.error_details else {
+            let MaplecodeErrorDetails::UsageLimitReached(details) = input.error_details else {
                 panic!("expected usage-limit details");
             };
             let snapshot = details.rate_limits.as_ref();
@@ -148,7 +148,7 @@ async fn turn_error_details_preserve_usage_reset_and_compaction_outcomes() -> an
             *observed.lock().expect("usage limit records lock"),
             vec![ObservedUsageLimit {
                 turn_id: completed.turn_id.clone(),
-                error: MapleCodeErrorInfo::UsageLimitExceeded,
+                error: MaplecodeErrorInfo::UsageLimitExceeded,
                 resets_at: Some(1_800_000_000),
                 limit_window_minutes: Some(10_080),
                 limit_id: Some("test_limit".to_string()),
@@ -158,7 +158,7 @@ async fn turn_error_details_preserve_usage_reset_and_compaction_outcomes() -> an
             "{phase:?}",
         );
         let expected_error =
-            (phase != Phase::PostTurnCompaction).then_some(MapleCodeErrorInfo::UsageLimitExceeded);
+            (phase != Phase::PostTurnCompaction).then_some(MaplecodeErrorInfo::UsageLimitExceeded);
         assert_eq!(
             completed.error.and_then(|error| error.maplecode_error_info),
             expected_error,

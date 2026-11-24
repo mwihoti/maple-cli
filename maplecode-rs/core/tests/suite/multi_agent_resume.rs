@@ -16,7 +16,7 @@ use maplecode_analytics::AnalyticsEventsClient;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::AgentRoleConfig;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::protocol::EventMsg;
@@ -465,13 +465,13 @@ async fn cold_root_resume_restores_agent_identity_and_role_on_followup() -> Resu
     .await;
 
     Mock::given(method("POST"))
-        .and(path("/maplecode/analytics-events/events"))
+        .and(path("/codex/analytics-events/events"))
         .respond_with(ResponseTemplate::new(/* status */ 200))
         .mount(&server)
         .await;
     let analytics_client = AnalyticsEventsClient::new(
         maplecode_core::test_support::auth_manager_from_auth(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         ),
         server.uri(),
         /* analytics_enabled */ Some(true),
@@ -581,7 +581,7 @@ openai_base_url = "{redirected_base_url}"
     tokio::time::timeout(Duration::from_secs(10), analytics_client.flush()).await?;
     let mut worker_initializations = Vec::new();
     for request in server.received_requests().await.unwrap_or_default() {
-        if request.url.path() != "/maplecode/analytics-events/events" {
+        if request.url.path() != "/codex/analytics-events/events" {
             continue;
         }
         let payload: Value = serde_json::from_slice(&request.body)?;

@@ -18,7 +18,7 @@ use core_test_support::responses::ev_function_call;
 use core_test_support::responses::ev_response_created;
 use core_test_support::responses::mount_sse_sequence;
 use core_test_support::responses::sse;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_with_timeout;
@@ -94,12 +94,12 @@ impl Drop for EnvVarGuard {
     }
 }
 
-enum TestMapleCodeHome {
+enum TestMaplecodeHome {
     Persistent(PathBuf),
     Temporary(TempDir),
 }
 
-impl TestMapleCodeHome {
+impl TestMaplecodeHome {
     fn path(&self) -> &Path {
         match self {
             Self::Persistent(path) => path.as_path(),
@@ -108,7 +108,7 @@ impl TestMapleCodeHome {
     }
 }
 
-fn maplecode_home_for_windows_sandbox_test(name: &str) -> anyhow::Result<TestMapleCodeHome> {
+fn maplecode_home_for_windows_sandbox_test(name: &str) -> anyhow::Result<TestMaplecodeHome> {
     // Only tests that use the elevated accounts also take the shared account guard.
     if let Some(test_tmpdir) = std::env::var_os("TEST_TMPDIR") {
         // The elevated backend provisions machine-local sandbox users. Bazel
@@ -121,10 +121,10 @@ fn maplecode_home_for_windows_sandbox_test(name: &str) -> anyhow::Result<TestMap
                 maplecode_home.display()
             )
         })?;
-        return Ok(TestMapleCodeHome::Persistent(maplecode_home));
+        return Ok(TestMaplecodeHome::Persistent(maplecode_home));
     }
 
-    Ok(TestMapleCodeHome::Temporary(TempDir::new()?))
+    Ok(TestMaplecodeHome::Temporary(TempDir::new()?))
 }
 
 fn stage_windows_sandbox_helpers() -> anyhow::Result<()> {
@@ -692,7 +692,7 @@ async fn windows_elevated_does_not_create_missing_workspace_metadata() -> anyhow
             "-Command",
             r#"
 $ErrorActionPreference = 'Stop'
-$sid = (Get-LocalUser -Name 'MapleCodeSandboxOffline').SID.Value
+$sid = (Get-LocalUser -Name 'MaplecodeSandboxOffline').SID.Value
 $rules = foreach ($name in @('maplecode_sandbox_offline_block_inbound', 'maplecode_sandbox_offline_block_outbound')) {
     $rule = @(Get-NetFirewallRule -PolicyStore ActiveStore -DisplayName $name)
     if ($rule.Count -ne 1) { throw "Expected exactly one effective rule for $name" }
@@ -1122,7 +1122,7 @@ async fn windows_elevated_unified_exec_enforces_large_recursive_deny_reads() -> 
             std::fs::write(cwd.join("public.txt"), "public ok\n")?;
             Ok(())
         });
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
 
     let config = &harness.test().config;
     let paths = maplecode_windows_sandbox::resolve_windows_deny_read_paths(
@@ -1358,7 +1358,7 @@ async fn windows_elevated_approved_git_pull_preserves_deny_read() -> anyhow::Res
             std::fs::write(cwd.join("secret.env"), "glob secret")?;
             Ok(())
         });
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     let git = |cwd: &Path, args: &[&str]| -> anyhow::Result<String> {
         let output = Command::new("git")
             .args(["-c", "commit.gpgsign=false"])

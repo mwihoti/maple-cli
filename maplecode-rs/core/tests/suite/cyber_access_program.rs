@@ -6,7 +6,7 @@ use core_test_support::apps_test_server::search_capable_apps_builder;
 use core_test_support::responses;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_successful_turn;
@@ -17,7 +17,7 @@ use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnInputSubmission;
 use maplecode_core::TurnStartOptions;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ModelAccessPrograms;
@@ -239,8 +239,8 @@ async fn cyber_access_program_custom_provider_requires_capability(
 ) -> Result<()> {
     core_test_support::skip_if_no_network!(Ok(()));
     for auth in [
-        MapleCodeAuth::from_api_key("test-key"),
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+        MaplecodeAuth::from_api_key("test-key"),
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
     ] {
         let expected_authorization = if auth.is_api_key_auth() {
             "Bearer test-key"
@@ -291,7 +291,7 @@ async fn cyber_access_program_custom_provider_requires_capability(
 async fn cyber_access_program_custom_provider_preserves_api_key_feature_gate() -> Result<()> {
     let server = responses::start_mock_server().await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("test-api-key"))
+        .with_auth(MaplecodeAuth::from_api_key("test-api-key"))
         .with_config(|config| {
             config.model_provider_id = "proxy".to_owned();
             config.model_provider.capabilities =
@@ -326,13 +326,13 @@ async fn cyber_access_program_custom_provider_preserves_api_key_feature_gate() -
     Ok(())
 }
 
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), "openai"; "chatgpt")]
-#[test_case(MapleCodeAuth::from_api_key("test-api-key"), "openai"; "api_key")]
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), "proxy"; "custom_chatgpt")]
-#[test_case(MapleCodeAuth::from_api_key("test-api-key"), "proxy"; "custom_api_key")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), "openai"; "chatgpt")]
+#[test_case(MaplecodeAuth::from_api_key("test-api-key"), "openai"; "api_key")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), "proxy"; "custom_chatgpt")]
+#[test_case(MaplecodeAuth::from_api_key("test-api-key"), "proxy"; "custom_api_key")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn cyber_access_program_survives_mid_turn_remote_compaction_v2(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     provider_id: &'static str,
 ) -> Result<()> {
     core_test_support::skip_if_no_network!(Ok(()));
@@ -448,7 +448,7 @@ async fn cyber_access_program_is_inherited_by_child_turns() -> Result<()> {
         )
         .await;
         let test = test_maplecode()
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_model(if is_v2 { "gpt-5.6-sol" } else { "gpt-5.1" })
             .with_config(move |config| {
                 config
@@ -554,13 +554,13 @@ async fn cyber_access_program_is_inherited_by_child_turns() -> Result<()> {
     Ok(())
 }
 
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), "openai"; "chatgpt")]
-#[test_case(MapleCodeAuth::from_api_key("test-api-key"), "openai"; "api_key")]
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), "proxy"; "custom_chatgpt")]
-#[test_case(MapleCodeAuth::from_api_key("test-api-key"), "proxy"; "custom_api_key")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), "openai"; "chatgpt")]
+#[test_case(MaplecodeAuth::from_api_key("test-api-key"), "openai"; "api_key")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), "proxy"; "custom_chatgpt")]
+#[test_case(MaplecodeAuth::from_api_key("test-api-key"), "proxy"; "custom_api_key")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn cyber_access_program_changes_on_one_websocket_with_response_reuse(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     provider_id: &'static str,
 ) -> Result<()> {
     core_test_support::skip_if_no_network!(Ok(()));
@@ -670,7 +670,7 @@ async fn saved_daybreak_rejection_records_child_input(
     })
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("gpt-5.4", move |model| {
             model.available_access_programs = Some(ModelAccessPrograms {
                 cyber: only_program.map_or_else(
@@ -783,7 +783,7 @@ async fn saved_daybreak_rejection_records_child_input(
         if turn.error.as_ref().is_some_and(|error| error.message.contains(expected_error))),
         "expected {expected_error}: {completed:?}"
     );
-    let assert_history = async |thread: &maplecode_core::MapleCodeThread| {
+    let assert_history = async |thread: &maplecode_core::MaplecodeThread| {
         let history = thread.conversation_history_snapshot().await;
         for expected in [accepted_text, rejected_text] {
             let input = ContentItem::InputText {
@@ -851,7 +851,7 @@ async fn saved_daybreak_uses_existing_websocket_requests() -> Result<()> {
     .await;
     let release_child = server.gate_response_event(&responses::ev_completed("child-first"));
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("gpt-5.4", |model| {
             model.available_access_programs = Some(ModelAccessPrograms {
                 cyber: vec![
@@ -1044,7 +1044,7 @@ async fn saved_daybreak_follows_the_child_model_and_automatic_compaction(
         MultiAgentVersion::V1
     };
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override(parent_model, move |model| {
             model.available_access_programs = Some(ModelAccessPrograms {
                 cyber: vec![parent_daybreak, CyberAccessProgram::Standard],
@@ -1233,7 +1233,7 @@ async fn saved_daybreak_follows_the_child_model_and_automatic_compaction(
     Ok(())
 }
 
-async fn submit(test: &TestMapleCode, program: Option<CyberAccessProgram>) -> Result<()> {
+async fn submit(test: &TestMaplecode, program: Option<CyberAccessProgram>) -> Result<()> {
     test.maplecode
         .start_or_steer_turn(
             TurnInputRequest::user_input(vec![UserInput::Text {

@@ -15,7 +15,7 @@ use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
@@ -36,7 +36,7 @@ use maplecode_extension_api::McpServerContribution;
 use maplecode_extension_api::McpServerContributionContext;
 use maplecode_extension_api::McpServerContributor;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_protocol::approvals::ElicitationAction;
 use maplecode_protocol::approvals::ElicitationRequest;
@@ -162,7 +162,7 @@ fn configure_apps_without_search_tool(config: &mut Config, apps_base_url: &str) 
 
 async fn mount_recommendations(server: &wiremock::MockServer, response: ResponseTemplate) {
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .and(query_param("scope", "GLOBAL"))
         .respond_with(response)
         .mount(server)
@@ -177,7 +177,7 @@ async fn wait_for_startup_recommendations(server: &MockServer) -> Result<()> {
                 .await
                 .unwrap_or_default()
                 .iter()
-                .any(|request| request.url.path() == "/ps/plugins/suggested/maplecode")
+                .any(|request| request.url.path() == "/ps/plugins/suggested/codex")
             {
                 return;
             }
@@ -208,9 +208,9 @@ fn assert_legacy_tools(body: &Value) {
 async fn build_test(
     server: &wiremock::MockServer,
     apps_server: &AppsTestServer,
-) -> Result<TestMapleCode> {
+) -> Result<TestMaplecode> {
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config({
             let apps_base_url = apps_server.chatgpt_base_url.clone();
             move |config| {
@@ -227,12 +227,12 @@ async fn build_test(
 async fn build_gated_step_preparation_test(
     server: &MockServer,
     apps_server: &AppsTestServer,
-) -> Result<TestMapleCode> {
+) -> Result<TestMaplecode> {
     let command = remote_aware_stdio_server_bin()?;
     let environment_id = remote_aware_environment_id();
     let apps_base_url = apps_server.chatgpt_base_url.clone();
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config
                 .permissions
@@ -267,7 +267,7 @@ async fn build_gated_step_preparation_test(
 }
 
 async fn start_gated_step_preparation(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     server: &MockServer,
 ) -> Result<PathUri> {
     // Settle startup work before clearing its cache so these tests still exercise
@@ -284,7 +284,7 @@ async fn start_gated_step_preparation(
         .await
         .unwrap_or_default()
         .into_iter()
-        .filter(|request| request.url.path() == "/ps/plugins/suggested/maplecode")
+        .filter(|request| request.url.path() == "/ps/plugins/suggested/codex")
         .count();
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, test.config.cwd.as_path());
@@ -316,7 +316,7 @@ async fn start_gated_step_preparation(
                 .await
                 .unwrap_or_default()
                 .into_iter()
-                .filter(|request| request.url.path() == "/ps/plugins/suggested/maplecode")
+                .filter(|request| request.url.path() == "/ps/plugins/suggested/codex")
                 .count();
             if mcp_started && recommendation_count > prior_recommendation_count {
                 break;
@@ -331,7 +331,7 @@ async fn start_gated_step_preparation(
         .map_err(Into::into)
 }
 
-async fn start_install_turn(test: &TestMapleCode, prompt: &str) -> Result<ElicitationRequestEvent> {
+async fn start_install_turn(test: &TestMaplecode, prompt: &str) -> Result<ElicitationRequestEvent> {
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, test.config.cwd.as_path());
     test.maplecode
@@ -365,7 +365,7 @@ async fn start_install_turn(test: &TestMapleCode, prompt: &str) -> Result<Elicit
 }
 
 async fn resolve_install_elicitation(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     elicitation: ElicitationRequestEvent,
     decision: ElicitationAction,
 ) -> Result<()> {
@@ -387,7 +387,7 @@ async fn resolve_install_elicitation(
 
 async fn mount_remote_calendar_recommendation(server: &wiremock::MockServer) {
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .and(query_param("scope", "GLOBAL"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "enabled": true,
@@ -487,7 +487,7 @@ async fn startup_recommendations_use_developer_message(
         }]
     }));
     Mock::given(method("GET"))
-        .and(path("/ps/plugins/suggested/maplecode"))
+        .and(path("/ps/plugins/suggested/codex"))
         .respond_with(move |_: &wiremock::Request| {
             started.notify_one();
             response.clone()
@@ -513,7 +513,7 @@ async fn startup_recommendations_use_developer_message(
     extensions.mcp_server_contributor(barrier.clone());
     let mut builder = test_maplecode()
         .with_extensions(Arc::new(extensions.build()))
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             configure_apps_without_search_tool(config, &apps_server.chatgpt_base_url);
             config.model_provider.supports_websockets = false;
@@ -647,7 +647,7 @@ async fn catalog_plugin_recommendations_use_receiving_model(case: &str) -> Resul
     };
     let enabled = case != "disabled";
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             configure_apps_without_search_tool(config, &apps.chatgpt_base_url);
             config.features.disable(Feature::ToolSuggest).unwrap();
@@ -904,7 +904,7 @@ async fn unavailable_recommendations_preserve_legacy_workflow(
         ],
     )
     .await;
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let mut builder = test_maplecode()
         .with_auth(auth.clone())
         .with_pre_build_hook(|home| {
@@ -1159,7 +1159,7 @@ async fn local_plugin_skill_availability_reaches_tool_suggestion_candidates(
     .await;
     let mut builder = test_maplecode()
         .with_home(maplecode_home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config({
             let apps_base_url = apps_server.chatgpt_base_url.clone();
             move |config| {
@@ -1386,7 +1386,7 @@ async fn run_remote_plugin_install_metadata_case() -> Result<()> {
         let requests = server.received_requests().await.unwrap_or_default();
         if let Some(event) = requests
             .into_iter()
-            .filter(|request| request.url.path() == "/maplecode/analytics-events/events")
+            .filter(|request| request.url.path() == "/codex/analytics-events/events")
             .find_map(|request| {
                 let payload: Value = serde_json::from_slice(&request.body).ok()?;
                 payload["events"].as_array().and_then(|events| {
@@ -1673,7 +1673,7 @@ async fn endpoint_mode_with_no_eligible_candidates_exposes_no_suggestion_tools()
     )
     .await;
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config({
             let apps_base_url = apps_server.chatgpt_base_url.clone();
             move |config| {

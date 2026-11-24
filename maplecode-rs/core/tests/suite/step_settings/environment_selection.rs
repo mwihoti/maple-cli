@@ -142,7 +142,7 @@ async fn check_connection_events_for_active_selection(scheduler_idle: Arc<Notify
         matches!(event, EventMsg::EnvironmentConnected(e) | EventMsg::EnvironmentDisconnected(e)
             if e.environment_id == remote_id)
     };
-    let wait_for_connection = async |thread: &MapleCodeThread| {
+    let wait_for_connection = async |thread: &MaplecodeThread| {
         let event = wait_for_event(thread, connection_event).await;
         assert!(
             matches!(event, EventMsg::EnvironmentConnected(_)),
@@ -150,7 +150,7 @@ async fn check_connection_events_for_active_selection(scheduler_idle: Arc<Notify
         );
     };
     let assert_no_connection_events =
-        async |thread: &MapleCodeThread, message: &str| -> Result<()> {
+        async |thread: &MaplecodeThread, message: &str| -> Result<()> {
             // Register on the sole worker so the next park follows all runnable listeners.
             let idle = Arc::clone(&scheduler_idle);
             tokio::spawn(async move { idle.notified().await }).await?;

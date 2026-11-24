@@ -20,7 +20,7 @@ use maplecode_core::config::Config;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_core::config::ConfigOverrides;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_models_manager::manager::SharedModelsManager;
 use maplecode_models_manager::model_info::model_info_from_slug;
@@ -122,7 +122,7 @@ async fn response_for_remote_model(
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(configure);
     let test = builder.build(&server).await?;
     let models_manager = test.thread_manager.get_models_manager();
@@ -303,7 +303,7 @@ async fn unsupported_code_mode_warning_is_emitted_each_turn() -> Result<()> {
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config
                 .features
@@ -563,7 +563,7 @@ async fn remote_multi_agent_selector_uses_model_selected_before_first_turn() -> 
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some(ROOT_MODEL.to_string());
         });

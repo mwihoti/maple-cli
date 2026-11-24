@@ -1,7 +1,7 @@
 //! Host loss must reach the model without replaying completed external effects.
 
 use super::*;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use maplecode_extension_api::ToolCallSource;
 use pretty_assertions::assert_eq;
 
@@ -46,7 +46,7 @@ async fn grpc_host_loss_reports_reset_without_replaying_side_effects() -> Result
             config.features.enable(Feature::CodeModeOnly).unwrap();
             config.features.enable(Feature::CodeModeHostGrpc).unwrap();
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
     let server = harness.server();
     let (append, read) = match core_test_support::test_target_os() {

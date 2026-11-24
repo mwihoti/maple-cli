@@ -59,7 +59,7 @@ async fn native_stop_hook_uses_plugin_policy_refreshed_during_turn(
     let server = start_mock_server().await;
     let observer = AppsTestServer::mount(&server).await?;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(body_partial_json(json!({ "method": "tools/call" })))
         .respond_with(|request: &Request| {
             let request: serde_json::Value =
@@ -92,7 +92,7 @@ async fn native_stop_hook_uses_plugin_policy_refreshed_during_turn(
         serde_json::to_vec(&json!({
             "mcpServers": {
                 "plugin_tools": {
-                    "url": format!("{}/api/maplecode/ps/mcp", observer.chatgpt_base_url),
+                    "url": format!("{}/api/codex/ps/mcp", observer.chatgpt_base_url),
                 },
             },
         }))?,
@@ -136,7 +136,7 @@ async fn native_stop_hook_uses_plugin_policy_refreshed_during_turn(
                 .set(HashMap::from([(
                     "hook_observer".to_string(),
                     serde_json::from_value(json!({
-                        "url": format!("{}/api/maplecode/ps/mcp", observer.chatgpt_base_url),
+                        "url": format!("{}/api/codex/ps/mcp", observer.chatgpt_base_url),
                         "environment_id": remote_aware_environment_id(),
                     }))
                     .expect("observer MCP configuration"),

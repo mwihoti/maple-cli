@@ -12,8 +12,8 @@ use core_test_support::responses::sse;
 #[cfg(unix)]
 use core_test_support::skip_if_remote;
 #[cfg(unix)]
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -79,8 +79,8 @@ struct SnapshotRun {
     maplecode_home: PathBuf,
 }
 
-const POLICY_PATH_FOR_TEST: &str = "/maplecode/policy/path";
-const SNAPSHOT_PATH_FOR_TEST: &str = "/maplecode/snapshot/path";
+const POLICY_PATH_FOR_TEST: &str = "/codex/policy/path";
+const SNAPSHOT_PATH_FOR_TEST: &str = "/codex/snapshot/path";
 const SNAPSHOT_MARKER_VAR: &str = "MAPLECODE_SNAPSHOT_POLICY_MARKER";
 const SNAPSHOT_MARKER_VALUE: &str = "from_snapshot";
 const POLICY_SUCCESS_OUTPUT: &str = "policy-after-snapshot";
@@ -166,7 +166,7 @@ async fn run_snapshot_command_with_options(
             .expect("test config should allow feature update");
         config.permissions.shell_environment_policy.r#set = shell_environment_set;
     });
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     let args = json!({
         "cmd": command,
         "yield_time_ms": 1000,
@@ -244,7 +244,7 @@ async fn run_snapshot_command_with_options(
 }
 
 async fn run_tool_turn_on_harness(
-    harness: &TestMapleCodeHarness,
+    harness: &TestMaplecodeHarness,
     prompt: &str,
     call_id: &str,
     tool_name: &str,
@@ -328,7 +328,7 @@ fn assert_posix_snapshot_sections(snapshot: &str) {
 }
 
 #[cfg(unix)]
-fn shell_snapshot_v2_prewarm_builder(profile_home: &Path) -> TestMapleCodeBuilder {
+fn shell_snapshot_v2_prewarm_builder(profile_home: &Path) -> TestMaplecodeBuilder {
     let configured_home = profile_home.to_string_lossy().into_owned();
     let shell = get_shell_by_model_provided_path(&PathBuf::from("/bin/bash"));
     test_maplecode()
@@ -356,7 +356,7 @@ fn shell_snapshot_v2_prewarm_builder(profile_home: &Path) -> TestMapleCodeBuilde
 }
 
 #[cfg(unix)]
-async fn run_no_shell_turn(harness: &TestMapleCodeHarness) -> Result<()> {
+async fn run_no_shell_turn(harness: &TestMaplecodeHarness) -> Result<()> {
     let response = mount_sse_once(
         harness.server(),
         sse(vec![
@@ -401,7 +401,7 @@ async fn shell_snapshot_v2_returns_before_inherited_output_closes() -> Result<()
         .read(true)
         .write(true)
         .open(&gate_path)?;
-    let harness = TestMapleCodeHarness::with_auto_env_builder(shell_snapshot_v2_prewarm_builder(
+    let harness = TestMaplecodeHarness::with_auto_env_builder(shell_snapshot_v2_prewarm_builder(
         profile_home.path(),
     ))
     .await?;
@@ -464,7 +464,7 @@ async fn shell_snapshot_v2_warms_after_hooks_without_blocking_the_model() -> Res
             }).to_string()).expect("write startup hook");
         })
         .with_config(trust_discovered_hooks);
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
 
     // The model can finish a text-only turn while the profile is still blocked.
     run_no_shell_turn(&harness).await?;
@@ -514,7 +514,7 @@ async fn shell_snapshot_v2_recovers_after_failed_prewarm() -> Result<()> {
             let policy = &mut config.permissions.shell_environment_policy;
             policy.r#set.insert("BASH_ENV".to_string(), bash_env);
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     run_no_shell_turn(&harness).await?;
     wait_for_file_contents(&profile_home.path().join("failed"), "x").await?;
 
@@ -584,7 +584,7 @@ async fn shell_snapshot_v2_prewarm_preserves_the_sandbox() -> Result<()> {
             )
             .expect("allow the former warm-up sentinel");
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     run_no_shell_turn(&harness).await?;
     wait_for_file_contents(&profile_home.path().join("captures"), "done").await?;
     harness.test().maplecode.shutdown_and_wait().await?;
@@ -604,7 +604,7 @@ async fn shell_snapshot_v2_prewarm_stops_on_shutdown() -> Result<()> {
         profile_home.path().join(".bashrc"),
         "printf '%s' \"$$\" > \"$HOME/pid\"\nprintf x > \"$HOME/captures\"\nwhile :; do /bin/sleep 0.01; done\n",
     ).await?;
-    let harness = TestMapleCodeHarness::with_auto_env_builder(shell_snapshot_v2_prewarm_builder(
+    let harness = TestMaplecodeHarness::with_auto_env_builder(shell_snapshot_v2_prewarm_builder(
         profile_home.path(),
     ))
     .await?;
@@ -658,7 +658,7 @@ async fn shell_snapshot_v2_prewarm_skips_ineligible_sessions(
     )
     .await?;
     let builder = shell_snapshot_v2_prewarm_builder(profile_home.path()).with_config(configure);
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     run_no_shell_turn(&harness).await?;
     harness.test().maplecode.shutdown_and_wait().await?;
     assert!(!profile_home.path().join("captures").exists());
@@ -689,7 +689,7 @@ async fn shell_snapshot_v2_does_not_warm_a_hook_stopped_turn(hook_event: &str) -
             }).to_string()).expect("write stopping hook");
             })
             .with_config(trust_discovered_hooks);
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     harness.submit("do not start the model or shell").await?;
     harness.test().maplecode.shutdown_and_wait().await?;
     assert!(harness.request_bodies().await.is_empty());
@@ -734,7 +734,7 @@ async fn shell_snapshot_v2_guardian_uses_its_resolved_permissions_and_tools(
             )
             .expect("require review even for an unrestricted owner environment");
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
     let responses = mount_sse_sequence(
         harness.server(),
@@ -872,7 +872,7 @@ exec /bin/bash --noprofile --norc "$@"
                 ..Default::default()
             };
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let snapshot_path = wait_for_snapshot(harness.test().home.path()).await?;
     let snapshot = fs::read_to_string(&snapshot_path).await?;
     for sentinel in [
@@ -955,7 +955,7 @@ async fn shell_snapshot_v2_filters_profile_secrets_without_creating_files() -> R
                 ("PROFILE_ALLOWED".to_string(), "policy".to_string()),
             ]);
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
 
     for attempt in 0..2 {
         let end = run_tool_turn_on_harness(
@@ -1004,7 +1004,7 @@ async fn shell_snapshot_v2_preserves_legacy_snapshots_for_user_shell() -> Result
             .enable(Feature::ShellSnapshotV2)
             .expect("test config should enable in-memory snapshots");
     });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let snapshot_path = wait_for_snapshot(harness.test().home.path()).await?;
     assert_posix_snapshot_sections(&fs::read_to_string(snapshot_path).await?);
     let maplecode = &harness.test().maplecode;
@@ -1056,7 +1056,7 @@ async fn unified_exec_snapshot_preserves_shell_environment_policy_set() -> Resul
             .expect("test config should allow feature update");
         config.permissions.shell_environment_policy.r#set = policy_set_path_for_test();
     });
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     let maplecode_home = harness.test().home.path().to_path_buf();
     run_tool_turn_on_harness(
         &harness,
@@ -1104,7 +1104,7 @@ async fn unified_exec_snapshot_still_intercepts_apply_patch() -> Result<()> {
             .enable(Feature::ShellSnapshot)
             .expect("test config should allow feature update");
     });
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
 
     let test = harness.test();
     let maplecode = test.maplecode.clone();
@@ -1207,7 +1207,7 @@ async fn shell_snapshot_deleted_after_shutdown_with_skills() -> Result<()> {
             .enable(Feature::ShellSnapshot)
             .expect("test config should allow feature update");
     });
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     let home = harness.test().home.clone();
     let maplecode_home = home.path().to_path_buf();
     let maplecode = harness.test().maplecode.clone();
@@ -1261,7 +1261,7 @@ async fn macos_unified_exec_resolves_command_from_tied_path_snapshot(
                 );
             }
         });
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     let command_dir = harness
         .test()
         .config

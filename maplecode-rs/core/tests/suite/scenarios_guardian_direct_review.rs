@@ -12,7 +12,7 @@ use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_function_call;
 use core_test_support::responses::sse;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::test_maplecode;
 use maplecode_core::config::Constrained;
 use maplecode_core::guardian_review::GuardianReviewResult;
@@ -47,7 +47,7 @@ async fn direct_exec_review_matches_live_action_without_execution() -> Result<()
             )
             .expect("write approved command");
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
 
     let arguments = r#"{"cmd":"echo should-not-run > guardian-direct.txt","justification":"Run the requested command.","sandbox_permissions":"require_escalated"}"#;
@@ -159,7 +159,7 @@ async fn direct_exec_review_matches_live_action_without_execution() -> Result<()
         .unwrap_err();
     assert!(matches!(
         error.details(),
-        maplecode_protocol::error::MapleCodeErrorDetails::InvalidRequest(_)
+        maplecode_protocol::error::MaplecodeErrorDetails::InvalidRequest(_)
     ));
 
     direct
@@ -215,7 +215,7 @@ async fn direct_exec_review_matches_live_action_without_execution() -> Result<()
         .unwrap_err();
     assert!(matches!(
         error.details(),
-        maplecode_protocol::error::MapleCodeErrorDetails::InvalidRequest(message)
+        maplecode_protocol::error::MaplecodeErrorDetails::InvalidRequest(message)
             if message.contains("does not support replaying request_permissions")
     ));
 
@@ -283,7 +283,7 @@ async fn direct_patch_review_matches_live_action_without_writes(
                 .set_permission_profile(PermissionProfile::read_only())
                 .expect("read-only permissions");
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
     harness
         .write_file("guardian-direct.txt", "before\n")
@@ -431,7 +431,7 @@ async fn direct_permissions_review_matches_live_action() -> Result<()> {
                 .set_permission_profile(PermissionProfile::read_only())
                 .expect("read-only permissions");
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
 
     let arguments =
@@ -572,7 +572,7 @@ async fn direct_patch_review_skips_writable_file_without_writes() -> Result<()> 
                 .set_permission_profile(PermissionProfile::workspace_write())
                 .expect("workspace-write permissions");
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
     harness
         .write_file("guardian-skipped.txt", "before\n")
@@ -632,7 +632,7 @@ async fn direct_permissions_review_skips_when_policy_disallows_requests(
                 .expect("enable permission requests");
             config.permissions.approval_policy = Constrained::allow_any(policy);
         });
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder).await?;
     let test = harness.test();
     let mock =
         responses::mount_sse_once(harness.server(), sse(vec![ev_completed("unexpected")])).await;
@@ -705,7 +705,7 @@ prefix_rule(pattern=["git", "init", "guardian-rewritten"], decision="prompt")
             .expect("write command policies");
         });
     // These hook fixtures use the local Python interpreter and filesystem.
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     let test = harness.test();
 
     let assessment = json!({
@@ -810,7 +810,7 @@ async fn direct_exec_review_honors_hook_denial_before_policy_skip() -> Result<()
             .expect("write allow rule");
         });
     // These hook fixtures use the local Python interpreter and filesystem.
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     let test = harness.test();
 
     let mock =
@@ -829,7 +829,7 @@ async fn direct_exec_review_honors_hook_denial_before_policy_skip() -> Result<()
         .expect_err("hook must reject the call before policy can skip review");
     assert!(matches!(
         error.details(),
-        maplecode_protocol::error::MapleCodeErrorDetails::InvalidRequest(_)
+        maplecode_protocol::error::MaplecodeErrorDetails::InvalidRequest(_)
     ));
     assert!(mock.requests().is_empty());
 

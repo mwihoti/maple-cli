@@ -14,7 +14,7 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::responses::strip_metadata_from_json;
 use core_test_support::responses::strip_response_item_ids_from_json;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
@@ -173,7 +173,7 @@ async fn prompt_tools_are_consistent_across_requests(
     )
     .await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         // Keep the file-backed instructions alive across request-boundary refreshes.
         home: _home,
         maplecode,
@@ -329,7 +329,7 @@ async fn gpt_5_tools_without_apply_patch_append_apply_patch_instructions() -> an
     )
     .await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         home: _home,
         maplecode,
         ..
@@ -395,7 +395,7 @@ async fn prefixes_context_and_instructions_once_and_consistently_across_requests
     )
     .await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         home: _home,
         maplecode,
         config,
@@ -489,7 +489,7 @@ async fn overrides_turn_context_but_keeps_cached_prefix_and_key_constant() -> an
     )
     .await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         home: _home,
         maplecode,
         config,
@@ -609,7 +609,7 @@ async fn override_before_first_turn_emits_environment_context() -> anyhow::Resul
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode().build(&server).await?;
+    let TestMaplecode { maplecode, .. } = test_maplecode().build(&server).await?;
 
     let collaboration_mode = CollaborationMode {
         mode: ModeKind::Default,
@@ -762,7 +762,7 @@ async fn per_turn_overrides_keep_cached_prefix_and_key_constant() -> anyhow::Res
     )
     .await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         home: _home,
         maplecode,
         ..
@@ -901,7 +901,7 @@ async fn send_user_turn_with_no_changes_does_not_send_environment_context() -> a
     )
     .await;
 
-    let TestMapleCode {
+    let TestMaplecode {
         home: _home,
         maplecode,
         config,
@@ -1038,7 +1038,7 @@ async fn send_user_turn_with_changes_sends_environment_context() -> anyhow::Resu
         sse(vec![ev_response_created("resp-2"), ev_completed("resp-2")]),
     )
     .await;
-    let TestMapleCode {
+    let TestMaplecode {
         home: _home,
         maplecode,
         config,

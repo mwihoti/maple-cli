@@ -27,7 +27,7 @@ use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_target_windows;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::executor_path_uri;
 use maplecode_core::config::Config;
 use maplecode_protocol::models::PermissionProfile;
@@ -176,7 +176,7 @@ async fn mount_file_upload_mocks(server: &MockServer, file_size_bytes: u64) {
 }
 
 async fn run_extract_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     server: &MockServer,
     permission_profile: PermissionProfile,
 ) -> Result<ResponseMock> {

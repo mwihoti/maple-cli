@@ -2,7 +2,7 @@
 
 use super::*;
 use anyhow::Context as _;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::protocol::ThreadHistoryMode;
 use maplecode_protocol::turn_input::AnnotatedResponseItem;
 use pretty_assertions::assert_eq;
@@ -43,7 +43,7 @@ async fn raw_injection_rejects_uploaded_audio_before_modifying_history(kind: &st
     for error in [history_error, preparation_error] {
         assert!(matches!(
             error.details(),
-            MapleCodeErrorDetails::InvalidRequest(_)
+            MaplecodeErrorDetails::InvalidRequest(_)
         ));
     }
     for input in [
@@ -61,7 +61,7 @@ async fn raw_injection_rejects_uploaded_audio_before_modifying_history(kind: &st
             .context("turn input accepted an untyped audio file")?;
         assert!(matches!(
             error.details(),
-            MapleCodeErrorDetails::InvalidRequest(_)
+            MaplecodeErrorDetails::InvalidRequest(_)
         ));
     }
     let after = test.maplecode.conversation_history_snapshot().await;

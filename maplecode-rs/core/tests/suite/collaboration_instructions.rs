@@ -15,7 +15,7 @@ use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::model_info::model_info_from_slug;
 use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
@@ -271,7 +271,7 @@ async fn catalog_collaboration_messages_refresh_without_mode_or_model_change(
     let mut models_mocks =
         vec![mount_models_once_with_etag(&server, catalog(ORIGINAL), ETAG_1).await];
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model(MODEL)
         .with_config(|config| {
             config.model_provider.request_max_retries = Some(0);

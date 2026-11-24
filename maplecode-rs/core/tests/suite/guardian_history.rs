@@ -25,7 +25,7 @@ use maplecode_features::Feature;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::TranscriptFormat;
 use maplecode_protocol::config_types::ApprovalsReviewer;
@@ -210,7 +210,7 @@ async fn guardian_history_preserves_reviewer_across_parent_compaction() -> Resul
     skip_if_no_network!(Ok(()));
     let server = start_mock_server().await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.5")
         .with_model_info_override("gpt-5.5", |model| {
             model.comp_hash = Some("same-model".to_owned());

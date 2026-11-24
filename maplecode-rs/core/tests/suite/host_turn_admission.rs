@@ -10,8 +10,8 @@ use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::hooks::trust_discovered_hooks;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_successful_turn;
@@ -21,7 +21,7 @@ use maplecode_core::AgentRef;
 use maplecode_core::AgentSessionReader;
 use maplecode_core::AgentTurnAdmission;
 use maplecode_core::AgentTurnAdmissionRequest;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::SuspendTurnOutcome;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnInputSubmission;
@@ -30,9 +30,9 @@ use maplecode_history::RolloutItem;
 use maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec;
 use maplecode_protocol::dynamic_tools::DynamicToolResponse;
 use maplecode_protocol::dynamic_tools::DynamicToolSpec;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::items::TurnItem;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::models::input_text;
@@ -51,7 +51,7 @@ use tokio::sync::oneshot;
 use tokio_util::sync::CancellationToken;
 use wiremock::MockServer;
 
-type Decision = oneshot::Sender<MapleCodeResult<AgentExecutionGuard>>;
+type Decision = oneshot::Sender<MaplecodeResult<AgentExecutionGuard>>;
 type Attempt = (AgentTurnAdmissionRequest, Decision);
 struct HostAdmission(mpsc::UnboundedSender<Attempt>);
 
@@ -59,7 +59,7 @@ impl AgentTurnAdmission for HostAdmission {
     fn admit_turn(
         &self,
         request: AgentTurnAdmissionRequest,
-    ) -> BoxFuture<'_, MapleCodeResult<AgentExecutionGuard>> {
+    ) -> BoxFuture<'_, MaplecodeResult<AgentExecutionGuard>> {
         Box::pin(async move {
             let (reply, decision) = oneshot::channel();
             self.0.send((request, reply)).expect("admission receiver");
@@ -72,15 +72,15 @@ impl AgentTurnAdmission for HostAdmission {
 struct PendingRosterRead(Notify);
 
 impl AgentSessionReader for PendingRosterRead {
-    fn root(&self) -> BoxFuture<'_, MapleCodeResult<AgentRef>> {
+    fn root(&self) -> BoxFuture<'_, MaplecodeResult<AgentRef>> {
         unreachable!("roster rendering reads children")
     }
 
-    fn parent(&self) -> BoxFuture<'_, MapleCodeResult<Option<AgentRef>>> {
+    fn parent(&self) -> BoxFuture<'_, MaplecodeResult<Option<AgentRef>>> {
         unreachable!("roster rendering reads children")
     }
 
-    fn children(&self) -> BoxFuture<'_, MapleCodeResult<Vec<AgentRef>>> {
+    fn children(&self) -> BoxFuture<'_, MaplecodeResult<Vec<AgentRef>>> {
         Box::pin(async {
             self.0.notify_one();
             std::future::pending().await
@@ -90,9 +90,9 @@ impl AgentSessionReader for PendingRosterRead {
 
 async fn root_with_admission(
     server: &MockServer,
-    mut builder: TestMapleCodeBuilder,
+    mut builder: TestMaplecodeBuilder,
     session_reader: Option<Arc<dyn AgentSessionReader>>,
-) -> Result<(TestMapleCode, mpsc::UnboundedReceiver<Attempt>)> {
+) -> Result<(TestMaplecode, mpsc::UnboundedReceiver<Attempt>)> {
     let mut test = builder.build_with_auto_env(server).await?;
     let mut options = test.start_thread_options().await;
     let (attempts, requests) = mpsc::unbounded_channel();
@@ -117,7 +117,7 @@ async fn root_with_admission(
     Ok((test, requests))
 }
 
-async fn submit(thread: &MapleCodeThread, text: &str) -> MapleCodeResult<TurnInputSubmission> {
+async fn submit(thread: &MaplecodeThread, text: &str) -> MaplecodeResult<TurnInputSubmission> {
     thread
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
             text: text.into(),
@@ -127,7 +127,7 @@ async fn submit(thread: &MapleCodeThread, text: &str) -> MapleCodeResult<TurnInp
 }
 
 async fn start(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     attempts: &mut mpsc::UnboundedReceiver<Attempt>,
     text: &str,
 ) -> Result<(String, Decision)> {
@@ -145,7 +145,7 @@ async fn start(
 }
 
 fn deny(decision: Decision) {
-    let error = MapleCodeErr::new(MapleCodeErrorDetails::AgentLimitReached { max_threads: 1 });
+    let error = MaplecodeErr::new(MaplecodeErrorDetails::AgentLimitReached { max_threads: 1 });
     assert!(decision.send(Err(error)).is_ok());
 }
 
@@ -329,7 +329,7 @@ async fn suspending_root_during_roster_read_preserves_the_recoverable_prompt() -
 }
 
 async fn suspend_and_check_recoverable_prompt(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     server: &MockServer,
     turn_id: String,
     prompt: &str,

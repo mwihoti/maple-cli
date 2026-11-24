@@ -9,7 +9,7 @@ use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnStartOptions;
 use maplecode_core::config::Constrained;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::approvals::GuardianAssessmentStatus;
 use maplecode_protocol::config_types::ApprovalsReviewer;
 use maplecode_protocol::models::PermissionProfile;
@@ -22,13 +22,13 @@ use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
 
-#[test_case(MapleCodeAuth::from_api_key("test-api-key"), false; "api_key")]
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), false; "chatgpt")]
-#[test_case(MapleCodeAuth::from_api_key("test-api-key"), true; "api_key_parent_only")]
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), true; "chatgpt_parent_only")]
+#[test_case(MaplecodeAuth::from_api_key("test-api-key"), false; "api_key")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), false; "chatgpt")]
+#[test_case(MaplecodeAuth::from_api_key("test-api-key"), true; "api_key_parent_only")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), true; "chatgpt_parent_only")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn guardian_reused_reviewer_respects_parent_program_scope(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     parent_only: bool,
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));

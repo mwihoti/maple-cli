@@ -32,7 +32,7 @@ use wiremock::ResponseTemplate;
 use wiremock::matchers::method;
 use wiremock::matchers::path;
 
-struct Credentials(RwLock<MapleCodeAuth>);
+struct Credentials(RwLock<MaplecodeAuth>);
 
 #[derive(Debug, Default)]
 struct BudgetChecks(Mutex<VecDeque<Option<Arc<Barrier>>>>);
@@ -55,11 +55,11 @@ impl ModelRequestContributor for BudgetChecks {
 }
 
 impl ExternalAuth for Credentials {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.read().unwrap().clone()) })
     }
 
-    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }
@@ -85,7 +85,7 @@ async fn runtime_harness(
     request_contributors: Vec<Arc<dyn ModelRequestContributor>>,
 ) -> (WebsocketTestHarness, Arc<Credentials>) {
     provider.requires_openai_auth = true;
-    let initial = MapleCodeAuth::from_api_key("key-a");
+    let initial = MaplecodeAuth::from_api_key("key-a");
     let registration_url = format!("{}/register", registration.uri()).parse().unwrap();
     let harness = websocket_harness_with_provider_factory(
         provider,
@@ -248,7 +248,7 @@ async fn http_requests_keep_matching_runtime_and_credentials_across_retries_and_
     let (harness, credentials) = runtime_harness(&server, provider, mode, Vec::new()).await;
     let mut session = harness.client.new_session();
     complete(&mut session, &harness).await.unwrap();
-    *credentials.0.write().unwrap() = MapleCodeAuth::from_api_key("key-other-user");
+    *credentials.0.write().unwrap() = MaplecodeAuth::from_api_key("key-other-user");
     complete(&mut session, &harness).await.unwrap();
     let requests = server.received_requests().await.unwrap();
     let bootstraps: Vec<_> = requests
@@ -350,7 +350,7 @@ async fn http_reprepares_request_when_account_switches_during_budget_check(mode:
         result = &mut generation => panic!("generation finished before the budget check: {result:?}"),
         _ = gate.wait() => {}
     }
-    *credentials.0.write().unwrap() = MapleCodeAuth::from_api_key("key-other-user");
+    *credentials.0.write().unwrap() = MaplecodeAuth::from_api_key("key-other-user");
     harness.auth_manager.reload().await;
     let (result, _) = tokio::join!(generation, gate.wait());
     result.unwrap();
@@ -435,7 +435,7 @@ async fn websocket_reconnects_for_replacement_and_account_switch_within_a_turn(
     stream_until_complete(&mut session, &harness, &prompt_with_input(input.clone())).await;
     assert_eq!(server.handshakes().len(), 2);
 
-    *credentials.0.write().unwrap() = MapleCodeAuth::from_api_key("key-b");
+    *credentials.0.write().unwrap() = MaplecodeAuth::from_api_key("key-b");
     session
         .preconnect_websocket(
             &harness.model_info,
@@ -466,7 +466,7 @@ async fn websocket_reconnects_for_replacement_and_account_switch_within_a_turn(
         _ = gate.wait() => {}
     }
     let previous_owner = harness.auth_manager.auth_owner();
-    *credentials.0.write().unwrap() = MapleCodeAuth::from_api_key("key-other-user");
+    *credentials.0.write().unwrap() = MaplecodeAuth::from_api_key("key-other-user");
     harness.auth_manager.reload().await;
     assert!(!previous_owner.is_current());
     tokio::join!(generation, gate.wait());
@@ -548,7 +548,7 @@ async fn websocket_sends_after_external_auth_changes_during_request_setup(mode: 
     let mut session = harness.client.new_session();
     complete(&mut session, &harness).await.unwrap();
 
-    *credentials.0.write().unwrap() = MapleCodeAuth::from_api_key("key-other-user");
+    *credentials.0.write().unwrap() = MaplecodeAuth::from_api_key("key-other-user");
     complete(&mut session, &harness).await.unwrap();
 
     let handshakes = server.handshakes();
@@ -810,8 +810,8 @@ async fn paused_runtime_cannot_continue_on_an_admitted_websocket(mode: RuntimeAu
         while connections.join_next().await.is_some() {}
     });
 
-    let assert_paused = |error: &maplecode_protocol::error::MapleCodeErr| {
-        let maplecode_protocol::error::MapleCodeErrorDetails::UnexpectedStatus(response) =
+    let assert_paused = |error: &maplecode_protocol::error::MaplecodeErr| {
+        let maplecode_protocol::error::MaplecodeErrorDetails::UnexpectedStatus(response) =
             error.details()
         else {
             panic!("expected a paused-runtime HTTP response: {error:?}");

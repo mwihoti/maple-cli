@@ -69,7 +69,7 @@ async fn mcp_methods(server: &MockServer) -> Vec<String> {
         .await
         .expect("mock server should capture MCP startup requests")
         .into_iter()
-        .filter(|request| request.url.path() == "/api/maplecode/ps/mcp")
+        .filter(|request| request.url.path() == "/api/codex/ps/mcp")
         .filter_map(|request| {
             let body: Value = serde_json::from_slice(&request.body).ok()?;
             body.get("method")?.as_str().map(str::to_string)
@@ -88,14 +88,14 @@ async fn extension_protocol_mode_does_not_change_other_http_servers() -> anyhow:
         let responses_server = responses::start_mock_server().await;
         let extension_server = responses::start_mock_server().await;
         let extension_url = format!(
-            "{}/api/maplecode/ps/mcp",
+            "{}/api/codex/ps/mcp",
             AppsTestServer::mount(&extension_server)
                 .await?
                 .chatgpt_base_url
         );
         let third_party_server = responses::start_mock_server().await;
         let third_party_url = format!(
-            "{}/api/maplecode/ps/mcp",
+            "{}/api/codex/ps/mcp",
             AppsTestServer::mount(&third_party_server)
                 .await?
                 .chatgpt_base_url
@@ -213,7 +213,7 @@ async fn request_metadata_is_scoped_to_the_selected_tool_and_registration(
     AppsTestServer::mount_with_tools(&gateway, Arc::new(Mutex::new(Vec::from(tools)))).await?;
     let config_for = |target: &str| -> serde_json::Result<McpServerConfig> {
         serde_json::from_value(json!({
-            "url": format!("{}/api/maplecode/ps/mcp", gateway.uri()),
+            "url": format!("{}/api/codex/ps/mcp", gateway.uri()),
             "http_headers": {"x-test-target": target},
         }))
     };
@@ -327,7 +327,7 @@ async fn hosted_apps_protocol_override_preserves_native_verification() -> anyhow
     let responses_server = responses::start_mock_server().await;
     let apps_server = responses::start_mock_server().await;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .respond_with(|request: &Request| {
             let body: Value = request.body_json().unwrap();
             let result = match body["method"].as_str() {
@@ -386,7 +386,7 @@ async fn hosted_apps_protocol_override_preserves_native_verification() -> anyhow
     extensions.mcp_server_contributor(Arc::new(ExtensionServers(vec![
         McpServerContribution::HostedApps {
             config: Box::new(serde_json::from_value(json!({
-                "url": format!("{}/api/maplecode/ps/mcp", apps_server.uri())
+                "url": format!("{}/api/codex/ps/mcp", apps_server.uri())
             }))?),
             protocol_mode: Some(McpProtocolMode::V20260728),
         },

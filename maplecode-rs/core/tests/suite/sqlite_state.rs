@@ -24,7 +24,7 @@ use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
 use maplecode_history::RolloutLine;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
@@ -79,7 +79,7 @@ async fn thread_creator_survives_resume_and_forks_use_current_auth() -> Result<(
         let claims = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(
             json!({"https://api.openai.com/auth": {"chatgpt_user_id": user_id}}).to_string(),
         );
-        MapleCodeAuth::from_external_chatgpt_tokens(
+        MaplecodeAuth::from_external_chatgpt_tokens(
             &format!("e30.{claims}.sig"),
             account_id,
             /*chatgpt_plan_type*/ None,
@@ -87,7 +87,7 @@ async fn thread_creator_survives_resume_and_forks_use_current_auth() -> Result<(
     };
     for auth in [
         chatgpt_auth("creator-user", "creator-account")?,
-        MapleCodeAuth::from_api_key("test"),
+        MaplecodeAuth::from_api_key("test"),
     ] {
         let expected_creator = (auth.get_chatgpt_user_id(), auth.get_account_id());
         let mut builder = test_maplecode().with_auth(auth).with_config(|config| {
@@ -786,7 +786,7 @@ async fn standalone_web_search_marks_thread_memory_mode_polluted_when_configured
     )
     .await;
 
-    let auth = MapleCodeAuth::from_api_key("dummy");
+    let auth = MaplecodeAuth::from_api_key("dummy");
     let auth_manager = maplecode_core::test_support::auth_manager_from_auth(auth.clone());
     let mut extension_builder = ExtensionRegistryBuilder::<Config>::new();
     install_web_search_extension(&mut extension_builder, auth_manager);
@@ -997,7 +997,7 @@ async fn tool_call_logs_include_thread_id() -> Result<()> {
 
     let log_db_layer = maplecode_state::log_db::start(
         db.clone(),
-        Arc::new(maplecode_feedback::MapleCodeFeedback::new()),
+        Arc::new(maplecode_feedback::MaplecodeFeedback::new()),
     );
     let subscriber = tracing_subscriber::registry().with(log_db_layer.clone());
     let dispatch = tracing::Dispatch::new(subscriber);

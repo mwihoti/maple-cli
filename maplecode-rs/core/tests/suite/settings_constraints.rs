@@ -4,14 +4,14 @@ use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_config::test_support::CloudConfigBundleFixture;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnInputSubmission;
 use maplecode_core::config::Constrained;
 use maplecode_features::Feature;
 use maplecode_models_manager::model_info::model_info_from_slug;
 use maplecode_protocol::config_types::ApprovalsReviewer;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::models::ManagedFileSystemPermissions;
 use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::openai_models::ApprovalMessages;
@@ -25,7 +25,7 @@ use maplecode_protocol::permissions::FileSystemSpecialPath;
 use maplecode_protocol::permissions::NetworkSandboxPolicy;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use maplecode_protocol::protocol::ThreadSettingsSnapshot;
@@ -219,7 +219,7 @@ enum SettingsOperation {
 impl SettingsOperation {
     async fn submit(
         self,
-        maplecode: &MapleCodeThread,
+        maplecode: &MaplecodeThread,
         thread_settings: ThreadSettingsOverrides,
     ) -> Result<ThreadSettingsSnapshot> {
         let id = match self {
@@ -235,7 +235,7 @@ impl SettingsOperation {
                 if let Err(error) = maplecode.update_thread_settings(thread_settings).await {
                     assert!(matches!(
                         error.details(),
-                        MapleCodeErrorDetails::InvalidRequest(_)
+                        MaplecodeErrorDetails::InvalidRequest(_)
                     ));
                     return Err(error.into());
                 }
@@ -279,7 +279,7 @@ impl SettingsOperation {
                     EventMsg::Error(error) => {
                         assert_eq!(
                             error.maplecode_error_info,
-                            Some(MapleCodeErrorInfo::BadRequest)
+                            Some(MaplecodeErrorInfo::BadRequest)
                         );
                         anyhow::bail!(error.message);
                     }

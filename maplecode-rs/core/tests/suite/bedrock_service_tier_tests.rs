@@ -3,7 +3,7 @@
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::BedrockApiKeyAuth;
 use maplecode_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
 use maplecode_model_provider_info::AMAZON_BEDROCK_RUNTIME_PROVIDER_ID;
@@ -33,7 +33,7 @@ async fn bedrock_ultrafast_can_be_configured_and_toggled(
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+        .with_auth(MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
             api_key: "dummy".to_string(),
             region: "us-west-2".to_string(),
         }))
@@ -100,7 +100,7 @@ async fn bedrock_custom_catalog_controls_service_tiers(
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+        .with_auth(MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
             api_key: "dummy".to_string(),
             region: "us-west-2".to_string(),
         }))

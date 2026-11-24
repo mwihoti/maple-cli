@@ -22,12 +22,12 @@ use core_test_support::responses::user_message_item;
 use core_test_support::skip_if_no_network;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
 use maplecode_core::ForkSnapshot;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::RestrictRootCapabilities;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
@@ -44,7 +44,7 @@ use maplecode_extension_api::ToolStartInput;
 use maplecode_features::Feature;
 use maplecode_history::GuardianHistoryCheckpoint;
 use maplecode_history::InitialHistory;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RetainedContext;
@@ -114,7 +114,7 @@ impl ThreadLifecycleContributor<Config> for ForkTestLifecycle {
     }
 }
 
-async fn wait_for_thread_idle(thread: &MapleCodeThread) {
+async fn wait_for_thread_idle(thread: &MaplecodeThread) {
     // TurnComplete precedes active-turn cleanup. Consume each turn's idle notification
     // separately, and scope it to the thread so child completion cannot satisfy it.
     let idle = thread
@@ -126,7 +126,7 @@ async fn wait_for_thread_idle(thread: &MapleCodeThread) {
 }
 
 async fn record_answer(
-    thread: &MapleCodeThread,
+    thread: &MaplecodeThread,
     server: &MockServer,
     call_id: &str,
     answer: &str,
@@ -211,7 +211,7 @@ async fn record_answer(
     Ok(retained)
 }
 
-async fn load_context(test: &TestMapleCode, thread: &MapleCodeThread) -> Result<Vec<RolloutItem>> {
+async fn load_context(test: &TestMaplecode, thread: &MaplecodeThread) -> Result<Vec<RolloutItem>> {
     Ok(test
         .thread_store
         .load_latest_model_context(LoadThreadHistoryParams {
@@ -222,7 +222,7 @@ async fn load_context(test: &TestMapleCode, thread: &MapleCodeThread) -> Result<
         .items)
 }
 
-async fn resume(test: &TestMapleCode, thread: &MapleCodeThread) -> Result<Arc<MapleCodeThread>> {
+async fn resume(test: &TestMaplecode, thread: &MaplecodeThread) -> Result<Arc<MaplecodeThread>> {
     let thread_id = thread.startup_metadata().thread_id;
     thread.shutdown_and_wait().await?;
     test.thread_manager.remove_thread(&thread_id).await;
@@ -389,8 +389,8 @@ async fn streamed_question_precedes_reply_across_resume(
 }
 
 async fn compact_and_assert_answers(
-    test: &TestMapleCode,
-    thread: &MapleCodeThread,
+    test: &TestMaplecode,
+    thread: &MaplecodeThread,
     expected: &[VerifiedAnswer],
 ) -> Result<RetainedContext> {
     // Inspect live state by persisting a real compaction checkpoint, not a private getter.
@@ -809,7 +809,7 @@ async fn inherited_instruction_authorization_after_cold_resume(restricted: bool)
     let instruction = "Publish the report.";
     let inherited = RolloutItem::ResponseItem(ResponseItemEnvelope {
         item: user_message_item(instruction),
-        metadata: Some(MapleCodeHarnessMetadata {
+        metadata: Some(MaplecodeHarnessMetadata {
             inherited_user_message: true,
             ..Default::default()
         }),

@@ -13,7 +13,7 @@ use core_test_support::responses::mount_sse_sequence;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_target_os;
 use maplecode_core::EnvironmentConfig;
@@ -42,7 +42,7 @@ fn workspace_roots_profile() -> PermissionProfile {
     )
 }
 
-async fn workspace_roots_test(server: &MockServer) -> Result<TestMapleCode> {
+async fn workspace_roots_test(server: &MockServer) -> Result<TestMaplecode> {
     let mut builder = test_maplecode().with_config(|config| {
         #[cfg(windows)]
         {
@@ -56,7 +56,7 @@ async fn workspace_roots_test(server: &MockServer) -> Result<TestMapleCode> {
     builder.build_with_auto_env(server).await
 }
 
-fn outside_workspace_path(test: &TestMapleCode, file_name: &str) -> Result<PathUri> {
+fn outside_workspace_path(test: &TestMaplecode, file_name: &str) -> Result<PathUri> {
     let file_name = format!(
         "maplecode-workspace-roots-{}-{file_name}",
         std::process::id()
@@ -120,12 +120,12 @@ async fn mount_patch_and_command_calls(
     .await)
 }
 
-async fn submit_workspace_turn(test: &TestMapleCode, prompt: &str) -> Result<()> {
+async fn submit_workspace_turn(test: &TestMaplecode, prompt: &str) -> Result<()> {
     test.submit_turn_with_permission_profile(prompt, workspace_roots_profile())
         .await
 }
 
-async fn read_file(test: &TestMapleCode, path: &PathUri) -> Result<String> {
+async fn read_file(test: &TestMaplecode, path: &PathUri) -> Result<String> {
     Ok(String::from_utf8(
         test.fs()
             .read_file(path, Default::default(), /*sandbox*/ None)
@@ -133,7 +133,7 @@ async fn read_file(test: &TestMapleCode, path: &PathUri) -> Result<String> {
     )?)
 }
 
-async fn remove_files(test: &TestMapleCode, paths: &[&PathUri]) -> Result<()> {
+async fn remove_files(test: &TestMaplecode, paths: &[&PathUri]) -> Result<()> {
     for path in paths {
         test.fs()
             .remove(

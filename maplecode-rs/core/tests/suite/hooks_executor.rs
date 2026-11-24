@@ -19,8 +19,8 @@ use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_remote;
 use core_test_support::skip_if_wine_exec;
 use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::environment_config_for_selection;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_target_os;
@@ -104,7 +104,7 @@ async fn pre_tool_use_preserves_request_permissions_environment(
     let server = start_mock_server().await;
     let test = test_maplecode()
         .with_config(|config| {
-            for feature in [Feature::MapleCodeHooks, Feature::RequestPermissionsTool] {
+            for feature in [Feature::MaplecodeHooks, Feature::RequestPermissionsTool] {
                 config.features.enable(feature).expect("enable feature");
             }
         })
@@ -151,7 +151,7 @@ async fn mcp_resource_hooks_follow_server_ownership(
         .with_config(move |config| {
             config
                 .features
-                .enable(Feature::MapleCodeHooks)
+                .enable(Feature::MaplecodeHooks)
                 .expect("enable hooks");
             let mcp_server: McpServerConfig = serde_json::from_value(json!({
                 "command": command,
@@ -232,7 +232,7 @@ async fn mcp_hooks_preserve_ownership_with_same_named_servers() -> Result<()> {
         .with_exec_server_url("none")
         .with_config(|config| {
             for feature in [
-                Feature::MapleCodeHooks,
+                Feature::MaplecodeHooks,
                 Feature::MultiEnvironmentMcp,
                 Feature::ExecutorCapabilityDiscovery,
             ] {
@@ -254,7 +254,7 @@ async fn mcp_hooks_preserve_ownership_with_same_named_servers() -> Result<()> {
         )
         .await?;
         Mock::given(method("POST"))
-            .and(path("/api/maplecode/ps/mcp"))
+            .and(path("/api/codex/ps/mcp"))
             .and(|request: &Request| {
                 let body: Value = request.body_json().unwrap();
                 matches!(
@@ -282,7 +282,7 @@ async fn mcp_hooks_preserve_ownership_with_same_named_servers() -> Result<()> {
         std::fs::write(
             home.path().join("config.toml"),
             format!(
-                "[mcp_servers.docs]\nurl = \"{}/api/maplecode/ps/mcp\"\nrequired = true\n",
+                "[mcp_servers.docs]\nurl = \"{}/api/codex/ps/mcp\"\nrequired = true\n",
                 endpoint.uri(),
             ),
         )?;
@@ -396,7 +396,7 @@ enum HookEnvironment {
 }
 
 async fn environments_with_pre_tool_use_hook(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     hook_environment: HookEnvironment,
     matcher: &str,
     mut hook_output: Value,
@@ -448,7 +448,7 @@ async fn environment_requires_loadable_managed_hooks_at_startup_and_readiness() 
         .with_config(|config| {
             config
                 .features
-                .enable(Feature::MapleCodeHooks)
+                .enable(Feature::MaplecodeHooks)
                 .expect("enable hooks");
             config
                 .features
@@ -516,7 +516,7 @@ async fn thread_lists_the_environment_hook_that_blocks_a_turn() -> Result<()> {
         .with_config(|config| {
             config
                 .features
-                .enable(Feature::MapleCodeHooks)
+                .enable(Feature::MaplecodeHooks)
                 .expect("enable hooks");
         })
         .build_with_auto_env(&server)
@@ -617,7 +617,7 @@ async fn environment_hook_receives_prompt_and_reports_exit_status(
         .with_config(|config| {
             config
                 .features
-                .enable(Feature::MapleCodeHooks)
+                .enable(Feature::MaplecodeHooks)
                 .expect("enable hooks");
         })
         .with_user_shell(shell)
@@ -679,7 +679,7 @@ async fn pre_tool_use_hook_runs_only_on_the_executor_that_owns_the_command(
         .with_config(|config| {
             config
                 .features
-                .enable(Feature::MapleCodeHooks)
+                .enable(Feature::MaplecodeHooks)
                 .expect("enable hooks");
         })
         .build(&server)
@@ -1457,7 +1457,7 @@ async fn executor_browser_and_computer_use_cleanup_hooks_use_separate_mcp_routes
     });
     let listed_routing = routing.clone();
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(body_partial_json(json!({ "method": "tools/list" })))
         .respond_with(move |request: &Request| {
             let request: Value = serde_json::from_slice(&request.body).expect("valid Apps request");
@@ -1710,7 +1710,7 @@ fn computer_use_hook_manifest() -> Value {
 }
 
 async fn executor_plugin_hook_fixture(
-    builder: TestMapleCodeBuilder,
+    builder: TestMaplecodeBuilder,
     plugins: &[(&'static str, Value)],
     responses: Vec<ResponseTemplate>,
 ) -> Result<ExecutorHookFixture> {
@@ -1758,7 +1758,7 @@ async fn executor_plugin_hook_fixture(
             .expect("enable executor capability discovery");
         config
             .features
-            .disable(Feature::MapleCodeHooks)
+            .disable(Feature::MaplecodeHooks)
             .expect("disable ordinary hooks");
         let node_repl: McpServerConfig = serde_json::from_value(json!({
             "url": node_repl_url,
@@ -1822,7 +1822,7 @@ async fn executor_plugin_hook_fixture(
 
 struct ExecutorHookFixture {
     server: MockServer,
-    test: TestMapleCode,
+    test: TestMaplecode,
     responses: ResponseMock,
     hook_called: Arc<Notify>,
     plugin_roots: Vec<(&'static str, PathUri)>,

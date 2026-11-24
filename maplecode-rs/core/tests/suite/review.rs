@@ -7,7 +7,7 @@ use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::REVIEW_PROMPT;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Config;
@@ -16,7 +16,7 @@ use maplecode_core::find_thread_path_by_id_str;
 use maplecode_exec_server::CreateDirectoryOptions;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::config_types::ApprovalsReviewer;
 use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
@@ -1000,7 +1000,7 @@ async fn review_uses_custom_review_model_from_config() {
     let maplecode_home = Arc::new(TempDir::new().unwrap());
     let test = test_maplecode()
         .with_home(Arc::clone(&maplecode_home))
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some("gpt-4.1".to_string());
             config.review_model = Some("custom-review-model".to_string());
@@ -1561,7 +1561,7 @@ async fn new_conversation_for_server<F>(
     server: &MockServer,
     maplecode_home: Arc<TempDir>,
     mutator: F,
-) -> Arc<MapleCodeThread>
+) -> Arc<MaplecodeThread>
 where
     F: FnOnce(&mut Config) + Send + 'static,
 {
@@ -1585,7 +1585,7 @@ async fn resume_conversation_for_server<F>(
     maplecode_home: Arc<TempDir>,
     resume_path: std::path::PathBuf,
     mutator: F,
-) -> Arc<MapleCodeThread>
+) -> Arc<MaplecodeThread>
 where
     F: FnOnce(&mut Config) + Send + 'static,
 {

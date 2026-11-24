@@ -489,7 +489,7 @@ async fn host_drain_closes_realtime_after_handoff_error() -> anyhow::Result<()> 
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
             maplecode_response_handoff_mode:
-                maplecode_protocol::protocol::MapleCodeResponseHandoffMode::Thinking,
+                maplecode_protocol::protocol::MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,
@@ -589,7 +589,7 @@ fn user_message_request(text: &str) -> TurnInputRequest {
 }
 
 async fn submit_user_message(
-    maplecode: &maplecode_core::MapleCodeThread,
+    maplecode: &maplecode_core::MaplecodeThread,
     text: &str,
 ) -> maplecode_protocol::error::Result<TurnInputSubmission> {
     maplecode

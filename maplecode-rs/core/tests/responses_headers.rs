@@ -1,7 +1,7 @@
 use std::process::Command;
 use std::sync::Arc;
 
-use core_test_support::TestMapleCodeResponsesRequestKind;
+use core_test_support::TestMaplecodeResponsesRequestKind;
 use core_test_support::load_default_config_for_test;
 use core_test_support::responses;
 use core_test_support::responses_metadata as test_responses_metadata;
@@ -11,7 +11,7 @@ use maplecode_core::ModelClient;
 use maplecode_core::Prompt;
 use maplecode_core::ResponseEvent;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::AgentIdentityAuthPolicy;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_model_provider_info::WireApi;
@@ -41,7 +41,7 @@ fn test_turn_responses_metadata(
     _client: &ModelClient,
     thread_id: ThreadId,
     session_source: &SessionSource,
-) -> maplecode_core::MapleCodeResponsesMetadata {
+) -> maplecode_core::MaplecodeResponsesMetadata {
     let thread_id = thread_id.to_string();
     test_responses_metadata(
         TEST_INSTALLATION_ID,
@@ -51,7 +51,7 @@ fn test_turn_responses_metadata(
         format!("{thread_id}:0"),
         session_source,
         /*parent_thread_id*/ None,
-        TestMapleCodeResponsesRequestKind::Turn,
+        TestMaplecodeResponsesRequestKind::Turn,
     )
 }
 
@@ -400,7 +400,7 @@ async fn responses_respects_model_info_overrides_from_config() {
 
     let thread_id = ThreadId::new();
     let auth_mode = maplecode_core::test_support::auth_manager_from_auth(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
     )
     .auth_mode()
     .map(TelemetryAuthMode::from);

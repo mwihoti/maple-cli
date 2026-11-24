@@ -25,7 +25,7 @@ use maplecode_extension_api::McpToolResultInput;
 use maplecode_extension_api::ToolLifecycleContributor;
 use maplecode_extension_api::ToolLifecycleFuture;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::approvals::ElicitationRequest;
@@ -159,14 +159,14 @@ async fn actual_turn_elicitation_analytics(scenario: Scenario) -> Result<()> {
     let server = responses::start_mock_server().await;
     AppsTestServer::mount_searchable(&server).await?;
     Mock::given(method("POST"))
-        .and(path("/maplecode/analytics-events/events"))
+        .and(path("/codex/analytics-events/events"))
         .respond_with(ResponseTemplate::new(/*status*/ 200))
         .mount(&server)
         .await;
 
     if auth_failure {
         Mock::given(method("POST"))
-            .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+            .and(path_regex("^/api/codex/ps/mcp/?$"))
             .and(body_partial_json(json!({
                 "method": "tools/call",
                 "params": {"name": "calendar_create_event"},
@@ -202,7 +202,7 @@ async fn actual_turn_elicitation_analytics(scenario: Scenario) -> Result<()> {
 
     let client = AnalyticsEventsClient::new(
         maplecode_core::test_support::auth_manager_from_auth(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         ),
         server.uri(),
         /*analytics_enabled*/ Some(true),
@@ -462,7 +462,7 @@ approvals_reviewer = "user"
     tokio::time::timeout(Duration::from_secs(10), client.flush()).await?;
     let mut events = Vec::new();
     for request in server.received_requests().await.unwrap_or_default() {
-        if request.method != "POST" || request.url.path() != "/maplecode/analytics-events/events" {
+        if request.method != "POST" || request.url.path() != "/codex/analytics-events/events" {
             continue;
         }
         let payload: Value = serde_json::from_slice(&request.body)?;
@@ -541,7 +541,7 @@ async fn core_generated_mcp_elicitations_support_restricted_threads(
     let apps = AppsTestServer::mount_searchable(&server).await?;
     if let SubagentRequestKind::ConnectorAuth(format) = kind {
         Mock::given(method("POST"))
-            .and(path_regex("^/api/maplecode/ps/mcp/?$"))
+            .and(path_regex("^/api/codex/ps/mcp/?$"))
             .and(body_partial_json(json!({
                 "method": "tools/call",
                 "params": {"name": "calendar_create_event"}

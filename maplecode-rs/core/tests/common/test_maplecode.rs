@@ -20,7 +20,7 @@ use maplecode_agent_graph_store::AgentGraphStore;
 use maplecode_analytics::AnalyticsEventsClient;
 use maplecode_attachment_store::AttachmentStore;
 use maplecode_config::CloudConfigBundleLoader;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 pub use maplecode_core::StartThreadOptions;
 use maplecode_core::ThreadManager;
 use maplecode_core::ThreadStoreBuilder;
@@ -39,9 +39,9 @@ use maplecode_extension_api::LoadInstructionsFuture;
 use maplecode_extension_api::UserInstructionsProvider;
 use maplecode_extension_api::empty_extension_registry;
 use maplecode_features::Feature;
-use maplecode_home::MapleCodeHomeUserInstructionsProvider;
+use maplecode_home::MaplecodeHomeUserInstructionsProvider;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::ModelProviderInfo;
 use maplecode_model_provider_info::built_in_model_providers;
 use maplecode_models_manager::bundled_models_response;
@@ -390,7 +390,7 @@ pub fn turn_permission_fields(
 }
 
 enum TestAuth {
-    Cached(MapleCodeAuth),
+    Cached(MaplecodeAuth),
     Manager(Arc<AuthManager>),
 }
 
@@ -406,8 +406,8 @@ impl TestAuth {
     }
 }
 
-pub struct TestMapleCodeBuilder {
-    apps_tools_cache: maplecode_core::MapleCodeAppsToolsCache,
+pub struct TestMaplecodeBuilder {
+    apps_tools_cache: maplecode_core::MaplecodeAppsToolsCache,
     config_mutators: Vec<Box<ConfigMutator>>,
     thread_manager_configurer: Option<Box<dyn FnOnce(ThreadManager) -> ThreadManager + Send>>,
     auth: TestAuth,
@@ -431,8 +431,8 @@ pub struct TestMapleCodeBuilder {
     image_store: Arc<dyn AttachmentStore>,
 }
 
-impl TestMapleCodeBuilder {
-    pub fn with_apps_tools_cache(mut self, cache: maplecode_core::MapleCodeAppsToolsCache) -> Self {
+impl TestMaplecodeBuilder {
+    pub fn with_apps_tools_cache(mut self, cache: maplecode_core::MaplecodeAppsToolsCache) -> Self {
         self.apps_tools_cache = cache;
         self
     }
@@ -463,7 +463,7 @@ impl TestMapleCodeBuilder {
         self
     }
 
-    pub fn with_auth(mut self, auth: MapleCodeAuth) -> Self {
+    pub fn with_auth(mut self, auth: MaplecodeAuth) -> Self {
         self.auth = TestAuth::Cached(auth);
         self
     }
@@ -619,7 +619,7 @@ impl TestMapleCodeBuilder {
         }
     }
 
-    pub async fn build(&mut self, server: &wiremock::MockServer) -> anyhow::Result<TestMapleCode> {
+    pub async fn build(&mut self, server: &wiremock::MockServer) -> anyhow::Result<TestMaplecode> {
         let home = match self.home.clone() {
             Some(home) => home,
             None => Arc::new(TempDir::new()?),
@@ -645,7 +645,7 @@ impl TestMapleCodeBuilder {
     pub async fn build_with_auto_env(
         &mut self,
         server: &wiremock::MockServer,
-    ) -> anyhow::Result<TestMapleCode> {
+    ) -> anyhow::Result<TestMaplecode> {
         let test_env = test_env().await?;
         self.build_with_environment(server, test_env).await
     }
@@ -655,7 +655,7 @@ impl TestMapleCodeBuilder {
         &mut self,
         server: &wiremock::MockServer,
         test_env: TestEnv,
-    ) -> anyhow::Result<TestMapleCode> {
+    ) -> anyhow::Result<TestMaplecode> {
         let home = match self.home.clone() {
             Some(home) => home,
             None => Arc::new(TempDir::new()?),
@@ -671,7 +671,7 @@ impl TestMapleCodeBuilder {
     pub async fn build_with_remote_and_local_env(
         &mut self,
         server: &wiremock::MockServer,
-    ) -> anyhow::Result<TestMapleCode> {
+    ) -> anyhow::Result<TestMaplecode> {
         let home = match self.home.clone() {
             Some(home) => home,
             None => Arc::new(TempDir::new()?),
@@ -688,7 +688,7 @@ impl TestMapleCodeBuilder {
     pub async fn build_with_streaming_server(
         &mut self,
         server: &StreamingSseServer,
-    ) -> anyhow::Result<TestMapleCode> {
+    ) -> anyhow::Result<TestMaplecode> {
         let base_url = server.uri();
         let home = match self.home.clone() {
             Some(home) => home,
@@ -708,7 +708,7 @@ impl TestMapleCodeBuilder {
     pub async fn build_with_websocket_server(
         &mut self,
         server: &WebSocketTestServer,
-    ) -> anyhow::Result<TestMapleCode> {
+    ) -> anyhow::Result<TestMaplecode> {
         let base_url = format!("{}/v1", server.uri());
         let home = match self.home.clone() {
             Some(home) => home,
@@ -732,7 +732,7 @@ impl TestMapleCodeBuilder {
         server: &wiremock::MockServer,
         home: Arc<TempDir>,
         rollout_path: PathBuf,
-    ) -> anyhow::Result<TestMapleCode> {
+    ) -> anyhow::Result<TestMaplecode> {
         let base_url = format!("{}/v1", server.uri());
         let test_env = TestEnv::local().await?;
         Box::pin(self.build_with_home_and_base_url(
@@ -748,8 +748,8 @@ impl TestMapleCodeBuilder {
     pub async fn restart(
         &mut self,
         server: &MockServer,
-        previous: &TestMapleCode,
-    ) -> Result<TestMapleCode> {
+        previous: &TestMaplecode,
+    ) -> Result<TestMaplecode> {
         let rollout_path = previous
             .session_configured
             .rollout_path
@@ -764,8 +764,8 @@ impl TestMapleCodeBuilder {
     pub async fn restart_with_auto_env(
         &mut self,
         server: &MockServer,
-        previous: &TestMapleCode,
-    ) -> Result<TestMapleCode> {
+        previous: &TestMaplecode,
+    ) -> Result<TestMaplecode> {
         let rollout_path = previous
             .session_configured
             .rollout_path
@@ -791,7 +791,7 @@ impl TestMapleCodeBuilder {
         resume_from: Option<PathBuf>,
         test_env: TestEnv,
         include_local_environment: bool,
-    ) -> anyhow::Result<TestMapleCode> {
+    ) -> anyhow::Result<TestMaplecode> {
         let (config, fallback_cwd) = self
             .prepare_config(base_url, &home, test_env.cwd().clone())
             .await?;
@@ -849,7 +849,7 @@ impl TestMapleCodeBuilder {
         resume_from: Option<PathBuf>,
         mut test_env: TestEnv,
         environment_manager: Arc<maplecode_exec_server::EnvironmentManager>,
-    ) -> anyhow::Result<TestMapleCode> {
+    ) -> anyhow::Result<TestMaplecode> {
         let state_db = maplecode_core::init_state_db(&config).await;
         let thread_store = self.thread_store.clone().unwrap_or_else(|| {
             let sqlite = config.sqlite_config().clone();
@@ -869,7 +869,7 @@ impl TestMapleCodeBuilder {
         let installation_id = resolve_installation_id(&config.maplecode_home).await?;
         let user_instructions_provider =
             self.user_instructions_provider.clone().unwrap_or_else(|| {
-                Arc::new(MapleCodeHomeUserInstructionsProvider::new(
+                Arc::new(MaplecodeHomeUserInstructionsProvider::new(
                     config.maplecode_home.clone(),
                 ))
             });
@@ -1007,7 +1007,7 @@ impl TestMapleCodeBuilder {
             }
         };
 
-        Ok(TestMapleCode {
+        Ok(TestMaplecode {
             home,
             cwd,
             config,
@@ -1105,10 +1105,10 @@ fn ensure_test_model_catalog(config: &mut Config) -> Result<()> {
     Ok(())
 }
 
-pub struct TestMapleCode {
+pub struct TestMaplecode {
     pub home: Arc<TempDir>,
     pub cwd: Arc<TempDir>,
-    pub maplecode: Arc<MapleCodeThread>,
+    pub maplecode: Arc<MaplecodeThread>,
     pub session_configured: SessionConfiguredEvent,
     pub config: Config,
     pub thread_manager: Arc<ThreadManager>,
@@ -1116,7 +1116,7 @@ pub struct TestMapleCode {
     _test_env: TestEnv,
 }
 
-impl TestMapleCode {
+impl TestMaplecode {
     /// Starts another test thread with the fixture's current environments and configuration.
     /// Keeping request construction here lets ordinary tests ignore runtime selection fields.
     pub async fn start_thread_options(&self) -> StartThreadOptions {
@@ -1346,19 +1346,19 @@ impl TestMapleCode {
     }
 }
 
-pub struct TestMapleCodeHarness {
+pub struct TestMaplecodeHarness {
     server: MockServer,
-    test: TestMapleCode,
+    test: TestMaplecode,
 }
 
-impl TestMapleCodeHarness {
-    pub async fn with_builder(mut builder: TestMapleCodeBuilder) -> Result<Self> {
+impl TestMaplecodeHarness {
+    pub async fn with_builder(mut builder: TestMaplecodeBuilder) -> Result<Self> {
         let server = start_mock_server().await;
         let test = builder.build(&server).await?;
         Ok(Self { server, test })
     }
 
-    pub async fn with_auto_env_builder(mut builder: TestMapleCodeBuilder) -> Result<Self> {
+    pub async fn with_auto_env_builder(mut builder: TestMaplecodeBuilder) -> Result<Self> {
         let server = start_mock_server().await;
         let test = builder.build_with_auto_env(&server).await?;
         Ok(Self { server, test })
@@ -1368,7 +1368,7 @@ impl TestMapleCodeHarness {
         &self.server
     }
 
-    pub fn test(&self) -> &TestMapleCode {
+    pub fn test(&self) -> &TestMaplecode {
         &self.test
     }
 
@@ -1569,8 +1569,8 @@ fn function_call_output<'a>(bodies: &'a [Value], call_id: &str) -> &'a Value {
         .expect(&missing_output)
 }
 
-pub fn test_maplecode() -> TestMapleCodeBuilder {
-    TestMapleCodeBuilder {
+pub fn test_maplecode() -> TestMaplecodeBuilder {
+    TestMaplecodeBuilder {
         apps_tools_cache: Default::default(),
         thread_manager_configurer: None,
         config_mutators: vec![Box::new(|config| {
@@ -1584,7 +1584,7 @@ pub fn test_maplecode() -> TestMapleCodeBuilder {
                 .disable(Feature::ShellSnapshot)
                 .expect("test config should allow ShellSnapshot override");
         })],
-        auth: TestAuth::Cached(MapleCodeAuth::from_api_key("dummy")),
+        auth: TestAuth::Cached(MaplecodeAuth::from_api_key("dummy")),
         analytics_events_client: None,
         pre_build_hooks: vec![],
         workspace_setups: vec![],

@@ -12,7 +12,7 @@ use maplecode_features::Feature;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
@@ -145,15 +145,15 @@ async fn daybreak_metadata_follows_the_actual_plugin_call(case: AccessCase) -> R
         )?;
     }
     let auth = if matches!(case, AccessCase::ApiKey) {
-        MapleCodeAuth::from_api_key("test-api-key")
+        MaplecodeAuth::from_api_key("test-api-key")
     } else if matches!(case, AccessCase::ExternalTokens) {
-        MapleCodeAuth::from_external_chatgpt_tokens(
+        MaplecodeAuth::from_external_chatgpt_tokens(
             "header.e30.external",
             "external-account",
             /*chatgpt_plan_type*/ None,
         )?
     } else {
-        MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()
+        MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()
     };
     let base_url = server.uri();
     let mut builder = test_maplecode()
@@ -289,17 +289,17 @@ async fn daybreak_metadata_follows_the_actual_plugin_call(case: AccessCase) -> R
     Ok(())
 }
 
-struct SelectedAuth(MapleCodeAuth);
+struct SelectedAuth(MaplecodeAuth);
 
 impl ExternalAuth for SelectedAuth {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async { Ok(self.0.clone()) })
     }
 }
@@ -359,7 +359,7 @@ async fn daybreak_discards_in_flight_account_changes_without_apps() -> Result<()
     )?;
     let test = test_maplecode()
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.chatgpt_base_url = base_url;
             config
@@ -417,7 +417,7 @@ async fn daybreak_discards_in_flight_account_changes_without_apps() -> Result<()
         test.thread_manager
             .auth_manager()
             .set_external_auth(Arc::new(SelectedAuth(
-                MapleCodeAuth::from_external_chatgpt_tokens(
+                MaplecodeAuth::from_external_chatgpt_tokens(
                     "header.e30.changed",
                     "other-account",
                     /*chatgpt_plan_type*/ None,

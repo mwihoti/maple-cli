@@ -30,7 +30,7 @@ remote_compaction = "v2"
     )?;
     let test = test_maplecode()
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             configure_scenario_catalog(config);
             let base_url = config.model_provider.base_url.clone();

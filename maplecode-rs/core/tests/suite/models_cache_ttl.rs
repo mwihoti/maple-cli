@@ -21,7 +21,7 @@ use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
 use maplecode_core::config::Constrained;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::client_version_to_whole;
 use maplecode_models_manager::manager::ModelCatalogSettings;
 use maplecode_models_manager::manager::RefreshStrategy;
@@ -89,7 +89,7 @@ async fn guardian_reused_reviewer_avoids_stale_catalog_lookup(with_cache: bool) 
         responses::mount_models_once_with_etag(&server, catalog.clone(), ETAG).await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.5");
     builder = builder.with_config(|config| {
         config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
@@ -228,7 +228,7 @@ async fn renews_cache_ttl_on_matching_models_etag() -> Result<()> {
     .await;
 
     let mut builder =
-        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        test_maplecode().with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     builder = builder.with_config(|config| {
         config.model = Some("gpt-5.2".to_string());
         config.model_provider.request_max_retries = Some(0);
@@ -337,7 +337,7 @@ async fn matching_models_etag_does_not_rewrite_recent_cache() -> Result<()> {
     .await;
 
     let mut builder =
-        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        test_maplecode().with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     builder = builder.with_config(|config| {
         config.model = Some("gpt-5.2".to_string());
         config.model_provider.request_max_retries = Some(0);
@@ -398,7 +398,7 @@ async fn matching_models_etag_renews_cache_after_half_its_lifetime() -> Result<(
     .await;
 
     let mut builder =
-        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        test_maplecode().with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     builder = builder.with_config(|config| {
         config.model = Some("gpt-5.2".to_string());
         config.model_provider.request_max_retries = Some(0);
@@ -459,13 +459,13 @@ async fn uses_cache_when_version_matches() -> Result<()> {
     .await;
 
     let mut builder =
-        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        test_maplecode().with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let identity = maplecode_model_provider::test_support::models_cache_entry(
         &maplecode_model_provider_info::ModelProviderInfo::create_openai_provider(Some(format!(
             "{}/v1",
             server.uri()
         ))),
-        Some(&MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+        Some(&MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
         Vec::new(),
     )
     .identity;
@@ -535,13 +535,13 @@ async fn refreshes_when_cache_version_missing() -> Result<()> {
     .await;
 
     let mut builder =
-        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        test_maplecode().with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let identity = maplecode_model_provider::test_support::models_cache_entry(
         &maplecode_model_provider_info::ModelProviderInfo::create_openai_provider(Some(format!(
             "{}/v1",
             server.uri()
         ))),
-        Some(&MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+        Some(&MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
         Vec::new(),
     )
     .identity;
@@ -596,13 +596,13 @@ async fn refreshes_when_cache_version_differs() -> Result<()> {
     }
 
     let mut builder =
-        test_maplecode().with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+        test_maplecode().with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
     let identity = maplecode_model_provider::test_support::models_cache_entry(
         &maplecode_model_provider_info::ModelProviderInfo::create_openai_provider(Some(format!(
             "{}/v1",
             server.uri()
         ))),
-        Some(&MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()),
+        Some(&MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()),
         Vec::new(),
     )
     .identity;

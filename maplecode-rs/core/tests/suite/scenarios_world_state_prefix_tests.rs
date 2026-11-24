@@ -102,7 +102,7 @@ async fn extension_window_prefix_survives_compaction(compaction: &str) -> Result
     let test = test_maplecode()
         .with_extensions(Arc::new(extensions.build()))
         .with_model("gpt-6-astra")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             configure_scenario_catalog(config);
             config.workspace_roots = vec![config.cwd.clone()];

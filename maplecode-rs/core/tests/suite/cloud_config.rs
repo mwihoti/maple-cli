@@ -8,7 +8,7 @@ use maplecode_config::CloudConfigBundleLoader;
 use maplecode_config::LoaderOverrides;
 use maplecode_config::test_support::CloudConfigBundleFixture;
 use maplecode_config::types::WindowsSandboxModeToml;
-use maplecode_core::MapleCodeThreadSettingsOverrides;
+use maplecode_core::MaplecodeThreadSettingsOverrides;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_features::Feature;
 use maplecode_protocol::models::PermissionProfile;
@@ -255,7 +255,7 @@ async fn managed_deny_read_requirements_follow_thread_permission_updates() -> Re
     );
     let error = test
         .maplecode
-        .preview_thread_settings_overrides(MapleCodeThreadSettingsOverrides {
+        .preview_thread_settings_overrides(MaplecodeThreadSettingsOverrides {
             permission_profile: Some(conflicting_profile),
             ..Default::default()
         })

@@ -16,7 +16,7 @@ use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_no_remote_env;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -33,7 +33,7 @@ use maplecode_exec_server::LOCAL_ENVIRONMENT_ID;
 use maplecode_exec_server::REMOTE_ENVIRONMENT_ID;
 use maplecode_exec_server::RemoveOptions;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::config_types::ReasoningSummary;
@@ -86,7 +86,7 @@ enum ImageBudgetPolicy {
 }
 
 fn disabled_user_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     items: Vec<UserInput>,
     model: String,
 ) -> TurnInputRequest {
@@ -166,7 +166,7 @@ fn png_bytes(width: u32, height: u32, rgba: [u8; 4]) -> anyhow::Result<Vec<u8>> 
 }
 
 async fn create_workspace_directory(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     rel_path: &str,
 ) -> anyhow::Result<PathUri> {
     let abs_path_uri = test.workspace_path_uri(rel_path)?;
@@ -184,7 +184,7 @@ async fn create_workspace_directory(
 }
 
 async fn write_workspace_file(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     rel_path: &str,
     contents: Vec<u8>,
 ) -> anyhow::Result<PathBuf> {
@@ -213,7 +213,7 @@ async fn write_workspace_file(
 }
 
 async fn write_workspace_png(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     rel_path: &str,
     width: u32,
     height: u32,
@@ -247,7 +247,7 @@ async fn assert_user_turn_local_image_resizes_to(
         }
     });
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -433,7 +433,7 @@ async fn view_image_tool_attaches_local_image() -> anyhow::Result<()> {
         let _ = config.features.disable(Feature::UnifiedImageBudget);
     });
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -861,7 +861,7 @@ async fn view_image_tool_can_preserve_original_resolution_when_requested_on_gpt5
     let server = start_mock_server().await;
     let mut builder = test_maplecode().with_model("gpt-5.5");
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -1030,7 +1030,7 @@ async fn view_image_tool_errors_clearly_for_unsupported_detail_values() -> anyho
             let _ = config.features.disable(Feature::UnifiedImageBudget);
         });
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -1112,7 +1112,7 @@ async fn view_image_tool_treats_null_detail_as_omitted() -> anyhow::Result<()> {
             let _ = config.features.disable(Feature::UnifiedImageBudget);
         });
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -1221,7 +1221,7 @@ async fn assert_view_image_tool_resizes_without_original_support(
             }
         });
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -1319,7 +1319,7 @@ async fn view_image_tool_does_not_force_original_resolution_with_capability_only
             let _ = config.features.disable(Feature::UnifiedImageBudget);
         });
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -1410,7 +1410,7 @@ async fn view_image_tool_errors_when_path_is_directory() -> anyhow::Result<()> {
 
     let mut builder = test_maplecode();
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -1480,7 +1480,7 @@ async fn view_image_tool_rejects_invalid_image_before_tool_output() -> anyhow::R
     let server = start_mock_server().await;
     let mut builder = test_maplecode();
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -1552,7 +1552,7 @@ async fn view_image_tool_errors_when_file_missing() -> anyhow::Result<()> {
 
     let mut builder = test_maplecode();
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         session_configured,
         ..
@@ -1693,12 +1693,12 @@ async fn view_image_tool_returns_unsupported_message_for_text_only_model() -> an
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model = Some(model_slug.to_string());
         });
     let test = builder.build_with_auto_env(&server).await?;
-    let TestMapleCode { maplecode, .. } = &test;
+    let TestMaplecode { maplecode, .. } = &test;
 
     let rel_path = "assets/example.png";
     write_workspace_png(

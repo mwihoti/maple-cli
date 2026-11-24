@@ -14,8 +14,8 @@ use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_remote;
 use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_target_windows;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
@@ -54,8 +54,8 @@ fn tool_response(id: &str, tool: &str, args: Value) -> String {
     ])
 }
 
-async fn harness(builder: TestMapleCodeBuilder) -> Result<TestMapleCodeHarness> {
-    TestMapleCodeHarness::with_auto_env_builder(builder.with_config(|config| {
+async fn harness(builder: TestMaplecodeBuilder) -> Result<TestMaplecodeHarness> {
+    TestMaplecodeHarness::with_auto_env_builder(builder.with_config(|config| {
         for feature in [
             Feature::ExecPermissionApprovals,
             Feature::RequestPermissionsTool,
@@ -207,7 +207,7 @@ async fn stdin_reviews_escalated_terminal_with_denied_reads_before_delivering_in
     skip_if_no_network!(Ok(()));
     skip_if_sandbox!(Ok(()));
     let harness =
-        TestMapleCodeHarness::with_auto_env_builder(test_maplecode().with_config(|config| {
+        TestMaplecodeHarness::with_auto_env_builder(test_maplecode().with_config(|config| {
             config.features.enable(Feature::WriteStdinApproval).unwrap();
             config
                 .features

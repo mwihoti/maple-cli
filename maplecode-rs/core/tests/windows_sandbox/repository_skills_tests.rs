@@ -61,7 +61,7 @@ async fn windows_elevated_repository_skills_enforce_cached_read_denials() -> any
             )?;
             Ok(())
         });
-    let harness = TestMapleCodeHarness::with_builder(builder).await?;
+    let harness = TestMaplecodeHarness::with_builder(builder).await?;
     let test = harness.test();
     let responses = mount_sse_sequence(
         harness.server(),

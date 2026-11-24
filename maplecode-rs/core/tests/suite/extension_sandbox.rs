@@ -25,7 +25,7 @@ use maplecode_history::RolloutItem;
 use maplecode_http_client::DestinationPolicy;
 use maplecode_http_client::NetworkPolicyController;
 use maplecode_image_generation_extension::install as install_image_generation_extension;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::config_types::ApprovalsReviewer;
 use maplecode_protocol::config_types::CollaborationMode;
 use maplecode_protocol::config_types::ModeKind;
@@ -72,7 +72,7 @@ const TINY_PNG_BASE64: &str = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAD
 const TINY_PNG_DATA_URL: &str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==";
 
 fn image_generation_extensions(
-    auth: &MapleCodeAuth,
+    auth: &MaplecodeAuth,
     resolve_save_root: impl Fn(&Config) -> Option<AbsolutePathBuf> + Send + Sync + 'static,
 ) -> Arc<ExtensionRegistry<Config>> {
     let auth_manager = maplecode_core::test_support::auth_manager_from_auth(auth.clone());
@@ -96,7 +96,7 @@ async fn generated_image_ui_item_is_file_backed_in_rollout() -> Result<()> {
         .mount(&server)
         .await;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let extensions = image_generation_extensions(&auth, |_config| None);
     let image_store = Arc::new(RecordingFileAttachmentStore::default());
     let image_call_id = "image-generate-file-backed";
@@ -231,7 +231,7 @@ async fn extension_tool_respects_restrictions(deny_network: bool) -> Result<()> 
 
     let server = responses::start_mock_server().await;
     let responses_url = format!("{}/v1/responses", server.uri()).parse()?;
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let extensions =
         image_generation_extensions(&auth, |config| Some(config.maplecode_home.clone()));
     let mut builder = test_maplecode()
@@ -355,7 +355,7 @@ async fn extension_tool_uses_granted_turn_permissions_without_host_local_persist
         .mount(&server)
         .await;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let extensions = image_generation_extensions(&auth, |_config| None);
     let base_permission_profile = PermissionProfile::workspace_write_with(
         &[],
@@ -547,7 +547,7 @@ async fn extension_tool_rebinds_granted_permissions_on_each_turn(
         .mount(&server)
         .await;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let extensions = image_generation_extensions(&auth, |_config| None);
     let base_permission_profile = PermissionProfile::from_runtime_permissions(
         &FileSystemSandboxPolicy::restricted(vec![

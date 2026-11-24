@@ -1,4 +1,4 @@
-use core_test_support::TestMapleCodeResponsesRequestKind;
+use core_test_support::TestMaplecodeResponsesRequestKind;
 use core_test_support::apps_test_server::AppsTestServer;
 use core_test_support::load_default_config_for_test;
 use core_test_support::responses::ResponsesRequest;
@@ -20,7 +20,7 @@ use core_test_support::responses::strip_metadata_from_json;
 use core_test_support::responses::strip_response_item_ids_from_json;
 use core_test_support::responses_metadata as test_responses_metadata;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
@@ -43,7 +43,7 @@ use maplecode_history::RolloutItem;
 use maplecode_history::RolloutLine;
 use maplecode_login::AuthKeyringBackendKind;
 use maplecode_login::AuthManager;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::AgentIdentityAuthPolicy;
 use maplecode_login::auth::BedrockApiKeyAuth;
 use maplecode_login::default_client::originator;
@@ -64,7 +64,7 @@ use maplecode_protocol::config_types::ModelProviderAuthInfo;
 use maplecode_protocol::config_types::ReasoningSummary;
 use maplecode_protocol::config_types::Settings;
 use maplecode_protocol::config_types::Verbosity;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::models::AudioReference;
 use maplecode_protocol::models::ContentItem;
 use maplecode_protocol::models::DEFAULT_IMAGE_DETAIL;
@@ -228,7 +228,7 @@ async fn responses_request_uses_implicit_default_tier_for_bedrock() -> anyhow::R
         let server = start_mock_server().await;
         let response_mock = mount_sse_once(&server, sse(vec![ev_completed("done")])).await;
         let test = test_maplecode()
-            .with_auth(MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+            .with_auth(MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
                 api_key: "dummy".to_string(),
                 region: "us-east-1".to_string(),
             }))
@@ -306,7 +306,7 @@ async fn bedrock_function_continuation_replays_assistant_commentary(
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+        .with_auth(MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
             api_key: "dummy".to_string(),
             region: "us-east-1".to_string(),
         }))
@@ -357,7 +357,7 @@ fn rollout_response_item(item: ResponseItem) -> RolloutItem {
 fn test_turn_responses_metadata(
     _client: &ModelClient,
     thread_id: ThreadId,
-) -> maplecode_core::MapleCodeResponsesMetadata {
+) -> maplecode_core::MaplecodeResponsesMetadata {
     let thread_id = thread_id.to_string();
     test_responses_metadata(
         TEST_INSTALLATION_ID,
@@ -367,7 +367,7 @@ fn test_turn_responses_metadata(
         TEST_WINDOW_ID.to_string(),
         &SessionSource::Exec,
         /*parent_thread_id*/ None,
-        TestMapleCodeResponsesRequestKind::Turn,
+        TestMaplecodeResponsesRequestKind::Turn,
     )
 }
 
@@ -897,7 +897,7 @@ async fn response_item_ids_are_sent_for_all_remote_v2_compaction_requests() -> a
     )
     .await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .build(&server)
         .await?;
 
@@ -1650,7 +1650,7 @@ async fn includes_session_id_thread_id_and_model_headers_in_request(
     )
     .await;
 
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::from_api_key(api_key));
+    let mut builder = test_maplecode().with_auth(MaplecodeAuth::from_api_key(api_key));
     let test = builder
         .build(&server)
         .await
@@ -1932,7 +1932,7 @@ async fn send_request_with_provider(provider: ModelProviderInfo) {
         maplecode_model_provider::create_model_provider(
             provider,
             Some(AuthManager::from_auth_for_testing(
-                MapleCodeAuth::from_api_key("unused-api-key"),
+                MaplecodeAuth::from_api_key("unused-api-key"),
             )),
         ),
         AgentIdentityAuthPolicy::JwtOnly,
@@ -2015,7 +2015,7 @@ async fn includes_base_instructions_override_in_request() {
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("Test API Key"))
+        .with_auth(MaplecodeAuth::from_api_key("Test API Key"))
         .with_config(|config| {
             config.base_instructions = Some("test instructions".to_string());
         });
@@ -2054,7 +2054,7 @@ async fn chatgpt_auth_sends_correct_request() {
 
     let mut model_provider =
         built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["openai"].clone();
-    model_provider.base_url = Some(format!("{}/api/maplecode", server.uri()));
+    model_provider.base_url = Some(format!("{}/api/codex", server.uri()));
     model_provider.supports_websockets = false;
     let mut builder = test_maplecode()
         .with_auth(create_dummy_maplecode_auth())
@@ -2080,7 +2080,7 @@ async fn chatgpt_auth_sends_correct_request() {
     wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let request = resp_mock.single_request();
-    assert_eq!(request.path(), "/api/maplecode/responses");
+    assert_eq!(request.path(), "/api/codex/responses");
     let request_authorization = request
         .header("authorization")
         .expect("authorization header");
@@ -2167,7 +2167,7 @@ async fn prefers_apikey_when_config_prefers_apikey_even_with_chatgpt_tokens() {
     let mut config = load_default_config_for_test(&maplecode_home).await;
     config.model_provider = model_provider;
 
-    let auth = MapleCodeAuth::from_auth_storage(
+    let auth = MaplecodeAuth::from_auth_storage(
         maplecode_home.path(),
         AuthCredentialsStoreMode::File,
         /*chatgpt_base_url*/ None,
@@ -2175,8 +2175,8 @@ async fn prefers_apikey_when_config_prefers_apikey_even_with_chatgpt_tokens() {
         &maplecode_login::test_support::transport_default_auth_route_config(),
     )
     .await
-    .expect("Failed to load MapleCodeAuth")
-    .expect("No MapleCodeAuth found in maplecode_home");
+    .expect("Failed to load MaplecodeAuth")
+    .expect("No MaplecodeAuth found in maplecode_home");
     let auth_manager = maplecode_core::test_support::auth_manager_from_auth(auth);
     let installation_id = resolve_installation_id(&config.maplecode_home)
         .await
@@ -2191,7 +2191,7 @@ async fn prefers_apikey_when_config_prefers_apikey_even_with_chatgpt_tokens() {
                 config.maplecode_home.to_path_buf(),
             )),
         ),
-        maplecode_core::MapleCodeAppsToolsCache::default(),
+        maplecode_core::MaplecodeAppsToolsCache::default(),
         SessionSource::Exec,
         Arc::new(maplecode_exec_server::EnvironmentManager::default_for_tests()),
         empty_extension_registry(),
@@ -2233,7 +2233,7 @@ async fn includes_user_instructions_message_in_request() {
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("Test API Key"))
+        .with_auth(MaplecodeAuth::from_api_key("Test API Key"))
         .with_pre_build_hook(|home| {
             std::fs::write(home.join("AGENTS.md"), "be nice").expect("write global instructions");
         });
@@ -2369,7 +2369,7 @@ async fn omits_apps_guidance_for_api_key_auth_even_when_feature_enabled() {
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("Test API Key"))
+        .with_auth(MaplecodeAuth::from_api_key("Test API Key"))
         .with_config(move |config| {
             config
                 .features
@@ -2661,7 +2661,7 @@ async fn includes_configured_effort_in_request() -> anyhow::Result<()> {
             sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
         )
         .await;
-        let TestMapleCode { maplecode, .. } = test_maplecode()
+        let TestMaplecode { maplecode, .. } = test_maplecode()
             .with_model("gpt-5.4")
             .with_pre_build_hook(move |home| {
                 std::fs::write(
@@ -2700,7 +2700,7 @@ async fn includes_default_reasoning_effort_in_request_when_defined_by_model_info
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model("gpt-5.5")
         .build(&server)
         .await?;
@@ -2739,7 +2739,7 @@ async fn user_turn_collaboration_mode_overrides_model_and_effort() -> anyhow::Re
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode, config, ..
     } = test_maplecode()
         .with_model("gpt-5.4")
@@ -2801,7 +2801,7 @@ async fn configured_reasoning_summary_is_sent() -> anyhow::Result<()> {
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config.model_reasoning_summary = Some(ReasoningSummary::Concise);
             let _ = config
@@ -2866,7 +2866,7 @@ async fn model_without_summary_parameter_support_omits_configured_summary() -> a
         .expect("gpt-5.5 exists in bundled models.json");
     model.supports_reasoning_summary_parameter = false;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model("gpt-5.5")
         .with_config(move |config| {
             config.model_catalog = Some(model_catalog);
@@ -2910,8 +2910,8 @@ async fn sequential_cutoff_is_omitted_for_non_openai_provider() -> anyhow::Resul
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode { maplecode, .. } = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+    let TestMaplecode { maplecode, .. } = test_maplecode()
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             config.model_provider.name = "mock".to_string();
             let _ = config
@@ -2951,7 +2951,7 @@ async fn responses_lite_sets_all_turns_context_and_disables_parallel_tool_calls(
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model_info_override("gpt-5.4", |model_info| {
             model_info.use_responses_lite = true;
         })
@@ -3000,7 +3000,7 @@ async fn user_turn_explicit_reasoning_summary_overrides_model_catalog_default() 
         .expect("gpt-5.5 exists in bundled models.json");
     model.default_reasoning_summary = ReasoningSummary::Detailed;
 
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         config,
         session_configured,
@@ -3063,7 +3063,7 @@ async fn reasoning_summary_is_omitted_when_disabled() -> anyhow::Result<()> {
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config.model_reasoning_summary = Some(ReasoningSummary::None);
         })
@@ -3113,7 +3113,7 @@ async fn reasoning_summary_none_overrides_model_catalog_default() -> anyhow::Res
         .expect("gpt-5.5 exists in bundled models.json");
     model.default_reasoning_summary = ReasoningSummary::Detailed;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model("gpt-5.5")
         .with_config(move |config| {
             config.model_reasoning_summary = Some(ReasoningSummary::None);
@@ -3153,7 +3153,7 @@ async fn includes_default_verbosity_in_request() -> anyhow::Result<()> {
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model("gpt-5.5")
         .build(&server)
         .await?;
@@ -3192,7 +3192,7 @@ async fn configured_verbosity_not_sent_for_models_without_support() -> anyhow::R
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model("test-no-verbosity")
         .with_config(|config| {
             config.model_verbosity = Some(Verbosity::High);
@@ -3233,7 +3233,7 @@ async fn configured_verbosity_is_sent() -> anyhow::Result<()> {
         sse(vec![ev_response_created("resp1"), ev_completed("resp1")]),
     )
     .await;
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_model("gpt-5.5")
         .with_config(|config| {
             config.model_verbosity = Some(Verbosity::High);
@@ -3276,7 +3276,7 @@ async fn includes_developer_instructions_message_in_request() {
     )
     .await;
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("Test API Key"))
+        .with_auth(MaplecodeAuth::from_api_key("Test API Key"))
         .with_pre_build_hook(|home| {
             std::fs::write(home.join("AGENTS.md"), "be nice").expect("write global instructions");
         })
@@ -3441,7 +3441,7 @@ async fn azure_responses_request_does_not_store_and_preserves_prefixed_item_ids(
         maplecode_core::test_support::construct_model_info_offline(model.as_str(), &config);
     let thread_id = ThreadId::new();
     let auth_manager = maplecode_core::test_support::auth_manager_from_auth(
-        MapleCodeAuth::from_api_key("Test API Key"),
+        MaplecodeAuth::from_api_key("Test API Key"),
     );
     let session_telemetry = SessionTelemetry::new(
         thread_id,
@@ -3661,7 +3661,7 @@ async fn token_count_includes_rate_limits_snapshot() {
     provider.supports_websockets = false;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::from_api_key("test"))
+        .with_auth(MaplecodeAuth::from_api_key("test"))
         .with_config(move |config| {
             config.model_provider = provider;
         });
@@ -3886,7 +3886,7 @@ async fn context_window_error_sets_total_tokens_to_model_window() -> anyhow::Res
     )
     .await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config.model = Some("gpt-5.4".to_string());
             config.model_context_window = Some(272_000);
@@ -3937,7 +3937,7 @@ async fn context_window_error_sets_total_tokens_to_model_window() -> anyhow::Res
     );
 
     let error_event = wait_for_event(&maplecode, |ev| matches!(ev, EventMsg::Error(_))).await;
-    let expected_context_window_message = MapleCodeErr::ContextWindowExceeded.to_string();
+    let expected_context_window_message = MaplecodeErr::ContextWindowExceeded.to_string();
     assert!(
         matches!(
             error_event,
@@ -3976,7 +3976,7 @@ async fn incomplete_response_emits_content_filter_error_message() -> anyhow::Res
 
     let responses_mock = mount_sse_once(&server, incomplete_response).await;
 
-    let TestMapleCode { maplecode, .. } = test_maplecode()
+    let TestMaplecode { maplecode, .. } = test_maplecode()
         .with_config(|config| {
             config.model_provider.stream_max_retries = Some(0);
         })
@@ -4408,8 +4408,8 @@ async fn env_var_overrides_loaded_auth() {
     assert_eq!(request.headers.get(X_MAPLECODE_ROUTING_HINT_HEADER), None);
 }
 
-fn create_dummy_maplecode_auth() -> MapleCodeAuth {
-    MapleCodeAuth::create_dummy_chatgpt_auth_for_testing()
+fn create_dummy_maplecode_auth() -> MaplecodeAuth {
+    MaplecodeAuth::create_dummy_chatgpt_auth_for_testing()
 }
 
 /// Scenario:
@@ -4440,7 +4440,7 @@ async fn history_dedupes_streamed_and_final_messages_across_turns() {
 
     let request_log = mount_sse_sequence(&server, vec![sse1.clone(), sse1.clone(), sse1]).await;
 
-    let mut builder = test_maplecode().with_auth(MapleCodeAuth::from_api_key("Test API Key"));
+    let mut builder = test_maplecode().with_auth(MaplecodeAuth::from_api_key("Test API Key"));
     let maplecode = builder
         .build(&server)
         .await

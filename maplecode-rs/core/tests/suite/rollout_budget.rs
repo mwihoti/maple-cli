@@ -32,9 +32,9 @@ use maplecode_extension_api::ThreadLifecycleContributor;
 use maplecode_extension_api::ThreadStartInput;
 use maplecode_features::Feature;
 use maplecode_model_provider_info::built_in_model_providers;
-use maplecode_protocol::error::MapleCodeErr;
+use maplecode_protocol::error::MaplecodeErr;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::TokenUsage;
 use maplecode_protocol::user_input::UserInput;
@@ -82,7 +82,7 @@ impl AgentUsageAccounting for HostAccounting {
                 HostAccountingBehavior::Continue => Ok(UsageAccountingDecision::Continue),
                 HostAccountingBehavior::Exhausted => Ok(UsageAccountingDecision::Exhausted),
                 HostAccountingBehavior::Fail => {
-                    Err(MapleCodeErr::Stream("accounting unavailable".into()))
+                    Err(MaplecodeErr::Stream("accounting unavailable".into()))
                 }
             }
         })
@@ -236,7 +236,7 @@ async fn invalid_provider_rollout_budget_units_fail_without_retry() -> Result<()
         error.message,
         "Fatal error: response.completed usage.maplecode_rollout_budget_units must be finite and non-negative"
     );
-    assert_eq!(error.maplecode_error_info, Some(MapleCodeErrorInfo::Other));
+    assert_eq!(error.maplecode_error_info, Some(MaplecodeErrorInfo::Other));
     wait_for_event(&test.maplecode, |event| {
         matches!(event, EventMsg::TurnComplete(_))
     })
@@ -460,7 +460,7 @@ async fn exhausted_budget_respects_enforcement_on_current_and_later_turns(
         assert!(matches!(
             event,
             EventMsg::Error(error)
-                if error.maplecode_error_info == Some(MapleCodeErrorInfo::SessionBudgetExceeded)
+                if error.maplecode_error_info == Some(MaplecodeErrorInfo::SessionBudgetExceeded)
         ));
         wait_for_event(&test.maplecode, |event| {
             matches!(event, EventMsg::TurnComplete(_))
@@ -549,9 +549,9 @@ async fn compaction_accounting_errors_fail_without_retry(
         .await?;
 
     let expected_error = if host_failure {
-        MapleCodeErrorInfo::Other
+        MaplecodeErrorInfo::Other
     } else {
-        MapleCodeErrorInfo::SessionBudgetExceeded
+        MaplecodeErrorInfo::SessionBudgetExceeded
     };
     test.maplecode.submit(Op::Compact).await?;
     wait_for_event(&test.maplecode, |event| {
@@ -747,11 +747,11 @@ async fn host_accounting_reports_raw_usage_and_preserves_error_semantics(
     } else if matches!(behavior, HostAccountingBehavior::Exhausted) {
         assert_eq!(
             error.maplecode_error_info,
-            Some(MapleCodeErrorInfo::SessionBudgetExceeded)
+            Some(MaplecodeErrorInfo::SessionBudgetExceeded)
         );
     } else {
         assert!(error.message.contains("Host usage accounting failed"));
-        assert_eq!(error.maplecode_error_info, Some(MapleCodeErrorInfo::Other));
+        assert_eq!(error.maplecode_error_info, Some(MaplecodeErrorInfo::Other));
     }
     assert_eq!(received_responses_requests(&server).await.len(), 1);
     assert_eq!(

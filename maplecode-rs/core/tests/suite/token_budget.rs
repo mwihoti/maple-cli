@@ -32,7 +32,7 @@ use maplecode_core::config::Config;
 use maplecode_core::config::TokenBudgetConfig;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_model_provider_info::built_in_model_providers;
 use maplecode_protocol::config_types::AutoCompactTokenLimitScope;
 use maplecode_protocol::items::TurnItem;
@@ -170,7 +170,7 @@ fn write_token_budget_compact_hooks(home: &Path) {
 }
 
 async fn assert_context_compaction_item_lifecycle(
-    maplecode: &std::sync::Arc<maplecode_core::MapleCodeThread>,
+    maplecode: &std::sync::Arc<maplecode_core::MaplecodeThread>,
 ) {
     let mut saw_compaction_started = false;
     let mut saw_compaction_completed = false;
@@ -267,7 +267,7 @@ async fn token_budget_guidance_precedes_standalone_context_window(
         .with_model_info_override("gpt-5.2", |model| {
             model.supports_experimental_context = true;
         })
-        .with_auth(MapleCodeAuth::from_external_chatgpt_tokens(
+        .with_auth(MaplecodeAuth::from_external_chatgpt_tokens(
             "header.e30.signature",
             "account-123",
             Some("plus"),
@@ -338,7 +338,7 @@ async fn experimental_context_requires_capable_model_and_maplecode_backend(
         .with_model_info_override("gpt-5.2", move |model| {
             model.supports_experimental_context = supports_context;
         })
-        .with_auth(MapleCodeAuth::from_external_chatgpt_tokens(
+        .with_auth(MaplecodeAuth::from_external_chatgpt_tokens(
             "header.e30.signature",
             "account-123",
             Some("plus"),
@@ -391,7 +391,7 @@ async fn token_budget_history_notes_can_be_enabled_without_experimental_context(
     let server = start_mock_server().await;
     let backend_url = format!("{}/backend-api/codex", server.uri());
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::from_external_chatgpt_tokens(
+        .with_auth(MaplecodeAuth::from_external_chatgpt_tokens(
             "header.e30.signature",
             "account-123",
             Some("plus"),
@@ -572,7 +572,7 @@ async fn token_budget_defaults_follow_the_active_model(activation: Feature) -> R
     .await;
     let backend_url = format!("{}/backend-api/codex", server.uri());
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::from_external_chatgpt_tokens(
+        .with_auth(MaplecodeAuth::from_external_chatgpt_tokens(
             "header.e30.signature",
             "account-123",
             Some("plus"),

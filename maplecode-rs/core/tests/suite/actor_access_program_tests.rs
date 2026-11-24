@@ -2,7 +2,7 @@
 
 use anyhow::Result;
 use core_test_support::responses;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use http::HeaderMap;
@@ -10,7 +10,7 @@ use http::HeaderValue;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::TurnStartOptions;
 use maplecode_login::AuthHeaders;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::turn_input::CyberAccessProgram;
 use maplecode_protocol::user_input::UserInput;
@@ -33,11 +33,11 @@ fn actor_headers() -> HeaderMap {
     ])
 }
 
-fn actor_auth() -> MapleCodeAuth {
-    MapleCodeAuth::Headers(AuthHeaders::new(actor_headers()))
+fn actor_auth() -> MaplecodeAuth {
+    MaplecodeAuth::Headers(AuthHeaders::new(actor_headers()))
 }
 
-async fn submit(test: &TestMapleCode, program: Option<CyberAccessProgram>) -> Result<()> {
+async fn submit(test: &TestMaplecode, program: Option<CyberAccessProgram>) -> Result<()> {
     test.maplecode
         .start_or_steer_turn(
             TurnInputRequest::user_input(vec![UserInput::Text {
@@ -164,7 +164,7 @@ async fn actor_program_backend_denial_remains_authoritative() -> Result<()> {
     assert_eq!(
         error.maplecode_error_info,
         Some(
-            maplecode_protocol::protocol::MapleCodeErrorInfo::HttpConnectionFailed {
+            maplecode_protocol::protocol::MaplecodeErrorInfo::HttpConnectionFailed {
                 http_status_code: Some(403),
             }
         )

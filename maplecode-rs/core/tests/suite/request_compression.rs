@@ -10,7 +10,7 @@ use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
@@ -29,7 +29,7 @@ async fn request_body_is_zstd_compressed_for_maplecode_backend_when_enabled() ->
 
     let base_url = format!("{}/backend-api/codex/v1", server.uri());
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config
                 .features

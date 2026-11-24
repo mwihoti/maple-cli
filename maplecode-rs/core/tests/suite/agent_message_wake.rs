@@ -20,7 +20,7 @@ use maplecode_history::RolloutItem;
 use maplecode_login::ExternalAuth;
 use maplecode_login::ExternalAuthFuture;
 use maplecode_login::ExternalAuthRefreshContext;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::config_types::ModeKind;
 use maplecode_protocol::protocol::AgentStatus;
@@ -80,17 +80,17 @@ impl maplecode_extension_api::TurnLifecycleContributor for WakeBarriers {
 }
 
 impl ExternalAuth for WakeBarriers {
-    fn resolve(&self) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    fn resolve(&self) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         Box::pin(async {
             self.discovery.pause().await;
-            Ok(MapleCodeAuth::from_api_key("dummy"))
+            Ok(MaplecodeAuth::from_api_key("dummy"))
         })
     }
 
     fn refresh(
         &self,
         _context: ExternalAuthRefreshContext,
-    ) -> ExternalAuthFuture<'_, MapleCodeAuth> {
+    ) -> ExternalAuthFuture<'_, MaplecodeAuth> {
         self.resolve()
     }
 }

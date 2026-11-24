@@ -24,7 +24,7 @@ use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_wine_exec;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
@@ -39,7 +39,7 @@ use maplecode_history::CompactedItem;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_prompts::render_review_exit_success;
 use maplecode_protocol::ResponseItemId;
 use maplecode_protocol::ThreadId;
@@ -334,7 +334,7 @@ async fn code_mode_messaging_fixture(
     server: &wiremock::MockServer,
     messaging_server: &wiremock::MockServer,
     on_send: impl Fn() + Send + Sync + 'static,
-) -> Result<TestMapleCode> {
+) -> Result<TestMaplecode> {
     const TOOL: &str = "user_message_send_message";
     mount_messaging_server(
         messaging_server,
@@ -359,7 +359,7 @@ async fn code_mode_messaging_fixture(
     extensions.mcp_server_contributor(Arc::new(HostedMessagingServer(messaging_url)));
     let test = test_maplecode()
         .with_extensions(Arc::new(extensions.build()))
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
             "maplecode-code-mode-host",
         )?)
@@ -789,7 +789,7 @@ async fn run_guardian_subagent_review(
         });
     if code_mode {
         builder = builder
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
                 "maplecode-code-mode-host",
             )?);

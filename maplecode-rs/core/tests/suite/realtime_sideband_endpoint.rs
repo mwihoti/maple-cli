@@ -12,11 +12,11 @@ use core_test_support::wait_for_event_match;
 use http::HeaderMap;
 use http::HeaderValue;
 use maplecode_login::AuthHeaders;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::protocol::ConversationStartParams;
 use maplecode_protocol::protocol::ConversationStartTransport;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
+use maplecode_protocol::protocol::MaplecodeResponseHandoffMode;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::RealtimeConversationVersion;
 use maplecode_protocol::protocol::RealtimeOutputModality;
@@ -60,7 +60,7 @@ async fn existing_call_uses_selected_endpoint_and_runtime_auth(
         HeaderValue::from_static("runtime-credential"),
     );
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::Headers(AuthHeaders::new(headers)))
+        .with_auth(MaplecodeAuth::Headers(AuthHeaders::new(headers)))
         .with_config(move |config| {
             config.experimental_realtime_ws_base_url = Some(configured_base_url);
             if matches!(selection, EndpointSelection::Revoked) {
@@ -76,7 +76,7 @@ async fn existing_call_uses_selected_endpoint_and_runtime_auth(
             flush_transcript_tail_on_session_end: false,
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
-            maplecode_response_handoff_mode: MapleCodeResponseHandoffMode::Thinking,
+            maplecode_response_handoff_mode: MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,

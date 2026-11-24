@@ -3,7 +3,7 @@
 use anyhow::Result;
 use core_test_support::responses::ResponsesRequest;
 use core_test_support::responses::start_mock_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use futures::SinkExt;
@@ -361,7 +361,7 @@ fn params(session: &str, url: &str) -> ConversationStartParams {
 }
 
 async fn start(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     session: &str,
     url: &str,
 ) -> Result<(
@@ -381,7 +381,7 @@ async fn start(
     Ok((id, result))
 }
 
-async fn detach(test: &TestMapleCode, session: &str) -> Result<()> {
+async fn detach(test: &TestMaplecode, session: &str) -> Result<()> {
     let (reply, result) = oneshot::channel();
     test.maplecode
         .submit(Op::RealtimeConversationDetach {
@@ -394,7 +394,7 @@ async fn detach(test: &TestMapleCode, session: &str) -> Result<()> {
 }
 
 async fn attached(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     server: &mut Sideband,
     session: &str,
 ) -> Result<(String, Connected)> {
@@ -414,7 +414,7 @@ async fn attached(
     ))
 }
 
-async fn assert_text_routes_to(test: &TestMapleCode, connection: &mut Connected) -> Result<()> {
+async fn assert_text_routes_to(test: &TestMaplecode, connection: &mut Connected) -> Result<()> {
     test.maplecode
         .submit(Op::RealtimeConversationText(ConversationTextParams {
             text: "still selected".to_owned(),

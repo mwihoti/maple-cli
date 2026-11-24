@@ -2,7 +2,7 @@
 
 use super::*;
 use core_test_support::responses;
-use core_test_support::test_maplecode::TestMapleCodeHarness;
+use core_test_support::test_maplecode::TestMaplecodeHarness;
 use maplecode_protocol::openai_models::ConfigShellToolType;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
 use pretty_assertions::assert_eq;
@@ -16,7 +16,7 @@ async fn command_sessions_world_state_tracks_retained_processes() -> Result<()> 
     let builder = || {
         test_maplecode()
             .with_model("gpt-6-astra")
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
             .with_config(|config| {
                 configure_scenario_catalog(config);
                 let catalog = config
@@ -45,7 +45,7 @@ async fn command_sessions_world_state_tracks_retained_processes() -> Result<()> 
                 }
             })
     };
-    let harness = TestMapleCodeHarness::with_auto_env_builder(builder()).await?;
+    let harness = TestMaplecodeHarness::with_auto_env_builder(builder()).await?;
     let (server, test) = (harness.server(), harness.test());
     let command = match core_test_support::test_target_os() {
         core_test_support::TestTargetOs::Linux | core_test_support::TestTargetOs::MacOs => {

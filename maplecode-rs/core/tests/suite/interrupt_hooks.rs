@@ -14,7 +14,7 @@ use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_wine_exec;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event_match;
 use maplecode_core::TurnInputRequest;
@@ -86,7 +86,7 @@ fn read_interrupt_hook_inputs(home: &Path) -> Result<Vec<Value>> {
         .collect()
 }
 
-async fn build_test(server: &MockServer, system_message: Option<&str>) -> Result<TestMapleCode> {
+async fn build_test(server: &MockServer, system_message: Option<&str>) -> Result<TestMaplecode> {
     let system_message = system_message.map(str::to_string);
     test_maplecode()
         .with_model("gpt-5.4")
@@ -102,7 +102,7 @@ async fn build_test(server: &MockServer, system_message: Option<&str>) -> Result
         .await
 }
 
-async fn start_interruptible_turn(test: &TestMapleCode, server: &MockServer) -> Result<()> {
+async fn start_interruptible_turn(test: &TestMaplecode, server: &MockServer) -> Result<()> {
     let tool_args = json!({
         "cmd": "sleep 60",
         "yield_time_ms": 60_000,

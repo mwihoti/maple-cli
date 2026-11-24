@@ -19,14 +19,14 @@ use core_test_support::responses::mount_sse_sequence;
 use core_test_support::responses::sse;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::compact::SUMMARIZATION_PROMPT;
 use maplecode_core::config::Config;
 use maplecode_core::spawn::MAPLECODE_SANDBOX_NETWORK_DISABLED_ENV_VAR;
 use maplecode_extension_api::ExtensionRegistryBuilder;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::RolloutItem;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_protocol::models::ContentItem;
@@ -97,7 +97,7 @@ fn seed_first_checkpoint_harness_metadata(path: &Path, retained_text: &str) -> R
         .find(|envelope| response_message_contains_text(&envelope.item, retained_text))
         .context("retained user message missing from first compacted checkpoint")?;
     for envelope in replacement_history {
-        envelope.metadata = Some(MapleCodeHarnessMetadata::default());
+        envelope.metadata = Some(MaplecodeHarnessMetadata::default());
     }
 
     let rewritten = lines
@@ -619,7 +619,7 @@ async fn start_test_conversation(
     Arc<TempDir>,
     Config,
     Arc<ThreadManager>,
-    Arc<MapleCodeThread>,
+    Arc<MaplecodeThread>,
 ) {
     let base_url = format!("{}/v1", server.uri());
     let model = model.map(str::to_string);
@@ -642,7 +642,7 @@ async fn start_test_conversation(
     (test.home, test.config, test.thread_manager, test.maplecode)
 }
 
-async fn user_turn(conversation: &Arc<MapleCodeThread>, text: &str) {
+async fn user_turn(conversation: &Arc<MaplecodeThread>, text: &str) {
     conversation
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
             text: text.into(),
@@ -654,7 +654,7 @@ async fn user_turn(conversation: &Arc<MapleCodeThread>, text: &str) {
     ThreadIdle::wait(conversation).await;
 }
 
-async fn compact_conversation(conversation: &Arc<MapleCodeThread>) {
+async fn compact_conversation(conversation: &Arc<MaplecodeThread>) {
     conversation
         .submit(Op::Compact)
         .await
@@ -663,11 +663,11 @@ async fn compact_conversation(conversation: &Arc<MapleCodeThread>) {
     ThreadIdle::wait(conversation).await;
 }
 
-fn fetch_conversation_path(conversation: &Arc<MapleCodeThread>) -> std::path::PathBuf {
+fn fetch_conversation_path(conversation: &Arc<MaplecodeThread>) -> std::path::PathBuf {
     conversation.rollout_path().expect("rollout path")
 }
 
-async fn shutdown_conversation(conversation: &Arc<MapleCodeThread>) {
+async fn shutdown_conversation(conversation: &Arc<MaplecodeThread>) {
     conversation
         .shutdown_and_wait()
         .await
@@ -678,9 +678,9 @@ async fn resume_conversation(
     manager: &ThreadManager,
     config: &Config,
     path: std::path::PathBuf,
-) -> Arc<MapleCodeThread> {
+) -> Arc<MaplecodeThread> {
     let auth_manager = maplecode_core::test_support::auth_manager_from_auth(
-        maplecode_login::MapleCodeAuth::from_api_key("dummy"),
+        maplecode_login::MaplecodeAuth::from_api_key("dummy"),
     );
     Box::pin(manager.resume_legacy_thread_from_rollout(
         config.clone(),
@@ -700,7 +700,7 @@ async fn fork_thread(
     config: &Config,
     path: std::path::PathBuf,
     nth_user_message: usize,
-) -> Arc<MapleCodeThread> {
+) -> Arc<MaplecodeThread> {
     Box::pin(manager.fork_legacy_thread(
         nth_user_message,
         maplecode_core::StartThreadOptions::new(config.clone()),

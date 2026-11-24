@@ -225,7 +225,7 @@ async fn dynamic_tools_resume_override_stays_local_after_compaction() -> Result<
     initial.thread.shutdown_and_wait().await?;
     let path = initial.thread.rollout_path().expect("rollout path");
     let load_history = || maplecode_rollout::RolloutRecorder::get_rollout_history(&path);
-    let check_tools = async |thread: &maplecode_core::MapleCodeThread,
+    let check_tools = async |thread: &maplecode_core::MaplecodeThread,
                              present: &str,
                              absent: &str| {
         let response = responses::mount_sse_once(&server, responses::sse_completed(present)).await;

@@ -11,11 +11,11 @@ use tempfile::TempDir;
 use maplecode_config::CloudConfigBundleLoader;
 use maplecode_config::LoaderOverrides;
 use maplecode_config::test_support::CloudConfigBundleFixture;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::config::Config;
 use maplecode_core::config::ConfigBuilder;
 use maplecode_core::config::ConfigOverrides;
-pub use maplecode_core::test_support::TestMapleCodeResponsesRequestKind;
+pub use maplecode_core::test_support::TestMaplecodeResponsesRequestKind;
 pub use maplecode_core::test_support::responses_metadata;
 use maplecode_features::Feature;
 use maplecode_utils_absolute_path::AbsolutePathBuf;
@@ -275,7 +275,7 @@ pub fn find_maplecode_linux_sandbox_exe() -> Result<PathBuf, CargoBinError> {
 }
 
 pub async fn wait_for_event<F>(
-    maplecode: &MapleCodeThread,
+    maplecode: &MaplecodeThread,
     predicate: F,
 ) -> maplecode_protocol::protocol::EventMsg
 where
@@ -285,7 +285,7 @@ where
     wait_for_event_with_timeout(maplecode, predicate, Duration::from_secs(1)).await
 }
 
-pub async fn wait_for_successful_turn(maplecode: &MapleCodeThread) {
+pub async fn wait_for_successful_turn(maplecode: &MaplecodeThread) {
     use maplecode_protocol::protocol::EventMsg;
 
     let event = wait_for_event(maplecode, |event| {
@@ -300,7 +300,7 @@ pub async fn wait_for_successful_turn(maplecode: &MapleCodeThread) {
 
 /// Waits for a configured MCP server to finish startup and requires it to be ready.
 pub async fn wait_for_mcp_server(
-    maplecode: &MapleCodeThread,
+    maplecode: &MaplecodeThread,
     server_name: &str,
 ) -> anyhow::Result<()> {
     use maplecode_protocol::protocol::EventMsg;
@@ -335,7 +335,7 @@ pub async fn wait_for_mcp_server(
 }
 
 pub async fn submit_thread_settings(
-    maplecode: &MapleCodeThread,
+    maplecode: &MaplecodeThread,
     thread_settings: maplecode_protocol::protocol::ThreadSettingsOverrides,
 ) -> anyhow::Result<()> {
     use maplecode_protocol::protocol::EventMsg;
@@ -387,7 +387,7 @@ impl maplecode_extension_api::ThreadLifecycleContributor<Config> for ThreadIdle 
 }
 
 impl ThreadIdle {
-    pub async fn wait(thread: &MapleCodeThread) {
+    pub async fn wait(thread: &MaplecodeThread) {
         // TurnComplete is sent before active-turn cleanup. Rollback requires the later idle signal.
         let idle = thread
             .thread_extension_data()
@@ -398,7 +398,7 @@ impl ThreadIdle {
     }
 }
 
-pub async fn wait_for_event_match<T, F>(maplecode: &MapleCodeThread, matcher: F) -> T
+pub async fn wait_for_event_match<T, F>(maplecode: &MaplecodeThread, matcher: F) -> T
 where
     F: Fn(&maplecode_protocol::protocol::EventMsg) -> Option<T>,
 {
@@ -407,7 +407,7 @@ where
 }
 
 pub async fn wait_for_event_with_timeout<F>(
-    maplecode: &MapleCodeThread,
+    maplecode: &MaplecodeThread,
     mut predicate: F,
     wait_time: tokio::time::Duration,
 ) -> maplecode_protocol::protocol::EventMsg

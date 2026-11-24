@@ -52,7 +52,7 @@ use maplecode_features::CurrentTimeSource;
 use maplecode_features::Feature;
 use maplecode_history::RolloutItem;
 use maplecode_login::AuthHeaders;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::ModelOrigin;
 use maplecode_models_manager::manager::RefreshStrategy;
 use maplecode_otel::MetricsClient;
@@ -145,15 +145,15 @@ impl TimeProvider for RecordingTimeProvider {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-#[test_case(MapleCodeAuth::from_api_key("test-api-key"), "OpenAI", "/v1", "/v1/responses", true; "api_key_uses_responses")]
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), "OpenAI", "/backend-api/codex", "/backend-api/codex/responses", true; "chatgpt_marks_guardian_by_default")]
-#[test_case(MapleCodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new())), "OpenAI", "/api/maplecode", "/api/maplecode/responses", true; "header_auth_marks_guardian_on_direct_backend")]
-#[test_case(MapleCodeAuth::from_api_key("test-api-key"), "OpenAI", "/api/maplecode", "/api/maplecode/responses", true; "api_key_does_not_mark_guardian_on_direct_backend")]
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), "OpenAI", "/v1", "/v1/responses", true; "custom_openai_url_marks_guardian")]
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), "Custom", "/backend-api/codex", "/backend-api/codex/responses", true; "custom_provider_uses_responses")]
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), "OpenAI", "/backend-api/codex", "/backend-api/codex/responses", false; "retry_without_response_id_keeps_last_parent")]
+#[test_case(MaplecodeAuth::from_api_key("test-api-key"), "OpenAI", "/v1", "/v1/responses", true; "api_key_uses_responses")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), "OpenAI", "/backend-api/codex", "/backend-api/codex/responses", true; "chatgpt_marks_guardian_by_default")]
+#[test_case(MaplecodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new())), "OpenAI", "/api/codex", "/api/codex/responses", true; "header_auth_marks_guardian_on_direct_backend")]
+#[test_case(MaplecodeAuth::from_api_key("test-api-key"), "OpenAI", "/api/codex", "/api/codex/responses", true; "api_key_does_not_mark_guardian_on_direct_backend")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), "OpenAI", "/v1", "/v1/responses", true; "custom_openai_url_marks_guardian")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), "Custom", "/backend-api/codex", "/backend-api/codex/responses", true; "custom_provider_uses_responses")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), "OpenAI", "/backend-api/codex", "/backend-api/codex/responses", false; "retry_without_response_id_keeps_last_parent")]
 async fn guardian_session_inherits_parent_http_fallback(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     provider_name: &str,
     base_path: &str,
     expected_guardian_path: &str,
@@ -356,7 +356,7 @@ async fn guardian_custom_gateway_selects_reviewer_by_catalog_origin(
         sse(vec![ev_completed("done")]),
     ]).await;
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.model = Some("gateway-main".to_string());
             config.model_catalog = (origin == ModelOrigin::ExplicitConfig).then_some(catalog);
@@ -484,7 +484,7 @@ for (const phase of ["before", "after"]) {
     let server = start_mock_server().await;
     let base_url = format!("{}/backend-api/codex", streaming.uri());
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(Arc::new(extensions.build()))
         .with_config(move |config| {
             config.features.enable(Feature::CodeMode).unwrap();
@@ -941,12 +941,12 @@ async fn guardian_requests_record_only_their_own_tool_calls() -> Result<()> {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-#[test_case(MapleCodeAuth::from_api_key("test-api-key"), "/v1", "gpt-5.6-luna"; "api_key_uses_luna_with_responses_lite")]
-#[test_case(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(), "/backend-api/codex", "codex-auto-review"; "chatgpt_uses_maplecode_auto_review")]
-#[test_case(MapleCodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new())), "/api/maplecode", "codex-auto-review"; "header_auth_uses_maplecode_auto_review_on_direct_backend")]
-#[test_case(MapleCodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new())), "/v1", "codex-auto-review"; "header_auth_marks_guardian_on_custom_url")]
+#[test_case(MaplecodeAuth::from_api_key("test-api-key"), "/v1", "gpt-5.6-luna"; "api_key_uses_luna_with_responses_lite")]
+#[test_case(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(), "/backend-api/codex", "codex-auto-review"; "chatgpt_uses_maplecode_auto_review")]
+#[test_case(MaplecodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new())), "/api/codex", "codex-auto-review"; "header_auth_uses_maplecode_auto_review_on_direct_backend")]
+#[test_case(MaplecodeAuth::Headers(AuthHeaders::new(http::HeaderMap::new())), "/v1", "codex-auto-review"; "header_auth_marks_guardian_on_custom_url")]
 async fn guardian_session_prewarms_and_is_reused_for_first_review(
-    auth: MapleCodeAuth,
+    auth: MaplecodeAuth,
     base_path: &str,
     expected_model: &str,
 ) -> Result<()> {
@@ -1531,7 +1531,7 @@ async fn guardian_refreshes_missing_default_reviewer_once(
     let catalog_url = format!("{}/v1/models", server.uri());
     let configured_catalog = initial_catalog.clone();
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("guardian-parent-a")
         .with_config(move |config| {
             config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
@@ -1753,7 +1753,7 @@ async fn guardian_reviews_delayed_and_new_actions_after_catalog_refresh() -> Res
     let mut extensions = ExtensionRegistryBuilder::<Config>::new();
     extensions.tool_lifecycle_contributor(pause.clone());
     let test = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("guardian-parent-a")
         .with_extensions(Arc::new(extensions.build()))
         .with_config(|config| {

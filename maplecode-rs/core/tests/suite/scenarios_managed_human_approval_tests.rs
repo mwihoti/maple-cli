@@ -154,7 +154,7 @@ justification = "A person must approve this command."
         .expect_err("managed checkpoint requires a human");
     assert!(matches!(
         error.details(),
-        maplecode_protocol::error::MapleCodeErrorDetails::InvalidRequest(message)
+        maplecode_protocol::error::MaplecodeErrorDetails::InvalidRequest(message)
             if message == "Managed command policy requires human approval."
     ));
     let mut snapshot = context_snapshot::format_request_history_snapshot(

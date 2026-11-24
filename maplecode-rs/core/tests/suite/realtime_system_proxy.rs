@@ -11,12 +11,12 @@ use futures::StreamExt;
 use http::StatusCode;
 use maplecode_features::Feature;
 use maplecode_http_client::cache_system_proxy_route_for_test;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_models_manager::bundled_models_response;
 use maplecode_protocol::protocol::ConversationStartParams;
 use maplecode_protocol::protocol::ConversationStartTransport;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeResponseHandoffMode;
+use maplecode_protocol::protocol::MaplecodeResponseHandoffMode;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::RealtimeConversationRealtimeEvent;
 use maplecode_protocol::protocol::RealtimeConversationVersion;
@@ -113,7 +113,7 @@ async fn webrtc_sideband_honors_configured_system_proxy() -> Result<()> {
 
     let backend_base_url = format!("{}/backend-api/codex", server.uri());
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.model_catalog =
                 Some(bundled_models_response().expect("bundled models.json should parse"));
@@ -139,7 +139,7 @@ async fn webrtc_sideband_honors_configured_system_proxy() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             maplecode_responses_as_items: false,
             maplecode_response_item_prefix: None,
-            maplecode_response_handoff_mode: MapleCodeResponseHandoffMode::Thinking,
+            maplecode_response_handoff_mode: MaplecodeResponseHandoffMode::Thinking,
             backend_reasoning_status: false,
             maplecode_response_handoff_channel_prefixes: None,
             model: None,

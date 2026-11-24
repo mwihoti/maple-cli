@@ -4,7 +4,7 @@ use core_test_support::responses;
 use core_test_support::responses::ResponsesRequest;
 use core_test_support::skip_if_no_network;
 use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use maplecode_config::test_support::CloudConfigBundleFixture;
@@ -20,13 +20,13 @@ use maplecode_core::config::Config;
 use maplecode_features::Feature;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::openai_models::ReasoningEffort;
 use maplecode_protocol::openai_models::ReasoningEffortPreset;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::InternalSessionSource;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::Op;
 use maplecode_protocol::protocol::SessionSource;
 use maplecode_protocol::protocol::SubAgentSource;
@@ -40,7 +40,7 @@ use std::time::Duration;
 use test_case::test_case;
 use wiremock::ResponseTemplate;
 
-fn override_builder() -> TestMapleCodeBuilder {
+fn override_builder() -> TestMaplecodeBuilder {
     test_maplecode()
         .with_model_info_override("gpt-5.4", |model| {
             model.use_responses_lite = true;
@@ -619,7 +619,7 @@ async fn reasoning_effort_override_capacity_retry_keeps_latest_adjacent_update()
     };
     assert_eq!(
         completed.error.and_then(|error| error.maplecode_error_info),
-        Some(MapleCodeErrorInfo::ServerOverloaded)
+        Some(MaplecodeErrorInfo::ServerOverloaded)
     );
 
     // The app's capacity Retry action uses current settings without adding a user message.
@@ -1215,7 +1215,7 @@ enum OverrideUnavailable {
 }
 
 impl OverrideUnavailable {
-    fn builder(self) -> TestMapleCodeBuilder {
+    fn builder(self) -> TestMaplecodeBuilder {
         match self {
             Self::FeatureDisabled => override_builder().with_config(|config| {
                 config
@@ -1328,7 +1328,7 @@ async fn reasoning_effort_override_unavailable_recovers_saved_history(
     let chatgpt_base_url = format!("{}/backend-api", server.uri());
     let mut builder = unavailable
         .builder()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.model_reasoning_effort = Some(ReasoningEffort::High);
             config.chatgpt_base_url = chatgpt_base_url;
@@ -1694,7 +1694,7 @@ async fn reasoning_effort_override_compaction_fallback_uses_each_models_effort()
     .await;
     let chatgpt_base_url = format!("{}/backend-api", server.uri());
     let test = override_builder()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("gpt-5.4", |model| {
             model.comp_hash = Some("original".to_string());
         })

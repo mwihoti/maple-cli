@@ -10,7 +10,7 @@ use std::time::Duration;
 use core_test_support::ThreadIdle;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
@@ -54,9 +54,9 @@ use maplecode_message_board::PostMetadata;
 use maplecode_protocol::AgentPath;
 use maplecode_protocol::SessionId;
 use maplecode_protocol::ThreadId;
-use maplecode_protocol::error::MapleCodeErr;
-use maplecode_protocol::error::MapleCodeErrorDetails;
-use maplecode_protocol::error::Result as MapleCodeResult;
+use maplecode_protocol::error::MaplecodeErr;
+use maplecode_protocol::error::MaplecodeErrorDetails;
+use maplecode_protocol::error::Result as MaplecodeResult;
 use maplecode_protocol::protocol::AgentStatus;
 use maplecode_protocol::protocol::InterAgentCommunication;
 use maplecode_protocol::protocol::MultiAgentVersion;
@@ -83,7 +83,7 @@ impl maplecode_core::AgentTurnAdmission for HostRuntime {
     fn admit_turn(
         &self,
         _: maplecode_core::AgentTurnAdmissionRequest,
-    ) -> BoxFuture<'_, MapleCodeResult<AgentExecutionGuard>> {
+    ) -> BoxFuture<'_, MaplecodeResult<AgentExecutionGuard>> {
         Box::pin(async { Ok(AgentExecutionGuard::new(())) })
     }
 }
@@ -95,7 +95,7 @@ pub(super) struct HostSessionReader {
 }
 
 impl maplecode_core::AgentSessionReader for HostSessionReader {
-    fn root(&self) -> BoxFuture<'_, MapleCodeResult<AgentRef>> {
+    fn root(&self) -> BoxFuture<'_, MaplecodeResult<AgentRef>> {
         Box::pin(async {
             Ok(AgentRef {
                 thread_id: self.root,
@@ -104,11 +104,11 @@ impl maplecode_core::AgentSessionReader for HostSessionReader {
         })
     }
 
-    fn parent(&self) -> BoxFuture<'_, MapleCodeResult<Option<AgentRef>>> {
+    fn parent(&self) -> BoxFuture<'_, MaplecodeResult<Option<AgentRef>>> {
         Box::pin(async { Ok(None) })
     }
 
-    fn children(&self) -> BoxFuture<'_, MapleCodeResult<Vec<AgentRef>>> {
+    fn children(&self) -> BoxFuture<'_, MaplecodeResult<Vec<AgentRef>>> {
         Box::pin(async {
             self.children_reads.fetch_add(1, Ordering::Relaxed);
             self.children
@@ -116,7 +116,7 @@ impl maplecode_core::AgentSessionReader for HostSessionReader {
                 .expect("host roster")
                 .clone()
                 .ok_or_else(|| {
-                    MapleCodeErr::InvalidRequest("host agent session unavailable".into())
+                    MaplecodeErr::InvalidRequest("host agent session unavailable".into())
                 })
         })
     }
@@ -176,32 +176,32 @@ impl AgentControl for TestAgentControl {
         _parent: Option<ThreadId>,
         _source: &'a SessionSource,
         target: &'a str,
-    ) -> BoxFuture<'a, MapleCodeResult<ThreadId>> {
+    ) -> BoxFuture<'a, MaplecodeResult<ThreadId>> {
         Box::pin(async move {
             if let Some(id) = self.agents.lock().expect("agents lock").get(target) {
                 return Ok(*id);
             }
             ThreadId::from_string(target)
-                .map_err(|error| MapleCodeErr::InvalidRequest(error.to_string()))
+                .map_err(|error| MaplecodeErr::InvalidRequest(error.to_string()))
         })
     }
 
     fn spawn(
         &self,
         request: SpawnRequest,
-    ) -> BoxFuture<'_, MapleCodeResult<(LiveAgent, ThreadConfigSnapshot)>> {
+    ) -> BoxFuture<'_, MaplecodeResult<(LiveAgent, ThreadConfigSnapshot)>> {
         assert_eq!(request.caller, self.thread_id);
         Box::pin(async {
-            Err(MapleCodeErr::InvalidRequest(
+            Err(MaplecodeErr::InvalidRequest(
                 "host spawn rejection".to_string(),
             ))
         })
     }
 
-    fn send(&self, request: SendRequest) -> BoxFuture<'_, MapleCodeResult<DeliveryReceipt>> {
+    fn send(&self, request: SendRequest) -> BoxFuture<'_, MaplecodeResult<DeliveryReceipt>> {
         assert_eq!(request.caller, self.thread_id);
         Box::pin(async {
-            Err(MapleCodeErr::InvalidRequest(
+            Err(MaplecodeErr::InvalidRequest(
                 "host send rejection".to_string(),
             ))
         })
@@ -221,10 +221,10 @@ impl AgentControl for TestAgentControl {
         &self,
         parent: ThreadId,
         child: ThreadId,
-    ) -> BoxFuture<'_, MapleCodeResult<()>> {
+    ) -> BoxFuture<'_, MaplecodeResult<()>> {
         assert_eq!(parent, self.thread_id);
         Box::pin(async move {
-            Err(MapleCodeErr::InvalidRequest(format!(
+            Err(MaplecodeErr::InvalidRequest(format!(
                 "host resume rejection for {child}"
             )))
         })
@@ -235,7 +235,7 @@ impl AgentControl for TestAgentControl {
         _caller: ThreadId,
         _target: AgentTarget,
         _version: MultiAgentVersion,
-    ) -> BoxFuture<'_, MapleCodeResult<AgentInfo>> {
+    ) -> BoxFuture<'_, MaplecodeResult<AgentInfo>> {
         panic!("unexpected agent interrupt")
     }
 
@@ -245,10 +245,10 @@ impl AgentControl for TestAgentControl {
         _parent: Option<ThreadId>,
         _source: &'a SessionSource,
         _path_prefix: Option<&'a str>,
-    ) -> BoxFuture<'a, MapleCodeResult<Vec<LiveAgent>>> {
+    ) -> BoxFuture<'a, MaplecodeResult<Vec<LiveAgent>>> {
         assert_eq!(caller, self.thread_id);
         Box::pin(async {
-            Err(MapleCodeErr::InvalidRequest(
+            Err(MaplecodeErr::InvalidRequest(
                 "host list rejection".to_string(),
             ))
         })
@@ -262,7 +262,7 @@ impl AgentControl for TestAgentControl {
         &self,
         _version: MultiAgentVersion,
         _source: &SessionSource,
-    ) -> MapleCodeResult<()> {
+    ) -> MaplecodeResult<()> {
         Ok(())
     }
 
@@ -274,7 +274,7 @@ impl AgentControl for TestAgentControl {
         None
     }
 
-    fn record_usage(&self, _usage: TokenUsage) -> BoxFuture<'_, MapleCodeResult<()>> {
+    fn record_usage(&self, _usage: TokenUsage) -> BoxFuture<'_, MaplecodeResult<()>> {
         Box::pin(async { Ok(()) })
     }
 
@@ -323,7 +323,7 @@ impl AgentControl for TestAgentControl {
 async fn test_with_host_control(
     server: &MockServer,
     extra_features: &[Feature],
-) -> anyhow::Result<(TestMapleCode, Arc<TestAgentControl>)> {
+) -> anyhow::Result<(TestMaplecode, Arc<TestAgentControl>)> {
     let thread_id = ThreadId::new();
     let controller = Arc::new(TestAgentControl::new(thread_id));
     let extra_features = extra_features.to_vec();
@@ -407,7 +407,7 @@ async fn host_threads_preserve_lineage_settings_and_resume_routing() -> anyhow::
         .expect_err("local eviction must reject a host-controlled child");
     assert!(matches!(
         error.details(),
-        MapleCodeErrorDetails::InvalidRequest(_)
+        MaplecodeErrorDetails::InvalidRequest(_)
     ));
     assert!(Arc::ptr_eq(
         &test.thread_manager.get_thread(child.thread_id).await?,
@@ -488,7 +488,7 @@ async fn host_threads_preserve_lineage_settings_and_resume_routing() -> anyhow::
             .expect("startup must reject the requested root");
         if reserved_thread_id != root_id {
             assert!(
-                matches!(error.details(), MapleCodeErrorDetails::InvalidRequest(_)),
+                matches!(error.details(), MaplecodeErrorDetails::InvalidRequest(_)),
                 "{error:?}"
             );
         }
@@ -502,7 +502,7 @@ async fn host_threads_preserve_lineage_settings_and_resume_routing() -> anyhow::
         .await
         .expect_err("child reload must reach the host controller");
     assert!(
-        matches!(error.details(), MapleCodeErrorDetails::InvalidRequest(message)
+        matches!(error.details(), MaplecodeErrorDetails::InvalidRequest(message)
             if message == &format!("host resume rejection for {}", child.thread_id)
         ),
         "{error:?}"
@@ -1171,9 +1171,9 @@ async fn host_start_requires_turn_admission() -> anyhow::Result<()> {
         .await
         .err()
         .expect("missing admission")
-        .downcast::<MapleCodeErr>()?;
+        .downcast::<MaplecodeErr>()?;
     assert!(
-        matches!(error.details(), MapleCodeErrorDetails::InvalidRequest(message) if message.contains("AgentTurnAdmission")),
+        matches!(error.details(), MaplecodeErrorDetails::InvalidRequest(message) if message.contains("AgentTurnAdmission")),
         "{error:?}"
     );
     assert_eq!(*host.0.lock().unwrap(), ["start", "stop"]);

@@ -116,7 +116,7 @@ async fn exercise_mcp_sharing(resume_with_replacement_auth: bool) -> Result<Stri
                     rollout_path: Some(rollout),
                 }),
                 maplecode_core::test_support::auth_manager_from_auth_with_home(
-                    MapleCodeAuth::from_api_key("resumed-key"),
+                    MaplecodeAuth::from_api_key("resumed-key"),
                     test.maplecode_home_path().to_path_buf(),
                 ),
                 /*parent_trace*/ None,

@@ -14,7 +14,7 @@ use maplecode_core::TurnInputRequest;
 use maplecode_history::InitialHistory;
 use maplecode_history::ResumedHistory;
 use maplecode_protocol::config_types::WindowsSandboxLevel;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::mcp::ClientMcpExtensions;
 use maplecode_protocol::protocol::EventMsg;
 use maplecode_protocol::protocol::ThreadHistoryMode;
@@ -63,7 +63,7 @@ async fn resume_uses_prepared_store_path_when_preparation_is_present() -> Result
     assert!(
         matches!(
             err.details(),
-            MapleCodeErrorDetails::UnsupportedOperation(message)
+            MaplecodeErrorDetails::UnsupportedOperation(message)
                 if message == "resume_thread_with_preparation is not supported yet"
         ),
         "unexpected prepared resume error: {err}"

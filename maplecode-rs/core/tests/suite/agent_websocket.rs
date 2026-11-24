@@ -20,7 +20,7 @@ use maplecode_core::AgentRuntimeOwnership;
 use maplecode_core::AgentServiceTier;
 use maplecode_core::AgentTurnAdmission;
 use maplecode_core::InheritedSessionId;
-use maplecode_core::MapleCodeThreadSettingsOverrides;
+use maplecode_core::MaplecodeThreadSettingsOverrides;
 use maplecode_core::SteerSubmission;
 use maplecode_core::ThreadManager;
 use maplecode_core::TurnInputRequest;
@@ -28,13 +28,13 @@ use maplecode_core::TurnInputSubmission;
 use maplecode_core::TurnStartOptions;
 use maplecode_core::X_MAPLECODE_ROUTING_HINT_HEADER;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::ThreadId;
 use maplecode_protocol::config_types::ServiceTier;
 use maplecode_protocol::dynamic_tools::DynamicToolFunctionSpec;
 use maplecode_protocol::dynamic_tools::DynamicToolResponse;
 use maplecode_protocol::dynamic_tools::DynamicToolSpec;
-use maplecode_protocol::error::MapleCodeErrorDetails;
+use maplecode_protocol::error::MaplecodeErrorDetails;
 use maplecode_protocol::openai_models::ModelServiceTier;
 use maplecode_protocol::openai_models::ToolMode;
 use maplecode_protocol::protocol::EventMsg;
@@ -100,7 +100,7 @@ async fn spawned_agent_prewarm_handshake_inherits_effective_root_service_tier(
     };
     let test = test_maplecode()
         .with_model("gpt-5.4")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("gpt-5.4", move |model| {
             model.service_tiers.push(ModelServiceTier {
                 id: tier.to_string(),
@@ -239,7 +239,7 @@ async fn accept_committed_tier<T>(
             } => handoff?,
         };
         // Use the direct settings API so the retry cannot queue behind the first caller.
-        let retry = root.restore_thread_settings(MapleCodeThreadSettingsOverrides {
+        let retry = root.restore_thread_settings(MaplecodeThreadSettingsOverrides {
             service_tier: Some(value.clone()),
             ..Default::default()
         });
@@ -281,7 +281,7 @@ async fn pending_host_tier_settings_reply_does_not_block_interrupt() -> Result<(
     let release_completion = server.gate_response_event(&completed);
     let test = test_maplecode()
         .with_model("gpt-5.4")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(|config| {
             // Keep sampling behind the gate until the explicit interrupt.
             config.features.disable(Feature::InstantInterrupt).unwrap();
@@ -449,7 +449,7 @@ async fn pending_host_tier_settings_reply_does_not_block_interrupt() -> Result<(
 
     tokio::time::timeout(
         Duration::from_secs(10),
-        root.restore_thread_settings(MapleCodeThreadSettingsOverrides {
+        root.restore_thread_settings(MaplecodeThreadSettingsOverrides {
             service_tier: Some(value.clone()),
             ..Default::default()
         }),
@@ -507,7 +507,7 @@ async fn detached_host_child_inherits_root_service_tier_at_prewarm_and_each_step
     .await;
     let test = test_maplecode()
         .with_model("gpt-5.4")
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("gpt-5.4", |model| {
             model.service_tiers.push(ModelServiceTier {
                 id: "priority".into(),
@@ -612,7 +612,7 @@ async fn detached_host_child_inherits_root_service_tier_at_prewarm_and_each_step
         .await
         .expect_err("child uses the shared tier");
     assert!(
-        matches!(error.details(), MapleCodeErrorDetails::InvalidRequest(message) if message.contains("shared service tier")),
+        matches!(error.details(), MaplecodeErrorDetails::InvalidRequest(message) if message.contains("shared service tier")),
         "{error:?}"
     );
 
@@ -1099,7 +1099,7 @@ async fn websocket_v2_first_turn_sends_full_create_when_tier_changes_after_start
                 })
                 .collect();
         })
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             for feature in [Feature::ResponsesWebsocketsV2, Feature::FastMode] {
                 config

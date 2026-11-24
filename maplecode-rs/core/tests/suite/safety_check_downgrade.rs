@@ -10,7 +10,7 @@ use core_test_support::responses::sse_completed;
 use core_test_support::responses::sse_response;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -24,7 +24,7 @@ use maplecode_protocol::models::PermissionProfile;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::EventMsg;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::ModelRerouteReason;
 use maplecode_protocol::protocol::ModelVerification;
 use maplecode_protocol::protocol::ThreadSettingsOverrides;
@@ -41,7 +41,7 @@ const CYBER_POLICY_MESSAGE: &str =
 const BIO_POLICY_MESSAGE: &str = "This request has been flagged for possible biological risk.";
 const INVALID_PROMPT_MESSAGE: &str = "This prompt was rejected.";
 
-fn disabled_text_turn(test: &TestMapleCode, text: &str) -> TurnInputRequest {
+fn disabled_text_turn(test: &TestMaplecode, text: &str) -> TurnInputRequest {
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, test.cwd_path());
     TurnInputRequest::user_input(vec![UserInput::Text {
@@ -110,14 +110,14 @@ async fn openai_model_header_mismatch_emits_warning_event() -> Result<()> {
     Ok(())
 }
 
-#[test_case::test_case("cyber_policy", CYBER_POLICY_MESSAGE, MapleCodeErrorInfo::CyberPolicy; "cyber")]
-#[test_case::test_case("bio_policy", BIO_POLICY_MESSAGE, MapleCodeErrorInfo::BioPolicy; "bio")]
-#[test_case::test_case("invalid_prompt", INVALID_PROMPT_MESSAGE, MapleCodeErrorInfo::InvalidPrompt; "invalid_prompt")]
+#[test_case::test_case("cyber_policy", CYBER_POLICY_MESSAGE, MaplecodeErrorInfo::CyberPolicy; "cyber")]
+#[test_case::test_case("bio_policy", BIO_POLICY_MESSAGE, MaplecodeErrorInfo::BioPolicy; "bio")]
+#[test_case::test_case("invalid_prompt", INVALID_PROMPT_MESSAGE, MaplecodeErrorInfo::InvalidPrompt; "invalid_prompt")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn error_response_emits_typed_error_without_retry(
     code: &str,
     message: &str,
-    error_info: MapleCodeErrorInfo,
+    error_info: MaplecodeErrorInfo,
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
 

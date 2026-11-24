@@ -56,7 +56,7 @@ async fn resumed_plugin_install_uses_the_threads_account(mode: RuntimeAuthMode) 
         )
         .await;
         let mut builder = test_maplecode()
-            .with_auth(MapleCodeAuth::from_external_chatgpt_tokens(
+            .with_auth(MaplecodeAuth::from_external_chatgpt_tokens(
                 &actor_token("a"),
                 "account-a",
                 Some("plus"),
@@ -100,7 +100,7 @@ async fn resumed_plugin_install_uses_the_threads_account(mode: RuntimeAuthMode) 
             })
             .await?;
         let replacement = maplecode_core::test_support::auth_manager_from_auth_with_home(
-            MapleCodeAuth::from_external_chatgpt_tokens(
+            MaplecodeAuth::from_external_chatgpt_tokens(
                 &actor_token("b"),
                 "account-b",
                 Some("plus"),

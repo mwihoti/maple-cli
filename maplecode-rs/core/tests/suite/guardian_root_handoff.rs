@@ -1,10 +1,10 @@
 //! Root communications select worker-specific windows without rewriting worker prompts.
 
 use super::*;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use pretty_assertions::assert_eq;
 
-async fn root_messages(thread: &MapleCodeThread) -> Vec<GuardianRootMessage> {
+async fn root_messages(thread: &MaplecodeThread) -> Vec<GuardianRootMessage> {
     thread
         .guardian_root_snapshot()
         .await
@@ -23,7 +23,7 @@ async fn root_messages(thread: &MapleCodeThread) -> Vec<GuardianRootMessage> {
 }
 
 async fn handoff(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     server: &wiremock::MockServer,
     prompt: &'static str,
     call_id: &'static str,

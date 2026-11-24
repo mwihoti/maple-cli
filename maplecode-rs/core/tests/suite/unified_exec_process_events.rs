@@ -87,11 +87,11 @@ enum PushedExecScenario {
     OutputOpenWhenResumableCancelled,
     OutputOpenWhenTerminated,
     OutputOpenWhenTerminatedBeforeYield,
-    MapleCodePath,
-    MapleCodePathDefaultFeature,
-    MapleCodePathDisabledFeature,
-    MapleCodePathWithExplicitOverride,
-    UnusableMapleCodePath,
+    MaplecodePath,
+    MaplecodePathDefaultFeature,
+    MaplecodePathDisabledFeature,
+    MaplecodePathWithExplicitOverride,
+    UnusableMaplecodePath,
     DirectDenied,
     DenyWin,
     DenyWinUnchanged,
@@ -251,16 +251,16 @@ async fn respond_environment_info(
     });
     if matches!(
         scenario,
-        PushedExecScenario::MapleCodePath
-            | PushedExecScenario::MapleCodePathDefaultFeature
-            | PushedExecScenario::MapleCodePathDisabledFeature
-            | PushedExecScenario::MapleCodePathWithExplicitOverride
+        PushedExecScenario::MaplecodePath
+            | PushedExecScenario::MaplecodePathDefaultFeature
+            | PushedExecScenario::MaplecodePathDisabledFeature
+            | PushedExecScenario::MaplecodePathWithExplicitOverride
     ) {
         response["result"]["prependPathDirs"] = json!([
             "file:///executor/maplecode-path",
             "file:///executor/extra-tools",
         ]);
-    } else if matches!(scenario, PushedExecScenario::UnusableMapleCodePath) {
+    } else if matches!(scenario, PushedExecScenario::UnusableMaplecodePath) {
         response["result"]["prependPathDirs"] = json!(["file:///executor/maplecode%3Apath"]);
     }
     send_exec_server_json(websocket, response).await;
@@ -580,11 +580,11 @@ async fn serve_exec_with_pushed_events(
         | PushedExecScenario::DenyOldLinux
         | PushedExecScenario::DenyOldLinuxWithRoot(_)
         | PushedExecScenario::DenyLinux
-        | PushedExecScenario::MapleCodePath
-        | PushedExecScenario::MapleCodePathDefaultFeature
-        | PushedExecScenario::MapleCodePathDisabledFeature
-        | PushedExecScenario::MapleCodePathWithExplicitOverride
-        | PushedExecScenario::UnusableMapleCodePath
+        | PushedExecScenario::MaplecodePath
+        | PushedExecScenario::MaplecodePathDefaultFeature
+        | PushedExecScenario::MaplecodePathDisabledFeature
+        | PushedExecScenario::MaplecodePathWithExplicitOverride
+        | PushedExecScenario::UnusableMaplecodePath
         | PushedExecScenario::ElevatedPowerShell => {
             let encoded_output = BASE64_STANDARD.encode(COMPLETE_OUTPUT);
             for message in [
@@ -732,11 +732,11 @@ async fn serve_exec_with_pushed_events(
                     | PushedExecScenario::CredentialMaskingCustomProvidersUnsupported
                     | PushedExecScenario::CredentialMaskingUnsupportedShell
                     | PushedExecScenario::CredentialMaskingUnsupported
-                    | PushedExecScenario::MapleCodePath
-                    | PushedExecScenario::MapleCodePathDefaultFeature
-                    | PushedExecScenario::MapleCodePathDisabledFeature
-                    | PushedExecScenario::MapleCodePathWithExplicitOverride
-                    | PushedExecScenario::UnusableMapleCodePath => json!({
+                    | PushedExecScenario::MaplecodePath
+                    | PushedExecScenario::MaplecodePathDefaultFeature
+                    | PushedExecScenario::MaplecodePathDisabledFeature
+                    | PushedExecScenario::MaplecodePathWithExplicitOverride
+                    | PushedExecScenario::UnusableMaplecodePath => json!({
                         "chunks": [{
                             "seq": 1,
                             "stream": "stdout",
@@ -857,11 +857,11 @@ async fn serve_exec_with_pushed_events(
 #[test_case(PushedExecScenario::OutputOpenWhenResumableCancelled, ManagedNetworkScenario::None, /*foreign_cwd*/ false ; "output_open_when_resumable_cancelled")]
 #[test_case(PushedExecScenario::OutputOpenWhenTerminated, ManagedNetworkScenario::None, /*foreign_cwd*/ false ; "output_open_when_terminated")]
 #[test_case(PushedExecScenario::OutputOpenWhenTerminatedBeforeYield, ManagedNetworkScenario::None, /*foreign_cwd*/ false ; "output_open_when_terminated_before_yield")]
-#[test_case(PushedExecScenario::MapleCodePath, ManagedNetworkScenario::None, false ; "maplecode_path_is_exported_before_nested_command")]
-#[test_case(PushedExecScenario::MapleCodePathDefaultFeature, ManagedNetworkScenario::None, false ; "maplecode_path_is_not_exported_by_default")]
-#[test_case(PushedExecScenario::MapleCodePathDisabledFeature, ManagedNetworkScenario::None, false ; "disabled_maplecode_path_preserves_original_login_command")]
-#[test_case(PushedExecScenario::MapleCodePathWithExplicitOverride, ManagedNetworkScenario::None, false ; "explicit_path_override_preserves_original_login_command")]
-#[test_case(PushedExecScenario::UnusableMapleCodePath, ManagedNetworkScenario::None, false ; "unusable_maplecode_path_preserves_requested_login_shell")]
+#[test_case(PushedExecScenario::MaplecodePath, ManagedNetworkScenario::None, false ; "maplecode_path_is_exported_before_nested_command")]
+#[test_case(PushedExecScenario::MaplecodePathDefaultFeature, ManagedNetworkScenario::None, false ; "maplecode_path_is_not_exported_by_default")]
+#[test_case(PushedExecScenario::MaplecodePathDisabledFeature, ManagedNetworkScenario::None, false ; "disabled_maplecode_path_preserves_original_login_command")]
+#[test_case(PushedExecScenario::MaplecodePathWithExplicitOverride, ManagedNetworkScenario::None, false ; "explicit_path_override_preserves_original_login_command")]
+#[test_case(PushedExecScenario::UnusableMaplecodePath, ManagedNetworkScenario::None, false ; "unusable_maplecode_path_preserves_requested_login_shell")]
 #[test_case(PushedExecScenario::DirectDenied, ManagedNetworkScenario::None, false ; "direct_sandbox_denial")]
 #[test_case(PushedExecScenario::LegacyExit, ManagedNetworkScenario::None, false ; "legacy_exit_metadata")]
 #[test_case(PushedExecScenario::ReplayGap, ManagedNetworkScenario::None, false ; "truncated_event_replay")]
@@ -955,7 +955,7 @@ async fn exec_command_consumes_pushed_remote_process_events(
             CALL_ID,
             "*** Begin Patch\n*** Update File: secret.txt\n@@\n-old\n+new\n*** End Patch",
         ),
-        PushedExecScenario::MapleCodePathWithExplicitOverride | PushedExecScenario::UnusableMapleCodePath => ev_function_call(
+        PushedExecScenario::MaplecodePathWithExplicitOverride | PushedExecScenario::UnusableMaplecodePath => ev_function_call(
             CALL_ID,
             "exec_command",
             &json!({
@@ -986,9 +986,9 @@ async fn exec_command_consumes_pushed_remote_process_events(
                         "Remove-Item test -Force; {}",
                         "Write-Output filler; ".repeat(2_000)
                     ),
-                    PushedExecScenario::MapleCodePath
-                    | PushedExecScenario::MapleCodePathDefaultFeature
-                    | PushedExecScenario::MapleCodePathDisabledFeature => "sh -c 'command -v rg'".to_string(),
+                    PushedExecScenario::MaplecodePath
+                    | PushedExecScenario::MaplecodePathDefaultFeature
+                    | PushedExecScenario::MaplecodePathDisabledFeature => "sh -c 'command -v rg'".to_string(),
                     _ => "pwd".to_string(),
                 },
                 "tty": output_after_yield,
@@ -1149,12 +1149,12 @@ timeout = 900
     }
     let mut builder = builder.with_config(move |config| {
         config.project_doc_max_bytes = 0;
-        if matches!(scenario, PushedExecScenario::MapleCodePathDisabledFeature) {
+        if matches!(scenario, PushedExecScenario::MaplecodePathDisabledFeature) {
             config
                 .features
                 .disable(Feature::LoginShellPackagePath)
                 .expect("disable login shell package PATH");
-        } else if !matches!(scenario, PushedExecScenario::MapleCodePathDefaultFeature) {
+        } else if !matches!(scenario, PushedExecScenario::MaplecodePathDefaultFeature) {
             config
                 .features
                 .enable(Feature::LoginShellPackagePath)
@@ -1162,7 +1162,7 @@ timeout = 900
         }
         if matches!(
             scenario,
-            PushedExecScenario::MapleCodePathWithExplicitOverride
+            PushedExecScenario::MaplecodePathWithExplicitOverride
         ) {
             config
                 .permissions
@@ -1671,7 +1671,7 @@ timeout = 900
             "#);
         }
     }
-    if matches!(scenario, PushedExecScenario::MapleCodePath) {
+    if matches!(scenario, PushedExecScenario::MaplecodePath) {
         let argv = &exec_server_result.process_start["params"]["argv"];
         assert_eq!(argv[0], "/bin/zsh");
         assert_eq!(argv[1], "-lc");
@@ -1692,10 +1692,10 @@ timeout = 900
         );
     } else if matches!(
         scenario,
-        PushedExecScenario::MapleCodePathDefaultFeature
-            | PushedExecScenario::MapleCodePathDisabledFeature
-            | PushedExecScenario::MapleCodePathWithExplicitOverride
-            | PushedExecScenario::UnusableMapleCodePath
+        PushedExecScenario::MaplecodePathDefaultFeature
+            | PushedExecScenario::MaplecodePathDisabledFeature
+            | PushedExecScenario::MaplecodePathWithExplicitOverride
+            | PushedExecScenario::UnusableMaplecodePath
     ) {
         let params = &exec_server_result.process_start["params"];
         let expected = vec!["/bin/zsh", "-lc", "sh -c 'command -v rg'"];
@@ -1706,7 +1706,7 @@ timeout = 900
         );
         if matches!(
             scenario,
-            PushedExecScenario::MapleCodePathWithExplicitOverride
+            PushedExecScenario::MaplecodePathWithExplicitOverride
         ) {
             assert_eq!(params["envPolicy"]["set"]["PATH"], explicit_path);
         }
@@ -1933,11 +1933,11 @@ timeout = 900
         | PushedExecScenario::DenyOldLinux
         | PushedExecScenario::DenyOldLinuxWithRoot(_)
         | PushedExecScenario::DenyLinux
-        | PushedExecScenario::MapleCodePath
-        | PushedExecScenario::MapleCodePathDefaultFeature
-        | PushedExecScenario::MapleCodePathDisabledFeature
-        | PushedExecScenario::MapleCodePathWithExplicitOverride
-        | PushedExecScenario::UnusableMapleCodePath
+        | PushedExecScenario::MaplecodePath
+        | PushedExecScenario::MaplecodePathDefaultFeature
+        | PushedExecScenario::MaplecodePathDisabledFeature
+        | PushedExecScenario::MaplecodePathWithExplicitOverride
+        | PushedExecScenario::UnusableMaplecodePath
         | PushedExecScenario::ElevatedPowerShell => {
             assert_ne!(success, Some(false));
             assert!(saw_exec_command_begin);

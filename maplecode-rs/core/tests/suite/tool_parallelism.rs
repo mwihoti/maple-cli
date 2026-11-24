@@ -20,7 +20,7 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::streaming_sse::StreamingSseChunk;
 use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
@@ -37,7 +37,7 @@ use serde_json::Value;
 use serde_json::json;
 use tokio::sync::oneshot;
 
-async fn run_turn(test: &TestMapleCode, prompt: &str) -> anyhow::Result<()> {
+async fn run_turn(test: &TestMaplecode, prompt: &str) -> anyhow::Result<()> {
     let session_model = test.session_configured.model.clone();
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, test.cwd.path());
@@ -76,7 +76,7 @@ async fn run_turn(test: &TestMapleCode, prompt: &str) -> anyhow::Result<()> {
 
 async fn build_maplecode_with_test_tool(
     server: &wiremock::MockServer,
-) -> anyhow::Result<TestMapleCode> {
+) -> anyhow::Result<TestMaplecode> {
     let mut builder = test_maplecode().with_model("test-gpt-5.1-codex");
     builder.build(server).await
 }

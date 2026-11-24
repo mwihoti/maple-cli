@@ -1,7 +1,7 @@
 //! Spawn reports captured child settings even when the runtime leaves the manager during startup.
 
 use super::*;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::ThreadManager;
 use maplecode_extension_api::ExtensionFuture;
 use maplecode_extension_api::ExtensionRegistryBuilder;
@@ -14,7 +14,7 @@ use std::sync::OnceLock;
 use std::sync::Weak;
 use tokio::sync::oneshot;
 
-type RemovedChild = (ThreadId, Arc<MapleCodeThread>);
+type RemovedChild = (ThreadId, Arc<MaplecodeThread>);
 
 struct RemoveChildOnTurnStart {
     context: OnceLock<(Weak<ThreadManager>, ThreadId)>,
@@ -133,7 +133,7 @@ async fn spawn_reports_effective_settings_after_child_runtime_is_removed() -> Re
     let (child_id, child) = timeout(Duration::from_secs(/*secs*/ 10), removed_rx).await??;
     assert!(matches!(
         test.thread_manager.get_thread(child_id).await,
-        Err(error) if matches!(error.details(), maplecode_protocol::error::MapleCodeErrorDetails::ThreadNotFound(id) if *id == child_id)
+        Err(error) if matches!(error.details(), maplecode_protocol::error::MaplecodeErrorDetails::ThreadNotFound(id) if *id == child_id)
     ));
     let spawn = wait_for_event_match(&test.maplecode, |event| match event {
         EventMsg::ItemCompleted(completed) => match &completed.item {

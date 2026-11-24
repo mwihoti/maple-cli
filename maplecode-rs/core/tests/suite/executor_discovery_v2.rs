@@ -40,7 +40,7 @@ use maplecode_extension_api::ToolLifecycleFuture;
 use maplecode_extension_api::WorldStateContributionInput;
 use maplecode_extension_api::WorldStateSectionContribution;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_mcp::McpResourceClient;
 use maplecode_mcp_extension::PluginProviders;
@@ -1216,7 +1216,7 @@ async fn auth_rotation_refreshes_plugin_acceptance_before_merged_skills() -> Res
     let (ready, mut steps) = mpsc::unbounded_channel();
     let cloud = Arc::new(Cloud {
         available: AtomicBool::new(true),
-        mcp_url: format!("{}/api/maplecode/ps/mcp", apps.chatgpt_base_url),
+        mcp_url: format!("{}/api/codex/ps/mcp", apps.chatgpt_base_url),
         ready,
     });
     let mut extensions = ExtensionRegistryBuilder::new();
@@ -1303,7 +1303,7 @@ async fn auth_rotation_refreshes_plugin_acceptance_before_merged_skills() -> Res
     let test = apps_enabled_builder(apps.chatgpt_base_url)
         .with_exec_server_url(executor.url.clone())
         .with_model_info_override("gpt-5.5", |model| model.supports_search_tool = false)
-        .with_auth(MapleCodeAuth::from_external_chatgpt_tokens(
+        .with_auth(MaplecodeAuth::from_external_chatgpt_tokens(
             "header.e30.initial",
             "account",
             /*chatgpt_plan_type*/ None,

@@ -15,7 +15,7 @@ use core_test_support::responses::ev_response_created;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
@@ -79,7 +79,7 @@ async fn request_user_input_round_trip_for_mode(mode: ModeKind) -> anyhow::Resul
     let server = start_mock_server().await;
 
     let builder = test_maplecode();
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,
@@ -247,7 +247,7 @@ async fn request_user_input_interrupt_emits_deferred_token_count(
     skip_if_no_network!(Ok(()));
 
     let server = start_mock_server().await;
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,
@@ -344,7 +344,7 @@ where
     let server = start_mock_server().await;
 
     let mut builder = test_maplecode();
-    let TestMapleCode {
+    let TestMaplecode {
         maplecode,
         cwd,
         session_configured,

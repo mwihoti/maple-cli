@@ -7,24 +7,24 @@ use std::sync::Arc;
 use anyhow::Result;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event_match;
 use maplecode_config::test_support::CloudConfigBundleFixture;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::StartThreadOptions;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
 use maplecode_core::context::GuardianContextMode;
 use maplecode_features::Feature;
 use maplecode_history::InitialHistory;
-use maplecode_history::MapleCodeHarnessMetadata;
+use maplecode_history::MaplecodeHarnessMetadata;
 use maplecode_history::ResponseItemEnvelope;
 use maplecode_history::ResumedHistory;
 use maplecode_history::RolloutItem;
 use maplecode_history::VerifiedAnswer;
 use maplecode_history::VerifiedQuestionAnswer;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::config_types::ApprovalsReviewer;
 use maplecode_protocol::protocol::AskForApproval;
 use maplecode_protocol::protocol::EventMsg;
@@ -37,7 +37,7 @@ use maplecode_thread_store::LoadThreadHistoryParams;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
-async fn finish_turn(thread: &MapleCodeThread) {
+async fn finish_turn(thread: &MaplecodeThread) {
     wait_for_event_match(thread, |event| match event {
         EventMsg::TurnComplete(_) => Some(()),
         EventMsg::Error(error) => panic!("unexpected turn error: {error:?}"),
@@ -46,7 +46,7 @@ async fn finish_turn(thread: &MapleCodeThread) {
     .await;
 }
 
-async fn saved_history(test: &TestMapleCode, thread: &MapleCodeThread) -> Result<Vec<RolloutItem>> {
+async fn saved_history(test: &TestMaplecode, thread: &MaplecodeThread) -> Result<Vec<RolloutItem>> {
     thread.flush_rollout().await?;
     Ok(test
         .thread_store
@@ -59,10 +59,10 @@ async fn saved_history(test: &TestMapleCode, thread: &MapleCodeThread) -> Result
 }
 
 pub(super) async fn resume(
-    test: &TestMapleCode,
-    thread: &MapleCodeThread,
+    test: &TestMaplecode,
+    thread: &MaplecodeThread,
     history: Vec<RolloutItem>,
-) -> Result<Arc<MapleCodeThread>> {
+) -> Result<Arc<MaplecodeThread>> {
     let thread_id = thread.startup_metadata().thread_id;
     let environments = thread.environment_selections().await;
     let model = thread.config_snapshot().await.model;
@@ -101,7 +101,7 @@ async fn independent_history_resume_filters_rolled_back_sources(compaction: &str
     let local = compaction == "local";
     let test = test_maplecode()
         .with_history_mode(ThreadHistoryMode::Paginated)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config
                 .features
@@ -127,7 +127,7 @@ async fn independent_history_resume_filters_rolled_back_sources(compaction: &str
             "type": "message", "id": format!("msg_{order}"), "role": role,
             "content": [{"type": if role == "user" { "input_text" } else { "output_text" }, "text": text}]
         }))?,
-        metadata: Some(MapleCodeHarnessMetadata { user_input_order: Some(order), ..Default::default() }),
+        metadata: Some(MaplecodeHarnessMetadata { user_input_order: Some(order), ..Default::default() }),
     }))).into_iter().collect::<Result<Vec<_>>>()?;
     let RolloutItem::ResponseItem(original) = &history[0] else {
         unreachable!()
@@ -180,7 +180,7 @@ pub(super) async fn migration_scenario() -> Result<Vec<responses::ResponsesReque
     let server = responses::start_mock_server().await;
     let test = test_maplecode()
         .with_history_mode(ThreadHistoryMode::Paginated)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_cloud_config_bundle(
             CloudConfigBundleFixture::loader_with_enterprise_requirement(
                 r#"

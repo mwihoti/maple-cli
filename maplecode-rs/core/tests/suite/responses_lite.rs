@@ -18,7 +18,7 @@ use maplecode_extension_api::ExtensionRegistry;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
 use maplecode_image_generation_extension::install as install_image_generation_extension;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_login::auth::BedrockApiKeyAuth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_protocol::config_types::WebSearchMode;
@@ -35,7 +35,7 @@ use serde_json::Value;
 
 const RESPONSES_LITE_HEADER: &str = "x-openai-internal-maplecode-responses-lite";
 
-fn responses_extensions(auth: &MapleCodeAuth) -> Arc<ExtensionRegistry<Config>> {
+fn responses_extensions(auth: &MaplecodeAuth) -> Arc<ExtensionRegistry<Config>> {
     let auth_manager = maplecode_core::test_support::auth_manager_from_auth(auth.clone());
     let mut extension_builder = ExtensionRegistryBuilder::<Config>::new();
     install_web_search_extension(&mut extension_builder, Arc::clone(&auth_manager));
@@ -367,7 +367,7 @@ async fn responses_lite_uses_standalone_web_search_and_image_generation() -> Res
     )
     .await;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let extensions = responses_extensions(&auth);
 
     let mut builder = test_maplecode()
@@ -412,7 +412,7 @@ async fn responses_lite_exposes_standalone_tools_for_actor_authorized_provider()
     )
     .await;
 
-    let auth = MapleCodeAuth::from_api_key("dummy");
+    let auth = MaplecodeAuth::from_api_key("dummy");
     let extensions = responses_extensions(&auth);
     let mut builder = test_maplecode()
         .with_auth(auth)
@@ -488,7 +488,7 @@ async fn responses_lite_does_not_expose_standalone_web_search_for_bedrock_provid
     )
     .await;
 
-    let auth = MapleCodeAuth::BedrockApiKey(BedrockApiKeyAuth {
+    let auth = MaplecodeAuth::BedrockApiKey(BedrockApiKeyAuth {
         api_key: "dummy".to_string(),
         region: "us-east-1".to_string(),
     });
@@ -542,7 +542,7 @@ async fn assert_responses_lite_custom_provider_web_search(
     )
     .await;
 
-    let auth = MapleCodeAuth::from_api_key("dummy");
+    let auth = MaplecodeAuth::from_api_key("dummy");
     let extensions = responses_extensions(&auth);
     let mut builder = test_maplecode()
         .with_auth(auth)
@@ -657,7 +657,7 @@ async fn responses_lite_omits_hosted_tools_without_standalone_extensions() -> Re
     .await;
 
     let mut builder = test_maplecode()
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model_info_override("gpt-5.4", |model_info| {
             model_info.use_responses_lite = true;
             configure_image_capable_model(model_info);
@@ -690,7 +690,7 @@ async fn non_lite_uses_standalone_image_generation_by_default() -> Result<()> {
     )
     .await;
 
-    let auth = MapleCodeAuth::create_dummy_chatgpt_auth_for_testing();
+    let auth = MaplecodeAuth::create_dummy_chatgpt_auth_for_testing();
     let extensions = responses_extensions(&auth);
     let mut builder = test_maplecode()
         .with_auth(auth)

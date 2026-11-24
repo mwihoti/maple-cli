@@ -123,7 +123,7 @@ async fn same_named_executor_mcps_keep_calls_and_approvals_separate() -> Result<
             ),
         ] {
             Mock::given(method("POST"))
-                .and(path("/api/maplecode/ps/mcp"))
+                .and(path("/api/codex/ps/mcp"))
                 .and(body_partial_json(json!({"method": method_name})))
                 .respond_with(move |request: &wiremock::Request| {
                     let body: Value = serde_json::from_slice(&request.body).unwrap();
@@ -141,7 +141,7 @@ async fn same_named_executor_mcps_keep_calls_and_approvals_separate() -> Result<
         fs::write(
             home.path().join("config.toml"),
             format!(
-                "[mcp_servers.docs]\nurl = \"{}/api/maplecode/ps/mcp\"\ndefault_tools_approval_mode = \"auto\"\nrequired = true\n",
+                "[mcp_servers.docs]\nurl = \"{}/api/codex/ps/mcp\"\ndefault_tools_approval_mode = \"auto\"\nrequired = true\n",
                 endpoint.uri(),
             ),
         )?;
@@ -155,7 +155,7 @@ async fn same_named_executor_mcps_keep_calls_and_approvals_separate() -> Result<
         fs::write(
             plugin_root.join(".mcp.json"),
             json!({"mcpServers": {"notes": {
-                "url": format!("{}/api/maplecode/ps/mcp", endpoint.uri()),
+                "url": format!("{}/api/codex/ps/mcp", endpoint.uri()),
                 "default_tools_approval_mode": "approve", "required": true
             }}})
             .to_string(),
@@ -209,7 +209,7 @@ async fn same_named_executor_mcps_keep_calls_and_approvals_separate() -> Result<
     // B also asks for approval inside its call. Use the existing HTTP input-request
     // protocol so the test does not need a second kind of MCP server.
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(body_partial_json(json!({"method": "server/discover"})))
         .respond_with(|request: &wiremock::Request| {
             let body: serde_json::Value = request.body_json().unwrap();
@@ -225,7 +225,7 @@ async fn same_named_executor_mcps_keep_calls_and_approvals_separate() -> Result<
         .mount(&second_endpoint)
         .await;
     Mock::given(method("POST"))
-        .and(path("/api/maplecode/ps/mcp"))
+        .and(path("/api/codex/ps/mcp"))
         .and(body_partial_json(json!({"method": "tools/call"})))
         .respond_with(|request: &wiremock::Request| {
             let body: serde_json::Value = request.body_json().unwrap();

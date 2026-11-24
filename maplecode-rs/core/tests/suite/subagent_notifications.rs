@@ -21,8 +21,8 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::responses::strip_metadata_from_json;
 use core_test_support::responses::strip_response_item_ids_from_json;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
-use core_test_support::test_maplecode::TestMapleCodeBuilder;
+use core_test_support::test_maplecode::TestMaplecode;
+use core_test_support::test_maplecode::TestMaplecodeBuilder;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -381,7 +381,7 @@ async fn wait_for_hook_log(
     }
 }
 
-async fn wait_for_spawned_thread_id(test: &TestMapleCode) -> Result<String> {
+async fn wait_for_spawned_thread_id(test: &TestMaplecode) -> Result<String> {
     let deadline = Instant::now() + Duration::from_secs(2);
     loop {
         let ids = test.thread_manager.list_thread_ids().await;
@@ -437,7 +437,7 @@ async fn wait_for_request_with_model(
 async fn setup_turn_one_with_spawned_child(
     server: &MockServer,
     child_response_delay: Option<Duration>,
-) -> Result<(TestMapleCode, String)> {
+) -> Result<(TestMaplecode, String)> {
     let (test, spawned_id, _child_request_log) = setup_turn_one_with_custom_spawned_child(
         server,
         json!({
@@ -459,10 +459,10 @@ async fn setup_turn_one_with_custom_spawned_child(
     wait_for_parent_notification: bool,
     turn_reasoning_effort: ReasoningEffort,
     configure_test: impl FnOnce(
-        core_test_support::test_maplecode::TestMapleCodeBuilder,
-    ) -> core_test_support::test_maplecode::TestMapleCodeBuilder,
+        core_test_support::test_maplecode::TestMaplecodeBuilder,
+    ) -> core_test_support::test_maplecode::TestMaplecodeBuilder,
 ) -> Result<(
-    TestMapleCode,
+    TestMaplecode,
     String,
     core_test_support::responses::ResponseMock,
 )> {
@@ -577,8 +577,8 @@ async fn spawn_child_and_capture_snapshot(
     server: &MockServer,
     spawn_args: serde_json::Value,
     configure_test: impl FnOnce(
-        core_test_support::test_maplecode::TestMapleCodeBuilder,
-    ) -> core_test_support::test_maplecode::TestMapleCodeBuilder,
+        core_test_support::test_maplecode::TestMaplecodeBuilder,
+    ) -> core_test_support::test_maplecode::TestMaplecodeBuilder,
 ) -> Result<ThreadConfigSnapshot> {
     let (test, spawned_id, _child_request_log) = setup_turn_one_with_custom_spawned_child(
         server,
@@ -1200,7 +1200,7 @@ async fn spawned_child_receives_forked_parent_context(
     Ok(())
 }
 
-async fn submit_turn_with_trigger(test: &TestMapleCode, prompt: &str, trigger: &str) -> Result<()> {
+async fn submit_turn_with_trigger(test: &TestMaplecode, prompt: &str, trigger: &str) -> Result<()> {
     test.maplecode
         .start_or_steer_turn(
             TurnInputRequest::user_input(vec![UserInput::Text {
@@ -2217,7 +2217,7 @@ async fn spawned_agent_uses_summary_support_for_final_model(
 }
 
 async fn spawn_v2_child_and_capture_requests(
-    builder: TestMapleCodeBuilder,
+    builder: TestMaplecodeBuilder,
 ) -> Result<(ResponsesRequest, ResponsesRequest)> {
     let server = start_mock_server().await;
     let test = builder

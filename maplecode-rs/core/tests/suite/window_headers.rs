@@ -8,7 +8,7 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::wait_for_event;
-use maplecode_core::MapleCodeThread;
+use maplecode_core::MaplecodeThread;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::compact::SUMMARIZATION_PROMPT;
 use maplecode_protocol::protocol::EventMsg;
@@ -136,7 +136,7 @@ async fn window_id_advances_after_compact_persists_on_resume_and_resets_on_fork(
     Ok(())
 }
 
-async fn submit_user_turn(maplecode: &Arc<MapleCodeThread>, text: &str) -> Result<()> {
+async fn submit_user_turn(maplecode: &Arc<MaplecodeThread>, text: &str) -> Result<()> {
     maplecode
         .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
             text: text.to_string(),
@@ -150,7 +150,7 @@ async fn submit_user_turn(maplecode: &Arc<MapleCodeThread>, text: &str) -> Resul
     Ok(())
 }
 
-async fn submit_compact_turn(maplecode: &Arc<MapleCodeThread>) -> Result<()> {
+async fn submit_compact_turn(maplecode: &Arc<MaplecodeThread>) -> Result<()> {
     maplecode.submit(Op::Compact).await?;
     wait_for_event(maplecode, |event| {
         matches!(event, EventMsg::TurnComplete(_))
@@ -159,7 +159,7 @@ async fn submit_compact_turn(maplecode: &Arc<MapleCodeThread>) -> Result<()> {
     Ok(())
 }
 
-async fn shutdown_thread(maplecode: &Arc<MapleCodeThread>) -> Result<()> {
+async fn shutdown_thread(maplecode: &Arc<MaplecodeThread>) -> Result<()> {
     maplecode.submit(Op::Shutdown).await?;
     wait_for_event(maplecode, |event| {
         matches!(event, EventMsg::ShutdownComplete)

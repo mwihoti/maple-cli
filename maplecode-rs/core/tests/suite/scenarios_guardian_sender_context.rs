@@ -16,7 +16,7 @@ use core_test_support::wait_for_event;
 use maplecode_core::TurnInputRequest;
 use maplecode_core::config::Constrained;
 use maplecode_history::RolloutItem;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_protocol::config_types::ApprovalsReviewer;
 use maplecode_protocol::models::ResponseItem;
 use maplecode_protocol::protocol::AskForApproval;
@@ -39,7 +39,7 @@ async fn cross_host_sender_context(history_mode: ThreadHistoryMode) -> Result<()
     let sender = test_maplecode()
         .with_thread_store(store.clone())
         .with_history_mode(history_mode)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(super::configure_scenario_catalog)
         .build_with_auto_env(&server)
         .await?;

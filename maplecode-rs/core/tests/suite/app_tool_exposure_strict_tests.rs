@@ -42,7 +42,7 @@ text(JSON.stringify({names, result: t ? (await tools[t.name]({})).content[0].tex
         .with_code_mode_host_program(maplecode_utils_cargo_bin::cargo_bin(
             "maplecode-code-mode-host",
         )?)
-        .with_auth(maplecode_login::MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(maplecode_login::MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(Arc::new(extensions.build()))
         .with_pre_build_hook(|home| {
             std::fs::write(

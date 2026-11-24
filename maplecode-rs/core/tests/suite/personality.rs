@@ -2,7 +2,7 @@ use core_test_support::responses::mount_sse_once;
 use core_test_support::responses::sse_completed;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::local_requests;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
@@ -22,7 +22,7 @@ use test_case::test_case;
 const CUSTOM_INSTRUCTIONS: &str = "Custom instructions\n# Personality\nThis must remain\n## Writing Style\nThis must also remain\n# General\nGeneral instructions";
 
 fn read_only_text_turn(
-    test: &TestMapleCode,
+    test: &TestMaplecode,
     text: &str,
     model: String,
     approval_policy: AskForApproval,

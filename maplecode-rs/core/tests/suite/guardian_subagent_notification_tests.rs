@@ -17,7 +17,7 @@ use maplecode_extension_api::ThreadLifecycleContributor;
 use maplecode_extension_api::ThreadStartInput;
 use maplecode_protocol::config_types::ApprovalsReviewer;
 use maplecode_protocol::protocol::ErrorEvent;
-use maplecode_protocol::protocol::MapleCodeErrorInfo;
+use maplecode_protocol::protocol::MaplecodeErrorInfo;
 use maplecode_protocol::protocol::MultiAgentVersion;
 use maplecode_protocol::protocol::TurnAbortReason;
 use pretty_assertions::assert_eq;
@@ -26,7 +26,7 @@ use std::sync::Mutex;
 use test_case::test_case;
 use tokio::sync::oneshot;
 
-type ReportedOutcome = (ThreadId, String, AgentStatus, Option<MapleCodeErrorInfo>);
+type ReportedOutcome = (ThreadId, String, AgentStatus, Option<MaplecodeErrorInfo>);
 
 #[derive(Clone, Default)]
 struct CompletionReports(Arc<Mutex<Vec<ReportedOutcome>>>);
@@ -214,7 +214,7 @@ async fn guardian_circuit_breaker_notifies_parent(action: CircuitBreakAction) ->
             TurnAbortReason::Interrupted,
             (action == CircuitBreakAction::Strict).then_some(ErrorEvent {
                 message: warning.clone(),
-                maplecode_error_info: Some(MapleCodeErrorInfo::TooManyDenials),
+                maplecode_error_info: Some(MaplecodeErrorInfo::TooManyDenials),
                 rejected_audio_file_ids: Vec::new(),
                 misalignment: None,
             }),
@@ -226,7 +226,7 @@ async fn guardian_circuit_breaker_notifies_parent(action: CircuitBreakAction) ->
             worker_id,
             aborted.turn_id.expect("aborted worker turn ID"),
             AgentStatus::Errored(warning.clone()),
-            Some(MapleCodeErrorInfo::TooManyDenials),
+            Some(MaplecodeErrorInfo::TooManyDenials),
         )
     });
     assert_eq!(

@@ -29,7 +29,7 @@ use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_target_windows;
 use core_test_support::stdio_server_bin;
 use core_test_support::submit_thread_settings;
-use core_test_support::test_maplecode::TestMapleCode;
+use core_test_support::test_maplecode::TestMaplecode;
 use core_test_support::test_maplecode::test_maplecode;
 use core_test_support::test_maplecode::turn_permission_fields;
 use core_test_support::wait_for_event;
@@ -47,7 +47,7 @@ use maplecode_core_plugins::store::PluginStore;
 use maplecode_extension_api::ExtensionRegistry;
 use maplecode_extension_api::ExtensionRegistryBuilder;
 use maplecode_features::Feature;
-use maplecode_login::MapleCodeAuth;
+use maplecode_login::MaplecodeAuth;
 use maplecode_mcp::MAPLECODE_APPS_MCP_SERVER_NAME;
 use maplecode_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
 use maplecode_model_provider_info::OPENAI_PROVIDER_ID;
@@ -289,11 +289,11 @@ fn write_plugin_app_plugin_with_name(home: &TempDir, app_name: &str) {
 async fn build_analytics_plugin_test_maplecode(
     server: &MockServer,
     maplecode_home: Arc<TempDir>,
-) -> Result<TestMapleCode> {
+) -> Result<TestMaplecode> {
     let chatgpt_base_url = server.uri();
     let mut builder = test_maplecode()
         .with_home(maplecode_home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.2")
         .with_config(move |config| {
             config.chatgpt_base_url = chatgpt_base_url;
@@ -305,10 +305,10 @@ async fn build_apps_enabled_plugin_test_maplecode(
     server: &MockServer,
     maplecode_home: Arc<TempDir>,
     chatgpt_base_url: String,
-) -> Result<TestMapleCode> {
+) -> Result<TestMaplecode> {
     let mut builder = test_maplecode()
         .with_home(maplecode_home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config
                 .features
@@ -372,13 +372,13 @@ fn searched_plugin_tools(
 async fn shared_analytics_client_preserves_session_products() -> Result<()> {
     skip_if_no_network!(Ok(()));
     let server = start_mock_server().await;
-    Mock::given(path("/maplecode/analytics-events/events"))
+    Mock::given(path("/codex/analytics-events/events"))
         .respond_with(ResponseTemplate::new(200))
         .mount(&server)
         .await;
     let client = AnalyticsEventsClient::new(
         maplecode_core::test_support::auth_manager_from_auth(
-            MapleCodeAuth::create_dummy_chatgpt_auth_for_testing(),
+            MaplecodeAuth::create_dummy_chatgpt_auth_for_testing(),
         ),
         server.uri(),
         /*analytics_enabled*/ Some(true),
@@ -446,7 +446,7 @@ async fn shared_analytics_client_preserves_session_products() -> Result<()> {
     client.flush().await;
     let mut actual = Vec::new();
     for request in server.received_requests().await.unwrap_or_default() {
-        if request.url.path() != "/maplecode/analytics-events/events" {
+        if request.url.path() != "/codex/analytics-events/events" {
             continue;
         }
         let product = request
@@ -519,7 +519,7 @@ async fn persisted_remote_plugin_command_attribution_flows_through_turn_context(
     let chatgpt_base_url = server.uri();
     let mut builder = builder
         .with_home(Arc::clone(&maplecode_home))
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.2")
         .with_config(move |config| config.chatgpt_base_url = chatgpt_base_url);
     let test_maplecode = builder.build_with_auto_env(&server).await?;
@@ -668,7 +668,7 @@ printf 'STDIN_OK\n'
     let base_url = server.uri();
     let mut builder = test_maplecode()
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.2")
         .with_config(move |config| {
             config.chatgpt_base_url = base_url;
@@ -806,7 +806,7 @@ fi
     let mut builder = test_maplecode()
         .with_exec_server_url(executor.websocket_url.clone())
         .with_home(home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_model("gpt-5.2")
         .with_config(move |config| {
             config.chatgpt_base_url = base_url;
@@ -910,7 +910,7 @@ async fn thread_disabled_plugins_filter_skills_and_tools_without_changing_shared
     let mut builder = test_maplecode()
         .with_home(home)
         .with_extensions(skills_extensions())
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.features.enable(Feature::Apps).unwrap();
             config.chatgpt_base_url = apps.chatgpt_base_url;
@@ -1323,7 +1323,7 @@ enabled = true
     let mut builder = test_maplecode()
         .with_home(maplecode_home)
         .with_extensions(skills_extensions())
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config.chatgpt_base_url = chatgpt_base_url;
             config.apps_mcp_product_sku = product_sku;
@@ -1526,7 +1526,7 @@ async fn curated_plugin_skills_follow_auth_switch() -> Result<()> {
         Chatgpt,
         ApiKey,
         BedrockApiKey,
-        NoMapleCodeAuth,
+        NoMaplecodeAuth,
     }
 
     #[derive(Clone, Copy)]
@@ -1569,21 +1569,21 @@ async fn curated_plugin_skills_follow_auth_switch() -> Result<()> {
         },
         Fixture {
             name: "ambient Bedrock",
-            target_auth: TargetAuth::NoMapleCodeAuth,
+            target_auth: TargetAuth::NoMaplecodeAuth,
             target_model_provider_id: AMAZON_BEDROCK_PROVIDER_ID,
             expected_target_loaded_plugin_skills: &[API_CURATED_PLUGIN_SKILL],
             expected_target_skill_description: "api description before",
         },
         Fixture {
             name: "unauthenticated OpenAI",
-            target_auth: TargetAuth::NoMapleCodeAuth,
+            target_auth: TargetAuth::NoMaplecodeAuth,
             target_model_provider_id: OPENAI_PROVIDER_ID,
             expected_target_loaded_plugin_skills: &[API_CURATED_PLUGIN_SKILL],
             expected_target_skill_description: "api description before",
         },
         Fixture {
             name: "unauthenticated custom provider",
-            target_auth: TargetAuth::NoMapleCodeAuth,
+            target_auth: TargetAuth::NoMaplecodeAuth,
             target_model_provider_id: "ollama",
             expected_target_loaded_plugin_skills: &[API_CURATED_PLUGIN_SKILL],
             expected_target_skill_description: "api description before",
@@ -1591,7 +1591,7 @@ async fn curated_plugin_skills_follow_auth_switch() -> Result<()> {
     ];
 
     async fn loaded_plugin_skills_for_config(
-        test_maplecode: &TestMapleCode,
+        test_maplecode: &TestMaplecode,
         config: &Config,
     ) -> String {
         let plugins_input = config.plugins_config_input();
@@ -1696,7 +1696,7 @@ enabled = true
         let mut builder = test_maplecode()
             .with_home(Arc::clone(&maplecode_home))
             .with_extensions(skills_extensions())
-            .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing());
+            .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing());
         let test_maplecode = builder.build_with_auto_env(&server).await?;
         let initial_skills =
             loaded_plugin_skills_for_config(&test_maplecode, &test_maplecode.config).await;
@@ -1738,7 +1738,7 @@ enabled = true
                 test_maplecode.thread_manager.auth_manager().reload().await;
                 Some(AuthMode::BedrockApiKey)
             }
-            TargetAuth::NoMapleCodeAuth => {
+            TargetAuth::NoMaplecodeAuth => {
                 test_maplecode
                     .thread_manager
                     .auth_manager()
@@ -1822,7 +1822,7 @@ async fn curated_agent_plugin_app_routing_reaches_turns(apps_enabled: bool) -> R
     )?;
     let mut builder = test_maplecode()
         .with_home(maplecode_home)
-        .with_auth(MapleCodeAuth::create_dummy_chatgpt_auth_for_testing())
+        .with_auth(MaplecodeAuth::create_dummy_chatgpt_auth_for_testing())
         .with_config(move |config| {
             config
                 .features
@@ -1862,7 +1862,7 @@ async fn curated_agent_plugin_app_routing_reaches_turns(apps_enabled: bool) -> R
         .await
         .expect("recorded app endpoint requests")
         .iter()
-        .any(|request| request.url.path().trim_end_matches('/') == "/api/maplecode/ps/mcp");
+        .any(|request| request.url.path().trim_end_matches('/') == "/api/codex/ps/mcp");
     assert_eq!(apps_connected, apps_enabled);
     Ok(())
 }
@@ -2179,7 +2179,7 @@ async fn explicitly_requested_mcp_waits_for_startup(request: ExplicitMcpRequest)
 
     let mut builder = test_maplecode()
         .with_home(maplecode_home)
-        .with_auth(MapleCodeAuth::from_api_key("Test API Key"))
+        .with_auth(MaplecodeAuth::from_api_key("Test API Key"))
         .with_config(move |config| {
             config
                 .features
@@ -2452,7 +2452,7 @@ async fn wait_for_analytics_event(server: &MockServer, event_type: &str) -> serd
         let requests = server.received_requests().await.unwrap_or_default();
         if let Some(event) = requests
             .into_iter()
-            .filter(|request| request.url.path() == "/maplecode/analytics-events/events")
+            .filter(|request| request.url.path() == "/codex/analytics-events/events")
             .find_map(|request| {
                 let payload: serde_json::Value = serde_json::from_slice(&request.body).ok()?;
                 payload["events"].as_array().and_then(|events| {
