@@ -14,7 +14,7 @@ const LOCAL_AGENTS_MD_FILENAME: &str = "AGENTS.override.md";
 
 /// Loads user instructions from a Maple Code home directory.
 #[derive(Clone, Debug)]
-pub struct MapleCodeHomeUserInstructionsProvider {
+pub struct MaplecodeHomeUserInstructionsProvider {
     maplecode_home: AbsolutePathBuf,
     // Cached instructions and warning history are shared across provider clones.
     state: Arc<Mutex<InstructionsState>>,
@@ -28,7 +28,7 @@ struct InstructionsState {
     active_warnings: HashSet<String>,
 }
 
-impl MapleCodeHomeUserInstructionsProvider {
+impl MaplecodeHomeUserInstructionsProvider {
     /// Creates a provider rooted at the supplied absolute Maple Code home directory.
     pub fn new(maplecode_home: AbsolutePathBuf) -> Self {
         Self {
@@ -84,7 +84,7 @@ impl MapleCodeHomeUserInstructionsProvider {
     }
 }
 
-impl UserInstructionsProvider for MapleCodeHomeUserInstructionsProvider {
+impl UserInstructionsProvider for MaplecodeHomeUserInstructionsProvider {
     fn load_user_instructions(&self) -> LoadInstructionsFuture<'_> {
         Box::pin(async move {
             let mut loaded = self.load_from_maplecode_home().await;

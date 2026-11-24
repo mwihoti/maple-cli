@@ -10,10 +10,10 @@ use tempfile::TempDir;
 
 use super::DEFAULT_AGENTS_MD_FILENAME;
 use super::LOCAL_AGENTS_MD_FILENAME;
-use super::MapleCodeHomeUserInstructionsProvider;
+use super::MaplecodeHomeUserInstructionsProvider;
 
-fn provider(home: &TempDir) -> MapleCodeHomeUserInstructionsProvider {
-    MapleCodeHomeUserInstructionsProvider::new(
+fn provider(home: &TempDir) -> MaplecodeHomeUserInstructionsProvider {
+    MaplecodeHomeUserInstructionsProvider::new(
         AbsolutePathBuf::try_from(home.path().to_path_buf()).expect("absolute temp dir"),
     )
 }

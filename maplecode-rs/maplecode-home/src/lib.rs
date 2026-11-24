@@ -1,3 +1,3 @@
 mod instructions;
 
-pub use instructions::MapleCodeHomeUserInstructionsProvider;
+pub use instructions::MaplecodeHomeUserInstructionsProvider;
